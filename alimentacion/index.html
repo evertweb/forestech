@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🍽️ Liquidación de Comidas Multi-Cliente (v2.8)</title>
+  <title>🍽️ Liquidación de Comidas Multi-Cliente (v2.9)</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"; // Corrected this import
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, doc, getDoc, deleteDoc, onSnapshot, query, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -987,6 +987,24 @@
   let allSettlements = []; // To store all fetched settlements for filtering
 
   // --- AUTHENTICATION FUNCTIONS ---
+
+  /**
+   * Displays authentication messages to the user for the general welcome screen.
+   * @param {string} message - The message to display.
+   * @param {boolean} isError - True if it's an error message.
+   */
+  function setAuthMessage(message, isError = false) {
+    const authMessageEl = document.getElementById('authMessage');
+    if (authMessageEl) {
+      authMessageEl.textContent = message;
+      authMessageEl.style.color = isError ? '#e74c3c' : '#2ecc71'; // Red for error, green for success
+      // In dark mode, adjust colors
+      if (document.body.classList.contains('dark-mode')) {
+        authMessageEl.style.color = isError ? '#ff5a5a' : '#90ee90';
+      }
+    }
+  }
+
 
   /**
    * Shows the welcome screen and hides other content.
@@ -2428,7 +2446,8 @@
     }
 
     const selectMoneda = document.getElementById('moneda');
-    const selectedOptionMoneda = selectMoneda?.options[selectMonenca.selectedIndex]; // Use optional chaining
+    // Corrected typo here: selectMonenca -> selectMoneda
+    const selectedOptionMoneda = selectMoneda?.options[selectMoneda.selectedIndex]; // Use optional chaining
     const locale = selectedOptionMoneda?.dataset.locale || 'es-CO'; // Fallback
     const currency = selectMoneda?.value || 'COP'; // Fallback
     const formato = getCurrencyFormat(locale, currency);
