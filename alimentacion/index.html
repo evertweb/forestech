@@ -1,0 +1,3017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍽️ Liquidación de Comidas Multi-Cliente (v2.5)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc, deleteDoc, onSnapshot, query, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global variables for Firebase access
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4",
+      authDomain: "liquidacionapp-62962.firebaseapp.com",
+      projectId: "liquidacionapp-62962",
+      storageBucket: "liquidacionapp-62962.firebasestorage.app",
+      messagingSenderId: "851382130132",
+      appId: "1:851382130132:web:eaba38fab449f14fb5b241"
+    };
+
+    // Initialize Firebase
+    // These will be initialized in DOMContentLoaded
+    let app, db, auth;
+
+    // Expose Firebase objects globally for the application logic
+    window.firebaseGlobals = {
+      appId: typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.appId, // Use __app_id from Canvas if available
+      firebaseConfig: firebaseConfig,
+      initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null, // Use __initial_auth_token from Canvas if available
+      db: null, // Will be set after initialization
+      auth: null, // Will be set after initialization
+      userId: null,
+      isAuthReady: false
+    };
+
+    // Expose individual Firebase functions globally for use in the main script
+    window.initializeApp = initializeApp;
+    window.getAuth = getAuth;
+    window.signInAnonymously = signInAnonymously;
+    window.signInWithCustomToken = signInWithCustomToken;
+    window.onAuthStateChanged = onAuthStateChanged;
+    window.getFirestore = getFirestore;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.getDocs = getDocs;
+    window.doc = doc;
+    window.getDoc = getDoc;
+    window.deleteDoc = deleteDoc;
+    window.onSnapshot = onSnapshot;
+    window.query = query;
+    window.setDoc = setDoc; // SetDoc is needed for saving currentConfig and templates
+  </script>
+  <style>
+    /* Estilos Generales */
+    :root {
+      --bg-gradient-start: #667eea;
+      --bg-gradient-end: #764ba2;
+      --header-gradient-start: #ff6b6b;
+      --header-gradient-end: #feca57;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-color: #333;
+      --text-muted-color: #7f8c8d;
+      --border-color: #e1e8ed;
+      --input-bg: #f8f9fa;
+      --focus-border-color: #3498db;
+      --section-title-color: #2c3e50;
+      --main-button-start: #667eea;
+      --main-button-end: #764ba2;
+      --modal-bg: rgba(0, 0, 0, 0.5);
+      --modal-content-bg: #fff;
+    }
+
+    body.dark-mode {
+      --bg-gradient-start: #1D2B64;
+      --bg-gradient-end: #000000;
+      --header-gradient-start: #485563;
+      --header-gradient-end: #29323c;
+      --card-bg: rgba(45, 57, 75, 0.95);
+      --text-color: #EAEAEA;
+      --text-muted-color: #a0a0a0;
+      --border-color: #4a5568;
+      --input-bg: #2d3748;
+      --focus-border-color: #4299e1;
+      --section-title-color: #EAEAEA;
+      --main-button-start: #3a7bd5;
+      --main-button-end: #3a6073;
+      --modal-content-bg: #2d3748;
+    }
+
+    /* Reseteo y Estilos Base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text-color);
+      transition: background 0.5s ease;
+    }
+
+    /* Contenedor Principal */
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Encabezado */
+    .header {
+      background: linear-gradient(135deg, var(--header-gradient-start), var(--header-gradient-end));
+      padding: 20px 30px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Contenido Principal (Grid) */
+    .content {
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 30px;
+    }
+
+    /* Secciones de Entrada y Resultados */
+    .input-section, .results-section {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    .results-section { min-height: 600px; }
+
+    /* Grupos de Entrada */
+    .input-group { margin-bottom: 20px; position: relative; }
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--section-title-color);
+      font-size: 1em;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .input-wrapper input,
+    .input-group input[type="text"],
+    .input-group input[type="number"],
+    .input-group input[type="month"],
+    .input-group select,
+    .input-group textarea {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
+    .input-wrapper input:focus,
+    .input-group input:focus,
+    .input-group select:focus,
+    .input-group textarea:focus {
+      outline: none;
+      border-color: var(--focus-border-color);
+      background: var(--card-bg);
+      box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+    }
+    /* Validación de Input */
+    .input-group input:invalid:not(:placeholder-shown),
+    .input-group textarea:invalid:not(:placeholder-shown) {
+      border-color: #e74c3c; /* Red border for invalid input */
+    }
+
+
+    /* Estilos específicos para grupos de cliente/deducción */
+    .client-input-group, .deduction-input-group {
+      background: #f0f4f8;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #d1d9e6;
+    }
+    body.dark-mode .client-input-group,
+    body.dark-mode .deduction-input-group {
+      background: #1a202c;
+      border-color: #2d3748;
+    }
+    .client-header, .deduction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .client-header h4, .deduction-header h4 {
+      color: #34495e;
+      font-size: 1.1em;
+    }
+    body.dark-mode .client-header h4,
+    body.dark-mode .deduction-header h4 {
+      color: #EAEAEA;
+    }
+
+    /* Botones de remover */
+    .remove-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    .remove-btn:hover { background-color: #c0392b; }
+
+    /* Botones de contador (más/menos) */
+    .counter-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.3em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: white;
+    }
+    .counter-btn.minus { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+    .counter-btn.plus { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+    .counter-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Botones principales y secundarios */
+    .main-button, .secondary-button {
+      width: 100%;
+      padding: 15px;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+    }
+    .main-button { background: linear-gradient(135deg, var(--main-button-start), var(--main-button-end)); }
+    .main-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    .main-button.processing {
+      background: linear-gradient(135deg, #feca57, #ff9ff3);
+      animation: pulse 1.5s infinite;
+    }
+    .secondary-button { background: linear-gradient(135deg, #56ab2f, #a8e063); margin-top: 10px;}
+    .secondary-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(86,171,47,0.3);
+    }
+
+    /* Contenedores de Gráficos */
+    .chart-container { margin: 20px 0; height: 250px; position: relative; }
+
+    /* Tarjetas de Resumen */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .summary-card {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+    .summary-card.show { transform: translateY(0); opacity: 1; }
+    .summary-card h3 { font-size: 1em; margin-bottom: 5px; }
+    .summary-card .amount { font-size: 1.3em; font-weight: bold; }
+
+    /* Secciones de Resultados Detallados */
+    .detailed-results-container, .mariella-settlement-section { margin-top: 20px; }
+    .section-title {
+      font-size: 1.4em;
+      color: var(--section-title-color);
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid var(--main-button-start);
+    }
+    .client-breakdown, .person-deductions {
+      background: var(--input-bg);
+      padding: 18px;
+      border-radius: 12px;
+      border-left: 5px solid #3498db;
+      margin-bottom: 18px;
+      transform: translateX(-20px);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+    .client-breakdown.show, .person-deductions.show { transform: translateX(0); opacity: 1; }
+    .person-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: var(--section-title-color);
+    }
+
+    /* Items de Deducción/Detalle */
+    .deduction-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px dashed var(--border-color);
+      font-size: 0.9em;
+    }
+    .deduction-item:last-child { border-bottom: none; }
+    .deduction-item .label { color: #555; }
+    body.dark-mode .deduction-item .label { color: #bbb; }
+    .deduction-item .value { font-weight: 600; color: #333; }
+    body.dark-mode .deduction-item .value { color: #eee; }
+    .deduction-item .subtotal { font-weight: bold; color: #16a085; }
+    .deduction-item .final-value { font-weight: bold; font-size: 1.05em; color: #27ae60; }
+
+    /* Botones de Acción Global */
+    .reset-btn, .download-btn, .csv-btn, .save-current-btn {
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+    .reset-btn { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; }
+    .download-btn { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+    .csv-btn { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+    .save-current-btn { background: linear-gradient(135deg, #f39c12, #f1c40f); color: white; } /* New save button style */
+
+    .download-btn:disabled, .csv-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Selector de Tema */
+    .theme-switcher {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-size: 1.2em;
+    }
+    .theme-switcher span { padding: 0 5px; }
+
+    /* Fila de Input de Deducción */
+    .deduction-input-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 120px 120px; /* Added column for category */
+      gap: 10px;
+      align-items: center;
+    }
+    .deduction-input-row select.deduction-category { /* Style for new category select */
+      padding: 12px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 1em;
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
+
+
+    /* Acciones por Cliente (PDF Individual) */
+    .client-breakdown-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .client-download-btn {
+      background: linear-gradient(135deg, #2ecc71, #1abc9c);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .client-download-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+    }
+
+    /* Estilos del Modal Personalizado */
+    .modal {
+      display: none; /* Oculto por defecto */
+      position: fixed; /* Posición fija */
+      z-index: 1000; /* Siempre en la parte superior */
+      left: 0;
+      top: 0;
+      width: 100%; /* Ancho completo */
+      height: 100%; /* Alto completo */
+      overflow: auto; /* Habilitar scroll si es necesario */
+      background-color: var(--modal-bg); /* Fondo oscuro con opacidad */
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: var(--modal-content-bg);
+      margin: auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative;
+      color: var(--text-color);
+    }
+
+    .modal-close-button {
+      color: var(--text-muted-color);
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-close-button:hover,
+    .modal-close-button:focus {
+      color: var(--text-color);
+      text-decoration: none;
+    }
+
+    .modal h3 {
+      margin-bottom: 15px;
+      color: var(--section-title-color);
+    }
+
+    .modal p {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+
+    .modal button {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      margin: 0 5px; /* Espacio entre botones del modal */
+    }
+
+    .modal button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+
+    /* Historial de Liquidaciones */
+    .history-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .history-search-filter {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-grow: 1;
+      max-width: 100%;
+    }
+
+    .history-search-filter input {
+      flex-grow: 1;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--input-bg);
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .history-item-info {
+      flex-grow: 1;
+      color: var(--text-color);
+    }
+    .history-item-actions button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8em;
+      cursor: pointer;
+      border: none;
+      color: white;
+    }
+    .history-load-btn { background-color: #28a745; }
+    .history-load-btn:hover { background-color: #218838; }
+    .history-delete-btn { background-color: #dc3545; }
+    .history-delete-btn:hover { background-color: #c82333; }
+
+    /* Acciones de Plantillas de Deducción */
+    .deduction-template-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    .deduction-template-actions button, .deduction-template-actions select {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--input-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .deduction-template-actions button:hover {
+      background: var(--focus-border-color);
+      color: white;
+    }
+    /* Drag and Drop Styling */
+    .client-input-group.dragging, .deduction-input-group.dragging {
+      opacity: 0.5;
+      border: 2px dashed var(--focus-border-color);
+    }
+    /* Range slider for PDF font sizes */
+    .range-slider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .range-slider label {
+      min-width: 120px; /* Adjust as needed */
+    }
+    .range-slider input[type="range"] {
+      flex-grow: 1;
+      -webkit-appearance: none;
+      height: 8px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+      border-radius: 5px;
+    }
+    .range-slider input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--main-button-start);
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .range-slider input[type="range"]::-webkit-slider-thumb:hover {
+      background: var(--main-button-end);
+    }
+    .range-slider .value-display {
+      min-width: 30px;
+      text-align: right;
+      font-weight: bold;
+    }
+
+    /* Media Queries para Responsividad */
+    @media (max-width: 992px) {
+      .content { grid-template-columns: 1fr; }
+      .history-search-filter { flex-direction: column; }
+    }
+    @media (max-width: 768px) {
+      .summary-cards, .summary-grid { grid-template-columns: 1fr; }
+      .deduction-input-row { grid-template-columns: 1fr; }
+      .history-section-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="theme-switcher" onclick="toggleTheme()">
+      <span class="light-icon">☀️</span>
+      <span class="dark-icon">🌙</span>
+    </div>
+    <div style="position: absolute; top: 15px; left: 20px;">
+      <div id="userIdDisplay" style="color: white; font-size: 0.7em; margin-top: 5px;"></div>
+    </div>
+    <h1 id="appTitle">🍽️ Liquidación de Comidas Multi-Cliente 💰</h1>
+    <p id="headerSubtitle">Sistema interactivo para facturación a múltiples clientes</p>
+  </div>
+
+  <div class="content">
+    <div class="input-section">
+      <h2 id="generalDataTitle">📊 Datos Generales y Clientes</h2>
+
+      <div class="input-group">
+        <label for="nombreMariella" id="labelNombreFacturador">👩‍🍳 Nombre del Facturador:</label>
+        <input type="text" id="nombreMariella" value="Doña Mariella" oninput="onInputChange()" required>
+      </div>
+      <div class="input-group">
+        <label for="facturadorDireccion" id="labelDireccionFacturador">📍 Dirección del Facturador:</label>
+        <input type="text" id="facturadorDireccion" oninput="onInputChange()" placeholder="Ej: Calle 123 #45-67">
+      </div>
+      <div class="input-group">
+        <label for="facturadorContacto" id="labelContactoFacturador">📞 Contacto del Facturador (Email/Teléfono):</label>
+        <input type="text" id="facturadorContacto" oninput="onInputChange()" placeholder="Ej: email@ejemplo.com / +57 300 123 4567">
+      </div>
+      <div class="input-group">
+        <label for="invoiceNumber" id="labelInvoiceNumber">#️⃣ Número de Factura:</label>
+        <input type="text" id="invoiceNumber" oninput="onInputChange()" placeholder="Opcional: Ej. FAC-2023-001">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="input-group">
+          <label for="mesServicio" id="labelMesServicio">📅 Mes del Servicio:</label>
+          <input type="month" id="mesServicio" name="mesServicio" onchange="onInputChange()">
+        </div>
+        <div class="input-group">
+          <label for="moneda" id="labelMoneda">💵 Moneda:</label>
+          <select id="moneda" onchange="onInputChange()">
+            <option value="COP" data-locale="es-CO">Peso Colombiano (COP)</option>
+            <option value="USD" data-locale="en-US">Dólar Americano (USD)</option>
+            <option value="EUR" data-locale="es-ES">Euro (EUR)</option>
+            <option value="MXN" data-locale="es-MX">Peso Mexicano (MXN)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="valorComida" id="labelValorComida">💰 Valor por Comida:</label>
+        <input type="number" id="valorComida" value="9000" min="0" step="100" oninput="onInputChange()" required>
+      </div>
+
+      <hr style="margin: 20px 0;">
+      <h3 id="deductionsTitle">💸 Deducciones del Facturador</h3>
+      <div class="deduction-template-actions">
+        <select id="deductionTemplateSelect" onchange="loadDeductionTemplate()">
+          <option value="" id="loadTemplateOption">Cargar Plantilla...</option>
+        </select>
+        <button onclick="saveDeductionTemplate()" id="saveTemplateBtn">💾 Guardar Actual</button>
+        <button onclick="deleteDeductionTemplate()" id="deleteTemplateBtn">🗑️ Eliminar</button>
+      </div>
+      <div id="deduccionesContainer" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+        <!-- Las deducciones se añadirán aquí -->
+      </div>
+      <button class="secondary-button" onclick="addDeduction()" id="addDeductionBtn">➕ Añadir Deducción</button>
+
+      <hr style="margin: 20px 0;">
+      <h3 id="clientsTitle">👤 Clientes</h3>
+      <div id="clientesContainer" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+        <!-- Los inputs de los clientes se añadirán aquí -->
+      </div>
+      <button class="secondary-button" onclick="addClient()" id="addClientBtn">➕ Añadir Cliente</button>
+
+      <hr style="margin: 20px 0;">
+      <h3 id="pdfCustomizationTitle">📄 Personalización PDF</h3>
+      <div class="input-group">
+        <label for="logoInput" id="labelUploadLogo">🖼️ Subir Logo (opcional):</label>
+        <input type="file" id="logoInput" accept="image/png, image/jpeg" onchange="handleLogoUpload(event)">
+      </div>
+      <div class="input-group">
+        <label for="signatureInput" id="labelUploadSignature">✍️ Subir Firma/Sello (opcional):</label>
+        <input type="file" id="signatureInput" accept="image/png, image/jpeg" onchange="handleSignatureUpload(event)">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="input-group">
+          <label for="signatureX" id="labelSignatureX">Posición X Firma (mm):</label>
+          <input type="number" id="signatureX" value="150" min="0" step="1" oninput="onInputChange()">
+        </div>
+        <div class="input-group">
+          <label for="signatureY" id="labelSignatureY">Posición Y Firma (mm):</label>
+          <input type="number" id="signatureY" value="250" min="0" step="1" oninput="onInputChange()">
+        </div>
+        <div class="input-group">
+          <label for="signatureWidth" id="labelSignatureWidth">Ancho Firma (mm):</label>
+          <input type="number" id="signatureWidth" value="50" min="10" step="1" oninput="onInputChange()">
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="pdfNotes" id="labelPdfNotes">📝 Notas para el PDF (opcional):</label>
+        <textarea id="pdfNotes" rows="3" oninput="onInputChange()"></textarea>
+      </div>
+      <div class="input-group">
+        <label for="pdfOrientation" id="labelPdfOrientation">↕️ Orientación del PDF:</label>
+        <select id="pdfOrientation" onchange="onInputChange()">
+          <option value="p" id="optionPortrait">Vertical (Portrait)</option>
+          <option value="l" id="optionLandscape">Horizontal (Landscape)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="pdfMargin" id="labelPdfMargin">📏 Márgen del PDF (mm):</label>
+        <input type="number" id="pdfMargin" value="15" min="5" step="1" oninput="onInputChange()">
+      </div>
+      <div class="input-group">
+        <label for="pdfFont" id="labelPdfFont">🅰️ Fuente del PDF:</label>
+        <select id="pdfFont" onchange="onInputChange()">
+          <option value="helvetica">Helvetica</option>
+          <option value="times">Times</option>
+          <option value="courier">Courier</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="pdfStyle" id="labelPdfStyle">✨ Estilo del PDF:</label>
+        <select id="pdfStyle" onchange="onInputChange()">
+          <option value="standard" id="optionStandard">Estándar</option>
+          <option value="compact" id="optionCompact">Compacto</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="pdfHeaderColor" id="labelPdfHeaderColor">🎨 Color del Encabezado PDF:</label>
+        <input type="color" id="pdfHeaderColor" value="#667eea" oninput="onInputChange()">
+      </div>
+      <div class="input-group">
+        <label for="pdfLineColor" id="labelPdfLineColor">🌈 Color de Línea PDF:</label>
+        <input type="color" id="pdfLineColor" value="#e1e8ed" oninput="onInputChange()">
+      </div>
+
+      <div class="range-slider">
+        <label for="baseFontSize" id="labelBaseFontSize">Tamaño Fuente Base:</label>
+        <input type="range" id="baseFontSize" min="6" max="14" value="10" step="0.5" oninput="updateFontSizeDisplay('baseFontSize')">
+        <span id="baseFontSizeValue" class="value-display">10</span>
+      </div>
+      <div class="range-slider">
+        <label for="titleFontSize" id="labelTitleFontSize">Tamaño Fuente Título:</label>
+        <input type="range" id="titleFontSize" min="14" max="24" value="18" step="0.5" oninput="updateFontSizeDisplay('titleFontSize')">
+        <span id="titleFontSizeValue" class="value-display">18</span>
+      </div>
+      <div class="range-slider">
+        <label for="sectionTitleFontSize" id="labelSectionTitleFontSize">Tamaño Fuente Sección:</label>
+        <input type="range" id="sectionTitleFontSize" min="10" max="18" value="12" step="0.5" oninput="updateFontSizeDisplay('sectionTitleFontSize')">
+        <span id="sectionTitleFontSizeValue" class="value-display">12</span>
+      </div>
+
+
+      <button id="procesarBtn" class="main-button" onclick="procesarDatos()">
+        🚀 Calcular Liquidación
+      </button>
+
+      <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+        <button class="reset-btn" onclick="reiniciar()" id="resetBtn">🔄 Reiniciar</button>
+        <button class="save-current-btn" onclick="saveCurrentState()" id="saveCurrentStateBtn">💾 Guardar Actual</button>
+        <button id="downloadBtn" class="download-btn" onclick="descargarPDF()" disabled>📄 Descargar PDF General</button>
+        <button id="csvBtn" class="csv-btn" onclick="descargarCSV()" disabled>📈 Exportar CSV</button>
+      </div>
+
+      <hr style="margin: 20px 0;">
+      <div class="history-section-header">
+        <h3 id="historyTitle">⏳ Historial de Liquidaciones</h3>
+        <div class="history-search-filter">
+          <input type="text" id="historySearch" oninput="filterHistory()" placeholder="Buscar historial (nombre/mes)...">
+        </div>
+      </div>
+      <div id="historyContainer">
+        <p style="text-align: center; color: var(--text-muted-color);" id="noHistoryMessage">No hay liquidaciones guardadas.</p>
+      </div>
+    </div>
+
+    <div class="results-section">
+      <h2 id="resultsTitle">📈 Resultados de Liquidación</h2>
+      <div id="resultado">
+        <div style="text-align: center; padding: 50px; color: var(--text-muted-color);">
+          <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
+          <p id="initialMessage">Configura los datos y añade clientes, luego presiona calcular.</p>
+        </div>
+      </div>
+      <div class="chart-container" style="height: 300px;"><canvas id="incomeTrendChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- Estructura del Modal Personalizado -->
+<div id="customModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close-button" onclick="closeModal()">&times;</span>
+    <h3 id="modalTitle"></h3>
+    <p id="modalMessage"></p>
+    <button class="modal-single-btn" onclick="closeModal()" id="modalOkBtn">Entendido</button>
+    <button class="modal-confirm-btn" onclick="handleModalConfirmation()" id="modalConfirmBtn">Confirmar</button>
+    <button class="modal-cancel-btn" onclick="closeModal()" id="modalCancelBtn">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  // Global variables for Chart.js and data
+  let chartInstance = null;
+  let clientBarChartInstance = null; // Instance for the new client bar chart
+  let incomeTrendChartInstance = null; // Instance for the income trend chart
+  let deductionCategoryChartInstance = null; // Instance for the deduction categories chart
+
+  let datosCalculados = null; // Stores the current settlement data
+  let clientCounter = 0; // Counter for unique client IDs
+  let deductionCounter = 0; // Counter for unique deduction IDs
+  let logoBase64 = null; // Stores the uploaded logo in base64
+  let signatureBase64 = null; // Stores the uploaded signature/stamp in base64
+
+  // Callback for modal confirmation action
+  let confirmActionCallback = null;
+
+  // Variables for Drag & Drop
+  let draggedItem = null;
+
+  let allSettlements = []; // To store all fetched settlements for filtering
+
+  // --- INITIALIZATION AND STATE MANAGEMENT FUNCTIONS ---
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize Firebase
+    if (Object.keys(window.firebaseGlobals.firebaseConfig).length > 0) {
+      app = window.initializeApp(window.firebaseGlobals.firebaseConfig);
+      db = window.getFirestore(app);
+      auth = window.getAuth(app);
+      window.firebaseGlobals.db = db; // Assign to global object
+      window.firebaseGlobals.auth = auth; // Assign to global object
+
+      window.onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          window.firebaseGlobals.userId = user.uid;
+          console.log("Authenticated as:", window.firebaseGlobals.userId);
+        } else {
+          try {
+            if (window.firebaseGlobals.initialAuthToken) {
+              await window.signInWithCustomToken(auth, window.firebaseGlobals.initialAuthToken);
+            } else {
+              await window.signInAnonymously(auth);
+            }
+          } catch (error) {
+            console.error("Firebase authentication error:", error);
+            showMessage("Error de Autenticación", "No se pudo autenticar con Firebase. Algunas funciones podrían no estar disponibles.");
+            window.firebaseGlobals.userId = crypto.randomUUID(); // Fallback to a random ID
+          }
+        }
+        // This block runs after initial auth state is determined
+        document.getElementById('userIdDisplay').textContent = `User ID: ${window.firebaseGlobals.userId}`;
+        window.firebaseGlobals.isAuthReady = true;
+
+        // Now that authentication is ready, load everything that depends on it
+        // Set default service month to current month if none is saved
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        if (!document.getElementById('mesServicio')?.value) { // Use optional chaining
+          const mesServicioInput = document.getElementById('mesServicio');
+          if (mesServicioInput) mesServicioInput.value = `${year}-${month}`;
+        }
+        if (clientCounter === 0) addClient();
+        if (deductionCounter === 0) {
+          addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+          addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+        }
+
+        actualizarEnTiempoReal();
+        actualizarNombresClientesYDeducciones(); // Update labels after initial setup and before loading state
+        loadState();
+        loadDeductionTemplatesList();
+        loadSettlementHistory(); // This already uses onSnapshot, so it will update itself
+
+        // Initialize font size displays
+        updateFontSizeDisplay('baseFontSize');
+        updateFontSizeDisplay('titleFontSize');
+        updateFontSizeDisplay('sectionTitleFontSize');
+      });
+    } else {
+      console.warn("Firebase config not found. Running in local storage mode.");
+      window.firebaseGlobals.userId = crypto.randomUUID(); // Generate a random ID for local storage mode
+      document.getElementById('userIdDisplay').textContent = `User ID (Local): ${window.firebaseGlobals.userId}`;
+      window.firebaseGlobals.isAuthReady = true; // Consider ready if no Firebase
+
+      // Set default service month to current month if none is saved
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      if (!document.getElementById('mesServicio')?.value) { // Use optional chaining
+        const mesServicioInput = document.getElementById('mesServicio');
+        if (mesServicioInput) mesServicioInput.value = `${year}-${month}`;
+      }
+      if (clientCounter === 0) addClient();
+      if (deductionCounter === 0) {
+        addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+        addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+      }
+
+      actualizarEnTiempoReal();
+      actualizarNombresClientesYDeducciones(); // Update labels after initial setup and before loading state
+      loadState();
+      loadDeductionTemplatesList();
+      loadSettlementHistory();
+      // Initialize font size displays
+      updateFontSizeDisplay('baseFontSize');
+      updateFontSizeDisplay('titleFontSize');
+      updateFontSizeDisplay('sectionTitleFontSize');
+    }
+  });
+
+  /**
+   * Called every time an input changes to update state and save.
+   */
+  function onInputChange() {
+    actualizarEnTiempoReal();
+    saveState();
+  }
+
+  /**
+   * Saves the current state of all inputs and configurations to localStorage or Firestore.
+   */
+  async function saveState() {
+    const clients = [];
+    document.querySelectorAll('#clientesContainer .client-input-group').forEach(group => {
+      clients.push({
+        name: group.querySelector('input[type="text"]').value,
+        meals: group.querySelector('input[type="number"]').value,
+      });
+    });
+
+    const deductions = [];
+    document.querySelectorAll('#deduccionesContainer .deduction-input-group').forEach(group => {
+      deductions.push({
+        name: group.querySelector('.deduction-name').value,
+        type: group.querySelector('.deduction-type').value,
+        value: group.querySelector('.deduction-value').value,
+        category: group.querySelector('.deduction-category').value
+      });
+    });
+
+    const state = {
+      nombreMariella: document.getElementById('nombreMariella').value,
+      facturadorDireccion: document.getElementById('facturadorDireccion').value,
+      facturadorContacto: document.getElementById('facturadorContacto').value,
+      invoiceNumber: document.getElementById('invoiceNumber').value, // New: Invoice Number
+      mesServicio: document.getElementById('mesServicio').value,
+      valorComida: document.getElementById('valorComida').value,
+      moneda: document.getElementById('moneda').value,
+      pdfNotes: document.getElementById('pdfNotes').value,
+      pdfOrientation: document.getElementById('pdfOrientation').value,
+      pdfMargin: document.getElementById('pdfMargin').value,
+      pdfFont: document.getElementById('pdfFont').value,
+      pdfStyle: document.getElementById('pdfStyle').value,
+      pdfHeaderColor: document.getElementById('pdfHeaderColor').value, // New: PDF Header Color
+      pdfLineColor: document.getElementById('pdfLineColor').value,     // New: PDF Line Color
+      baseFontSize: document.getElementById('baseFontSize').value,       // New: Base Font Size
+      titleFontSize: document.getElementById('titleFontSize').value,     // New: Title Font Size
+      sectionTitleFontSize: document.getElementById('sectionTitleFontSize').value, // New: Section Title Font Size
+      signatureX: document.getElementById('signatureX').value,
+      signatureY: document.getElementById('signatureY').value,
+      signatureWidth: document.getElementById('signatureWidth').value,
+      clients: clients,
+      deductions: deductions,
+      theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+      logoBase64: logoBase64,
+      signatureBase64: signatureBase64
+    };
+
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
+        await window.setDoc(docRef, state);
+      } catch (e) {
+        console.error("Error saving state to Firestore: ", e);
+        // Fallback to local storage on Firestore error
+        localStorage.setItem('liquidacionState', JSON.stringify(state));
+      }
+    } else {
+      localStorage.setItem('liquidacionState', JSON.stringify(state));
+    }
+  }
+
+  /**
+   * Loads the saved state from localStorage or Firestore and updates the interface.
+   * @param {object|null} stateToLoad - Optional. A state object to load. If not null, this state is loaded instead of from storage.
+   */
+  async function loadState(stateToLoad = null) {
+    let state = stateToLoad;
+
+    if (!state && window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
+        const docSnap = await window.getDoc(docRef);
+        if (docSnap.exists()) {
+          state = docSnap.data();
+        } else {
+          console.log("No current config found in Firestore. Checking localStorage.");
+          state = JSON.parse(localStorage.getItem('liquidacionState'));
+        }
+      } catch (e) {
+        console.error("Error loading state from Firestore: ", e);
+        state = JSON.parse(localStorage.getItem('liquidacionState'));
+      }
+    } else if (!state) {
+      state = JSON.parse(localStorage.getItem('liquidacionState'));
+    }
+
+    const setDefaultValues = () => {
+      // Use direct default string for initial setup
+      const nombreMariellaInput = document.getElementById('nombreMariella');
+      if (nombreMariellaInput) nombreMariellaInput.value = "Doña Mariella";
+
+      const facturadorDireccionInput = document.getElementById('facturadorDireccion');
+      if (facturadorDireccionInput) facturadorDireccionInput.value = '';
+
+      const facturadorContactoInput = document.getElementById('facturadorContacto');
+      if (facturadorContactoInput) facturadorContactoInput.value = '';
+
+      const invoiceNumberInput = document.getElementById('invoiceNumber');
+      if (invoiceNumberInput) invoiceNumberInput.value = '';
+
+      const mesServicioInput = document.getElementById('mesServicio');
+      if (mesServicioInput) mesServicioInput.value = '';
+
+      const valorComidaInput = document.getElementById('valorComida');
+      if (valorComidaInput) valorComidaInput.value = 9000;
+
+      const monedaSelect = document.getElementById('moneda');
+      if (monedaSelect) monedaSelect.value = 'COP';
+
+      const pdfNotesTextarea = document.getElementById('pdfNotes');
+      if (pdfNotesTextarea) pdfNotesTextarea.value = '';
+
+      const pdfOrientationSelect = document.getElementById('pdfOrientation');
+      if (pdfOrientationSelect) pdfOrientationSelect.value = 'p';
+
+      const pdfMarginInput = document.getElementById('pdfMargin');
+      if (pdfMarginInput) pdfMarginInput.value = 15;
+
+      const pdfFontSelect = document.getElementById('pdfFont');
+      if (pdfFontSelect) pdfFontSelect.value = 'helvetica';
+
+      const pdfStyleSelect = document.getElementById('pdfStyle');
+      if (pdfStyleSelect) pdfStyleSelect.value = 'standard';
+
+      const pdfHeaderColorInput = document.getElementById('pdfHeaderColor');
+      if (pdfHeaderColorInput) pdfHeaderColorInput.value = '#667eea';
+
+      const pdfLineColorInput = document.getElementById('pdfLineColor');
+      if (pdfLineColorInput) pdfLineColorInput.value = '#e1e8ed';
+
+      const baseFontSizeInput = document.getElementById('baseFontSize');
+      if (baseFontSizeInput) baseFontSizeInput.value = 10;
+
+      const titleFontSizeInput = document.getElementById('titleFontSize');
+      if (titleFontSizeInput) titleFontSizeInput.value = 18;
+
+      const sectionTitleFontSizeInput = document.getElementById('sectionTitleFontSize');
+      if (sectionTitleFontSizeInput) sectionTitleFontSizeInput.value = 12;
+
+      const signatureXInput = document.getElementById('signatureX');
+      if (signatureXInput) signatureXInput.value = 150;
+
+      const signatureYInput = document.getElementById('signatureY');
+      if (signatureYInput) signatureYInput.value = 250;
+
+      const signatureWidthInput = document.getElementById('signatureWidth');
+      if (signatureWidthInput) signatureWidthInput.value = 50;
+
+      document.body.classList.remove('dark-mode');
+      logoBase64 = null;
+      signatureBase64 = null;
+
+      const clientesContainer = document.getElementById('clientesContainer');
+      if (clientesContainer) clientesContainer.innerHTML = '';
+      clientCounter = 0;
+      addClient();
+
+      const deduccionesContainer = document.getElementById('deduccionesContainer');
+      if (deduccionesContainer) deduccionesContainer.innerHTML = '';
+      deductionCounter = 0;
+      addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+      addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+
+      actualizarEnTiempoReal();
+    };
+
+    if (!state) {
+      setDefaultValues();
+      return;
+    }
+
+    // Ensure elements exist before setting their values
+    const getVal = (id, defaultValue) => {
+      const el = document.getElementById(id);
+      if (el) return state[id] !== undefined ? state[id] : defaultValue;
+      return defaultValue;
+    };
+
+    document.getElementById('nombreMariella').value = getVal('nombreMariella', "Doña Mariella");
+    document.getElementById('facturadorDireccion').value = getVal('facturadorDireccion', '');
+    document.getElementById('facturadorContacto').value = getVal('facturadorContacto', '');
+    document.getElementById('invoiceNumber').value = getVal('invoiceNumber', '');
+    document.getElementById('mesServicio').value = getVal('mesServicio', '');
+    document.getElementById('valorComida').value = getVal('valorComida', 9000);
+    document.getElementById('moneda').value = getVal('moneda', 'COP');
+    document.getElementById('pdfNotes').value = getVal('pdfNotes', '');
+    document.getElementById('pdfOrientation').value = getVal('pdfOrientation', 'p');
+    document.getElementById('pdfMargin').value = getVal('pdfMargin', 15);
+    document.getElementById('pdfFont').value = getVal('pdfFont', 'helvetica');
+    document.getElementById('pdfStyle').value = getVal('pdfStyle', 'standard');
+    document.getElementById('pdfHeaderColor').value = getVal('pdfHeaderColor', '#667eea');
+    document.getElementById('pdfLineColor').value = getVal('pdfLineColor', '#e1e8ed');
+    document.getElementById('baseFontSize').value = getVal('baseFontSize', 10);
+    document.getElementById('titleFontSize').value = getVal('titleFontSize', 18);
+    document.getElementById('sectionTitleFontSize').value = getVal('sectionTitleFontSize', 12);
+    document.getElementById('signatureX').value = getVal('signatureX', 150);
+    document.getElementById('signatureY').value = getVal('signatureY', 250);
+    document.getElementById('signatureWidth').value = getVal('signatureWidth', 50);
+
+    if (state.theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+
+    logoBase64 = state.logoBase64 || null;
+    signatureBase64 = state.signatureBase64 || null;
+
+    document.getElementById('clientesContainer').innerHTML = '';
+    clientCounter = 0;
+    if (state.clients && state.clients.length > 0) {
+      state.clients.forEach(c => addClient(c.name, c.meals));
+    } else {
+      addClient();
+    }
+
+    document.getElementById('deduccionesContainer').innerHTML = '';
+    deductionCounter = 0;
+    if (state.deductions && state.deductions.length > 0) {
+      state.deductions.forEach(d => addDeduction(d.name, d.type, d.value, d.category));
+    } else {
+      addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+      addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+    }
+    actualizarEnTiempoReal();
+    updateFontSizeDisplay('baseFontSize');
+    updateFontSizeDisplay('titleFontSize');
+    updateFontSizeDisplay('sectionTitleFontSize');
+  }
+
+  /**
+   * Resets the application to its initial state by clearing localStorage and Firestore.
+   */
+  async function reiniciar() {
+    // Show confirmation modal instead of direct confirmation
+    showConfirmation(
+      "Reiniciar",
+      "¿Estás seguro de que quieres eliminar todos los datos (incluyendo historial y plantillas)? Esta acción es irreversible.",
+      async () => {
+        // Delete from Firestore if available
+        if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+          try {
+            const appId = window.firebaseGlobals.appId;
+            const userId = window.firebaseGlobals.userId;
+            const appStateDocRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
+            await window.deleteDoc(appStateDocRef);
+
+            const settlementsCollectionRef = window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`);
+            const settlementDocs = await window.getDocs(settlementsCollectionRef);
+            for (const doc of settlementDocs.docs) {
+              await window.deleteDoc(doc.ref);
+            }
+
+            const deductionTemplatesCollectionRef = window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/deductionTemplates`);
+            const templateDocs = await window.getDocs(deductionTemplatesCollectionRef);
+            for (const doc of templateDocs.docs) {
+              await window.deleteDoc(doc.ref);
+            }
+            console.log("Firestore data cleared.");
+          } catch (e) {
+            console.error("Error clearing Firestore data:", e);
+            showMessage("Error", "Hubo un problema al borrar los datos de la nube. Borrando datos locales.");
+          }
+        }
+
+        // Always clear local storage as a fallback/clean slate
+        localStorage.removeItem('liquidacionState');
+        localStorage.removeItem('deductionTemplates');
+        localStorage.removeItem('settlementHistory');
+
+        clientCounter = 0;
+        deductionCounter = 0;
+        logoBase64 = null;
+        signatureBase64 = null;
+        const logoInput = document.getElementById('logoInput');
+        if(logoInput) logoInput.value = '';
+        const signatureInput = document.getElementById('signatureInput');
+        if(signatureInput) signatureInput.value = '';
+        location.reload(); // Reload the page for a complete restart
+      }
+    );
+  }
+
+  /**
+   * Toggles between light and dark mode.
+   */
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    saveState();
+  }
+
+  /**
+   * Updates the displayed value next to the font size sliders.
+   * @param {string} sliderId - ID of the range input.
+   */
+  function updateFontSizeDisplay(sliderId) {
+    const slider = document.getElementById(sliderId);
+    const display = document.getElementById(sliderId + 'Value');
+    if (slider && display) {
+      display.textContent = slider.value;
+      onInputChange(); // Call onInputChange to save state whenever a slider changes
+    }
+  }
+
+
+  // --- CUSTOM MODAL FUNCTIONS ---
+
+  /**
+   * Shows an informative message in the custom modal.
+   * @param {string} title - Modal title.
+   * @param {string} message - Message to display.
+   */
+  function showMessage(title, message) {
+    const modalTitleEl = document.getElementById('modalTitle');
+    const modalMessageEl = document.getElementById('modalMessage');
+    const modal = document.getElementById('customModal');
+    const modalConfirmBtn = modal.querySelector('#modalConfirmBtn');
+    const modalCancelBtn = modal.querySelector('#modalCancelBtn');
+    const modalOkBtn = modal.querySelector('#modalOkBtn');
+
+    if (modalTitleEl) modalTitleEl.textContent = title;
+    if (modalMessageEl) modalMessageEl.textContent = message;
+
+    if (modalConfirmBtn) modalConfirmBtn.style.display = 'none'; // Hide confirmation button
+    if (modalCancelBtn) modalCancelBtn.style.display = 'none'; // Hide cancel button
+    if (modalOkBtn) modalOkBtn.style.display = 'inline-block'; // Show "Entendido" button
+    if (modal) modal.style.display = 'flex'; // Show the modal
+  }
+
+  /**
+   * Shows a modal with confirmation options (Yes/No).
+   * @param {string} title - Modal title.
+   * @param {string} message - Confirmation message.
+   * @param {Function} onConfirm - Callback to execute if the user confirms.
+   */
+  function showConfirmation(title, message, onConfirm) {
+    const modalTitleEl = document.getElementById('modalTitle');
+    const modalMessageEl = document.getElementById('modalMessage');
+    const modal = document.getElementById('customModal');
+    const modalOkBtn = modal.querySelector('#modalOkBtn');
+    const modalConfirmBtn = modal.querySelector('#modalConfirmBtn');
+    const modalCancelBtn = modal.querySelector('#modalCancelBtn');
+
+    if (modalTitleEl) modalTitleEl.textContent = title;
+    if (modalMessageEl) modalMessageEl.textContent = message;
+
+    if (modalOkBtn) modalOkBtn.style.display = 'none'; // Hide "Entendido" button
+    if (modalConfirmBtn) modalConfirmBtn.style.display = 'inline-block'; // Show confirmation button
+    if (modalCancelBtn) modalCancelBtn.style.display = 'inline-block'; // Show cancel button
+    if (modal) modal.style.display = 'flex'; // Show the modal
+    confirmActionCallback = onConfirm; // Store the callback for later execution
+  }
+
+  /**
+   * Hides the custom modal.
+   */
+  function closeModal() {
+    const modal = document.getElementById('customModal');
+    if (modal) modal.style.display = 'none';
+    confirmActionCallback = null; // Clear the callback when closing
+  }
+
+  /**
+   * Handles the modal confirmation action.
+   */
+  function handleModalConfirmation() {
+    if (confirmActionCallback) {
+      confirmActionCallback(); // Execute the stored callback
+    }
+    closeModal(); // Close the modal after the action
+  }
+
+  // --- CLIENT AND DEDUCTION LOGIC ---
+
+  /**
+   * Adds a new input group for a client.
+   * @param {string} name - Initial client name.
+   * @param {number} meals - Initial number of meals.
+   */
+  function addClient(name = '', meals = 0) {
+    clientCounter++;
+    const container = document.getElementById('clientesContainer');
+    if (!container) return; // Defensive check
+    const clientId = `client_${clientCounter}`;
+    const clientDiv = document.createElement('div');
+    clientDiv.className = 'client-input-group';
+    clientDiv.id = `clientGroup_${clientCounter}`;
+    clientDiv.draggable = true; // Enable dragging
+    clientDiv.addEventListener('dragstart', handleDragStart);
+    clientDiv.addEventListener('dragover', handleDragOver);
+    clientDiv.addEventListener('dragleave', handleDragLeave);
+    clientDiv.addEventListener('drop', handleDrop);
+    clientDiv.addEventListener('dragend', handleDragEnd);
+
+    clientDiv.innerHTML = `
+            <div class="client-header">
+                <h4>Cliente #${clientCounter}</h4>
+                ${clientCounter > 1 ? `<button class="remove-btn" onclick="removeGroup('clientGroup_${clientCounter}')">Eliminar</button>` : ''}
+            </div>
+            <div class="input-group">
+                <label for="nombre_${clientId}">Nombre del Cliente:</label>
+                <input type="text" id="nombre_${clientId}" value="${name}" placeholder="Ej: Jaider" oninput="onInputChange()" required>
+            </div>
+            <div class="input-group">
+                <label for="comidas_${clientId}">Comidas Facturadas:</label>
+                <div class="input-wrapper">
+                    <button class="counter-btn minus" onclick="cambiarValorComidasCliente('${clientId}', -1)">−</button>
+                    <input type="number" id="comidas_${clientId}" value="${meals}" min="0" oninput="onInputChange()">
+                    <button class="counter-btn plus" onclick="cambiarValorComidasCliente('${clientId}', 1)">+</button>
+                </div>
+            </div>`;
+    container.appendChild(clientDiv);
+    actualizarNombresClientesYDeducciones();
+  }
+
+  /**
+   * Adds a new input group for a deduction.
+   * @param {string} name - Initial deduction name.
+   * @param {string} type - Deduction type ('fixed' or 'percent').
+   * @param {number} value - Initial deduction value.
+   * @param {string} category - Deduction category.
+   */
+  function addDeduction(name = '', type = 'fixed', value = 0, category = '') {
+    deductionCounter++;
+    const container = document.getElementById('deduccionesContainer');
+    if (!container) return; // Defensive check
+    const deductionId = `deduction_${deductionCounter}`;
+    const deductionDiv = document.createElement('div');
+    deductionDiv.className = 'deduction-input-group';
+    deductionDiv.id = `deductionGroup_${deductionCounter}`;
+    deductionDiv.draggable = true; // Enable dragging
+    deductionDiv.addEventListener('dragstart', handleDragStart);
+    deductionDiv.addEventListener('dragover', handleDragOver);
+    deductionDiv.addEventListener('dragleave', handleDragLeave);
+    deductionDiv.addEventListener('drop', handleDrop);
+    deductionDiv.addEventListener('dragend', handleDragEnd);
+
+    const deductionCategoryOptions = {
+      '': 'Seleccionar...',
+      'Impuesto': 'Impuesto',
+      'Servicio': 'Servicio',
+      'Personal': 'Personal',
+      'Transporte': 'Transporte',
+      'Otros': 'Otros'
+    };
+
+    let categoryOptionsHtml = '';
+    for (const catKey in deductionCategoryOptions) {
+      categoryOptionsHtml += `<option value="${catKey}" ${category === catKey ? 'selected' : ''}>${deductionCategoryOptions[catKey]}</option>`;
+    }
+
+    deductionDiv.innerHTML = `
+            <div class="deduction-header">
+                <h4>Deducción #${deductionCounter}</h4>
+                <button class="remove-btn" onclick="removeGroup('deductionGroup_${deductionCounter}')">Eliminar</button>
+            </div>
+            <div class="deduction-input-row">
+                <input type="text" class="deduction-name" value="${name}" placeholder="Concepto (Ej: Transporte)" oninput="onInputChange()" required>
+                <select class="deduction-type" onchange="onInputChange()">
+                    <option value="fixed" ${type === 'fixed' ? 'selected' : ''}>Fijo ($)</option>
+                    <option value="percent" ${type === 'percent' ? 'selected' : ''}>Porcentaje (%)</option>
+                </select>
+                <input type="number" class="deduction-value" value="${value}" min="0" step="0.1" oninput="onInputChange()">
+                <select class="deduction-category" onchange="onInputChange()">
+                    ${categoryOptionsHtml}
+                </select>
+            </div>`;
+    container.appendChild(deductionDiv);
+    actualizarNombresClientesYDeducciones();
+  }
+
+  /**
+   * Updates the client and deduction headers to reflect their current numbering.
+   * This is important after adding/removing/reordering.
+   */
+  function actualizarNombresClientesYDeducciones() {
+    document.querySelectorAll('.client-input-group .client-header h4').forEach((h4, index) => {
+      h4.textContent = `Cliente #${index + 1}`;
+    });
+    document.querySelectorAll('.deduction-input-group .deduction-header h4').forEach((h4, index) => {
+      h4.textContent = `Deducción #${index + 1}`;
+    });
+  }
+
+  /**
+   * Removes a client or deduction input group from the DOM.
+   * @param {string} groupId - ID of the group to remove.
+   */
+  function removeGroup(groupId) {
+    document.getElementById(groupId)?.remove();
+    onInputChange(); // Save state after removing a group
+    actualizarNombresClientesYDeducciones(); // Re-index names
+  }
+
+  /**
+   * Changes the number of meals for a client.
+   * @param {string} clientId - Client ID.
+   * @param {number} delta - Amount to add or subtract (e.g., 1 or -1).
+   */
+  function cambiarValorComidasCliente(clientId, delta) {
+    const input = document.getElementById(`comidas_${clientId}`);
+    if (input) { // Defensive check
+      // Ensure the value is not negative
+      input.value = Math.max(0, parseInt(input.value || 0) + delta);
+      onInputChange(); // Save state after changing the value
+    }
+  }
+
+  // --- DRAG & DROP FUNCTIONS ---
+  function handleDragStart(e) {
+    draggedItem = e.target;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', e.target.id); // Set data to be transferred
+    setTimeout(() => {
+      if (draggedItem) draggedItem.classList.add('dragging');
+    }, 0); // Add class after it's been registered for drag
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault(); // Allow drop
+    const target = e.target.closest('.client-input-group, .deduction-input-group');
+    if (target && target !== draggedItem && draggedItem && target.parentNode === draggedItem.parentNode) {
+      const bounding = target.getBoundingClientRect();
+      const offset = bounding.y + (bounding.height / 2);
+      if (e.clientY < offset) {
+        target.parentNode.insertBefore(draggedItem, target);
+      } else {
+        target.parentNode.insertBefore(draggedItem, target.nextSibling);
+      }
+    }
+  }
+
+  function handleDragLeave(e) {
+    // Clean up any hover effects if needed, not strictly necessary for simple reordering
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    // The reordering is already handled in handleDragOver, just need to save state
+    onInputChange();
+    actualizarNombresClientesYDeducciones(); // Re-index names after drop
+  }
+
+  function handleDragEnd(e) {
+    if (draggedItem) draggedItem.classList.remove('dragging');
+    draggedItem = null;
+    // onInputChange() is called in handleDrop, so no need here unless it's a drag outside valid drop zone
+  }
+
+
+  // --- DEDUCTION TEMPLATE FUNCTIONS ---
+
+  /**
+   * Loads the list of saved deduction templates into the select dropdown.
+   */
+  async function loadDeductionTemplatesList() {
+    let templates = {};
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const templatesCol = window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/deductionTemplates`);
+        const templateDocs = await window.getDocs(templatesCol);
+        templateDocs.forEach(doc => {
+          templates[doc.id] = doc.data().deductions;
+        });
+      } catch (e) {
+        console.error("Error loading templates from Firestore: ", e);
+        templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+      }
+    } else {
+      templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+    }
+
+    const select = document.getElementById('deductionTemplateSelect');
+    if (!select) return; // Defensive check
+    select.innerHTML = `<option value="">Cargar Plantilla...</option>`;
+    for (const name in templates) {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    }
+  }
+
+  /**
+   * Saves the current deductions as a new template in Firestore or localStorage.
+   */
+  async function saveDeductionTemplate() {
+    const templateName = prompt('Nombre para esta plantilla de deducciones:');
+    if (!templateName) {
+      showMessage("Guardar Actual", "Operación cancelada.");
+      return;
+    }
+
+    const currentDeductions = [];
+    document.querySelectorAll('.deduction-input-group').forEach(group => {
+      currentDeductions.push({
+        name: group.querySelector('.deduction-name').value,
+        type: group.querySelector('.deduction-type').value,
+        value: group.querySelector('.deduction-value').value,
+        category: group.querySelector('.deduction-category').value
+      });
+    });
+
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/deductionTemplates`, templateName);
+        await window.setDoc(docRef, { deductions: currentDeductions });
+        loadDeductionTemplatesList();
+        showMessage("Guardar Actual", `La plantilla "${templateName}" ha sido guardada exitosamente.`);
+      } catch (e) {
+        console.error("Error saving template to Firestore: ", e);
+        // Fallback to local storage
+        let templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+        templates[templateName] = currentDeductions;
+        localStorage.setItem('deductionTemplates', JSON.stringify(templates));
+        loadDeductionTemplatesList();
+        showMessage("Guardar Actual", `La plantilla "${templateName}" ha sido guardada exitosamente. (Guardado localmente)`);
+      }
+    } else {
+      let templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+      templates[templateName] = currentDeductions;
+      localStorage.setItem('deductionTemplates', JSON.stringify(templates));
+      loadDeductionTemplatesList();
+      showMessage("Guardar Actual", `La plantilla "${templateName}" ha sido guardada exitosamente.`);
+    }
+  }
+
+  /**
+   * Loads a selected deduction template from Firestore or localStorage.
+   */
+  async function loadDeductionTemplate() {
+    const select = document.getElementById('deductionTemplateSelect');
+    if (!select) return; // Defensive check
+    const templateName = select.value;
+    if (!templateName) return;
+
+    let template = null;
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/deductionTemplates`, templateName);
+        const docSnap = await window.getDoc(docRef);
+        if (docSnap.exists()) {
+          template = docSnap.data().deductions;
+        }
+      } catch (e) {
+        console.error("Error loading template from Firestore: ", e);
+        const templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+        template = templates[templateName];
+      }
+    } else {
+      const templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+      template = templates[templateName];
+    }
+
+    if (template) {
+      const deduccionesContainer = document.getElementById('deduccionesContainer');
+      if (deduccionesContainer) deduccionesContainer.innerHTML = ''; // Defensive check
+      deductionCounter = 0;
+      template.forEach(d => addDeduction(d.name, d.type, d.value, d.category));
+      onInputChange();
+      showMessage("Cargar Plantilla", `La plantilla "${templateName}" ha sido cargada.`);
+    } else {
+      showMessage("Error al Cargar Plantilla", "La plantilla seleccionada no se encontró.");
+    }
+  }
+
+  /**
+   * Deletes a deduction template from Firestore or localStorage.
+   */
+  async function deleteDeductionTemplate() {
+    const select = document.getElementById('deductionTemplateSelect');
+    if (!select) return; // Defensive check
+    const templateName = select.value;
+    if (!templateName) {
+      showMessage("Eliminar Plantilla", "Por favor, selecciona una plantilla para eliminar.");
+      return;
+    }
+
+    showConfirmation(
+      "Eliminar Plantilla",
+      `¿Estás seguro de que quieres eliminar la plantilla "${templateName}"? Esta acción es irreversible.`,
+      async () => {
+        if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+          try {
+            const appId = window.firebaseGlobals.appId;
+            const userId = window.firebaseGlobals.userId;
+            const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/deductionTemplates`, templateName);
+            await window.deleteDoc(docRef);
+            loadDeductionTemplatesList();
+            showMessage("Eliminar Plantilla", `La plantilla "${templateName}" ha sido eliminada exitosamente.`);
+          } catch (e) {
+            console.error("Error deleting template from Firestore: ", e);
+            showMessage("Error", "Hubo un problema al eliminar la plantilla de la nube. Intentando eliminar localmente.");
+            let templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+            delete templates[templateName];
+            localStorage.setItem('deductionTemplates', JSON.stringify(templates));
+            loadDeductionTemplatesList();
+            showMessage("Eliminar Plantilla", `La plantilla "${templateName}" ha sido eliminada exitosamente. (Eliminado localmente)`);
+          }
+        } else {
+          let templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+          delete templates[templateName];
+          localStorage.setItem('deductionTemplates', JSON.stringify(templates));
+          loadDeductionTemplatesList();
+          showMessage("Eliminar Plantilla", `La plantilla "${templateName}" ha sido eliminada exitosamente.`);
+        }
+      }
+    );
+  }
+
+  // --- SETTLEMENT HISTORY FUNCTIONS ---
+
+  /**
+   * Saves the currently calculated settlement to history in Firestore or localStorage.
+   */
+  async function saveSettlementToHistory() {
+    if (!datosCalculados) {
+      showMessage("Error al Guardar Historial", "Por favor, calcula una liquidación primero.");
+      return;
+    }
+
+    const timestamp = new Date().toLocaleString();
+    const settlementId = Date.now(); // Unique ID based on timestamp
+
+    const settlementToSave = {
+      id: settlementId,
+      timestamp: timestamp,
+      summary: {
+        mesServicio: datosCalculados.config.mesServicio,
+        nombreMariella: datosCalculados.config.nombreMariella,
+        saldoFinalNeto: datosCalculados.mariella.saldoFinalNeto,
+        totalIngresoBruto: datosCalculados.mariella.totalIngresoBruto,
+        moneda: datosCalculados.config.moneda
+      },
+      fullData: datosCalculados, // Store full calculated data
+      type: 'settlement' // Indicate it's a calculated settlement
+    };
+
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        await window.addDoc(window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`), settlementToSave);
+        // onSnapshot in loadSettlementHistory will automatically update the UI
+        showMessage("Historial Guardado", "Liquidación guardada en el historial.");
+      }
+      catch (e) {
+        console.error("Error saving settlement to Firestore: ", e);
+        showMessage("Error", "Hubo un problema al guardar la liquidación en la nube. Guardando localmente.");
+        let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+        history.unshift(settlementToSave);
+        localStorage.setItem('settlementHistory', JSON.stringify(history));
+        loadSettlementHistory(); // Update local UI
+      }
+    } else {
+      let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+      history.unshift(settlementToSave);
+      localStorage.setItem('settlementHistory', JSON.stringify(history));
+      loadSettlementHistory();
+    }
+  }
+
+  /**
+   * Loads and displays saved settlements from history in Firestore or localStorage.
+   * Uses onSnapshot for real-time updates.
+   */
+  async function loadSettlementHistory() {
+    const container = document.getElementById('historyContainer');
+    const noHistoryMessage = document.getElementById('noHistoryMessage');
+    const historySearchInput = document.getElementById('historySearch');
+    const historySearch = historySearchInput ? historySearchInput.value.toLowerCase() : '';
+
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const q = window.query(window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`));
+        // Use onSnapshot for real-time updates
+        window.onSnapshot(q, (snapshot) => {
+          allSettlements = []; // Clear previous data
+          snapshot.forEach(doc => {
+            allSettlements.push({ ...doc.data(), firestoreDocId: doc.id }); // Store Firestore doc ID
+          });
+
+          // Sort by timestamp descending
+          allSettlements.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          renderFilteredHistory(); // Render the filtered history
+        }, (error) => {
+          console.error("Error listening to settlements history: ", error);
+          showMessage("Error", "No se pudo cargar el historial de liquidaciones de la nube.");
+          // Fallback to localStorage on error
+          allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+          renderFilteredHistory();
+        });
+      } catch (e) {
+        console.error("Error setting up onSnapshot for history: ", e);
+        allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+        renderFilteredHistory();
+      }
+    } else {
+      allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+      renderFilteredHistory();
+    }
+
+    function renderFilteredHistory() {
+      const filteredHistory = allSettlements.filter(item => {
+        const searchTerm = historySearch;
+        const nameMatch = (item.summary.nombreMariella || '').toLowerCase().includes(searchTerm);
+        const monthMatch = (item.summary.mesServicio || '').toLowerCase().includes(searchTerm);
+        return nameMatch || monthMatch;
+      });
+
+      if (container) container.innerHTML = ''; // Clear existing list
+
+      if (filteredHistory.length === 0) {
+        if (container && noHistoryMessage) { // Check if elements exist
+          container.innerHTML = `<p style="text-align: center; color: var(--text-muted-color);" id="noHistoryMessage">No hay liquidaciones guardadas.</p>`;
+          if (historySearch) {
+            container.innerHTML = `<p style="text-align: center; color: var(--text-muted-color);">No se encontraron liquidaciones para "${historySearch}".</p>`;
+          }
+        }
+        createIncomeTrendChart([]); // Pass empty data if no history
+        return;
+      }
+
+      filteredHistory.forEach(item => {
+        const historyItemDiv = document.createElement('div');
+        historyItemDiv.className = 'history-item';
+
+        // Check if fullData and config exist for currency formatting
+        const configLocale = item.fullData?.config?.locale || 'es-CO';
+        const configMoneda = item.fullData?.config?.moneda || 'COP';
+        const formato = getCurrencyFormat(configLocale, configMoneda);
+
+        // Display month as localized string
+        const mesDisplay = item.summary.mesServicio ? new Date(item.summary.mesServicio + '-02').toLocaleDateString(configLocale, { year: 'numeric', month: 'long' }) : "Mes N/A";
+
+        historyItemDiv.innerHTML = `
+                  <div class="history-item-info">
+                      <strong>${item.summary.nombreMariella || 'N/A'}</strong> - ${mesDisplay}
+                      <br>
+                      Saldo Neto: ${formato.format(item.summary.saldoFinalNeto || 0)} (${item.summary.moneda || 'COP'})
+                      ${item.type === 'config_snapshot' ? '<br><small>(Configuración guardada)</small>' : ''}
+                      <br>
+                      <small>${item.timestamp || 'N/A'}</small>
+                  </div>
+                  <div class="history-item-actions">
+                      <button class="history-load-btn" onclick="loadHistoricalSettlement('${item.id || item.firestoreDocId}', '${item.type}')">Cargar</button>
+                      <button class="history-delete-btn" onclick="deleteHistoricalSettlement('${item.id || item.firestoreDocId}', '${item.type}')">Eliminar</button>
+                  </div>
+              `;
+        if (container) container.appendChild(historyItemDiv);
+      });
+      createIncomeTrendChart(filteredHistory.filter(item => item.type === 'settlement')); // Only pass actual settlements for trend chart
+    }
+  }
+
+
+  /**
+   * Loads a specific historical settlement into the interface from Firestore or localStorage.
+   * @param {string} id - ID of the settlement to load (Firestore Doc ID or local ID).
+   * @param {string} type - Type of item ('settlement' or 'config_snapshot').
+   */
+  async function loadHistoricalSettlement(id, type) {
+    let itemToLoad = null;
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`, id);
+        const docSnap = await window.getDoc(docRef);
+        if (docSnap.exists()) {
+          itemToLoad = docSnap.data();
+        }
+      } catch (e) {
+        console.error("Error loading historical settlement from Firestore: ", e);
+        itemToLoad = allSettlements.find(item => item.id === parseInt(id)); // Fallback to local
+      }
+    } else {
+      itemToLoad = allSettlements.find(item => item.id === parseInt(id)); // Local storage only
+    }
+
+    if (itemToLoad) {
+      // Load the configuration of the historical settlement
+      await loadState(itemToLoad.fullData.config);
+      // If it's a complete settlement, recalculate and display results
+      if (itemToLoad.type === 'settlement') {
+        procesarDatos(); // Re-calculate to populate results section
+      } else {
+        // If it's just a config snapshot, no need to process, just update UI
+        actualizarEnTiempoReal();
+        const resultadoDiv = document.getElementById('resultado');
+        if (resultadoDiv) { // Defensive check
+          resultadoDiv.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: var(--text-muted-color);">
+                    <div style="font-size: 3em; margin-bottom: 15px;">💾</div>
+                    <p>Configuración del ${itemToLoad.timestamp} cargada. Presiona "Calcular Liquidación" para ver los resultados.</p>
+                </div>
+              `;
+        }
+        // Disable download/csv buttons until calculated
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) downloadBtn.disabled = true;
+        const csvBtn = document.getElementById('csvBtn');
+        if (csvBtn) csvBtn.disabled = true;
+      }
+      showMessage("Cargar Historial", `Liquidación del ${itemToLoad.timestamp} cargada.`);
+    } else {
+      showMessage("Error al Cargar Historial", "Liquidación histórica no encontrada.");
+    }
+  }
+
+  /**
+   * Deletes a specific settlement from history in Firestore or localStorage.
+   * @param {string} id - Firestore document ID or local numeric ID.
+   * @param {string} type - Item type ('settlement' or 'config_snapshot').
+   */
+  async function deleteHistoricalSettlement(id, type) {
+    showConfirmation(
+      "Eliminar Historial",
+      "¿Estás seguro de que quieres eliminar esta liquidación del historial? Esta acción es irreversible.",
+      async () => {
+        if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+          try {
+            const appId = window.firebaseGlobals.appId;
+            const userId = window.firebaseGlobals.userId;
+            const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`, id);
+            await window.deleteDoc(docRef);
+            // onSnapshot will handle UI update
+            showMessage("Historial Eliminado", "Liquidación eliminada del historial.");
+          } catch (e) {
+            console.error("Error deleting historical settlement from Firestore: ", e);
+            showMessage("Error", "Hubo un problema al eliminar la liquidación de la nube. Intentando eliminar localmente.");
+            let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+            history = history.filter(item => item.id !== parseInt(id));
+            localStorage.setItem('settlementHistory', JSON.stringify(history));
+            loadSettlementHistory();
+            showMessage("Historial Eliminado", "Liquidación eliminada del historial. (Eliminado localmente)");
+          }
+        } else {
+          let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+          history = history.filter(item => item.id !== parseInt(id));
+          localStorage.setItem('settlementHistory', JSON.stringify(history));
+          loadSettlementHistory();
+          showMessage("Historial Eliminado", "Liquidación eliminada del historial.");
+        }
+      }
+    );
+  }
+
+  /**
+   * Filters the history list based on the search text.
+   */
+  function filterHistory() {
+    // Re-render the history items based on current allSettlements and search input
+    loadSettlementHistory(); // This will re-filter and re-render
+  }
+
+
+  /**
+   * Saves the current input state to history as a "configuration snapshot".
+   */
+  async function saveCurrentState() {
+    const currentState = JSON.parse(localStorage.getItem('liquidacionState') || '{}'); // Get current input state, default to empty object
+    if (!currentState || Object.keys(currentState).length === 0) { // Check if empty
+      showMessage("Guardar Actual", "Por favor, calcula una liquidación primero.");
+      return;
+    }
+
+    const timestamp = new Date().toLocaleString();
+    const settlementId = Date.now(); // Unique ID
+
+    const currentConfigEntry = {
+      id: settlementId,
+      timestamp: timestamp,
+      summary: {
+        mesServicio: currentState.mesServicio,
+        nombreMariella: currentState.nombreMariella,
+        // For "Net Income", "Currency", we would need to process.
+        // For now, it's saved as a config snapshot.
+        type: 'config_snapshot' // Indicate this is a config snapshot, not a full settlement
+      },
+      fullData: { config: currentState } // Save the full config
+    };
+
+    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+      try {
+        const appId = window.firebaseGlobals.appId;
+        const userId = window.firebaseGlobals.userId;
+        await window.addDoc(window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`), currentConfigEntry);
+        showMessage("Guardar Actual", "Estado actual guardado en el historial.");
+      } catch (e) {
+        console.error("Error saving current state to Firestore: ", e);
+        showMessage("Error", "Hubo un problema al guardar el estado en la nube. Guardando localmente.");
+        let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+        history.unshift(currentConfigEntry);
+        localStorage.setItem('settlementHistory', JSON.stringify(history));
+        loadSettlementHistory();
+      }
+    } else {
+      let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+      history.unshift(currentConfigEntry);
+      localStorage.setItem('settlementHistory', JSON.stringify(history));
+      loadSettlementHistory();
+    }
+  }
+
+
+  // --- CALCULATION AND PROCESSING ---
+
+  /**
+   * Gets the Intl.NumberFormat object for currency formatting.
+   * @param {string} locale - Locale (e.g., 'es-CO').
+   * @param {string} currency - Currency code (e.g., 'COP').
+   * @returns {Intl.NumberFormat} Currency format object.
+   */
+  function getCurrencyFormat(locale, currency) {
+    try {
+      return new Intl.NumberFormat(locale, { style: 'currency', currency: currency });
+    } catch (e) {
+      console.warn(`Invalid locale or currency for Intl.NumberFormat: ${locale}, ${currency}. Falling back to default.`);
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }); // Fallback
+    }
+  }
+
+  /**
+   * Converts a hexadecimal color to an RGB array.
+   * @param {string} hex - Hexadecimal color code (e.g., "#RRGGBB").
+   * @returns {Array<number>} Array with R, G, B values.
+   */
+  function hexToRgb(hex) {
+    if (!hex || typeof hex !== 'string' || !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) {
+      console.warn("Invalid hex color format, defaulting to black.");
+      return [0, 0, 0]; // Default to black
+    }
+    const r = parseInt(hex.substring(1, 3), 16);
+    const g = parseInt(hex.substring(3, 5), 16);
+    const b = parseInt(hex.substring(5, 7), 16);
+    return [r, g, b];
+  }
+
+
+  /**
+   * Updates interface elements in real-time (e.g., header subtitle).
+   */
+  function actualizarEnTiempoReal() {
+    const headerSubtitleEl = document.getElementById('headerSubtitle');
+    const nombreMariellaEl = document.getElementById('nombreMariella');
+    if (headerSubtitleEl && nombreMariellaEl) {
+      headerSubtitleEl.textContent = `Sistema interactivo para facturación de ${nombreMariellaEl.value || 'Doña Mariella'}`;
+    }
+  }
+
+  /**
+   * Processes input data, calculates the settlement, and displays the results.
+   */
+  async function procesarDatos() {
+    console.log("Función procesarDatos() ejecutada."); // Log to confirm function execution
+
+    // Basic validation of required fields
+    const requiredInputs = document.querySelectorAll('#nombreMariella, #valorComida, .deduction-name, .client-input-group input[type="text"]');
+    let allInputsValid = true;
+    requiredInputs.forEach(input => {
+      if (!input.value.trim()) {
+        input.setCustomValidity('Por favor, llena este campo.'); // Set custom validity message
+        input.reportValidity(); // Show native browser validation message
+        input.style.borderColor = '#e74c3c'; // Highlight invalid
+        allInputsValid = false;
+      } else {
+        input.setCustomValidity(''); // Clear custom validity
+        input.style.borderColor = ''; // Reset border
+      }
+    });
+
+    if (!allInputsValid) {
+      showMessage("Resultados", "Por favor, llena todos los campos requeridos.");
+      return;
+    }
+
+    const selectMoneda = document.getElementById('moneda');
+    const selectedOptionMoneda = selectMoneda?.options[selectMoneda.selectedIndex]; // Use optional chaining
+    const locale = selectedOptionMoneda?.dataset.locale || 'es-CO'; // Fallback
+    const currency = selectMoneda?.value || 'COP'; // Fallback
+    const formato = getCurrencyFormat(locale, currency);
+
+    // Get input values
+    const nombreMariella = document.getElementById('nombreMariella')?.value.trim();
+    const facturadorDireccion = document.getElementById('facturadorDireccion')?.value.trim();
+    const facturadorContacto = document.getElementById('facturadorContacto')?.value.trim();
+    const invoiceNumber = document.getElementById('invoiceNumber')?.value.trim(); // New: Invoice Number
+    const mesServicio = document.getElementById('mesServicio')?.value;
+    const valorComida = parseFloat(document.getElementById('valorComida')?.value) || 0;
+    const pdfNotes = document.getElementById('pdfNotes')?.value;
+    const pdfOrientation = document.getElementById('pdfOrientation')?.value;
+    const pdfMargin = parseFloat(document.getElementById('pdfMargin')?.value) || 15;
+    const pdfFont = document.getElementById('pdfFont')?.value;
+    const pdfStyle = document.getElementById('pdfStyle')?.value;
+    const pdfHeaderColor = document.getElementById('pdfHeaderColor')?.value; // New: PDF Header Color
+    const pdfLineColor = document.getElementById('pdfLineColor')?.value;     // New: PDF Line Color
+    const baseFontSize = parseFloat(document.getElementById('baseFontSize')?.value) || 10;
+    const titleFontSize = parseFloat(document.getElementById('titleFontSize')?.value) || 18;
+    const sectionTitleFontSize = parseFloat(document.getElementById('sectionTitleFontSize')?.value) || 12;
+    const signatureX = parseFloat(document.getElementById('signatureX')?.value) || 150;
+    const signatureY = parseFloat(document.getElementById('signatureY')?.value) || 250;
+    const signatureWidth = parseFloat(document.getElementById('signatureWidth')?.value) || 50;
+
+
+    let totalComidasGeneral = 0;
+    const clientes = [];
+    document.querySelectorAll('#clientesContainer .client-input-group').forEach((group, index) => {
+      const nombreInput = group.querySelector('input[type="text"]');
+      const comidasInput = group.querySelector('input[type="number"]');
+      const nombre = nombreInput?.value.trim() || `Cliente ${index + 1}`;
+      const comidas = parseInt(comidasInput?.value) || 0;
+      const ingresoBrutoCliente = comidas * valorComida;
+      clientes.push({ nombre, comidas, ingresoBrutoCliente });
+      totalComidasGeneral += comidas;
+    });
+
+    const totalIngresoBrutoMariella = totalComidasGeneral * valorComida;
+
+    const deduccionesCalculadas = [];
+    let totalDeducciones = 0;
+    document.querySelectorAll('#deduccionesContainer .deduction-input-group').forEach(group => {
+      const nameInput = group.querySelector('.deduction-name');
+      const typeSelect = group.querySelector('.deduction-type');
+      const valueInput = group.querySelector('.deduction-value');
+      const categorySelect = group.querySelector('.deduction-category');
+
+      const nombre = nameInput?.value || 'Concepto';
+      const tipo = typeSelect?.value || 'fixed';
+      const valor = parseFloat(valueInput?.value) || 0;
+      const category = categorySelect?.value || 'Otros'; // New: Category
+      let montoCalculado = 0;
+      if (tipo === 'fixed') {
+        montoCalculado = valor;
+      } else { // percent
+        montoCalculado = totalIngresoBrutoMariella * (valor / 100);
+      }
+      deduccionesCalculadas.push({ nombre, montoCalculado, displayValue: tipo === 'percent' ? `${valor}%` : formato.format(valor), category });
+      totalDeducciones += montoCalculado;
+    });
+
+    const saldoFinalMariella = totalIngresoBrutoMariella - totalDeducciones;
+
+    // Store calculated data in the global variable
+    datosCalculados = {
+      config: {
+        nombreMariella, mesServicio, valorComida, facturadorDireccion, facturadorContacto, invoiceNumber, // Include invoiceNumber
+        moneda: currency,
+        locale: locale,
+        pdfNotes: pdfNotes,
+        pdfOrientation: pdfOrientation,
+        pdfMargin: pdfMargin,
+        pdfFont: pdfFont,
+        pdfStyle: pdfStyle,
+        pdfHeaderColor: pdfHeaderColor, // Include PDF Header Color
+        pdfLineColor: pdfLineColor,     // Include PDF Line Color
+        baseFontSize: baseFontSize,
+        titleFontSize: titleFontSize,
+        sectionTitleFontSize: sectionTitleFontSize,
+        signatureX: signatureX, signatureY: signatureY, signatureWidth: signatureWidth,
+        logoBase64: logoBase64,
+        signatureBase64: signatureBase64
+      },
+      clientes,
+      mariella: {
+        totalComidasGestionadas: totalComidasGeneral,
+        totalIngresoBruto: totalIngresoBrutoMariella,
+        deducciones: deduccionesCalculadas,
+        totalDeducciones: totalDeducciones,
+        saldoFinalNeto: saldoFinalMariella
+      }
+    };
+
+    mostrarResultados(datosCalculados, formato);
+    // Enable download buttons once data is calculated
+    const downloadBtn = document.getElementById('downloadBtn');
+    if (downloadBtn) downloadBtn.disabled = false;
+    const csvBtn = document.getElementById('csvBtn');
+    if (csvBtn) csvBtn.disabled = false;
+
+    // Automatically save settlement to history
+    saveSettlementToHistory();
+  }
+
+  // --- RESULTS DISPLAY ---
+
+  /**
+   * Displays settlement results in the results section.
+   * @param {object} datos - Object with all calculated data.
+   * @param {Intl.NumberFormat} formato - Currency format object.
+   */
+  function mostrarResultados(datos, formato) {
+    const { config, clientes, mariella } = datos;
+
+    let clientesHTML = '';
+    clientes.forEach((cliente, index) => {
+      // Display only clients with invoiced meals
+      if (cliente.comidas > 0) {
+        clientesHTML += `
+                    <div class="client-breakdown">
+                      <div class="person-header">👤 Cliente: ${cliente.nombre || 'N/A'}</div>
+                      <div class="deduction-item"><span class="label">Comidas Facturadas:</span><span class="value">${cliente.comidas}</span></div>
+                      <div class="deduction-item"><span class="label">Ingreso Bruto Generado:</span><span class="value">${formato.format(cliente.ingresoBrutoCliente)}</span></div>
+                      <div class="client-breakdown-actions">
+                         <button class="client-download-btn" onclick="descargarClientePDF(${index})">Descargar PDF Cliente</button>
+                      </div>
+                    </div>`;
+      }
+    });
+
+    let deduccionesHTML = '';
+    mariella.deducciones.forEach(d => {
+      deduccionesHTML += `<div class="deduction-item"><span class="label">(-) ${d.nombre || 'N/A'} (${d.displayValue || 'N/A'}):</span><span class="value">${formato.format(d.montoCalculado)}</span></div>`;
+    });
+
+    // Update the content of the results section
+    const resultadoDiv = document.getElementById('resultado');
+    if (!resultadoDiv) return; // Defensive check
+
+    resultadoDiv.innerHTML = `
+            <div class="summary-cards">
+                <div class="summary-card"><h3>👩‍🍳 ${config.nombreMariella || 'N/A'} (Neto)</h3><div class="amount">${formato.format(mariella.saldoFinalNeto)}</div></div>
+                <div class="summary-card"><h3>👥 Total Bruto Clientes</h3><div class="amount">${formato.format(mariella.totalIngresoBruto)}</div></div>
+            </div>
+            <div class="chart-container"><canvas id="resultChart"></canvas></div>
+            <div class="chart-container"><canvas id="clientBarChart"></canvas></div>
+            <div class="chart-container"><canvas id="deductionCategoryChart"></canvas></div>
+
+            ${clientesHTML ? `<div class="detailed-results-container"><h3 class="section-title">📄 Detalle por Cliente</h3>${clientesHTML}</div>` : ''}
+            <div class="mariella-settlement-section">
+                <h3 class="section-title">💸 Liquidación Detallada: ${(config.nombreMariella || 'N/A').toUpperCase()}</h3>
+                <div class="person-deductions">
+                    <div class="deduction-item"><span class="label">Total Ingreso Bruto:</span><span class="value">${formato.format(mariella.totalIngresoBruto)}</span></div>
+                    ${deduccionesHTML}
+                    <div class="deduction-item" style="border-top: 2px solid var(--border-color); margin-top: 5px; padding-top: 5px;">
+                        <span class="label" style="font-weight:bold;">(=) SALDO FINAL A RECIBIR:</span>
+                        <span class="value final-value">${formato.format(mariella.saldoFinalNeto)}</span>
+                    </div>
+                </div>
+            </div>`;
+
+    // Add animations after a short delay
+    setTimeout(() => {
+      document.querySelectorAll('.summary-card, .client-breakdown, .person-deductions').forEach((el, index) => {
+        setTimeout(() => el.classList.add('show'), index * 100);
+      });
+    }, 100);
+
+    // Create/update charts
+    crearGraficoPrincipal(datos);
+    crearGraficoBarrasClientes(datos);
+    crearGraficoCategoriasDeducciones(datos);
+  }
+
+  /**
+   * Creates or updates the general settlement doughnut chart.
+   * @param {object} datos - Object with settlement data.
+   */
+  function crearGraficoPrincipal(datos) {
+    const ctx = document.getElementById('resultChart')?.getContext('2d');
+    if (!ctx) return; // Defensive check
+    if (chartInstance) chartInstance.destroy(); // Destroy previous instance if it exists
+
+    const labels = [`Neto ${datos.config.nombreMariella || 'N/A'}`];
+    const chartData = [Math.max(0, datos.mariella.saldoFinalNeto)]; // Ensure non-negative value
+    const backgroundColors = ['rgba(78, 205, 196, 0.8)']; // Color for net balance
+
+    // Add deductions to the chart
+    datos.mariella.deducciones.forEach(d => {
+      labels.push(d.nombre);
+      chartData.push(d.montoCalculado);
+      // Generate random colors for deductions
+      backgroundColors.push(`rgba(${Math.floor(Math.random()*200) + 55}, ${Math.floor(Math.random()*200) + 55}, ${Math.floor(Math.random()*200) + 55}, 0.7)`);
+    });
+
+    const formato = getCurrencyFormat(datos.config.locale, datos.config.moneda);
+
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: chartData,
+          backgroundColor: backgroundColors,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 13 },
+              color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.raw;
+                const total = context.dataset.data.reduce((sum, current) => sum + current, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0; // Avoid division by zero
+                return `${label}: ${formato.format(value)} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Creates or updates the gross income by client bar chart.
+   * @param {object} datos - Object with settlement data.
+   */
+  function crearGraficoBarrasClientes(datos) {
+    const ctx = document.getElementById('clientBarChart')?.getContext('2d');
+    if (!ctx) return; // Defensive check
+    if (clientBarChartInstance) clientBarChartInstance.destroy(); // Destroy previous instance
+
+    const clientNames = datos.clientes.map(c => c.nombre);
+    const clientGrossIncomes = datos.clientes.map(c => c.ingresoBrutoCliente);
+    const formato = getCurrencyFormat(datos.config.locale, datos.config.moneda);
+
+    clientBarChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: clientNames,
+        datasets: [{
+          label: 'Ingreso Bruto Generado por Cliente',
+          data: clientGrossIncomes,
+          backgroundColor: 'rgba(52, 152, 219, 0.8)', /* Blue color */
+          borderColor: 'rgba(52, 152, 219, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false /* Hide legend (only one dataset) */
+          },
+          title: {
+            display: true,
+            text: 'Ingreso Bruto Generado por Cliente',
+            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333',
+            font: { size: 16 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `${context.label}: ${formato.format(context.raw)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return formato.format(value); /* Format Y-axis labels as currency */
+              },
+              color: document.body.classList.contains('dark-mode') ? '#ccc' : '#666'
+            },
+            grid: {
+              color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            ticks: {
+              color: document.body.classList.contains('dark-mode') ? '#ccc' : '#666'
+            },
+            grid: {
+              color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Creates or updates the deduction category breakdown pie chart.
+   * @param {object} datos - Object with settlement data.
+   */
+  function crearGraficoCategoriasDeducciones(datos) {
+    const ctx = document.getElementById('deductionCategoryChart')?.getContext('2d');
+    if (!ctx) return; // Defensive check
+    if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+
+    const categoryTotals = {};
+    datos.mariella.deducciones.forEach(d => {
+      const category = d.category || 'Otros';
+      if (!categoryTotals[category]) {
+        categoryTotals[category] = 0;
+      }
+      categoryTotals[category] += d.montoCalculado;
+    });
+
+    const labels = Object.keys(categoryTotals).map(cat => {
+      // Direct translation for deduction categories
+      const deductionCategoryOptions = {
+        '': 'Seleccionar...',
+        'Impuesto': 'Impuesto',
+        'Servicio': 'Servicio',
+        'Personal': 'Personal',
+        'Transporte': 'Transporte',
+        'Otros': 'Otros'
+      };
+      return deductionCategoryOptions[cat] || cat;
+    });
+    const chartData = Object.values(categoryTotals);
+    const backgroundColors = labels.map(() => `rgba(${Math.floor(Math.random()*200) + 55}, ${Math.floor(Math.random()*200) + 55}, ${Math.floor(Math.random()*200) + 55}, 0.7)`);
+    const formato = getCurrencyFormat(datos.config.locale, datos.config.moneda);
+
+    deductionCategoryChartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: chartData,
+          backgroundColor: backgroundColors,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 13 },
+              color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
+            }
+          },
+          title: {
+            display: true,
+            text: 'Desglose de Deducciones por Categoría',
+            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333',
+            font: { size: 16 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.raw;
+                const total = context.dataset.data.reduce((sum, current) => sum + current, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                return `${label}: ${formato.format(value)} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Creates or updates the net and gross income trend chart over time.
+   * @param {Array<Object>} historyData - The array of filtered history settlements (only 'settlement' types).
+   */
+  function createIncomeTrendChart(historyData) {
+    const ctx = document.getElementById('incomeTrendChart');
+    if (!ctx) return;
+    const chartCtx = ctx.getContext('2d');
+
+    if (incomeTrendChartInstance) incomeTrendChartInstance.destroy();
+
+    // Ensure data is sorted by month for correct trend display
+    const sortedHistory = historyData.sort((a, b) => {
+      const dateA = new Date(a.fullData.config.mesServicio + '-01');
+      const dateB = new Date(b.fullData.config.mesServicio + '-01');
+      return dateA - dateB;
+    });
+
+    if (sortedHistory.length < 2) { // Need at least 2 points for a trend
+      // console.log("Not enough data in history to generate trend chart.");
+      ctx.style.display = 'none'; // Hide chart if no data
+      return;
+    } else {
+      ctx.style.display = 'block'; // Show chart if data exists
+    }
+
+    const labels = sortedHistory.map(item => {
+      const date = new Date(item.fullData.config.mesServicio + '-02');
+      return date.toLocaleDateString('es', { year: 'numeric', month: 'short' });
+    });
+    const netIncomes = sortedHistory.map(item => item.fullData.mariella.saldoFinalNeto);
+    const grossIncomes = sortedHistory.map(item => item.fullData.mariella.totalIngresoBruto);
+
+    const firstValidSettlement = sortedHistory[0];
+    // Provide a fallback if firstValidSettlement is undefined
+    const localeForFormat = firstValidSettlement?.fullData.config.locale || 'es-CO';
+    const currencyForFormat = firstValidSettlement?.fullData.config.moneda || 'COP';
+    const formato = getCurrencyFormat(localeForFormat, currencyForFormat);
+
+    incomeTrendChartInstance = new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: `Neto ${firstValidSettlement?.fullData.config.nombreMariella || 'N/A'}`,
+            data: netIncomes,
+            borderColor: 'rgba(78, 205, 196, 1)',
+            backgroundColor: 'rgba(78, 205, 196, 0.2)',
+            fill: true,
+            tension: 0.3
+          },
+          {
+            label: 'Ingreso Bruto Total',
+            data: grossIncomes,
+            borderColor: 'rgba(255, 159, 64, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            fill: true,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              font: { size: 13 },
+              color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
+            }
+          },
+          title: {
+            display: true,
+            text: 'Tendencia de Ingresos Netos y Brutos',
+            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333',
+            font: { size: 16 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `${context.dataset.label}: ${formato.format(context.raw)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return formato.format(value);
+              },
+              color: document.body.classList.contains('dark-mode') ? '#ccc' : '#666'
+            },
+            grid: {
+              color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+            }
+          },
+          x: {
+            ticks: {
+              color: document.body.classList.contains('dark-mode') ? '#ccc' : '#666'
+            },
+            grid: {
+              color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+            }
+          }
+        }
+      }
+    });
+  }
+
+
+  // --- EXPORT FUNCTIONS ---
+
+  /**
+   * Downloads settlement data in CSV format.
+   */
+  function descargarCSV() {
+    if (!datosCalculados) {
+      showMessage("Error al Exportar CSV", "Primero calcula la liquidación para poder exportar a CSV.");
+      return;
+    }
+    const { config, clientes, mariella } = datosCalculados;
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += `Liquidación de Comidas - ${config.nombreMariella || 'N/A'} - Mes del Servicio: ${config.mesServicio || 'N/A'}\n\n`;
+    // Add invoice number to CSV if available
+    if (config.invoiceNumber) {
+      csvContent += `Número de Factura,"${config.invoiceNumber.replace(/"/g, '""')}"\n`;
+    }
+    csvContent += `Concepto,Valor\n`;
+    csvContent += `Total Ingreso Bruto,${mariella.totalIngresoBruto}\n`;
+    mariContent.deducciones.forEach(d => {
+      csvContent += `"${(d.nombre || '').replace(/"/g, '""')}",-${d.montoCalculado}\n`; /* Escape double quotes */
+    });
+    csvContent += `SALDO FINAL A RECIBIR,${mariella.saldoFinalNeto}\n\n`;
+    csvContent += `Detalle por Cliente\n`;
+    csvContent += `Cliente,Comidas Facturadas,Ingreso Bruto Generado\n`;
+    clientes.forEach(c => {
+      csvContent += `"${(c.nombre || '').replace(/"/g, '""')}",${c.comidas},${c.ingresoBrutoCliente}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `liquidacion_${(config.nombreMariella || 'unknown').toLowerCase().replace(/\s/g, '-')}_${config.mesServicio || 'unknown'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Handles the upload of a logo file and converts it to Base64.
+   * @param {Event} event - File input change event.
+   */
+  function handleLogoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check file type (optional, jsPDF can handle JPG/PNG)
+    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+      showMessage("Error de Archivo", "Por favor, sube un archivo de imagen (PNG o JPG).");
+      event.target.value = ''; // Clear the input to allow re-upload
+      return;
+    }
+
+    // Check file size (e.g., max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2 MB
+    if (file.size > maxSize) {
+      showMessage("Archivo Demasiado Grande", "El archivo de imagen es demasiado grande. Por favor, sube una imagen de menos de 2MB.");
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      logoBase64 = e.target.result;
+      saveState(); // Save the logo in the state
+      showMessage("Logo Cargado", "El logo ha sido cargado exitosamente. Se incluirá en el PDF.");
+    };
+    reader.onerror = () => {
+      showMessage("Error de Lectura", "No se pudo leer el archivo de imagen. Por favor, inténtalo de nuevo.");
+      event.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /**
+   * Handles the upload of a signature/stamp file and converts it to Base64.
+   * @param {Event} event - File input change event.
+   */
+  function handleSignatureUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+      showMessage("Error de Archivo", "Por favor, sube un archivo de imagen (PNG o JPG).");
+      event.target.value = '';
+      return;
+    }
+
+    const maxSize = 1 * 1024 * 1024; // 1 MB for signature, usually smaller
+    if (file.size > maxSize) {
+      showMessage("Archivo Demasiado Grande", "El archivo de imagen es demasiado grande. Por favor, sube una imagen de menos de 2MB.");
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      signatureBase64 = e.target.result;
+      saveState();
+      showMessage("Firma/Sello Cargado", "La firma/sello ha sido cargada exitosamente. Se incluirá en el PDF.");
+    };
+    reader.onerror = () => {
+      showMessage("Error de Lectura", "No se pudo leer el archivo de imagen. Por favor, inténtalo de nuevo.");
+      event.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /**
+   * Downloads a general settlement PDF.
+   */
+  async function descargarPDF() {
+    if (!datosCalculados) {
+      showMessage("Error al Descargar PDF", "Primero calcula la liquidación para poder descargar el PDF.");
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const { config, clientes, mariella } = datosCalculados;
+    const formato = getCurrencyFormat(config.locale, config.moneda);
+
+    const doc = new jsPDF({
+      orientation: config.pdfOrientation,
+      unit: 'mm',
+      format: 'a4'
+    });
+    doc.setFont(config.pdfFont); // Set the chosen font
+
+    // Get font sizes from config, fallback to defaults
+    const baseFontSize = parseFloat(config.baseFontSize) || 10;
+    const titleFontSize = parseFloat(config.titleFontSize) || 18;
+    const sectionTitleFontSize = parseFloat(config.sectionTitleFontSize) || 12;
+
+    let lineSpacing = baseFontSize * 0.6; // Adjust line spacing based on base font size
+
+    // Convert hex colors to RGB for jsPDF
+    const headerColorRgb = hexToRgb(config.pdfHeaderColor);
+    const lineColorRgb = hexToRgb(config.pdfLineColor);
+
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = parseFloat(config.pdfMargin);
+    let yPos = margin;
+
+    // Add logo if it exists
+    if (config.logoBase64) {
+      try {
+        const imgProps = doc.getImageProperties(config.logoBase64);
+        const imgWidth = 40; // Logo width in PDF
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        doc.addImage(config.logoBase64, imgProps.fileType, margin, yPos, imgWidth, imgHeight);
+        yPos += imgHeight + 5; // Space after logo
+      } catch (e) {
+        console.error("Error adding logo to PDF:", e);
+        showMessage("Error PDF", 'Hubo un problema al añadir el logo al PDF. Se generará sin él.');
+      }
+    }
+
+    // Main document title
+    doc.setFont(config.pdfFont, "bold");
+    doc.setFontSize(titleFontSize);
+    doc.setTextColor(headerColorRgb[0], headerColorRgb[1], headerColorRgb[2]); // Set header color
+    doc.text(`Liquidación de Comidas - ${config.nombreMariella || 'N/A'}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += titleFontSize / 2; // Adjust vertical spacing based on title font size
+    doc.setTextColor(0, 0, 0); // Reset text color to black (or default) for general info
+
+    // Invoice Number if available
+    if (config.invoiceNumber) {
+      doc.setFont(config.pdfFont, "normal");
+      doc.setFontSize(baseFontSize);
+      doc.text(`Número de Factura: ${config.invoiceNumber}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += baseFontSize;
+    }
+
+    // Invoicer information (address, contact)
+    doc.setFont(config.pdfFont, "normal");
+    doc.setFontSize(baseFontSize);
+    if (config.facturadorDireccion) {
+      doc.text(`Dirección: ${config.facturadorDireccion}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += lineSpacing;
+    }
+    if (config.facturadorContacto) {
+      doc.text(`Contacto: ${config.facturadorContacto}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += lineSpacing;
+    }
+    yPos += 5; // Extra space after contact information
+
+    /**
+     * Draws a section title in the PDF.
+     * @param {string} title - Section title.
+     */
+    const drawSectionTitle = (title) => {
+      if (yPos > pageHeight - margin * 2) {
+        doc.addPage();
+        yPos = margin;
+      }
+      doc.setFont(config.pdfFont, "bold");
+      doc.setFontSize(sectionTitleFontSize);
+      doc.setTextColor(headerColorRgb[0], headerColorRgb[1], headerColorRgb[2]); // Set section title color
+      doc.text(title, margin, yPos);
+      doc.setDrawColor(lineColorRgb[0], lineColorRgb[1], lineColorRgb[2]); // Set line color
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPos + lineSpacing / 2, pageWidth - margin, yPos + lineSpacing / 2); // Line under title
+      yPos += lineSpacing + 5; // Space after title and line
+      doc.setTextColor(0, 0, 0); // Reset text color
+    };
+
+    /**
+     * Draws a line item with label and value in the PDF.
+     * @param {string} label - Item label.
+     * @param {string} value - Item value.
+     */
+    const drawLineItem = (label, value) => {
+      if (yPos > pageHeight - margin) {
+        doc.addPage();
+        yPos = margin;
+        doc.setFont(config.pdfFont, "normal");
+      }
+      doc.setFont(config.pdfFont, "normal");
+      doc.setFontSize(baseFontSize);
+      doc.text(label, margin + 2, yPos);
+      doc.text(value, pageWidth - margin - 2, yPos, { align: 'right' });
+      yPos += lineSpacing;
+    };
+
+    drawSectionTitle('Resumen General');
+    const mesDisplay = config.mesServicio ? new Date(config.mesServicio + '-02').toLocaleDateString(config.locale, { year: 'numeric', month: 'long' }) : "N/A";
+    drawLineItem(`Mes del Servicio:`, mesDisplay);
+    drawLineItem(`Valor por Comida:`, formato.format(config.valorComida));
+    drawLineItem(`Total Comidas Gestionadas:`, `${mariella.totalComidasGestionadas}`);
+    yPos += 5;
+
+    // Client Details (only if there are clients with meals > 0)
+    if (clientes.some(c => c.comidas > 0)) {
+      drawSectionTitle('Detalle por Cliente');
+      clientes.forEach(c => {
+        if (c.comidas > 0) {
+          if (yPos > pageHeight - margin * 2) { doc.addPage(); yPos = margin; }
+          doc.setFont(config.pdfFont, "bold");
+          doc.setFontSize(baseFontSize + 1);
+          doc.text(c.nombre || 'N/A', margin + 2, yPos);
+          yPos += lineSpacing;
+          drawLineItem(`  Comidas Facturadas`, `${c.comidas}`);
+          drawLineItem(`  Ingreso Bruto Generado`, formato.format(c.ingresoBrutoCliente));
+          yPos += 2;
+        }
+      });
+      yPos += 5;
+    }
+
+    // Detailed Invoicer Settlement
+    drawSectionTitle(`Liquidación Detallada: ${(config.nombreMariella || 'N/A').toUpperCase()}`);
+    drawLineItem(`Total Ingreso Bruto:`, formato.format(mariella.totalIngresoBruto));
+    mariella.deducciones.forEach(d => {
+      const deductionLabel = (d.nombre || 'N/A').length > 40 ? (d.nombre || 'N/A').substring(0, 37) + '...' : (d.nombre || 'N/A');
+      drawLineItem(`(-) ${deductionLabel}:`, formato.format(d.montoCalculado));
+    });
+    doc.setDrawColor(lineColorRgb[0], lineColorRgb[1], lineColorRgb[2]); // Set line color
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += lineSpacing;
+    doc.setFont(config.pdfFont, "bold");
+    drawLineItem(`(=) SALDO FINAL A RECIBIR:`, formato.format(mariella.saldoFinalNeto));
+    yPos += 10;
+
+    // Additional Notes
+    if(config.pdfNotes && config.pdfNotes.trim() !== '') {
+      if (yPos > pageHeight - margin * 2) { doc.addPage(); yPos = margin; }
+      drawSectionTitle('Notas Adicionales');
+      doc.setFont(config.pdfFont, "normal");
+      doc.setFontSize(baseFontSize);
+      const splitNotes = doc.splitTextToSize(config.pdfNotes, pageWidth - margin * 2);
+      doc.text(splitNotes, margin, yPos);
+      yPos += splitNotes.length * baseFontSize / doc.internal.scaleFactor + 5;
+    }
+
+    // Add signature/stamp if it exists
+    if (config.signatureBase64) {
+      try {
+        const sigImgProps = doc.getImageProperties(config.signatureBase64);
+        const sigWidth = parseFloat(config.signatureWidth);
+        const sigHeight = (sigImgProps.height * sigWidth) / sigImgProps.width;
+        const sigX = parseFloat(config.signatureX);
+        const sigY = parseFloat(config.signatureY);
+
+        let finalSigY = sigY;
+        if (finalSigY < yPos + 10) {
+          finalSigY = yPos + 10;
+        }
+        if (finalSigY + sigHeight > pageHeight - margin) {
+          doc.addPage();
+          finalSigY = margin + 10;
+        }
+
+        doc.addImage(config.signatureBase64, sigImgProps.fileType, sigX, finalSigY, sigWidth, sigHeight);
+      } catch (e) {
+        console.error("Error adding signature/stamp to PDF:", e);
+        showMessage("Error PDF", 'Hubo un problema al añadir la firma/sello al PDF. Se generará sin él.');
+      }
+    }
+
+
+    doc.save(`liquidacion-${(config.nombreMariella || 'unknown').toLowerCase().replace(/\s/g, '-')}-${config.mesServicio || 'unknown'}.pdf`);
+  }
+
+  /**
+   * Downloads an individual PDF for a specific client.
+   * @param {number} clientIndex - Index of the client in the clients array.
+   */
+  async function descargarClientePDF(clientIndex) {
+    if (!datosCalculados || !datosCalculados.clientes[clientIndex]) {
+      showMessage("Error PDF Cliente", "No se pudo encontrar los datos del cliente para generar el PDF.");
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const { config, clientes } = datosCalculados; // Only need config and clients
+    const cliente = clientes[clientIndex];
+    const formato = getCurrencyFormat(config.locale, config.moneda);
+
+    const doc = new jsPDF({
+      orientation: config.pdfOrientation,
+      unit: 'mm',
+      format: 'a4'
+    });
+    doc.setFont(config.pdfFont);
+
+    const baseFontSize = parseFloat(config.baseFontSize) || 10;
+    const titleFontSize = parseFloat(config.titleFontSize) || 18;
+    const sectionTitleFontSize = parseFloat(config.sectionTitleFontSize) || 14;
+    let lineSpacing = baseFontSize * 0.6;
+
+    const headerColorRgb = hexToRgb(config.pdfHeaderColor);
+    const lineColorRgb = hexToRgb(config.pdfLineColor);
+
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = parseFloat(config.pdfMargin);
+    let yPos = margin;
+
+    // Add logo if it exists
+    if (config.logoBase64) {
+      try {
+        const imgProps = doc.getImageProperties(config.logoBase64);
+        const imgWidth = 40;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        doc.addImage(config.logoBase64, imgProps.fileType, margin, yPos, imgWidth, imgHeight);
+        yPos += imgHeight + 5;
+      } catch (e) {
+        console.error("Error adding logo to client PDF:", e);
+        showMessage("Error PDF", 'Hubo un problema al añadir el logo al PDF del cliente.');
+      }
+    }
+
+    // Invoice title
+    doc.setFont(config.pdfFont, "bold");
+    doc.setFontSize(titleFontSize);
+    doc.setTextColor(headerColorRgb[0], headerColorRgb[1], headerColorRgb[2]);
+    doc.text(`Factura para ${cliente.nombre || 'N/A'}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += titleFontSize / 2;
+    doc.setTextColor(0, 0, 0);
+
+    // Invoice Number if available
+    if (config.invoiceNumber) {
+      doc.setFont(config.pdfFont, "normal");
+      doc.setFontSize(baseFontSize);
+      doc.text(`Número de Factura: ${config.invoiceNumber}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += baseFontSize;
+    }
+
+    // Invoicer information
+    doc.setFont(config.pdfFont, "normal");
+    doc.setFontSize(baseFontSize);
+    doc.text(`De: ${config.nombreMariella || 'N/A'}`, margin, yPos);
+    if (config.facturadorDireccion) { doc.text(config.facturadorDireccion, margin, yPos + lineSpacing); }
+    if (config.facturadorContacto) { doc.text(config.facturadorContacto, margin, yPos + 2 * lineSpacing); }
+    yPos += 20;
+
+    // Invoice date
+    doc.text(`Fecha: ${new Date().toLocaleDateString(config.locale)}`, pageWidth - margin, yPos, { align: 'right' });
+    yPos += 10;
+
+    // Client settlement details
+    doc.setFont(config.pdfFont, "bold");
+    doc.setFontSize(sectionTitleFontSize);
+    doc.setTextColor(headerColorRgb[0], headerColorRgb[1], headerColorRgb[2]);
+    doc.text('Detalles de la Liquidación', margin, yPos);
+    doc.setDrawColor(lineColorRgb[0], lineColorRgb[1], lineColorRgb[2]);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPos + lineSpacing / 2, pageWidth - margin, yPos + lineSpacing / 2);
+    yPos += lineSpacing + 5;
+    doc.setTextColor(0, 0, 0);
+
+    /**
+     * Draws a line item for the client PDF.
+     * @param {string} label - Label.
+     * @param {string} value - Value.
+     */
+    const drawLineItemClient = (label, value) => {
+      if (yPos > pageHeight - margin) {
+        doc.addPage();
+        yPos = margin;
+        doc.setFont(config.pdfFont, "normal");
+      }
+      doc.setFont(config.pdfFont, "normal");
+      doc.setFontSize(baseFontSize);
+      doc.text(label, margin + 2, yPos);
+      doc.text(value, pageWidth - margin - 2, yPos, { align: 'right' });
+      yPos += lineSpacing;
+    };
+
+    drawLineItemClient(`Mes del Servicio:`, config.mesServicio ? new Date(config.mesServicio + '-02').toLocaleDateString(config.locale, { year: 'numeric', month: 'long' }) : "N/A");
+    drawLineItemClient(`Valor por Comida:`, formato.format(config.valorComida));
+    drawLineItemClient(`Comidas Facturadas:`, `${cliente.comidas}`);
+    doc.setDrawColor(lineColorRgb[0], lineColorRgb[1], lineColorRgb[2]);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += lineSpacing;
+    doc.setFont(config.pdfFont, "bold");
+    drawLineItemClient(`TOTAL A PAGAR:`, formato.format(cliente.ingresoBrutoCliente));
+    yPos += 10;
+
+    // Additional notes (if they exist)
+    if(config.pdfNotes && config.pdfNotes.trim() !== '') {
+      if (yPos > pageHeight - margin * 2) { doc.addPage(); yPos = margin; }
+      doc.setFont(config.pdfFont, "bold");
+      doc.setFontSize(sectionTitleFontSize);
+      doc.setTextColor(headerColorRgb[0], headerColorRgb[1], headerColorRgb[2]);
+      doc.text(`Notas:`, margin, yPos);
+      doc.setDrawColor(lineColorRgb[0], lineColorRgb[1], lineColorRgb[2]);
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPos + lineSpacing / 2, pageWidth - margin, yPos + lineSpacing / 2);
+      yPos += lineSpacing + 5;
+      doc.setTextColor(0, 0, 0);
+      doc.setFont(config.pdfFont, "normal");
+      doc.setFontSize(baseFontSize);
+      const splitNotes = doc.splitTextToSize(config.pdfNotes, pageWidth - margin * 2);
+      doc.text(splitNotes, margin, yPos);
+      yPos += splitNotes.length * baseFontSize / doc.internal.scaleFactor + 5;
+    }
+
+    // Add signature/stamp if it exists
+    if (config.signatureBase64) {
+      try {
+        const sigImgProps = doc.getImageProperties(config.signatureBase64);
+        const sigWidth = parseFloat(config.signatureWidth);
+        const sigHeight = (sigImgProps.height * sigWidth) / sigImgProps.width;
+        const sigX = parseFloat(config.signatureX);
+        const sigY = parseFloat(config.signatureY);
+
+        let finalSigY = sigY;
+        if (finalSigY < yPos + 10) {
+          finalSigY = yPos + 10;
+        }
+        if (finalSigY + sigHeight > pageHeight - margin) {
+          doc.addPage();
+          finalSigY = margin + 10;
+        }
+
+        doc.addImage(config.signatureBase64, sigImgProps.fileType, sigX, finalSigY, sigWidth, sigHeight);
+      } catch (e) {
+        console.error("Error adding signature/stamp to client PDF:", e);
+        showMessage("Error PDF", 'Hubo un problema al añadir la firma/sello al PDF del cliente.');
+      }
+    }
+
+    doc.save(`factura-${(cliente.nombre || 'unknown').toLowerCase().replace(/\s/g, '-')}-${config.mesServicio || 'unknown'}.pdf`);
+  }
+
+</script>
+</body>
+</html>
