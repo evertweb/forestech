@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🍽️ Liquidación de Comidas Multi-Cliente (v2.5)</title>
+  <title>🍽️ Liquidación de Comidas Multi-Cliente (v2.8)</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"; // Corrected this import
     import { getFirestore, collection, addDoc, getDocs, doc, getDoc, deleteDoc, onSnapshot, query, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
 
     // Global variables for Firebase access
     const firebaseConfig = {
@@ -34,7 +35,7 @@
       db: null, // Will be set after initialization
       auth: null, // Will be set after initialization
       userId: null,
-      isAuthReady: false
+      isAuthReady: false // Indicates if Firebase auth listener has completed its initial check
     };
 
     // Expose individual Firebase functions globally for use in the main script
@@ -53,6 +54,9 @@
     window.onSnapshot = onSnapshot;
     window.query = query;
     window.setDoc = setDoc; // SetDoc is needed for saving currentConfig and templates
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword; // New auth functions
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;       // New auth functions
+    window.signOut = signOut;                                             // New auth functions
   </script>
   <style>
     /* Estilos Generales */
@@ -136,11 +140,12 @@
     }
 
     /* Secciones de Entrada y Resultados */
-    .input-section, .results-section {
+    .input-section, .results-section, .auth-section, .welcome-screen {
       background: var(--card-bg);
       padding: 25px;
       border-radius: 15px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin-bottom: 20px; /* Added for general spacing */
     }
     .results-section { min-height: 600px; }
 
@@ -163,6 +168,8 @@
     .input-group input[type="text"],
     .input-group input[type="number"],
     .input-group input[type="month"],
+    .input-group input[type="email"], /* Added for auth */
+    .input-group input[type="password"], /* Added for auth */
     .input-group select,
     .input-group textarea {
       flex: 1;
@@ -615,6 +622,97 @@
       font-weight: bold;
     }
 
+    /* Auth section styles */
+    .auth-section {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .auth-section h3 {
+      color: var(--section-title-color);
+      margin-bottom: 15px;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .auth-buttons button {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .auth-buttons button.login { background: linear-gradient(135deg, #3498db, #2980b9); }
+    .auth-buttons button.register { background: linear-gradient(135deg, #2ecc71, #1abc9c); }
+    .auth-buttons button.logout { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+    .auth-buttons button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .auth-message {
+      margin-top: 15px;
+      color: #e74c3c; /* Red for errors */
+      font-weight: bold;
+    }
+    body.dark-mode .auth-message {
+      color: #ff5a5a;
+    }
+
+    /* Welcome Screen Styles */
+    .welcome-screen {
+      text-align: center;
+      padding: 50px;
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 50px auto; /* Center the welcome screen */
+    }
+    .welcome-screen h2 {
+      font-size: 2em;
+      color: var(--section-title-color);
+      margin-bottom: 15px;
+    }
+    .welcome-screen p {
+      font-size: 1.1em;
+      color: var(--text-color);
+      margin-bottom: 30px;
+    }
+    .welcome-screen .welcome-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .welcome-screen .welcome-buttons button {
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      color: white;
+      font-size: 1.2em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .welcome-screen .welcome-buttons button.email-auth-btn {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+    }
+    .welcome-screen .welcome-buttons button.guest-auth-btn {
+      background: linear-gradient(135deg, #56ab2f, #a8e063);
+    }
+    .welcome-screen .welcome-buttons button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+
     /* Media Queries para Responsividad */
     @media (max-width: 992px) {
       .content { grid-template-columns: 1fr; }
@@ -624,6 +722,8 @@
       .summary-cards, .summary-grid { grid-template-columns: 1fr; }
       .deduction-input-row { grid-template-columns: 1fr; }
       .history-section-header { flex-direction: column; align-items: flex-start; }
+      .auth-buttons { flex-direction: column; }
+      .welcome-screen { padding: 30px; margin: 20px auto; } /* Adjust padding and margin for smaller screens */
     }
   </style>
 </head>
@@ -642,7 +742,40 @@
   </div>
 
   <div class="content">
-    <div class="input-section">
+    <!-- Welcome Screen (Initial view) -->
+    <div class="welcome-screen" id="welcomeScreen" style="display:none;">
+      <h2>¡Bienvenido a Liquidación de Comidas!</h2>
+      <p>Elige cómo quieres acceder a la aplicación para gestionar tus liquidaciones.</p>
+      <div class="welcome-buttons">
+        <button class="email-auth-btn" onclick="showEmailAuth()">Iniciar Sesión / Registrarse</button>
+        <button class="guest-auth-btn" onclick="signInAsGuest()">Continuar como Invitado</button>
+      </div>
+      <button class="logout" id="logoutBtn" style="display:none; margin-top: 20px;" onclick="logoutUser()">Cerrar Sesión</button>
+      <p id="authMessage" class="auth-message"></p>
+    </div>
+
+    <!-- Authentication Section (Email/Password) - Initially hidden -->
+    <div class="auth-section" id="authSection" style="display:none;">
+      <h3>Acceso con Email y Contraseña</h3>
+      <p>Inicia sesión o regístrate para guardar tus datos en la nube.</p>
+      <div class="input-group">
+        <label for="authEmail">Email:</label>
+        <input type="email" id="authEmail" placeholder="tu@ejemplo.com" required>
+      </div>
+      <div class="input-group">
+        <label for="authPassword">Contraseña:</label>
+        <input type="password" id="authPassword" placeholder="min. 6 caracteres" required>
+      </div>
+      <div class="auth-buttons">
+        <button class="login" onclick="loginUser()">Iniciar Sesión</button>
+        <button class="register" onclick="registerUser()">Registrarse</button>
+        <button class="secondary-button" onclick="showWelcomeScreen()" style="width: auto; margin-left: 10px;">⬅️ Volver</button>
+      </div>
+      <p id="authMessageEmailPass" class="auth-message"></p>
+    </div>
+
+    <!-- Main Application Content (Initially hidden) -->
+    <div class="input-section" id="appContent" style="display:none;">
       <h2 id="generalDataTitle">📊 Datos Generales y Clientes</h2>
 
       <div class="input-group">
@@ -807,7 +940,7 @@
       </div>
     </div>
 
-    <div class="results-section">
+    <div class="results-section" style="display:none;">
       <h2 id="resultsTitle">📈 Resultados de Liquidación</h2>
       <div id="resultado">
         <div style="text-align: center; padding: 50px; color: var(--text-muted-color);">
@@ -853,6 +986,217 @@
 
   let allSettlements = []; // To store all fetched settlements for filtering
 
+  // --- AUTHENTICATION FUNCTIONS ---
+
+  /**
+   * Shows the welcome screen and hides other content.
+   */
+  function showWelcomeScreen() {
+    document.getElementById('welcomeScreen').style.display = 'block';
+    document.getElementById('authSection').style.display = 'none';
+    document.getElementById('appContent').style.display = 'none';
+    document.getElementById('resultsTitle').closest('.results-section').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none'; // Hide logout button on welcome screen
+    setAuthMessage(""); // Clear general auth message
+    setAuthMessageEmailPass(""); // Clear specific auth message
+  }
+
+  /**
+   * Shows the email/password authentication form and hides welcome screen.
+   */
+  function showEmailAuth() {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('authSection').style.display = 'block';
+    document.getElementById('appContent').style.display = 'none';
+    document.getElementById('resultsTitle').closest('.results-section').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    setAuthMessage(""); // Clear general auth message
+  }
+
+  /**
+   * Handles sign-in as a guest (anonymous).
+   */
+  async function signInAsGuest() {
+    try {
+      setAuthMessage("Iniciando sesión como invitado...", false);
+      await window.signInAnonymously(auth);
+      // onAuthStateChanged will handle the UI update after anonymous login
+    } catch (error) {
+      console.error("Error al iniciar sesión como invitado:", error);
+      showMessage("Error", "No se pudo iniciar sesión como invitado. Inténtalo de nuevo.");
+      setAuthMessage("Error al iniciar sesión como invitado.", true);
+    }
+  }
+
+  /**
+   * Shows or hides the application content based on authentication status.
+   * @param {boolean} isAuthenticated - True if the user is authenticated (logged in), false otherwise.
+   * @param {boolean} isAnonymous - True if the user is authenticated anonymously.
+   */
+  function toggleAppContent(isAuthenticated, isAnonymous = false) {
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const authSection = document.getElementById('authSection');
+    const appContent = document.getElementById('appContent');
+    const resultsSection = document.getElementById('resultsTitle').closest('.results-section');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userIdDisplay = document.getElementById('userIdDisplay');
+
+    if (isAuthenticated) {
+      // User is logged in (either via email/pass or custom token) or is anonymous and clicked "Continue as Guest"
+      if (welcomeScreen) welcomeScreen.style.display = 'none';
+      if (authSection) authSection.style.display = 'none';
+      if (appContent) appContent.style.display = 'block';
+      if (resultsSection) resultsSection.style.display = 'block'; // Show results section
+      if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+      if (userIdDisplay) {
+        if (isAnonymous) {
+          userIdDisplay.textContent = `Usuario Anónimo (ID: ${window.firebaseGlobals.userId})`;
+        } else {
+          userIdDisplay.textContent = `Autenticado como: ${auth.currentUser.email || auth.currentUser.uid}`;
+        }
+      }
+
+      // Load data relevant to the authenticated user
+      loadState();
+      loadDeductionTemplatesList();
+      loadSettlementHistory();
+      // Initialize font size displays (after loadState might set values)
+      updateFontSizeDisplay('baseFontSize');
+      updateFontSizeDisplay('titleFontSize');
+      updateFontSizeDisplay('sectionTitleFontSize');
+    } else {
+      // User is not logged in or explicitly logged out
+      if (welcomeScreen) welcomeScreen.style.display = 'block'; // Show welcome screen
+      if (authSection) authSection.style.display = 'none'; // Hide email auth form
+      if (appContent) appContent.style.display = 'none'; // Hide main app content
+      if (resultsSection) resultsSection.style.display = 'none'; // Hide results section
+      if (logoutBtn) logoutBtn.style.display = 'none';
+      if (userIdDisplay) userIdDisplay.textContent = `No Autenticado`;
+
+      // Clear app content if user logs out or is not authenticated
+      const resultadoDiv = document.getElementById('resultado');
+      if (resultadoDiv) {
+        resultadoDiv.innerHTML = `
+          <div style="text-align: center; padding: 50px; color: var(--text-muted-color);">
+            <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
+            <p id="initialMessage">Configura los datos y añade clientes, luego presiona calcular.</p>
+          </div>`;
+      }
+      if (incomeTrendChartInstance) incomeTrendChartInstance.destroy(); // Clear charts
+      if (chartInstance) chartInstance.destroy();
+      if (clientBarChartInstance) clientBarChartInstance.destroy();
+      if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+
+      // Disable download/csv buttons
+      const downloadBtn = document.getElementById('downloadBtn');
+      if (downloadBtn) downloadBtn.disabled = true;
+      const csvBtn = document.getElementById('csvBtn');
+      if (csvBtn) csvBtn.disabled = true;
+
+      reiniciarFormulario(); // Reset client/deductions to default form state
+      document.getElementById('historyContainer').innerHTML = `<p style="text-align: center; color: var(--text-muted-color);" id="noHistoryMessage">No hay liquidaciones guardadas.</p>`;
+    }
+  }
+
+  /**
+   * Displays authentication messages to the user for the email/password form.
+   * @param {string} message - The message to display.
+   * @param {boolean} isError - True if it's an error message.
+   */
+  function setAuthMessageEmailPass(message, isError = false) {
+    const authMessageEl = document.getElementById('authMessageEmailPass');
+    if (authMessageEl) {
+      authMessageEl.textContent = message;
+      authMessageEl.style.color = isError ? '#e74c3c' : '#2ecc71'; // Red for error, green for success
+      // In dark mode, adjust colors
+      if (document.body.classList.contains('dark-mode')) {
+        authMessageEl.style.color = isError ? '#ff5a5a' : '#90ee90';
+      }
+    }
+  }
+
+  /**
+   * Registers a new user with email and password.
+   */
+  async function registerUser() {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+
+    if (!email || !password) {
+      setAuthMessageEmailPass("Por favor, introduce un email y una contraseña.", true);
+      return;
+    }
+    if (password.length < 6) {
+      setAuthMessageEmailPass("La contraseña debe tener al menos 6 caracteres.", true);
+      return;
+    }
+
+    try {
+      setAuthMessageEmailPass("Registrando...", false);
+      const userCredential = await window.createUserWithEmailAndPassword(auth, email, password);
+      console.log("Usuario registrado:", userCredential.user);
+      setAuthMessageEmailPass("¡Registro exitoso! Has iniciado sesión.", false);
+      // onAuthStateChanged will handle UI update by calling toggleAppContent
+    } catch (error) {
+      console.error("Error de registro:", error.code, error.message);
+      let errorMessage = "Error al registrarse. Por favor, inténtalo de nuevo.";
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "El email ya está en uso. Intenta iniciar sesión o usa otro email.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "El formato del email es inválido.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "La contraseña es demasiado débil (debe tener al menos 6 caracteres).";
+      }
+      setAuthMessageEmailPass(errorMessage, true);
+    }
+  }
+
+  /**
+   * Logs in an existing user with email and password.
+   */
+  async function loginUser() {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+
+    if (!email || !password) {
+      setAuthMessageEmailPass("Por favor, introduce tu email y contraseña.", true);
+      return;
+    }
+
+    try {
+      setAuthMessageEmailPass("Iniciando sesión...", false);
+      const userCredential = await window.signInWithEmailAndPassword(auth, email, password);
+      console.log("Usuario inició sesión:", userCredential.user);
+      setAuthMessageEmailPass("¡Has iniciado sesión exitosamente!", false);
+      // onAuthStateChanged will handle UI update by calling toggleAppContent
+    } catch (error) {
+      console.error("Error de inicio de sesión:", error.code, error.message);
+      let errorMessage = "Error al iniciar sesión. Verifica tus credenciales.";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        errorMessage = "Email o contraseña incorrectos.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "El formato del email es inválido.";
+      }
+      setAuthMessageEmailPass(errorMessage, true);
+    }
+  }
+
+  /**
+   * Logs out the current user.
+   */
+  async function logoutUser() {
+    try {
+      await window.signOut(auth);
+      console.log("Usuario cerró sesión.");
+      setAuthMessage("Has cerrado sesión.", false);
+      // onAuthStateChanged will handle UI update by calling toggleAppContent
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error.message);
+      setAuthMessage("Error al cerrar sesión. Por favor, inténtalo de nuevo.", true);
+    }
+  }
+
   // --- INITIALIZATION AND STATE MANAGEMENT FUNCTIONS ---
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -867,81 +1211,148 @@
       window.onAuthStateChanged(auth, async (user) => {
         if (user) {
           window.firebaseGlobals.userId = user.uid;
-          console.log("Authenticated as:", window.firebaseGlobals.userId);
-        } else {
-          try {
-            if (window.firebaseGlobals.initialAuthToken) {
-              await window.signInWithCustomToken(auth, window.firebaseGlobals.initialAuthToken);
-            } else {
-              await window.signInAnonymously(auth);
-            }
-          } catch (error) {
-            console.error("Firebase authentication error:", error);
-            showMessage("Error de Autenticación", "No se pudo autenticar con Firebase. Algunas funciones podrían no estar disponibles.");
-            window.firebaseGlobals.userId = crypto.randomUUID(); // Fallback to a random ID
+          const isAnonymous = user.isAnonymous; // Check if the user is anonymous
+
+          if (isAnonymous) {
+            console.log("Authenticated as: Anonymous (ID:", user.uid + ")");
+            // If the user is anonymous, always show the welcome screen initially
+            showWelcomeScreen();
+            document.getElementById('logoutBtn').style.display = 'inline-block'; // Show logout for anonymous
+            setAuthMessage("Estás usando la aplicación de forma anónima. Inicia sesión o regístrate para guardar tus datos en la nube.", false);
+            // Ensure app content and results section are hidden when anonymous
+            document.getElementById('appContent').style.display = 'none';
+            document.getElementById('resultsTitle').closest('.results-section').style.display = 'none';
+
+          } else {
+            console.log("Authenticated as:", user.email || user.uid);
+            // If the user is authenticated with email/password or custom token, show the app content
+            toggleAppContent(true, false); // Not anonymous
+            setAuthMessage(""); // Clear any previous anonymous message
           }
+        } else {
+          // No user is logged in (or explicitly logged out), show the welcome screen
+          window.firebaseGlobals.userId = crypto.randomUUID(); // Set a temporary ID for local fallback
+          toggleAppContent(false); // This will show the welcome screen and hide app/results
         }
-        // This block runs after initial auth state is determined
-        document.getElementById('userIdDisplay').textContent = `User ID: ${window.firebaseGlobals.userId}`;
-        window.firebaseGlobals.isAuthReady = true;
-
-        // Now that authentication is ready, load everything that depends on it
-        // Set default service month to current month if none is saved
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        if (!document.getElementById('mesServicio')?.value) { // Use optional chaining
-          const mesServicioInput = document.getElementById('mesServicio');
-          if (mesServicioInput) mesServicioInput.value = `${year}-${month}`;
-        }
-        if (clientCounter === 0) addClient();
-        if (deductionCounter === 0) {
-          addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
-          addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
-        }
-
-        actualizarEnTiempoReal();
-        actualizarNombresClientesYDeducciones(); // Update labels after initial setup and before loading state
-        loadState();
-        loadDeductionTemplatesList();
-        loadSettlementHistory(); // This already uses onSnapshot, so it will update itself
-
-        // Initialize font size displays
-        updateFontSizeDisplay('baseFontSize');
-        updateFontSizeDisplay('titleFontSize');
-        updateFontSizeDisplay('sectionTitleFontSize');
+        window.firebaseGlobals.isAuthReady = true; // Firebase auth state is determined
       });
     } else {
       console.warn("Firebase config not found. Running in local storage mode.");
       window.firebaseGlobals.userId = crypto.randomUUID(); // Generate a random ID for local storage mode
-      document.getElementById('userIdDisplay').textContent = `User ID (Local): ${window.firebaseGlobals.userId}`;
       window.firebaseGlobals.isAuthReady = true; // Consider ready if no Firebase
+      toggleAppContent(false); // Show welcome screen in local mode
+      setAuthMessage("Estás usando la aplicación en modo local (sin nube). Tus datos se guardarán solo en este navegador.", false);
 
-      // Set default service month to current month if none is saved
+      // Default setup for local mode as there's no auth flow for loading state
       const now = new Date();
       const year = now.getFullYear();
       const month = (now.getMonth() + 1).toString().padStart(2, '0');
-      if (!document.getElementById('mesServicio')?.value) { // Use optional chaining
-        const mesServicioInput = document.getElementById('mesServicio');
-        if (mesServicioInput) mesServicioInput.value = `${year}-${month}`;
+      if (!document.getElementById('mesServicio')?.value) {
+        document.getElementById('mesServicio').value = `${year}-${month}`;
       }
       if (clientCounter === 0) addClient();
       if (deductionCounter === 0) {
         addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
         addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
       }
-
       actualizarEnTiempoReal();
-      actualizarNombresClientesYDeducciones(); // Update labels after initial setup and before loading state
+      actualizarNombresClientesYDeducciones();
       loadState();
       loadDeductionTemplatesList();
       loadSettlementHistory();
-      // Initialize font size displays
       updateFontSizeDisplay('baseFontSize');
       updateFontSizeDisplay('titleFontSize');
       updateFontSizeDisplay('sectionTitleFontSize');
     }
+    // Set default service month if not set
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    if (!document.getElementById('mesServicio')?.value) {
+      const mesServicioInput = document.getElementById('mesServicio');
+      if (mesServicioInput) mesServicioInput.value = `${year}-${month}`;
+    }
   });
+
+
+  /**
+   * Resets main application form inputs to default values and clears clients/deductions.
+   */
+  function reiniciarFormulario() {
+    // Reset basic form inputs
+    document.getElementById('nombreMariella').value = "Doña Mariella";
+    document.getElementById('facturadorDireccion').value = '';
+    document.getElementById('facturadorContacto').value = '';
+    document.getElementById('invoiceNumber').value = '';
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    document.getElementById('mesServicio').value = `${year}-${month}`;
+    document.getElementById('valorComida').value = 9000;
+    document.getElementById('moneda').value = 'COP';
+    document.getElementById('pdfNotes').value = '';
+    document.getElementById('pdfOrientation').value = 'p';
+    document.getElementById('pdfMargin').value = 15;
+    document.getElementById('pdfFont').value = 'helvetica';
+    document.getElementById('pdfStyle').value = 'standard';
+    document.getElementById('pdfHeaderColor').value = '#667eea';
+    document.getElementById('pdfLineColor').value = '#e1e8ed';
+    document.getElementById('baseFontSize').value = 10;
+    document.getElementById('titleFontSize').value = 18;
+    document.getElementById('sectionTitleFontSize').value = 12;
+    document.getElementById('signatureX').value = 150;
+    document.getElementById('signatureY').value = 250;
+    document.getElementById('signatureWidth').value = 50;
+
+    document.body.classList.remove('dark-mode');
+    logoBase64 = null;
+    signatureBase64 = null;
+    const logoInput = document.getElementById('logoInput');
+    if(logoInput) logoInput.value = '';
+    const signatureInput = document.getElementById('signatureInput');
+    if(signatureInput) signatureInput.value = '';
+
+    // Clear existing clients and deductions
+    const clientesContainer = document.getElementById('clientesContainer');
+    if (clientesContainer) clientesContainer.innerHTML = '';
+    clientCounter = 0;
+    addClient(); // Add a default client
+
+    const deduccionesContainer = document.getElementById('deduccionesContainer');
+    if (deduccionesContainer) deduccionesContainer.innerHTML = '';
+    deductionCounter = 0;
+    addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+    addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+
+    // Reset charts and results display
+    datosCalculados = null;
+    const resultadoDiv = document.getElementById('resultado');
+    if (resultadoDiv) {
+      resultadoDiv.innerHTML = `
+              <div style="text-align: center; padding: 50px; color: var(--text-muted-color);">
+                  <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
+                  <p>Configura los datos y añade clientes, luego presiona calcular.</p>
+              </div>`;
+    }
+    if (chartInstance) chartInstance.destroy();
+    if (clientBarChartInstance) clientBarChartInstance.destroy();
+    if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+    if (incomeTrendChartInstance) incomeTrendChartInstance.destroy();
+
+    // Disable download/csv buttons
+    const downloadBtn = document.getElementById('downloadBtn');
+    if (downloadBtn) downloadBtn.disabled = true;
+    const csvBtn = document.getElementById('csvBtn');
+    if (csvBtn) csvBtn.disabled = true;
+
+    actualizarEnTiempoReal();
+    actualizarNombresClientesYDeducciones();
+    updateFontSizeDisplay('baseFontSize');
+    updateFontSizeDisplay('titleFontSize');
+    updateFontSizeDisplay('sectionTitleFontSize');
+  }
+
 
   /**
    * Called every time an input changes to update state and save.
@@ -983,17 +1394,17 @@
       moneda: document.getElementById('moneda').value,
       pdfNotes: document.getElementById('pdfNotes').value,
       pdfOrientation: document.getElementById('pdfOrientation').value,
-      pdfMargin: document.getElementById('pdfMargin').value,
+      pdfMargin: parseFloat(document.getElementById('pdfMargin').value), // Ensure it's a number
       pdfFont: document.getElementById('pdfFont').value,
       pdfStyle: document.getElementById('pdfStyle').value,
       pdfHeaderColor: document.getElementById('pdfHeaderColor').value, // New: PDF Header Color
       pdfLineColor: document.getElementById('pdfLineColor').value,     // New: PDF Line Color
-      baseFontSize: document.getElementById('baseFontSize').value,       // New: Base Font Size
-      titleFontSize: document.getElementById('titleFontSize').value,     // New: Title Font Size
-      sectionTitleFontSize: document.getElementById('sectionTitleFontSize').value, // New: Section Title Font Size
-      signatureX: document.getElementById('signatureX').value,
-      signatureY: document.getElementById('signatureY').value,
-      signatureWidth: document.getElementById('signatureWidth').value,
+      baseFontSize: parseFloat(document.getElementById('baseFontSize').value), // Ensure it's a number
+      titleFontSize: parseFloat(document.getElementById('titleFontSize').value), // Ensure it's a number
+      sectionTitleFontSize: parseFloat(document.getElementById('sectionTitleFontSize').value), // Ensure it's a number
+      signatureX: parseFloat(document.getElementById('signatureX').value),
+      signatureY: parseFloat(document.getElementById('signatureY').value),
+      signatureWidth: parseFloat(document.getElementById('signatureWidth').value),
       clients: clients,
       deductions: deductions,
       theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
@@ -1033,152 +1444,99 @@
         if (docSnap.exists()) {
           state = docSnap.data();
         } else {
-          console.log("No current config found in Firestore. Checking localStorage.");
+          console.log("No current config found in Firestore for this user. Checking localStorage.");
           state = JSON.parse(localStorage.getItem('liquidacionState'));
         }
       } catch (e) {
         console.error("Error loading state from Firestore: ", e);
         state = JSON.parse(localStorage.getItem('liquidacionState'));
       }
-    } else if (!state) {
+    } else if (!state) { // Only try localStorage if stateToLoad is null and not using Firebase (or Firebase failed)
       state = JSON.parse(localStorage.getItem('liquidacionState'));
     }
 
-    const setDefaultValues = () => {
-      // Use direct default string for initial setup
-      const nombreMariellaInput = document.getElementById('nombreMariella');
-      if (nombreMariellaInput) nombreMariellaInput.value = "Doña Mariella";
+    // Default values if no state is loaded or state is incomplete
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const defaultMesServicio = `${year}-${month}`;
 
-      const facturadorDireccionInput = document.getElementById('facturadorDireccion');
-      if (facturadorDireccionInput) facturadorDireccionInput.value = '';
-
-      const facturadorContactoInput = document.getElementById('facturadorContacto');
-      if (facturadorContactoInput) facturadorContactoInput.value = '';
-
-      const invoiceNumberInput = document.getElementById('invoiceNumber');
-      if (invoiceNumberInput) invoiceNumberInput.value = '';
-
-      const mesServicioInput = document.getElementById('mesServicio');
-      if (mesServicioInput) mesServicioInput.value = '';
-
-      const valorComidaInput = document.getElementById('valorComida');
-      if (valorComidaInput) valorComidaInput.value = 9000;
-
-      const monedaSelect = document.getElementById('moneda');
-      if (monedaSelect) monedaSelect.value = 'COP';
-
-      const pdfNotesTextarea = document.getElementById('pdfNotes');
-      if (pdfNotesTextarea) pdfNotesTextarea.value = '';
-
-      const pdfOrientationSelect = document.getElementById('pdfOrientation');
-      if (pdfOrientationSelect) pdfOrientationSelect.value = 'p';
-
-      const pdfMarginInput = document.getElementById('pdfMargin');
-      if (pdfMarginInput) pdfMarginInput.value = 15;
-
-      const pdfFontSelect = document.getElementById('pdfFont');
-      if (pdfFontSelect) pdfFontSelect.value = 'helvetica';
-
-      const pdfStyleSelect = document.getElementById('pdfStyle');
-      if (pdfStyleSelect) pdfStyleSelect.value = 'standard';
-
-      const pdfHeaderColorInput = document.getElementById('pdfHeaderColor');
-      if (pdfHeaderColorInput) pdfHeaderColorInput.value = '#667eea';
-
-      const pdfLineColorInput = document.getElementById('pdfLineColor');
-      if (pdfLineColorInput) pdfLineColorInput.value = '#e1e8ed';
-
-      const baseFontSizeInput = document.getElementById('baseFontSize');
-      if (baseFontSizeInput) baseFontSizeInput.value = 10;
-
-      const titleFontSizeInput = document.getElementById('titleFontSize');
-      if (titleFontSizeInput) titleFontSizeInput.value = 18;
-
-      const sectionTitleFontSizeInput = document.getElementById('sectionTitleFontSize');
-      if (sectionTitleFontSizeInput) sectionTitleFontSizeInput.value = 12;
-
-      const signatureXInput = document.getElementById('signatureX');
-      if (signatureXInput) signatureXInput.value = 150;
-
-      const signatureYInput = document.getElementById('signatureY');
-      if (signatureYInput) signatureYInput.value = 250;
-
-      const signatureWidthInput = document.getElementById('signatureWidth');
-      if (signatureWidthInput) signatureWidthInput.value = 50;
-
-      document.body.classList.remove('dark-mode');
-      logoBase64 = null;
-      signatureBase64 = null;
-
-      const clientesContainer = document.getElementById('clientesContainer');
-      if (clientesContainer) clientesContainer.innerHTML = '';
-      clientCounter = 0;
-      addClient();
-
-      const deduccionesContainer = document.getElementById('deduccionesContainer');
-      if (deduccionesContainer) deduccionesContainer.innerHTML = '';
-      deductionCounter = 0;
-      addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
-      addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
-
-      actualizarEnTiempoReal();
+    const defaultValues = {
+      nombreMariella: "Doña Mariella",
+      facturadorDireccion: '',
+      facturadorContacto: '',
+      invoiceNumber: '',
+      mesServicio: defaultMesServicio,
+      valorComida: 9000,
+      moneda: 'COP',
+      pdfNotes: '',
+      pdfOrientation: 'p',
+      pdfMargin: 15,
+      pdfFont: 'helvetica',
+      pdfStyle: 'standard',
+      pdfHeaderColor: '#667eea',
+      pdfLineColor: '#e1e8ed',
+      baseFontSize: 10,
+      titleFontSize: 18,
+      sectionTitleFontSize: 12,
+      signatureX: 150,
+      signatureY: 250,
+      signatureWidth: 50,
+      clients: [],
+      deductions: [],
+      theme: 'light',
+      logoBase64: null,
+      signatureBase64: null
     };
 
-    if (!state) {
-      setDefaultValues();
-      return;
-    }
+    // Merge loaded state with defaults
+    const finalState = { ...defaultValues, ...state };
 
-    // Ensure elements exist before setting their values
-    const getVal = (id, defaultValue) => {
-      const el = document.getElementById(id);
-      if (el) return state[id] !== undefined ? state[id] : defaultValue;
-      return defaultValue;
-    };
+    // Set values to DOM elements
+    document.getElementById('nombreMariella').value = finalState.nombreMariella;
+    document.getElementById('facturadorDireccion').value = finalState.facturadorDireccion;
+    document.getElementById('facturadorContacto').value = finalState.facturadorContacto;
+    document.getElementById('invoiceNumber').value = finalState.invoiceNumber;
+    document.getElementById('mesServicio').value = finalState.mesServicio;
+    document.getElementById('valorComida').value = finalState.valorComida;
+    document.getElementById('moneda').value = finalState.moneda;
+    document.getElementById('pdfNotes').value = finalState.pdfNotes;
+    document.getElementById('pdfOrientation').value = finalState.pdfOrientation;
+    document.getElementById('pdfMargin').value = finalState.pdfMargin;
+    document.getElementById('pdfFont').value = finalState.pdfFont;
+    document.getElementById('pdfStyle').value = finalState.pdfStyle;
+    document.getElementById('pdfHeaderColor').value = finalState.pdfHeaderColor;
+    document.getElementById('pdfLineColor').value = finalState.pdfLineColor;
+    document.getElementById('baseFontSize').value = finalState.baseFontSize;
+    document.getElementById('titleFontSize').value = finalState.titleFontSize;
+    document.getElementById('sectionTitleFontSize').value = finalState.sectionTitleFontSize;
+    document.getElementById('signatureX').value = finalState.signatureX;
+    document.getElementById('signatureY').value = finalState.signatureY;
+    document.getElementById('signatureWidth').value = finalState.signatureWidth;
 
-    document.getElementById('nombreMariella').value = getVal('nombreMariella', "Doña Mariella");
-    document.getElementById('facturadorDireccion').value = getVal('facturadorDireccion', '');
-    document.getElementById('facturadorContacto').value = getVal('facturadorContacto', '');
-    document.getElementById('invoiceNumber').value = getVal('invoiceNumber', '');
-    document.getElementById('mesServicio').value = getVal('mesServicio', '');
-    document.getElementById('valorComida').value = getVal('valorComida', 9000);
-    document.getElementById('moneda').value = getVal('moneda', 'COP');
-    document.getElementById('pdfNotes').value = getVal('pdfNotes', '');
-    document.getElementById('pdfOrientation').value = getVal('pdfOrientation', 'p');
-    document.getElementById('pdfMargin').value = getVal('pdfMargin', 15);
-    document.getElementById('pdfFont').value = getVal('pdfFont', 'helvetica');
-    document.getElementById('pdfStyle').value = getVal('pdfStyle', 'standard');
-    document.getElementById('pdfHeaderColor').value = getVal('pdfHeaderColor', '#667eea');
-    document.getElementById('pdfLineColor').value = getVal('pdfLineColor', '#e1e8ed');
-    document.getElementById('baseFontSize').value = getVal('baseFontSize', 10);
-    document.getElementById('titleFontSize').value = getVal('titleFontSize', 18);
-    document.getElementById('sectionTitleFontSize').value = getVal('sectionTitleFontSize', 12);
-    document.getElementById('signatureX').value = getVal('signatureX', 150);
-    document.getElementById('signatureY').value = getVal('signatureY', 250);
-    document.getElementById('signatureWidth').value = getVal('signatureWidth', 50);
-
-    if (state.theme === 'dark') {
+    if (finalState.theme === 'dark') {
       document.body.classList.add('dark-mode');
     } else {
       document.body.classList.remove('dark-mode');
     }
 
-    logoBase64 = state.logoBase64 || null;
-    signatureBase64 = state.signatureBase64 || null;
+    logoBase64 = finalState.logoBase64;
+    signatureBase64 = finalState.signatureBase64;
 
     document.getElementById('clientesContainer').innerHTML = '';
     clientCounter = 0;
-    if (state.clients && state.clients.length > 0) {
-      state.clients.forEach(c => addClient(c.name, c.meals));
+    if (finalState.clients && finalState.clients.length > 0) {
+      finalState.clients.forEach(c => addClient(c.name, c.meals));
     } else {
-      addClient();
+      addClient(); // Add default client if none loaded
     }
 
     document.getElementById('deduccionesContainer').innerHTML = '';
     deductionCounter = 0;
-    if (state.deductions && state.deductions.length > 0) {
-      state.deductions.forEach(d => addDeduction(d.name, d.type, d.value, d.category));
+    if (finalState.deductions && finalState.deductions.length > 0) {
+      finalState.deductions.forEach(d => addDeduction(d.name, d.type, d.value, d.category));
     } else {
+      // Add default deductions if none loaded
       addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
       addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
     }
@@ -1195,31 +1553,36 @@
     // Show confirmation modal instead of direct confirmation
     showConfirmation(
       "Reiniciar",
-      "¿Estás seguro de que quieres eliminar todos los datos (incluyendo historial y plantillas)? Esta acción es irreversible.",
+      "¿Estás seguro de que quieres eliminar todos los datos (incluyendo historial y plantillas) para tu usuario? Esta acción es irreversible.",
       async () => {
         // Delete from Firestore if available
         if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
           try {
             const appId = window.firebaseGlobals.appId;
             const userId = window.firebaseGlobals.userId;
+
+            // Delete currentConfig
             const appStateDocRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
             await window.deleteDoc(appStateDocRef);
 
+            // Delete all settlements
             const settlementsCollectionRef = window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`);
             const settlementDocs = await window.getDocs(settlementsCollectionRef);
             for (const doc of settlementDocs.docs) {
               await window.deleteDoc(doc.ref);
             }
 
+            // Delete all deduction templates
             const deductionTemplatesCollectionRef = window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/deductionTemplates`);
             const templateDocs = await window.getDocs(deductionTemplatesCollectionRef);
             for (const doc of templateDocs.docs) {
               await window.deleteDoc(doc.ref);
             }
-            console.log("Firestore data cleared.");
+            console.log(`Firestore data cleared for user: ${userId}`);
+            showMessage("Datos Borrados", "Todos tus datos de la nube han sido eliminados.");
           } catch (e) {
             console.error("Error clearing Firestore data:", e);
-            showMessage("Error", "Hubo un problema al borrar los datos de la nube. Borrando datos locales.");
+            showMessage("Error", "Hubo un problema al borrar los datos de la nube. Intentando borrar datos locales.");
           }
         }
 
@@ -1227,16 +1590,22 @@
         localStorage.removeItem('liquidacionState');
         localStorage.removeItem('deductionTemplates');
         localStorage.removeItem('settlementHistory');
+        console.log("Local storage data cleared.");
 
-        clientCounter = 0;
-        deductionCounter = 0;
-        logoBase64 = null;
-        signatureBase64 = null;
-        const logoInput = document.getElementById('logoInput');
-        if(logoInput) logoInput.value = '';
-        const signatureInput = document.getElementById('signatureInput');
-        if(signatureInput) signatureInput.value = '';
-        location.reload(); // Reload the page for a complete restart
+        reiniciarFormulario(); // Reset form inputs after clearing storage
+        // Re-evaluate auth state to ensure correct UI is shown (welcome screen if not logged in)
+        if (auth) {
+          window.onAuthStateChanged(auth, (user) => {
+            if (user) {
+              toggleAppContent(true, user.isAnonymous);
+            } else {
+              toggleAppContent(false);
+            }
+          });
+        } else {
+          // If Firebase is not initialized, just show welcome screen
+          toggleAppContent(false);
+        }
       }
     );
   }
@@ -1558,7 +1927,7 @@
       currentDeductions.push({
         name: group.querySelector('.deduction-name').value,
         type: group.querySelector('.deduction-type').value,
-        value: group.querySelector('.deduction-value').value,
+        value: parseFloat(group.querySelector('.deduction-value').value), // Ensure value is a number
         category: group.querySelector('.deduction-category').value
       });
     });
@@ -1736,13 +2105,19 @@
     const historySearchInput = document.getElementById('historySearch');
     const historySearch = historySearchInput ? historySearchInput.value.toLowerCase() : '';
 
+    // Only load if authenticated and firebase is ready, otherwise use local storage fallback
     if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
       try {
         const appId = window.firebaseGlobals.appId;
         const userId = window.firebaseGlobals.userId;
         const q = window.query(window.collection(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/settlements`));
-        // Use onSnapshot for real-time updates
-        window.onSnapshot(q, (snapshot) => {
+
+        // Detach previous listener if exists to prevent multiple listeners
+        if (window.firebaseGlobals.unsubscribeSettlements) {
+          window.firebaseGlobals.unsubscribeSettlements();
+        }
+
+        window.firebaseGlobals.unsubscribeSettlements = window.onSnapshot(q, (snapshot) => {
           allSettlements = []; // Clear previous data
           snapshot.forEach(doc => {
             allSettlements.push({ ...doc.data(), firestoreDocId: doc.id }); // Store Firestore doc ID
@@ -1765,6 +2140,7 @@
         renderFilteredHistory();
       }
     } else {
+      // If not authenticated or Firebase not ready, use local storage only
       allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
       renderFilteredHistory();
     }
@@ -1795,6 +2171,7 @@
         historyItemDiv.className = 'history-item';
 
         // Check if fullData and config exist for currency formatting
+        // Provide defaults if item.fullData is null (e.g., for config_snapshot before calculation)
         const configLocale = item.fullData?.config?.locale || 'es-CO';
         const configMoneda = item.fullData?.config?.moneda || 'COP';
         const formato = getCurrencyFormat(configLocale, configMoneda);
@@ -1802,11 +2179,16 @@
         // Display month as localized string
         const mesDisplay = item.summary.mesServicio ? new Date(item.summary.mesServicio + '-02').toLocaleDateString(configLocale, { year: 'numeric', month: 'long' }) : "Mes N/A";
 
+        // Handle saldoFinalNeto display for config_snapshot type
+        const saldoFinalDisplay = item.type === 'config_snapshot' ? 'N/A' : formato.format(item.summary.saldoFinalNeto || 0);
+        const totalIngresoBrutoDisplay = item.type === 'config_snapshot' ? 'N/A' : formato.format(item.summary.totalIngresoBruto || 0);
+
+
         historyItemDiv.innerHTML = `
                   <div class="history-item-info">
                       <strong>${item.summary.nombreMariella || 'N/A'}</strong> - ${mesDisplay}
                       <br>
-                      Saldo Neto: ${formato.format(item.summary.saldoFinalNeto || 0)} (${item.summary.moneda || 'COP'})
+                      Saldo Neto: ${saldoFinalDisplay} (${item.summary.moneda || 'COP'})
                       ${item.type === 'config_snapshot' ? '<br><small>(Configuración guardada)</small>' : ''}
                       <br>
                       <small>${item.timestamp || 'N/A'}</small>
@@ -1841,7 +2223,7 @@
         }
       } catch (e) {
         console.error("Error loading historical settlement from Firestore: ", e);
-        itemToLoad = allSettlements.find(item => item.id === parseInt(id)); // Fallback to local
+        itemToLoad = allSettlements.find(item => item.id === parseInt(id)); // Fallback to local by ID
       }
     } else {
       itemToLoad = allSettlements.find(item => item.id === parseInt(id)); // Local storage only
@@ -1909,7 +2291,7 @@
           history = history.filter(item => item.id !== parseInt(id));
           localStorage.setItem('settlementHistory', JSON.stringify(history));
           loadSettlementHistory();
-          showMessage("Historial Eliminado", "Liquidación eliminada del historial.");
+          showMessage("Eliminar Historial", "Liquidación eliminada del historial.");
         }
       }
     );
@@ -1943,11 +2325,12 @@
       summary: {
         mesServicio: currentState.mesServicio,
         nombreMariella: currentState.nombreMariella,
-        // For "Net Income", "Currency", we would need to process.
-        // For now, it's saved as a config snapshot.
-        type: 'config_snapshot' // Indicate this is a config snapshot, not a full settlement
+        saldoFinalNeto: 0, // Set to 0 for config snapshot as it's not a calculated settlement
+        totalIngresoBruto: 0, // Set to 0 for config snapshot
+        moneda: currentState.moneda || 'COP'
       },
-      fullData: { config: currentState } // Save the full config
+      fullData: { config: currentState }, // Save the full config
+      type: 'config_snapshot' // Indicate this is a config snapshot, not a full settlement
     };
 
     if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
@@ -2045,7 +2428,7 @@
     }
 
     const selectMoneda = document.getElementById('moneda');
-    const selectedOptionMoneda = selectMoneda?.options[selectMoneda.selectedIndex]; // Use optional chaining
+    const selectedOptionMoneda = selectMoneda?.options[selectMonenca.selectedIndex]; // Use optional chaining
     const locale = selectedOptionMoneda?.dataset.locale || 'es-CO'; // Fallback
     const currency = selectMoneda?.value || 'COP'; // Fallback
     const formato = getCurrencyFormat(locale, currency);
@@ -2563,7 +2946,7 @@
     }
     csvContent += `Concepto,Valor\n`;
     csvContent += `Total Ingreso Bruto,${mariella.totalIngresoBruto}\n`;
-    mariContent.deducciones.forEach(d => {
+    mariella.deducciones.forEach(d => {
       csvContent += `"${(d.nombre || '').replace(/"/g, '""')}",-${d.montoCalculado}\n`; /* Escape double quotes */
     });
     csvContent += `SALDO FINAL A RECIBIR,${mariella.saldoFinalNeto}\n\n`;
