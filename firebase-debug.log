@@ -1,0 +1,78 @@
+[debug] [2025-06-13T23:00:41.111Z] ----------------------------------------------------------------------
+[debug] [2025-06-13T23:00:41.115Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\fores\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-06-13T23:00:41.115Z] CLI Version:   14.7.0
+[debug] [2025-06-13T23:00:41.115Z] Platform:      win32
+[debug] [2025-06-13T23:00:41.116Z] Node Version:  v22.16.0
+[debug] [2025-06-13T23:00:41.116Z] Time:          Fri Jun 13 2025 18:00:41 GMT-0500 (hora estándar de Colombia)
+[debug] [2025-06-13T23:00:41.116Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-06-13T23:00:41.278Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-06-13T23:00:41.279Z] > authorizing via signed-in user (cardenasever072@gmail.com)
+[debug] [2025-06-13T23:00:41.279Z] [iam] checking project liquidacionapp-62962 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-06-13T23:00:41.280Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:00:41.280Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:00:41.281Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions [none]
+[debug] [2025-06-13T23:00:41.281Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions x-goog-quota-user=projects/liquidacionapp-62962
+[debug] [2025-06-13T23:00:41.281Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-06-13T23:00:41.893Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions 200
+[debug] [2025-06-13T23:00:41.894Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-06-13T23:00:41.894Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:00:41.894Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:00:41.894Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/liquidacionapp-62962 [none]
+[debug] [2025-06-13T23:00:42.894Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/liquidacionapp-62962 200
+[debug] [2025-06-13T23:00:42.894Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/liquidacionapp-62962 {"projectId":"liquidacionapp-62962","projectNumber":"851382130132","displayName":"LiquidacionApp","name":"projects/liquidacionapp-62962","resources":{"hostingSite":"liquidacionapp-62962"},"state":"ACTIVE","etag":"1_e01e4239-52c9-4312-ad9d-79cd2449f48b"}
+[info] 
+[info] === Deploying to 'liquidacionapp-62962'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-06-13T23:00:42.899Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:00:42.900Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:00:42.900Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions [none]
+[debug] [2025-06-13T23:00:42.900Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-06-13T23:00:43.984Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions 200
+[debug] [2025-06-13T23:00:43.984Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions {"name":"projects/851382130132/sites/liquidacionapp-62962/versions/7ea70c675b238f3d","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[liquidacionapp-62962]: beginning deploy... 
+[info] i  hosting[liquidacionapp-62962]: found 8 files in public 
+[debug] [2025-06-13T23:00:43.998Z] [hosting] uploading with 200 concurrency
+[debug] [2025-06-13T23:00:44.006Z] Error: EISDIR: illegal operation on a directory, read
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-06-13T23:01:18.416Z] ----------------------------------------------------------------------
+[debug] [2025-06-13T23:01:18.419Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\fores\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2025-06-13T23:01:18.419Z] CLI Version:   14.7.0
+[debug] [2025-06-13T23:01:18.419Z] Platform:      win32
+[debug] [2025-06-13T23:01:18.420Z] Node Version:  v22.16.0
+[debug] [2025-06-13T23:01:18.420Z] Time:          Fri Jun 13 2025 18:01:18 GMT-0500 (hora estándar de Colombia)
+[debug] [2025-06-13T23:01:18.420Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-06-13T23:01:18.581Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-06-13T23:01:18.581Z] > authorizing via signed-in user (cardenasever072@gmail.com)
+[debug] [2025-06-13T23:01:18.581Z] [iam] checking project liquidacionapp-62962 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-06-13T23:01:18.582Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:01:18.582Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:01:18.583Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions [none]
+[debug] [2025-06-13T23:01:18.583Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions x-goog-quota-user=projects/liquidacionapp-62962
+[debug] [2025-06-13T23:01:18.583Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-06-13T23:01:19.204Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions 200
+[debug] [2025-06-13T23:01:19.204Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/liquidacionapp-62962:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-06-13T23:01:19.204Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:01:19.204Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:01:19.204Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/liquidacionapp-62962 [none]
+[debug] [2025-06-13T23:01:19.680Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/liquidacionapp-62962 200
+[debug] [2025-06-13T23:01:19.680Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/liquidacionapp-62962 {"projectId":"liquidacionapp-62962","projectNumber":"851382130132","displayName":"LiquidacionApp","name":"projects/liquidacionapp-62962","resources":{"hostingSite":"liquidacionapp-62962"},"state":"ACTIVE","etag":"1_e01e4239-52c9-4312-ad9d-79cd2449f48b"}
+[info] 
+[info] === Deploying to 'liquidacionapp-62962'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-06-13T23:01:19.685Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:01:19.686Z] Checked if tokens are valid: true, expires at: 1749857191444
+[debug] [2025-06-13T23:01:19.686Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions [none]
+[debug] [2025-06-13T23:01:19.686Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-06-13T23:01:20.857Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions 200
+[debug] [2025-06-13T23:01:20.857Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/liquidacionapp-62962/versions {"name":"projects/851382130132/sites/liquidacionapp-62962/versions/a859c1bf6aacc48b","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[liquidacionapp-62962]: beginning deploy... 
+[info] i  hosting[liquidacionapp-62962]: found 8 files in public 
+[debug] [2025-06-13T23:01:20.869Z] [hosting] uploading with 200 concurrency
+[debug] [2025-06-13T23:01:20.875Z] Error: EISDIR: illegal operation on a directory, read
+[error] 
+[error] Error: An unexpected error has occurred.
