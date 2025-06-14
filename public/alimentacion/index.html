@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍽️ Liquidación de Comidas (v3.6 - Revisado)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, deleteDoc, onSnapshot, query, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CONFIGURACIÓN DE FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4",
+            authDomain: "liquidacionapp-62962.firebaseapp.com",
+            projectId: "liquidacionapp-62962",
+            storageBucket: "liquidacionapp-62962.firebasestorage.app",
+            messagingSenderId: "851382130132",
+            appId: "1:851382130132:web:eaba38fab449f14fb5b241"
+        };
+
+        // Variables globales para Firebase
+        let app, db, auth;
+
+        // Exponer objetos y funciones de Firebase de forma global
+        window.firebaseGlobals = {
+            appId: typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.appId,
+            firebaseConfig: firebaseConfig,
+            initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
+            db: null,
+            auth: null,
+            userId: null,
+            isAuthReady: false
+        };
+
+        // Exponer funciones individuales para que los handlers onclick() en el HTML funcionen
+        window.initializeApp = initializeApp;
+        window.getAuth = getAuth;
+        window.signInAnonymously = signInAnonymously;
+        window.signInWithCustomToken = signInWithCustomToken;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.getFirestore = getFirestore;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.deleteDoc = deleteDoc;
+        window.onSnapshot = onSnapshot;
+        window.query = query;
+        window.setDoc = setDoc;
+        window.updateDoc = updateDoc;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+    </script>
+    <style>
+        /* Estilos Generales */
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --header-gradient-start: #ff6b6b;
+            --header-gradient-end: #feca57;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #333;
+            --text-muted-color: #7f8c8d;
+            --border-color: #e1e8ed;
+            --input-bg: #f8f9fa;
+            --focus-border-color: #3498db;
+            --section-title-color: #2c3e50;
+            --main-button-start: #667eea;
+            --main-button-end: #764ba2;
+            --modal-bg: rgba(0, 0, 0, 0.5);
+            --modal-content-bg: #fff;
+        }
+
+        body.dark-mode {
+            --bg-gradient-start: #1D2B64;
+            --bg-gradient-end: #000000;
+            --header-gradient-start: #485563;
+            --header-gradient-end: #29323c;
+            --card-bg: rgba(45, 57, 75, 0.95);
+            --text-color: #EAEAEA;
+            --text-muted-color: #a0a0a0;
+            --border-color: #4a5568;
+            --input-bg: #2d3748;
+            --focus-border-color: #4299e1;
+            --section-title-color: #EAEAEA;
+            --main-button-start: #3a7bd5;
+            --main-button-end: #3a6073;
+            --modal-content-bg: #2d3748;
+        }
+
+        /* Reseteo y Estilos Base */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+            transition: background 0.5s ease;
+        }
+
+        /* Contenedor Principal */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* MEJORA UX: Indicador de Carga */
+        #loader {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000; /* Por encima de todo */
+            justify-content: center;
+            align-items: center;
+        }
+        #loader::after {
+            content: '';
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--focus-border-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* Encabezado */
+        .header {
+            background: linear-gradient(135deg, var(--header-gradient-start), var(--header-gradient-end));
+            padding: 20px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Contenido Principal (Grid) */
+        .content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+        }
+
+        /* Secciones de Entrada y Resultados */
+        .input-section, .results-section, .auth-section, .welcome-screen {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px; /* Added for general spacing */
+        }
+        .results-section { min-height: 600px; }
+
+        /* Grupos de Entrada */
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--section-title-color);
+            font-size: 1em;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-wrapper input,
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group input[type="month"],
+        .input-group input[type="email"], /* Added for auth */
+        .input-group input[type="password"], /* Added for auth */
+        .input-group select,
+        .input-group textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+        .input-wrapper input:focus,
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--focus-border-color);
+            background: var(--card-bg);
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+        }
+        /* Validación de Input */
+        .input-group input.invalid,
+        .input-group select.invalid,
+        .input-group textarea.invalid {
+            border-color: #e74c3c; /* Red border for invalid input */
+        }
+        .input-group input.valid,
+        .input-group select.valid,
+        .input-group textarea.valid {
+            border-color: #2ecc71; /* Green border for valid input */
+        }
+
+        /* Estilos específicos para grupos de cliente/deducción */
+        .client-input-group, .deduction-input-group {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #d1d9e6;
+        }
+        body.dark-mode .client-input-group,
+        body.dark-mode .deduction-input-group {
+            background: #1a202c;
+            border-color: #2d3748;
+        }
+        .client-header, .deduction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .client-header h4, .deduction-header h4 {
+            color: #34495e;
+            font-size: 1.1em;
+        }
+        body.dark-mode .client-header h4,
+        body.dark-mode .deduction-header h4 {
+            color: #EAEAEA;
+        }
+
+        /* Botones de remover */
+        .remove-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .remove-btn:hover { background-color: #c0392b; }
+
+        /* Botones de contador (más/menos) */
+        .counter-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+        .counter-btn.minus { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+        .counter-btn.plus { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .counter-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Botones principales y secundarios */
+        .main-button, .secondary-button, .start-new-btn {
+            width: 100%;
+            padding: 15px;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        .main-button { background: linear-gradient(135deg, var(--main-button-start), var(--main-button-end)); }
+        .main-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        .main-button.processing {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            animation: pulse 1.5s infinite;
+        }
+        .secondary-button { background: linear-gradient(135deg, #56ab2f, #a8e063); margin-top: 10px;}
+        .secondary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(86,171,47,0.3);
+        }
+        .start-new-btn { background: linear-gradient(135deg, #f39c12, #f1c40f); color: white; }
+
+        /* Contenedores de Gráficos */
+        .chart-container { margin: 20px 0; height: 250px; position: relative; }
+
+        /* Tarjetas de Resumen */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        .summary-card.show { transform: translateY(0); opacity: 1; }
+        .summary-card h3 { font-size: 1em; margin-bottom: 5px; }
+        .summary-card .amount { font-size: 1.3em; font-weight: bold; }
+
+        /* Secciones de Resultados Detallados */
+        .detailed-results-container, .mariella-settlement-section { margin-top: 20px; }
+        .section-title {
+            font-size: 1.4em;
+            color: var(--section-title-color);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--main-button-start);
+        }
+        .client-breakdown, .person-deductions {
+            background: var(--input-bg);
+            padding: 18px;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            margin-bottom: 18px;
+            transform: translateX(-20px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        .client-breakdown.show, .person-deductions.show { transform: translateX(0); opacity: 1; }
+        .person-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--section-title-color);
+        }
+
+        /* Items de Deducción/Detalle */
+        .deduction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 0.9em;
+        }
+        .deduction-item:last-child { border-bottom: none; }
+        .deduction-item .label { color: #555; }
+        body.dark-mode .deduction-item .label { color: #bbb; }
+        .deduction-item .value { font-weight: 600; color: #333; }
+        body.dark-mode .deduction-item .value { color: #eee; }
+        .deduction-item .subtotal { font-weight: bold; color: #16a085; }
+        .deduction-item .final-value { font-weight: bold; font-size: 1.05em; color: #27ae60; }
+
+        /* Botones de Acción Global */
+        .reset-btn, .download-btn, .csv-btn, .start-new-btn {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .reset-btn { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; }
+        .download-btn { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+        .csv-btn { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+
+        .download-btn:disabled, .csv-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Selector de Tema */
+        .theme-switcher {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 1.2em;
+        }
+        .theme-switcher span { padding: 0 5px; }
+
+        /* Fila de Input de Deducción */
+        .deduction-input-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 120px 120px; /* Added column for category */
+            gap: 10px;
+            align-items: center;
+        }
+        .deduction-input-row select.deduction-category { /* Style for new category select */
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1em;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+
+        /* Acciones por Cliente (PDF Individual) */
+        .client-breakdown-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .client-download-btn {
+            background: linear-gradient(135deg, #2ecc71, #1abc9c);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .client-download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Estilos del Modal Personalizado */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed; /* Posición fija */
+            z-index: 1000; /* Siempre en la parte superior */
+            left: 0;
+            top: 0;
+            width: 100%; /* Ancho completo */
+            height: 100%; /* Alto completo */
+            overflow: auto; /* Habilitar scroll si es necesario */
+            background-color: var(--modal-bg); /* Fondo oscuro con opacidad */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--modal-content-bg);
+            margin: auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            position: relative;
+            color: var(--text-color);
+        }
+
+        .modal-close-button {
+            color: var(--text-muted-color);
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close-button:hover,
+        .modal-close-button:focus {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .modal h3 {
+            margin-bottom: 15px;
+            color: var(--section-title-color);
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .modal button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 0 5px; /* Espacio entre botones del modal */
+        }
+        .modal button.confirm-upload { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .modal button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        .modal button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* Historial de Liquidaciones */
+        .history-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .history-search-filter {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-grow: 1;
+            max-width: 100%;
+        }
+
+        .history-search-filter input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--input-bg);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .history-item-info {
+            flex-grow: 1;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            gap: 4px; /* Space between text and status */
+        }
+        .history-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .history-item-actions button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+        .view-pdf-btn { background-color: #28a745; }
+        .view-pdf-btn:hover { background-color: #218838; }
+        .view-receipt-btn { background-color: #3498db; }
+        .view-receipt-btn:hover { background-color: #2980b9; }
+        .register-payment-btn { background-color: #e67e22; }
+        .register-payment-btn:hover { background-color: #d35400; }
+        .history-delete-btn { background-color: #dc3545; }
+        .history-delete-btn:hover { background-color: #c82333; }
+
+        /* NEW: Payment Status Styles */
+        .status-label {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+
+        .status-pagada { background-color: #28a745; }
+        .status-pendiente { background-color: #ffc107; color: #333; }
+        .status-vencida { background-color: #dc3545; }
+
+        /* Acciones de Plantillas de Deducción */
+        .deduction-template-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .deduction-template-actions button, .deduction-template-actions select {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .deduction-template-actions button:hover {
+            background: var(--focus-border-color);
+            color: white;
+        }
+        /* Drag and Drop Styling */
+        .client-input-group.dragging, .deduction-input-group.dragging {
+            opacity: 0.5;
+            border: 2px dashed var(--focus-border-color);
+        }
+
+        /* New: Drag over active target */
+        .client-input-group.drag-over-active, .deduction-input-group.drag-over-active {
+            border: 2px solid var(--focus-border-color); /* Highlight border */
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4); /* Add a glow */
+            transform: scale(1.02); /* Slightly larger */
+        }
+
+        /* Range slider for PDF font sizes */
+        .range-slider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .range-slider label {
+            min-width: 120px; /* Adjust as needed */
+        }
+        .range-slider input[type="range"] {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            border-radius: 5px;
+        }
+        .range-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--main-button-start);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .range-slider input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--main-button-end);
+        }
+        .range-slider .value-display {
+            min-width: 30px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        /* Auth section styles */
+        .auth-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .auth-section h3 {
+            color: var(--section-title-color);
+            margin-bottom: 15px;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .auth-buttons button {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .auth-buttons button.login { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .auth-buttons button.register { background: linear-gradient(135deg, #2ecc71, #1abc9c); }
+        .auth-buttons button.logout { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .auth-buttons button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .auth-message {
+            margin-top: 15px;
+            color: #e74c3c; /* Red for errors */
+            font-weight: bold;
+        }
+        body.dark-mode .auth-message {
+            color: #ff5a5a;
+        }
+
+        /* Welcome Screen Styles */
+        .welcome-screen {
+            text-align: center;
+            padding: 50px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 50px auto; /* Center the welcome screen */
+        }
+        .welcome-screen h2 {
+            font-size: 2em;
+            color: var(--section-title-color);
+            margin-bottom: 15px;
+        }
+        .welcome-screen p {
+            font-size: 1.1em;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        .welcome-screen .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .welcome-screen .welcome-buttons button {
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .welcome-screen .welcome-buttons button.email-auth-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        .welcome-screen .welcome-buttons button.guest-auth-btn {
+            background: linear-gradient(135deg, #56ab2f, #a8e063);
+        }
+        .welcome-screen .welcome-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Toast Notifications */
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050; /* Higher than modal */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+        }
+
+        .toast {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateX(100%);
+            animation: fadeInSlide 0.5s forwards, fadeOut 0.5s 2.5s forwards; /* 3s total duration */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.success { background-color: #28a745; }
+        .toast.error { background-color: #dc3545; }
+        .toast.info { background-color: #007bff; }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Media Queries para Responsividad */
+        @media (max-width: 992px) {
+            .content { grid-template-columns: 1fr; }
+            .history-search-filter { flex-direction: column; }
+        }
+        @media (max-width: 768px) {
+            .summary-cards, .summary-grid { grid-template-columns: 1fr; }
+            .deduction-input-row { grid-template-columns: 1fr; }
+            .history-section-header { flex-direction: column; align-items: flex-start; }
+            .auth-buttons { flex-direction: column; }
+            .welcome-screen { padding: 30px; margin: 20px auto; } /* Adjust padding and margin for smaller screens */
+            #toastContainer {
+                top: auto;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 90%;
+            }
+            .toast { animation: fadeIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- MEJORA UX: Indicador de carga añadido al cuerpo del HTML -->
+<div id="loader"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="theme-switcher" onclick="toggleTheme()">
+            <span class="light-icon">☀️</span>
+            <span class="dark-icon">🌙</span>
+        </div>
+        <div style="position: absolute; top: 15px; left: 20px;">
+            <div id="userIdDisplay" style="color: white; font-size: 0.7em; margin-top: 5px;"></div>
+        </div>
+        <h1 id="appTitle">🍽️ Liquidación de Comidas Multi-Cliente 💰</h1>
+        <p id="headerSubtitle">Sistema interactivo para facturación a múltiples clientes</p>
+    </div>
+
+    <div class="content">
+        <!-- Welcome Screen (Initial view) -->
+        <div class="welcome-screen" id="welcomeScreen" style="display:none;">
+            <h2>¡Bienvenido a Liquidación de Comidas!</h2>
+            <p>Elige cómo quieres acceder a la aplicación para gestionar tus liquidaciones.</p>
+            <div class="welcome-buttons">
+                <button class="email-auth-btn" onclick="showEmailAuth()">Iniciar Sesión / Registrarse</button>
+                <button class="guest-auth-btn" onclick="signInAsGuest()">Continuar como Invitado</button>
+            </div>
+            <button class="logout" id="logoutBtn" style="display:none; margin-top: 20px;" onclick="logoutUser()">Cerrar Sesión</button>
+            <p id="authMessage" class="auth-message"></p>
+        </div>
+
+        <!-- Authentication Section (Email/Password) - Initially hidden -->
+        <div class="auth-section" id="authSection" style="display:none;">
+            <h3>Acceso con Email y Contraseña</h3>
+            <p>Inicia sesión o regístrate para guardar tus datos en la nube.</p>
+            <div class="input-group">
+                <label for="authEmail">Email:</label>
+                <input type="email" id="authEmail" placeholder="tu@ejemplo.com" required>
+            </div>
+            <div class="input-group">
+                <label for="authPassword">Contraseña:</label>
+                <input type="password" id="authPassword" placeholder="min. 6 caracteres" required>
+            </div>
+            <div class="auth-buttons">
+                <button class="login" onclick="loginUser()">Iniciar Sesión</button>
+                <button class="register" onclick="registerUser()">Registrarse</button>
+                <button class="secondary-button" onclick="showWelcomeScreen()" style="width: auto; margin-left: 10px;">⬅️ Volver</button>
+            </div>
+            <p id="authMessageEmailPass" class="auth-message"></p>
+        </div>
+
+        <!-- Main Application Content (Initially hidden) -->
+        <div class="input-section" id="appContent" style="display:none;">
+            <h2 id="generalDataTitle">📊 Datos Generales y Clientes</h2>
+
+            <div class="input-group">
+                <label for="nombreMariella" id="labelNombreFacturador">👩‍🍳 Nombre del Facturador:</label>
+                <input type="text" id="nombreMariella" value="Doña Mariella" oninput="onInputChange(); validateInput(this);" required>
+            </div>
+            <div class="input-group">
+                <label for="facturadorDireccion" id="labelDireccionFacturador">📍 Campamento del Facturador:</label>
+                <select id="facturadorDireccion" onchange="onInputChange(); validateInput(this);" required>
+                    <option value="">Selecciona un campamento</option>
+                    <option value="AUSTRIA">AUSTRIA</option>
+                    <option value="BARQUEREÑA">BARQUEREÑA</option>
+                    <option value="TERQUEDAD">TERQUEDAD</option>
+                    <option value="ATABAPO">ATABAPO</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="facturadorContacto" id="labelContactoFacturador">📞 Contacto del Facturador (Email/Teléfono):</label>
+                <input type="text" id="facturadorContacto" oninput="onInputChange()" placeholder="Ej: email@ejemplo.com / +57 300 123 4567">
+            </div>
+            <div class="input-group">
+                <label for="invoiceNumber" id="labelInvoiceNumber">#️⃣ Número de Factura:</label>
+                <input type="text" id="invoiceNumber" oninput="onInputChange()" placeholder="Opcional: Ej. FAC-2023-001">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label for="mesServicio" id="labelMesServicio">📅 Mes del Servicio:</label>
+                    <input type="month" id="mesServicio" name="mesServicio" onchange="onInputChange()">
+                </div>
+                <div class="input-group">
+                    <label for="moneda" id="labelMoneda">💵 Moneda:</label>
+                    <select id="moneda" onchange="onInputChange()">
+                        <option value="COP" data-locale="es-CO">Peso Colombiano (COP)</option>
+                        <option value="USD" data-locale="en-US">Dólar Americano (USD)</option>
+                        <option value="EUR" data-locale="es-ES">Euro (EUR)</option>
+                        <option value="MXN" data-locale="es-MX">Peso Mexicano (MXN)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="valorComida" id="labelValorComida">💰 Valor por Comida:</label>
+                <input type="number" id="valorComida" value="9000" min="0" step="100" oninput="onInputChange(); validateInput(this);" required>
+            </div>
+
+            <hr style="margin: 20px 0;">
+            <h3 id="deductionsTitle">💸 Deducciones del Facturador</h3>
+            <div class="deduction-template-actions">
+                <select id="deductionTemplateSelect" onchange="loadDeductionTemplate()">
+                    <option value="" id="loadTemplateOption">Cargar Plantilla...</option>
+                </select>
+                <button onclick="saveDeductionTemplate()" id="saveTemplateBtn">💾 Guardar Actual</button>
+                <button onclick="deleteDeductionTemplate()" id="deleteTemplateBtn">🗑️ Eliminar</button>
+            </div>
+            <div id="deduccionesContainer" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                <!-- Las deducciones se añadirán aquí -->
+            </div>
+            <button class="secondary-button" onclick="addDeduction()" id="addDeductionBtn">➕ Añadir Deducción</button>
+
+            <hr style="margin: 20px 0;">
+            <h3 id="clientsTitle">👤 Clientes</h3>
+            <div id="clientesContainer" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                <!-- Los inputs de los clientes se añadirán aquí -->
+            </div>
+            <button class="secondary-button" onclick="addClient()" id="addClientBtn">➕ Añadir Cliente</button>
+
+            <hr style="margin: 20px 0;">
+            <h3 id="pdfCustomizationTitle">📄 Personalización y Adjuntos</h3>
+            <div class="input-group">
+                <label for="logoInput" id="labelUploadLogo">🖼️ Subir Logo (opcional):</label>
+                <input type="file" id="logoInput" accept="image/png, image/jpeg" onchange="handleLogoUpload(event)">
+            </div>
+            <div class="input-group">
+                <label for="signatureInput" id="labelUploadSignature">✍️ Subir Firma/Sello (opcional):</label>
+                <input type="file" id="signatureInput" accept="image/png, image/jpeg" onchange="handleSignatureUpload(event)">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label for="signatureX" id="labelSignatureX">Posición X Firma (mm):</label>
+                    <input type="number" id="signatureX" value="150" min="0" step="1" oninput="onInputChange()">
+                </div>
+                <div class="input-group">
+                    <label for="signatureY" id="labelSignatureY">Posición Y Firma (mm):</label>
+                    <input type="number" id="signatureY" value="250" min="0" step="1" oninput="onInputChange()">
+                </div>
+                <div class="input-group">
+                    <label for="signatureWidth" id="labelSignatureWidth">Ancho Firma (mm):</label>
+                    <input type="number" id="signatureWidth" value="50" min="10" step="1" oninput="onInputChange()">
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="pdfNotes" id="labelPdfNotes">📝 Notas para el PDF (opcional):</label>
+                <textarea id="pdfNotes" rows="3" oninput="onInputChange()"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="pdfOrientation" id="labelPdfOrientation">↕️ Orientación del PDF:</label>
+                <select id="pdfOrientation" onchange="onInputChange()">
+                    <option value="p" id="optionPortrait">Vertical (Portrait)</option>
+                    <option value="l" id="optionLandscape">Horizontal (Landscape)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <!-- TYPO FIX: Changed "Márgen" to "Margen" -->
+                <label for="pdfMargin" id="labelPdfMargin">📏 Margen del PDF (mm):</label>
+                <input type="number" id="pdfMargin" value="15" min="5" step="1" oninput="onInputChange()">
+            </div>
+            <div class="input-group">
+                <label for="pdfFont" id="labelPdfFont">🅰️ Fuente del PDF:</label>
+                <select id="pdfFont" onchange="onInputChange()">
+                    <option value="helvetica">Helvetica</option>
+                    <option value="times">Times</option>
+                    <option value="courier">Courier</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="pdfStyle" id="labelPdfStyle">✨ Estilo del PDF:</label>
+                <select id="pdfStyle" onchange="onInputChange()">
+                    <option value="standard" id="optionStandard">Estándar</option>
+                    <option value="moderno">Moderno</option>
+                    <option value="minimalista">Minimalista</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="pdfHeaderColor" id="labelPdfHeaderColor">🎨 Color del Encabezado PDF:</label>
+                <input type="color" id="pdfHeaderColor" value="#667eea" oninput="onInputChange()">
+            </div>
+            <div class="input-group">
+                <label for="pdfLineColor" id="labelPdfLineColor">🌈 Color de Línea PDF:</label>
+                <input type="color" id="pdfLineColor" value="#e1e8ed" oninput="onInputChange()">
+            </div>
+            <div class="input-group">
+                <label for="customPdfHeader" id="labelCustomPdfHeader">⬆️ Texto de Encabezado Personalizado (PDF General):</label>
+                <input type="text" id="customPdfHeader" oninput="onInputChange()" placeholder="Ej: Reporte Confidencial">
+            </div>
+            <div class="input-group">
+                <label for="customPdfFooter" id="labelCustomPdfFooter">⬇️ Texto de Pie de Página Personalizado (PDF General):</label>
+                <input type="text" id="customPdfFooter" oninput="onInputChange()" placeholder="Ej: Gracias por su confianza">
+            </div>
+
+            <div class="range-slider">
+                <label for="baseFontSize" id="labelBaseFontSize">Tamaño Fuente Base:</label>
+                <input type="range" id="baseFontSize" min="6" max="14" value="10" step="0.5" oninput="updateFontSizeDisplay('baseFontSize')">
+                <span id="baseFontSizeValue" class="value-display">10</span>
+            </div>
+            <div class="range-slider">
+                <label for="titleFontSize" id="labelTitleFontSize">Tamaño Fuente Título:</label>
+                <input type="range" id="titleFontSize" min="14" max="24" value="18" step="0.5" oninput="updateFontSizeDisplay('titleFontSize')">
+                <span id="titleFontSizeValue" class="value-display">18</span>
+            </div>
+            <div class="range-slider">
+                <label for="sectionTitleFontSize" id="labelSectionTitleFontSize">Tamaño Fuente Sección:</label>
+                <input type="range" id="sectionTitleFontSize" min="10" max="18" value="12" step="0.5" oninput="updateFontSizeDisplay('sectionTitleFontSize')">
+                <span id="sectionTitleFontSizeValue" class="value-display">12</span>
+            </div>
+
+
+            <button id="procesarBtn" class="main-button" onclick="procesarDatos()">
+                🚀 Calcular Liquidación
+            </button>
+
+            <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                <button class="reset-btn" onclick="reiniciar()" id="resetBtn">🔄 Reiniciar App</button>
+                <button id="nuevaLiquidacionBtn" class="start-new-btn" onclick="iniciarNuevaLiquidacion()" style="display: none;">✨ Nueva Liquidación</button>
+                <button id="downloadBtn" class="download-btn" onclick="descargarPDF()" disabled>📄 Descargar PDF y Guardar</button>
+                <button id="csvBtn" class="csv-btn" onclick="descargarCSV()" disabled>📈 Exportar CSV</button>
+            </div>
+
+            <hr style="margin: 20px 0;">
+            <div class="history-section-header">
+                <h3 id="historyTitle">⏳ Historial de Liquidaciones</h3>
+                <div class="history-search-filter">
+                    <input type="text" id="historySearch" oninput="filterHistory()" placeholder="Buscar por nombre, mes o estado...">
+                </div>
+            </div>
+            <div id="historyContainer">
+                <p style="text-align: center; color: var(--text-muted-color);" id="noHistoryMessage">No hay liquidaciones guardadas.</p>
+            </div>
+        </div>
+
+        <div class="results-section" style="display:none;">
+            <h2 id="resultsTitle">📈 Resultados de Liquidación</h2>
+            <div id="resultado">
+                <div style="text-align: center; padding: 50px; color: var(--text-muted-color);">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
+                    <p id="initialMessage">Configura los datos y añade clientes, luego presiona calcular.</p>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 300px;"><canvas id="incomeTrendChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para subir comprobante de pago -->
+<div id="receiptUploadModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close-button" onclick="closeReceiptModal()">&times;</span>
+        <h3 id="modalTitle">Subir Comprobante de Pago</h3>
+        <p>Para marcar esta liquidación como "Pagada", por favor, adjunta el comprobante de pago de la seguridad social.</p>
+        <div class="input-group">
+            <input type="file" id="receiptFileInput" accept="application/pdf,image/jpeg,image/png">
+        </div>
+        <button id="confirmReceiptUploadBtn" class="modal-confirm-btn confirm-upload" disabled>Subir y Marcar como Pagada</button>
+    </div>
+</div>
+
+<!-- Contenedor para notificaciones Toast -->
+<div id="toastContainer"></div>
+
+<script>
+    // Global variables
+    let chartInstance = null;
+    let clientBarChartInstance = null;
+    let incomeTrendChartInstance = null;
+    let deductionCategoryChartInstance = null;
+    let datosCalculados = null;
+    let clientCounter = 0;
+    let deductionCounter = 0;
+    let logoBase64 = null;
+    let signatureBase64 = null;
+    let confirmActionCallback = null;
+    let draggedItem = null;
+    let allSettlements = [];
+    let settlementIdToUpdate = null; // Store the ID for the receipt upload modal
+
+    // --- Loader Functions ---
+    function showLoader() {
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'flex';
+    }
+    function hideLoader() {
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+    }
+
+    // --- TOAST NOTIFICATIONS ---
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        toast.addEventListener('animationend', (e) => {
+            if (e.animationName === 'fadeOut') {
+                toast.remove();
+            }
+        });
+    }
+
+    // --- AUTHENTICATION FUNCTIONS ---
+    function setAuthMessage(message, isError = false) {
+        const authMessageEl = document.getElementById('authMessage');
+        if (authMessageEl) {
+            authMessageEl.textContent = message;
+            authMessageEl.style.color = isError ? '#e74c3c' : '#2ecc71';
+            if (document.body.classList.contains('dark-mode')) {
+                authMessageEl.style.color = isError ? '#ff5a5a' : '#90ee90';
+            }
+        }
+    }
+
+    function showWelcomeScreen() {
+        document.getElementById('welcomeScreen').style.display = 'block';
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('appContent').style.display = 'none';
+        document.getElementById('resultsTitle').closest('.results-section').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+        setAuthMessage("");
+        setAuthMessageEmailPass("");
+    }
+
+    function showEmailAuth() {
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('authSection').style.display = 'block';
+        document.getElementById('appContent').style.display = 'none';
+        document.getElementById('resultsTitle').closest('.results-section').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+        setAuthMessage("");
+    }
+
+    async function signInAsGuest() {
+        showLoader();
+        try {
+            showToast("Iniciando sesión como invitado...", 'info');
+            await window.signInAnonymously(auth);
+        } catch (error) {
+            console.error("Error al iniciar sesión como invitado:", error);
+            showToast("No se pudo iniciar sesión como invitado. Inténtalo de nuevo.", 'error');
+            setAuthMessage("Error al iniciar sesión como invitado.", true);
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function toggleAppContent(isAuthenticated, isAnonymous = false) {
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const authSection = document.getElementById('authSection');
+        const appContent = document.getElementById('appContent');
+        const resultsSection = document.getElementById('resultsTitle').closest('.results-section');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+
+        if (isAuthenticated) {
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+            if (authSection) authSection.style.display = 'none';
+            if (appContent) appContent.style.display = 'block';
+            if (resultsSection) resultsSection.style.display = 'block';
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+            if (userIdDisplay) {
+                userIdDisplay.textContent = isAnonymous ? `Usuario Anónimo (ID: ${window.firebaseGlobals.userId})` : `Autenticado como: ${auth.currentUser.email || auth.currentUser.uid}`;
+            }
+            loadState();
+            loadDeductionTemplatesList();
+            loadSettlementHistory();
+            updateFontSizeDisplay('baseFontSize');
+            updateFontSizeDisplay('titleFontSize');
+            updateFontSizeDisplay('sectionTitleFontSize');
+        } else {
+            if (welcomeScreen) welcomeScreen.style.display = 'block';
+            if (authSection) authSection.style.display = 'none';
+            if (appContent) appContent.style.display = 'none';
+            if (resultsSection) resultsSection.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (userIdDisplay) userIdDisplay.textContent = `No Autenticado`;
+
+            const resultadoDiv = document.getElementById('resultado');
+            if (resultadoDiv) {
+                resultadoDiv.innerHTML = `<div style="text-align: center; padding: 50px; color: var(--text-muted-color);"><div style="font-size: 3em; margin-bottom: 15px;">🎯</div><p id="initialMessage">Configura los datos y añade clientes, luego presiona calcular.</p></div>`;
+            }
+            if (incomeTrendChartInstance) incomeTrendChartInstance.destroy();
+            if (chartInstance) chartInstance.destroy();
+            if (clientBarChartInstance) clientBarChartInstance.destroy();
+            if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) downloadBtn.disabled = true;
+            const csvBtn = document.getElementById('csvBtn');
+            if (csvBtn) csvBtn.disabled = true;
+
+            reiniciarFormulario();
+            document.getElementById('historyContainer').innerHTML = `<p style="text-align: center; color: var(--text-muted-color);" id="noHistoryMessage">No hay liquidaciones guardadas.</p>`;
+        }
+    }
+
+    function setAuthMessageEmailPass(message, isError = false) {
+        const authMessageEl = document.getElementById('authMessageEmailPass');
+        if (authMessageEl) {
+            authMessageEl.textContent = message;
+            authMessageEl.style.color = isError ? '#e74c3c' : '#2ecc71';
+            if (document.body.classList.contains('dark-mode')) {
+                authMessageEl.style.color = isError ? '#ff5a5a' : '#90ee90';
+            }
+        }
+    }
+
+    async function registerUser() {
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+
+        if (!email || !password) {
+            setAuthMessageEmailPass("Por favor, introduce un email y una contraseña.", true);
+            return;
+        }
+        if (password.length < 6) {
+            setAuthMessageEmailPass("La contraseña debe tener al menos 6 caracteres.", true);
+            return;
+        }
+        showLoader();
+        try {
+            showToast("Registrando...", 'info');
+            await window.createUserWithEmailAndPassword(auth, email, password);
+            showToast("¡Registro exitoso! Has iniciado sesión.", 'success');
+        } catch (error) {
+            console.error("Error de registro:", error.code, error.message);
+            let errorMessage = "Error al registrarse. Por favor, inténtalo de nuevo.";
+            if (error.code === 'auth/email-already-in-use') {
+                errorMessage = "El email ya está en uso. Intenta iniciar sesión o usa otro email.";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "El formato del email es inválido.";
+            } else if (error.code === 'auth/weak-password') {
+                errorMessage = "La contraseña es demasiado débil (debe tener al menos 6 caracteres).";
+            }
+            showToast(errorMessage, 'error');
+            setAuthMessageEmailPass(errorMessage, true);
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function loginUser() {
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        if (!email || !password) {
+            setAuthMessageEmailPass("Por favor, introduce tu email y contraseña.", true);
+            return;
+        }
+        showLoader();
+        try {
+            showToast("Iniciando sesión...", 'info');
+            await window.signInWithEmailAndPassword(auth, email, password);
+            showToast("¡Has iniciado sesión exitosamente!", 'success');
+        } catch (error) {
+            console.error("Error de inicio de sesión:", error.code, error.message);
+            let errorMessage = "Error al iniciar sesión. Verifica tus credenciales.";
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                errorMessage = "Email o contraseña incorrectos.";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "El formato del email es inválido.";
+            }
+            showToast(errorMessage, 'error');
+            setAuthMessageEmailPass(errorMessage, true);
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function logoutUser() {
+        showLoader();
+        try {
+            await window.signOut(auth);
+            console.log("Usuario cerró sesión.");
+            showToast("Has cerrado sesión.", 'success');
+            setAuthMessage("Has cerrado sesión.", false);
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error.message);
+            showToast("Error al cerrar sesión. Por favor, inténtalo de nuevo.", 'error');
+            setAuthMessage("Error al cerrar sesión. Por favor, inténtalo de nuevo.", true);
+        } finally {
+            hideLoader();
+        }
+    }
+
+    // --- INITIALIZATION AND STATE MANAGEMENT FUNCTIONS ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Initialize Firebase
+        if (Object.keys(window.firebaseGlobals.firebaseConfig).length > 0) {
+            app = window.initializeApp(window.firebaseGlobals.firebaseConfig);
+            db = window.getFirestore(app);
+            auth = window.getAuth(app);
+            window.firebaseGlobals.db = db;
+            window.firebaseGlobals.auth = auth;
+
+            window.onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    window.firebaseGlobals.userId = user.uid;
+                    toggleAppContent(true, user.isAnonymous);
+                } else {
+                    window.firebaseGlobals.userId = crypto.randomUUID();
+                    toggleAppContent(false);
+                }
+                window.firebaseGlobals.isAuthReady = true;
+            });
+        } else {
+            console.warn("Firebase config not found. Running in local storage mode.");
+            window.firebaseGlobals.userId = crypto.randomUUID();
+            window.firebaseGlobals.isAuthReady = true;
+            toggleAppContent(false);
+            setAuthMessage("Estás usando la aplicación en modo local (sin nube). Tus datos se guardarán solo en este navegador.", false);
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            if (!document.getElementById('mesServicio')?.value) {
+                document.getElementById('mesServicio').value = `${year}-${month}`;
+            }
+            if (clientCounter === 0) addClient();
+            if (deductionCounter === 0) {
+                addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+                addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+            }
+            actualizarEnTiempoReal();
+            actualizarNombresClientesYDeducciones();
+            loadState();
+            loadDeductionTemplatesList();
+            loadSettlementHistory();
+            updateFontSizeDisplay('baseFontSize');
+            updateFontSizeDisplay('titleFontSize');
+            updateFontSizeDisplay('sectionTitleFontSize');
+        }
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        if (!document.getElementById('mesServicio')?.value) {
+            const mesServicioInput = document.getElementById('mesServicio');
+            if (mesServicioInput) mesServicioInput.value = `${year}-${month}`;
+        }
+    });
+
+
+    function reiniciarFormulario() {
+        document.getElementById('nombreMariella').value = "Doña Mariella";
+        document.getElementById('facturadorDireccion').value = '';
+        document.getElementById('facturadorContacto').value = '';
+        document.getElementById('invoiceNumber').value = '';
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        document.getElementById('mesServicio').value = `${year}-${month}`;
+        document.getElementById('valorComida').value = 9000;
+        document.getElementById('moneda').value = 'COP';
+        document.getElementById('pdfNotes').value = '';
+        document.getElementById('pdfOrientation').value = 'p';
+        document.getElementById('pdfMargin').value = 15;
+        document.getElementById('pdfFont').value = 'helvetica';
+        document.getElementById('pdfStyle').value = 'standard';
+        document.getElementById('pdfHeaderColor').value = '#667eea';
+        document.getElementById('pdfLineColor').value = '#e1e8ed';
+        document.getElementById('baseFontSize').value = 10;
+        document.getElementById('titleFontSize').value = 18;
+        document.getElementById('sectionTitleFontSize').value = 12;
+        document.getElementById('signatureX').value = 150;
+        document.getElementById('signatureY').value = 250;
+        document.getElementById('signatureWidth').value = 50;
+        document.getElementById('customPdfHeader').value = '';
+        document.getElementById('customPdfFooter').value = '';
+
+        document.body.classList.remove('dark-mode');
+        logoBase64 = null;
+        signatureBase64 = null;
+        const logoInput = document.getElementById('logoInput');
+        if(logoInput) logoInput.value = '';
+        const signatureInput = document.getElementById('signatureInput');
+        if(signatureInput) signatureInput.value = '';
+
+        const clientesContainer = document.getElementById('clientesContainer');
+        if (clientesContainer) clientesContainer.innerHTML = '';
+        clientCounter = 0;
+        addClient();
+
+        const deduccionesContainer = document.getElementById('deduccionesContainer');
+        if (deduccionesContainer) deduccionesContainer.innerHTML = '';
+        deductionCounter = 0;
+        addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+        addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+
+        datosCalculados = null;
+        const resultadoDiv = document.getElementById('resultado');
+        if (resultadoDiv) {
+            resultadoDiv.innerHTML = `<div style="text-align: center; padding: 50px; color: var(--text-muted-color);"><div style="font-size: 3em; margin-bottom: 15px;">🎯</div><p>Configura los datos y añade clientes, luego presiona calcular.</p></div>`;
+        }
+        if (chartInstance) chartInstance.destroy();
+        if (clientBarChartInstance) clientBarChartInstance.destroy();
+        if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+        if (incomeTrendChartInstance) incomeTrendChartInstance.destroy();
+
+        document.getElementById('downloadBtn').disabled = true;
+        document.getElementById('csvBtn').disabled = true;
+        document.getElementById('nuevaLiquidacionBtn').style.display = 'none';
+
+        actualizarEnTiempoReal();
+        actualizarNombresClientesYDeducciones();
+        updateFontSizeDisplay('baseFontSize');
+        updateFontSizeDisplay('titleFontSize');
+        updateFontSizeDisplay('sectionTitleFontSize');
+    }
+
+
+    function onInputChange() {
+        actualizarEnTiempoReal();
+        saveState();
+    }
+
+    async function saveState() {
+        const clients = Array.from(document.querySelectorAll('#clientesContainer .client-input-group')).map(group => ({
+            name: group.querySelector('input[type="text"]').value,
+            meals: group.querySelector('input[type="number"]').value,
+        }));
+        const deductions = Array.from(document.querySelectorAll('#deduccionesContainer .deduction-input-group')).map(group => ({
+            name: group.querySelector('.deduction-name').value,
+            type: group.querySelector('.deduction-type').value,
+            value: group.querySelector('.deduction-value').value,
+            category: group.querySelector('.deduction-category').value
+        }));
+        const state = {
+            nombreMariella: document.getElementById('nombreMariella').value,
+            facturadorDireccion: document.getElementById('facturadorDireccion').value,
+            facturadorContacto: document.getElementById('facturadorContacto').value,
+            invoiceNumber: document.getElementById('invoiceNumber').value,
+            mesServicio: document.getElementById('mesServicio').value,
+            valorComida: document.getElementById('valorComida').value,
+            moneda: document.getElementById('moneda').value,
+            pdfNotes: document.getElementById('pdfNotes').value,
+            pdfOrientation: document.getElementById('pdfOrientation').value,
+            pdfMargin: parseFloat(document.getElementById('pdfMargin').value),
+            pdfFont: document.getElementById('pdfFont').value,
+            pdfStyle: document.getElementById('pdfStyle').value,
+            pdfHeaderColor: document.getElementById('pdfHeaderColor').value,
+            pdfLineColor: document.getElementById('pdfLineColor').value,
+            baseFontSize: parseFloat(document.getElementById('baseFontSize').value),
+            titleFontSize: parseFloat(document.getElementById('titleFontSize').value),
+            sectionTitleFontSize: parseFloat(document.getElementById('sectionTitleFontSize').value),
+            signatureX: parseFloat(document.getElementById('signatureX').value),
+            signatureY: parseFloat(document.getElementById('signatureY').value),
+            signatureWidth: parseFloat(document.getElementById('signatureWidth').value),
+            customPdfHeader: document.getElementById('customPdfHeader').value,
+            customPdfFooter: document.getElementById('customPdfFooter').value,
+            clients: clients,
+            deductions: deductions,
+            theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+            logoBase64: logoBase64,
+            signatureBase64: signatureBase64
+        };
+        if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+            try {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
+                await window.setDoc(docRef, state);
+            } catch (e) {
+                console.error("Error saving state to Firestore: ", e);
+                localStorage.setItem('liquidacionState', JSON.stringify(state));
+            }
+        } else {
+            localStorage.setItem('liquidacionState', JSON.stringify(state));
+        }
+    }
+
+    async function loadState(stateToLoad = null) {
+        showLoader();
+        try {
+            let state = stateToLoad;
+            if (!state && window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                try {
+                    const appId = window.firebaseGlobals.appId;
+                    const userId = window.firebaseGlobals.userId;
+                    const docRef = window.doc(window.firebaseGlobals.db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
+                    const docSnap = await window.getDoc(docRef);
+                    state = docSnap.exists() ? docSnap.data() : JSON.parse(localStorage.getItem('liquidacionState'));
+                } catch (e) {
+                    console.error("Error loading state from Firestore: ", e);
+                    state = JSON.parse(localStorage.getItem('liquidacionState'));
+                }
+            } else if (!state) {
+                state = JSON.parse(localStorage.getItem('liquidacionState'));
+            }
+            const now = new Date();
+            const defaultMesServicio = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+            const defaultValues = {
+                nombreMariella: "Doña Mariella", facturadorDireccion: '', facturadorContacto: '', invoiceNumber: '',
+                mesServicio: defaultMesServicio, valorComida: 9000, moneda: 'COP', pdfNotes: '', pdfOrientation: 'p',
+                pdfMargin: 15, pdfFont: 'helvetica', pdfStyle: 'standard', pdfHeaderColor: '#667eea', pdfLineColor: '#e1e8ed',
+                baseFontSize: 10, titleFontSize: 18, sectionTitleFontSize: 12, signatureX: 150, signatureY: 250, signatureWidth: 50,
+                customPdfHeader: '', customPdfFooter: '', clients: [], deductions: [], theme: 'light', logoBase64: null, signatureBase64: null
+            };
+            const finalState = { ...defaultValues, ...state };
+            Object.keys(finalState).forEach(key => {
+                const el = document.getElementById(key);
+                if (el && typeof finalState[key] !== 'object') {
+                    el.value = finalState[key];
+                }
+            });
+            if (finalState.theme === 'dark') document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+            logoBase64 = finalState.logoBase64;
+            signatureBase64 = finalState.signatureBase64;
+            document.getElementById('clientesContainer').innerHTML = ''; clientCounter = 0;
+            if (finalState.clients && finalState.clients.length > 0) { finalState.clients.forEach(c => addClient(c.name, c.meals)); } else { addClient(); }
+            document.getElementById('deduccionesContainer').innerHTML = ''; deductionCounter = 0;
+            if (finalState.deductions && finalState.deductions.length > 0) { finalState.deductions.forEach(d => addDeduction(d.name, d.type, d.value, d.category)); } else {
+                addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+                addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+            }
+            actualizarEnTiempoReal();
+            updateFontSizeDisplay('baseFontSize');
+            updateFontSizeDisplay('titleFontSize');
+            updateFontSizeDisplay('sectionTitleFontSize');
+        } catch (error) {
+            console.error("Error in loadState:", error);
+            showToast("Hubo un error al cargar el estado de la aplicación.", "error");
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function reiniciar() {
+        showConfirmation(
+            "Reiniciar App",
+            "¿Estás seguro de que quieres eliminar TODOS los datos (historial, plantillas y configuraciones) para tu usuario? Esta acción es irreversible.",
+            async () => {
+                showLoader();
+                try {
+                    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                        try {
+                            const appId = window.firebaseGlobals.appId;
+                            const userId = window.firebaseGlobals.userId;
+                            const appStateDocRef = window.doc(db, `artifacts/${appId}/users/${userId}/appState`, 'currentConfig');
+                            await window.deleteDoc(appStateDocRef);
+                            const settlementsCollectionRef = window.collection(db, `artifacts/${appId}/users/${userId}/settlements`);
+                            const settlementDocs = await window.getDocs(settlementsCollectionRef);
+                            for (const doc of settlementDocs.docs) { await window.deleteDoc(doc.ref); }
+                            const deductionTemplatesCollectionRef = window.collection(db, `artifacts/${appId}/users/${userId}/deductionTemplates`);
+                            const templateDocs = await window.getDocs(deductionTemplatesCollectionRef);
+                            for (const doc of templateDocs.docs) { await window.deleteDoc(doc.ref); }
+                            showToast("Todos tus datos de la nube han sido eliminados.", 'success');
+                        } catch (e) {
+                            console.error("Error clearing Firestore data:", e);
+                            showToast("Hubo un problema al borrar los datos de la nube.", 'error');
+                        }
+                    }
+                    localStorage.removeItem('liquidacionState');
+                    localStorage.removeItem('deductionTemplates');
+                    localStorage.removeItem('settlementHistory');
+                    reiniciarFormulario();
+                    if (auth) { onAuthStateChanged(auth, (user) => { toggleAppContent(!!user, user?.isAnonymous); }); } else { toggleAppContent(false); }
+                } finally {
+                    hideLoader();
+                }
+            }
+        );
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        saveState();
+    }
+
+    function updateFontSizeDisplay(sliderId) {
+        const slider = document.getElementById(sliderId);
+        const display = document.getElementById(sliderId + 'Value');
+        if (slider && display) {
+            display.textContent = slider.value;
+            onInputChange();
+        }
+    }
+
+
+    // --- CUSTOM MODAL FUNCTIONS ---
+    // Esta sección se deja como estaba en el original, ya que no se usa para
+    // confirmaciones asíncronas que requieran un loader.
+    function showConfirmation(title, message, onConfirm) {
+        // Para simplificar, esta versión usará el confirm nativo del navegador.
+        // Se puede reemplazar por un modal HTML/CSS más elegante si se desea.
+        if (window.confirm(`${title}\n\n${message}`)) {
+            if (onConfirm) {
+                onConfirm();
+            }
+        }
+    }
+
+    // --- RECEIPT UPLOAD MODAL ---
+    function openReceiptModal(settlementId) {
+        settlementIdToUpdate = settlementId;
+        document.getElementById('receiptFileInput').value = ''; // Clear previous selection
+        document.getElementById('confirmReceiptUploadBtn').disabled = true;
+        document.getElementById('receiptUploadModal').style.display = 'flex';
+    }
+
+    function closeReceiptModal() {
+        document.getElementById('receiptUploadModal').style.display = 'none';
+        settlementIdToUpdate = null;
+    }
+
+    document.getElementById('receiptFileInput')?.addEventListener('change', (event) => {
+        document.getElementById('confirmReceiptUploadBtn').disabled = !event.target.files.length;
+    });
+
+    document.getElementById('confirmReceiptUploadBtn')?.addEventListener('click', async () => {
+        const fileInput = document.getElementById('receiptFileInput');
+        if (!fileInput.files.length) {
+            showToast('Por favor, selecciona un archivo.', 'error');
+            return;
+        }
+        const file = fileInput.files[0];
+
+        if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) {
+            showToast('Formato de archivo no válido. Sube PDF, JPG o PNG.', 'error');
+            return;
+        }
+        if (file.size > 1 * 1024 * 1024) { // 1MB limit for receipt
+            showToast('El archivo es demasiado grande (máx 1MB).', 'error');
+            return;
+        }
+
+        showLoader();
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const receiptBase64 = e.target.result;
+            await updateSettlementStatus(settlementIdToUpdate, 'Pagada', receiptBase64);
+            closeReceiptModal();
+            hideLoader();
+        };
+        reader.onerror = () => {
+            showToast('Error al leer el archivo.', 'error');
+            hideLoader();
+        };
+        reader.readAsDataURL(file);
+    });
+
+
+    // --- CLIENT AND DEDUCTION LOGIC ---
+    function addClient(name = '', meals = 0) {
+        clientCounter++;
+        const container = document.getElementById('clientesContainer');
+        if (!container) return;
+        const clientId = `client_${clientCounter}`;
+        const clientDiv = document.createElement('div');
+        clientDiv.className = 'client-input-group';
+        clientDiv.id = `clientGroup_${clientCounter}`;
+        clientDiv.draggable = true;
+        clientDiv.addEventListener('dragstart', handleDragStart);
+        clientDiv.addEventListener('dragover', handleDragOver);
+        clientDiv.addEventListener('dragleave', handleDragLeave);
+        clientDiv.addEventListener('drop', handleDrop);
+        clientDiv.addEventListener('dragend', handleDragEnd);
+        clientDiv.innerHTML = `<div class="client-header"><h4>Cliente #${clientCounter}</h4>${clientCounter > 1 ? `<button class="remove-btn" onclick="removeGroup('clientGroup_${clientCounter}')">Eliminar</button>` : ''}</div><div class="input-group"><label for="nombre_${clientId}">Nombre del Cliente:</label><input type="text" id="nombre_${clientId}" value="${name}" placeholder="Ej: Jaider" oninput="onInputChange(); validateInput(this);" required></div><div class="input-group"><label for="comidas_${clientId}">Comidas Facturadas:</label><div class="input-wrapper"><button class="counter-btn minus" onclick="cambiarValorComidasCliente('${clientId}', -1)">−</button><input type="number" id="comidas_${clientId}" value="${meals}" min="0" oninput="onInputChange()"><button class="counter-btn plus" onclick="cambiarValorComidasCliente('${clientId}', 1)">+</button></div></div>`;
+        container.appendChild(clientDiv);
+        actualizarNombresClientesYDeducciones();
+    }
+    function addDeduction(name = '', type = 'fixed', value = 0, category = '') {
+        deductionCounter++;
+        const container = document.getElementById('deduccionesContainer');
+        if (!container) return;
+        const deductionId = `deduction_${deductionCounter}`;
+        const deductionDiv = document.createElement('div');
+        deductionDiv.className = 'deduction-input-group';
+        deductionDiv.id = `deductionGroup_${deductionCounter}`;
+        deductionDiv.draggable = true;
+        deductionDiv.addEventListener('dragstart', handleDragStart);
+        deductionDiv.addEventListener('dragover', handleDragOver);
+        deductionDiv.addEventListener('dragleave', handleDragLeave);
+        deductionDiv.addEventListener('drop', handleDrop);
+        deductionDiv.addEventListener('dragend', handleDragEnd);
+        const deductionCategoryOptions = { '': 'Seleccionar...', 'Impuesto': 'Impuesto', 'Servicio': 'Servicio', 'Personal': 'Personal', 'Transporte': 'Transporte', 'Otros': 'Otros' };
+        let categoryOptionsHtml = Object.keys(deductionCategoryOptions).map(catKey => `<option value="${catKey}" ${category === catKey ? 'selected' : ''}>${deductionCategoryOptions[catKey]}</option>`).join('');
+        deductionDiv.innerHTML = `<div class="deduction-header"><h4>Deducción #${deductionCounter}</h4><button class="remove-btn" onclick="removeGroup('deductionGroup_${deductionCounter}')">Eliminar</button></div><div class="deduction-input-row"><input type="text" class="deduction-name" value="${name}" placeholder="Concepto (Ej: Transporte)" oninput="onInputChange(); validateInput(this);" required><select class="deduction-type" onchange="onInputChange()"><option value="fixed" ${type === 'fixed' ? 'selected' : ''}>Fijo ($)</option><option value="percent" ${type === 'percent' ? 'selected' : ''}>Porcentaje (%)</option></select><input type="number" class="deduction-value" value="${value}" min="0" step="0.1" oninput="onInputChange(); validateInput(this);" required><select class="deduction-category" onchange="onInputChange()">${categoryOptionsHtml}</select></div>`;
+        container.appendChild(deductionDiv);
+        actualizarNombresClientesYDeducciones();
+    }
+    function actualizarNombresClientesYDeducciones() {
+        document.querySelectorAll('.client-input-group .client-header h4').forEach((h4, index) => { h4.textContent = `Cliente #${index + 1}`; });
+        document.querySelectorAll('.deduction-input-group .deduction-header h4').forEach((h4, index) => { h4.textContent = `Deducción #${index + 1}`; });
+    }
+    function removeGroup(groupId) {
+        document.getElementById(groupId)?.remove();
+        onInputChange();
+        actualizarNombresClientesYDeducciones();
+    }
+    function cambiarValorComidasCliente(clientId, delta) {
+        const input = document.getElementById(`comidas_${clientId}`);
+        if (input) {
+            input.value = Math.max(0, parseInt(input.value || 0) + delta);
+            onInputChange();
+        }
+    }
+
+    // --- DRAG & DROP FUNCTIONS ---
+    function handleDragStart(e) {
+        draggedItem = e.target;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', e.target.id);
+        setTimeout(() => { if (draggedItem) draggedItem.classList.add('dragging'); }, 0);
+    }
+    function handleDragOver(e) {
+        e.preventDefault();
+        const target = e.target.closest('.client-input-group, .deduction-input-group');
+        if (target && target !== draggedItem && draggedItem && target.parentNode === draggedItem.parentNode) {
+            Array.from(target.parentNode.children).forEach(child => child.classList.remove('drag-over-active'));
+            const bounding = target.getBoundingClientRect();
+            const offset = bounding.y + (bounding.height / 2);
+            target.parentNode.insertBefore(draggedItem, e.clientY < offset ? target : target.nextSibling);
+            target.classList.add('drag-over-active');
+        }
+    }
+    function handleDragLeave(e) { e.target.classList.remove('drag-over-active'); }
+    function handleDrop(e) {
+        e.preventDefault();
+        if (draggedItem) {
+            draggedItem.classList.remove('dragging');
+            Array.from(draggedItem.parentNode.children).forEach(child => child.classList.remove('drag-over-active'));
+        }
+        onInputChange();
+        actualizarNombresClientesYDeducciones();
+    }
+    function handleDragEnd(e) {
+        if (draggedItem) draggedItem.classList.remove('dragging');
+        draggedItem = null;
+        document.querySelectorAll('.client-input-group, .deduction-input-group').forEach(el => el.classList.remove('drag-over-active'));
+    }
+
+    // --- DEDUCTION TEMPLATE FUNCTIONS ---
+    async function loadDeductionTemplatesList() {
+        let templates = {};
+        if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+            try {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const templatesCol = window.collection(db, `artifacts/${appId}/users/${userId}/deductionTemplates`);
+                const templateDocs = await window.getDocs(templatesCol);
+                templateDocs.forEach(doc => { templates[doc.id] = doc.data().deductions; });
+            } catch (e) {
+                templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+            }
+        } else {
+            templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+        }
+        const select = document.getElementById('deductionTemplateSelect');
+        if (!select) return;
+        select.innerHTML = `<option value="">Cargar Plantilla...</option>`;
+        for (const name in templates) {
+            const option = document.createElement('option');
+            option.value = name; option.textContent = name;
+            select.appendChild(option);
+        }
+    }
+    async function saveDeductionTemplate() {
+        const templateName = prompt('Nombre para esta plantilla de deducciones:');
+        if (!templateName) { showToast("Operación cancelada.", 'info'); return; }
+        const currentDeductions = Array.from(document.querySelectorAll('.deduction-input-group')).map(group => ({
+            name: group.querySelector('.deduction-name').value,
+            type: group.querySelector('.deduction-type').value,
+            value: parseFloat(group.querySelector('.deduction-value').value),
+            category: group.querySelector('.deduction-category').value
+        }));
+        showLoader();
+        try {
+            if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/deductionTemplates`, templateName);
+                await window.setDoc(docRef, { deductions: currentDeductions });
+                showToast(`La plantilla "${templateName}" ha sido guardada.`, 'success');
+            } else {
+                let templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+                templates[templateName] = currentDeductions;
+                localStorage.setItem('deductionTemplates', JSON.stringify(templates));
+                showToast(`La plantilla "${templateName}" ha sido guardada localmente.`, 'success');
+            }
+        } catch(e) {
+            console.error("Error saving template:", e);
+            showToast("Error al guardar la plantilla.", "error");
+        } finally {
+            loadDeductionTemplatesList();
+            hideLoader();
+        }
+    }
+    async function loadDeductionTemplate() {
+        const select = document.getElementById('deductionTemplateSelect');
+        if (!select) return;
+        const templateName = select.value;
+        if (!templateName) return;
+        showLoader();
+        try {
+            let template = null;
+            if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/deductionTemplates`, templateName);
+                const docSnap = await window.getDoc(docRef);
+                if (docSnap.exists()) { template = docSnap.data().deductions; }
+            } else {
+                const templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+                template = templates[templateName];
+            }
+            if (template) {
+                const deduccionesContainer = document.getElementById('deduccionesContainer');
+                if (deduccionesContainer) deduccionesContainer.innerHTML = '';
+                deductionCounter = 0;
+                template.forEach(d => addDeduction(d.name, d.type, d.value, d.category));
+                onInputChange();
+                showToast(`La plantilla "${templateName}" ha sido cargada.`, 'success');
+            } else {
+                showToast("La plantilla seleccionada no se encontró.", 'error');
+            }
+        } catch(e) {
+            console.error("Error loading template:", e);
+            showToast("Error al cargar la plantilla.", "error");
+        } finally {
+            hideLoader();
+        }
+    }
+    async function deleteDeductionTemplate() {
+        const select = document.getElementById('deductionTemplateSelect');
+        if (!select) return;
+        const templateName = select.value;
+        if (!templateName) { showToast("Por favor, selecciona una plantilla para eliminar.", 'info'); return; }
+        showConfirmation(
+            "Eliminar Plantilla",
+            `¿Estás seguro de que quieres eliminar la plantilla "${templateName}"? Esta acción es irreversible.`,
+            async () => {
+                showLoader();
+                try {
+                    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                        const appId = window.firebaseGlobals.appId;
+                        const userId = window.firebaseGlobals.userId;
+                        const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/deductionTemplates`, templateName);
+                        await window.deleteDoc(docRef);
+                    } else {
+                        let templates = JSON.parse(localStorage.getItem('deductionTemplates') || '{}');
+                        delete templates[templateName];
+                        localStorage.setItem('deductionTemplates', JSON.stringify(templates));
+                    }
+                    showToast(`La plantilla "${templateName}" ha sido eliminada.`, 'success');
+                    loadDeductionTemplatesList();
+                } catch (e) {
+                    console.error("Error deleting template:", e);
+                    showToast("Error al eliminar la plantilla.", "error");
+                } finally {
+                    hideLoader();
+                }
+            }
+        );
+    }
+
+    // --- SETTLEMENT HISTORY FUNCTIONS ---
+    async function loadSettlementHistory() {
+        const container = document.getElementById('historyContainer');
+        const historySearch = document.getElementById('historySearch')?.value.toLowerCase() || '';
+
+        if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+            try {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const q = window.query(collection(db, `artifacts/${appId}/users/${userId}/settlements`));
+
+                if (window.firebaseGlobals.unsubscribeSettlements) {
+                    window.firebaseGlobals.unsubscribeSettlements();
+                }
+
+                window.firebaseGlobals.unsubscribeSettlements = onSnapshot(q, (snapshot) => {
+                    allSettlements = snapshot.docs.map(doc => ({ ...doc.data(), firestoreDocId: doc.id }));
+                    allSettlements.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    renderFilteredHistory(historySearch);
+                }, (error) => {
+                    console.error("Error listening to settlements history: ", error);
+                    showToast("No se pudo cargar el historial de la nube.", 'error');
+                    allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                    renderFilteredHistory(historySearch);
+                });
+            } catch (e) {
+                console.error("Error setting up onSnapshot for history: ", e);
+                allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                renderFilteredHistory(historySearch);
+            }
+        } else {
+            allSettlements = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+            renderFilteredHistory(historySearch);
+        }
+    }
+
+    function renderFilteredHistory(searchTerm) {
+        const container = document.getElementById('historyContainer');
+        const filteredHistory = allSettlements.filter(item => {
+            if (!item.summary) return false;
+            if (!searchTerm) return true;
+            const nameMatch = (item.summary.nombreMariella || '').toLowerCase().includes(searchTerm);
+            const monthMatch = (item.summary.mesServicio || '').toLowerCase().includes(searchTerm);
+            const statusMatch = (item.status || '').toLowerCase().includes(searchTerm);
+            return nameMatch || monthMatch || statusMatch;
+        });
+
+        if (container) container.innerHTML = '';
+
+        if (filteredHistory.length === 0) {
+            if (container) { container.innerHTML = `<p style="text-align: center; color: var(--text-muted-color);">No se encontraron liquidaciones para "${searchTerm}".</p>`;}
+            createIncomeTrendChart([]);
+            return;
+        }
+
+        filteredHistory.forEach(item => {
+            const historyItemDiv = document.createElement('div');
+            historyItemDiv.className = 'history-item';
+            const currentStatus = item.status || 'Pendiente';
+            const docId = item.firestoreDocId || item.id;
+
+            let actionButtons = `<button class="view-pdf-btn" onclick="viewHistoricalPDF('${docId}')">Ver PDF</button>`;
+            if (currentStatus === 'Pagada') {
+                if (item.comprobantePagoBase64) {
+                    actionButtons += `<button class="view-receipt-btn" onclick="viewReceipt('${docId}')">Ver Comprobante</button>`;
+                }
+            } else {
+                actionButtons += `<button class="register-payment-btn" onclick="openReceiptModal('${docId}')">Registrar Pago</button>`;
+            }
+            actionButtons += `<button class="history-delete-btn" onclick="deleteHistoricalSettlement('${docId}')">Eliminar</button>`;
+
+            const configLocale = item.summary.locale || 'es-CO';
+            const mesDisplay = item.summary.mesServicio ? new Date(item.summary.mesServicio + '-02').toLocaleDateString(configLocale, { year: 'numeric', month: 'long' }) : "Mes N/A";
+
+            historyItemDiv.innerHTML = `
+                  <div class="history-item-info">
+                      <div>
+                        <strong>${item.summary.nombreMariella || 'N/A'}</strong> - ${mesDisplay}
+                        <br>
+                        <small>Guardado: ${item.timestamp || 'N/A'}</small>
+                      </div>
+                      <span class="status-label status-${currentStatus.toLowerCase()}">${currentStatus}</span>
+                  </div>
+                  <div class="history-item-actions">${actionButtons}</div>`;
+            if (container) container.appendChild(historyItemDiv);
+        });
+        createIncomeTrendChart(filteredHistory);
+    }
+
+    async function viewHistoricalPDF(id) {
+        showLoader();
+        try {
+            let pdfDataUri = null;
+            if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/settlements`, id);
+                const docSnap = await window.getDoc(docRef);
+                if (docSnap.exists()) { pdfDataUri = docSnap.data().pdfBase64; }
+            } else {
+                const history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                const numericId = parseInt(id);
+                const item = history.find(h => h.id === numericId);
+                if (item) { pdfDataUri = item.pdfBase64; }
+            }
+            if (pdfDataUri) {
+                const pdfWindow = window.open("");
+                if(pdfWindow) { pdfWindow.document.write(`<iframe width='100%' height='100%' src='${pdfDataUri}'></iframe>`); }
+                else { showToast('No se pudo abrir la nueva pestaña. Revisa los permisos de tu navegador.', 'error'); }
+            } else { showToast("PDF histórico no encontrado o dañado.", 'error'); }
+        } catch (e) {
+            console.error("Error loading historical PDF: ", e);
+            showToast('Error al cargar el PDF.', 'error');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function viewReceipt(id) {
+        showLoader();
+        try {
+            let receiptDataUri = null;
+            if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/settlements`, id);
+                const docSnap = await window.getDoc(docRef);
+                if (docSnap.exists()) { receiptDataUri = docSnap.data().comprobantePagoBase64; }
+            } else {
+                const history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                const numericId = parseInt(id);
+                const item = history.find(h => h.id === numericId);
+                if (item) { receiptDataUri = item.comprobantePagoBase64; }
+            }
+
+            if (receiptDataUri) {
+                const receiptWindow = window.open("");
+                if(receiptWindow) {
+                    if (receiptDataUri.startsWith('data:application/pdf')) {
+                        receiptWindow.document.write(`<iframe width='100%' height='100%' src='${receiptDataUri}'></iframe>`);
+                    } else {
+                        receiptWindow.document.write(`<img src='${receiptDataUri}' style='width:100%;'>`);
+                    }
+                } else { showToast('No se pudo abrir la nueva pestaña. Revisa los permisos de tu navegador.', 'error'); }
+            } else { showToast("Comprobante no encontrado o dañado.", 'error'); }
+        } catch (e) {
+            console.error("Error loading receipt: ", e);
+            showToast('Error al cargar el comprobante.', 'error');
+        } finally {
+            hideLoader();
+        }
+    }
+
+
+    async function deleteHistoricalSettlement(id) {
+        showConfirmation(
+            "Eliminar Historial",
+            "¿Estás seguro de que quieres eliminar esta liquidación del historial? Esta acción es irreversible.",
+            async () => {
+                showLoader();
+                try {
+                    if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                        const appId = window.firebaseGlobals.appId;
+                        const userId = window.firebaseGlobals.userId;
+                        const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/settlements`, id);
+                        await window.deleteDoc(docRef);
+                    } else {
+                        let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                        history = history.filter(item => item.id !== parseInt(id));
+                        localStorage.setItem('settlementHistory', JSON.stringify(history));
+                    }
+                    showToast("Liquidación eliminada del historial.", 'success');
+                } catch(e) {
+                    console.error("Error deleting settlement:", e);
+                    showToast("Error al eliminar la liquidación.", "error");
+                } finally {
+                    loadSettlementHistory(); // This will re-render the list
+                    hideLoader();
+                }
+            }
+        );
+    }
+
+    async function updateSettlementStatus(id, newStatus, receiptBase64 = null) {
+        const dataToUpdate = { status: newStatus };
+        if (receiptBase64) {
+            dataToUpdate.comprobantePagoBase64 = receiptBase64;
+        }
+        showLoader();
+        try {
+            if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                const appId = window.firebaseGlobals.appId;
+                const userId = window.firebaseGlobals.userId;
+                const docRef = window.doc(db, `artifacts/${appId}/users/${userId}/settlements`, id);
+                await window.updateDoc(docRef, dataToUpdate);
+            } else {
+                let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                const numericId = parseInt(id);
+                const itemIndex = history.findIndex(item => item.id === numericId);
+                if (itemIndex > -1) {
+                    history[itemIndex].status = newStatus;
+                    if(receiptBase64) {
+                        history[itemIndex].comprobantePagoBase64 = receiptBase64;
+                    }
+                    localStorage.setItem('settlementHistory', JSON.stringify(history));
+                    loadSettlementHistory();
+                }
+            }
+            showToast(`Estado actualizado a "${newStatus}".`, 'success');
+        } catch(e) {
+            console.error("Error updating status:", e);
+            showToast("Error al actualizar el estado.", "error");
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function filterHistory() { loadSettlementHistory(); }
+
+    function iniciarNuevaLiquidacion() {
+        document.getElementById('invoiceNumber').value = '';
+        const now = new Date();
+        document.getElementById('mesServicio').value = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        document.getElementById('clientesContainer').innerHTML = ''; clientCounter = 0; addClient();
+        document.getElementById('deduccionesContainer').innerHTML = ''; deductionCounter = 0;
+        addDeduction("Retención en la Fuente", "percent", 3.5, "Impuesto");
+        addDeduction("Aporte Seguro Social", "fixed", 185500, "Personal");
+        datosCalculados = null;
+        document.getElementById('resultado').innerHTML = `<div style="text-align: center; padding: 50px; color: var(--text-muted-color);"><div style="font-size: 3em; margin-bottom: 15px;">🎯</div><p>Configura los datos y añade clientes, luego presiona calcular.</p></div>`;
+        if (chartInstance) chartInstance.destroy();
+        if (clientBarChartInstance) clientBarChartInstance.destroy();
+        if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+        document.getElementById('downloadBtn').disabled = true;
+        document.getElementById('csvBtn').disabled = true;
+        document.getElementById('nuevaLiquidacionBtn').style.display = 'none';
+        saveState();
+        showToast('Listo para una nueva liquidación.', 'success');
+        window.scrollTo(0, 0);
+    }
+
+    // --- CALCULATION AND PROCESSING ---
+    function getCurrencyFormat(locale, currency) {
+        try { return new Intl.NumberFormat(locale, { style: 'currency', currency: currency }); }
+        catch (e) { console.warn(`Invalid locale or currency: ${locale}, ${currency}.`); return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }); }
+    }
+    function hexToRgb(hex) {
+        if (!hex || typeof hex !== 'string' || !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) { return [0, 0, 0]; }
+        const r = parseInt(hex.substring(1, 3), 16);
+        const g = parseInt(hex.substring(3, 5), 16);
+        const b = parseInt(hex.substring(5, 7), 16);
+        return [r, g, b];
+    }
+    function validateInput(input) {
+        if (input.validity.valid) { input.classList.add('valid'); input.classList.remove('invalid'); }
+        else { input.classList.add('invalid'); input.classList.remove('valid'); }
+    }
+    function actualizarEnTiempoReal() {
+        const headerSubtitleEl = document.getElementById('headerSubtitle');
+        const nombreMariellaEl = document.getElementById('nombreMariella');
+        if (headerSubtitleEl && nombreMariellaEl) {
+            headerSubtitleEl.textContent = `Sistema interactivo para facturación de ${nombreMariellaEl.value || 'Doña Mariella'}`;
+        }
+    }
+    async function procesarDatos() {
+        const requiredInputs = document.querySelectorAll('#nombreMariella, #valorComida, #facturadorDireccion, .client-input-group input[type="text"], .deduction-input-group .deduction-name, .deduction-input-group .deduction-value');
+        let allInputsValid = true;
+        requiredInputs.forEach(input => {
+            validateInput(input);
+            if (!input.validity.valid) { allInputsValid = false; }
+        });
+        if (!allInputsValid) { showToast("Por favor, completa todos los campos requeridos.", 'error'); return; }
+
+        const selectMoneda = document.getElementById('moneda');
+        const selectedOptionMoneda = selectMoneda?.options[selectMoneda.selectedIndex];
+        const locale = selectedOptionMoneda?.dataset.locale || 'es-CO';
+        const currency = selectMoneda?.value || 'COP';
+        const formato = getCurrencyFormat(locale, currency);
+        const valorComida = parseFloat(document.getElementById('valorComida')?.value) || 0;
+
+        const clientes = Array.from(document.querySelectorAll('#clientesContainer .client-input-group')).map((group, index) => {
+            const nombre = group.querySelector('input[type="text"]')?.value.trim() || `Cliente ${index + 1}`;
+            const comidas = parseInt(group.querySelector('input[type="number"]')?.value) || 0;
+            return { nombre, comidas, ingresoBrutoCliente: comidas * valorComida };
+        });
+        const totalComidasGeneral = clientes.reduce((sum, c) => sum + c.comidas, 0);
+        const totalIngresoBrutoMariella = totalComidasGeneral * valorComida;
+
+        const deduccionesCalculadas = Array.from(document.querySelectorAll('#deduccionesContainer .deduction-input-group')).map(group => {
+            const nombre = group.querySelector('.deduction-name')?.value || 'Concepto';
+            const tipo = group.querySelector('.deduction-type')?.value || 'fixed';
+            const valor = parseFloat(group.querySelector('.deduction-value')?.value) || 0;
+            const category = group.querySelector('.deduction-category')?.value || 'Otros';
+            const montoCalculado = tipo === 'fixed' ? valor : totalIngresoBrutoMariella * (valor / 100);
+            return { nombre, montoCalculado, displayValue: tipo === 'percent' ? `${valor}%` : formato.format(valor), category };
+        });
+        const totalDeducciones = deduccionesCalculadas.reduce((sum, d) => sum + d.montoCalculado, 0);
+        const saldoFinalMariella = totalIngresoBrutoMariella - totalDeducciones;
+
+        datosCalculados = {
+            config: {
+                nombreMariella: document.getElementById('nombreMariella')?.value.trim(),
+                facturadorDireccion: document.getElementById('facturadorDireccion')?.value.trim(),
+                facturadorContacto: document.getElementById('facturadorContacto')?.value.trim(),
+                invoiceNumber: document.getElementById('invoiceNumber')?.value.trim(),
+                mesServicio: document.getElementById('mesServicio')?.value,
+                valorComida, moneda: currency, locale,
+                pdfNotes: document.getElementById('pdfNotes')?.value,
+                pdfOrientation: document.getElementById('pdfOrientation')?.value,
+                pdfMargin: parseFloat(document.getElementById('pdfMargin')?.value) || 15,
+                pdfFont: document.getElementById('pdfFont')?.value,
+                pdfStyle: document.getElementById('pdfStyle')?.value,
+                pdfHeaderColor: document.getElementById('pdfHeaderColor')?.value,
+                pdfLineColor: document.getElementById('pdfLineColor')?.value,
+                baseFontSize: parseFloat(document.getElementById('baseFontSize')?.value) || 10,
+                titleFontSize: parseFloat(document.getElementById('titleFontSize')?.value) || 18,
+                sectionTitleFontSize: parseFloat(document.getElementById('sectionTitleFontSize')?.value) || 12,
+                signatureX: parseFloat(document.getElementById('signatureX')?.value) || 150,
+                signatureY: parseFloat(document.getElementById('signatureY')?.value) || 250,
+                signatureWidth: parseFloat(document.getElementById('signatureWidth')?.value) || 50,
+                customPdfHeader: document.getElementById('customPdfHeader')?.value.trim(),
+                customPdfFooter: document.getElementById('customPdfFooter')?.value.trim(),
+                logoBase64, signatureBase64
+            },
+            clientes,
+            mariella: {
+                totalComidasGestionadas: totalComidasGeneral,
+                totalIngresoBruto: totalIngresoBrutoMariella,
+                deducciones: deduccionesCalculadas,
+                totalDeducciones, saldoFinalNeto: saldoFinalMariella
+            }
+        };
+        mostrarResultados(datosCalculados, formato);
+        document.getElementById('downloadBtn').disabled = false;
+        document.getElementById('csvBtn').disabled = false;
+        document.getElementById('nuevaLiquidacionBtn').style.display = 'inline-block';
+    }
+
+    // --- RESULTS DISPLAY ---
+    function mostrarResultados(datos, formato) {
+        const { config, clientes, mariella } = datos;
+        let clientesHTML = clientes.filter(c => c.comidas > 0).map((cliente, index) => `
+        <div class="client-breakdown">
+          <div class="person-header">👤 Cliente: ${cliente.nombre || 'N/A'}</div>
+          <div class="deduction-item"><span class="label">Comidas Facturadas:</span><span class="value">${cliente.comidas}</span></div>
+          <div class="deduction-item"><span class="label">Ingreso Bruto Generado:</span><span class="value">${formato.format(cliente.ingresoBrutoCliente)}</span></div>
+          <div class="client-breakdown-actions"><button class="client-download-btn" onclick="descargarClientePDF(${index})">Descargar PDF Cliente</button></div>
+        </div>`).join('');
+        let deduccionesHTML = mariella.deducciones.map(d => `<div class="deduction-item"><span class="label">(-) ${d.nombre || 'N/A'} (${d.displayValue || 'N/A'}):</span><span class="value">${formato.format(d.montoCalculado)}</div>`).join('');
+        const resultadoDiv = document.getElementById('resultado');
+        if (!resultadoDiv) return;
+        resultadoDiv.innerHTML = `<div class="summary-cards"><div class="summary-card"><h3>👩‍🍳 ${config.nombreMariella || 'N/A'} (Neto)</h3><div class="amount">${formato.format(mariella.saldoFinalNeto)}</div></div><div class="summary-card"><h3>👥 Total Bruto Clientes</h3><div class="amount">${formato.format(mariella.totalIngresoBruto)}</div></div></div><div class="chart-container"><canvas id="resultChart"></canvas></div><div class="chart-container"><canvas id="clientBarChart"></canvas></div><div class="chart-container"><canvas id="deductionCategoryChart"></canvas></div>${clientesHTML ? `<div class="detailed-results-container"><h3 class="section-title">📄 Detalle por Cliente</h3>${clientesHTML}</div>` : ''}<div class="mariella-settlement-section"><h3 class="section-title">💸 Liquidación Detallada: ${(config.nombreMariella || 'N/A').toUpperCase()}</h3><div class="person-deductions"><div class="deduction-item"><span class="label">Total Ingreso Bruto:</span><span class="value">${formato.format(mariella.totalIngresoBruto)}</span></div>${deduccionesHTML}<div class="deduction-item" style="border-top: 2px solid var(--border-color); margin-top: 5px; padding-top: 5px;"><span class="label" style="font-weight:bold;">(=) SALDO FINAL A RECIBIR:</span><span class="value final-value">${formato.format(mariella.saldoFinalNeto)}</span></div></div></div>`;
+        setTimeout(() => { document.querySelectorAll('.summary-card, .client-breakdown, .person-deductions').forEach((el, index) => { setTimeout(() => el.classList.add('show'), index * 100); }); }, 100);
+        crearGraficoPrincipal(datos);
+        crearGraficoBarrasClientes(datos);
+        crearGraficoCategoriasDeducciones(datos);
+    }
+
+    function crearGraficoPrincipal(datos) {
+        if (chartInstance) chartInstance.destroy();
+        const ctx = document.getElementById('resultChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Saldo Neto', 'Total Deducciones'],
+                datasets: [{
+                    data: [datos.mariella.saldoFinalNeto, datos.mariella.totalDeducciones],
+                    backgroundColor: ['#2ecc71', '#e74c3c'],
+                    borderColor: [document.body.classList.contains('dark-mode') ? '#2d3748' : '#fff'],
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Distribución del Ingreso Bruto', color: getComputedStyle(document.body).getPropertyValue('--text-color') },
+                    legend: { position: 'top', labels: { color: getComputedStyle(document.body).getPropertyValue('--text-color') } }
+                }
+            }
+        });
+    }
+
+    function crearGraficoBarrasClientes(datos) {
+        if (clientBarChartInstance) clientBarChartInstance.destroy();
+        const ctx = document.getElementById('clientBarChart').getContext('2d');
+        const filteredClients = datos.clientes.filter(c => c.comidas > 0);
+        clientBarChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: filteredClients.map(c => c.nombre),
+                datasets: [{
+                    label: `Ingreso Bruto por Cliente (${datos.config.moneda})`,
+                    data: filteredClients.map(c => c.ingresoBrutoCliente),
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Aporte por Cliente', color: getComputedStyle(document.body).getPropertyValue('--text-color') },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }, grid: { color: getComputedStyle(document.body).getPropertyValue('--border-color') } },
+                    y: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }, grid: { color: getComputedStyle(document.body).getPropertyValue('--border-color') } }
+                }
+            }
+        });
+    }
+
+    function crearGraficoCategoriasDeducciones(datos) {
+        if (deductionCategoryChartInstance) deductionCategoryChartInstance.destroy();
+        const ctx = document.getElementById('deductionCategoryChart').getContext('2d');
+        const categoryTotals = datos.mariella.deducciones.reduce((acc, d) => {
+            const category = d.category || 'Otros';
+            acc[category] = (acc[category] || 0) + d.montoCalculado;
+            return acc;
+        }, {});
+
+        deductionCategoryChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(categoryTotals),
+                datasets: [{
+                    data: Object.values(categoryTotals),
+                    backgroundColor: ['#e74c3c', '#f39c12', '#f1c40f', '#3498db', '#9b59b6', '#1abc9c'],
+                    borderColor: [document.body.classList.contains('dark-mode') ? '#2d3748' : '#fff'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Deducciones por Categoría', color: getComputedStyle(document.body).getPropertyValue('--text-color') },
+                    legend: { position: 'right', labels: { color: getComputedStyle(document.body).getPropertyValue('--text-color') } }
+                }
+            }
+        });
+    }
+
+    function createIncomeTrendChart(historyData) {
+        if (incomeTrendChartInstance) incomeTrendChartInstance.destroy();
+        const ctx = document.getElementById('incomeTrendChart')?.getContext('2d');
+        if (!ctx) return;
+
+        const sortedHistory = historyData
+            .filter(item => item.summary && item.summary.mesServicio)
+            .sort((a, b) => new Date(a.summary.mesServicio) - new Date(b.summary.mesServicio));
+
+        incomeTrendChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: sortedHistory.map(item => new Date(item.summary.mesServicio + '-02').toLocaleDateString('es-CO', { year: 'numeric', month: 'short' })),
+                datasets: [
+                    {
+                        label: 'Ingreso Neto Histórico',
+                        data: sortedHistory.map(item => item.summary.saldoFinalNeto),
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Ingreso Bruto Histórico',
+                        data: sortedHistory.map(item => item.summary.totalIngresoBruto),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Tendencia de Ingresos', color: getComputedStyle(document.body).getPropertyValue('--text-color') },
+                    legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text-color') } }
+                },
+                scales: {
+                    x: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }, grid: { color: getComputedStyle(document.body).getPropertyValue('--border-color') } },
+                    y: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }, grid: { color: getComputedStyle(document.body).getPropertyValue('--border-color') } }
+                }
+            }
+        });
+    }
+
+    // --- EXPORT FUNCTIONS ---
+    function descargarCSV() {
+        if (!datosCalculados) { showToast("Primero calcula la liquidación.", 'error'); return; }
+        const { config, clientes, mariella } = datosCalculados;
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += `Liquidación para,${config.nombreMariella}\n`;
+        csvContent += `Mes,${config.mesServicio}\n\n`;
+        csvContent += "Resumen General\n";
+        csvContent += `Total Ingreso Bruto,${mariella.totalIngresoBruto}\n`;
+        csvContent += `Total Deducciones,${mariella.totalDeducciones}\n`;
+        csvContent += `Saldo Final Neto,${mariella.saldoFinalNeto}\n\n`;
+        csvContent += "Detalle de Clientes\n";
+        csvContent += "Cliente,Comidas,Ingreso Bruto\n";
+        clientes.forEach(c => { csvContent += `${c.nombre},${c.comidas},${c.ingresoBrutoCliente}\n`; });
+        csvContent += "\nDetalle de Deducciones\n";
+        csvContent += "Concepto,Valor Aplicado,Monto\n";
+        mariella.deducciones.forEach(d => { csvContent += `${d.nombre},${d.displayValue},${d.montoCalculado}\n`; });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `liquidacion_${config.nombreMariella}_${config.mesServicio}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (file && file.size < 500 * 1024) { // Límite de 500KB
+            const reader = new FileReader();
+            reader.onload = (e) => { logoBase64 = e.target.result; showToast("Logo cargado.", "success"); onInputChange(); };
+            reader.readAsDataURL(file);
+        } else if (file) {
+            showToast("El logo es muy grande (máx 500KB).", "error");
+            event.target.value = '';
+        }
+    }
+
+    function handleSignatureUpload(event) {
+        const file = event.target.files[0];
+        if (file && file.size < 500 * 1024) { // Límite de 500KB
+            const reader = new FileReader();
+            reader.onload = (e) => { signatureBase64 = e.target.result; showToast("Firma cargada.", "success"); onInputChange(); };
+            reader.readAsDataURL(file);
+        } else if (file) {
+            showToast("La firma es muy grande (máx 500KB).", "error");
+            event.target.value = '';
+        }
+    }
+
+    async function descargarPDF() {
+        if (!datosCalculados) { showToast("Primero calcula la liquidación.", 'error'); return; }
+        showLoader();
+        try {
+            const { jsPDF } = window.jspdf;
+            const { config, clientes, mariella } = datosCalculados;
+            const doc = new jsPDF({ orientation: config.pdfOrientation, unit: 'mm', format: 'a4' });
+
+            const formato = getCurrencyFormat(config.locale, config.moneda);
+            let y = config.pdfMargin;
+            const pageHeight = doc.internal.pageSize.height;
+            const pageWidth = doc.internal.pageSize.width;
+
+            const addFooter = () => {
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                const footerText = config.customPdfFooter || `Documento generado por App de Liquidación`;
+                doc.text(footerText, config.pdfMargin, pageHeight - 10);
+                doc.text(`Página ${doc.internal.getNumberOfPages()}`, pageWidth - config.pdfMargin, pageHeight - 10, { align: 'right' });
+            };
+
+            // --- FIX: PDF drawing logic implemented ---
+            // Header
+            doc.setFontSize(config.titleFontSize);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.setTextColor(hexToRgb(config.pdfHeaderColor)[0], hexToRgb(config.pdfHeaderColor)[1], hexToRgb(config.pdfHeaderColor)[2]);
+            const headerText = config.customPdfHeader || `LIQUIDACIÓN DE SERVICIO DE COMIDAS`;
+            doc.text(headerText, pageWidth / 2, y, { align: 'center' });
+            y += 10;
+
+            if (config.logoBase64) {
+                try {
+                    doc.addImage(config.logoBase64, 'PNG', config.pdfMargin, y - 15, 25, 25);
+                } catch(e) { console.error("Error adding logo:", e); }
+            }
+
+            doc.setDrawColor(hexToRgb(config.pdfLineColor)[0], hexToRgb(config.pdfLineColor)[1], hexToRgb(config.pdfLineColor)[2]);
+            doc.line(config.pdfMargin, y, pageWidth - config.pdfMargin, y);
+            y += 10;
+
+            // Details Section
+            doc.setFontSize(config.sectionTitleFontSize);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.setTextColor(50);
+            doc.text('Detalles Generales', config.pdfMargin, y);
+            y += 7;
+
+            doc.setFontSize(config.baseFontSize);
+            doc.setFont(config.pdfFont, 'normal');
+            doc.text(`Facturador:`, config.pdfMargin, y);
+            doc.text(`${config.nombreMariella}`, config.pdfMargin + 50, y);
+            y += 7;
+            doc.text(`Campamento:`, config.pdfMargin, y);
+            doc.text(`${config.facturadorDireccion}`, config.pdfMargin + 50, y);
+            y += 7;
+            doc.text(`Mes del Servicio:`, config.pdfMargin, y);
+            doc.text(`${new Date(config.mesServicio + '-02').toLocaleDateString(config.locale, { year: 'numeric', month: 'long' })}`, config.pdfMargin + 50, y);
+            y += 7;
+            if (config.invoiceNumber) {
+                doc.text(`Número de Factura:`, config.pdfMargin, y);
+                doc.text(`${config.invoiceNumber}`, config.pdfMargin + 50, y);
+                y += 7;
+            }
+            y += 5;
+
+            // Summary
+            doc.setFontSize(config.sectionTitleFontSize);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.text('Resumen Financiero', config.pdfMargin, y);
+            y += 7;
+            doc.setLineWidth(0.5);
+            doc.line(config.pdfMargin, y - 2, pageWidth - config.pdfMargin, y - 2);
+
+            const summaryData = [
+                ['Total Ingreso Bruto:', formato.format(mariella.totalIngresoBruto)],
+                ['Total Deducciones:', `- ${formato.format(mariella.totalDeducciones)}`],
+                ['SALDO FINAL NETO:', formato.format(mariella.saldoFinalNeto)]
+            ];
+            doc.autoTable({
+                startY: y,
+                body: summaryData,
+                theme: 'plain',
+                styles: { fontSize: config.baseFontSize + 1, font: config.pdfFont },
+                columnStyles: { 0: { fontStyle: 'bold' }, 1: { halign: 'right' } }
+            });
+            y = doc.autoTable.previous.finalY + 10;
+
+            // Client Details
+            if (y > pageHeight - 60) { doc.addPage(); y = config.pdfMargin; }
+            doc.setFontSize(config.sectionTitleFontSize);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.text('Detalle por Cliente', config.pdfMargin, y);
+            y += 7;
+            const clientHead = [['#', 'Nombre del Cliente', 'Comidas', 'Valor a Pagar']];
+            const clientBody = clientes.map((c, i) => [i + 1, c.nombre, c.comidas, formato.format(c.ingresoBrutoCliente)]);
+            doc.autoTable({
+                head: clientHead,
+                body: clientBody,
+                startY: y,
+                theme: 'grid',
+                headStyles: { fillColor: hexToRgb(config.pdfHeaderColor), textColor: 255, fontStyle: 'bold' },
+                styles: { fontSize: config.baseFontSize, font: config.pdfFont },
+                columnStyles: { 3: { halign: 'right' } }
+            });
+            y = doc.autoTable.previous.finalY + 10;
+
+            // Deduction Details
+            if (y > pageHeight - 60) { doc.addPage(); y = config.pdfMargin; }
+            doc.setFontSize(config.sectionTitleFontSize);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.text('Detalle de Deducciones del Facturador', config.pdfMargin, y);
+            y += 7;
+            const deductionHead = [['Concepto de Deducción', 'Valor Aplicado', 'Monto Deducido']];
+            const deductionBody = mariella.deducciones.map(d => [d.nombre, d.displayValue, `- ${formato.format(d.montoCalculado)}`]);
+            doc.autoTable({
+                head: deductionHead,
+                body: deductionBody,
+                startY: y,
+                theme: 'striped',
+                styles: { fontSize: config.baseFontSize, font: config.pdfFont },
+                columnStyles: { 2: { halign: 'right' } }
+            });
+            y = doc.autoTable.previous.finalY + 10;
+
+            // Notes
+            if (config.pdfNotes) {
+                if (y > pageHeight - 40) { doc.addPage(); y = config.pdfMargin; }
+                doc.setFontSize(config.sectionTitleFontSize);
+                doc.setFont(config.pdfFont, 'bold');
+                doc.text('Notas Adicionales', config.pdfMargin, y);
+                y += 7;
+                doc.setFontSize(config.baseFontSize);
+                doc.setFont(config.pdfFont, 'normal');
+                const splitNotes = doc.splitTextToSize(config.pdfNotes, pageWidth - (config.pdfMargin * 2));
+                doc.text(splitNotes, config.pdfMargin, y);
+                y += (splitNotes.length * 5);
+            }
+
+            // Signature
+            if (config.signatureBase64) {
+                try {
+                    const sigProps = doc.getImageProperties(config.signatureBase64);
+                    const sigX = config.signatureX || 150;
+                    const sigW = config.signatureWidth || 50;
+                    const sigH = sigW * (sigProps.height / sigProps.width);
+                    let sigY = config.signatureY || 250;
+                    if (y + sigH > pageHeight - 20) { doc.addPage(); y = config.pdfMargin;}
+                    if (sigY < y) sigY = y; // Ensure signature is not drawn over content
+                    doc.addImage(config.signatureBase64, 'PNG', sigX, sigY, sigW, sigH);
+                } catch(e) { console.error("Error adding signature:", e); }
+            }
+
+            // Add footer to all pages
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                addFooter();
+            }
+
+            const pdfBase64 = doc.output('datauristring');
+            if (pdfBase64.length > 950 * 1024) {
+                showToast('El PDF es demasiado grande para guardarlo en el historial. Solo se descargará.', 'error');
+            } else {
+                const settlementToSave = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    status: 'Pendiente',
+                    summary: {
+                        mesServicio: config.mesServicio,
+                        nombreMariella: config.nombreMariella,
+                        saldoFinalNeto: mariella.saldoFinalNeto,
+                        totalIngresoBruto: mariella.totalIngresoBruto,
+                        moneda: config.moneda,
+                        locale: config.locale
+                    },
+                    pdfBase64: pdfBase64
+                };
+                if (window.firebaseGlobals.isAuthReady && window.firebaseGlobals.db && window.firebaseGlobals.userId) {
+                    try {
+                        showToast('Guardando PDF en el historial...', 'info');
+                        const appId = window.firebaseGlobals.appId;
+                        const userId = window.firebaseGlobals.userId;
+                        await window.addDoc(collection(db, `artifacts/${appId}/users/${userId}/settlements`), settlementToSave);
+                        showToast("Liquidación guardada en el historial.", 'success');
+                    }
+                    catch (e) {
+                        let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                        history.unshift(settlementToSave);
+                        localStorage.setItem('settlementHistory', JSON.stringify(history));
+                        loadSettlementHistory();
+                    }
+                } else {
+                    let history = JSON.parse(localStorage.getItem('settlementHistory') || '[]');
+                    history.unshift(settlementToSave);
+                    localStorage.setItem('settlementHistory', JSON.stringify(history));
+                    loadSettlementHistory();
+                }
+            }
+            doc.save(`liquidacion-${(config.nombreMariella || 'unknown').toLowerCase().replace(/\s/g, '-')}-${config.mesServicio || 'unknown'}.pdf`);
+        } catch(e) {
+            console.error("Error al generar PDF:", e);
+            showToast("Ocurrió un error al generar el PDF.", "error");
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function descargarClientePDF(clientIndex) {
+        if (!datosCalculados) return;
+        showLoader();
+        try {
+            const { jsPDF } = window.jspdf;
+            const { config, clientes } = datosCalculados;
+            const cliente = clientes[clientIndex];
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const formato = getCurrencyFormat(config.locale, config.moneda);
+            let y = config.pdfMargin;
+            const pageWidth = doc.internal.pageSize.width;
+
+            // --- FIX: PDF drawing logic implemented ---
+            // Header
+            doc.setFontSize(18);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.text(`RECIBO DE PAGO - ${cliente.nombre}`, pageWidth / 2, y, { align: 'center' });
+            y += 15;
+
+            // Details
+            doc.setFontSize(12);
+            doc.setFont(config.pdfFont, 'normal');
+            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth - config.pdfMargin, y, { align: 'right' });
+            y += 10;
+            doc.text(`Facturado por: ${config.nombreMariella}`, config.pdfMargin, y);
+            y += 7;
+            doc.text(`Cliente: ${cliente.nombre}`, config.pdfMargin, y);
+            y += 7;
+            doc.text(`Mes del Servicio: ${new Date(config.mesServicio + '-02').toLocaleDateString(config.locale, { year: 'numeric', month: 'long' })}`, config.pdfMargin, y);
+            y += 15;
+
+            // Table with payment details
+            doc.setFontSize(14);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.text('Detalle del Cobro', config.pdfMargin, y);
+            y += 7;
+            doc.autoTable({
+                startY: y,
+                head: [['Concepto', 'Cantidad', 'Valor Unitario', 'Total']],
+                body: [
+                    ['Servicio de Comidas', cliente.comidas, formato.format(config.valorComida), formato.format(cliente.ingresoBrutoCliente)]
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+                columnStyles: {
+                    1: { halign: 'center' },
+                    2: { halign: 'right' },
+                    3: { halign: 'right' }
+                }
+            });
+            y = doc.autoTable.previous.finalY + 20;
+
+            doc.setFontSize(14);
+            doc.setFont(config.pdfFont, 'bold');
+            doc.text(`TOTAL A PAGAR: ${formato.format(cliente.ingresoBrutoCliente)}`, config.pdfMargin, y);
+            y += 20;
+
+            if (config.pdfNotes) {
+                doc.setFontSize(10);
+                doc.setFont(config.pdfFont, 'italic');
+                doc.text("Notas:", config.pdfMargin, y);
+                y += 5;
+                doc.setFontSize(10);
+                doc.setFont(config.pdfFont, 'normal');
+                doc.text(doc.splitTextToSize(config.pdfNotes, pageWidth - (config.pdfMargin * 2)), config.pdfMargin, y);
+            }
+
+            doc.save(`recibo-${cliente.nombre.toLowerCase().replace(/\s/g, '-')}-${config.mesServicio}.pdf`);
+        } catch(e) {
+            console.error("Error al generar PDF de cliente:", e);
+            showToast("Ocurrió un error al generar el PDF del cliente.", "error");
+        } finally {
+            hideLoader();
+        }
+    }
+
+</script>
+</body>
+</html>
