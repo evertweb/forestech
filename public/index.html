@@ -1,67 +1,524 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Forestech App</title>
-</head>
-<body>
-  <h1>Welcome to Forestech App</h1>
-  <p>This is a Firebase Hosting site.</p>
-</body>
-</html>
-
-<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Forestech de Colombia</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forestech de Colombia - Conservación y Desarrollo Sostenible</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header moderno con efecto glassmorphism */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(34, 139, 34, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header.scrolled {
+            background: rgba(34, 139, 34, 0.95);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "🌲";
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hero section con animaciones */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 50%, #90EE90 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="trees" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><text x="10" y="15" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.1)">🌲</text></pattern></defs><rect width="100" height="100" fill="url(%23trees)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 1rem;
+            animation: slideInUp 1s ease-out;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            animation: slideInUp 1s ease-out 0.3s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #228B22;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            animation: slideInUp 1s ease-out 0.6s both;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            background: #f0f0f0;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Secciones con diseño moderno */
+        .section {
+            padding: 5rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            color: #228B22;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #228B22, #32CD32);
+            border-radius: 2px;
+        }
+
+        /* Cards para proyectos */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(34, 139, 34, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #228B22, #32CD32);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-card h3 {
+            color: #228B22;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .project-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Formulario moderno */
+        .form-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #228B22;
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #228B22, #32CD32);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            justify-self: center;
+            min-width: 200px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 139, 34, 0.3);
+        }
+
+        /* Footer moderno */
+        footer {
+            background: #2c5234;
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #228B22, #32CD32, #90EE90);
+        }
+
+        /* Botón especial para liquidación */
+        .special-btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section {
+                padding: 3rem 1rem;
+            }
+
+            .form-container {
+                padding: 2rem;
+            }
+        }
+
+        /* Animaciones de entrada */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
-<header>
-    <h1>Forestech de Colombia</h1>
-    <nav>
-        <ul>
-            <li><a href="#quienes-omos">Quiénes Somos</a></li>
-            <li><a href="#proyectos">Proyectos</a></li>
-            <li><a href="#contacto">Contacto</a></li>
-            <!-- Nuevo botón para la aplicación de liquidación de comidas -->
-            <li><a href="alimentacion">Liquidación Comidas</a></li>
-        </ul>
-    </nav>
+<header id="header">
+    <div class="nav-container">
+        <a href="#" class="logo">Forestech de Colombia</a>
+        <nav>
+            <ul>
+                <li><a href="#quienes-somos">Quiénes Somos</a></li>
+                <li><a href="#proyectos">Proyectos</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="alimentacion" class="special-btn">Liquidación Comidas</a></li>
+            </ul>
+        </nav>
+    </div>
 </header>
 
+<section class="hero">
+    <div class="hero-content">
+        <h1>Forestech de Colombia</h1>
+        <p>Conservando nuestros bosques, construyendo un futuro sostenible para Colombia</p>
+        <a href="#quienes-somos" class="cta-button">Conoce Más</a>
+    </div>
+</section>
+
 <main>
-    <section id="quienes-omos">
+    <section id="quienes-somos" class="section fade-in">
         <h2>Quiénes Somos</h2>
-        <p>Forestech de Colombia es una empresa social y ambiental dedicada a la conservación de los bosques, la reforestación y el desarrollo sostenible en Colombia.</p>
+        <p style="text-align: center; font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto;">
+            Forestech de Colombia es una empresa social y ambiental dedicada a la conservación de los bosques,
+            la reforestación y el desarrollo sostenible en Colombia. Trabajamos por un futuro verde y próspero
+            para nuestro país y las generaciones venideras.
+        </p>
     </section>
 
-    <section id="proyectos">
-        <h2>Proyectos</h2>
-        <ul>
-            <li>Reforestación en Vichada</li>
-            <li>Educación ambiental en comunidades</li>
-            <li>Gestión de ecosistemas sostenibles</li>
-        </ul>
+    <section id="proyectos" class="section fade-in">
+        <h2>Nuestros Proyectos</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <h3>🌱 Reforestación en Vichada</h3>
+                <p>Programa integral de reforestación en el departamento de Vichada,
+                    restaurando ecosistemas degradados y promoviendo la biodiversidad local.</p>
+            </div>
+            <div class="project-card">
+                <h3>📚 Educación Ambiental</h3>
+                <p>Iniciativas educativas en comunidades rurales y urbanas para crear
+                    conciencia sobre la importancia de la conservación ambiental.</p>
+            </div>
+            <div class="project-card">
+                <h3>🌿 Gestión de Ecosistemas</h3>
+                <p>Desarrollo e implementación de estrategias sostenibles para la
+                    gestión y conservación de ecosistemas forestales.</p>
+            </div>
+        </div>
     </section>
 
-    <section id="contacto">
-        <h2>Contacto</h2>
-        <form id="contact-form">
-            <input type="text" placeholder="Nombre" required />
-            <input type="email" placeholder="Correo electrónico" required />
-            <textarea placeholder="Mensaje" required></textarea>
-            <button type="submit">Enviar</button>
-        </form>
+    <section id="contacto" class="section fade-in">
+        <h2>Contáctanos</h2>
+        <div class="form-container">
+            <form id="contact-form" class="form-grid">
+                <div class="form-group">
+                    <input type="text" placeholder="Nombre completo" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Correo electrónico" required>
+                </div>
+                <div class="form-group">
+                    <textarea placeholder="Cuéntanos sobre tu proyecto o consulta..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Mensaje</button>
+            </form>
+        </div>
     </section>
 </main>
 
 <footer>
     <p>&copy; 2025 Forestech de Colombia. Todos los derechos reservados.</p>
+    <p style="margin-top: 0.5rem; opacity: 0.8;">Comprometidos con un futuro sostenible 🌱</p>
 </footer>
 
-<script src="script.js"></script>
+<script>
+    // Efecto de scroll en header
+    window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        if (window.scrollY > 100) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
+    // Animaciones al hacer scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Smooth scroll para navegación
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Manejo del formulario
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Animación del botón
+        const btn = this.querySelector('.submit-btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Enviando...';
+        btn.style.background = '#28a745';
+
+        // Simular envío
+        setTimeout(() => {
+            btn.textContent = '¡Mensaje Enviado!';
+            btn.style.background = '#28a745';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                this.reset();
+            }, 2000);
+        }, 1500);
+    });
+
+    // Efecto parallax sutil en hero
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero');
+        const rate = scrolled * -0.5;
+        hero.style.transform = `translateY(${rate}px)`;
+    });
+</script>
 </body>
 </html>
