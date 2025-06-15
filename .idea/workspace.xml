@@ -5,39 +5,49 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/forestech.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CNAME" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/.editorconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/.firebaserc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/CNAME" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/css/style.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/firebase.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/img/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/js/app.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/js/vendor/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/robots.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/site.webmanifest" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/webpack.common.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/webpack.config.dev.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/webpack.config.prod.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/script.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/eslint.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/alimentacion/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/public/vite.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/App.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/App.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/assets/react.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/ActionButtons.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/Auth.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/ChartComponent.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/Clients.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/Deductions.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/GeneralData.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/Header.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/HistorySection.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/Loader.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/MainApp.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/components/ResultsModal.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/firebase/config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/firebase/firestoreService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/main.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/utils/calculations.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/src/utils/pdfGenerator.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/vite.config.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="package.json" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -118,6 +128,8 @@
       <workItem from="1749838118021" duration="10716000" />
       <workItem from="1749857106080" duration="1978000" />
       <workItem from="1749860268483" duration="8537000" />
+      <workItem from="1749922565077" duration="15528000" />
+      <workItem from="1749944546678" duration="86000" />
     </task>
     <servers />
   </component>
