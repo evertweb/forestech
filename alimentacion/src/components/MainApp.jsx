@@ -11,10 +11,6 @@ import PdfCustomization from './PdfCustomization';
 import ActionButtons from './ActionButtons';
 import HistorySection from './HistorySection';
 
-// --- INICIO DE LA MODIFICACIÓN ---
-
-// 1. Definimos los estados iniciales fuera del componente.
-// Esto nos permite reutilizarlos fácilmente en la función de reseteo.
 const initialGeneralData = {
     nombreMariella: 'Doña Mariella',
     facturadorDireccion: '',
@@ -24,14 +20,11 @@ const initialGeneralData = {
     moneda: 'COP',
     valorComida: 9000,
 };
-
 const initialClients = [{ id: 1, name: '', meals: 0 }];
-
 const initialDeductions = [
     { id: 1, name: 'Retención en la Fuente', type: 'percent', value: 3.5, category: 'Impuesto' },
     { id: 2, name: 'Aporte Seguro Social', type: 'fixed', value: 185500, category: 'Personal' }
 ];
-
 const initialCustomizationData = {
     logo: null,
     signature: null,
@@ -39,16 +32,19 @@ const initialCustomizationData = {
     footerText: '',
 };
 
-
 function MainApp({ setResults, setIsModalOpen, onOpenPaymentModal }) {
 
-    // Usamos las constantes para inicializar los estados.
     const [generalData, setGeneralData] = useState(initialGeneralData);
     const [clients, setClients] = useState(initialClients);
     const [deductions, setDeductions] = useState(initialDeductions);
     const [customizationData, setCustomizationData] = useState(initialCustomizationData);
-
     const [calculationResults, setCalculationResults] = useState(null);
+
+    // --- INICIO DE LA NUEVA SOLUCIÓN ---
+    // 1. Creamos un estado que actuará como nuestra 'llave' de reseteo.
+    const [resetKey, setResetKey] = useState(0);
+    // --- FIN DE LA NUEVA SOLUCIÓN ---
+
     const [history, setHistory] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -70,19 +66,14 @@ function MainApp({ setResults, setIsModalOpen, onOpenPaymentModal }) {
         setIsModalOpen(true);
     };
 
-    // 2. Nueva función para limpiar los formularios e iniciar de nuevo.
+    // --- INICIO DE LA NUEVA SOLUCIÓN ---
+    // 2. La función de nueva liquidación ahora es mucho más simple.
     const handleNewSettlement = () => {
-        setGeneralData(initialGeneralData);
-        setClients(initialClients);
-        setDeductions(initialDeductions);
-        setCustomizationData(initialCustomizationData);
-        setCalculationResults(null); // <-- Esto es clave para que vuelva a aparecer el botón "Calcular"
-        // Limpiamos los inputs de archivos manualmente
-        const logoInput = document.getElementById('logo');
-        if (logoInput) logoInput.value = '';
-        const signatureInput = document.getElementById('signature');
-        if (signatureInput) signatureInput.value = '';
+        // Simplemente incrementamos la llave. Esto forzará un re-montaje.
+        setResetKey(prevKey => prevKey + 1);
+        setCalculationResults(null);
     };
+    // --- FIN DE LA NUEVA SOLUCIÓN ---
 
     const handleDeleteItem = async (id) => {
         try {
@@ -96,13 +87,18 @@ function MainApp({ setResults, setIsModalOpen, onOpenPaymentModal }) {
 
     return (
         <div className="content">
-            <div className="input-section">
+            {/* --- INICIO DE LA NUEVA SOLUCIÓN --- */}
+            {/* 3. Le pasamos la 'resetKey' como el prop 'key' al div que envuelve los formularios.
+          Cuando 'resetKey' cambie, todo lo que está dentro de este div se destruirá y se volverá a crear desde cero.
+      */}
+            <div className="input-section" key={resetKey}>
+                {/* --- FIN DE LA NUEVA SOLUCIÓN --- */}
+
                 <GeneralData data={generalData} setData={setGeneralData} />
                 <Deductions deductions={deductions} setDeductions={setDeductions} />
                 <Clients clients={clients} setClients={setClients} />
                 <PdfCustomization customData={customizationData} setCustomData={setCustomizationData} />
 
-                {/* 3. Pasamos la nueva función y los resultados a ActionButtons */}
                 <ActionButtons
                     onCalculate={handleCalculate}
                     results={calculationResults}
