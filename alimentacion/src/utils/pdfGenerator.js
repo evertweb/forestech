@@ -48,7 +48,8 @@ export const generatePDF = async (results, chartImages = {}) => {
     });
 
     const deductionHead = [['Concepto', 'Valor Aplicado', 'Monto Deducido']];
-    const deductionBody = mariella.deducciones.map(d => [d.nombre, d.displayValue, `- ${formato.format(d.montoCalculado)}`]);
+    // Usamos 'd.name' (en inglés) para que coincida con el estado.
+    const deductionBody = mariella.deducciones.map(d => [d.name, d.displayValue, `- ${formato.format(d.montoCalculado)}`]);
     autoTable(doc, {
         head: deductionHead,
         body: deductionBody,
