@@ -5,11 +5,11 @@ import { generatePDF } from '../utils/pdfGenerator';
 import ChartComponent from './ChartComponent';
 
 function ResultsModal({ results, onClose }) {
-    if (!results) return null;
-
     const doughnutRef = useRef(null);
     const pieRef = useRef(null);
     const barRef = useRef(null);
+
+    if (!results) return null;
 
     const { config, clientes, mariella } = results;
     const formato = getCurrencyFormat(config.locale, config.moneda);

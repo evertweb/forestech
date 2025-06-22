@@ -4,7 +4,7 @@
 export const getCurrencyFormat = (locale = 'es-CO', currency = 'COP') => {
     try {
         return new Intl.NumberFormat(locale, { style: 'currency', currency: currency });
-    } catch (e) {
+    } catch {
         // Fallback a USD si la configuración es inválida
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
     }
