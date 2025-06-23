@@ -773,10 +773,25 @@ body.dark-mode .auth-message {
 }
 @media (max-width: 768px) {
   .summary-cards, .summary-grid { grid-template-columns: 1fr; }
-  .deduction-input-row { grid-template-columns: 1fr; }
+  
+  /* Mejores estilos para deducciones en móvil */
+  .deduction-input-row { 
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .deduction-input-row input,
+  .deduction-input-row select {
+    width: 100%;
+    min-height: 44px; /* Touch-friendly size */
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
   .history-section-header { flex-direction: column; align-items: flex-start; }
   .auth-buttons { flex-direction: column; }
-  .welcome-screen { padding: 30px; margin: 20px auto; } /* Adjust padding and margin for smaller screens */
+  .welcome-screen { padding: 30px; margin: 20px auto; }
+  
   #toastContainer {
     top: auto;
     bottom: 20px;
@@ -784,7 +799,59 @@ body.dark-mode .auth-message {
     transform: translateX(-50%);
     max-width: 90%;
   }
+  
   .toast { animation: fadeIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; }
+  
+  /* Mejores modales para móvil */
+  .modal-content {
+    width: 95%;
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 5vh auto;
+    padding: 20px;
+  }
+  
+  .modal-content h3 {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+  }
+  
+  /* Botones más grandes para touch */
+  .modal button {
+    min-height: 44px;
+    font-size: 16px;
+    padding: 12px 20px;
+    margin: 5px;
+  }
+  
+  /* Targets táctiles más grandes en móvil */
+  .counter-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.4em;
+  }
+  
+  .remove-btn {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 1em;
+  }
+  
+  .history-item-actions button {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+  }
+  
+  /* Inputs más grandes para móvil */
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    min-height: 44px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
