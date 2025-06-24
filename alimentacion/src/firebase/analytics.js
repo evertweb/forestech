@@ -132,6 +132,14 @@ export const analyticsEvents = {
     trackEvent('deduccion_añadida', {
       timestamp: new Date().toISOString()
     });
+  },
+
+  // Eventos personalizados para sistema de roles y otras funcionalidades
+  custom: (eventName, parameters = {}) => {
+    trackEvent(eventName, {
+      ...parameters,
+      timestamp: new Date().toISOString()
+    });
   }
 };
 
