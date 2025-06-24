@@ -4,6 +4,7 @@ import './App.css';
 import { auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { updateSettlementPayment } from './firebase/firestoreService';
+import { analyticsEvents, setupErrorTracking, trackPageView } from './firebase/analytics';
 
 import Header from './components/Header';
 import Auth from './components/Auth';
@@ -11,6 +12,7 @@ import MainApp from './components/MainApp';
 import Loader from './components/Loader';
 import ResultsModal from './components/ResultsModal';
 import PaymentModal from './components/PaymentModal';
+import EmailVerificationBanner from './components/EmailVerificationBanner';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,7 +25,9 @@ function App() {
     const [settlementToUpdateId, setSettlementToUpdateId] = useState(null);
 
     const toggleTheme = () => {
-        setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        analyticsEvents.temaChanged(newTheme);
     };
 
     useEffect(() => {
@@ -31,15 +35,26 @@ function App() {
         document.body.classList.add(`${theme}-mode`);
     }, [theme]);
 
+    // Setup inicial de Analytics
+    useEffect(() => {
+        setupErrorTracking();
+        trackPageView('Forestech App');
+    }, []);
+
+    // Auth state listener
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user && !isAuthenticated) {
+                analyticsEvents.login('email');
+            }
             setIsAuthenticated(!!user);
             setIsAuthReady(true);
         });
         return () => unsubscribe();
-    }, []);
+    }, [isAuthenticated]);
 
     const handleLogout = async () => {
+        analyticsEvents.logout();
         await signOut(auth);
     };
 
@@ -76,11 +91,16 @@ function App() {
 
             {!isAuthenticated && <Auth />}
 
-            {isAuthenticated && <MainApp
-                setResults={setResults}
-                setIsModalOpen={setIsResultsModalOpen}
-                onOpenPaymentModal={handleOpenPaymentModal}
-            />}
+            {isAuthenticated && (
+                <>
+                    <EmailVerificationBanner user={auth.currentUser} />
+                    <MainApp
+                        setResults={setResults}
+                        setIsModalOpen={setIsResultsModalOpen}
+                        onOpenPaymentModal={handleOpenPaymentModal}
+                    />
+                </>
+            )}
 
             {isResultsModalOpen && (
                 <ResultsModal results={results} onClose={() => setIsResultsModalOpen(false)} />

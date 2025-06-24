@@ -680,6 +680,91 @@ body.dark-mode .auth-message {
   color: #ff5a5a;
 }
 
+/* Email Verification Banner */
+.email-verification-banner {
+  background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+  color: #2d3436;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border-left: 5px solid #e17055;
+  box-shadow: 0 4px 15px rgba(225, 112, 85, 0.2);
+}
+
+.verification-content h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.verification-content p {
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+}
+
+.verification-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.resend-btn, .refresh-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9em;
+}
+
+.resend-btn {
+  background: linear-gradient(135deg, #e17055, #d63031);
+  color: white;
+}
+
+.resend-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(225, 112, 85, 0.3);
+}
+
+.resend-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #00b894, #00a085);
+  color: white;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.verification-message {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.verification-message.success {
+  background: rgba(0, 184, 148, 0.1);
+  color: #00b894;
+  border: 1px solid #00b894;
+}
+
+.verification-message.error {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+}
+
 /* Welcome Screen Styles */
 .welcome-screen {
   text-align: center;
@@ -714,6 +799,10 @@ body.dark-mode .auth-message {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+.welcome-screen .welcome-buttons button.google-auth-btn {
+  background: linear-gradient(135deg, #db4437, #c23321);
+  color: white;
 }
 .welcome-screen .welcome-buttons button.email-auth-btn {
   background: linear-gradient(135deg, #3498db, #2980b9);

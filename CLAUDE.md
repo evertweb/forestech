@@ -72,9 +72,11 @@ VITE_FIREBASE_APP_ID=tu_app_id
 ```
 
 ### Servicios de Firebase Utilizados
-- **Authentication**: Login/logout de usuarios
+- **Authentication**: Login/logout de usuarios con Google OAuth y Email/Password
 - **Firestore**: Almacenamiento de datos de liquidaciones con colecciones específicas por usuario
 - **Storage**: Subida de archivos (logos, firmas, comprobantes)
+- **Analytics**: Tracking de eventos personalizados y métricas de uso
+- **Performance Monitoring**: Monitoreo de rendimiento en tiempo real
 
 ## Características Principales de la Aplicación
 
@@ -86,6 +88,8 @@ VITE_FIREBASE_APP_ID=tu_app_id
 
 ### Arquitectura de Componentes
 - **MainApp**: Contenedor principal con gestión de estado
+- **Auth**: Componente de autenticación con Google OAuth y Email/Password
+- **EmailVerificationBanner**: Banner de verificación de email con reenvío
 - **GeneralData**: Información básica de la liquidación
 - **Clients**: Lista de clientes con conteo de comidas
 - **Deductions**: Deducciones fiscales y personales (porcentaje o fijo)
@@ -128,6 +132,37 @@ Usa listener onAuthStateChanged de Firebase con estados de carga para flujo de a
 - Vite maneja variables de entorno con `import.meta.env`
 - El proceso de build genera salida al directorio padre para Firebase hosting
 - La generación de PDF incluye estilos personalizados y soporte para logo/firma
+
+## Estado Actual del Proyecto (Enero 2025)
+
+### ✅ Fase 1 Completada - Analytics y Autenticación Avanzada
+- **URL en vivo**: https://liquidacionapp-62962.web.app/alimentacion/
+- **Firebase Analytics**: Eventos personalizados implementados (login, logout, calculations, theme_change, etc.)
+- **Performance Monitoring**: Activo en producción con métricas FCP, LCP, FID, CLS
+- **Google OAuth**: Autenticación con Google implementada con botón dedicado
+- **Verificación Email**: Sistema completo con banner UI y reenvío automático
+- **Responsive Design**: Optimizado para móviles con targets táctiles de 44px mínimo
+- **Error Tracking**: Captura automática de errores y logging estructurado
+
+### 🔄 Próximas Fases Planificadas
+- **Fase 2**: Sistema de roles (Admin/Contador/Cliente) + Push Notifications (FCM)
+- **Fase 3**: Dashboard de Analytics + PWA completa + Sistema de comentarios
+- **Fase 4**: Email automático + Backup automático + Integración Google Sheets
+- **Fase 5**: Modo offline + Temas personalizables + Portal clientes independiente
+
+### 📁 Archivos Clave Nuevos Implementados
+- `src/firebase/analytics.js` - Servicio de Analytics con eventos personalizados
+- `src/firebase/authService.js` - Servicio de autenticación abstraído
+- `src/components/Auth.jsx` - Componente actualizado con Google Sign-in
+- `src/components/EmailVerificationBanner.jsx` - Banner de verificación de email
+- `src/App.jsx` - Integración de Analytics y verificación email
+
+### 🔧 Configuraciones Firebase Activas
+- Authentication: Email/Password + Google OAuth configurado
+- Analytics: Eventos personalizados y seguimiento automático activo  
+- Performance: Monitoreo en tiempo real en producción
+- Firestore: Reglas de seguridad por usuario implementadas
+- Hosting: Deploy automático configurado con build optimizado
 
 
 

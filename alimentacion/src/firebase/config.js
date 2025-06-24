@@ -3,6 +3,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAnalytics } from "firebase/analytics";
+import { getPerformance } from "firebase/performance";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,6 +19,10 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
+
+// Inicializar Analytics y Performance (solo en browser)
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+export const performance = typeof window !== 'undefined' ? getPerformance(app) : null;
 
 // Exportar los servicios que usaremos en la aplicación
 export const auth = getAuth(app);
