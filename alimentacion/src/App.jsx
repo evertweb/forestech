@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { auth } from './firebase/config';
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { updateSettlementPayment } from './firebase/firestoreService';
 import { analyticsEvents, setupErrorTracking, trackPageView } from './firebase/analytics';
+import { UserProvider, useUser } from './contexts/UserContext';
 
 import Header from './components/Header';
 import Auth from './components/Auth';
@@ -14,13 +15,22 @@ import ResultsModal from './components/ResultsModal';
 import PaymentModal from './components/PaymentModal';
 import EmailVerificationBanner from './components/EmailVerificationBanner';
 
+// Componente principal envuelto con UserProvider
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isAuthReady, setIsAuthReady] = useState(false);
+    return (
+        <UserProvider>
+            <AppContent />
+        </UserProvider>
+    );
+}
+
+// Contenido principal de la aplicación con acceso al contexto de usuario
+function AppContent() {
+    const { user, userProfile, loading } = useUser();
+    
     const [theme, setTheme] = useState('light');
     const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
     const [results, setResults] = useState(null);
-
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [settlementToUpdateId, setSettlementToUpdateId] = useState(null);
 
@@ -40,18 +50,6 @@ function App() {
         setupErrorTracking();
         trackPageView('Forestech App');
     }, []);
-
-    // Auth state listener
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user && !isAuthenticated) {
-                analyticsEvents.login('email');
-            }
-            setIsAuthenticated(!!user);
-            setIsAuthReady(true);
-        });
-        return () => unsubscribe();
-    }, [isAuthenticated]);
 
     const handleLogout = async () => {
         analyticsEvents.logout();
@@ -77,23 +75,25 @@ function App() {
         }
     };
 
-    if (!isAuthReady) {
+    // Mostrar loader mientras se carga la información del usuario
+    if (loading) {
         return <Loader />;
     }
 
     return (
         <div className={`container ${(isResultsModalOpen || isPaymentModalOpen) ? 'modal-open' : ''}`}>
             <Header
-                isAuthenticated={isAuthenticated}
+                isAuthenticated={!!user}
                 onLogout={handleLogout}
                 onToggleTheme={toggleTheme}
+                userProfile={userProfile} // Pasar perfil para mostrar rol en header
             />
 
-            {!isAuthenticated && <Auth />}
+            {!user && <Auth />}
 
-            {isAuthenticated && (
+            {user && (
                 <>
-                    <EmailVerificationBanner user={auth.currentUser} />
+                    <EmailVerificationBanner user={user} />
                     <MainApp
                         setResults={setResults}
                         setIsModalOpen={setIsResultsModalOpen}

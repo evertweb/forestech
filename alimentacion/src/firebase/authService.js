@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { auth } from "./config";
 import { analyticsEvents } from "./analytics";
+import { getOrCreateUserProfile } from "./userService";
 
 // Configurar el provider de Google
 const googleProvider = new GoogleAuthProvider();

@@ -1,0 +1,314 @@
+/**
+ * Servicio de gestión de perfiles de usuario para Forestech
+ * Extiende la funcionalidad de Firebase Auth con roles y permisos
+ * Mantiene consistencia con authService.js existente
+ */
+
+import { 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  collection, 
+  query, 
+  getDocs,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { db } from './config';
+import { 
+  ROLES, 
+  determineUserRole, 
+  getDefaultPermissions, 
+  ADMIN_EMAIL 
+} from '../constants/roles';
+import { analyticsEvents } from './analytics';
+
+/**
+ * Obtiene la referencia base para usuarios en Firestore
+ * Mantiene la estructura existente del proyecto
+ */
+const getUsersCollectionPath = () => {
+  return `artifacts/${import.meta.env.VITE_FIREBASE_APP_ID}/users`;
+};
+
+/**
+ * Crea un perfil de usuario en Firestore
+ * @param {Object} user - Usuario de Firebase Auth
+ * @param {string} customRole - Rol personalizado (opcional)
+ * @returns {Promise<Object>} - Perfil creado
+ */
+export const createUserProfile = async (user, customRole = null) => {
+  try {
+    const role = customRole || determineUserRole(user.email);
+    const permissions = getDefaultPermissions(role);
+    
+    const profile = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || user.email.split('@')[0],
+      role: role,
+      permissions: permissions,
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp(),
+      emailVerified: user.emailVerified,
+      photoURL: user.photoURL || null,
+      isActive: true
+    };
+
+    const userRef = doc(db, `${getUsersCollectionPath()}/${user.uid}/profile/data`);
+    await setDoc(userRef, profile);
+
+    // Analytics tracking
+    analyticsEvents.custom('user_profile_created', {
+      role: role,
+      method: 'automatic'
+    });
+
+    console.log('✅ Perfil de usuario creado:', role, user.email);
+    return { success: true, profile, message: 'Perfil creado exitosamente' };
+    
+  } catch (error) {
+    console.error('❌ Error creando perfil de usuario:', error);
+    analyticsEvents.custom('user_profile_error', {
+      error_code: error.code,
+      operation: 'create'
+    });
+    
+    return { 
+      success: false, 
+      error: error.message, 
+      message: 'Error al crear perfil de usuario' 
+    };
+  }
+};
+
+/**
+ * Obtiene el perfil de un usuario desde Firestore
+ * @param {string} userId - UID del usuario
+ * @returns {Promise<Object|null>} - Perfil del usuario o null
+ */
+export const getUserProfile = async (userId) => {
+  try {
+    const userRef = doc(db, `${getUsersCollectionPath()}/${userId}/profile/data`);
+    const docSnap = await getDoc(userRef);
+    
+    if (docSnap.exists()) {
+      const profile = docSnap.data();
+      return { success: true, profile };
+    } else {
+      return { success: false, profile: null, message: 'Perfil no encontrado' };
+    }
+    
+  } catch (error) {
+    console.error('❌ Error obteniendo perfil de usuario:', error);
+    return { success: false, error: error.message, profile: null };
+  }
+};
+
+/**
+ * Actualiza la última conexión del usuario
+ * @param {string} userId - UID del usuario
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+export const updateLastLogin = async (userId) => {
+  try {
+    const userRef = doc(db, `${getUsersCollectionPath()}/${userId}/profile/data`);
+    await updateDoc(userRef, {
+      lastLogin: serverTimestamp()
+    });
+    
+    return { success: true, message: 'Última conexión actualizada' };
+    
+  } catch (error) {
+    console.error('❌ Error actualizando última conexión:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Obtiene o crea un perfil de usuario (función principal)
+ * @param {Object} user - Usuario de Firebase Auth
+ * @returns {Promise<Object>} - Perfil del usuario
+ */
+export const getOrCreateUserProfile = async (user) => {
+  try {
+    // Intentar obtener perfil existente
+    const profileResult = await getUserProfile(user.uid);
+    
+    if (profileResult.success && profileResult.profile) {
+      // Perfil existe, actualizar última conexión
+      await updateLastLogin(user.uid);
+      
+      // Verificar si es admin y necesita upgrade de permisos
+      if (user.email === ADMIN_EMAIL && profileResult.profile.role !== ROLES.ADMIN) {
+        console.log('🔄 Actualizando permisos de admin para:', user.email);
+        const upgradeResult = await upgradeToAdmin(user.uid);
+        if (upgradeResult.success) {
+          return { success: true, profile: upgradeResult.profile };
+        }
+      }
+      
+      return { success: true, profile: profileResult.profile };
+    } else {
+      // Perfil no existe, crear nuevo
+      console.log('🆕 Creando nuevo perfil para:', user.email);
+      const createResult = await createUserProfile(user);
+      return createResult;
+    }
+    
+  } catch (error) {
+    console.error('❌ Error en getOrCreateUserProfile:', error);
+    return { 
+      success: false, 
+      error: error.message, 
+      message: 'Error procesando perfil de usuario' 
+    };
+  }
+};
+
+/**
+ * Actualiza un usuario existente a Admin (solo para contacto.evert@gmail.com)
+ * @param {string} userId - UID del usuario
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+export const upgradeToAdmin = async (userId) => {
+  try {
+    const userRef = doc(db, `${getUsersCollectionPath()}/${userId}/profile/data`);
+    const permissions = getDefaultPermissions(ROLES.ADMIN);
+    
+    const updateData = {
+      role: ROLES.ADMIN,
+      permissions: permissions,
+      updatedAt: serverTimestamp()
+    };
+    
+    await updateDoc(userRef, updateData);
+    
+    // Obtener perfil actualizado
+    const profileResult = await getUserProfile(userId);
+    
+    analyticsEvents.custom('user_role_upgraded', {
+      role: ROLES.ADMIN,
+      method: 'automatic'
+    });
+    
+    console.log('✅ Usuario actualizado a Admin');
+    return { 
+      success: true, 
+      profile: profileResult.profile, 
+      message: 'Permisos de administrador otorgados' 
+    };
+    
+  } catch (error) {
+    console.error('❌ Error actualizando a admin:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Cambia el rol de un usuario (solo admins pueden hacer esto)
+ * @param {string} userId - UID del usuario a modificar
+ * @param {string} newRole - Nuevo rol
+ * @param {string} adminUserId - UID del admin que hace el cambio
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+export const changeUserRole = async (userId, newRole, adminUserId) => {
+  try {
+    // Verificar que quien hace el cambio es admin
+    const adminProfile = await getUserProfile(adminUserId);
+    if (!adminProfile.success || adminProfile.profile.role !== ROLES.ADMIN) {
+      return { 
+        success: false, 
+        message: 'Solo los administradores pueden cambiar roles' 
+      };
+    }
+    
+    // No permitir cambiar el rol del admin principal
+    const targetProfile = await getUserProfile(userId);
+    if (targetProfile.success && targetProfile.profile.email === ADMIN_EMAIL) {
+      return { 
+        success: false, 
+        message: 'No se puede modificar el rol del administrador principal' 
+      };
+    }
+    
+    const userRef = doc(db, `${getUsersCollectionPath()}/${userId}/profile/data`);
+    const permissions = getDefaultPermissions(newRole);
+    
+    await updateDoc(userRef, {
+      role: newRole,
+      permissions: permissions,
+      updatedAt: serverTimestamp(),
+      updatedBy: adminUserId
+    });
+    
+    analyticsEvents.custom('user_role_changed', {
+      new_role: newRole,
+      changed_by: 'admin'
+    });
+    
+    return { success: true, message: 'Rol actualizado exitosamente' };
+    
+  } catch (error) {
+    console.error('❌ Error cambiando rol de usuario:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Obtiene todos los usuarios (solo para admins)
+ * @param {string} adminUserId - UID del admin
+ * @returns {Promise<Object>} - Lista de usuarios
+ */
+export const getAllUsers = async (adminUserId) => {
+  try {
+    // Verificar permisos de admin
+    const adminProfile = await getUserProfile(adminUserId);
+    if (!adminProfile.success || adminProfile.profile.role !== ROLES.ADMIN) {
+      return { success: false, message: 'Acceso denegado' };
+    }
+    
+    const usersCollection = collection(db, getUsersCollectionPath());
+    const q = query(usersCollection);
+    const querySnapshot = await getDocs(q);
+    
+    const users = [];
+    querySnapshot.forEach((doc) => {
+      if (doc.id !== 'profile') { // Evitar el documento de perfil directo
+        users.push({ id: doc.id, ...doc.data() });
+      }
+    });
+    
+    return { success: true, users };
+    
+  } catch (error) {
+    console.error('❌ Error obteniendo usuarios:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Verifica si un usuario tiene un permiso específico
+ * @param {Object} userProfile - Perfil del usuario
+ * @param {string} permission - Permiso a verificar
+ * @returns {boolean} - True si tiene el permiso
+ */
+export const hasPermission = (userProfile, permission) => {
+  if (!userProfile || !userProfile.permissions) {
+    return false;
+  }
+  return userProfile.permissions[permission] === true;
+};
+
+/**
+ * Verifica si un usuario tiene un rol específico
+ * @param {Object} userProfile - Perfil del usuario
+ * @param {string} role - Rol a verificar
+ * @returns {boolean} - True si tiene el rol
+ */
+export const hasRole = (userProfile, role) => {
+  if (!userProfile) {
+    return false;
+  }
+  return userProfile.role === role;
+};
