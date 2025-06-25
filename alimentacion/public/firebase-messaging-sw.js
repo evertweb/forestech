@@ -8,14 +8,14 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-// Configuración de Firebase (usar las mismas variables que en config.js)
+// Configuración de Firebase (sincronizada con config.js y .env.local)
 const firebaseConfig = {
-  apiKey: "AIzaSyDVBZf4NDEQD3U8H9vj8QcW1KRU4xTk8Po",
+  apiKey: "AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4",
   authDomain: "liquidacionapp-62962.firebaseapp.com", 
   projectId: "liquidacionapp-62962",
   storageBucket: "liquidacionapp-62962.firebasestorage.app",
-  messagingSenderId: "894765623264",
-  appId: "1:894765623264:web:7dafe8e3c7f59bd7b2e7a7",
+  messagingSenderId: "851382130132",
+  appId: "1:851382130132:web:eaba38fab449f14fb5b241",
   measurementId: "G-DR2TJESVPX"
 };
 

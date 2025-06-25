@@ -5,8 +5,7 @@ import { signInAnonymously } from "firebase/auth";
 import { 
     loginWithEmail, 
     loginWithGoogle, 
-    registerWithEmail,
-    resendEmailVerification 
+    registerWithEmail
 } from '../firebase/authService';
 import { analyticsEvents } from '../firebase/analytics';
 
@@ -60,7 +59,7 @@ function Auth() {
             } else {
                 setAuthMessage(result.message);
             }
-        } catch (error) {
+        } catch {
             setAuthMessage('Error al iniciar sesión con Google');
         } finally {
             setLoading(false);

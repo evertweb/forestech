@@ -7,7 +7,6 @@
 import { 
   doc, 
   setDoc, 
-  getDoc, 
   updateDoc, 
   collection, 
   query, 
@@ -214,7 +213,7 @@ export const getInvitationByEmail = async (email) => {
  * @param {string} userId - UID del usuario registrado
  * @returns {Promise<Object>} - Resultado de la validación
  */
-export const useInvitation = async (code, userEmail, userId) => {
+export const validateAndUseInvitation = async (code, userEmail, userId) => {
   try {
     const invitationResult = await getInvitationByCode(code);
     

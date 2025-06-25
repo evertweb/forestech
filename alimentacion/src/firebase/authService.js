@@ -9,8 +9,8 @@ import {
 } from "firebase/auth";
 import { auth } from "./config";
 import { analyticsEvents } from "./analytics";
-import { getOrCreateUserProfile, createUserProfile } from "./userService";
-import { useInvitation } from "./invitationService";
+import { createUserProfile } from "./userService";
+import { validateAndUseInvitation } from "./invitationService";
 
 // Configurar el provider de Google
 const googleProvider = new GoogleAuthProvider();
@@ -75,7 +75,7 @@ export const registerWithEmail = async (email, password, invitationCode = null) 
     
     // Si hay código de invitación, validarlo primero
     if (invitationCode) {
-      const invitationResult = await useInvitation(invitationCode, email, 'temp');
+      const invitationResult = await validateAndUseInvitation(invitationCode, email, 'temp');
       if (!invitationResult.success) {
         return {
           success: false,
@@ -90,7 +90,7 @@ export const registerWithEmail = async (email, password, invitationCode = null) 
     
     // Si hay datos de invitación, actualizar la invitación con el UID real
     if (invitationData) {
-      await useInvitation(invitationCode, email, user.uid);
+      await validateAndUseInvitation(invitationCode, email, user.uid);
       
       // Crear perfil con datos de la invitación
       await createUserProfile(user, null, invitationData);

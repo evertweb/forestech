@@ -4,7 +4,7 @@
  * Solo accesible para usuarios con rol Admin
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { getAllUsers, changeUserRole } from '../firebase/userService';
 import { createInvitation, getAllInvitations, cancelInvitation } from '../firebase/invitationService';
@@ -34,9 +34,9 @@ const AdminPanel = () => {
   useEffect(() => {
     loadUsers();
     loadInvitations();
-  }, [user]);
+  }, [user, loadUsers, loadInvitations]);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
@@ -58,9 +58,9 @@ const AdminPanel = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const loadInvitations = async () => {
+  const loadInvitations = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -73,7 +73,7 @@ const AdminPanel = () => {
     } catch (err) {
       console.error('Error loading invitations:', err);
     }
-  };
+  }, [user]);
 
   const handleRoleChange = async (userId, newRole, currentEmail) => {
     if (!user) return;
@@ -193,7 +193,7 @@ const AdminPanel = () => {
         hour: '2-digit',
         minute: '2-digit'
       });
-    } catch (err) {
+    } catch {
       return 'Fecha inválida';
     }
   };

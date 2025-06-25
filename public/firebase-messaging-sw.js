@@ -8,14 +8,14 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-// Configuración de Firebase (usar las mismas variables que en config.js)
+// Configuración de Firebase (sincronizada con config.js y .env.local)
 const firebaseConfig = {
-  apiKey: "AIzaSyDVBZf4NDEQD3U8H9vj8QcW1KRU4xTk8Po",
+  apiKey: "AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4",
   authDomain: "liquidacionapp-62962.firebaseapp.com", 
   projectId: "liquidacionapp-62962",
   storageBucket: "liquidacionapp-62962.firebasestorage.app",
-  messagingSenderId: "894765623264",
-  appId: "1:894765623264:web:7dafe8e3c7f59bd7b2e7a7",
+  messagingSenderId: "851382130132",
+  appId: "1:851382130132:web:eaba38fab449f14fb5b241",
   measurementId: "G-DR2TJESVPX"
 };
 
@@ -100,14 +100,35 @@ self.addEventListener('notificationclose', (event) => {
 // Información del Service Worker
 console.log('[firebase-messaging-sw.js] Service Worker de Firebase Messaging cargado');
 
-// Instalar Service Worker (sin cache para evitar errores)
+// Cache de la aplicación para mejor rendimiento (opcional)
+const CACHE_NAME = 'forestech-notifications-v1';
+const urlsToCache = [
+  '/alimentacion/',
+  '/alimentacion/index.html',
+  '/favicon.ico'
+];
+
+// Instalar Service Worker y cachear recursos
 self.addEventListener('install', (event) => {
-  console.log('[firebase-messaging-sw.js] Service Worker instalado');
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        return cache.addAll(urlsToCache);
+      })
+  );
 });
 
 // Activar Service Worker
 self.addEventListener('activate', (event) => {
-  console.log('[firebase-messaging-sw.js] Service Worker activado');
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
 });

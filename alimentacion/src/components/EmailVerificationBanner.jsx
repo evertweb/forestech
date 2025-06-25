@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { resendEmailVerification } from '../firebase/authService';
 
-function EmailVerificationBanner({ user, onEmailVerified }) {
+function EmailVerificationBanner({ user }) {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
