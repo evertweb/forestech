@@ -6,6 +6,7 @@ import { signOut } from "firebase/auth";
 import { updateSettlementPayment } from './firebase/firestoreService';
 import { analyticsEvents, setupErrorTracking, trackPageView } from './firebase/analytics';
 import { UserProvider, useUser } from './contexts/UserContext';
+import { initializeNotifications } from './firebase/notificationService';
 
 import Header from './components/Header';
 import Auth from './components/Auth';
@@ -50,6 +51,19 @@ function AppContent() {
         setupErrorTracking();
         trackPageView('Forestech App');
     }, []);
+
+    // Inicializar notificaciones FCM para usuarios autenticados
+    useEffect(() => {
+        if (user && userProfile) {
+            initializeNotifications(user.uid)
+                .then(result => {
+                    if (result.success) {
+                        console.log('✅ Notificaciones FCM inicializadas');
+                    }
+                })
+                .catch(err => console.warn('⚠️ FCM no disponible:', err));
+        }
+    }, [user, userProfile]);
 
     const handleLogout = async () => {
         analyticsEvents.logout();
