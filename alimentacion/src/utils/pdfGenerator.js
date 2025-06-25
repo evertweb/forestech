@@ -5,6 +5,7 @@ import { getCurrencyFormat } from "./calculations";
 import { saveSettlement } from '../firebase/firestoreService';
 import { storage, auth } from '../firebase/config';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { notifyPDFGenerated } from '../firebase/notificationService';
 
 export const generatePDF = async (results, chartImages = {}) => {
     if (!results) {
@@ -131,4 +132,11 @@ export const generatePDF = async (results, chartImages = {}) => {
     }
 
     doc.save(`liquidacion-${config.nombreMariella}-${config.mesServicio}.pdf`);
+    
+    // Enviar notificación automática después de generar y descargar el PDF
+    notifyPDFGenerated({
+        totalPayment: mariella.saldoFinalNeto,
+        mesServicio: config.mesServicio,
+        nombreMariella: config.nombreMariella
+    });
 };

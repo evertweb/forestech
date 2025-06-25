@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import { getAllUsers, changeUserRole } from '../firebase/userService';
+import { getAllUsers, changeUserRole, createNewUser } from '../firebase/userService';
 import { AdminOnly } from './ProtectedRoute';
 import { ROLES, getRoleDescription, getRoleColor } from '../constants/roles';
 import { analyticsEvents } from '../firebase/analytics';
@@ -18,6 +18,16 @@ const AdminPanel = () => {
   const [error, setError] = useState(null);
   const [selectedTab, setSelectedTab] = useState('users');
   const [actionLoading, setActionLoading] = useState(null);
+  
+  // Estados para crear usuario
+  const [createUserForm, setCreateUserForm] = useState({
+    email: '',
+    password: '',
+    displayName: '',
+    role: ROLES.CLIENTE
+  });
+  const [createUserLoading, setCreateUserLoading] = useState(false);
+  const [createUserSuccess, setCreateUserSuccess] = useState(null);
 
   // Cargar usuarios al montar el componente
   useEffect(() => {
@@ -82,6 +92,60 @@ const AdminPanel = () => {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+    
+    setCreateUserLoading(true);
+    setError(null);
+    setCreateUserSuccess(null);
+    
+    try {
+      const result = await createNewUser(createUserForm, user.uid);
+      
+      if (result.success) {
+        setCreateUserSuccess({
+          message: result.message,
+          temporaryPassword: result.temporaryPassword,
+          userId: result.userId
+        });
+        
+        // Limpiar formulario
+        setCreateUserForm({
+          email: '',
+          password: '',
+          displayName: '',
+          role: ROLES.CLIENTE
+        });
+        
+        // Recargar lista de usuarios
+        await loadUsers();
+        
+        analyticsEvents.custom('admin_user_created', {
+          new_user_role: createUserForm.role,
+          admin_email: user.email
+        });
+        
+        console.log('✅ Usuario creado exitosamente');
+      } else {
+        setError(result.message);
+        console.error('❌ Error creando usuario:', result.message);
+      }
+    } catch (err) {
+      setError('Error creando usuario');
+      console.error('Error creating user:', err);
+    } finally {
+      setCreateUserLoading(false);
+    }
+  };
+
+  const handleFormChange = (field, value) => {
+    setCreateUserForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const formatDate = (timestamp) => {
@@ -162,6 +226,12 @@ const AdminPanel = () => {
             onClick={() => setSelectedTab('users')}
           >
             👥 Gestión de Usuarios
+          </button>
+          <button 
+            className={`tab-button ${selectedTab === 'create-user' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('create-user')}
+          >
+            ➕ Crear Usuario
           </button>
           <button 
             className={`tab-button ${selectedTab === 'notifications' ? 'active' : ''}`}
@@ -256,6 +326,119 @@ const AdminPanel = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {selectedTab === 'create-user' && (
+            <div className="create-user-management">
+              <div className="create-user-header">
+                <h3>Crear Nuevo Usuario</h3>
+                <p>Añade un nuevo usuario al sistema con el rol apropiado</p>
+              </div>
+
+              {createUserSuccess && (
+                <div className="success-banner">
+                  <span className="success-icon">✅</span>
+                  <div className="success-content">
+                    <p><strong>{createUserSuccess.message}</strong></p>
+                    <div className="user-credentials">
+                      <p><strong>Credenciales temporales:</strong></p>
+                      <p>Email: <code>{createUserForm.email}</code></p>
+                      <p>Contraseña: <code>{createUserSuccess.temporaryPassword}</code></p>
+                      <small>⚠️ Comunica estas credenciales al usuario de forma segura</small>
+                    </div>
+                  </div>
+                  <button onClick={() => setCreateUserSuccess(null)} className="success-close">×</button>
+                </div>
+              )}
+
+              <form onSubmit={handleCreateUser} className="create-user-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="user-email">Email</label>
+                    <input
+                      id="user-email"
+                      type="email"
+                      value={createUserForm.email}
+                      onChange={(e) => handleFormChange('email', e.target.value)}
+                      placeholder="usuario@empresa.com"
+                      required
+                      disabled={createUserLoading}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="user-name">Nombre Completo</label>
+                    <input
+                      id="user-name"
+                      type="text"
+                      value={createUserForm.displayName}
+                      onChange={(e) => handleFormChange('displayName', e.target.value)}
+                      placeholder="Juan Pérez"
+                      required
+                      disabled={createUserLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="user-password">Contraseña Temporal</label>
+                    <input
+                      id="user-password"
+                      type="password"
+                      value={createUserForm.password}
+                      onChange={(e) => handleFormChange('password', e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                      minLength="6"
+                      required
+                      disabled={createUserLoading}
+                    />
+                    <small>El usuario deberá cambiar esta contraseña en su primer login</small>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="user-role">Rol del Usuario</label>
+                    <select
+                      id="user-role"
+                      value={createUserForm.role}
+                      onChange={(e) => handleFormChange('role', e.target.value)}
+                      required
+                      disabled={createUserLoading}
+                    >
+                      <option value={ROLES.CLIENTE}>Cliente - Acceso básico</option>
+                      <option value={ROLES.CONTADOR}>Contador - Gestión de liquidaciones</option>
+                    </select>
+                    <small>No se pueden crear múltiples administradores</small>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button 
+                    type="submit" 
+                    className="create-user-button"
+                    disabled={createUserLoading}
+                  >
+                    {createUserLoading ? (
+                      <>
+                        <div className="button-spinner"></div>
+                        Creando Usuario...
+                      </>
+                    ) : (
+                      '➕ Crear Usuario'
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              <div className="create-user-help">
+                <h4>📋 Información Importante</h4>
+                <ul>
+                  <li><strong>Cliente:</strong> Puede crear y gestionar sus propias liquidaciones</li>
+                  <li><strong>Contador:</strong> Acceso completo a liquidaciones + funciones contables</li>
+                  <li><strong>Admin:</strong> Solo existe un administrador principal del sistema</li>
+                  <li>El usuario recibirá sus credenciales por email (próximamente)</li>
+                  <li>Debe cambiar la contraseña temporal en su primer login</li>
+                </ul>
               </div>
             </div>
           )}

@@ -20,9 +20,9 @@ try {
 
 /**
  * Clave pública VAPID para FCM
- * IMPORTANTE: Debe configurarse en Firebase Console -> Project Settings -> Cloud Messaging
+ * Configurada desde Firebase Console -> Project Settings -> Cloud Messaging
  */
-const VAPID_KEY = 'BK8YourVapidKeyHere'; // Reemplazar con tu clave VAPID real
+const VAPID_KEY = 'BOPEiBBOuZfrxl5TTwpOtl_AlLmAieTuinqmQYcnOD9DEL5I11rASCwm8KUNV3ZCldra_fv2qGtw7p5NyCvLC7A';
 
 /**
  * Obtiene la referencia para tokens FCM en Firestore
@@ -96,7 +96,11 @@ export const getFCMToken = async (userId) => {
         has_token: true
       });
 
-      console.log('✅ Token FCM obtenido:', token.substring(0, 20) + '...');
+      console.log('🎯 TOKEN FCM COMPLETO PARA PRUEBAS:');
+      console.log('==========================================');
+      console.log(token);
+      console.log('==========================================');
+      console.log('✅ Token FCM obtenido exitosamente');
       return { 
         success: true, 
         token: token,
@@ -287,6 +291,94 @@ export const getNotificationPermissionStatus = () => {
     return 'not-supported';
   }
   return Notification.permission;
+};
+
+/**
+ * Envía una notificación local automática
+ * @param {string} title - Título de la notificación
+ * @param {string} body - Cuerpo de la notificación
+ * @param {string} eventType - Tipo de evento para analytics
+ */
+export const sendLocalNotification = (title, body, eventType = 'local_notification') => {
+  try {
+    if (!('Notification' in window)) {
+      console.warn('Notificaciones no disponibles');
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      const notification = new Notification(title, {
+        body: body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: 'forestech-auto-notification',
+        requireInteraction: false,
+        silent: false,
+        timestamp: Date.now()
+      });
+
+      // Analytics tracking
+      analyticsEvents.custom(eventType, {
+        title: title,
+        body: body.substring(0, 50),
+        timestamp: new Date().toISOString()
+      });
+
+      // Auto-cerrar después de 5 segundos
+      setTimeout(() => {
+        notification.close();
+      }, 5000);
+
+      // Manejar click en notificación
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+        
+        analyticsEvents.custom('notification_clicked', {
+          event_type: eventType
+        });
+      };
+
+      console.log('🔔 Notificación local enviada:', title);
+    } else {
+      console.warn('Permisos de notificación no concedidos');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error enviando notificación local:', error);
+  }
+};
+
+/**
+ * Notificación específica para liquidación guardada
+ * @param {Object} liquidationData - Datos de la liquidación
+ */
+export const notifyLiquidationSaved = (liquidationData) => {
+  const totalFormatted = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP'
+  }).format(liquidationData.totalPayment || 0);
+
+  const title = '✅ Liquidación Guardada';
+  const body = `Tu liquidación de ${totalFormatted} ha sido guardada exitosamente en el historial.`;
+  
+  sendLocalNotification(title, body, 'liquidation_saved_notification');
+};
+
+/**
+ * Notificación específica para PDF generado
+ * @param {Object} pdfData - Datos del PDF generado
+ */
+export const notifyPDFGenerated = (pdfData) => {
+  const totalFormatted = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP'
+  }).format(pdfData.totalPayment || 0);
+
+  const title = '📄 PDF Generado';
+  const body = `El PDF de tu liquidación por ${totalFormatted} ha sido generado y descargado exitosamente.`;
+  
+  sendLocalNotification(title, body, 'pdf_generated_notification');
 };
 
 /**

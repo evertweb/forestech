@@ -312,3 +312,97 @@ export const hasRole = (userProfile, role) => {
   }
   return userProfile.role === role;
 };
+
+/**
+ * Crea un nuevo usuario desde el panel admin
+ * @param {Object} userData - Datos del nuevo usuario
+ * @param {string} adminUserId - UID del admin que crea el usuario
+ * @returns {Promise<Object>} - Resultado de la creación
+ */
+export const createNewUser = async (userData, adminUserId) => {
+  try {
+    // Verificar permisos de admin
+    const adminProfile = await getUserProfile(adminUserId);
+    if (!adminProfile.success || adminProfile.profile.role !== ROLES.ADMIN) {
+      return { 
+        success: false, 
+        message: 'Solo los administradores pueden crear usuarios' 
+      };
+    }
+
+    const { email, password, displayName, role } = userData;
+
+    // Validar datos requeridos
+    if (!email || !password || !displayName || !role) {
+      return {
+        success: false,
+        message: 'Todos los campos son requeridos (email, contraseña, nombre, rol)'
+      };
+    }
+
+    // Validar que el rol es válido
+    if (!Object.values(ROLES).includes(role)) {
+      return {
+        success: false,
+        message: 'Rol no válido'
+      };
+    }
+
+    // No permitir crear más admins
+    if (role === ROLES.ADMIN) {
+      return {
+        success: false,
+        message: 'No se pueden crear múltiples administradores'
+      };
+    }
+
+    // Verificar que el email no esté en uso
+    const existingUsers = await getAllUsers(adminUserId);
+    if (existingUsers.success) {
+      const emailExists = existingUsers.users.some(user => user.email === email);
+      if (emailExists) {
+        return {
+          success: false,
+          message: 'Ya existe un usuario con ese email'
+        };
+      }
+    }
+
+    // Crear el perfil del usuario en Firestore
+    // (La cuenta de Firebase Auth se creará cuando el usuario haga login por primera vez)
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const permissions = getDefaultPermissions(role);
+    
+    const userProfile = {
+      uid: userId,
+      email: email,
+      displayName: displayName,
+      role: role,
+      permissions: permissions,
+      accountStatus: 'pending', // El usuario debe hacer login por primera vez
+      temporaryPassword: password, // Para que el admin pueda comunicársela
+      createdAt: serverTimestamp(),
+      createdBy: adminUserId,
+      mustChangePassword: true
+    };
+
+    const userRef = doc(db, `${getUsersCollectionPath()}/${userId}/profile/data`);
+    await setDoc(userRef, userProfile);
+
+    analyticsEvents.custom('new_user_created', {
+      user_role: role,
+      created_by: 'admin'
+    });
+
+    return { 
+      success: true, 
+      message: 'Usuario creado exitosamente',
+      userId: userId,
+      temporaryPassword: password
+    };
+    
+  } catch (error) {
+    console.error('❌ Error creando nuevo usuario:', error);
+    return { success: false, error: error.message };
+  }
+};
