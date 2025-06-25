@@ -206,10 +206,32 @@ Usa listener onAuthStateChanged de Firebase con estados de carga para flujo de a
 - ✅ **Notificaciones manuales funcionando**: Desde Firebase Console
 - ✅ **Sistema de roles granular**: Admin, Contador, Cliente con permisos específicos
 
-#### 🔄 **Próximas Fases Planificadas:**
-- **Fase 3**: Dashboard de Analytics + PWA completa + Sistema de comentarios
-- **Fase 4**: Email automático + Backup automático + Integración Google Sheets  
-- **Fase 5**: Modo offline + Temas personalizables + Portal clientes independiente
+#### 🔄 **Próximas Fases Planificadas - ROADMAP DETALLADO:**
+
+##### 📋 **FASE 3: Dashboard Analytics + PWA + Sistema de Comentarios**
+- **Dashboard de Analytics Avanzado**: Métricas de usuario, tendencias de liquidaciones, reportes automáticos, comparativas, heatmaps
+- **PWA Completa**: Instalación, manifest, service worker avanzado, push notifications mejoradas, actualizaciones automáticas
+- **Sistema de Comentarios**: Comentarios en liquidaciones, sistema de aprobación, notificaciones, historial de cambios
+
+##### 📋 **FASE 4: Automatización + Integraciones**
+- **Email Automático**: Notificaciones por email, templates personalizables, schedule automático, integración SMTP
+- **Backup Automático**: Backup diario, versionado, cifrado, alertas de estado
+- **Integración Google Sheets**: Exportación automática, sincronización bidireccional, templates predefinidos, APIs
+
+##### 📋 **FASE 5: Experiencia Avanzada**
+- **Modo Offline**: Cache inteligente, sincronización, indicadores de estado, resolución de conflictos
+- **Temas Personalizables**: Modo oscuro avanzado, temas corporativos, accesibilidad, preferencias de usuario
+- **Portal Clientes Independiente**: App separada, vista limitada, notificaciones push, autoservicio
+
+##### 🎯 **Funcionalidades Adicionales Planificadas:**
+- **Analytics Avanzado**: Google Analytics 4, heatmap tracking, A/B testing, performance metrics
+- **Seguridad Avanzada**: 2FA, audit logs, gestión de sesiones, permisos granulares
+- **Performance**: Code splitting, lazy loading, CDN, bundle optimization
+
+##### 💡 **Recomendación de Implementación:**
+1. **Primera Prioridad - Fase 3**: PWA básica, Dashboard analytics, Sistema de comentarios
+2. **Segunda Prioridad - Fase 4**: Email automático, Backup automático, Google Sheets
+3. **Tercera Prioridad - Fase 5**: Modo offline, Portal clientes, Temas personalizables
 
 #### 🚀 **Funcionalidades Listas para Producción:**
 - Sistema completo de autenticación con roles
