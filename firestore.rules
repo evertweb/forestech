@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reglas para la estructura artifacts/{app_id}/users/{user_id}
+    match /artifacts/{app_id}/users/{user_id} {
+      // Permitir lectura y escritura al propio usuario
+      allow read, write: if request.auth != null && request.auth.uid == user_id;
+      
+      // Permitir lectura y escritura a admins
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data) &&
+        get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data).data.role == 'admin';
+      
+      // Subcoleción profile
+      match /profile/{document} {
+        // Permitir lectura y escritura al propio usuario
+        allow read, write: if request.auth != null && request.auth.uid == user_id;
+        
+        // Permitir lectura y escritura a admins
+        allow read, write: if request.auth != null && 
+          exists(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data) &&
+          get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data).data.role == 'admin';
+      }
+      
+      // Subcoleción settlements (liquidaciones)
+      match /settlements/{settlement_id} {
+        // Permitir lectura y escritura al propio usuario
+        allow read, write: if request.auth != null && request.auth.uid == user_id;
+        
+        // Permitir lectura a admins y contadores
+        allow read: if request.auth != null && 
+          exists(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data) &&
+          get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data).data.role in ['admin', 'contador'];
+      }
+      
+      // Subcoleción fcm (tokens de notificaciones)
+      match /fcm/{document} {
+        // Permitir lectura y escritura al propio usuario
+        allow read, write: if request.auth != null && request.auth.uid == user_id;
+        
+        // Permitir lectura a admins
+        allow read: if request.auth != null && 
+          exists(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data) &&
+          get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data).data.role == 'admin';
+      }
+    }
+    
+    // Permitir a usuarios autenticados crear su perfil inicial
+    match /artifacts/{app_id}/users/{user_id}/profile/data {
+      allow create: if request.auth != null && request.auth.uid == user_id;
+    }
+    
+    // Reglas para lectura de la colección de usuarios (solo admins)
+    match /artifacts/{app_id}/users {
+      allow list: if request.auth != null && 
+        exists(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data) &&
+        get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data).data.role == 'admin';
+    }
+    
+    // Denegar acceso por defecto a todo lo demás
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

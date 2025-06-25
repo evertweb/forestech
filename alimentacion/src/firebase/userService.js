@@ -35,17 +35,29 @@ const getUsersCollectionPath = () => {
  * Crea un perfil de usuario en Firestore
  * @param {Object} user - Usuario de Firebase Auth
  * @param {string} customRole - Rol personalizado (opcional)
+ * @param {Object} invitationData - Datos de la invitación (opcional)
  * @returns {Promise<Object>} - Perfil creado
  */
-export const createUserProfile = async (user, customRole = null) => {
+export const createUserProfile = async (user, customRole = null, invitationData = null) => {
   try {
-    const role = customRole || determineUserRole(user.email);
-    const permissions = getDefaultPermissions(role);
+    let role, permissions, displayName;
+    
+    if (invitationData) {
+      // Usar datos de la invitación
+      role = invitationData.role;
+      permissions = invitationData.permissions;
+      displayName = invitationData.displayName;
+    } else {
+      // Usar lógica anterior
+      role = customRole || determineUserRole(user.email);
+      permissions = getDefaultPermissions(role);
+      displayName = user.displayName || user.email.split('@')[0];
+    }
     
     const profile = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName || user.email.split('@')[0],
+      displayName: displayName,
       role: role,
       permissions: permissions,
       createdAt: serverTimestamp(),
@@ -268,17 +280,33 @@ export const getAllUsers = async (adminUserId) => {
       return { success: false, message: 'Acceso denegado' };
     }
     
+    // Obtener la colección de usuarios
     const usersCollection = collection(db, getUsersCollectionPath());
-    const q = query(usersCollection);
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(usersCollection);
     
     const users = [];
-    querySnapshot.forEach((doc) => {
-      if (doc.id !== 'profile') { // Evitar el documento de perfil directo
-        users.push({ id: doc.id, ...doc.data() });
-      }
-    });
     
+    // Para cada usuario, obtener su perfil
+    for (const userDoc of querySnapshot.docs) {
+      try {
+        const userId = userDoc.id;
+        
+        // Intentar obtener el perfil del usuario
+        const profileResult = await getUserProfile(userId);
+        if (profileResult.success && profileResult.profile) {
+          users.push({
+            id: userId,
+            uid: userId,
+            ...profileResult.profile
+          });
+        }
+      } catch (err) {
+        console.warn(`Error obteniendo perfil para usuario ${userDoc.id}:`, err);
+        // Continuar con el siguiente usuario
+      }
+    }
+    
+    console.log(`✅ Obtenidos ${users.length} usuarios para admin`);
     return { success: true, users };
     
   } catch (error) {
@@ -386,8 +414,19 @@ export const createNewUser = async (userData, adminUserId) => {
       mustChangePassword: true
     };
 
+    // Guardar en la estructura correcta: artifacts/{appId}/users/{userId}/profile/data
     const userRef = doc(db, `${getUsersCollectionPath()}/${userId}/profile/data`);
     await setDoc(userRef, userProfile);
+    
+    // También crear un documento en la colección de usuarios para que aparezca en getAllUsers
+    const userDocRef = doc(db, `${getUsersCollectionPath()}/${userId}`);
+    await setDoc(userDocRef, { 
+      email: email,
+      displayName: displayName,
+      role: role,
+      createdAt: serverTimestamp(),
+      hasProfile: true
+    });
 
     analyticsEvents.custom('new_user_created', {
       user_role: role,

@@ -6,7 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import { getAllUsers, changeUserRole, createNewUser } from '../firebase/userService';
+import { getAllUsers, changeUserRole } from '../firebase/userService';
+import { createInvitation, getAllInvitations, cancelInvitation } from '../firebase/invitationService';
 import { AdminOnly } from './ProtectedRoute';
 import { ROLES, getRoleDescription, getRoleColor } from '../constants/roles';
 import { analyticsEvents } from '../firebase/analytics';
@@ -19,19 +20,20 @@ const AdminPanel = () => {
   const [selectedTab, setSelectedTab] = useState('users');
   const [actionLoading, setActionLoading] = useState(null);
   
-  // Estados para crear usuario
-  const [createUserForm, setCreateUserForm] = useState({
+  // Estados para crear invitación
+  const [invitationForm, setInvitationForm] = useState({
     email: '',
-    password: '',
     displayName: '',
     role: ROLES.CLIENTE
   });
-  const [createUserLoading, setCreateUserLoading] = useState(false);
-  const [createUserSuccess, setCreateUserSuccess] = useState(null);
+  const [invitations, setInvitations] = useState([]);
+  const [createInvitationLoading, setCreateInvitationLoading] = useState(false);
+  const [createInvitationSuccess, setCreateInvitationSuccess] = useState(null);
 
-  // Cargar usuarios al montar el componente
+  // Cargar usuarios e invitaciones al montar el componente
   useEffect(() => {
     loadUsers();
+    loadInvitations();
   }, [user]);
 
   const loadUsers = async () => {
@@ -55,6 +57,21 @@ const AdminPanel = () => {
       console.error('Error loading users:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadInvitations = async () => {
+    if (!user) return;
+    
+    try {
+      const result = await getAllInvitations(user.uid);
+      if (result.success) {
+        setInvitations(result.invitations);
+      } else {
+        console.error('Error cargando invitaciones:', result.message);
+      }
+    } catch (err) {
+      console.error('Error loading invitations:', err);
     }
   };
 
@@ -94,58 +111,76 @@ const AdminPanel = () => {
     }
   };
 
-  const handleCreateUser = async (e) => {
+  const handleCreateInvitation = async (e) => {
     e.preventDefault();
     if (!user) return;
     
-    setCreateUserLoading(true);
+    setCreateInvitationLoading(true);
     setError(null);
-    setCreateUserSuccess(null);
+    setCreateInvitationSuccess(null);
     
     try {
-      const result = await createNewUser(createUserForm, user.uid);
+      const result = await createInvitation(invitationForm, user.uid);
       
       if (result.success) {
-        setCreateUserSuccess({
+        setCreateInvitationSuccess({
           message: result.message,
-          temporaryPassword: result.temporaryPassword,
-          userId: result.userId
+          code: result.invitation.code,
+          email: result.invitation.email,
+          displayName: result.invitation.displayName,
+          role: result.invitation.role
         });
         
         // Limpiar formulario
-        setCreateUserForm({
+        setInvitationForm({
           email: '',
-          password: '',
           displayName: '',
           role: ROLES.CLIENTE
         });
         
-        // Recargar lista de usuarios
-        await loadUsers();
+        // Recargar invitaciones
+        await loadInvitations();
         
-        analyticsEvents.custom('admin_user_created', {
-          new_user_role: createUserForm.role,
+        analyticsEvents.custom('admin_invitation_created', {
+          target_role: invitationForm.role,
           admin_email: user.email
         });
         
-        console.log('✅ Usuario creado exitosamente');
+        console.log('✅ Invitación creada exitosamente');
       } else {
         setError(result.message);
-        console.error('❌ Error creando usuario:', result.message);
+        console.error('❌ Error creando invitación:', result.message);
       }
     } catch (err) {
-      setError('Error creando usuario');
-      console.error('Error creating user:', err);
+      setError('Error creando invitación');
+      console.error('Error creating invitation:', err);
     } finally {
-      setCreateUserLoading(false);
+      setCreateInvitationLoading(false);
     }
   };
 
-  const handleFormChange = (field, value) => {
-    setCreateUserForm(prev => ({
+  const handleInvitationFormChange = (field, value) => {
+    setInvitationForm(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleCancelInvitation = async (invitationId) => {
+    if (!user) return;
+    
+    try {
+      const result = await cancelInvitation(invitationId, user.uid);
+      if (result.success) {
+        await loadInvitations();
+        console.log('✅ Invitación cancelada');
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError('Error cancelando invitación');
+      console.error('Error cancelling invitation:', err);
+    }
   };
 
   const formatDate = (timestamp) => {
@@ -228,10 +263,10 @@ const AdminPanel = () => {
             👥 Gestión de Usuarios
           </button>
           <button 
-            className={`tab-button ${selectedTab === 'create-user' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('create-user')}
+            className={`tab-button ${selectedTab === 'invitations' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('invitations')}
           >
-            ➕ Crear Usuario
+            📧 Invitaciones
           </button>
           <button 
             className={`tab-button ${selectedTab === 'notifications' ? 'active' : ''}`}
@@ -330,114 +365,173 @@ const AdminPanel = () => {
             </div>
           )}
 
-          {selectedTab === 'create-user' && (
-            <div className="create-user-management">
-              <div className="create-user-header">
-                <h3>Crear Nuevo Usuario</h3>
-                <p>Añade un nuevo usuario al sistema con el rol apropiado</p>
+          {selectedTab === 'invitations' && (
+            <div className="invitations-management">
+              <div className="invitations-header">
+                <h3>Sistema de Invitaciones</h3>
+                <p>Crea códigos de invitación para que nuevos usuarios se registren de forma segura</p>
               </div>
 
-              {createUserSuccess && (
+              {createInvitationSuccess && (
                 <div className="success-banner">
                   <span className="success-icon">✅</span>
                   <div className="success-content">
-                    <p><strong>{createUserSuccess.message}</strong></p>
-                    <div className="user-credentials">
-                      <p><strong>Credenciales temporales:</strong></p>
-                      <p>Email: <code>{createUserForm.email}</code></p>
-                      <p>Contraseña: <code>{createUserSuccess.temporaryPassword}</code></p>
-                      <small>⚠️ Comunica estas credenciales al usuario de forma segura</small>
+                    <p><strong>{createInvitationSuccess.message}</strong></p>
+                    <div className="invitation-code">
+                      <p><strong>Código de invitación:</strong></p>
+                      <div className="code-display">
+                        <code className="invitation-code-text">{createInvitationSuccess.code}</code>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(createInvitationSuccess.code)}
+                          className="copy-button"
+                          title="Copiar código"
+                        >
+                          📋
+                        </button>
+                      </div>
+                      <p><strong>Para:</strong> {createInvitationSuccess.displayName} ({createInvitationSuccess.email})</p>
+                      <p><strong>Rol:</strong> {getRoleDescription(createInvitationSuccess.role)}</p>
+                      <small>⚠️ Comparte este código con el usuario. Válido por 7 días.</small>
                     </div>
                   </div>
-                  <button onClick={() => setCreateUserSuccess(null)} className="success-close">×</button>
+                  <button onClick={() => setCreateInvitationSuccess(null)} className="success-close">×</button>
                 </div>
               )}
 
-              <form onSubmit={handleCreateUser} className="create-user-form">
+              <form onSubmit={handleCreateInvitation} className="create-invitation-form">
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="user-email">Email</label>
+                    <label htmlFor="invitation-email">Email del Usuario</label>
                     <input
-                      id="user-email"
+                      id="invitation-email"
                       type="email"
-                      value={createUserForm.email}
-                      onChange={(e) => handleFormChange('email', e.target.value)}
+                      value={invitationForm.email}
+                      onChange={(e) => handleInvitationFormChange('email', e.target.value)}
                       placeholder="usuario@empresa.com"
                       required
-                      disabled={createUserLoading}
+                      disabled={createInvitationLoading}
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="user-name">Nombre Completo</label>
+                    <label htmlFor="invitation-name">Nombre Completo</label>
                     <input
-                      id="user-name"
+                      id="invitation-name"
                       type="text"
-                      value={createUserForm.displayName}
-                      onChange={(e) => handleFormChange('displayName', e.target.value)}
+                      value={invitationForm.displayName}
+                      onChange={(e) => handleInvitationFormChange('displayName', e.target.value)}
                       placeholder="Juan Pérez"
                       required
-                      disabled={createUserLoading}
+                      disabled={createInvitationLoading}
                     />
                   </div>
-                </div>
-
-                <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="user-password">Contraseña Temporal</label>
-                    <input
-                      id="user-password"
-                      type="password"
-                      value={createUserForm.password}
-                      onChange={(e) => handleFormChange('password', e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
-                      minLength="6"
-                      required
-                      disabled={createUserLoading}
-                    />
-                    <small>El usuario deberá cambiar esta contraseña en su primer login</small>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="user-role">Rol del Usuario</label>
+                    <label htmlFor="invitation-role">Rol del Usuario</label>
                     <select
-                      id="user-role"
-                      value={createUserForm.role}
-                      onChange={(e) => handleFormChange('role', e.target.value)}
+                      id="invitation-role"
+                      value={invitationForm.role}
+                      onChange={(e) => handleInvitationFormChange('role', e.target.value)}
                       required
-                      disabled={createUserLoading}
+                      disabled={createInvitationLoading}
                     >
                       <option value={ROLES.CLIENTE}>Cliente - Acceso básico</option>
                       <option value={ROLES.CONTADOR}>Contador - Gestión de liquidaciones</option>
                     </select>
-                    <small>No se pueden crear múltiples administradores</small>
                   </div>
                 </div>
 
                 <div className="form-actions">
                   <button 
                     type="submit" 
-                    className="create-user-button"
-                    disabled={createUserLoading}
+                    className="create-invitation-button"
+                    disabled={createInvitationLoading}
                   >
-                    {createUserLoading ? (
+                    {createInvitationLoading ? (
                       <>
                         <div className="button-spinner"></div>
-                        Creando Usuario...
+                        Generando Invitación...
                       </>
                     ) : (
-                      '➕ Crear Usuario'
+                      '📧 Crear Invitación'
                     )}
                   </button>
                 </div>
               </form>
 
-              <div className="create-user-help">
-                <h4>📋 Información Importante</h4>
+              {invitations.length > 0 && (
+                <div className="invitations-list">
+                  <h4>Invitaciones Activas</h4>
+                  <div className="invitations-table-container">
+                    <table className="invitations-table">
+                      <thead>
+                        <tr>
+                          <th>Código</th>
+                          <th>Usuario Invitado</th>
+                          <th>Rol</th>
+                          <th>Estado</th>
+                          <th>Creada</th>
+                          <th>Expira</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invitations.map((invitation) => (
+                          <tr key={invitation.id} className="invitation-row">
+                            <td className="invitation-code">
+                              <code>{invitation.code}</code>
+                            </td>
+                            <td className="invitation-user">
+                              <div>
+                                <strong>{invitation.displayName}</strong>
+                                <br />
+                                <small>{invitation.email}</small>
+                              </div>
+                            </td>
+                            <td className="invitation-role">
+                              <span 
+                                className="role-badge" 
+                                style={{ backgroundColor: getRoleColor(invitation.role) }}
+                              >
+                                {getRoleDescription(invitation.role)}
+                              </span>
+                            </td>
+                            <td className="invitation-status">
+                              <span className={`status-badge status-${invitation.status}`}>
+                                {invitation.status === 'pending' ? 'Pendiente' :
+                                 invitation.status === 'used' ? 'Usado' :
+                                 invitation.status === 'expired' ? 'Expirado' :
+                                 invitation.status === 'cancelled' ? 'Cancelado' : invitation.status}
+                              </span>
+                            </td>
+                            <td className="invitation-date">{formatDate(invitation.createdAt)}</td>
+                            <td className="invitation-date">{formatDate(invitation.expiresAt)}</td>
+                            <td className="invitation-actions">
+                              {invitation.status === 'pending' && (
+                                <button
+                                  onClick={() => handleCancelInvitation(invitation.id)}
+                                  className="cancel-invitation-button"
+                                  title="Cancelar invitación"
+                                >
+                                  ❌
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              <div className="invitations-help">
+                <h4>📋 Cómo Funciona</h4>
                 <ul>
-                  <li><strong>Cliente:</strong> Puede crear y gestionar sus propias liquidaciones</li>
-                  <li><strong>Contador:</strong> Acceso completo a liquidaciones + funciones contables</li>
-                  <li><strong>Admin:</strong> Solo existe un administrador principal del sistema</li>
-                  <li>El usuario recibirá sus credenciales por email (próximamente)</li>
-                  <li>Debe cambiar la contraseña temporal en su primer login</li>
+                  <li><strong>1. Crear invitación:</strong> Genera un código único para el usuario</li>
+                  <li><strong>2. Compartir código:</strong> Envía el código al usuario de forma segura</li>
+                  <li><strong>3. Registro:</strong> El usuario se registra con su email y el código</li>
+                  <li><strong>4. Asignación automática:</strong> Se le asigna automáticamente el rol especificado</li>
+                  <li>Las invitaciones expiran en 7 días y solo pueden usarse una vez</li>
+                  <li>El usuario crea su propia contraseña durante el registro</li>
                 </ul>
               </div>
             </div>

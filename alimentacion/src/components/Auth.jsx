@@ -16,6 +16,7 @@ function Auth() {
     const [authMessage, setAuthMessage] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [invitationCode, setInvitationCode] = useState('');
     const [loading, setLoading] = useState(false);
 
     const showEmailAuth = () => { setView('email'); setAuthMessage(''); };
@@ -88,16 +89,32 @@ function Auth() {
             setAuthMessage("Verifica los datos (contraseña de 6+ caracteres)."); 
             return; 
         }
-        setLoading(true);
-        setAuthMessage('Registrando...');
         
-        const result = await registerWithEmail(email, password);
-        if (result.success) {
-            setAuthMessage(result.message);
+        // Si hay código de invitación, validarlo primero
+        if (invitationCode) {
+            setLoading(true);
+            setAuthMessage('Validando código de invitación...');
+            
+            const result = await registerWithEmail(email, password, invitationCode);
+            if (result.success) {
+                setAuthMessage(result.message);
+            } else {
+                setAuthMessage(result.message);
+            }
+            setLoading(false);
         } else {
-            setAuthMessage(result.message);
+            // Registro normal sin invitación
+            setLoading(true);
+            setAuthMessage('Registrando...');
+            
+            const result = await registerWithEmail(email, password);
+            if (result.success) {
+                setAuthMessage(result.message);
+            } else {
+                setAuthMessage(result.message);
+            }
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     // El return con todo el JSX.
@@ -132,6 +149,20 @@ function Auth() {
                     <div className="input-group">
                         <label htmlFor="authPassword">Contraseña:</label>
                         <input type="password" id="authPassword" placeholder="min. 6 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="invitationCode">Código de Invitación (opcional):</label>
+                        <input 
+                            type="text" 
+                            id="invitationCode" 
+                            placeholder="Ej: ABC12345" 
+                            value={invitationCode} 
+                            onChange={(e) => setInvitationCode(e.target.value.toUpperCase())} 
+                            style={{ textTransform: 'uppercase' }}
+                        />
+                        <small style={{ color: '#666', fontSize: '12px' }}>
+                            Si tienes un código de invitación, ingrésalo para obtener permisos específicos
+                        </small>
                     </div>
                     <div className="auth-buttons">
                         <button className="login" onClick={loginUser} disabled={loading}>{loading ? 'Verificando...' : 'Iniciar Sesión'}</button>

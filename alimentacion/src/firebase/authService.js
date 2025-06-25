@@ -9,7 +9,8 @@ import {
 } from "firebase/auth";
 import { auth } from "./config";
 import { analyticsEvents } from "./analytics";
-import { getOrCreateUserProfile } from "./userService";
+import { getOrCreateUserProfile, createUserProfile } from "./userService";
+import { useInvitation } from "./invitationService";
 
 // Configurar el provider de Google
 const googleProvider = new GoogleAuthProvider();
@@ -68,19 +69,51 @@ export const loginWithGoogle = async () => {
 };
 
 // Función para registro con email y contraseña
-export const registerWithEmail = async (email, password) => {
+export const registerWithEmail = async (email, password, invitationCode = null) => {
   try {
+    let invitationData = null;
+    
+    // Si hay código de invitación, validarlo primero
+    if (invitationCode) {
+      const invitationResult = await useInvitation(invitationCode, email, 'temp');
+      if (!invitationResult.success) {
+        return {
+          success: false,
+          message: invitationResult.message
+        };
+      }
+      invitationData = invitationResult;
+    }
+    
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+    
+    // Si hay datos de invitación, actualizar la invitación con el UID real
+    if (invitationData) {
+      await useInvitation(invitationCode, email, user.uid);
+      
+      // Crear perfil con datos de la invitación
+      await createUserProfile(user, null, invitationData);
+      
+      analyticsEvents.signup('email_invitation');
+      analyticsEvents.custom('invitation_registration_completed', {
+        user_role: invitationData.role
+      });
+    } else {
+      analyticsEvents.signup('email');
+    }
     
     // Enviar verificación de email automáticamente
     await sendEmailVerification(user);
     
-    analyticsEvents.signup('email');
+    const message = invitationData 
+      ? `Cuenta creada exitosamente como ${invitationData.role}. Revisa tu email para verificar tu cuenta.`
+      : 'Cuenta creada exitosamente. Revisa tu email para verificar tu cuenta.';
+    
     return { 
       success: true, 
       user: user,
-      message: 'Cuenta creada exitosamente. Revisa tu email para verificar tu cuenta.' 
+      message: message
     };
   } catch (error) {
     analyticsEvents.error('register_email_error', error.message);
