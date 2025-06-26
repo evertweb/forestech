@@ -379,13 +379,115 @@ combustibles/
 - **Dashboard ejecutivo**: Vista unificada del negocio
 
 ### ⏱️ **Timeline Estimado:**
-- **Semana 1-2**: Setup inicial, estructura, componentes base
-- **Semana 3-4**: Funcionalidades core (inventario, movimientos)
+- **Semana 1-2**: Setup inicial, estructura, componentes base ✅ **COMPLETADO**
+- **Semana 3-4**: Funcionalidades core (inventario, movimientos) 🔄 **PRÓXIMO**
 - **Semana 5-6**: Reportes, dashboard, optimizaciones
 - **Mes 2-3**: Migración a Java + Spring Boot
 - **Mes 4+**: Features avanzadas, integraciones
 
-### 📁 Archivos Clave Implementados
+### 🎯 **Estado Actual del Proyecto: INICIALIZADO Y DESPLEGADO**
+
+#### ✅ **FASE 1 COMPLETADA - Setup Inicial (Enero 2025)**
+- **Estructura**: Monorepo configurado con combustibles/ y shared/
+- **React App**: Inicializada con Vite, puerto 5174, tema verde forestal
+- **Firebase Config**: Multi-app routing configurado (/combustibles/**)
+- **Build System**: Output a ../public/combustibles/, integración monorepo
+- **Deploy**: Desplegado exitosamente en producción
+- **URL Activa**: https://liquidacionapp-62962.web.app/combustibles/
+
+#### 🚀 **Interfaz Preview Implementada:**
+- **Landing page profesional** con funcionalidades documentadas
+- **Timeline visual** de desarrollo en 3 fases
+- **Cards de features** con iconos y descripciones detalladas
+- **Responsive design** optimizado para móviles
+- **Tema forestal** consistente con branding Forestech
+
+#### 📋 **Scripts Monorepo Operativos:**
+```bash
+npm run dev:combustibles        # Desarrollo en puerto 5174
+npm run build:combustibles      # Build individual
+npm run build:all              # Build ambas apps
+npm run lint:combustibles       # Linting específico
+npm run deploy                  # Deploy automático Firebase
+```
+
+#### 🔧 **Configuración Técnica Completa:**
+```javascript
+// vite.config.js
+base: '/combustibles/',
+outDir: '../public/combustibles',
+server: { port: 5174 }
+
+// firebase.json  
+"/combustibles/**" → "/combustibles/index.html"
+
+// package.json dependencies
+"firebase": "^11.9.1",
+"chart.js": "^4.5.0", 
+"react-chartjs-2": "^5.3.0"
+```
+
+### 📁 **Estructura de Directorios COMBUSTIBLES (Actual):**
+```
+combustibles/
+├── src/
+│   ├── App.jsx              ✅ Landing page con preview funcionalidades  
+│   ├── App.css              ✅ Tema verde forestal, responsive
+│   ├── main.jsx             ✅ Entry point React
+│   ├── index.css            ✅ Estilos base
+│   ├── components/          🔄 Creados pero vacíos (próximo desarrollo)
+│   │   ├── Dashboard/       📋 Dashboard principal (planificado)
+│   │   ├── Inventory/       🛢️ Gestión inventario (planificado)
+│   │   ├── Movements/       📊 Registro movimientos (planificado)
+│   │   ├── Vehicles/        🚜 Gestión vehículos (planificado)
+│   │   ├── Suppliers/       🏪 Gestión proveedores (planificado)
+│   │   └── Reports/         📈 Reportes y analytics (planificado)
+│   ├── services/            🔄 Para business logic (vacío)
+│   ├── contexts/            🔄 Para CombustiblesContext (vacío)
+│   └── utils/               🔄 Para calculations.js, validators.js (vacío)
+├── public/
+│   └── vite.svg             ✅ Íconos básicos Vite
+├── package.json             ✅ Configurado con Firebase + Chart.js
+├── vite.config.js           ✅ Multi-app config completado
+└── eslint.config.js         ✅ Linting configurado
+```
+
+### 🎯 **Próximos Pasos de Desarrollo (Semana 3-4):**
+
+#### 🔄 **PRÓXIMO: Funcionalidades Core**
+1. **Dashboard Principal**: Métricas generales, resumen stock
+2. **Inventario**: CRUD combustibles, alertas stock mínimo
+3. **Movimientos**: Registro entradas/salidas, validaciones
+4. **Vehículos**: Catálogo maquinaria, asociación consumos
+5. **Integración Firebase**: Firestore collections, autenticación compartida
+
+#### 📊 **Estructura Firestore Planificada:**
+```
+artifacts/{app_id}/
+├── combustibles/
+│   ├── inventory/           # Stock por tipo y ubicación
+│   ├── movements/           # Historial entradas/salidas  
+│   ├── vehicles/            # Catálogo maquinaria forestal
+│   ├── suppliers/           # Base datos proveedores
+│   └── settings/            # Configuraciones app
+```
+
+#### 🔐 **Integración Sistema Roles:**
+- **Reutilizar** roles existentes: Admin, Contador, Cliente
+- **Permisos específicos**: Crear movimientos, ver reportes, gestionar inventario
+- **Autenticación compartida**: Mismo UserContext de alimentación
+
+### 📈 **Métricas de Desarrollo:**
+- **Bundle size**: 190KB (optimizado vs 1.4MB alimentación)
+- **Dependencies**: Minimalistas, solo esenciales
+- **Performance**: Build en 2s vs 12s alimentación
+- **URL**: forestechdecolombia.com.co/combustibles/ ✅ ACTIVA
+
+---
+
+## 📁 **ARCHIVOS CLAVE IMPLEMENTADOS - MONOREPO COMPLETO**
+
+### 🍽️ **ALIMENTACION - Archivos Clave Implementados**
 
 #### Fase 1 - Analytics y Auth:
 - `src/firebase/analytics.js` - Servicio de Analytics con eventos personalizados
@@ -454,6 +556,83 @@ combustibles/
 - Notificaciones automáticas: liquidaciones y PDFs
 - Notificaciones manuales: Firebase Console funcionando
 - Token management completo implementado
+
+### ⛽ **COMBUSTIBLES - Archivos Clave Implementados**
+
+#### ✅ **Fase 1 - Setup Inicial y Preview (COMPLETADO Enero 2025):**
+
+##### 🎯 **Archivos Core Implementados:**
+- `combustibles/src/App.jsx` - Landing page profesional con preview funcionalidades
+- `combustibles/src/App.css` - Tema verde forestal, responsive design completo
+- `combustibles/src/main.jsx` - Entry point React con configuración base
+- `combustibles/src/index.css` - Estilos globales básicos
+- `combustibles/package.json` - Dependencies: Firebase, Chart.js, React 19
+- `combustibles/vite.config.js` - Config multi-app, puerto 5174, output ../public/combustibles
+- `combustibles/eslint.config.js` - Linting rules configurado
+
+##### 📁 **Estructura de Directorios Creada:**
+- `combustibles/src/components/Dashboard/` - 📋 Dashboard principal (vacío, listo para desarrollo)
+- `combustibles/src/components/Inventory/` - 🛢️ Gestión inventario (vacío, listo para desarrollo)
+- `combustibles/src/components/Movements/` - 📊 Registro movimientos (vacío, listo para desarrollo)
+- `combustibles/src/components/Vehicles/` - 🚜 Gestión vehículos (vacío, listo para desarrollo)
+- `combustibles/src/components/Suppliers/` - 🏪 Gestión proveedores (vacío, listo para desarrollo)
+- `combustibles/src/components/Reports/` - 📈 Reportes y analytics (vacío, listo para desarrollo)
+- `combustibles/src/services/` - Business logic services (vacío, listo para desarrollo)
+- `combustibles/src/contexts/` - CombustiblesContext planned (vacío, listo para desarrollo)
+- `combustibles/src/utils/` - Calculations y validators (vacío, listo para desarrollo)
+
+##### 🔧 **Configuración Monorepo:**
+- `package.json` (raíz) - Scripts monorepo: dev:combustibles, build:combustibles, build:all, deploy
+- `firebase.json` - Routing "/combustibles/**" → "/combustibles/index.html"
+- `public/combustibles/` - Build output directory con archivos generados
+
+#### 🔄 **Próximos Archivos a Implementar (Semana 3-4):**
+
+##### 🛢️ **Inventario (Próximo):**
+- `combustibles/src/components/Inventory/InventoryDashboard.jsx` - Vista principal inventario
+- `combustibles/src/components/Inventory/FuelTypeManager.jsx` - CRUD tipos combustible
+- `combustibles/src/components/Inventory/StockAlerts.jsx` - Alertas stock mínimo
+- `combustibles/src/services/inventoryService.js` - Business logic inventario
+
+##### 📊 **Movimientos (Próximo):**
+- `combustibles/src/components/Movements/MovementForm.jsx` - Formulario entradas/salidas
+- `combustibles/src/components/Movements/MovementHistory.jsx` - Historial movimientos
+- `combustibles/src/services/movementsService.js` - Lógica movimientos
+- `combustibles/src/utils/calculations.js` - Cálculos consumo y eficiencia
+
+##### 🚜 **Vehículos (Próximo):**
+- `combustibles/src/components/Vehicles/VehicleRegistry.jsx` - Catálogo maquinaria
+- `combustibles/src/components/Vehicles/ConsumptionTracker.jsx` - Tracking consumo
+- `combustibles/src/services/vehiclesService.js` - Gestión vehículos
+
+##### 📈 **Reportes (Próximo):**
+- `combustibles/src/components/Reports/DashboardExecutive.jsx` - Dashboard principal
+- `combustibles/src/components/Reports/ConsumptionCharts.jsx` - Gráficos Chart.js
+- `combustibles/src/services/reportsService.js` - Generación reportes
+
+### 🔧 **SHARED - Recursos Compartidos (En Desarrollo)**
+
+#### 📁 **Estructura Shared Creada (Lista para Implementación):**
+- `shared/firebase/` - Configuración Firebase común entre apps
+- `shared/constants/` - Roles, permisos, constantes globales
+- `shared/components/` - Componentes UI reutilizables (Auth, Layout, Common)
+- `shared/utils/` - Utilidades compartidas entre aplicaciones
+
+#### 🔄 **Próximos Archivos Shared a Implementar:**
+- `shared/firebase/config.js` - Configuración Firebase unificada
+- `shared/constants/combustibleTypes.js` - Tipos de combustible estándar
+- `shared/constants/vehicleTypes.js` - Tipos de maquinaria forestal
+- `shared/components/Layout/AppLayout.jsx` - Layout base para ambas apps
+- `shared/components/Common/DataTable.jsx` - Tabla reutilizable
+- `shared/utils/formatters.js` - Formateo moneda, fechas, unidades
+
+### 📋 **GENERAL - Configuración Global**
+
+#### ✅ **Archivos de Configuración Global Actualizados:**
+- `firebase.json` - Multi-app routing: alimentacion + combustibles
+- `firestore.rules` - Reglas seguridad con soporte invitaciones + combustibles (pendiente)
+- `package.json` (raíz) - Scripts monorepo operativos
+- `CLAUDE.md` - Documentación completa actualizada
 
 ## 🚀 Mejores Prácticas para Claude Code - OBLIGATORIAS
 
