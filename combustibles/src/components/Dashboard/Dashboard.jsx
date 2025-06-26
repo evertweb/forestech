@@ -3,19 +3,8 @@
 import React, { useState } from 'react';
 import DashboardLayout from './DashboardLayout';
 import DashboardMain from './DashboardMain';
+import InventoryMain from '../Inventory/InventoryMain';
 import './Dashboard.css';
-
-// Componentes placeholder para los diferentes módulos
-const InventoryModule = () => (
-  <div className="module-placeholder">
-    <h2>🛢️ Módulo de Inventario</h2>
-    <p>Gestión de stock de combustibles</p>
-    <div className="coming-soon">
-      <span>🚧 En desarrollo</span>
-      <p>Próximamente: CRUD completo de inventario, alertas automáticas, y gestión de ubicaciones.</p>
-    </div>
-  </div>
-);
 
 const MovementsModule = () => (
   <div className="module-placeholder">
@@ -69,7 +58,7 @@ const Dashboard = () => {
       case 'dashboard':
         return <DashboardMain />;
       case 'inventory':
-        return <InventoryModule />;
+        return <InventoryMain />;
       case 'movements':
         return <MovementsModule />;
       case 'vehicles':
