@@ -140,3 +140,5 @@ export const CombustiblesProvider = ({ children }) => {
     </CombustiblesContext.Provider>
   );
 };
+
+export { CombustiblesContext };

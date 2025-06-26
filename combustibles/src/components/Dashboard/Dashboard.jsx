@@ -4,18 +4,8 @@ import React, { useState } from 'react';
 import DashboardLayout from './DashboardLayout';
 import DashboardMain from './DashboardMain';
 import InventoryMain from '../Inventory/InventoryMain';
+import MovementsMain from '../Movements/MovementsMain';
 import './Dashboard.css';
-
-const MovementsModule = () => (
-  <div className="module-placeholder">
-    <h2>📈 Módulo de Movimientos</h2>
-    <p>Registro de entradas y salidas de combustible</p>
-    <div className="coming-soon">
-      <span>🚧 En desarrollo</span>
-      <p>Próximamente: Formularios de movimientos, validaciones automáticas, y tracking por vehículo.</p>
-    </div>
-  </div>
-);
 
 const VehiclesModule = () => (
   <div className="module-placeholder">
@@ -60,7 +50,7 @@ const Dashboard = () => {
       case 'inventory':
         return <InventoryMain />;
       case 'movements':
-        return <MovementsModule />;
+        return <MovementsMain />;
       case 'vehicles':
         return <VehiclesModule />;
       case 'suppliers':

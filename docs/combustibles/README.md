@@ -96,6 +96,27 @@ combustibles/
 - Gráficos consumo Chart.js
 - Proyecciones compra
 
+## 📋 **ORDEN LÓGICO DESARROLLO - GUARDADO EN MEMORIA**
+
+### Secuencia Arquitectónica Definida:
+**1. 📊 MOVIMIENTOS** - Entradas/salidas combustible (PRÓXIMO)
+**2. 🚜 VEHÍCULOS** - Catálogo maquinaria forestal  
+**3. 🏪 PROVEEDORES** - Gestión proveedores y compras
+**4. 📈 REPORTES** - Dashboard ejecutivo final
+
+### Flujo de Dependencias:
+```
+INVENTARIO (✅ completo) 
+    ↓
+MOVIMIENTOS (📊 en desarrollo)
+    ↓
+VEHÍCULOS (🚜 después)
+    ↓  
+PROVEEDORES (🏪 después)
+    ↓
+REPORTES (📈 final)
+```
+
 Ver más detalles en:
 - [Roadmap](./roadmap.md)
 - [Módulos](./modules.md)

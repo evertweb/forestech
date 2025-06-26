@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
-  getAllInventoryItems, 
   subscribeToInventory, 
   deleteInventoryItem,
   getInventoryStats 
@@ -15,7 +14,7 @@ import InventoryStats from './InventoryStats';
 import './Inventory.css';
 
 const InventoryMain = () => {
-  const { userProfile, hasPermission } = useCombustibles();
+  const { hasPermission } = useCombustibles();
   const [inventoryItems, setInventoryItems] = useState([]);
   const [inventoryStats, setInventoryStats] = useState(null);
   const [loading, setLoading] = useState(true);
