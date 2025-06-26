@@ -347,6 +347,24 @@ Usa listener onAuthStateChanged de Firebase con estados de carga para flujo de a
 - **Base de Datos**: Firestore (Fase 1) → PostgreSQL (Fase 2)
 - **Autenticación**: Firebase Auth compartida con app alimentación
 
+#### ✅ **IMPORTANTE: Dominio Personalizado Funcionando Automáticamente**
+**Sin necesidad de cambios DNS adicionales**, las nuevas apps funcionan inmediatamente porque:
+
+1. **DNS ya configurado**: `forestechdecolombia.com.co` → `liquidacionapp-62962.web.app` (configurado previamente)
+2. **Firebase Hosting inteligente**: Maneja múltiples rutas en el mismo dominio
+3. **Routing automático**: `firebase.json` dirige cada ruta a su app correspondiente
+
+**URLs Confirmadas Funcionando:**
+- ✅ `https://forestechdecolombia.com.co/alimentacion/`
+- ✅ `https://forestechdecolombia.com.co/combustibles/`
+- ✅ `https://liquidacionapp-62962.web.app/alimentacion/`
+- ✅ `https://liquidacionapp-62962.web.app/combustibles/`
+
+**Escalabilidad**: Futuras apps (ej: `/nomina/`, `/inventario/`) solo requieren:
+1. Agregar regla en `firebase.json`
+2. `firebase deploy`
+3. **¡Funcionan automáticamente!** - Sin tocar DNS en Namecheap
+
 ### 📁 **Estructura de Archivos Planificada:**
 ```
 combustibles/
@@ -633,6 +651,52 @@ artifacts/{app_id}/
 - `firestore.rules` - Reglas seguridad con soporte invitaciones + combustibles (pendiente)
 - `package.json` (raíz) - Scripts monorepo operativos
 - `CLAUDE.md` - Documentación completa actualizada
+
+#### 🌐 **Configuración DNS y Hosting Multi-App FUNCIONANDO:**
+
+##### ✅ **Setup Dominio Personalizado (Ya Configurado):**
+```
+Namecheap DNS: forestechdecolombia.com.co → liquidacionapp-62962.web.app
+Firebase Hosting: Maneja routing automático por rutas
+```
+
+##### 🚀 **Firebase.json - Routing Multi-App:**
+```json
+{
+  "rewrites": [
+    {
+      "source": "/alimentacion/**",
+      "destination": "/alimentacion/index.html"
+    },
+    {
+      "source": "/combustibles/**", 
+      "destination": "/combustibles/index.html"
+    }
+  ]
+}
+```
+
+##### ✅ **URLs Operativas Confirmadas (Enero 2025):**
+- 🍽️ **Alimentación**: `https://forestechdecolombia.com.co/alimentacion/` ✅
+- ⛽ **Combustibles**: `https://forestechdecolombia.com.co/combustibles/` ✅
+- 📋 **Firebase URLs**: `liquidacionapp-62962.web.app/[app]/` ✅
+
+##### 🎯 **Escalabilidad Sin DNS Adicional:**
+**Para futuras apps** (nomina, inventario, etc.):
+1. Solo agregar regla en `firebase.json`
+2. `firebase deploy`
+3. **Nueva URL funciona automáticamente** - Sin tocar Namecheap DNS
+
+##### 📊 **Arquitectura Hosting Actual:**
+```
+forestechdecolombia.com.co/
+├── /                    → Landing page (futuro)
+├── /alimentacion/       → App liquidaciones ✅ ACTIVA
+├── /combustibles/       → App gestión combustibles ✅ ACTIVA  
+└── /[futura-app]/       → Solo requiere firebase.json update
+```
+
+**Esta configuración permite escalabilidad infinita de apps sin gestión DNS adicional.**
 
 ## 🚀 Mejores Prácticas para Claude Code - OBLIGATORIAS
 
