@@ -2,9 +2,29 @@
 
 Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con código en este repositorio.
 
-## Estructura del Proyecto
+## 🎯 **SELECTOR DE PROYECTO - IMPORTANTE**
 
-Esta es una aplicación web React llamada "Forestech" que ayuda a calcular liquidaciones de servicios de alimentación. La aplicación principal se encuentra en el subdirectorio `alimentacion/`.
+**AL INICIAR CADA SESIÓN, CLAUDE DEBE PREGUNTAR:**
+```
+🔍 ¿En qué proyecto de Forestech trabajamos hoy?
+
+🍽️  1. ALIMENTACION - App de liquidaciones de comidas
+⛽  2. COMBUSTIBLES - App de gestión de combustibles  
+🔧  3. SHARED - Recursos compartidos entre apps
+📋  4. GENERAL - Configuración global del monorepo
+
+Responde con el número (1-4) para establecer el contexto correcto.
+```
+
+**CONTEXTOS DE TRABAJO:**
+- **[ALIMENTACION]**: Archivos en `forestech/alimentacion/src/...`
+- **[COMBUSTIBLES]**: Archivos en `forestech/combustibles/src/...` 
+- **[SHARED]**: Archivos en `forestech/shared/...`
+- **[GENERAL]**: Configuración Firebase, hosting, documentación
+
+## Estructura del Proyecto Multi-App
+
+Forestech es ahora un **monorepo** que contiene múltiples aplicaciones web especializadas para diferentes aspectos del negocio forestal en Colombia.
 
 ### Arquitectura Principal
 
@@ -14,20 +34,48 @@ Esta es una aplicación web React llamada "Forestech" que ayuda a calcular liqui
 - **Generación PDF**: jsPDF con plugin auto-table
 - **Gráficos**: Chart.js con react-chartjs-2
 
-### Estructura de Directorios
+### Estructura de Directorios Multi-App
 
 ```
-forestech/
-├── alimentacion/          # Aplicación principal React
+forestech/                          # Monorepo principal
+├── alimentacion/                   # 🍽️ App de liquidaciones de comidas
 │   ├── src/
-│   │   ├── components/    # Componentes React
-│   │   ├── firebase/      # Configuración y servicios Firebase
-│   │   ├── utils/         # Funciones utilitarias (cálculos, PDF)
-│   │   └── App.jsx        # Componente principal de la app
-│   ├── public/            # Assets estáticos
-│   └── package.json       # Dependencias y scripts
-├── public/                # Directorio público de Firebase hosting
-└── firebase.json          # Configuración de Firebase
+│   │   ├── components/            # Componentes específicos alimentación
+│   │   ├── firebase/              # Servicios Firebase alimentación
+│   │   ├── utils/                 # Utils específicos (cálculos, PDF)
+│   │   └── App.jsx               # App principal alimentación
+│   ├── public/                   # Assets estáticos alimentación
+│   └── package.json              # Dependencias alimentación
+├── combustibles/                  # ⛽ App de gestión de combustibles  
+│   ├── src/
+│   │   ├── components/           # Componentes específicos combustibles
+│   │   ├── services/             # Servicios business logic combustibles
+│   │   ├── utils/                # Utils específicos combustibles
+│   │   └── App.jsx              # App principal combustibles
+│   ├── public/                  # Assets estáticos combustibles
+│   └── package.json             # Dependencias combustibles
+├── shared/                       # 🔧 Recursos compartidos entre apps
+│   ├── firebase/                 # Configuración Firebase común
+│   │   ├── config.js            # Config base Firebase
+│   │   ├── authService.js       # Autenticación compartida
+│   │   └── userService.js       # Gestión usuarios compartida
+│   ├── constants/               # Constantes globales
+│   │   ├── roles.js            # Sistema de roles unificado
+│   │   └── permissions.js      # Permisos granulares
+│   ├── components/              # Componentes UI reutilizables
+│   │   ├── Layout/             # Layout base para todas las apps
+│   │   ├── Auth/               # Componentes autenticación
+│   │   └── Common/             # Componentes comunes (botones, modals)
+│   └── utils/                   # Utilidades compartidas
+├── public/                      # 📋 Build output Firebase hosting
+│   ├── alimentacion/           # Build app alimentación
+│   ├── combustibles/           # Build app combustibles
+│   ├── index.html              # Landing page principal
+│   └── firebase-messaging-sw.js # Service Worker FCM
+├── firebase.json               # Configuración hosting multi-app
+├── firestore.rules            # Reglas seguridad unificadas
+├── package.json               # Scripts globales del monorepo
+└── CLAUDE.md                  # Documentación Claude (este archivo)
 ```
 
 ## Comandos de Desarrollo
@@ -240,6 +288,102 @@ Usa listener onAuthStateChanged de Firebase con estados de carga para flujo de a
 - Notificaciones push automáticas y manuales
 - Generación de PDFs y liquidaciones
 - Analytics y monitoreo completo
+
+---
+
+## ⛽ **PROYECTO COMBUSTIBLES - GESTIÓN DE STOCK Y COMBUSTIBLES**
+
+### 🎯 **Estado del Proyecto: EN DESARROLLO**
+
+**Descripción**: Sistema de gestión y control de inventario de combustibles para equipos forestales de Forestech Colombia.
+
+### 🚀 **Estrategia de Desarrollo:**
+- **Fase 1**: React + Firebase (MVP en 3 semanas) - **INICIANDO**
+- **Fase 2**: Recrear con Java + Spring Boot (aprendizaje profundo)
+- **Fase 3**: Usar Java como backend + React frontend (híbrido moderno)
+
+### 📋 **Funcionalidades Core Planificadas:**
+
+#### 🛢️ **Inventario de Combustibles:**
+- Tipos: Diésel, Gasolina, ACPM, lubricantes
+- Stock actual por tipo y ubicación
+- Alertas de stock mínimo automáticas
+- Control de calidad y especificaciones
+
+#### 📊 **Registro de Movimientos:**
+- **Entradas**: Compras, reabastecimientos, transferencias
+- **Salidas**: Consumo por vehículo/maquinaria específica
+- **Transferencias**: Entre tanques, ubicaciones, proyectos
+- **Ajustes**: Mermas, pérdidas, calibraciones
+
+#### 🚜 **Gestión de Vehículos/Maquinaria:**
+- Registro completo de equipos forestales
+- Consumo histórico por equipo
+- Rendimiento por galón/hora trabajada
+- Mantenimientos y servicios
+
+#### 🏪 **Proveedores y Compras:**
+- Base de datos de proveedores
+- Órdenes de compra automatizadas
+- Precios históricos y comparativos
+- Evaluación de proveedores
+
+#### 📈 **Reportes y Analytics:**
+- Consumo mensual/semanal/diario
+- Costos operativos por proyecto
+- Eficiencia por equipo y operador
+- Proyecciones de compra automáticas
+- Dashboard ejecutivo en tiempo real
+
+### 🔐 **Sistema de Roles (Compartido con Alimentación):**
+- **Admin**: Acceso completo, configuraciones globales
+- **Supervisor**: Gestión operativa, reportes, compras
+- **Operador**: Solo registro de movimientos y consultas
+- **Solo Lectura**: Consultores, contadores, auditores
+
+### 🌐 **Configuración de Hosting:**
+- **URL**: `forestechdecolombia.com.co/combustibles/`
+- **Hosting**: Firebase (Fase 1) → Railway.app (Fase 2)
+- **Base de Datos**: Firestore (Fase 1) → PostgreSQL (Fase 2)
+- **Autenticación**: Firebase Auth compartida con app alimentación
+
+### 📁 **Estructura de Archivos Planificada:**
+```
+combustibles/
+├── src/
+│   ├── components/
+│   │   ├── Dashboard/         # Dashboard principal
+│   │   ├── Inventory/         # Gestión de inventario
+│   │   ├── Movements/         # Registro de movimientos
+│   │   ├── Vehicles/          # Gestión de vehículos
+│   │   ├── Suppliers/         # Gestión de proveedores
+│   │   └── Reports/           # Reportes y analytics
+│   ├── services/
+│   │   ├── inventoryService.js
+│   │   ├── movementsService.js
+│   │   ├── vehiclesService.js
+│   │   └── reportsService.js
+│   ├── utils/
+│   │   ├── calculations.js    # Cálculos de consumo y eficiencia
+│   │   └── validators.js      # Validaciones business logic
+│   └── contexts/
+│       └── CombustiblesContext.jsx # Context específico
+├── public/
+└── package.json
+```
+
+### 🎯 **Integración con Ecosistema Forestech:**
+- **Usuarios compartidos**: Mismo sistema de autenticación
+- **Roles unificados**: Sistema de permisos consistente
+- **Reportes cruzados**: Costos alimentación + combustibles
+- **Dashboard ejecutivo**: Vista unificada del negocio
+
+### ⏱️ **Timeline Estimado:**
+- **Semana 1-2**: Setup inicial, estructura, componentes base
+- **Semana 3-4**: Funcionalidades core (inventario, movimientos)
+- **Semana 5-6**: Reportes, dashboard, optimizaciones
+- **Mes 2-3**: Migración a Java + Spring Boot
+- **Mes 4+**: Features avanzadas, integraciones
 
 ### 📁 Archivos Clave Implementados
 
