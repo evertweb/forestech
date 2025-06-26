@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "firebase": "^11.9.1",
     "chart.js": "^4.5.0",
-    "react-chartjs-2": "^5.3.0"
+    "firebase": "^11.9.1",
+    "react": "^19.1.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

@@ -84,6 +84,109 @@ service cloud.firestore {
         get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)/profile/data).data.role == 'admin';
     }
     
+    // ===== REGLAS PARA COMBUSTIBLES =====
+    
+    // Función helper para verificar rol de usuario
+    function getUserRole() {
+      return get(/databases/$(database)/documents/artifacts/$(app_id)/users/$(request.auth.uid)).data.role;
+    }
+    
+    function isAdmin() {
+      return request.auth != null && getUserRole() == 'admin';
+    }
+    
+    function isCounterOrAbove() {
+      return request.auth != null && getUserRole() in ['admin', 'contador'];
+    }
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Reglas para inventario de combustibles
+    match /artifacts/{app_id}/combustibles/inventory/{inventory_id} {
+      // Admins y contadores pueden gestionar inventario
+      allow read, write: if isCounterOrAbove();
+      
+      // Clientes solo pueden leer inventario
+      allow read: if isAuthenticated();
+    }
+    
+    // Reglas para movimientos de combustibles
+    match /artifacts/{app_id}/combustibles/movements/{movement_id} {
+      // Todos los usuarios autenticados pueden crear movimientos
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.createdBy;
+      
+      // Solo el creador puede leer sus propios movimientos
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.createdBy;
+      
+      // Admins y contadores pueden ver todos los movimientos
+      allow read: if isCounterOrAbove();
+      
+      // Solo admins y contadores pueden modificar movimientos
+      allow update, delete: if isCounterOrAbove();
+    }
+    
+    // Reglas para vehículos
+    match /artifacts/{app_id}/combustibles/vehicles/{vehicle_id} {
+      // Admins pueden gestionar vehículos completamente
+      allow read, write: if isAdmin();
+      
+      // Contadores pueden leer y crear/actualizar vehículos
+      allow read, create, update: if isCounterOrAbove();
+      
+      // Clientes solo pueden leer vehículos
+      allow read: if isAuthenticated();
+    }
+    
+    // Reglas para proveedores
+    match /artifacts/{app_id}/combustibles/suppliers/{supplier_id} {
+      // Solo admins pueden gestionar proveedores
+      allow read, write: if isAdmin();
+      
+      // Contadores pueden leer proveedores
+      allow read: if isCounterOrAbove();
+    }
+    
+    // Reglas para configuraciones de combustibles
+    match /artifacts/{app_id}/combustibles/settings/{setting_id} {
+      // Solo admins pueden modificar configuraciones
+      allow read, write: if isAdmin();
+      
+      // Contadores pueden leer configuraciones
+      allow read: if isCounterOrAbove();
+    }
+    
+    // Reglas para reportes de combustibles
+    match /artifacts/{app_id}/combustibles/reports/{report_id} {
+      // Admins y contadores pueden gestionar reportes
+      allow read, write: if isCounterOrAbove();
+      
+      // Clientes pueden leer reportes si son propios
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.createdBy;
+    }
+    
+    // Permitir listar colecciones de combustibles según permisos
+    match /artifacts/{app_id}/combustibles/inventory {
+      allow list: if isAuthenticated();
+    }
+    
+    match /artifacts/{app_id}/combustibles/movements {
+      allow list: if isCounterOrAbove();
+    }
+    
+    match /artifacts/{app_id}/combustibles/vehicles {
+      allow list: if isAuthenticated();
+    }
+    
+    match /artifacts/{app_id}/combustibles/suppliers {
+      allow list: if isCounterOrAbove();
+    }
+    
+    match /artifacts/{app_id}/combustibles/reports {
+      allow list: if isCounterOrAbove();
+    }
+    
     // Denegar acceso por defecto a todo lo demás
     match /{document=**} {
       allow read, write: if false;

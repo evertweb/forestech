@@ -5,21 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/eslint.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/eslint.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/public/firebase-messaging-sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/public/firebase-messaging-sw.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/src/components/AdminPanel.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/src/components/AdminPanel.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/src/components/Auth.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/src/components/Auth.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/src/components/EmailVerificationBanner.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/src/components/EmailVerificationBanner.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/src/firebase/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/src/firebase/authService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/src/firebase/invitationService.js" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/src/firebase/invitationService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alimentacion/src/firebase/userService.js" beforeDir="false" afterPath="$PROJECT_DIR$/alimentacion/src/firebase/userService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firestore.rules" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/index-CeCHNd0x.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/index.es-Cy8mZ6DY.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/firebase-messaging-sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/alimentacion/firebase-messaging-sw.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/alimentacion/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/firebase-messaging-sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/firebase-messaging-sw.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +107,7 @@
       <workItem from="1749860268483" duration="8537000" />
       <workItem from="1749922565077" duration="15528000" />
       <workItem from="1749944546678" duration="86000" />
-      <workItem from="1750632527309" duration="29997000" />
+      <workItem from="1750632527309" duration="36130000" />
     </task>
     <servers />
   </component>

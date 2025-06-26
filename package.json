@@ -1,10 +1,19 @@
 {
   "name": "forestech",
   "version": "1.0.0",
-  "description": "",
+  "description": "Forestech Colombia - Monorepo de aplicaciones web",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:alimentacion": "cd alimentacion && npm run dev",
+    "dev:combustibles": "cd combustibles && npm run dev",
+    "build:alimentacion": "cd alimentacion && npm run build",
+    "build:combustibles": "cd combustibles && npm run build",
+    "build:all": "npm run build:alimentacion && npm run build:combustibles",
+    "lint:alimentacion": "cd alimentacion && npm run lint",
+    "lint:combustibles": "cd combustibles && npm run lint",
+    "lint:all": "npm run lint:alimentacion && npm run lint:combustibles",
+    "deploy": "npm run build:all && firebase deploy",
+    "install:all": "cd alimentacion && npm install && cd ../combustibles && npm install"
   },
   "private": true,
   "devDependencies": {

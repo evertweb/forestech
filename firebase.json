@@ -14,6 +14,10 @@
       {
         "source": "/alimentacion/**",
         "destination": "/alimentacion/index.html"
+      },
+      {
+        "source": "/combustibles/**",
+        "destination": "/combustibles/index.html"
       }
     ]
   }
