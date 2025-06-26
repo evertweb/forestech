@@ -18,7 +18,7 @@ import { db } from "../firebase/config";
 import { FUEL_INFO, getStockLevel } from "../constants/combustibleTypes";
 
 // Rutas de colecciones
-const INVENTORY_COLLECTION = `artifacts/${import.meta.env.VITE_FIREBASE_APP_ID}/combustibles/inventory`;
+const INVENTORY_COLLECTION = 'combustibles_inventory';
 
 /**
  * CRUD OPERATIONS - CREATE
