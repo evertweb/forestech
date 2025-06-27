@@ -6,7 +6,7 @@
 import React from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 
-const MovementsCards = ({ movements, onEdit, onView, userRole }) => {
+const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, userRole }) => {
   // Formatear moneda
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-CO', {
@@ -172,36 +172,44 @@ const MovementsCards = ({ movements, onEdit, onView, userRole }) => {
             </div>
 
             <div className="card-actions">
-              <button
-                className="btn-view"
-                onClick={() => onView(movement)}
-                title="Ver detalles"
-              >
-                👁️
-              </button>
-              
-              {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
-                <button
-                  className="btn-edit"
-                  onClick={() => onEdit(movement)}
-                  title="Editar movimiento"
-                >
-                  ✏️
-                </button>
+              {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+                <div className="admin-actions">
+                  <button
+                    className="btn-approve"
+                    onClick={() => onApprove(movement.id)}
+                    title="Aprobar movimiento"
+                  >
+                    ✓ Aprobar
+                  </button>
+                  <button
+                    className="btn-reject"
+                    onClick={() => onReject(movement.id)}
+                    title="Rechazar movimiento"
+                  >
+                    ✗ Rechazar
+                  </button>
+                </div>
               )}
 
-              {movement.status === MOVEMENT_STATUS.PENDIENTE && userRole === 'admin' && (
+              <div className="user-actions">
                 <button
-                  className="btn-approve"
-                  onClick={() => {
-                    // TODO: Implementar aprobación
-                    console.log('Aprobar movimiento:', movement.id);
-                  }}
-                  title="Aprobar movimiento"
+                  className="btn-view"
+                  onClick={() => onView(movement)}
+                  title="Ver detalles"
                 >
-                  ✓
+                  👁️ Ver
                 </button>
-              )}
+                
+                {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+                  <button
+                    className="btn-edit"
+                    onClick={() => onEdit(movement)}
+                    title="Editar movimiento"
+                  >
+                    ✏️ Editar
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

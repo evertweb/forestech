@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 
-const MovementsTable = ({ movements, onEdit, onView, userRole }) => {
+const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, userRole }) => {
   const [sortField, setSortField] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
 
@@ -254,6 +254,25 @@ const MovementsTable = ({ movements, onEdit, onView, userRole }) => {
                       👁️
                     </button>
                     
+                    {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+                      <>
+                        <button
+                          className="btn-action btn-approve"
+                          onClick={() => onApprove(movement.id)}
+                          title="Aprobar movimiento"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          className="btn-action btn-reject"
+                          onClick={() => onReject(movement.id)}
+                          title="Rechazar movimiento"
+                        >
+                          ✗
+                        </button>
+                      </>
+                    )}
+
                     {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
                       <button
                         className="btn-action btn-edit"
@@ -261,19 +280,6 @@ const MovementsTable = ({ movements, onEdit, onView, userRole }) => {
                         title="Editar movimiento"
                       >
                         ✏️
-                      </button>
-                    )}
-
-                    {movement.status === MOVEMENT_STATUS.PENDIENTE && userRole === 'admin' && (
-                      <button
-                        className="btn-action btn-approve"
-                        onClick={() => {
-                          // TODO: Implementar aprobación
-                          console.log('Aprobar movimiento:', movement.id);
-                        }}
-                        title="Aprobar movimiento"
-                      >
-                        ✓
                       </button>
                     )}
                   </div>

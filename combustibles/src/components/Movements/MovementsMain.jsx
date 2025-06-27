@@ -8,6 +8,7 @@ import { CombustiblesContext } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToMovements, 
   getMovementsStats,
+  updateMovementStatus,
   MOVEMENT_TYPES,
   MOVEMENT_STATUS 
 } from '../../services/movementsService';
@@ -136,6 +137,32 @@ const MovementsMain = () => {
     setSearchTerm('');
   };
 
+  const handleApproveMovement = async (movementId) => {
+    if (!window.confirm('¿Estás seguro de que quieres aprobar este movimiento? Esta acción actualizará el inventario.')) {
+      return;
+    }
+    try {
+      await updateMovementStatus(movementId, MOVEMENT_STATUS.COMPLETADO);
+      alert('Movimiento aprobado y stock actualizado.');
+    } catch (error) {
+      console.error('Error al aprobar movimiento:', error);
+      alert(`Error al aprobar movimiento: ${error.message}`);
+    }
+  };
+
+  const handleRejectMovement = async (movementId) => {
+    if (!window.confirm('¿Estás seguro de que quieres rechazar este movimiento?')) {
+      return;
+    }
+    try {
+      await updateMovementStatus(movementId, MOVEMENT_STATUS.CANCELADO);
+      alert('Movimiento rechazado.');
+    } catch (error) {
+      console.error('Error al rechazar movimiento:', error);
+      alert(`Error al rechazar movimiento: ${error.message}`);
+    }
+  };
+
   // Permisos del usuario
   const canCreateMovement = user?.role === 'admin' || user?.role === 'contador';
   const canEditMovement = user?.role === 'admin';
@@ -239,6 +266,8 @@ const MovementsMain = () => {
           viewMode={viewMode}
           onEdit={canEditMovement ? handleEditMovement : null}
           onView={handleViewMovement}
+          onApprove={handleApproveMovement}
+          onReject={handleRejectMovement}
           userRole={user?.role}
         />
       )}
