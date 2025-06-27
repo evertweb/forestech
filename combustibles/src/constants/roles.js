@@ -77,5 +77,6 @@ export const determineUserRole = (email) => {
     return ROLES.ADMIN;
   }
   
+  // Por defecto, usuarios sin invitación son clientes
   return ROLES.CLIENTE;
 };

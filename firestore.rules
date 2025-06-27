@@ -187,6 +187,28 @@ service cloud.firestore {
       allow list: if isCounterOrAbove();
     }
     
+    // ===== REGLAS TEMPORALES PARA COMBUSTIBLES - RUTAS ACTUALES =====
+    
+    // Inventario de combustibles (ruta actual)
+    match /combustibles_inventory/{inventory_id} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Movimientos de combustibles (ruta actual)
+    match /combustibles_movements/{movement_id} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Vehículos de combustibles (ruta actual)
+    match /combustibles_vehicles/{vehicle_id} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Proveedores de combustibles (ruta actual)
+    match /combustibles_suppliers/{supplier_id} {
+      allow read, write: if request.auth != null;
+    }
+    
     // Denegar acceso por defecto a todo lo demás
     match /{document=**} {
       allow read, write: if false;

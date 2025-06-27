@@ -1,6 +1,8 @@
 // combustibles/src/components/Dashboard/DashboardLayout.jsx
 // Layout principal del Dashboard con navegación y sidebar
 import React, { useState } from 'react';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase/config';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 
 const DashboardLayout = ({ children, currentView, onViewChange }) => {
@@ -49,6 +51,13 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
       icon: '📋',
       description: 'Análisis y reportes',
       requiredPermission: 'canViewReports'
+    },
+    {
+      id: 'admin',
+      name: 'Administración',
+      icon: '⚙️',
+      description: 'Gestión de usuarios',
+      requiredPermission: 'admin' // Solo para admins
     }
   ];
 
@@ -59,10 +68,19 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
 
   const hasPermission = (permission) => {
     if (!permission) return true; // Sin restricción
+    if (permission === 'admin') return isAdmin(); // Verificar si es admin
     return userProfile?.combustiblesPermissions?.[permission] || false;
   };
 
   const visibleItems = navigationItems.filter(item => hasPermission(item.requiredPermission));
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
 
   return (
     <div className="dashboard-layout">
@@ -95,6 +113,13 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
                 </div>
               )}
             </div>
+            <button 
+              className="logout-button"
+              onClick={handleLogout}
+              title="Cerrar sesión"
+            >
+              🚪
+            </button>
           </div>
         </div>
       </header>

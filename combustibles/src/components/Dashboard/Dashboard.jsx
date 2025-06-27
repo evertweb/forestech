@@ -6,6 +6,7 @@ import DashboardMain from './DashboardMain';
 import InventoryMain from '../Inventory/InventoryMain';
 import MovementsMain from '../Movements/MovementsMain';
 import VehiclesMain from '../Vehicles/VehiclesMain';
+import AdminMain from '../Admin/AdminMain';
 import './Dashboard.css';
 
 const SuppliersModule = () => (
@@ -47,6 +48,8 @@ const Dashboard = () => {
         return <SuppliersModule />;
       case 'reports':
         return <ReportsModule />;
+      case 'admin':
+        return <AdminMain />;
       default:
         return <DashboardMain />;
     }
