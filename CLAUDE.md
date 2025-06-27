@@ -110,6 +110,44 @@ npm run lint:combustibles
 ✅ Verificaciones: lint ✅ build ✅
 ```
 
+## 🔍 **PROTOCOLO SUPERVISIÓN GEMINI CLI**
+
+### 📋 **Claude CLI como Supervisor**
+**RESPONSABILIDADES:**
+- **Análisis técnico** de cada implementación de Gemini CLI
+- **Revisión de código** y mejores prácticas  
+- **Evaluación de patrones** del proyecto
+- **Implementación de mejoras** cuando sea necesario
+- **Commits de supervisión** explicando cambios aplicados
+
+### 🔄 **Flujo de Supervisión**
+1. **Gemini CLI** hace cambios al proyecto
+2. **Claude CLI** analiza la implementación 
+3. **Evaluación técnica** con criterios:
+   - Calidad técnica (/10)
+   - Seguimiento de patrones (/10)
+   - Performance (/10)
+   - Mantenibilidad (/10)
+4. **Implementar mejoras** si es necesario
+5. **Commit supervisión** con mensaje: `refactor: Superviso trabajo Gemini CLI - [motivo específico]`
+
+### 📊 **Criterios de Evaluación**
+- ✅ **Aprobar**: Implementación correcta, sin cambios necesarios
+- ⚠️ **Mejorar**: Implementación funcional, optimizaciones aplicadas  
+- ❌ **Rehacer**: Implementación problemática, cambios mayores requeridos
+
+### 🤝 **Protocolo de Commits**
+```bash
+# Formato commit de supervisión
+git commit -m "refactor: Superviso trabajo Gemini CLI - [específica el motivo]
+
+- Motivo del cambio: [explicación]
+- Mejora aplicada: [descripción técnica] 
+- Patrón seguido: [justificación]
+
+Hecho con Claude CLI (supervisando Gemini CLI)"
+```
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.

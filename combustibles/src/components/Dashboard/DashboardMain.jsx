@@ -1,6 +1,6 @@
 // combustibles/src/components/Dashboard/DashboardMain.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './Dashboard.css';
 import { subscribeToInventory } from '../../services/inventoryService';
 import { subscribeToMovements } from '../../services/movementsService';
@@ -15,43 +15,74 @@ const DashboardMain = () => {
   });
   const [recentMovements, setRecentMovements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dataLoaded, setDataLoaded] = useState({
+    inventory: false,
+    movements: false,
+    vehicles: false
+  });
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
 
-    const unsubInventory = subscribeToInventory((inventory) => {
-      const totalFuel = inventory.reduce((sum, item) => sum + (item.currentStock || 0), 0);
-      const lowStockAlerts = inventory.filter(item => (item.currentStock || 0) < (item.minThreshold || 0)).length;
-      setStats(prevStats => ({ ...prevStats, totalFuel, lowStockAlerts }));
-    });
+    const unsubInventory = subscribeToInventory(
+      (inventory) => {
+        const totalFuel = inventory.reduce((sum, item) => sum + (item.currentStock || 0), 0);
+        const lowStockAlerts = inventory.filter(item => (item.currentStock || 0) < (item.minThreshold || 0)).length;
+        setStats(prevStats => ({ ...prevStats, totalFuel, lowStockAlerts }));
+        setDataLoaded(prev => ({ ...prev, inventory: true }));
+      },
+      (error) => {
+        console.error('Error loading inventory:', error);
+        setError('Error cargando inventario');
+      }
+    );
 
-    const unsubMovements = subscribeToMovements((movements) => {
-      const pendingMovements = movements.filter(m => m.status === 'pending').length;
-      const recent = movements.sort((a, b) => b.date.toMillis() - a.date.toMillis()).slice(0, 5);
-      setStats(prevStats => ({ ...prevStats, pendingMovements }));
-      setRecentMovements(recent);
-    });
+    const unsubMovements = subscribeToMovements(
+      (movements) => {
+        const pendingMovements = movements.filter(m => m.status === 'pending').length;
+        const recent = movements.sort((a, b) => b.date.toMillis() - a.date.toMillis()).slice(0, 5);
+        setStats(prevStats => ({ ...prevStats, pendingMovements }));
+        setRecentMovements(recent);
+        setDataLoaded(prev => ({ ...prev, movements: true }));
+      },
+      (error) => {
+        console.error('Error loading movements:', error);
+        setError('Error cargando movimientos');
+      }
+    );
 
-    const unsubVehicles = subscribeToVehicles((vehicles) => {
-      const activeVehicles = vehicles.filter(v => v.status === 'active').length;
-      setStats(prevStats => ({ ...prevStats, activeVehicles }));
-    });
-    
-    // Simulamos un tiempo de carga para que los datos se asienten
-    const timer = setTimeout(() => setLoading(false), 1500);
+    const unsubVehicles = subscribeToVehicles(
+      (vehicles) => {
+        const activeVehicles = vehicles.filter(v => v.status === 'active').length;
+        setStats(prevStats => ({ ...prevStats, activeVehicles }));
+        setDataLoaded(prev => ({ ...prev, vehicles: true }));
+      },
+      (error) => {
+        console.error('Error loading vehicles:', error);
+        setError('Error cargando vehículos');
+      }
+    );
 
-    // Función de limpieza para desuscribirse cuando el componente se desmonte
     return () => {
       unsubInventory();
       unsubMovements();
       unsubVehicles();
-      clearTimeout(timer);
     };
   }, []);
 
-  const formatNumber = (num) => {
-    return new Intl.NumberFormat('es-CO').format(num);
-  };
+  // Determinar cuando todos los datos están cargados
+  useEffect(() => {
+    const allDataLoaded = Object.values(dataLoaded).every(loaded => loaded);
+    if (allDataLoaded) {
+      setLoading(false);
+    }
+  }, [dataLoaded]);
+
+  const formatNumber = useMemo(() => {
+    return (num) => new Intl.NumberFormat('es-CO').format(num);
+  }, []);
   
   const getMovementDescription = (mov) => {
     switch(mov.type) {
@@ -75,6 +106,18 @@ const DashboardMain = () => {
         <p className="dashboard-subtitle">Cargando datos en tiempo real...</p>
         <div className="loading-spinner-container">
           <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-main">
+        <h1 className="dashboard-title">Dashboard Operativo</h1>
+        <div className="error-message">
+          <p>⚠️ {error}</p>
+          <button onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       </div>
     );
