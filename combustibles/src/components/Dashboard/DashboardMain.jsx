@@ -1,254 +1,144 @@
 // combustibles/src/components/Dashboard/DashboardMain.jsx
-// Componente principal del dashboard con métricas y cards de resumen
-import React from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { FUEL_INFO, getStockLevel, STOCK_ALERTS } from '../../constants/combustibleTypes';
-import { VEHICLE_INFO } from '../../constants/vehicleTypes';
+
+import React, { useState, useEffect } from 'react';
+import './Dashboard.css';
+import { subscribeToInventory } from '../../services/inventoryService';
+import { subscribeToMovements } from '../../services/movementsService';
+import { subscribeToVehicles } from '../../services/vehiclesService';
 
 const DashboardMain = () => {
-  const { userProfile } = useCombustibles();
-
-  // Datos mock para demostración
-  const mockInventoryData = [
-    {
-      fuelType: 'diesel',
-      currentStock: 1250,
-      maxCapacity: 2000,
-      location: 'Tanque Principal',
-      lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000) // hace 2 horas
-    },
-    {
-      fuelType: 'gasoline',
-      currentStock: 180,
-      maxCapacity: 500,
-      location: 'Tanque Auxiliar',
-      lastUpdated: new Date(Date.now() - 4 * 60 * 60 * 1000) // hace 4 horas
-    },
-    {
-      fuelType: 'acpm',
-      currentStock: 95,
-      maxCapacity: 1200,
-      location: 'Depósito Central',
-      lastUpdated: new Date(Date.now() - 1 * 60 * 60 * 1000) // hace 1 hora
-    },
-    {
-      fuelType: 'lubricants',
-      currentStock: 85,
-      maxCapacity: 200,
-      location: 'Bodega',
-      lastUpdated: new Date(Date.now() - 6 * 60 * 60 * 1000) // hace 6 horas
-    }
-  ];
-
-  const mockMovementsData = [
-    { type: 'entry', quantity: 500, fuelType: 'diesel', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
-    { type: 'exit', quantity: 120, fuelType: 'gasoline', date: new Date(Date.now() - 1 * 60 * 60 * 1000) },
-    { type: 'exit', quantity: 250, fuelType: 'diesel', date: new Date(Date.now() - 3 * 60 * 60 * 1000) },
-    { type: 'entry', quantity: 200, fuelType: 'acpm', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) }
-  ];
-
-  const mockVehicleData = [
-    { vehicleType: 'harvester', name: 'Cosechadora 001', status: 'active', fuelType: 'diesel', lastUsed: new Date() },
-    { vehicleType: 'chainsaw', name: 'Motosierra 015', status: 'active', fuelType: 'two_stroke', lastUsed: new Date() },
-    { vehicleType: 'log_truck', name: 'Camión MD-789', status: 'maintenance', fuelType: 'acpm', lastUsed: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
-    { vehicleType: 'pickup_truck', name: 'Toyota Hilux', status: 'active', fuelType: 'gasoline', lastUsed: new Date() }
-  ];
-
-  // Calcular métricas principales
-  const totalInventoryValue = mockInventoryData.reduce((total, item) => {
-    const fuelInfo = FUEL_INFO[item.fuelType];
-    return total + (item.currentStock * (fuelInfo ? 12000 : 0)); // Precio mock: $12,000 por galón
-  }, 0);
-
-  const totalMovementsToday = mockMovementsData.filter(
-    movement => movement.date.toDateString() === new Date().toDateString()
-  ).length;
-
-  const activeVehicles = mockVehicleData.filter(vehicle => vehicle.status === 'active').length;
-
-  const criticalStockItems = mockInventoryData.filter(item => {
-    const stockLevel = getStockLevel(item.currentStock, item.maxCapacity);
-    return stockLevel === 'critical' || stockLevel === 'low';
+  const [stats, setStats] = useState({
+    totalFuel: 0,
+    activeVehicles: 0,
+    pendingMovements: 0,
+    lowStockAlerts: 0,
   });
+  const [recentMovements, setRecentMovements] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Formatear números
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  useEffect(() => {
+    setLoading(true);
+
+    const unsubInventory = subscribeToInventory((inventory) => {
+      const totalFuel = inventory.reduce((sum, item) => sum + (item.currentStock || 0), 0);
+      const lowStockAlerts = inventory.filter(item => (item.currentStock || 0) < (item.minThreshold || 0)).length;
+      setStats(prevStats => ({ ...prevStats, totalFuel, lowStockAlerts }));
+    });
+
+    const unsubMovements = subscribeToMovements((movements) => {
+      const pendingMovements = movements.filter(m => m.status === 'pending').length;
+      const recent = movements.sort((a, b) => b.date.toMillis() - a.date.toMillis()).slice(0, 5);
+      setStats(prevStats => ({ ...prevStats, pendingMovements }));
+      setRecentMovements(recent);
+    });
+
+    const unsubVehicles = subscribeToVehicles((vehicles) => {
+      const activeVehicles = vehicles.filter(v => v.status === 'active').length;
+      setStats(prevStats => ({ ...prevStats, activeVehicles }));
+    });
+    
+    // Simulamos un tiempo de carga para que los datos se asienten
+    const timer = setTimeout(() => setLoading(false), 1500);
+
+    // Función de limpieza para desuscribirse cuando el componente se desmonte
+    return () => {
+      unsubInventory();
+      unsubMovements();
+      unsubVehicles();
+      clearTimeout(timer);
+    };
+  }, []);
 
   const formatNumber = (num) => {
     return new Intl.NumberFormat('es-CO').format(num);
   };
+  
+  const getMovementDescription = (mov) => {
+    switch(mov.type) {
+      case 'entry':
+        return `Entrada de ${mov.quantity} ${mov.unit} de ${mov.fuelType}.`;
+      case 'exit':
+        return `Salida de ${mov.quantity} ${mov.unit} para vehículo ${mov.vehicleId || 'N/A'}.`;
+      case 'transfer':
+        return `Transferencia de ${mov.quantity} ${mov.unit} de ${mov.fromLocation} a ${mov.toLocation}.`;
+      case 'adjustment':
+        return `Ajuste de inventario: ${mov.quantity} ${mov.unit} de ${mov.fuelType}.`;
+      default:
+        return 'Movimiento registrado.';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-main">
+        <h1 className="dashboard-title">Dashboard Operativo</h1>
+        <p className="dashboard-subtitle">Cargando datos en tiempo real...</p>
+        <div className="loading-spinner-container">
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="dashboard-main-content">
-      {/* Saludo personalizado */}
-      <div className="dashboard-welcome">
-        <h2>Bienvenido, {userProfile?.displayName || 'Usuario'}</h2>
-        <p>Dashboard de Gestión de Combustibles - {new Date().toLocaleDateString('es-CO', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })}</p>
+    <div className="dashboard-main">
+      <h1 className="dashboard-title">Dashboard Operativo</h1>
+      <p className="dashboard-subtitle">Resumen general del estado de combustibles y maquinaria.</p>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon fuel-icon">🛢️</div>
+          <div className="stat-info">
+            <p>Combustible Total</p>
+            <h2>{formatNumber(stats.totalFuel)} gal</h2>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon vehicle-icon">🚜</div>
+          <div className="stat-info">
+            <p>Vehículos Activos</p>
+            <h2>{formatNumber(stats.activeVehicles)}</h2>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon movement-icon">🔄</div>
+          <div className="stat-info">
+            <p>Movimientos Pendientes</p>
+            <h2>{formatNumber(stats.pendingMovements)}</h2>
+          </div>
+        </div>
+        <div className={`stat-card ${stats.lowStockAlerts > 0 ? 'alert' : ''}`}>
+          <div className="stat-icon alert-icon">⚠️</div>
+          <div className="stat-info">
+            <p>Alertas de Stock</p>
+            <h2>{formatNumber(stats.lowStockAlerts)}</h2>
+          </div>
+        </div>
       </div>
 
-      {/* Cards de métricas principales */}
-      <div className="dashboard-cards">
-        {/* Total Inventario */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <div className="card-title">
-              <span className="card-icon">💰</span>
-              Valor Total Inventario
-            </div>
-          </div>
-          <div className="card-value">{formatCurrency(totalInventoryValue)}</div>
-          <div className="card-description">
-            {mockInventoryData.length} tipos de combustible en stock
-          </div>
-          <div className="card-trend trend-positive">
-            ↗ +5.2% vs mes anterior
-          </div>
-        </div>
-
-        {/* Movimientos del día */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <div className="card-title">
-              <span className="card-icon">📈</span>
-              Movimientos Hoy
-            </div>
-          </div>
-          <div className="card-value">{totalMovementsToday}</div>
-          <div className="card-description">
-            Entradas y salidas registradas
-          </div>
-          <div className="card-trend trend-positive">
-            ↗ Actividad normal
-          </div>
-        </div>
-
-        {/* Vehículos activos */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <div className="card-title">
-              <span className="card-icon">🚜</span>
-              Vehículos Activos
-            </div>
-          </div>
-          <div className="card-value">{activeVehicles}</div>
-          <div className="card-description">
-            de {mockVehicleData.length} vehículos totales
-          </div>
-          <div className="card-trend trend-positive">
-            ↗ {Math.round((activeVehicles / mockVehicleData.length) * 100)}% operatividad
-          </div>
-        </div>
-
-        {/* Alertas de stock */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <div className="card-title">
-              <span className="card-icon">⚠️</span>
-              Alertas de Stock
-            </div>
-          </div>
-          <div className="card-value" style={{ color: criticalStockItems.length > 0 ? '#dc2626' : '#16a34a' }}>
-            {criticalStockItems.length}
-          </div>
-          <div className="card-description">
-            {criticalStockItems.length > 0 ? 'Requieren atención' : 'Niveles normales'}
-          </div>
-          {criticalStockItems.length > 0 && (
-            <div className="card-trend trend-negative">
-              ⚠ Revisar stock crítico
-            </div>
+      <div className="dashboard-content">
+        <div className="dashboard-widget">
+          <h3>Actividad Reciente</h3>
+          {recentMovements.length > 0 ? (
+            <ul>
+              {recentMovements.map(mov => (
+                <li key={mov.id}>
+                  <span className={`movement-type-badge ${mov.type}`}>{mov.type}</span>
+                  {getMovementDescription(mov)}
+                  <span className="movement-date">{mov.date.toDate().toLocaleDateString()}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay movimientos recientes.</p>
           )}
         </div>
-      </div>
-
-      {/* Resumen de inventario */}
-      <div className="dashboard-section">
-        <h3>🛢️ Resumen de Inventario</h3>
-        <div className="inventory-grid">
-          {mockInventoryData.map((item, index) => {
-            const fuelInfo = FUEL_INFO[item.fuelType];
-            const stockLevel = getStockLevel(item.currentStock, item.maxCapacity);
-            const stockAlert = STOCK_ALERTS[stockLevel];
-            const percentage = Math.round((item.currentStock / item.maxCapacity) * 100);
-
-            return (
-              <div key={index} className="inventory-card">
-                <div className="inventory-header">
-                  <span className="fuel-icon" style={{ color: fuelInfo?.color }}>
-                    {fuelInfo?.icon}
-                  </span>
-                  <div>
-                    <h4>{fuelInfo?.name}</h4>
-                    <p>{item.location}</p>
-                  </div>
-                  <span className="stock-badge" style={{ background: stockAlert?.color, color: 'white' }}>
-                    {stockAlert?.icon}
-                  </span>
-                </div>
-                
-                <div className="inventory-progress">
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ 
-                        width: `${percentage}%`,
-                        background: stockAlert?.color 
-                      }}
-                    />
-                  </div>
-                  <div className="progress-text">
-                    {formatNumber(item.currentStock)} / {formatNumber(item.maxCapacity)} {fuelInfo?.unit}
-                  </div>
-                </div>
-                
-                <div className="inventory-meta">
-                  <span>{percentage}% capacidad</span>
-                  <span>Actualizado: {item.lastUpdated.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Actividad reciente */}
-      <div className="dashboard-section">
-        <h3>📊 Actividad Reciente</h3>
-        <div className="activity-list">
-          {mockMovementsData.slice(0, 5).map((movement, index) => {
-            const fuelInfo = FUEL_INFO[movement.fuelType];
-            const isEntry = movement.type === 'entry';
-            
-            return (
-              <div key={index} className="activity-item">
-                <div className="activity-icon" style={{ background: isEntry ? '#dcfce7' : '#fef2f2' }}>
-                  {isEntry ? '📥' : '📤'}
-                </div>
-                <div className="activity-content">
-                  <div className="activity-title">
-                    {isEntry ? 'Entrada' : 'Salida'} de {fuelInfo?.name}
-                  </div>
-                  <div className="activity-description">
-                    {formatNumber(movement.quantity)} {fuelInfo?.unit} - {movement.date.toLocaleString('es-CO')}
-                  </div>
-                </div>
-                <div className="activity-amount" style={{ color: isEntry ? '#16a34a' : '#dc2626' }}>
-                  {isEntry ? '+' : '-'}{formatNumber(movement.quantity)}
-                </div>
-              </div>
-            );
-          })}
+        <div className="dashboard-widget">
+          <h3>Consumo por Tipo de Combustible</h3>
+          {/* TODO: Implementar gráfico de Chart.js */}
+          <div className="chart-placeholder">
+            <p>Gráfico de consumo próximamente</p>
+          </div>
         </div>
       </div>
     </div>
