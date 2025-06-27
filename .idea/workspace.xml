@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/combustibles/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/combustibles/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +103,7 @@
       <workItem from="1749860268483" duration="8537000" />
       <workItem from="1749922565077" duration="15528000" />
       <workItem from="1749944546678" duration="86000" />
-      <workItem from="1750632527309" duration="38907000" />
+      <workItem from="1750632527309" duration="43687000" />
     </task>
     <servers />
   </component>

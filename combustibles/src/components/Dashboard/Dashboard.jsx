@@ -5,18 +5,8 @@ import DashboardLayout from './DashboardLayout';
 import DashboardMain from './DashboardMain';
 import InventoryMain from '../Inventory/InventoryMain';
 import MovementsMain from '../Movements/MovementsMain';
+import VehiclesMain from '../Vehicles/VehiclesMain';
 import './Dashboard.css';
-
-const VehiclesModule = () => (
-  <div className="module-placeholder">
-    <h2>🚜 Módulo de Vehículos</h2>
-    <p>Gestión de maquinaria forestal</p>
-    <div className="coming-soon">
-      <span>🚧 En desarrollo</span>
-      <p>Próximamente: Catálogo de vehículos, tracking de consumo, y mantenimientos.</p>
-    </div>
-  </div>
-);
 
 const SuppliersModule = () => (
   <div className="module-placeholder">
@@ -52,7 +42,7 @@ const Dashboard = () => {
       case 'movements':
         return <MovementsMain />;
       case 'vehicles':
-        return <VehiclesModule />;
+        return <VehiclesMain />;
       case 'suppliers':
         return <SuppliersModule />;
       case 'reports':
