@@ -1,9 +1,9 @@
 # ⛽ COMBUSTIBLES - Gestión de Stock y Combustibles
 
-## Estado Actual: INVENTARIO + MOVIMIENTOS + VEHÍCULOS (100%) COMPLETADOS (Enero 2025)
+## Estado Actual: SISTEMA COMPLETO + INVITACIONES + ADMIN (100%) OPERATIVO (Enero 2025)
 
 **URL en vivo**: https://forestechdecolombia.com.co/combustibles/
-**Estado**: 3 módulos core 100% operativos y desplegados
+**Estado**: Sistema completo con autenticación, invitaciones y panel admin funcionando
 
 ## Descripción
 
@@ -61,6 +61,30 @@ npm run lint        # ESLint
 - **Métricas**: Consumo, eficiencia, mantenimientos
 - **Integración**: Dashboard funcional con navegación
 
+### ✅ Fase 6 - Sistema de Invitaciones y Administración (100% COMPLETADO)
+- **Backend Invitaciones**: invitationService.js completo con CRUD
+  - Generación códigos alfanuméricos 8 caracteres
+  - Validación y marcado como usados
+  - Expiración automática 7 días
+  - Estados: pending, used, expired, cancelled
+- **Backend Usuarios**: userService.js con soporte invitaciones
+  - Creación usuarios con rol asignado por invitación
+  - Validación email coincidente con invitación
+- **Autenticación Renovada**: Auth.jsx con 3 vistas (login, validar, registro)
+  - Vista login con email/password
+  - Vista validación código invitación
+  - Vista registro completo con datos usuario
+- **Panel Admin**: AdminMain.jsx con gestión completa invitaciones
+  - Tabla invitaciones con filtros por estado
+  - Modal creación nuevas invitaciones
+  - Cancelación invitaciones pendientes
+  - Real-time updates con Firebase
+- **Permisos**: Solo contacto.evert@gmail.com como admin
+- **UI Completa**: CSS profesional para todas las interfaces
+- **Integración**: Firestore rules y deploy funcional
+- **Botón Logout**: Implementado en DashboardLayout
+- **Deploy**: Sistema completamente funcional en producción
+
 ## Funcionalidades Implementadas
 
 ### 🛢️ Inventario CRUD (✅ COMPLETO)
@@ -82,6 +106,14 @@ npm run lint        # ESLint
 - **Compatibilidad**: Diesel, Gasolina, ACPM, Mixto
 - **Mantenimientos**: Sistema completo de tracking de mantenimientos
 
+### 🔐 Sistema de Autenticación e Invitaciones (✅ 100% COMPLETO)
+- **Autenticación Multi-Vista**: Login, validación código, registro
+- **Invitaciones**: Códigos alfanuméricos 8 caracteres con expiración
+- **Roles**: Admin (contacto.evert@gmail.com), Empleado, Cliente
+- **Panel Admin**: Gestión completa invitaciones con real-time
+- **Seguridad**: Validación email, códigos únicos, roles por invitación
+- **Logout**: Botón cerrar sesión integrado en dashboard
+
 ### 📊 Dashboard Operativo
 - **Navegación**: Sidebar con módulos
 - **Métricas**: Resumen general en tiempo real
@@ -98,14 +130,20 @@ combustibles/
 │   │   ├── Inventory/          # Inventario CRUD ✅
 │   │   ├── Movements/          # Movimientos CRUD ✅
 │   │   ├── Vehicles/           # Vehículos 100% ✅ (9 componentes completos)
+│   │   ├── Auth/               # Autenticación ✅ (Auth.jsx + CSS)
+│   │   ├── Admin/              # Panel Admin ✅ (AdminMain.jsx + CSS)
 │   │   ├── Suppliers/          # Proveedores (próximo)
 │   │   └── Reports/            # Reportes (próximo)
-│   ├── services/
+│   ├── firebase/
 │   │   ├── inventoryService.js # CRUD completo ✅
 │   │   ├── movementsService.js # CRUD completo ✅
-│   │   └── vehiclesService.js  # CRUD completo ✅
+│   │   ├── vehiclesService.js  # CRUD completo ✅
+│   │   ├── invitationService.js # Sistema invitaciones ✅
+│   │   └── userService.js      # Gestión usuarios ✅
 │   ├── contexts/
 │   │   └── CombustiblesContext.jsx # Context Firebase ✅
+│   ├── constants/
+│   │   └── roles.js            # Definición roles sistema ✅
 │   └── utils/                  # Calculations (próximo)
 ```
 
