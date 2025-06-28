@@ -11,6 +11,7 @@ import {
   MOVEMENT_STATUS 
 } from '../../services/movementsService';
 import { getAllVehicles } from '../../services/vehiclesService';
+import { getAllInventoryItems } from '../../services/inventoryService';
 
 const MovementModal = ({ 
   isOpen, 
@@ -37,6 +38,8 @@ const MovementModal = ({
   const [validationErrors, setValidationErrors] = useState({});
   const [vehicles, setVehicles] = useState([]);
   const [loadingVehicles, setLoadingVehicles] = useState(false);
+  const [inventory, setInventory] = useState([]);
+  const [stockWarning, setStockWarning] = useState('');
 
   // Tipos de combustible disponibles
   const fuelTypes = [
@@ -55,23 +58,27 @@ const MovementModal = ({
     'Estación Móvil'
   ];
 
-  // Cargar vehículos cuando se abre el modal
+  // Cargar vehículos y inventario cuando se abre el modal
   useEffect(() => {
-    const loadVehicles = async () => {
+    const loadData = async () => {
       if (isOpen) {
         setLoadingVehicles(true);
         try {
-          const vehiclesData = await getAllVehicles();
+          const [vehiclesData, inventoryResult] = await Promise.all([
+            getAllVehicles(),
+            getAllInventoryItems()
+          ]);
           setVehicles(vehiclesData);
+          setInventory(inventoryResult.success ? inventoryResult.data : []);
         } catch (error) {
-          console.error('Error al cargar vehículos:', error);
+          console.error('Error al cargar datos:', error);
         } finally {
           setLoadingVehicles(false);
         }
       }
     };
 
-    loadVehicles();
+    loadData();
   }, [isOpen]);
 
   // Inicializar formulario
@@ -123,6 +130,44 @@ const MovementModal = ({
     }
   }, [formData.fuelType]);
 
+  // Validar stock disponible en tiempo real para salidas y transferencias
+  useEffect(() => {
+    const validateStock = () => {
+      setStockWarning('');
+      
+      // Solo validar para salidas y transferencias con datos completos
+      if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
+          formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
+        
+        // Buscar inventario para el combustible y ubicación específicos
+        const availableStock = inventory.find(item => 
+          item.fuelType === formData.fuelType && 
+          item.location === formData.location
+        );
+
+        if (!availableStock) {
+          setStockWarning(`⚠️ No hay inventario de ${formData.fuelType} en ${formData.location}`);
+          return;
+        }
+
+        const requestedQuantity = parseFloat(formData.quantity);
+        const currentStock = availableStock.currentStock || 0;
+
+        if (requestedQuantity > currentStock) {
+          setStockWarning(
+            `⚠️ Stock insuficiente. Disponible: ${currentStock.toFixed(2)} gal, Solicitado: ${requestedQuantity.toFixed(2)} gal`
+          );
+        } else if (requestedQuantity > currentStock * 0.8) {
+          setStockWarning(
+            `⚠️ Atención: Esta salida dejará poco stock (${(currentStock - requestedQuantity).toFixed(2)} gal restantes)`
+          );
+        }
+      }
+    };
+
+    validateStock();
+  }, [formData.type, formData.fuelType, formData.location, formData.quantity, inventory]);
+
   // Manejar cambios en el formulario
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -170,6 +215,27 @@ const MovementModal = ({
 
     if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA && !formData.destinationLocation) {
       errors.destinationLocation = 'Las transferencias requieren una ubicación destino';
+    }
+
+    // Validación crítica de stock para salidas y transferencias
+    if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
+        formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
+      
+      const availableStock = inventory.find(item => 
+        item.fuelType === formData.fuelType && 
+        item.location === formData.location
+      );
+
+      if (!availableStock) {
+        errors.quantity = `No hay inventario de ${formData.fuelType} en ${formData.location}`;
+      } else {
+        const requestedQuantity = parseFloat(formData.quantity);
+        const currentStock = availableStock.currentStock || 0;
+
+        if (requestedQuantity > currentStock) {
+          errors.quantity = `Stock insuficiente. Disponible: ${currentStock.toFixed(2)} gal`;
+        }
+      }
     }
 
     setValidationErrors(errors);
@@ -327,6 +393,11 @@ const MovementModal = ({
                 />
                 {validationErrors.quantity && (
                   <span className="field-error">{validationErrors.quantity}</span>
+                )}
+                {stockWarning && !validationErrors.quantity && (
+                  <div className="stock-warning">
+                    {stockWarning}
+                  </div>
                 )}
               </div>
             </div>
