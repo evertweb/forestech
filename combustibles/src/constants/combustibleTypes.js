@@ -9,7 +9,8 @@ export const FUEL_TYPES = {
   GASOLINE: 'gasoline', 
   ACPM: 'acpm',
   LUBRICANTS: 'lubricants',
-  TWO_STROKE: 'two_stroke'
+  TWO_STROKE: 'two_stroke',
+  MIXED: 'mixed'  // Agregado desde vehicleTypes.js para compatibilidad
 };
 
 // Información detallada por tipo de combustible
@@ -63,6 +64,16 @@ export const FUEL_INFO = {
     icon: '🪚',
     density: 0.78, // kg/L aproximado
     priceUnit: 'COP/litro'
+  },
+  [FUEL_TYPES.MIXED]: {
+    name: 'Mixto',
+    description: 'Compatible con múltiples tipos de combustible',
+    unit: 'galones',
+    category: 'Flexible',
+    color: '#64748b', // slate-500
+    icon: '🔄',
+    density: 0.80, // kg/L promedio
+    priceUnit: 'COP/galón'
   }
 };
 

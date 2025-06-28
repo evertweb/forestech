@@ -168,6 +168,27 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 #### 🌐 **URLs Actualizadas:**
 - ⛽ **Combustibles**: https://forestechdecolombia.com.co/combustibles/ ✅ DESPLEGADO
 
+### 🔧 **Enero 28, 2025 - Corrección Función Crítica**
+**Commit:** `fix(combustibles): Implementar función crítica revertInventoryChanges`
+
+#### ✅ **Problema Crítico Resuelto:**
+- **Función `revertInventoryChanges`** completamente implementada en `movementsService.js:508-586`
+- **Eliminación de movimientos completados** ahora funciona correctamente
+- **Operaciones inversas seguras** para todos los tipos de movimiento (entrada, salida, ajuste, transferencia)
+- **Prevención de stock negativo** con warnings automáticos y ajuste a 0
+- **Registro de auditoría** con tipo 'reversion' y notas descriptivas
+
+#### 🔧 **Mejoras Técnicas:**
+- Lógica de reversión robusta con manejo de errores completo
+- Validación de inventario antes de revertir cambios
+- Logging detallado para debugging y auditoría
+- Transacciones seguras con rollback automático en caso de error
+
+#### 📊 **Verificaciones:**
+- ✅ **Lint**: 5 warnings menores (no errores críticos)
+- ✅ **Build**: Exitoso (61KB CSS + 922KB JS)
+- ✅ **Funcionalidad**: Eliminación de movimientos completados operativa
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.

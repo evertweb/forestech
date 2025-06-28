@@ -196,48 +196,8 @@ export const VEHICLE_INFO = {
   }
 };
 
-// Tipos de combustible compatibles
-export const FUEL_TYPES = {
-  GASOLINE: 'gasoline',
-  DIESEL: 'diesel',
-  ACPM: 'acpm',
-  TWO_STROKE: 'two_stroke',
-  MIXED: 'mixed'
-};
-
-// Información de combustibles
-export const FUEL_INFO = {
-  [FUEL_TYPES.GASOLINE]: {
-    name: 'Gasolina',
-    color: '#10b981',
-    icon: '⛽',
-    description: 'Combustible para vehículos livianos'
-  },
-  [FUEL_TYPES.DIESEL]: {
-    name: 'Diésel',
-    color: '#f59e0b',
-    icon: '🛢️',
-    description: 'Combustible para maquinaria pesada'
-  },
-  [FUEL_TYPES.ACPM]: {
-    name: 'ACPM',
-    color: '#8b5cf6',
-    icon: '🚛',
-    description: 'Aceite combustible para motor'
-  },
-  [FUEL_TYPES.TWO_STROKE]: {
-    name: 'Mezcla 2T',
-    color: '#ef4444',
-    icon: '🪚',
-    description: 'Gasolina mezclada con aceite'
-  },
-  [FUEL_TYPES.MIXED]: {
-    name: 'Mixto',
-    color: '#64748b',
-    icon: '🔄',
-    description: 'Compatible con múltiples combustibles'
-  }
-};
+// NOTA: FUEL_TYPES y FUEL_INFO ahora están centralizados en combustibleTypes.js
+// Este archivo se enfoca únicamente en tipos y categorías de vehículos
 
 // Función para obtener vehículos por categoría
 export const getVehiclesByCategory = (category) => {

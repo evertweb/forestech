@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
-import { VEHICLE_INFO, FUEL_TYPES } from '../../constants/vehicleTypes';
+import { VEHICLE_INFO } from '../../constants/vehicleTypes';
+import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
 
 const VehicleModal = ({ 
   isOpen, 
