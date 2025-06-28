@@ -12,6 +12,7 @@ import {
 } from '../../services/movementsService';
 import { getAllVehicles } from '../../services/vehiclesService';
 import { getAllInventoryItems } from '../../services/inventoryService';
+import { getAllSuppliers } from '../../services/suppliersService';
 import { validateStockAvailability, formatCurrency } from '../../utils/calculations';
 
 const MovementModal = ({ 
@@ -41,12 +42,12 @@ const MovementModal = ({
   const [loadingVehicles, setLoadingVehicles] = useState(false);
   const [inventory, setInventory] = useState([]);
   const [stockWarning, setStockWarning] = useState('');
+  const [suppliers, setSuppliers] = useState([]);
 
   // Tipos de combustible disponibles
   const fuelTypes = [
-    { value: 'Diesel', label: 'Diesel 🚛', price: 12500 },
+    { value: 'Diesel', label: 'Diesel/ACPM 🚛', price: 12500 },
     { value: 'Gasolina', label: 'Gasolina 🚗', price: 14200 },
-    { value: 'ACPM', label: 'ACPM 🚚', price: 13800 },
     { value: 'Lubricante', label: 'Lubricante 🛢️', price: 45000 }
   ];
 
@@ -59,18 +60,20 @@ const MovementModal = ({
     'Estación Móvil'
   ];
 
-  // Cargar vehículos y inventario cuando se abre el modal
+  // Cargar vehículos, inventario y proveedores cuando se abre el modal
   useEffect(() => {
     const loadData = async () => {
       if (isOpen) {
         setLoadingVehicles(true);
         try {
-          const [vehiclesData, inventoryResult] = await Promise.all([
+          const [vehiclesData, inventoryResult, suppliersResult] = await Promise.all([
             getAllVehicles(),
-            getAllInventoryItems()
+            getAllInventoryItems(),
+            getAllSuppliers()
           ]);
           setVehicles(vehiclesData);
           setInventory(inventoryResult.success ? inventoryResult.data : []);
+          setSuppliers(suppliersResult.success ? suppliersResult.data : []);
         } catch (error) {
           console.error('Error al cargar datos:', error);
         } finally {
@@ -160,10 +163,19 @@ const MovementModal = ({
 
   // Manejar cambios en el formulario
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    // Si se cambia el tipo de movimiento, limpiar la ubicación para que el usuario vuelva a seleccionar
+    if (field === 'type') {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+        location: value === MOVEMENT_TYPES.ENTRADA ? '' : 'Principal'
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
 
     // Limpiar error de validación para este campo
     if (validationErrors[field]) {
@@ -199,6 +211,10 @@ const MovementModal = ({
     }
 
     // Validaciones específicas por tipo
+    if (formData.type === MOVEMENT_TYPES.ENTRADA && !formData.location) {
+      errors.location = 'Las entradas requieren un proveedor';
+    }
+
     if (formData.type === MOVEMENT_TYPES.SALIDA && !formData.vehicleId) {
       errors.vehicleId = 'Las salidas requieren un vehículo';
     }
@@ -409,18 +425,39 @@ const MovementModal = ({
             {/* Ubicación y Vehículo */}
             <div className="form-row">
               <div className="form-group">
-                <label>Ubicación</label>
-                <select
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  disabled={mode === 'view'}
-                >
-                  {locations.map(location => (
-                    <option key={location} value={location}>
-                      📍 {location}
-                    </option>
-                  ))}
-                </select>
+                <label>
+                  {formData.type === MOVEMENT_TYPES.ENTRADA ? 'Proveedor *' : 'Ubicación'}
+                </label>
+                {formData.type === MOVEMENT_TYPES.ENTRADA ? (
+                  <select
+                    value={formData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    disabled={mode === 'view'}
+                    className={validationErrors.location ? 'error' : ''}
+                  >
+                    <option value="">Seleccionar proveedor...</option>
+                    {suppliers.filter(s => s.status === 'active').map(supplier => (
+                      <option key={supplier.id} value={supplier.name}>
+                        🏪 {supplier.name} - {supplier.city}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    value={formData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    disabled={mode === 'view'}
+                  >
+                    {locations.map(location => (
+                      <option key={location} value={location}>
+                        📍 {location}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {validationErrors.location && (
+                  <span className="field-error">{validationErrors.location}</span>
+                )}
               </div>
 
               <div className="form-group">

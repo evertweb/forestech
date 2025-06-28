@@ -86,15 +86,15 @@ const InventoryMain = () => {
     return true;
   });
 
-  // Handlers
-  const handleCreateNew = () => {
-    if (!hasPermission('canManageInventory')) {
-      alert('No tienes permisos para crear items de inventario');
-      return;
-    }
-    setEditingItem(null);
-    setShowModal(true);
-  };
+  // Handlers - Función deshabilitada pero mantenida para evitar errores de referencia
+  // const handleCreateNew = () => {
+  //   if (!hasPermission('canManageInventory')) {
+  //     alert('No tienes permisos para crear items de inventario');
+  //     return;
+  //   }
+  //   setEditingItem(null);
+  //   setShowModal(true);
+  // };
 
   const handleEdit = (item) => {
     if (!hasPermission('canManageInventory')) {
@@ -158,14 +158,12 @@ const InventoryMain = () => {
           <p>Control de stock de combustibles en tiempo real</p>
         </div>
         
-        {hasPermission('canManageInventory') && (
-          <button 
-            className="btn btn-primary"
-            onClick={handleCreateNew}
-          >
-            ➕ Agregar Combustible
-          </button>
-        )}
+        {/* Botón deshabilitado - Solo agregar combustibles desde Movimientos */}
+        <div className="inventory-info">
+          <span className="info-text">
+            💡 Los combustibles se agregan automáticamente desde la pestaña <strong>Movimientos</strong>
+          </span>
+        </div>
       </div>
 
       {/* Statistics */}
@@ -228,17 +226,9 @@ const InventoryMain = () => {
             <p>
               {searchTerm || filterStatus !== 'all' 
                 ? 'No se encontraron items con los filtros aplicados'
-                : 'Comienza agregando tu primer tipo de combustible al inventario'
+                : 'Ve a la pestaña Movimientos para crear una ENTRADA de combustible'
               }
             </p>
-            {hasPermission('canManageInventory') && (
-              <button 
-                className="btn btn-primary"
-                onClick={handleCreateNew}
-              >
-                ➕ Agregar Primer Combustible
-              </button>
-            )}
           </div>
         ) : (
           <>

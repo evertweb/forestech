@@ -11,8 +11,7 @@ import {
   query, 
   where, 
   orderBy, 
-  onSnapshot,
-  writeBatch
+  onSnapshot
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { FUEL_TYPES } from "../constants/combustibleTypes";

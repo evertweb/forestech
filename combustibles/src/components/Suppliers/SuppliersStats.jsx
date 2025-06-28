@@ -1,7 +1,7 @@
 // combustibles/src/components/Suppliers/SuppliersStats.jsx
 // Componente de estadísticas de proveedores
 import React from 'react';
-import { formatNumber, formatCurrency, formatPercentage } from '../../utils/calculations';
+import { formatNumber, formatPercentage } from '../../utils/calculations';
 
 const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
   if (!stats) return null;
