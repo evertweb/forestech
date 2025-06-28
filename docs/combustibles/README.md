@@ -1,9 +1,9 @@
 # ⛽ COMBUSTIBLES - Gestión de Stock y Combustibles
 
-## Estado Actual: SISTEMA COMPLETO + INVITACIONES + ADMIN (100%) OPERATIVO (Enero 2025)
+## Estado Actual: SISTEMA 83% COMPLETADO - PROVEEDORES IMPLEMENTADO (Enero 2025)
 
 **URL en vivo**: https://forestechdecolombia.com.co/combustibles/
-**Estado**: Sistema completo con autenticación, invitaciones y panel admin funcionando
+**Estado**: 5 de 6 módulos completados - Solo falta módulo Reportes para 100%
 
 ## Descripción
 
@@ -61,7 +61,21 @@ npm run lint        # ESLint
 - **Métricas**: Consumo, eficiencia, mantenimientos
 - **Integración**: Dashboard funcional con navegación
 
-### ✅ Fase 6 - Sistema de Invitaciones y Administración (100% COMPLETADO)
+### ✅ Fase 6 - Módulo Proveedores (100% COMPLETADO - ENERO 28, 2025)
+- **suppliersService.js** (650+ líneas) - CRUD completo Firebase con validaciones
+- **SuppliersMain.jsx** (340+ líneas) - Componente principal con real-time
+- **SuppliersStats.jsx** (200+ líneas) - Estadísticas avanzadas e insights
+- **SuppliersFilters.jsx** (275+ líneas) - Filtros avanzados y búsqueda
+- **SuppliersCards.jsx** (325+ líneas) - Vista tarjetas con acciones rápidas
+- **SuppliersTable.jsx** (450+ líneas) - Vista tabla con ordenamiento
+- **SupplierModal.jsx** (550+ líneas) - Modal crear/editar con 4 tabs
+- **Suppliers.css** (1,500+ líneas) - Estilos completos y responsive
+- **Modal con 4 tabs**: Básico, Contacto, Productos, Comercial
+- **Sistema de rating**: 1-5 estrellas con evaluaciones
+- **Proveedores preferidos**: Con badges y marcado especial
+- **Exportación CSV**: Funcional con todos los datos
+
+### ✅ Fase 7 - Sistema de Invitaciones y Administración (100% COMPLETADO)
 - **Backend Invitaciones**: invitationService.js completo con CRUD
   - Generación códigos alfanuméricos 8 caracteres
   - Validación y marcado como usados
@@ -106,6 +120,17 @@ npm run lint        # ESLint
 - **Compatibilidad**: Diesel, Gasolina, ACPM, Mixto
 - **Mantenimientos**: Sistema completo de tracking de mantenimientos
 
+### 🏪 Proveedores CRUD (✅ 100% COMPLETO - ENERO 28, 2025)
+- **CRUD completo**: Base de datos proveedores con validaciones
+- **4 tabs modal**: Información básica, contacto, productos, comercial
+- **Sistema de rating**: 1-5 estrellas con evaluaciones detalladas
+- **Filtros avanzados**: Por estado, categoría, tipo combustible, búsqueda
+- **Vista dual**: Cards y tabla con ordenamiento dinámico
+- **Proveedores preferidos**: Sistema de marcado y badges especiales
+- **Estadísticas**: Insights automáticos por categoría y tipo
+- **Exportación CSV**: Datos completos descargables
+- **Acciones rápidas**: Llamar y email directo desde interfaz
+
 ### 🔐 Sistema de Autenticación e Invitaciones (✅ 100% COMPLETO)
 - **Autenticación Multi-Vista**: Login, validación código, registro
 - **Invitaciones**: Códigos alfanuméricos 8 caracteres con expiración
@@ -132,12 +157,14 @@ combustibles/
 │   │   ├── Vehicles/           # Vehículos 100% ✅ (9 componentes completos)
 │   │   ├── Auth/               # Autenticación ✅ (Auth.jsx + CSS)
 │   │   ├── Admin/              # Panel Admin ✅ (AdminMain.jsx + CSS)
-│   │   ├── Suppliers/          # Proveedores (próximo)
-│   │   └── Reports/            # Reportes (próximo)
-│   ├── firebase/
+│   │   ├── Suppliers/          # Proveedores 100% ✅ (8 componentes completos)
+│   │   └── Reports/            # Reportes (próximo - último módulo)
+│   ├── services/
 │   │   ├── inventoryService.js # CRUD completo ✅
 │   │   ├── movementsService.js # CRUD completo ✅
 │   │   ├── vehiclesService.js  # CRUD completo ✅
+│   │   └── suppliersService.js # CRUD completo ✅ (NUEVO)
+│   ├── firebase/
 │   │   ├── invitationService.js # Sistema invitaciones ✅
 │   │   └── userService.js      # Gestión usuarios ✅
 │   ├── contexts/
@@ -249,6 +276,15 @@ combustibles/
 **4. 📈 REPORTES** - Dashboard ejecutivo final
 
 ## 🛡️ **MEJORAS CRÍTICAS APLICADAS - ENERO 28, 2025**
+
+### ✅ **Mejoras UX y Workflow (NUEVAS)**
+- **Problema**: Workflow confuso, duplicados en combustibles, falta trazabilidad proveedores
+- **Solución**: 
+  1. Inventario solo lectura con guías
+  2. Unificación Diesel/ACPM 
+  3. Integración proveedores en movimientos ENTRADA
+- **Archivos**: `InventoryMain.jsx`, `MovementModal.jsx`
+- **Resultado**: UX simplificada, menos errores, trazabilidad completa
 
 ### ✅ **Función Reversión de Inventario (CRÍTICA)**
 - **Problema**: `revertInventoryChanges` no implementada impedía eliminar movimientos

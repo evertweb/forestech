@@ -35,9 +35,9 @@ La documentación completa está organizada en módulos para mejor rendimiento:
 
 ### ⛽ **COMBUSTIBLES**
 📖 **[Ver docs/combustibles/](./docs/combustibles/README.md)**
-- Módulo inventario CRUD completado (Enero 2025)
-- Dashboard operativo con navegación
-- Próximos: Movimientos, Vehículos, Reportes
+- **SISTEMA 83% COMPLETADO** (5/6 módulos) - Enero 2025
+- ✅ Inventario, Movimientos, Vehículos, Proveedores, Auth/Admin
+- ❌ Pendiente: Módulo Reportes (última funcionalidad)
 - URL: https://forestechdecolombia.com.co/combustibles/
 
 ### 🔧 **SHARED**
@@ -215,6 +215,77 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Lint**: Solo warnings menores de dependencias useEffect
 - ✅ **Build**: Exitoso (61KB CSS + 923KB JS)
 - ✅ **Funcionalidad**: Validación de stock operativa en tiempo real
+
+### 🏪 **Enero 28, 2025 - MÓDULO PROVEEDORES COMPLETO**
+**Commit:** `feat(combustibles): Implementar módulo Proveedores completo con integración total`
+
+#### ✅ **SISTEMA PROVEEDORES 100% IMPLEMENTADO (4,232+ líneas):**
+- **suppliersService.js** (650+ líneas) - CRUD completo Firebase con validaciones
+- **SuppliersMain.jsx** (340+ líneas) - Componente principal con real-time
+- **SuppliersStats.jsx** (200+ líneas) - Estadísticas avanzadas e insights
+- **SuppliersFilters.jsx** (275+ líneas) - Filtros avanzados y búsqueda
+- **SuppliersCards.jsx** (325+ líneas) - Vista tarjetas con acciones rápidas
+- **SuppliersTable.jsx** (450+ líneas) - Vista tabla con ordenamiento
+- **SupplierModal.jsx** (550+ líneas) - Modal crear/editar con 4 tabs
+- **Suppliers.css** (1,500+ líneas) - Estilos completos y responsive
+
+#### 🔧 **FUNCIONALIDADES AVANZADAS:**
+- **Modal con 4 tabs**: Básico, Contacto, Productos, Comercial
+- **Filtros inteligentes**: Estado, Categoría, Tipo combustible, Búsqueda
+- **Vista dual**: Cards y tabla con ordenamiento por columnas
+- **Estadísticas por categoría**: Tipo y rating con insights automáticos
+- **Sistema de rating**: 1-5 estrellas con evaluaciones
+- **Proveedores preferidos**: Con badges y marcado especial
+- **Validación precios**: Por tipo de combustible
+- **Acciones rápidas**: Llamar, email directo desde interfaz
+
+#### 🔗 **INTEGRACIÓN COMPLETA:**
+- ✅ **Dashboard principal** integrado con navegación
+- ✅ **Sistema de permisos** `canManageSuppliers` implementado
+- ✅ **Real-time Firebase** con `onSnapshot` automático
+- ✅ **Exportación CSV** funcional con todos los datos
+- ✅ **Responsive design** mobile-first
+
+#### 📊 **ESTADO ACTUAL COMBUSTIBLES (83% COMPLETADO):**
+- ✅ **Inventario** (100%) - CRUD completo con validaciones
+- ✅ **Movimientos** (100%) - 4 tipos + validación stock tiempo real
+- ✅ **Vehículos** (100%) - Gestión completa maquinaria forestal
+- ✅ **Proveedores** (100%) - **RECIÉN COMPLETADO**
+- ✅ **Auth/Admin** (100%) - Sistema invitaciones + permisos
+- ❌ **Reportes** (0%) - **ÚNICO MÓDULO PENDIENTE PARA 100%**
+
+### 🔧 **Enero 28, 2025 - Mejoras UX y Workflow (NUEVAS)**
+**Commit:** `feat(combustibles): Mejorar UX - deshabilitar inventario directo, unificar combustibles, integrar proveedores`
+
+#### ✅ **Mejoras de Experiencia de Usuario Implementadas:**
+1. **Inventario: Solo lectura por diseño**
+   - Deshabilitado botón "Agregar Combustible" en pestaña Inventario
+   - Mensaje guía: "Los combustibles se agregan automáticamente desde Movimientos"
+   - Estado vacío redirige a pestaña Movimientos para crear ENTRADA
+   - **Justificación**: Workflow más intuitivo y control de inventario centralizado
+
+2. **Formulario Movimientos: Combustibles optimizados**
+   - Unificado "Diesel" y "ACPM" como "Diesel/ACPM 🚛" (mismo precio)
+   - Eliminado duplicado que confundía a usuarios
+   - Solo 3 tipos: Diesel/ACPM, Gasolina, Lubricante
+   - **Beneficio**: Menos opciones, decisiones más claras
+
+3. **Movimientos ENTRADA: Integración con Proveedores**
+   - Campo "Ubicación" cambia a "Proveedor *" para tipo ENTRADA
+   - Dropdown con proveedores activos: "🏪 {nombre} - {ciudad}"
+   - Validación requerida: selección obligatoria de proveedor
+   - Auto-reset al cambiar tipo de movimiento
+   - **Resultado**: Trazabilidad completa desde compra hasta consumo
+
+#### 🔧 **Archivos Modificados:**
+- `combustibles/src/components/Inventory/InventoryMain.jsx` - UX solo lectura
+- `combustibles/src/components/Movements/MovementModal.jsx` - Integración proveedores
+
+#### 📊 **Impacto en Workflow:**
+- ✅ **Flujo simplificado**: Inventario → Movimientos → Proveedores
+- ✅ **Menos errores**: Validaciones específicas por tipo movimiento  
+- ✅ **Mejor trazabilidad**: Cada entrada vinculada a proveedor específico
+- ✅ **UX consistente**: Labels dinámicos según contexto
 
 ### 🔧 **Enero 28, 2025 - Sistema Centralizado de Cálculos**
 **Commit:** `feat(combustibles): Implementar sistema centralizado calculations.js con integración completa`
