@@ -189,6 +189,33 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Build**: Exitoso (61KB CSS + 922KB JS)
 - ✅ **Funcionalidad**: Eliminación de movimientos completados operativa
 
+### 🛡️ **Enero 28, 2025 - Validación de Stock en Tiempo Real**
+**Commit:** `feat(combustibles): Implementar validación de stock en tiempo real para movimientos`
+
+#### ✅ **Sistema de Validación Crítica:**
+- **Validación tiempo real** para movimientos SALIDA y TRANSFERENCIA
+- **Feedback visual inteligente** con advertencias específicas por escenario
+- **Bloqueo preventivo** de movimientos sin stock suficiente
+- **Integración robusta** con inventario existente
+
+#### 🔧 **Funcionalidades Implementadas:**
+- **Validación automática** al cambiar cantidad/ubicación/combustible
+- **Advertencias visuales** cuando stock < requerido
+- **Alertas de stock bajo** cuando queda < 20% después del movimiento
+- **Detección de inventario faltante** por ubicación específica
+- **Corrección de imports** y manejo de respuestas del servicio
+
+#### 🚫 **Prevención de Errores:**
+- **Stock insuficiente**: Muestra disponible vs solicitado
+- **Sin inventario**: Detecta cuando no existe el combustible en ubicación
+- **Validación crítica**: Impide envío de formulario con errores
+- **Manejo robusto**: Respuestas del servicio con formato `{success, data}`
+
+#### 📊 **Verificaciones:**
+- ✅ **Lint**: Solo warnings menores de dependencias useEffect
+- ✅ **Build**: Exitoso (61KB CSS + 923KB JS)
+- ✅ **Funcionalidad**: Validación de stock operativa en tiempo real
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.

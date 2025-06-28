@@ -243,10 +243,38 @@ combustibles/
 ## 📋 **ORDEN LÓGICO DESARROLLO - GUARDADO EN MEMORIA**
 
 ### Secuencia Arquitectónica Definida:
-**1. 📊 MOVIMIENTOS** - Entradas/salidas combustible ✅ **COMPLETADO**
+**1. 📊 MOVIMIENTOS** - Entradas/salidas combustible ✅ **COMPLETADO CON VALIDACIONES**
 **2. 🚜 VEHÍCULOS** - Catálogo maquinaria forestal ✅ **COMPLETADO**
 **3. 🏪 PROVEEDORES** - Gestión proveedores y compras (PRÓXIMO)
 **4. 📈 REPORTES** - Dashboard ejecutivo final
+
+## 🛡️ **MEJORAS CRÍTICAS APLICADAS - ENERO 28, 2025**
+
+### ✅ **Función Reversión de Inventario (CRÍTICA)**
+- **Problema**: `revertInventoryChanges` no implementada impedía eliminar movimientos
+- **Solución**: Implementación completa en `movementsService.js:508-586`
+- **Resultado**: Eliminación de movimientos completados funcional
+
+### ✅ **Unificación de Constantes (IMPORTANTE)**
+- **Problema**: FUEL_TYPES duplicados entre `combustibleTypes.js` y `vehicleTypes.js`
+- **Solución**: Centralización en `combustibleTypes.js` y actualización de imports
+- **Resultado**: Consistencia total y eliminación de conflictos
+
+### ✅ **Validación de Stock en Tiempo Real (CRÍTICA)**
+- **Problema**: Movimientos de SALIDA/TRANSFERENCIA sin validación de stock disponible
+- **Solución**: Sistema completo de validación en `MovementModal.jsx` con:
+  - Validación automática en tiempo real con `useEffect`
+  - Feedback visual inteligente para diferentes escenarios
+  - Bloqueo preventivo de movimientos sin stock suficiente
+  - Integración robusta con `getAllInventoryItems` service
+- **Resultado**: Prevención completa de errores de stock insuficiente
+
+### 🎯 **Estado Actual Mejorado**
+El módulo MOVIMIENTOS ahora incluye **validaciones robustas** que garantizan:
+- ❌ **Imposible** crear movimientos con stock insuficiente
+- ⚠️ **Advertencias** visuales para stock bajo
+- 🔄 **Validación tiempo real** al cambiar datos del formulario
+- 🛡️ **Prevención de errores** antes del envío
 
 ### Flujo de Dependencias:
 ```
