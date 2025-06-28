@@ -216,6 +216,80 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Build**: Exitoso (61KB CSS + 923KB JS)
 - ✅ **Funcionalidad**: Validación de stock operativa en tiempo real
 
+### 🔧 **Enero 28, 2025 - Sistema Centralizado de Cálculos**
+**Commit:** `feat(combustibles): Implementar sistema centralizado calculations.js con integración completa`
+
+#### ✅ **Archivo Calculations.js Creado:**
+- **Ubicación**: `combustibles/src/utils/calculations.js` (480+ líneas)
+- **25+ funciones matemáticas** centralizadas para toda la aplicación
+- **6 categorías principales**: Inventario, Movimientos, Vehículos, Financiero, Proveedores, Utilidades
+
+#### 🔧 **Funcionalidades Centralizadas:**
+1. **📊 Cálculos de Inventario (6 funciones)**
+   - `calculateTotalInventoryValue()` - Valor total del inventario
+   - `calculateAvailableStock()` - Stock disponible por tipo
+   - `calculateCapacityPercentage()` - Porcentaje de capacidad
+   - `calculateLowStockAlerts()` - Alertas de stock bajo
+   - `calculateInventoryStats()` - Estadísticas completas
+
+2. **🔄 Cálculos de Movimientos (4 funciones)**
+   - `validateStockAvailability()` - Validación robusta de stock
+   - `calculateResultingStock()` - Stock resultante después de movimiento
+   - `calculateMovementCosts()` - Análisis de costos
+   - `calculateMovementsStats()` - Estadísticas generales
+
+3. **🚜 Métricas de Vehículos (4 funciones)**
+   - `calculateVehicleConsumption()` - Consumo promedio por vehículo
+   - `calculateFuelEfficiency()` - Eficiencia de combustible
+   - `calculateOperationalCosts()` - Costos operacionales
+   - `calculateVehiclesStats()` - Estadísticas generales
+
+4. **📈 Cálculos Financieros y Reportes (3 funciones)**
+   - `calculatePeriodValue()` - Valor por período
+   - `calculateLocationCosts()` - Costos por ubicación  
+   - `calculateConsumptionProjections()` - Proyecciones de consumo
+
+5. **🏪 Funciones para Módulo Proveedores (1 función)**
+   - `calculatePriceComparisons()` - Comparación de precios
+
+6. **🔧 Funciones Utilitarias (5 funciones)**
+   - `formatCurrency()` - Formato moneda colombiana
+   - `formatNumber()` - Formato números con separadores
+   - `formatPercentage()` - Formato porcentajes
+   - `isValidPositiveNumber()` - Validación números positivos
+
+#### ✅ **Integración Completa en Componentes:**
+1. **InventoryStats.jsx**
+   - ✅ Reemplazado `formatCurrency` y `formatNumber` locales
+   - ✅ Código más limpio y consistente
+
+2. **MovementsStats.jsx** 
+   - ✅ Reemplazado `formatCurrency` y `formatNumber` locales
+   - ✅ Integración exitosa con utils centralizadas
+
+3. **VehiclesStats.jsx**
+   - ✅ Reemplazado `formatNumber` local
+   - ✅ Mantiene funciones específicas de vehículos
+
+4. **MovementModal.jsx** 
+   - ✅ Integrada validación de stock con `validateStockAvailability()`
+   - ✅ Reemplazado `formatCurrency` local  
+   - ✅ Validación más robusta y centralizada
+
+#### 🚀 **Beneficios Implementados:**
+- ✅ **Mantenimiento simplificado** - Un solo lugar para cambios
+- ✅ **Consistencia garantizada** - Mismos cálculos en toda la app
+- ✅ **Testing facilitado** - Funciones aisladas y testeable
+- ✅ **Preparación futura** - Lista para módulos Proveedores/Reportes
+- ✅ **Eliminado código duplicado** en 4 componentes principales
+- ✅ **Validación de stock mejorada** con lógica unificada
+
+#### 📊 **Verificaciones:**
+- ✅ **Lint**: 5 warnings menores (no relacionados con integración)
+- ✅ **Build**: Exitoso (61KB CSS + 924KB JS)
+- ✅ **Funcionalidad**: Sistema calculations integrado y operativo
+- ✅ **Preparación**: Lista para módulos Proveedores y Reportes
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.

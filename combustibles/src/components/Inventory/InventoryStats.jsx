@@ -2,19 +2,9 @@
 // Componente de estadísticas del inventario
 import React from 'react';
 import { FUEL_INFO } from '../../constants/combustibleTypes';
+import { formatCurrency, formatNumber } from '../../utils/calculations';
 
 const InventoryStats = ({ stats }) => {
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const formatNumber = (num) => {
-    return new Intl.NumberFormat('es-CO').format(num);
-  };
 
   return (
     <div className="inventory-stats">

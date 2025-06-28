@@ -12,6 +12,7 @@ import {
 } from '../../services/movementsService';
 import { getAllVehicles } from '../../services/vehiclesService';
 import { getAllInventoryItems } from '../../services/inventoryService';
+import { validateStockAvailability, formatCurrency } from '../../utils/calculations';
 
 const MovementModal = ({ 
   isOpen, 
@@ -130,42 +131,31 @@ const MovementModal = ({
     }
   }, [formData.fuelType]);
 
-  // Validar stock disponible en tiempo real para salidas y transferencias
+  // Validar stock disponible en tiempo real usando calculations.js
   useEffect(() => {
-    const validateStock = () => {
-      setStockWarning('');
+    setStockWarning('');
+    
+    // Solo validar para salidas y transferencias con datos completos
+    if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
+        formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
       
-      // Solo validar para salidas y transferencias con datos completos
-      if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
-          formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
-        
-        // Buscar inventario para el combustible y ubicación específicos
-        const availableStock = inventory.find(item => 
-          item.fuelType === formData.fuelType && 
-          item.location === formData.location
-        );
+      // Crear objeto de movimiento para validación
+      const movementForValidation = {
+        type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
+        fuelType: formData.fuelType,
+        quantity: formData.quantity,
+        sourceLocation: formData.location
+      };
 
-        if (!availableStock) {
-          setStockWarning(`⚠️ No hay inventario de ${formData.fuelType} en ${formData.location}`);
-          return;
-        }
-
-        const requestedQuantity = parseFloat(formData.quantity);
-        const currentStock = availableStock.currentStock || 0;
-
-        if (requestedQuantity > currentStock) {
-          setStockWarning(
-            `⚠️ Stock insuficiente. Disponible: ${currentStock.toFixed(2)} gal, Solicitado: ${requestedQuantity.toFixed(2)} gal`
-          );
-        } else if (requestedQuantity > currentStock * 0.8) {
-          setStockWarning(
-            `⚠️ Atención: Esta salida dejará poco stock (${(currentStock - requestedQuantity).toFixed(2)} gal restantes)`
-          );
-        }
+      // Usar función centralizada de validación
+      const validation = validateStockAvailability(movementForValidation, inventory);
+      
+      if (!validation.isValid) {
+        setStockWarning(`🚫 ${validation.error}`);
+      } else if (validation.warning) {
+        setStockWarning(`⚠️ ${validation.warning}`);
       }
-    };
-
-    validateStock();
+    }
   }, [formData.type, formData.fuelType, formData.location, formData.quantity, inventory]);
 
   // Manejar cambios en el formulario
@@ -217,24 +207,21 @@ const MovementModal = ({
       errors.destinationLocation = 'Las transferencias requieren una ubicación destino';
     }
 
-    // Validación crítica de stock para salidas y transferencias
+    // Validación crítica de stock usando calculations.js
     if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
         formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
       
-      const availableStock = inventory.find(item => 
-        item.fuelType === formData.fuelType && 
-        item.location === formData.location
-      );
+      const movementForValidation = {
+        type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
+        fuelType: formData.fuelType,
+        quantity: formData.quantity,
+        sourceLocation: formData.location
+      };
 
-      if (!availableStock) {
-        errors.quantity = `No hay inventario de ${formData.fuelType} en ${formData.location}`;
-      } else {
-        const requestedQuantity = parseFloat(formData.quantity);
-        const currentStock = availableStock.currentStock || 0;
-
-        if (requestedQuantity > currentStock) {
-          errors.quantity = `Stock insuficiente. Disponible: ${currentStock.toFixed(2)} gal`;
-        }
+      const validation = validateStockAvailability(movementForValidation, inventory);
+      
+      if (!validation.isValid) {
+        errors.quantity = validation.error;
       }
     }
 
@@ -279,16 +266,6 @@ const MovementModal = ({
 
   // Calcular valor total
   const totalValue = (parseFloat(formData.quantity) || 0) * (parseFloat(formData.unitPrice) || 0);
-
-  // Formatear moneda
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
 
   // Obtener título del modal
   const getModalTitle = () => {

@@ -5,24 +5,10 @@
 
 import React from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
+import { formatCurrency, formatNumber } from '../../utils/calculations';
 
 const MovementsStats = ({ stats, filters }) => {
   if (!stats) return null;
-
-  // Formatear moneda
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
-  // Formatear número
-  const formatNumber = (number) => {
-    return new Intl.NumberFormat('es-CO').format(number);
-  };
 
   // Calcular porcentaje de crecimiento
   const calculateGrowthPercent = (current, previous) => {

@@ -5,14 +5,10 @@
 
 import React from 'react';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { formatNumber } from '../../utils/calculations';
 
 const VehiclesStats = ({ stats, filters }) => {
   if (!stats) return null;
-
-  // Formatear número
-  const formatNumber = (number) => {
-    return new Intl.NumberFormat('es-CO').format(number);
-  };
 
   // Formatear galones
   const formatGallons = (gallons) => {
