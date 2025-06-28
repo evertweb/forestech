@@ -1,5 +1,6 @@
 // combustibles/src/contexts/CombustiblesContext.jsx
 // Context específico para la app de combustibles con autenticación compartida
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';

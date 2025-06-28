@@ -8,7 +8,8 @@ import { CombustiblesContext } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToMovements, 
   getMovementsStats,
-  updateMovementStatus,
+  approveMovement,
+  updateMovement,
   MOVEMENT_TYPES,
   MOVEMENT_STATUS 
 } from '../../services/movementsService';
@@ -142,7 +143,7 @@ const MovementsMain = () => {
       return;
     }
     try {
-      await updateMovementStatus(movementId, MOVEMENT_STATUS.COMPLETADO);
+      await approveMovement(movementId);
       alert('Movimiento aprobado y stock actualizado.');
     } catch (error) {
       console.error('Error al aprobar movimiento:', error);
@@ -155,7 +156,7 @@ const MovementsMain = () => {
       return;
     }
     try {
-      await updateMovementStatus(movementId, MOVEMENT_STATUS.CANCELADO);
+      await updateMovement(movementId, { status: MOVEMENT_STATUS.CANCELADO });
       alert('Movimiento rechazado.');
     } catch (error) {
       console.error('Error al rechazar movimiento:', error);
