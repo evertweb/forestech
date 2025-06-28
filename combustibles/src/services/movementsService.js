@@ -506,10 +506,83 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
  * @param {Object} movement - Datos del movimiento a revertir
  */
 const revertInventoryChanges = async (transaction, movement) => {
-  // Implementar lógica para revertir cambios de inventario
-  // Esta función se usaría al eliminar movimientos completados
-  console.log('🔄 Revirtiendo cambios de inventario para movimiento:', movement.id);
-  // TODO: Implementar lógica de reversión
+  try {
+    console.log('🔄 Revirtiendo cambios de inventario para movimiento:', movement.id);
+
+    // Buscar item de inventario por tipo de combustible y ubicación
+    const inventoryQuery = query(
+      collection(db, INVENTORY_COLLECTION),
+      where('fuelType', '==', movement.fuelType),
+      where('location', '==', movement.location || 'principal')
+    );
+
+    const inventorySnapshot = await getDocs(inventoryQuery);
+    
+    if (inventorySnapshot.empty) {
+      throw new Error(`No se encontró inventario para ${movement.fuelType} en ${movement.location || 'ubicación principal'}`);
+    }
+
+    const inventoryDoc = inventorySnapshot.docs[0];
+    const inventoryData = inventoryDoc.data();
+    const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
+
+    let newQuantity = inventoryData.currentStock;
+
+    // Revertir cambio según tipo de movimiento (operación inversa)
+    switch (movement.type) {
+      case MOVEMENT_TYPES.ENTRADA:
+        // Revertir entrada: restar la cantidad que se había sumado
+        newQuantity -= movement.quantity;
+        if (newQuantity < 0) {
+          console.warn('⚠️ Advertencia: La reversión resulta en stock negativo, ajustando a 0');
+          newQuantity = 0;
+        }
+        break;
+
+      case MOVEMENT_TYPES.SALIDA:
+        // Revertir salida: sumar la cantidad que se había restado
+        newQuantity += movement.quantity;
+        break;
+
+      case MOVEMENT_TYPES.AJUSTE:
+        // Revertir ajuste: restar la cantidad que se había sumado
+        newQuantity -= movement.quantity;
+        if (newQuantity < 0) {
+          console.warn('⚠️ Advertencia: La reversión de ajuste resulta en stock negativo, ajustando a 0');
+          newQuantity = 0;
+        }
+        break;
+
+      case MOVEMENT_TYPES.TRANSFERENCIA:
+        // Revertir transferencia: sumar la cantidad que se había restado del origen
+        newQuantity += movement.quantity;
+        // TODO: También habría que restar del destino si se implementa lógica completa de transferencias
+        break;
+
+      default:
+        throw new Error(`Tipo de movimiento no soportado para reversión: ${movement.type}`);
+    }
+
+    // Actualizar inventario con los valores revertidos
+    transaction.update(inventoryRef, {
+      currentStock: newQuantity,
+      lastMovement: {
+        movementId: null, // Limpiar referencia al movimiento eliminado
+        type: 'reversion',
+        quantity: movement.quantity,
+        originalType: movement.type,
+        date: serverTimestamp(),
+        note: `Reversión de movimiento ${movement.id}`
+      },
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`✅ Inventario revertido exitosamente. Nuevo stock: ${newQuantity}`);
+
+  } catch (error) {
+    console.error('❌ Error al revertir cambios de inventario:', error);
+    throw new Error(`Error al revertir inventario: ${error.message}`);
+  }
 };
 
 export default {
