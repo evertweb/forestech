@@ -6,19 +6,9 @@ import DashboardMain from './DashboardMain';
 import InventoryMain from '../Inventory/InventoryMain';
 import MovementsMain from '../Movements/MovementsMain';
 import VehiclesMain from '../Vehicles/VehiclesMain';
+import SuppliersMain from '../Suppliers/SuppliersMain';
 import AdminMain from '../Admin/AdminMain';
 import './Dashboard.css';
-
-const SuppliersModule = () => (
-  <div className="module-placeholder">
-    <h2>🏪 Módulo de Proveedores</h2>
-    <p>Gestión de proveedores de combustible</p>
-    <div className="coming-soon">
-      <span>🚧 En desarrollo</span>
-      <p>Próximamente: Base de datos de proveedores, comparación de precios, y evaluación.</p>
-    </div>
-  </div>
-);
 
 const ReportsModule = () => (
   <div className="module-placeholder">
@@ -45,7 +35,7 @@ const Dashboard = () => {
       case 'vehicles':
         return <VehiclesMain />;
       case 'suppliers':
-        return <SuppliersModule />;
+        return <SuppliersMain />;
       case 'reports':
         return <ReportsModule />;
       case 'admin':
