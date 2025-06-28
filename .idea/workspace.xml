@@ -5,14 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsMain.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesMain.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/constants/vehicleTypes.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/constants/vehicleTypes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-Be0ZLhrY.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-Dbzee_lT.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/utils/calculations.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/utils/calculations.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-CrgKV5nH.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,40 +47,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.index.html.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "/home/evert/Descargas/claude-code-jetbrains-plugin-0.1.9-beta.zip",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settings.ide.settings.uml",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/evert/Descargas/claude-code-jetbrains-plugin-0.1.9-beta.zip&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.uml&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="forestech" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="forestech" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
-  </component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -109,7 +92,8 @@
       <workItem from="1749860268483" duration="8537000" />
       <workItem from="1749922565077" duration="15528000" />
       <workItem from="1749944546678" duration="86000" />
-      <workItem from="1750632527309" duration="55379000" />
+      <workItem from="1750632527309" duration="58264000" />
+      <workItem from="1751135184505" duration="1454000" />
     </task>
     <servers />
   </component>

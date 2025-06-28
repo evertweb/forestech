@@ -12,7 +12,7 @@
  * - Funciones preparatorias para módulos futuros (Proveedores, Reportes)
  */
 
-import { FUEL_TYPES, FUEL_INFO, STOCK_LEVELS, STOCK_ALERTS, getStockLevel } from '../constants/combustibleTypes.js';
+import { FUEL_TYPES, FUEL_INFO, STOCK_LEVELS, STOCK_ALERTS, getStockLevel } from '../constants/combustibleTypes';
 
 // ============================================================================
 // 📊 CÁLCULOS DE INVENTARIO
