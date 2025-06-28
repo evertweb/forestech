@@ -148,6 +148,26 @@ git commit -m "refactor: Superviso trabajo Gemini CLI - [específica el motivo]
 Hecho con Claude CLI (supervisando Gemini CLI)"
 ```
 
+## 📅 **REGISTRO DE IMPLEMENTACIONES RECIENTES**
+
+### 🔥 **Enero 28, 2025 - Mejoras Combustibles**
+**Commit:** `feat(combustibles): Implementar mejoras completas en vehículos y movimientos`
+
+#### ✅ **Funcionalidades Implementadas:**
+1. **Botón "Agregar Vehículo"** - Ahora visible para todos los roles permitidos
+2. **Tipos de vehículos expandidos** - 16 categorías (motosierra, excavadora, etc.)
+3. **Creación libre de tipos personalizados** - UI intuitiva con Enter/Escape
+4. **Selector dinámico de vehículos** - Para movimientos de salida con dropdown
+
+#### 🔧 **Correcciones Técnicas:**
+- Permisos `userProfile?.role` en VehiclesMain y MovementsMain
+- Integración completa con `getAllVehicles()` service
+- UI optimizada con estados de carga y validaciones específicas
+- Compatibilidad completa con funcionalidades existentes
+
+#### 🌐 **URLs Actualizadas:**
+- ⛽ **Combustibles**: https://forestechdecolombia.com.co/combustibles/ ✅ DESPLEGADO
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
