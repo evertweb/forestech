@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_INFO, FUEL_TYPES } from '../../constants/vehicleTypes';
 
 const VehicleModal = ({ 
   isOpen, 
@@ -44,6 +45,8 @@ const VehicleModal = ({
   const [formData, setFormData] = useState(getInitialFormData());
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [customType, setCustomType] = useState('');
+  const [showCustomType, setShowCustomType] = useState(false);
 
   // Reinicializar formulario cuando cambie el vehículo
   useEffect(() => {
@@ -309,19 +312,80 @@ const VehicleModal = ({
 
                 <div className="form-group">
                   <label htmlFor="type">Tipo de Vehículo</label>
-                  <select
-                    id="type"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
-                  >
-                    {Object.values(VEHICLE_TYPES).map(type => (
-                      <option key={type} value={type}>
-                        {getVehicleIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </option>
-                    ))}
-                  </select>
+                  {!showCustomType ? (
+                    <div className="select-with-button">
+                      <select
+                        id="type"
+                        name="type"
+                        value={formData.type}
+                        onChange={handleInputChange}
+                        disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                      >
+                        {Object.entries(VEHICLE_INFO).map(([key, info]) => (
+                          <option key={key} value={key}>
+                            {info.icon} {info.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        className="btn-add-custom"
+                        onClick={() => setShowCustomType(true)}
+                        disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                        title="Agregar tipo personalizado"
+                      >
+                        ➕
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="custom-type-input">
+                      <input
+                        type="text"
+                        placeholder="Ej: Montacargas, Grúa Torre, etc."
+                        value={customType}
+                        onChange={(e) => setCustomType(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (customType.trim()) {
+                              setFormData(prev => ({ ...prev, type: customType.trim() }));
+                              setShowCustomType(false);
+                              setCustomType('');
+                            }
+                          } else if (e.key === 'Escape') {
+                            setShowCustomType(false);
+                            setCustomType('');
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        className="btn-confirm-custom"
+                        onClick={() => {
+                          if (customType.trim()) {
+                            setFormData(prev => ({ ...prev, type: customType.trim() }));
+                            setShowCustomType(false);
+                            setCustomType('');
+                          }
+                        }}
+                        title="Confirmar tipo personalizado"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-cancel-custom"
+                        onClick={() => {
+                          setShowCustomType(false);
+                          setCustomType('');
+                        }}
+                        title="Cancelar"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">

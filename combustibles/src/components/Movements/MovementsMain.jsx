@@ -3,8 +3,8 @@
  * Gestiona la visualización y filtrado de movimientos de combustibles
  */
 
-import React, { useState, useEffect, useContext } from 'react';
-import { CombustiblesContext } from '../../contexts/CombustiblesContext';
+import React, { useState, useEffect } from 'react';
+import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToMovements, 
   getMovementsStats,
@@ -21,7 +21,7 @@ import './Movements.css';
 
 const MovementsMain = () => {
   // Context y estado
-  const { user } = useContext(CombustiblesContext);
+  const { user, userProfile } = useCombustibles();
   const [movements, setMovements] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -165,8 +165,8 @@ const MovementsMain = () => {
   };
 
   // Permisos del usuario
-  const canCreateMovement = user?.role === 'admin' || user?.role === 'contador';
-  const canEditMovement = user?.role === 'admin';
+  const canCreateMovement = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
+  const canEditMovement = userProfile?.role === 'admin';
 
   if (loading) {
     return (

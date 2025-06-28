@@ -3,8 +3,8 @@
  * Gestiona la visualización y filtrado de vehículos forestales
  */
 
-import React, { useState, useEffect, useContext } from 'react';
-import { CombustiblesContext } from '../../contexts/CombustiblesContext';
+import React, { useState, useEffect } from 'react';
+import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToVehicles, 
   getVehiclesStats,
@@ -21,7 +21,7 @@ import './Vehicles.css';
 
 const VehiclesMain = () => {
   // Context y estado
-  const { user } = useContext(CombustiblesContext);
+  const { user, userProfile } = useCombustibles();
   const [vehicles, setVehicles] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -147,9 +147,9 @@ const VehiclesMain = () => {
   };
 
   // Permisos del usuario
-  const canCreateVehicle = user?.role === 'admin' || user?.role === 'contador';
-  const canEditVehicle = user?.role === 'admin';
-  const canManageVehicle = user?.role === 'admin' || user?.role === 'contador';
+  const canCreateVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
+  const canEditVehicle = userProfile?.role === 'admin';
+  const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador';
 
   if (loading) {
     return (

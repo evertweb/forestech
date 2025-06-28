@@ -10,6 +10,7 @@ import {
   MOVEMENT_TYPES,
   MOVEMENT_STATUS 
 } from '../../services/movementsService';
+import { getAllVehicles } from '../../services/vehiclesService';
 
 const MovementModal = ({ 
   isOpen, 
@@ -34,6 +35,8 @@ const MovementModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
+  const [vehicles, setVehicles] = useState([]);
+  const [loadingVehicles, setLoadingVehicles] = useState(false);
 
   // Tipos de combustible disponibles
   const fuelTypes = [
@@ -51,6 +54,25 @@ const MovementModal = ({
     'Campo Operativo',
     'Estación Móvil'
   ];
+
+  // Cargar vehículos cuando se abre el modal
+  useEffect(() => {
+    const loadVehicles = async () => {
+      if (isOpen) {
+        setLoadingVehicles(true);
+        try {
+          const vehiclesData = await getAllVehicles();
+          setVehicles(vehiclesData);
+        } catch (error) {
+          console.error('Error al cargar vehículos:', error);
+        } finally {
+          setLoadingVehicles(false);
+        }
+      }
+    };
+
+    loadVehicles();
+  }, [isOpen]);
 
   // Inicializar formulario
   useEffect(() => {
@@ -357,14 +379,37 @@ const MovementModal = ({
                 <label>
                   Vehículo/Equipo {formData.type === MOVEMENT_TYPES.SALIDA && '*'}
                 </label>
-                <input
-                  type="text"
-                  value={formData.vehicleId}
-                  onChange={(e) => handleInputChange('vehicleId', e.target.value)}
-                  disabled={mode === 'view'}
-                  placeholder="ID del vehículo o equipo"
-                  className={validationErrors.vehicleId ? 'error' : ''}
-                />
+                {formData.type === MOVEMENT_TYPES.SALIDA ? (
+                  loadingVehicles ? (
+                    <div className="loading-vehicles">
+                      <span className="loading-spinner small"></span>
+                      Cargando vehículos...
+                    </div>
+                  ) : (
+                    <select
+                      value={formData.vehicleId}
+                      onChange={(e) => handleInputChange('vehicleId', e.target.value)}
+                      disabled={mode === 'view'}
+                      className={validationErrors.vehicleId ? 'error' : ''}
+                    >
+                      <option value="">Seleccionar vehículo destino...</option>
+                      {vehicles.map(vehicle => (
+                        <option key={vehicle.id} value={vehicle.vehicleId}>
+                          🚜 {vehicle.vehicleId} - {vehicle.name} ({vehicle.type})
+                        </option>
+                      ))}
+                    </select>
+                  )
+                ) : (
+                  <input
+                    type="text"
+                    value={formData.vehicleId}
+                    onChange={(e) => handleInputChange('vehicleId', e.target.value)}
+                    disabled={mode === 'view'}
+                    placeholder="ID del vehículo o equipo"
+                    className={validationErrors.vehicleId ? 'error' : ''}
+                  />
+                )}
                 {validationErrors.vehicleId && (
                   <span className="field-error">{validationErrors.vehicleId}</span>
                 )}

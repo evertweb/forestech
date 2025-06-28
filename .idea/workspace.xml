@@ -6,6 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsMain.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesMain.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/constants/vehicleTypes.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/constants/vehicleTypes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-Be0ZLhrY.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-Dbzee_lT.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +109,7 @@
       <workItem from="1749860268483" duration="8537000" />
       <workItem from="1749922565077" duration="15528000" />
       <workItem from="1749944546678" duration="86000" />
-      <workItem from="1750632527309" duration="52169000" />
+      <workItem from="1750632527309" duration="55379000" />
     </task>
     <servers />
   </component>
