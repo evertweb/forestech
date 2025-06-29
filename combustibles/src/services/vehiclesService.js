@@ -20,7 +20,7 @@ import {
   runTransaction
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { initializePredefinedVehicles } from '../utils/initializeVehicles';
+import { getPredefinedVehicles } from '../data/predefinedVehicles';
 
 const COLLECTION_NAME = 'combustibles_vehicles';
 const MOVEMENTS_COLLECTION = 'combustibles_movements';
@@ -741,6 +741,67 @@ const calculateEstimatedConsumption = (vehicleData) => {
   const power = enginePower || 100; // HP por defecto
 
   return (baseFactor * power * fuelFactor);
+};
+
+/**
+ * Inicializar vehículos predefinidos en Firebase
+ * @returns {Promise<Object>} - Resultado de la inicialización
+ */
+const initializePredefinedVehicles = async () => {
+  try {
+    // Verificar si ya existen vehículos
+    const q = query(collection(db, COLLECTION_NAME), limit(1));
+    const existingDocs = await getDocs(q);
+    
+    if (!existingDocs.empty) {
+      console.log('✅ Vehículos ya existen en Firebase');
+      return { success: true, created: 0, message: 'Vehículos ya inicializados' };
+    }
+    
+    console.log('🚀 Inicializando vehículos predefinidos...');
+    
+    // Obtener vehículos predefinidos
+    const predefinedVehicles = getPredefinedVehicles();
+    let created = 0;
+    let errors = 0;
+    
+    // Crear cada vehículo
+    for (const vehicleData of predefinedVehicles) {
+      try {
+        // Agregar timestamps
+        const vehicle = {
+          ...vehicleData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          // Inicializar métricas
+          totalFuelConsumed: 0,
+          totalHoursWorked: 0,
+          totalMovements: 0,
+          lastMovementDate: null
+        };
+        
+        await addDoc(collection(db, COLLECTION_NAME), vehicle);
+        created++;
+        console.log(`✅ Creado: ${vehicleData.vehicleId} - ${vehicleData.name}`);
+      } catch (error) {
+        errors++;
+        console.error(`❌ Error creando ${vehicleData.vehicleId}:`, error.message);
+      }
+    }
+    
+    console.log(`🎉 Inicialización completada: ${created} creados, ${errors} errores`);
+    
+    return {
+      success: errors === 0,
+      created,
+      errors,
+      total: predefinedVehicles.length
+    };
+    
+  } catch (error) {
+    console.error('❌ Error en inicialización de vehículos:', error);
+    return { success: false, error: error.message };
+  }
 };
 
 export default {
