@@ -17,33 +17,41 @@ const DashboardMain = () => {
   };
 
   const stats = useMemo(() => {
-    // Normalizar datos de inventario para cálculos correctos
-    const normalizedInventory = inventory.map(item => ({
-      ...item,
-      quantity: item.currentStock || 0, // Mapear currentStock a quantity para calculations.js
-      pricePerUnit: item.unitPrice || 0, // Mapear unitPrice a pricePerUnit
-      status: item.isActive ? 'active' : 'inactive' // Normalizar status
-    }));
-    
-    const correctStats = calculateInventoryStats(normalizedInventory);
-    
+    // Calcular totales directamente desde inventory sin normalización duplicada
     const activeVehicles = vehicles.filter(v => v.status === 'activo').length;
     const pendingMovements = movements.filter(m => m.status === 'pendiente').length;
+    
+    // Calcular total de combustible sumando currentStock directamente
+    const totalFuel = inventory
+      .filter(item => item.isActive !== false) // Solo items activos
+      .reduce((sum, item) => sum + (parseFloat(item.currentStock) || 0), 0);
+    
+    // Calcular valor total multiplicando stock por precio
+    const totalValue = inventory
+      .filter(item => item.isActive !== false)
+      .reduce((sum, item) => {
+        const stock = parseFloat(item.currentStock) || 0;
+        const price = parseFloat(item.unitPrice) || 0;
+        return sum + (stock * price);
+      }, 0);
+    
+    // Calcular alertas de stock bajo
+    const lowStockAlerts = inventory
+      .filter(item => {
+        const stock = parseFloat(item.currentStock) || 0;
+        const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
+        return item.isActive !== false && stock <= minStock;
+      }).length;
 
     return {
-      totalFuel: correctStats.totalItems > 0 
-        ? normalizedInventory.filter(item => item.status === 'active')
-            .reduce((sum, item) => sum + (item.quantity || 0), 0)
-        : 0,
-      totalValue: correctStats.totalValue,
-      lowStockAlerts: correctStats.lowStockItems,
-      activeInventoryItems: correctStats.activeItems,
+      totalFuel,
+      totalValue,
+      lowStockAlerts,
+      activeInventoryItems: inventory.filter(item => item.isActive !== false).length,
       activeVehicles,
       pendingMovements,
       totalMaintenance: 0, // Placeholder para futuro módulo
       overdueMaintenance: 0, // Placeholder para futuro módulo
-      averageStockLevel: correctStats.averageStockLevel,
-      stockByType: correctStats.stockByType
     };
   }, [inventory, vehicles, movements]);
 

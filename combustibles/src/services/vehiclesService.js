@@ -103,9 +103,6 @@ export const createVehicle = async (vehicleData) => {
  */
 export const getAllVehicles = async (filters = {}) => {
   try {
-    // Verificar e inicializar vehículos predefinidos si no existen
-    await initializePredefinedVehicles();
-    
     let q = collection(db, COLLECTION_NAME);
 
     // Aplicar filtros
@@ -744,38 +741,64 @@ const calculateEstimatedConsumption = (vehicleData) => {
 };
 
 /**
- * Inicializar vehículos predefinidos en Firebase
+ * Inicializar vehículos predefinidos en Firebase (FUNCIÓN MANUAL)
+ * Esta función debe ejecutarse manualmente cuando sea necesario
  * @returns {Promise<Object>} - Resultado de la inicialización
  */
-const initializePredefinedVehicles = async () => {
+export const initializePredefinedVehicles = async () => {
   try {
-    // Verificar si ya existen vehículos
-    const q = query(collection(db, COLLECTION_NAME), limit(1));
-    const existingDocs = await getDocs(q);
-    
-    if (!existingDocs.empty) {
-      console.log('✅ Vehículos ya existen en Firebase');
-      return { success: true, created: 0, message: 'Vehículos ya inicializados' };
-    }
-    
-    console.log('🚀 Inicializando vehículos predefinidos...');
+    console.log('🚀 Iniciando verificación de vehículos predefinidos...');
     
     // Obtener vehículos predefinidos
     const predefinedVehicles = getPredefinedVehicles();
+    console.log(`📋 ${predefinedVehicles.length} vehículos predefinidos encontrados`);
+    
+    // Obtener todos los vehículos existentes
+    const existingVehicles = await getAllVehicles();
+    const existingIds = existingVehicles.map(v => v.vehicleId);
+    
+    console.log(`📊 ${existingVehicles.length} vehículos existentes en Firebase`);
+    
+    // Filtrar vehículos que no existen (verificación por vehicleId único)
+    const vehiclesToCreate = predefinedVehicles.filter(
+      vehicle => !existingIds.includes(vehicle.vehicleId)
+    );
+    
+    console.log(`🆕 ${vehiclesToCreate.length} vehículos nuevos para crear`);
+    
+    if (vehiclesToCreate.length === 0) {
+      console.log('✅ Todos los vehículos predefinidos ya están en Firebase');
+      return {
+        success: true,
+        created: 0,
+        errors: 0,
+        existing: existingVehicles.length,
+        message: 'Todos los vehículos predefinidos ya existen'
+      };
+    }
+    
     let created = 0;
     let errors = 0;
+    const errorDetails = [];
     
-    // Crear cada vehículo
-    for (const vehicleData of predefinedVehicles) {
+    // Crear solo los vehículos que no existen
+    for (const vehicleData of vehiclesToCreate) {
       try {
-        // Agregar timestamps
+        // Verificación adicional por si hay concurrencia
+        const existingVehicle = await getVehicleByCode(vehicleData.vehicleId);
+        if (existingVehicle) {
+          console.log(`⚠️ Vehículo ${vehicleData.vehicleId} ya existe (verificación concurrente)`);
+          continue;
+        }
+        
+        // Preparar datos del vehículo
         const vehicle = {
           ...vehicleData,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           // Inicializar métricas
           totalFuelConsumed: 0,
-          totalHoursWorked: 0,
+          totalHoursWorked: vehicleData.hasHourMeter ? vehicleData.currentHours : 0,
           totalMovements: 0,
           lastMovementDate: null
         };
@@ -783,24 +806,50 @@ const initializePredefinedVehicles = async () => {
         await addDoc(collection(db, COLLECTION_NAME), vehicle);
         created++;
         console.log(`✅ Creado: ${vehicleData.vehicleId} - ${vehicleData.name}`);
+        
+        // Pequeña pausa para evitar rate limiting
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
       } catch (error) {
         errors++;
-        console.error(`❌ Error creando ${vehicleData.vehicleId}:`, error.message);
+        const errorMsg = error.message;
+        errorDetails.push({ vehicleId: vehicleData.vehicleId, error: errorMsg });
+        console.error(`❌ Error creando ${vehicleData.vehicleId}:`, errorMsg);
       }
     }
     
-    console.log(`🎉 Inicialización completada: ${created} creados, ${errors} errores`);
+    console.log(`🎉 Inicialización completada:`);
+    console.log(`   ✅ Creados: ${created}`);
+    console.log(`   ❌ Errores: ${errors}`);
+    console.log(`   📊 Total en Firebase: ${existingVehicles.length + created}`);
+    
+    if (errors > 0) {
+      console.log('🔍 Detalles de errores:');
+      errorDetails.forEach(detail => {
+        console.log(`   • ${detail.vehicleId}: ${detail.error}`);
+      });
+    }
     
     return {
       success: errors === 0,
       created,
       errors,
-      total: predefinedVehicles.length
+      errorDetails,
+      existing: existingVehicles.length,
+      total: existingVehicles.length + created,
+      predefinedTotal: predefinedVehicles.length,
+      message: `Proceso completado: ${created} creados, ${errors} errores`
     };
     
   } catch (error) {
-    console.error('❌ Error en inicialización de vehículos:', error);
-    return { success: false, error: error.message };
+    console.error('❌ Error crítico en inicialización de vehículos:', error);
+    return { 
+      success: false, 
+      created: 0,
+      errors: 1,
+      error: error.message,
+      message: `Error crítico: ${error.message}`
+    };
   }
 };
 
@@ -819,6 +868,7 @@ export default {
   calculateTractorConsumption,
   getVehiclesStats,
   registerMaintenance,
+  initializePredefinedVehicles,
   VEHICLE_TYPES,
   VEHICLE_STATUS,
   FUEL_COMPATIBILITY
