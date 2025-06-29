@@ -1,222 +1,56 @@
 // combustibles/src/components/Dashboard/DashboardMain.jsx
-
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import './Dashboard.css';
-import { subscribeToInventory } from '../../services/inventoryService';
-import { subscribeToMovements } from '../../services/movementsService';
-import { subscribeToVehicles } from '../../services/vehiclesService';
-import { subscribeToProducts } from '../../services/productsService';
-// import { subscribeToMaintenance } from '../../services/maintenanceService';
+import { useCombustibles } from '../../contexts/CombustiblesContext';
 
 const DashboardMain = () => {
-  const [stats, setStats] = useState({
-    totalFuel: 0,
-    activeVehicles: 0,
-    pendingMovements: 0,
-    lowStockAlerts: 0,
-    totalProducts: 0,
-    totalMaintenance: 0,
-    upcomingMaintenance: 0,
-    overdueMaintenance: 0
-  });
-  const [recentMovements, setRecentMovements] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [maintenanceRecords, setMaintenanceRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [dataLoaded, setDataLoaded] = useState({
-    inventory: false,
-    movements: false,
-    vehicles: false,
-    products: false,
-    maintenance: true // Inicialmente true para evitar esperar
-  });
+  const { inventory, movements, vehicles, loading, error } = useCombustibles();
 
   // Helper para manejar fechas de manera segura
   const safeDateHelper = (date) => {
     if (!date) return new Date();
-    
-    try {
-      // Si es un timestamp de Firestore con toDate()
-      if (date.toDate && typeof date.toDate === 'function') {
-        return date.toDate();
-      }
-      
-      // Si es un timestamp de Firestore con seconds
-      if (date.seconds) {
-        return new Date(date.seconds * 1000);
-      }
-      
-      // Si es un timestamp de Firestore con toMillis()
-      if (date.toMillis && typeof date.toMillis === 'function') {
-        return new Date(date.toMillis());
-      }
-      
-      // Si ya es una fecha JavaScript
-      if (date instanceof Date) {
-        return date;
-      }
-      
-      // Intentar crear Date desde string/number
-      return new Date(date);
-    } catch (error) {
-      console.warn('Error al procesar fecha:', error);
-      return new Date();
-    }
+    if (date.toDate && typeof date.toDate === 'function') return date.toDate();
+    if (date.seconds) return new Date(date.seconds * 1000);
+    if (date instanceof Date) return date;
+    return new Date(date);
   };
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
+  const stats = useMemo(() => {
+    const totalFuel = inventory.reduce((sum, item) => sum + (item.currentStock || 0), 0);
+    const lowStockAlerts = inventory.filter(item => (item.currentStock || 0) < (item.minStock || 20)).length;
+    const activeVehicles = vehicles.filter(v => v.status === 'activo').length;
+    const pendingMovements = movements.filter(m => m.status === 'pendiente').length;
 
-    const unsubInventory = subscribeToInventory(
-      (inventory) => {
-        const totalFuel = inventory.reduce((sum, item) => sum + (item.currentStock || 0), 0);
-        const lowStockAlerts = inventory.filter(item => (item.currentStock || 0) < (item.minThreshold || 0)).length;
-        setStats(prevStats => ({ ...prevStats, totalFuel, lowStockAlerts }));
-        setDataLoaded(prev => ({ ...prev, inventory: true }));
-      },
-      (error) => {
-        console.error('Error loading inventory:', error);
-        setError('Error cargando inventario');
-      }
-    );
-
-    const unsubMovements = subscribeToMovements(
-      (movements) => {
-        const pendingMovements = movements.filter(m => m.status === 'pending').length;
-        // Usar campo correcto y manejo seguro de fechas
-        const recent = movements
-          .sort((a, b) => {
-            const dateA = safeDateHelper(a.createdAt || a.date);
-            const dateB = safeDateHelper(b.createdAt || b.date);
-            return dateB.getTime() - dateA.getTime();
-          })
-          .slice(0, 5)
-          .map(mov => ({
-            ...mov,
-            date: safeDateHelper(mov.createdAt || mov.date) // Normalizar fecha
-          }));
-        setStats(prevStats => ({ ...prevStats, pendingMovements }));
-        setRecentMovements(recent);
-        setDataLoaded(prev => ({ ...prev, movements: true }));
-      },
-      (error) => {
-        console.error('Error loading movements:', error);
-        setError('Error cargando movimientos');
-      }
-    );
-
-    const unsubVehicles = subscribeToVehicles(
-      (vehicles) => {
-        const activeVehicles = vehicles.filter(v => v.status === 'active').length;
-        setStats(prevStats => ({ ...prevStats, activeVehicles }));
-        setDataLoaded(prev => ({ ...prev, vehicles: true }));
-      },
-      (error) => {
-        console.error('Error loading vehicles:', error);
-        setError('Error cargando vehículos');
-      }
-    );
-
-    const unsubProducts = subscribeToProducts(
-      (productsData) => {
-        const totalProducts = productsData.length;
-        setProducts(productsData);
-        setStats(prevStats => ({ ...prevStats, totalProducts }));
-        setDataLoaded(prev => ({ ...prev, products: true }));
-      },
-      (error) => {
-        console.error('Error loading products:', error);
-        // No mostramos error crítico por productos, es opcional
-        setDataLoaded(prev => ({ ...prev, products: true }));
-      }
-    );
-
-    // Carga lazy del mantenimiento para evitar problemas de inicialización
-    const loadMaintenance = async () => {
-      try {
-        const { subscribeToMaintenance } = await import('../../services/maintenanceService');
-        const unsubMaintenance = subscribeToMaintenance(
-          (maintenance) => {
-            const totalMaintenance = maintenance.length;
-            const upcomingMaintenance = maintenance.filter(m => {
-              if (m.nextChangeDate) {
-                const nextDate = new Date(m.nextChangeDate);
-                const today = new Date();
-                return nextDate > today;
-              }
-              return false;
-            }).length;
-            const overdueMaintenance = maintenance.filter(m => {
-              if (m.nextChangeDate) {
-                const nextDate = new Date(m.nextChangeDate);
-                const today = new Date();
-                return nextDate < today;
-              }
-              return false;
-            }).length;
-            
-            setMaintenanceRecords(maintenance);
-            setStats(prevStats => ({ 
-              ...prevStats, 
-              totalMaintenance, 
-              upcomingMaintenance, 
-              overdueMaintenance 
-            }));
-            setDataLoaded(prev => ({ ...prev, maintenance: true }));
-          },
-          (error) => {
-            console.error('Error loading maintenance:', error);
-            // No mostramos error crítico por mantenimiento, es opcional
-            setDataLoaded(prev => ({ ...prev, maintenance: true }));
-          }
-        );
-        return unsubMaintenance;
-      } catch (error) {
-        console.error('Error loading maintenance service:', error);
-        setDataLoaded(prev => ({ ...prev, maintenance: true }));
-        return () => {};
-      }
+    return {
+      totalFuel,
+      lowStockAlerts,
+      activeVehicles,
+      pendingMovements,
+      totalMaintenance: 0, // Placeholder
+      overdueMaintenance: 0, // Placeholder
     };
+  }, [inventory, vehicles, movements]);
 
-    // Cargar mantenimiento después de un pequeño delay
-    let unsubMaintenance = () => {};
-    setTimeout(async () => {
-      unsubMaintenance = await loadMaintenance();
-    }, 100);
+  const recentMovements = useMemo(() => {
+    return movements
+      .sort((a, b) => safeDateHelper(b.createdAt).getTime() - safeDateHelper(a.createdAt).getTime())
+      .slice(0, 5);
+  }, [movements]);
 
-    return () => {
-      unsubInventory();
-      unsubMovements();
-      unsubVehicles();
-      unsubProducts();
-      unsubMaintenance();
-    };
-  }, []);
+  const formatNumber = (num) => new Intl.NumberFormat('es-CO').format(num);
 
-  // Determinar cuando todos los datos están cargados
-  useEffect(() => {
-    const allDataLoaded = Object.values(dataLoaded).every(loaded => loaded);
-    if (allDataLoaded) {
-      setLoading(false);
-    }
-  }, [dataLoaded]);
-
-  const formatNumber = useMemo(() => {
-    return (num) => new Intl.NumberFormat('es-CO').format(num);
-  }, []);
-  
   const getMovementDescription = (mov) => {
+    const quantity = mov.quantity || 0;
+    const fuelType = mov.fuelType || 'N/A';
     switch(mov.type) {
-      case 'entry':
-        return `Entrada de ${mov.quantity} ${mov.unit} de ${mov.fuelType}.`;
-      case 'exit':
-        return `Salida de ${mov.quantity} ${mov.unit} para vehículo ${mov.vehicleId || 'N/A'}.`;
-      case 'transfer':
-        return `Transferencia de ${mov.quantity} ${mov.unit} de ${mov.fromLocation} a ${mov.toLocation}.`;
-      case 'adjustment':
-        return `Ajuste de inventario: ${mov.quantity} ${mov.unit} de ${mov.fuelType}.`;
+      case 'entrada':
+        return `Entrada de ${quantity} gal de ${fuelType}.`;
+      case 'salida':
+        return `Salida de ${quantity} gal para vehículo ${mov.vehicleId || 'N/A'}.`;
+      case 'transferencia':
+        return `Transferencia de ${quantity} gal.`;
+      case 'ajuste':
+        return `Ajuste de inventario: ${quantity} gal de ${fuelType}.`;
       default:
         return 'Movimiento registrado.';
     }
@@ -305,7 +139,7 @@ const DashboardMain = () => {
                 <li key={mov.id}>
                   <span className={`movement-type-badge ${mov.type}`}>{mov.type}</span>
                   {getMovementDescription(mov)}
-                  <span className="movement-date">{mov.date.toLocaleDateString()}</span>
+                  <span className="movement-date">{safeDateHelper(mov.createdAt).toLocaleDateString()}</span>
                 </li>
               ))}
             </ul>
@@ -315,69 +149,31 @@ const DashboardMain = () => {
         </div>
         
         <div className="dashboard-widget">
-          <h3>🔧 Mantenimientos Recientes</h3>
-          {maintenanceRecords.length > 0 ? (
-            <ul>
-              {maintenanceRecords.slice(0, 5).map(maintenance => (
-                <li key={maintenance.id}>
-                  <span className={`maintenance-type-badge ${maintenance.type}`}>
-                    {maintenance.type === 'oil_change' ? '🛢️' : 
-                     maintenance.type === 'battery_change' ? '🔋' : 
-                     maintenance.type === 'filter_change' ? '🔧' : '⚙️'}
-                  </span>
-                  <span className="maintenance-description">
-                    {maintenance.type === 'oil_change' ? 'Cambio de aceite' :
-                     maintenance.type === 'battery_change' ? 'Cambio de batería' :
-                     maintenance.type === 'filter_change' ? 'Cambio de filtros' : 'Mantenimiento general'}
-                    {' para '}{maintenance.vehicleName}
-                  </span>
-                  <span className="maintenance-date">
-                    {maintenance.date ? new Date(maintenance.date).toLocaleDateString() : 'N/A'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No hay mantenimientos registrados.</p>
-          )}
-        </div>
-        
-        <div className="dashboard-widget">
-          <h3>📦 Stock por Tipo de Producto</h3>
-          {products.length > 0 ? (
+          <h3>📦 Stock por Producto</h3>
+          {inventory.length > 0 ? (
             <div className="products-summary">
-              {products.slice(0, 6).map(product => (
-                <div key={product.id} className="product-summary-item">
-                  <div className="product-icon" style={{ color: product.color }}>
-                    {product.icon}
-                  </div>
+              {inventory.map(item => (
+                <div key={item.id} className="product-summary-item">
+                  <div className="product-icon">⛽</div>
                   <div className="product-info">
-                    <span className="product-name">{product.displayName}</span>
+                    <span className="product-name">{item.fuelType}</span>
                     <div className="product-stats">
                       <span className="stock-value">
-                        {formatNumber(product.currentStock || 0)} {product.unit}
+                        {formatNumber(item.currentStock || 0)} gal
                       </span>
                       <span className={`stock-status ${
-                        (product.currentStock || 0) === 0 ? 'empty' :
-                        (product.currentStock || 0) <= (product.minThreshold || 0) ? 'low' : 'normal'
+                        (item.currentStock || 0) <= (item.minStock || 20) ? 'low' : 'normal'
                       }`}>
-                        {(product.currentStock || 0) === 0 ? '🔴 Sin stock' :
-                         (product.currentStock || 0) <= (product.minThreshold || 0) ? '🟡 Stock bajo' : '🟢 Normal'}
+                        {(item.currentStock || 0) <= (item.minStock || 20) ? '🟡 Stock bajo' : '🟢 Normal'}
                       </span>
                     </div>
                   </div>
                 </div>
               ))}
-              {products.length > 6 && (
-                <div className="view-all-products">
-                  <span>+{products.length - 6} productos más</span>
-                </div>
-              )}
             </div>
           ) : (
             <div className="no-products">
-              <p>No hay productos registrados.</p>
-              <small>Ve a la sección Productos para crear los primeros tipos de combustible.</small>
+              <p>No hay inventario registrado.</p>
             </div>
           )}
         </div>

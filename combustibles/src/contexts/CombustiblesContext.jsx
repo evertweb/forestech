@@ -6,6 +6,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { createUserProfile, getUserProfile } from '../firebase/userService';
 import movementsService from '../services/movementsService';
+import { subscribeToInventory } from '../services/inventoryService';
+import { subscribeToVehicles } from '../services/vehiclesService';
+import { subscribeToSuppliers } from '../services/suppliersService';
 
 const CombustiblesContext = createContext();
 
@@ -30,18 +33,16 @@ export const CombustiblesProvider = ({ children }) => {
   const [suppliers, setSuppliers] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         setLoading(true);
         
         if (firebaseUser) {
           setUser(firebaseUser);
           
-          // Obtener o crear perfil de usuario
           let profileResult = await getUserProfile(firebaseUser.uid);
           
           if (!profileResult.success) {
-            // Si no existe el perfil, crearlo
             profileResult = await createUserProfile(firebaseUser, {
               provider: 'existing_account',
               appContext: 'combustibles'
@@ -56,7 +57,6 @@ export const CombustiblesProvider = ({ children }) => {
         } else {
           setUser(null);
           setUserProfile(null);
-          // Limpiar datos de combustibles al cerrar sesión
           setInventory([]);
           setMovements([]);
           setVehicles([]);
@@ -70,8 +70,25 @@ export const CombustiblesProvider = ({ children }) => {
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
+
+  // Suscripciones a datos de Firestore
+  useEffect(() => {
+    if (user) {
+      const unsubInventory = subscribeToInventory(setInventory, (err) => setError(err.message));
+      const unsubVehicles = subscribeToVehicles(setVehicles, (err) => setError(err.message));
+      const unsubSuppliers = subscribeToSuppliers(setSuppliers, (err) => setError(err.message));
+      const unsubMovements = movementsService.subscribeToMovements(setMovements, (err) => setError(err.message));
+
+      return () => {
+        unsubInventory();
+        unsubVehicles();
+        unsubSuppliers();
+        unsubMovements();
+      };
+    }
+  }, [user]);
 
   // Funciones de utilidad para permisos específicos de combustibles
   const hasPermission = (permission) => {
