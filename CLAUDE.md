@@ -393,6 +393,34 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Funcionalidad**: Sistema calculations integrado y operativo
 - ✅ **Preparación**: Lista para módulos Proveedores y Reportes
 
+### 🔧 **Enero 29, 2025 - CORRECCIÓN CRÍTICA: Auto-carga vehículos y prevención duplicados**
+**Commit:** `fix(combustibles): Corregir carga automática de vehículos y prevenir duplicados`
+
+#### ❌ **PROBLEMA CRÍTICO IDENTIFICADO:**
+- **Auto-ejecución problemática**: `initializePredefinedVehicles()` se ejecutaba automáticamente en cada llamada a `getAllVehicles()`
+- **Verificación superficial**: Solo revisaba si existía al menos 1 vehículo (≥1), no específicos
+- **Riesgo de duplicados**: Si colección se vaciaba, recreaba TODOS los 23 vehículos
+- **50 vehículos activos**: Posible resultado de múltiples inicializaciones accidentales
+
+#### ✅ **SOLUCIONES TÉCNICAS IMPLEMENTADAS:**
+1. **Eliminada auto-ejecución**: Removido `initializePredefinedVehicles()` de `getAllVehicles()` línea 107
+2. **Función manual**: `initializePredefinedVehicles()` ahora debe ejecutarse explícitamente cuando sea necesario
+3. **Verificación robusta**: Compara `vehicleId` únicos para evitar duplicados completamente
+4. **Validación concurrencia**: `getVehicleByCode()` antes de crear cada vehículo
+5. **Rate limiting**: Pausas de 50ms entre creaciones para evitar sobrecarga Firebase
+
+#### 🔧 **MEJORAS IMPLEMENTADAS:**
+- **Logging detallado**: Estadísticas completas de creación, existentes, errores
+- **Verificación específica**: Por `vehicleId` en lugar de conteo general de documentos
+- **Creación selectiva**: Solo vehículos faltantes, no recreación completa
+- **Manejo errores**: Detalles específicos por vehículo con seguimiento
+
+#### 📊 **RESULTADO ESPERADO:**
+- ✅ **Solo 23 vehículos**: Los predefinidos específicos sin duplicados
+- ✅ **Carga controlada**: Inicialización manual y segura
+- ✅ **Prevención automática**: Sistema robusto contra duplicados
+- ✅ **Transparencia total**: Logging completo del proceso
+
 ### 🛢️ **Enero 29, 2025 - MÓDULO PRODUCTOS DINÁMICOS + FORMULARIO MOVIMIENTOS MEJORADO**
 **Commit:** `feat(combustibles): Implementar sistema dinámico de productos y formulario de movimientos mejorado`
 
