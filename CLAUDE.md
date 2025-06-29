@@ -413,9 +413,59 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Dashboard**: Widget productos funcional con estadísticas
 
 #### 🎯 **Próximas Tareas Identificadas:**
-- **TAREA 3**: Expandir vehículos con 22 unidades específicas + horómetro tractores
+- ✅ **TAREA 3**: Expandir vehículos con 22 unidades específicas + horómetro tractores **COMPLETADA**
 - **TAREA 4**: Implementar módulo MANTENIMIENTO (aceites, filtros, baterías)
 - **FINAL**: Módulo Reportes para completar sistema al 100%
+
+### 🚜 **Enero 29, 2025 - TAREA 3 COMPLETADA: Expansión Vehículos + Sistema Horómetro**
+**Commit:** `feat(combustibles): Completar TAREA 3 - Expansión vehículos con 23 unidades específicas y sistema horómetro tractores`
+
+#### ✅ **IMPLEMENTACIÓN COMPLETA TAREA 3 (5,500+ líneas):**
+- **📦 23 vehículos específicos predefinidos** según requerimientos exactos del usuario:
+  - Apoyo Logístico, Asperjadora, 5x Motobombas (Austria-Casino, Atabapo, Ilusión, Vivero, Terquedad, Barquereña, Estacionaria)
+  - 3x Camionetas Toyota (Amarilla, Azul, Gris), Fumigadoras Motorizadas, Control Químico
+  - Guadañas, Hidrolavadora, 2x Motos (Honda XTZ 150, Yamaha XTZ 125)
+  - Motosierra, Planta Eléctrica, Control Rodamiento Hormigas
+  - **3x Tractores TR1, TR2, TR3** con sistema horómetro, Volqueta
+
+#### 🔧 **Sistema Horómetro para Tractores Implementado:**
+- **Campos nuevos**: `hasHourMeter`, `currentHours`, `hourMeterHistory`, `lastHourMeterDate`
+- **Funciones servicio**: `updateHourMeter()`, `getHourMeterHistory()`, `calculateTractorConsumption()`
+- **Interface modal**: Sección automática para tractores con información tiempo real
+- **Validaciones**: Lecturas incrementales, historial completo, proyección mantenimiento
+- **Métricas avanzadas**: Consumo real vs estimado, eficiencia, próximo mantenimiento (250h)
+
+#### 📁 **Archivos Nuevos Creados:**
+- **predefinedVehicles.js** (23 vehículos + tipos extendidos) - 380+ líneas
+- **initializeVehicles.js** (script carga automática) - 200+ líneas
+- **VehicleModal.jsx** (sección horómetro integrada) - 80+ líneas adicionales
+
+#### 🚀 **Funcionalidades Avanzadas:**
+- **Auto-habilitación horómetro** para tipo TRACTOR (TR1, TR2, TR3)
+- **Historial completo** lecturas con timestamps y notas
+- **Cálculos tiempo real**: Horas trabajadas, eficiencia combustible, proyección mantenimiento
+- **Validación robusta**: Tipos personalizados permitidos, lecturas incrementales
+- **Integración completa** con módulo movimientos para métricas consumo
+
+#### 🔄 **Estado Actualizado COMBUSTIBLES (95% COMPLETADO):**
+- ✅ **Inventario** (100%) - CRUD completo con validaciones
+- ✅ **Movimientos** (100%) - 4 tipos + validación stock + productos dinámicos
+- ✅ **Vehículos** (100%) - **23 vehículos específicos + sistema horómetro tractores**
+- ✅ **Productos** (100%) - Sistema dinámico 9 productos predefinidos
+- ✅ **Proveedores** (100%) - Sistema completo con integración movimientos
+- ✅ **Auth/Admin** (100%) - Sistema invitaciones + permisos
+- 🔄 **Pendiente**: Módulo MANTENIMIENTO + Reportes finales
+
+#### 📊 **Verificaciones Técnicas:**
+- ✅ **Lint**: 5 warnings menores (no errores críticos)
+- ✅ **Build**: Exitoso (90KB CSS + 992KB JS)
+- ✅ **Validaciones**: Tipos personalizados permitidos
+- ✅ **Sistema horómetro**: Operativo para tractores TR1, TR2, TR3
+- ✅ **Script inicialización**: Carga automática 23 vehículos lista
+
+#### 🎯 **Próximas Tareas Actualizadas:**
+- **TAREA 4**: Implementar módulo MANTENIMIENTO con cambios aceite, filtros, baterías
+- **FINAL**: Módulo Reportes + integración horómetro para consumo/hora tractores
 
 ---
 

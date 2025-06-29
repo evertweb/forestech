@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Dashboard/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Dashboard/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/combustibles/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/combustibles/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +62,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.uml&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -90,7 +92,9 @@
       <workItem from="1749922565077" duration="15528000" />
       <workItem from="1749944546678" duration="86000" />
       <workItem from="1750632527309" duration="58264000" />
-      <workItem from="1751135184505" duration="2417000" />
+      <workItem from="1751135184505" duration="8288000" />
+      <workItem from="1751152961629" duration="103000" />
+      <workItem from="1751153834929" duration="2284000" />
     </task>
     <servers />
   </component>

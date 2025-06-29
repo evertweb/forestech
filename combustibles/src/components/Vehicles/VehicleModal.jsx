@@ -33,6 +33,9 @@ const VehicleModal = ({
     estimatedConsumptionPerHour: vehicle?.estimatedConsumptionPerHour || 0,
     serialNumber: vehicle?.serialNumber || '',
     plateNumber: vehicle?.plateNumber || '',
+    // ✅ NUEVO: Campos para horómetro de tractores
+    hasHourMeter: vehicle?.hasHourMeter || false,
+    currentHours: vehicle?.currentHours || 0,
     lastMaintenanceDate: vehicle?.lastMaintenanceDate ? 
       new Date(vehicle.lastMaintenanceDate).toISOString().split('T')[0] : '',
     nextMaintenanceDate: vehicle?.nextMaintenanceDate ? 
@@ -581,6 +584,89 @@ const VehicleModal = ({
                 </div>
               </div>
             </div>
+
+            {/* ✅ NUEVO: Sección Horómetro para tractores */}
+            {(formData.type === VEHICLE_TYPES.TRACTOR || formData.hasHourMeter) && (
+              <div className="form-section">
+                <h4 className="section-title">⏰ Sistema de Horómetro</h4>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="hasHourMeter">
+                      <input
+                        type="checkbox"
+                        id="hasHourMeter"
+                        name="hasHourMeter"
+                        checked={formData.hasHourMeter}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          hasHourMeter: e.target.checked,
+                          // Auto-habilitar para tractores
+                          ...(formData.type === VEHICLE_TYPES.TRACTOR ? { hasHourMeter: true } : {})
+                        }))}
+                        disabled={isReadOnly || (mode === 'edit' && !canEdit) || formData.type === VEHICLE_TYPES.TRACTOR}
+                      />
+                      {' '}Tiene Sistema de Horómetro
+                      {formData.type === VEHICLE_TYPES.TRACTOR && (
+                        <span className="auto-enabled"> (Automático para tractores)</span>
+                      )}
+                    </label>
+                    <small className="field-help">
+                      Los tractores TR1, TR2, TR3 requieren control de horómetro para reportes de consumo
+                    </small>
+                  </div>
+
+                  {formData.hasHourMeter && (
+                    <>
+                      <div className="form-group">
+                        <label htmlFor="currentHours">Lectura Actual del Horómetro (horas)</label>
+                        <input
+                          type="number"
+                          id="currentHours"
+                          name="currentHours"
+                          value={formData.currentHours}
+                          onChange={handleInputChange}
+                          min="0"
+                          max="50000"
+                          step="0.1"
+                          placeholder="Ej: 1250.5"
+                          disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                        />
+                        <small className="field-help">
+                          Ingrese la lectura actual mostrada en el horómetro del vehículo
+                        </small>
+                      </div>
+
+                      {formData.currentHours > 0 && (
+                        <div className="form-group">
+                          <div className="hour-meter-info">
+                            <h5>📊 Información del Horómetro</h5>
+                            <div className="info-grid">
+                              <div className="info-item">
+                                <span className="info-label">Lectura actual:</span>
+                                <span className="info-value">{formData.currentHours} horas</span>
+                              </div>
+                              {mode === 'edit' && vehicle?.totalHoursWorked && (
+                                <div className="info-item">
+                                  <span className="info-label">Horas trabajadas totales:</span>
+                                  <span className="info-value">{vehicle.totalHoursWorked} horas</span>
+                                </div>
+                              )}
+                              <div className="info-item">
+                                <span className="info-label">Próximo mantenimiento:</span>
+                                <span className="info-value">
+                                  {250 - (formData.currentHours % 250)} horas
+                                  ({(formData.currentHours + (250 - (formData.currentHours % 250))).toFixed(1)}h)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Fechas importantes */}
             <div className="form-section">

@@ -407,6 +407,160 @@ export const updateVehicleMetrics = async (vehicleCode, movementData) => {
 };
 
 /**
+ * Actualizar horómetro de un vehículo (para tractores TR1, TR2, TR3)
+ * @param {string} vehicleCode - Código del vehículo
+ * @param {number} newHours - Nueva lectura del horómetro
+ * @param {string} notes - Notas adicionales
+ * @returns {Promise<void>}
+ */
+export const updateHourMeter = async (vehicleCode, newHours, notes = '') => {
+  try {
+    const vehicle = await getVehicleByCode(vehicleCode);
+    if (!vehicle) {
+      throw new Error(`Vehículo ${vehicleCode} no encontrado`);
+    }
+
+    if (!vehicle.hasHourMeter) {
+      throw new Error(`El vehículo ${vehicleCode} no tiene sistema de horómetro`);
+    }
+
+    const currentHours = vehicle.currentHours || 0;
+    if (newHours < currentHours) {
+      throw new Error(`La nueva lectura (${newHours}h) no puede ser menor a la actual (${currentHours}h)`);
+    }
+
+    const hoursWorked = newHours - currentHours;
+
+    await runTransaction(db, async (transaction) => {
+      const vehicleRef = doc(db, COLLECTION_NAME, vehicle.id);
+      
+      // Crear registro en el historial de horómetro
+      const hourMeterHistory = vehicle.hourMeterHistory || [];
+      hourMeterHistory.push({
+        previousReading: currentHours,
+        newReading: newHours,
+        hoursWorked: hoursWorked,
+        date: serverTimestamp(),
+        notes: notes,
+        registeredBy: 'system' // Puede personalizarse con el usuario actual
+      });
+
+      // Actualizar vehículo
+      transaction.update(vehicleRef, {
+        currentHours: newHours,
+        lastHourMeterReading: newHours,
+        lastHourMeterDate: serverTimestamp(),
+        totalHoursWorked: (vehicle.totalHoursWorked || 0) + hoursWorked,
+        hourMeterHistory: hourMeterHistory,
+        // Recalcular eficiencia si hay combustible consumido
+        ...(vehicle.totalFuelConsumed > 0 ? {
+          actualConsumptionPerHour: vehicle.totalFuelConsumed / ((vehicle.totalHoursWorked || 0) + hoursWorked)
+        } : {}),
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    console.log(`✅ Horómetro del tractor ${vehicleCode} actualizado: ${currentHours}h → ${newHours}h (+${hoursWorked}h)`);
+
+  } catch (error) {
+    console.error('❌ Error al actualizar horómetro:', error);
+    throw new Error(`Error al actualizar horómetro: ${error.message}`);
+  }
+};
+
+/**
+ * Obtener historial de horómetro de un vehículo
+ * @param {string} vehicleCode - Código del vehículo
+ * @param {number} limit - Límite de registros (opcional)
+ * @returns {Promise<Array>} - Historial del horómetro
+ */
+export const getHourMeterHistory = async (vehicleCode, limit = 50) => {
+  try {
+    const vehicle = await getVehicleByCode(vehicleCode);
+    if (!vehicle) {
+      throw new Error(`Vehículo ${vehicleCode} no encontrado`);
+    }
+
+    if (!vehicle.hasHourMeter) {
+      return [];
+    }
+
+    const history = vehicle.hourMeterHistory || [];
+    
+    // Ordenar por fecha (más recientes primero) y limitar
+    return history
+      .sort((a, b) => {
+        const dateA = a.date?.toDate?.() || a.date || new Date(0);
+        const dateB = b.date?.toDate?.() || b.date || new Date(0);
+        return dateB - dateA;
+      })
+      .slice(0, limit)
+      .map(record => ({
+        ...record,
+        date: record.date?.toDate?.() || record.date
+      }));
+
+  } catch (error) {
+    console.error('❌ Error al obtener historial de horómetro:', error);
+    throw new Error(`Error al obtener historial: ${error.message}`);
+  }
+};
+
+/**
+ * Calcular consumo por hora en tiempo real para tractores
+ * @param {string} vehicleCode - Código del tractor
+ * @returns {Promise<Object>} - Métricas de consumo por hora
+ */
+export const calculateTractorConsumption = async (vehicleCode) => {
+  try {
+    const vehicle = await getVehicleByCode(vehicleCode);
+    if (!vehicle) {
+      throw new Error(`Vehículo ${vehicleCode} no encontrado`);
+    }
+
+    if (!vehicle.hasHourMeter) {
+      throw new Error(`El vehículo ${vehicleCode} no tiene sistema de horómetro`);
+    }
+
+    const totalFuel = vehicle.totalFuelConsumed || 0;
+    const totalHours = vehicle.totalHoursWorked || 0;
+    const currentHours = vehicle.currentHours || 0;
+    const estimatedConsumption = vehicle.estimatedConsumptionPerHour || 0;
+
+    const metrics = {
+      vehicleCode,
+      totalFuelConsumed: totalFuel,
+      totalHoursWorked: totalHours,
+      currentHoursReading: currentHours,
+      estimatedConsumptionPerHour: estimatedConsumption,
+      actualConsumptionPerHour: totalHours > 0 ? totalFuel / totalHours : 0,
+      efficiencyPercentage: 0,
+      fuelSaved: 0,
+      projectedNextMaintenance: null
+    };
+
+    // Calcular eficiencia vs estimado
+    if (estimatedConsumption > 0 && metrics.actualConsumptionPerHour > 0) {
+      metrics.efficiencyPercentage = ((estimatedConsumption - metrics.actualConsumptionPerHour) / estimatedConsumption) * 100;
+      metrics.fuelSaved = (estimatedConsumption - metrics.actualConsumptionPerHour) * totalHours;
+    }
+
+    // Proyectar próximo mantenimiento (cada 250 horas)
+    const hoursUntilMaintenance = 250 - (currentHours % 250);
+    metrics.projectedNextMaintenance = {
+      hoursRemaining: hoursUntilMaintenance,
+      projectedHours: currentHours + hoursUntilMaintenance
+    };
+
+    return metrics;
+
+  } catch (error) {
+    console.error('❌ Error al calcular consumo del tractor:', error);
+    throw new Error(`Error al calcular métricas: ${error.message}`);
+  }
+};
+
+/**
  * Obtener estadísticas de vehículos
  * @param {Object} filters - Filtros de período
  * @returns {Promise<Object>} - Estadísticas calculadas
@@ -524,9 +678,9 @@ const validateVehicleData = (vehicleData) => {
     }
   }
 
-  // Validar tipo de vehículo
-  if (!Object.values(VEHICLE_TYPES).includes(vehicleData.type)) {
-    throw new Error('Tipo de vehículo inválido');
+  // Validar tipo de vehículo (permitir tipos personalizados)
+  if (!vehicleData.type || vehicleData.type.trim().length === 0) {
+    throw new Error('Tipo de vehículo requerido');
   }
 
   // Validar tipo de combustible
@@ -595,6 +749,9 @@ export default {
   subscribeToVehicles,
   getVehicleMovements,
   updateVehicleMetrics,
+  updateHourMeter,
+  getHourMeterHistory,
+  calculateTractorConsumption,
   getVehiclesStats,
   registerMaintenance,
   VEHICLE_TYPES,
