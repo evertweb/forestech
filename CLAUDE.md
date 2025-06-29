@@ -35,9 +35,9 @@ La documentación completa está organizada en módulos para mejor rendimiento:
 
 ### ⛽ **COMBUSTIBLES**
 📖 **[Ver docs/combustibles/](./docs/combustibles/README.md)**
-- **SISTEMA 83% COMPLETADO** (5/6 módulos) - Enero 2025
-- ✅ Inventario, Movimientos, Vehículos, Proveedores, Auth/Admin
-- ❌ Pendiente: Módulo Reportes (última funcionalidad)
+- **SISTEMA 90% COMPLETADO** (6/7 módulos) - Enero 2025
+- ✅ Inventario, Movimientos, Vehículos, **Productos (NUEVO)**, Proveedores, Auth/Admin
+- 🔄 Pendiente: Expansión Vehículos + Módulo Mantenimiento + Reportes
 - URL: https://forestechdecolombia.com.co/combustibles/
 
 ### 🔧 **SHARED**
@@ -360,6 +360,62 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Build**: Exitoso (61KB CSS + 924KB JS)
 - ✅ **Funcionalidad**: Sistema calculations integrado y operativo
 - ✅ **Preparación**: Lista para módulos Proveedores y Reportes
+
+### 🛢️ **Enero 29, 2025 - MÓDULO PRODUCTOS DINÁMICOS + FORMULARIO MOVIMIENTOS MEJORADO**
+**Commit:** `feat(combustibles): Implementar sistema dinámico de productos y formulario de movimientos mejorado`
+
+#### ✅ **TAREA 1 COMPLETADA - Sistema Dinámico de Productos (2,285+ líneas):**
+- **🆕 Nueva pestaña "Productos"** con navegación integrada en dashboard
+- **📦 9 productos predefinidos** según especificación del usuario:
+  - ACPM, GASOLINA, ACEITE HIDRÁULICO, ACEITE MOTOR 20W50
+  - GRASA ROJA, VALVULINA, LÍQUIDO PARA FRENOS
+  - MISTURA O LIGA, ACEITE PARA TRACTORES 15W40
+- **🔄 CRUD completo** con modal avanzado de 4 secciones
+- **📊 Estadísticas avanzadas** por categoría con insights automáticos
+- **🎨 Sistema visual** con iconos, colores y estados personalizables
+
+#### 🔧 **Archivos Productos Implementados:**
+- **productTypes.js** (160+ líneas) - Constantes y configuración 9 productos
+- **ProductsMain.jsx** (350+ líneas) - Componente principal con real-time Firebase
+- **ProductsStats.jsx** (280+ líneas) - Estadísticas por categoría y top productos
+- **ProductModal.jsx** (400+ líneas) - Modal crear/editar con preview en tiempo real
+- **productsService.js** (300+ líneas) - CRUD completo con suscripciones Firebase
+- **Products.css** (800+ líneas) - Estilos completos responsive mobile-first
+
+#### ✅ **TAREA 2 COMPLETADA - Formulario Movimientos SALIDA Mejorado:**
+- **🔄 Productos dinámicos** reemplazando tipos fijos de combustible
+- **📝 Campos reorganizados** para movimientos SALIDA según especificación:
+  - Fecha efectiva, Producto/combustible, Cantidad, Vehículo destino, Código (referencia)
+- **🎯 Auto-completado precios** desde productos configurados
+- **💾 Integración completa** con `getActiveProducts()` service
+- **🔍 Dropdown mejorado** con iconos y nombres descriptivos
+
+#### 🔗 **Integración Dashboard Completada:**
+- **📊 Widget "Stock por Tipo de Producto"** reemplazando placeholder gráfico
+- **⚡ Tiempo real** con `subscribeToProducts()` implementado
+- **🎨 Vista compacta** con 6 productos principales + contador adicionales
+- **🚦 Estados visuales** para stock (normal, bajo, sin stock)
+
+#### 🔄 **Estado Actualizado COMBUSTIBLES (90% COMPLETADO):**
+- ✅ **Inventario** (100%) - CRUD completo con validaciones
+- ✅ **Movimientos** (100%) - 4 tipos + validación stock + productos dinámicos
+- ✅ **Vehículos** (100%) - Gestión completa maquinaria forestal
+- ✅ **Productos** (100%) - **RECIÉN COMPLETADO (NUEVO MÓDULO)**
+- ✅ **Proveedores** (100%) - Sistema completo con integración movimientos
+- ✅ **Auth/Admin** (100%) - Sistema invitaciones + permisos
+- 🔄 **Pendiente**: Expansión Vehículos (22 nuevos) + Módulo Mantenimiento + Reportes
+
+#### 📊 **Verificaciones Técnicas:**
+- ✅ **Lint**: Código limpio sin errores críticos
+- ✅ **Build**: Compilación exitosa con nuevos módulos
+- ✅ **Firebase**: Integración productos con tiempo real operativa
+- ✅ **Navegación**: Nueva pestaña integrada con permisos
+- ✅ **Dashboard**: Widget productos funcional con estadísticas
+
+#### 🎯 **Próximas Tareas Identificadas:**
+- **TAREA 3**: Expandir vehículos con 22 unidades específicas + horómetro tractores
+- **TAREA 4**: Implementar módulo MANTENIMIENTO (aceites, filtros, baterías)
+- **FINAL**: Módulo Reportes para completar sistema al 100%
 
 ---
 
