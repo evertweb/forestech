@@ -51,7 +51,8 @@ export const createMovement = async (movementData) => {
       ...movementData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      status: MOVEMENT_STATUS.PENDIENTE,
+      status: MOVEMENT_STATUS.COMPLETADO, // Marcar como completado ya que se actualiza inventario automáticamente
+      approvedAt: serverTimestamp(), // Marcar como aprobado automáticamente
       // Campos calculados
       totalValue: calculateMovementValue(movementData),
       effectiveDate: movementData.effectiveDate || serverTimestamp()
@@ -435,24 +436,58 @@ const calculateMovementValue = (movementData) => {
  */
 const updateInventoryFromMovement = async (transaction, movement, movementId) => {
   try {
+    // Determinar ubicación correcta según tipo de movimiento
+    let targetLocation = movement.location || 'principal';
+    
+    // Para ENTRADA, usar destinationLocation si existe, sino ubicación principal
+    if (movement.type === MOVEMENT_TYPES.ENTRADA) {
+      targetLocation = movement.destinationLocation || 'principal';
+    }
+
     // Buscar item de inventario por tipo de combustible y ubicación
     const inventoryQuery = query(
       collection(db, INVENTORY_COLLECTION),
       where('fuelType', '==', movement.fuelType),
-      where('location', '==', movement.location || 'principal')
+      where('location', '==', targetLocation)
     );
 
     const inventorySnapshot = await getDocs(inventoryQuery);
     
+    let inventoryRef;
+    let inventoryData;
+    let newQuantity = 0;
+
     if (inventorySnapshot.empty) {
-      throw new Error(`No se encontró inventario para ${movement.fuelType} en ${movement.location || 'ubicación principal'}`);
+      // Si no existe inventario, crear uno nuevo para ENTRADA
+      if (movement.type === MOVEMENT_TYPES.ENTRADA) {
+        console.log(`📦 Creando inventario automático para ${movement.fuelType} en ${targetLocation}`);
+        
+        inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
+        inventoryData = {
+          fuelType: movement.fuelType,
+          location: targetLocation,
+          capacity: 1000, // Capacidad por defecto
+          currentStock: 0,
+          minStock: 50,
+          unitPrice: movement.unitPrice || 0,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          isActive: true
+        };
+        
+        // Crear inventario en la transacción
+        transaction.set(inventoryRef, inventoryData);
+        newQuantity = movement.quantity; // Primera entrada
+      } else {
+        throw new Error(`No se encontró inventario para ${movement.fuelType} en ${targetLocation}`);
+      }
+    } else {
+      // Usar inventario existente
+      const inventoryDoc = inventorySnapshot.docs[0];
+      inventoryData = inventoryDoc.data();
+      inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
+      newQuantity = inventoryData.currentStock;
     }
-
-    const inventoryDoc = inventorySnapshot.docs[0];
-    const inventoryData = inventoryDoc.data();
-    const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
-
-    let newQuantity = inventoryData.currentStock;
 
     // Aplicar cambio según tipo de movimiento
     switch (movement.type) {

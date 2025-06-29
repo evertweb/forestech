@@ -32,6 +32,39 @@ const DashboardMain = () => {
     maintenance: true // Inicialmente true para evitar esperar
   });
 
+  // Helper para manejar fechas de manera segura
+  const safeDateHelper = (date) => {
+    if (!date) return new Date();
+    
+    try {
+      // Si es un timestamp de Firestore con toDate()
+      if (date.toDate && typeof date.toDate === 'function') {
+        return date.toDate();
+      }
+      
+      // Si es un timestamp de Firestore con seconds
+      if (date.seconds) {
+        return new Date(date.seconds * 1000);
+      }
+      
+      // Si es un timestamp de Firestore con toMillis()
+      if (date.toMillis && typeof date.toMillis === 'function') {
+        return new Date(date.toMillis());
+      }
+      
+      // Si ya es una fecha JavaScript
+      if (date instanceof Date) {
+        return date;
+      }
+      
+      // Intentar crear Date desde string/number
+      return new Date(date);
+    } catch (error) {
+      console.warn('Error al procesar fecha:', error);
+      return new Date();
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -52,7 +85,18 @@ const DashboardMain = () => {
     const unsubMovements = subscribeToMovements(
       (movements) => {
         const pendingMovements = movements.filter(m => m.status === 'pending').length;
-        const recent = movements.sort((a, b) => b.date.toMillis() - a.date.toMillis()).slice(0, 5);
+        // Usar campo correcto y manejo seguro de fechas
+        const recent = movements
+          .sort((a, b) => {
+            const dateA = safeDateHelper(a.createdAt || a.date);
+            const dateB = safeDateHelper(b.createdAt || b.date);
+            return dateB.getTime() - dateA.getTime();
+          })
+          .slice(0, 5)
+          .map(mov => ({
+            ...mov,
+            date: safeDateHelper(mov.createdAt || mov.date) // Normalizar fecha
+          }));
         setStats(prevStats => ({ ...prevStats, pendingMovements }));
         setRecentMovements(recent);
         setDataLoaded(prev => ({ ...prev, movements: true }));
@@ -261,7 +305,7 @@ const DashboardMain = () => {
                 <li key={mov.id}>
                   <span className={`movement-type-badge ${mov.type}`}>{mov.type}</span>
                   {getMovementDescription(mov)}
-                  <span className="movement-date">{mov.date.toDate().toLocaleDateString()}</span>
+                  <span className="movement-date">{mov.date.toLocaleDateString()}</span>
                 </li>
               ))}
             </ul>

@@ -48,9 +48,8 @@ const MovementModal = ({
 
   // Ubicaciones disponibles
   const locations = [
-    'Principal',
-    'Bodega Norte',
-    'Bodega Sur',
+    'Bodega Austria',
+    'Bodega Ilusion',
     'Campo Operativo',
     'Estación Móvil'
   ];
@@ -498,7 +497,9 @@ const MovementModal = ({
 
               <div className="form-group">
                 <label>
-                  Vehículo/Equipo {formData.type === MOVEMENT_TYPES.SALIDA && '*'}
+                  {formData.type === MOVEMENT_TYPES.ENTRADA 
+                    ? 'Vehículo que hizo el transporte' 
+                    : `Vehículo/Equipo ${formData.type === MOVEMENT_TYPES.SALIDA ? '*' : ''}`}
                 </label>
                 {formData.type === MOVEMENT_TYPES.SALIDA ? (
                   loadingVehicles ? (
@@ -536,6 +537,34 @@ const MovementModal = ({
                 )}
               </div>
             </div>
+
+            {/* ENTRADA: Ubicación destino */}
+            {formData.type === MOVEMENT_TYPES.ENTRADA && (
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Ubicación Destino</label>
+                  <select
+                    value={formData.destinationLocation}
+                    onChange={(e) => handleInputChange('destinationLocation', e.target.value)}
+                    disabled={mode === 'view'}
+                    className={validationErrors.destinationLocation ? 'error' : ''}
+                  >
+                    <option value="">Seleccionar ubicación destino (opcional)...</option>
+                    {locations.map(location => (
+                      <option key={location} value={location}>
+                        📍 {location}
+                      </option>
+                    ))}
+                  </select>
+                  {validationErrors.destinationLocation && (
+                    <span className="field-error">{validationErrors.destinationLocation}</span>
+                  )}
+                  <small className="field-hint">
+                    Si no se especifica, se usará la ubicación "Principal"
+                  </small>
+                </div>
+              </div>
+            )}
 
             {/* Transferencia: Ubicación destino */}
             {formData.type === MOVEMENT_TYPES.TRANSFERENCIA && (

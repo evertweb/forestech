@@ -10,9 +10,7 @@ const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "liquidacionapp-62962.firebaseapp.com",
   projectId: "liquidacionapp-62962",
-  // --- ESTA ES LA LÍNEA DEL PROBLEMA ---
-  // Debe apuntar al bucket de 'firebasestorage.app'
-  storageBucket: "liquidacionapp-62962.firebasestorage.app", // <-- CORRECCIÓN
+  storageBucket: "liquidacionapp-62962.appspot.com",
   messagingSenderId: "851382130132",
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };

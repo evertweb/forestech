@@ -7,21 +7,53 @@ import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 
+// Verificar variables de entorno críticas
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+const appId = import.meta.env.VITE_FIREBASE_APP_ID;
+
+if (!apiKey) {
+  console.error('❌ VITE_FIREBASE_API_KEY no está definida en las variables de entorno');
+}
+
+if (!appId) {
+  console.error('❌ VITE_FIREBASE_APP_ID no está definida en las variables de entorno');
+}
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: "liquidacionapp-62962.firebaseapp.com",
-  projectId: "liquidacionapp-62962",
-  storageBucket: "liquidacionapp-62962.firebasestorage.app",
-  messagingSenderId: "851382130132",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: apiKey,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "liquidacionapp-62962.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "liquidacionapp-62962",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "liquidacionapp-62962.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "851382130132",
+  appId: appId
 };
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 
-// Inicializar Analytics y Performance (solo en browser)
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
-export const performance = typeof window !== 'undefined' ? getPerformance(app) : null;
+// Inicializar Analytics y Performance con manejo de errores
+let analytics = null;
+let performance = null;
+
+if (typeof window !== 'undefined') {
+  try {
+    analytics = getAnalytics(app);
+    console.log('✅ Firebase Analytics inicializado');
+  } catch (error) {
+    console.warn('⚠️ No se pudo inicializar Analytics:', error.message);
+    analytics = null;
+  }
+  
+  try {
+    performance = getPerformance(app);
+    console.log('✅ Firebase Performance inicializado');
+  } catch (error) {
+    console.warn('⚠️ No se pudo inicializar Performance:', error.message);
+    performance = null;
+  }
+}
+
+export { analytics, performance };
 
 // Exportar los servicios compartidos
 export const auth = getAuth(app);

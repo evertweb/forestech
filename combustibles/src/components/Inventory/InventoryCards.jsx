@@ -17,14 +17,35 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
   };
 
   const getTimeAgo = (date) => {
-    const now = new Date();
-    const diff = now - new Date(date.seconds ? date.seconds * 1000 : date);
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
+    if (!date) return 'sin fecha';
     
-    if (days > 0) return `hace ${days} día${days > 1 ? 's' : ''}`;
-    if (hours > 0) return `hace ${hours} hora${hours > 1 ? 's' : ''}`;
-    return 'hace unos minutos';
+    try {
+      const now = new Date();
+      let targetDate;
+      
+      // Manejar diferentes formatos de fecha
+      if (date.seconds) {
+        // Timestamp de Firestore
+        targetDate = new Date(date.seconds * 1000);
+      } else if (date.toDate && typeof date.toDate === 'function') {
+        // Timestamp de Firestore con método toDate()
+        targetDate = date.toDate();
+      } else {
+        // Fecha normal
+        targetDate = new Date(date);
+      }
+      
+      const diff = now - targetDate;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(hours / 24);
+      
+      if (days > 0) return `hace ${days} día${days > 1 ? 's' : ''}`;
+      if (hours > 0) return `hace ${hours} hora${hours > 1 ? 's' : ''}`;
+      return 'hace unos minutos';
+    } catch (error) {
+      console.warn('Error al calcular tiempo transcurrido:', error);
+      return 'fecha inválida';
+    }
   };
 
   return (
@@ -128,7 +149,7 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
               </div>
               
               <div className="last-update">
-                Actualizado {getTimeAgo(item.lastUpdated)}
+                Actualizado {getTimeAgo(item.updatedAt || item.lastUpdated)}
               </div>
             </div>
 
