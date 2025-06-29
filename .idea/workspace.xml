@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/combustibles/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/combustibles/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -94,7 +89,7 @@
       <workItem from="1750632527309" duration="58264000" />
       <workItem from="1751135184505" duration="8288000" />
       <workItem from="1751152961629" duration="103000" />
-      <workItem from="1751153834929" duration="2284000" />
+      <workItem from="1751153834929" duration="2641000" />
     </task>
     <servers />
   </component>

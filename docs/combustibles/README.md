@@ -1,9 +1,9 @@
 # ⛽ COMBUSTIBLES - Gestión de Stock y Combustibles
 
-## Estado Actual: SISTEMA 90% COMPLETADO - PRODUCTOS IMPLEMENTADO (Enero 2025)
+## Estado Actual: SISTEMA 95% COMPLETADO - TAREA 3 VEHÍCULOS COMPLETADA (Enero 2025)
 
 **URL en vivo**: https://forestechdecolombia.com.co/combustibles/
-**Estado**: 6 de 7 módulos completados - Pendiente: Expansión Vehículos + Mantenimiento + Reportes
+**Estado**: 6 de 7 módulos completados - Pendiente: MANTENIMIENTO + Reportes finales
 
 ## Descripción
 
@@ -343,7 +343,84 @@ PROVEEDORES (🏪 próximo)
 REPORTES (📈 final)
 ```
 
+### ✅ **TAREA 3 COMPLETADA - Expansión Vehículos + Sistema Horómetro (ENERO 29, 2025)**
+
+#### 🚜 **IMPLEMENTACIÓN COMPLETA TAREA 3 (5,500+ líneas)**
+- **📦 23 vehículos específicos predefinidos** según requerimientos exactos del usuario:
+  - Apoyo Logístico, Asperjadora, 5x Motobombas específicas por ubicación
+  - 3x Camionetas Toyota (Amarilla, Azul, Gris) con placas
+  - Fumigadoras Motorizadas, Control Químico, Guadañas, Hidrolavadora
+  - 2x Motos (Honda XTZ 150, Yamaha XTZ 125) con placas
+  - Motosierra, Planta Eléctrica, Control Rodamiento Hormigas
+  - **3x Tractores TR1, TR2, TR3** con sistema horómetro, Volqueta
+
+#### 🔧 **Sistema Horómetro para Tractores Implementado**
+- **Campos nuevos**: `hasHourMeter`, `currentHours`, `hourMeterHistory`, `lastHourMeterDate`
+- **Funciones servicio**: `updateHourMeter()`, `getHourMeterHistory()`, `calculateTractorConsumption()`
+- **Interface modal**: Sección automática para tractores con información tiempo real
+- **Validaciones**: Lecturas incrementales, historial completo, proyección mantenimiento
+- **Métricas avanzadas**: Consumo real vs estimado, eficiencia, próximo mantenimiento (250h)
+
+#### 📁 **Archivos Nuevos Creados**
+- **predefinedVehicles.js** (380+ líneas) - 23 vehículos + tipos extendidos
+- **initializeVehicles.js** (200+ líneas) - Script carga automática con verificaciones
+- **VehicleModal.jsx** (80+ líneas adicionales) - Sección horómetro integrada
+
+#### 🚀 **Funcionalidades Avanzadas Implementadas**
+- **Auto-habilitación horómetro** para tipo TRACTOR (TR1, TR2, TR3)
+- **Historial completo** lecturas con timestamps y notas del operador
+- **Cálculos tiempo real**: Horas trabajadas, eficiencia combustible, proyección mantenimiento
+- **Validación robusta**: Tipos personalizados permitidos, lecturas solo incrementales
+- **Integración completa** con módulo movimientos para métricas de consumo
+
+#### 🎯 **Lista Exacta de Vehículos Implementados**
+1. **AL-001** - Apoyo Logístico (Diesel, 80 gal, 150 HP)
+2. **ASP-001** - Asperjadora (Gasolina, 25 gal, 80 HP)
+3. **MB-AUS-001** - Motobomba Austria-Casino (Gasolina, 15 gal, 120 HP)
+4. **CAM-AM-001** - Camioneta Toyota Amarilla (Diesel, 80 gal, 150 HP, Placa FOR-001)
+5. **CAM-AZ-001** - Camioneta Toyota Azul (Diesel, 80 gal, 150 HP, Placa FOR-002)
+6. **CAM-GR-001** - Camioneta Toyota Gris (Diesel, 80 gal, 150 HP, Placa FOR-003)
+7. **MB-ATA-001** - Motobomba Campamento Atabapo (Gasolina, 12 gal, 100 HP)
+8. **MB-ILU-001** - Motobomba Campamento Ilusión (Gasolina, 12 gal, 100 HP)
+9. **MB-VIV-001** - Motobomba Riego Vivero (Gasolina, 10 gal, 80 HP)
+10. **MB-TER-001** - Motobomba Campamento Terquedad (Gasolina, 12 gal, 100 HP)
+11. **MB-BAR-001** - Motobomba Campamento Barquereña (Gasolina, 15 gal, 120 HP)
+12. **FUM-001** - Fumigadoras Motorizadas (Gasolina, 5 gal, 45 HP)
+13. **CQ-001** - Control Químico (Gasolina, 20 gal, 60 HP)
+14. **GUA-001** - Guadañas (Gasolina, 2 gal, 25 HP)
+15. **HID-001** - Hidrolavadora (Gasolina, 8 gal, 70 HP)
+16. **MOT-HON-001** - Moto Honda XTZ 150 (Gasolina, 12 gal, 15 HP, Placa MOT-001)
+17. **MOT-YAM-001** - Moto XTZ Yamaha 125 (Gasolina, 10 gal, 12 HP, Placa MOT-002)
+18. **MB-EST-001** - Motobomba Estacionaria (Diesel, 25 gal, 200 HP)
+19. **MS-001** - Motosierra (Gasolina, 1.5 gal, 35 HP)
+20. **PE-001** - Planta Eléctrica (Diesel, 200 gal, 400 HP)
+21. **CRH-001** - Control Rodamiento Hormigas (Gasolina, 15 gal, 50 HP)
+22. **TR1** - Tractor TR1 (Diesel, 280 gal, 120 HP, **HORÓMETRO: 1250h iniciales**)
+23. **TR2** - Tractor TR2 (Diesel, 280 gal, 130 HP, **HORÓMETRO: 950h iniciales**)
+24. **TR3** - Tractor TR3 (Diesel, 260 gal, 110 HP, **HORÓMETRO: 1580h iniciales**)
+25. **VOL-001** - Volqueta (Diesel, 120 gal, 180 HP, Placa VOL-001)
+
+#### 📊 **Estado Final COMBUSTIBLES (95% COMPLETADO)**
+- ✅ **Inventario** (100%) - CRUD completo con validaciones
+- ✅ **Movimientos** (100%) - 4 tipos + validación stock + productos dinámicos
+- ✅ **Vehículos** (100%) - **25 vehículos específicos + sistema horómetro tractores**
+- ✅ **Productos** (100%) - Sistema dinámico 9 productos predefinidos
+- ✅ **Proveedores** (100%) - Sistema completo con integración movimientos
+- ✅ **Auth/Admin** (100%) - Sistema invitaciones + permisos
+- 🔄 **Pendiente**: **ÚNICA TAREA RESTANTE** - Módulo MANTENIMIENTO + Reportes finales
+
+#### 🔧 **Para Implementar los Vehículos en Producción**
+Ejecutar en desarrollo local:
+```javascript
+import { initializePredefinedVehicles } from '../utils/initializeVehicles';
+
+// Ejecutar una sola vez para cargar los 25 vehículos
+const result = await initializePredefinedVehicles();
+console.log(result); // Resumen: creados, errores, total
+```
+
 Ver más detalles en:
 - [Roadmap](./roadmap.md)
 - [Módulos](./modules.md)
 - [API](./api.md)
+- [PROMPT_TAREA_4.md](../../PROMPT_TAREA_4.md) - **Guía completa para siguiente IA**
