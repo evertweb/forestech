@@ -107,9 +107,8 @@ export const CombustiblesProvider = ({ children }) => {
   const deleteMovement = async (movementId) => {
     try {
       await movementsService.deleteMovement(movementId);
-      setMovements((prevMovements) => prevMovements.filter((m) => m.id !== movementId));
-      // Opcional: podrías querer refrescar el inventario también
-      // await refreshInventory(); 
+      // No manipular estado manualmente - las suscripciones de Firestore 
+      // actualizarán automáticamente inventory y movements
       return { success: true };
     } catch (error) {
       console.error("Error al eliminar el movimiento en el contexto:", error);

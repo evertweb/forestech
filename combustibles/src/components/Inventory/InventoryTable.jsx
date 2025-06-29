@@ -20,8 +20,32 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   };
 
   const getTimeAgo = (date) => {
+    if (!date) return 'N/A';
+    
     const now = new Date();
-    const diff = now - new Date(date.seconds ? date.seconds * 1000 : date);
+    let timestamp;
+    
+    // Manejar diferentes formatos de fecha de forma segura
+    if (date && typeof date === 'object') {
+      if (date.seconds) {
+        timestamp = new Date(date.seconds * 1000);
+      } else if (date.toDate && typeof date.toDate === 'function') {
+        timestamp = date.toDate();
+      } else if (date instanceof Date) {
+        timestamp = date;
+      } else {
+        return 'N/A';
+      }
+    } else if (typeof date === 'string' || typeof date === 'number') {
+      timestamp = new Date(date);
+    } else {
+      return 'N/A';
+    }
+    
+    // Verificar que timestamp es válido
+    if (isNaN(timestamp.getTime())) return 'N/A';
+    
+    const diff = now - timestamp;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
     
@@ -45,8 +69,19 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
 
     // Handle special cases
     if (sortField === 'lastUpdated') {
-      aValue = new Date(aValue.seconds ? aValue.seconds * 1000 : aValue);
-      bValue = new Date(bValue.seconds ? bValue.seconds * 1000 : bValue);
+      // Manejar fechas de forma segura
+      const parseDate = (date) => {
+        if (!date) return new Date(0);
+        if (date && typeof date === 'object') {
+          if (date.seconds) return new Date(date.seconds * 1000);
+          if (date.toDate && typeof date.toDate === 'function') return date.toDate();
+          if (date instanceof Date) return date;
+        }
+        return new Date(date);
+      };
+      
+      aValue = parseDate(aValue);
+      bValue = parseDate(bValue);
     }
 
     if (aValue < bValue) {
@@ -119,7 +154,14 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
             {sortedItems.map((item) => {
               const fuelInfo = FUEL_INFO[item.fuelType];
               const stockAlert = STOCK_ALERTS[item.stockLevel];
-              const totalValue = item.currentStock * item.pricePerUnit;
+              
+              // Validar valores numéricos para evitar NaN
+              const currentStock = parseFloat(item.currentStock) || 0;
+              const pricePerUnit = parseFloat(item.pricePerUnit) || 0;
+              const maxCapacity = parseFloat(item.maxCapacity) || 0;
+              const stockPercentage = parseFloat(item.stockPercentage) || 0;
+              
+              const totalValue = currentStock * pricePerUnit;
 
               return (
                 <tr key={item.id} className={item.needsRestock ? 'needs-restock' : ''}>
@@ -146,9 +188,9 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
                   <td className="stock-cell">
                     <div className="stock-info">
                       <span className="stock-amount">
-                        {formatNumber(item.currentStock)}
+                        {formatNumber(currentStock)}
                       </span>
-                      <span className="stock-unit">/ {formatNumber(item.maxCapacity)} {item.unit}</span>
+                      <span className="stock-unit">/ {formatNumber(maxCapacity)} {item.unit || 'gal'}</span>
                     </div>
                     {item.needsRestock && (
                       <div className="restock-indicator">
@@ -167,13 +209,13 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
                           color: 'white'
                         }}
                       >
-                        {item.stockPercentage}%
+                        {stockPercentage}%
                       </div>
                       <div className="level-bar">
                         <div 
                           className="level-fill"
                           style={{ 
-                            width: `${item.stockPercentage}%`,
+                            width: `${stockPercentage}%`,
                             backgroundColor: stockAlert?.color
                           }}
                         />
@@ -185,9 +227,9 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
                   <td className="price-cell">
                     <div className="price-info">
                       <span className="price-amount">
-                        {formatCurrency(item.pricePerUnit)}
+                        {formatCurrency(pricePerUnit)}
                       </span>
-                      <span className="price-unit">/ {item.unit}</span>
+                      <span className="price-unit">/ {item.unit || 'gal'}</span>
                     </div>
                   </td>
 

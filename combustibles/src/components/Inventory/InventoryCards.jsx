@@ -53,7 +53,14 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
       {items.map((item) => {
         const fuelInfo = FUEL_INFO[item.fuelType];
         const stockAlert = STOCK_ALERTS[item.stockLevel];
-        const totalValue = item.currentStock * item.pricePerUnit;
+        
+        // Validar valores numéricos para evitar NaN
+        const currentStock = parseFloat(item.currentStock) || 0;
+        const pricePerUnit = parseFloat(item.pricePerUnit) || parseFloat(item.unitPrice) || 0;
+        const maxCapacity = parseFloat(item.maxCapacity) || parseFloat(item.capacity) || 0;
+        const stockPercentage = parseFloat(item.stockPercentage) || 0;
+        
+        const totalValue = currentStock * pricePerUnit;
 
         return (
           <div key={item.id} className="inventory-card">
@@ -89,10 +96,10 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
             <div className="stock-progress">
               <div className="progress-header">
                 <span className="stock-text">
-                  {formatNumber(item.currentStock)} / {formatNumber(item.maxCapacity)} {item.unit}
+                  {formatNumber(currentStock)} / {formatNumber(maxCapacity)} {item.unit || 'gal'}
                 </span>
                 <span className="percentage">
-                  {item.stockPercentage}%
+                  {stockPercentage}%
                 </span>
               </div>
               
@@ -100,7 +107,7 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
                 <div 
                   className="progress-fill"
                   style={{ 
-                    width: `${item.stockPercentage}%`,
+                    width: `${stockPercentage}%`,
                     backgroundColor: stockAlert?.color
                   }}
                 />
@@ -108,7 +115,7 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
               
               {item.needsRestock && (
                 <div className="restock-warning">
-                  ⚠️ Bajo nivel mínimo ({formatNumber(item.minThreshold)} {item.unit})
+                  ⚠️ Bajo nivel mínimo ({formatNumber(item.minThreshold || item.minStock || 0)} {item.unit || 'gal'})
                 </div>
               )}
             </div>
@@ -116,9 +123,9 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
             {/* Metrics */}
             <div className="card-metrics">
               <div className="metric">
-                <span className="metric-label">Precio por {item.unit}:</span>
+                <span className="metric-label">Precio por {item.unit || 'gal'}:</span>
                 <span className="metric-value">
-                  {formatCurrency(item.pricePerUnit)}
+                  {formatCurrency(pricePerUnit)}
                 </span>
               </div>
               
