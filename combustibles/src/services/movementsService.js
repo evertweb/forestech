@@ -544,23 +544,88 @@ const revertInventoryChanges = async (transaction, movement) => {
   try {
     console.log('🔄 Revirtiendo cambios de inventario para movimiento:', movement.id);
 
+    // Determinar la ubicación correcta según el tipo de movimiento
+    let targetLocation;
+    switch (movement.type) {
+      case MOVEMENT_TYPES.ENTRADA:
+        // Para ENTRADA, usar destinationLocation (donde se agregó el inventario)
+        targetLocation = movement.destinationLocation || 'principal';
+        break;
+      case MOVEMENT_TYPES.SALIDA:
+      case MOVEMENT_TYPES.AJUSTE:
+        // Para SALIDA y AJUSTE, usar location (donde se modificó el inventario)
+        targetLocation = movement.location || 'principal';
+        break;
+      case MOVEMENT_TYPES.TRANSFERENCIA:
+        // Para TRANSFERENCIA, usar location (origen donde se restó)
+        targetLocation = movement.location || 'principal';
+        break;
+      default:
+        targetLocation = movement.location || movement.destinationLocation || 'principal';
+    }
+
+    console.log(`🔍 Buscando inventario: ${movement.fuelType} en ${targetLocation}`);
+
     // Buscar item de inventario por tipo de combustible y ubicación
     const inventoryQuery = query(
       collection(db, INVENTORY_COLLECTION),
       where('fuelType', '==', movement.fuelType),
-      where('location', '==', movement.location || 'principal')
+      where('location', '==', targetLocation)
     );
 
     const inventorySnapshot = await getDocs(inventoryQuery);
     
     if (inventorySnapshot.empty) {
-      throw new Error(`No se encontró inventario para ${movement.fuelType} en ${movement.location || 'ubicación principal'}`);
+      // Si no encuentra inventario, intentar con ubicación alternativa o crear entrada
+      console.warn(`⚠️ No se encontró inventario para ${movement.fuelType} en ${targetLocation}`);
+      
+      // Estrategia de fallback: buscar en cualquier ubicación para el mismo combustible
+      const fallbackQuery = query(
+        collection(db, INVENTORY_COLLECTION),
+        where('fuelType', '==', movement.fuelType)
+      );
+      
+      const fallbackSnapshot = await getDocs(fallbackQuery);
+      
+      if (fallbackSnapshot.empty) {
+        // Si no existe inventario en ninguna ubicación, no se puede revertir
+        console.error(`❌ No existe inventario para ${movement.fuelType} en ninguna ubicación`);
+        throw new Error(`No se puede revertir: no existe inventario para ${movement.fuelType} en ninguna ubicación. Movimiento huérfano detectado.`);
+      }
+      
+      // Usar el primer inventario encontrado como fallback
+      console.log(`🔄 Usando inventario fallback en ${fallbackSnapshot.docs[0].data().location}`);
+      const inventoryDoc = fallbackSnapshot.docs[0];
+      const inventoryData = inventoryDoc.data();
+      const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
+      
+      // Proceder con la reversión usando el inventario fallback
+      await processInventoryReversion(transaction, inventoryRef, inventoryData, movement);
+      return;
     }
 
     const inventoryDoc = inventorySnapshot.docs[0];
     const inventoryData = inventoryDoc.data();
     const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
 
+    // Proceder con la reversión usando el inventario encontrado
+    await processInventoryReversion(transaction, inventoryRef, inventoryData, movement);
+
+  } catch (error) {
+    console.error('❌ Error al revertir cambios de inventario:', error);
+    throw new Error(`Error al revertir inventario: ${error.message}`);
+  }
+};
+
+/**
+ * Procesar reversión de inventario con validaciones robustas
+ * @param {Transaction} transaction - Transacción Firestore
+ * @param {DocumentReference} inventoryRef - Referencia al documento de inventario
+ * @param {Object} inventoryData - Datos actuales del inventario
+ * @param {Object} movement - Movimiento a revertir
+ */
+const processInventoryReversion = async (transaction, inventoryRef, inventoryData, movement) => {
+  try {
     let newQuantity = inventoryData.currentStock;
 
     // Revertir cambio según tipo de movimiento (operación inversa)
@@ -607,16 +672,16 @@ const revertInventoryChanges = async (transaction, movement) => {
         quantity: movement.quantity,
         originalType: movement.type,
         date: serverTimestamp(),
-        note: `Reversión de movimiento ${movement.id}`
+        note: `Reversión de movimiento ${movement.id} - Ubicación original: ${movement.location || movement.destinationLocation || 'no especificada'}`
       },
       updatedAt: serverTimestamp()
     });
 
-    console.log(`✅ Inventario revertido exitosamente. Nuevo stock: ${newQuantity}`);
+    console.log(`✅ Inventario revertido exitosamente. Stock anterior: ${inventoryData.currentStock}, Nuevo stock: ${newQuantity}`);
 
   } catch (error) {
-    console.error('❌ Error al revertir cambios de inventario:', error);
-    throw new Error(`Error al revertir inventario: ${error.message}`);
+    console.error('❌ Error en procesamiento de reversión:', error);
+    throw error;
   }
 };
 

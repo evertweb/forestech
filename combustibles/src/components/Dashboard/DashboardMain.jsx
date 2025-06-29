@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import './Dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { calculateInventoryStats, formatNumber, formatCurrency } from '../../utils/calculations';
 
 const DashboardMain = () => {
   const { inventory, movements, vehicles, loading, error } = useCombustibles();
@@ -16,18 +17,33 @@ const DashboardMain = () => {
   };
 
   const stats = useMemo(() => {
-    const totalFuel = inventory.reduce((sum, item) => sum + (item.currentStock || 0), 0);
-    const lowStockAlerts = inventory.filter(item => (item.currentStock || 0) < (item.minStock || 20)).length;
+    // Normalizar datos de inventario para cálculos correctos
+    const normalizedInventory = inventory.map(item => ({
+      ...item,
+      quantity: item.currentStock || 0, // Mapear currentStock a quantity para calculations.js
+      pricePerUnit: item.unitPrice || 0, // Mapear unitPrice a pricePerUnit
+      status: item.isActive ? 'active' : 'inactive' // Normalizar status
+    }));
+    
+    const correctStats = calculateInventoryStats(normalizedInventory);
+    
     const activeVehicles = vehicles.filter(v => v.status === 'activo').length;
     const pendingMovements = movements.filter(m => m.status === 'pendiente').length;
 
     return {
-      totalFuel,
-      lowStockAlerts,
+      totalFuel: correctStats.totalItems > 0 
+        ? normalizedInventory.filter(item => item.status === 'active')
+            .reduce((sum, item) => sum + (item.quantity || 0), 0)
+        : 0,
+      totalValue: correctStats.totalValue,
+      lowStockAlerts: correctStats.lowStockItems,
+      activeInventoryItems: correctStats.activeItems,
       activeVehicles,
       pendingMovements,
-      totalMaintenance: 0, // Placeholder
-      overdueMaintenance: 0, // Placeholder
+      totalMaintenance: 0, // Placeholder para futuro módulo
+      overdueMaintenance: 0, // Placeholder para futuro módulo
+      averageStockLevel: correctStats.averageStockLevel,
+      stockByType: correctStats.stockByType
     };
   }, [inventory, vehicles, movements]);
 
@@ -36,8 +52,6 @@ const DashboardMain = () => {
       .sort((a, b) => safeDateHelper(b.createdAt).getTime() - safeDateHelper(a.createdAt).getTime())
       .slice(0, 5);
   }, [movements]);
-
-  const formatNumber = (num) => new Intl.NumberFormat('es-CO').format(num);
 
   const getMovementDescription = (mov) => {
     const quantity = mov.quantity || 0;
@@ -91,6 +105,13 @@ const DashboardMain = () => {
           <div className="stat-info">
             <p>Combustible Total</p>
             <h2>{formatNumber(stats.totalFuel)} gal</h2>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon value-icon">💰</div>
+          <div className="stat-info">
+            <p>Valor Inventario</p>
+            <h2>{formatCurrency(stats.totalValue)}</h2>
           </div>
         </div>
         <div className="stat-card">
