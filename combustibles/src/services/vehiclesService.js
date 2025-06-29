@@ -20,6 +20,7 @@ import {
   runTransaction
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { initializePredefinedVehicles } from '../utils/initializeVehicles';
 
 const COLLECTION_NAME = 'combustibles_vehicles';
 const MOVEMENTS_COLLECTION = 'combustibles_movements';
@@ -102,6 +103,9 @@ export const createVehicle = async (vehicleData) => {
  */
 export const getAllVehicles = async (filters = {}) => {
   try {
+    // Verificar e inicializar vehículos predefinidos si no existen
+    await initializePredefinedVehicles();
+    
     let q = collection(db, COLLECTION_NAME);
 
     // Aplicar filtros
