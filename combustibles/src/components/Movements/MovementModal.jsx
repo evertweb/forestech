@@ -13,6 +13,7 @@ import {
 import { getAllVehicles } from '../../services/vehiclesService';
 import { getAllInventoryItems } from '../../services/inventoryService';
 import { getAllSuppliers } from '../../services/suppliersService';
+import { getActiveProducts } from '../../services/productsService';
 import { validateStockAvailability, formatCurrency } from '../../utils/calculations';
 
 const MovementModal = ({ 
@@ -43,13 +44,7 @@ const MovementModal = ({
   const [inventory, setInventory] = useState([]);
   const [stockWarning, setStockWarning] = useState('');
   const [suppliers, setSuppliers] = useState([]);
-
-  // Tipos de combustible disponibles
-  const fuelTypes = [
-    { value: 'Diesel', label: 'Diesel/ACPM 🚛', price: 12500 },
-    { value: 'Gasolina', label: 'Gasolina 🚗', price: 14200 },
-    { value: 'Lubricante', label: 'Lubricante 🛢️', price: 45000 }
-  ];
+  const [products, setProducts] = useState([]);
 
   // Ubicaciones disponibles
   const locations = [
@@ -60,20 +55,22 @@ const MovementModal = ({
     'Estación Móvil'
   ];
 
-  // Cargar vehículos, inventario y proveedores cuando se abre el modal
+  // Cargar vehículos, inventario, proveedores y productos cuando se abre el modal
   useEffect(() => {
     const loadData = async () => {
       if (isOpen) {
         setLoadingVehicles(true);
         try {
-          const [vehiclesData, inventoryResult, suppliersResult] = await Promise.all([
+          const [vehiclesData, inventoryResult, suppliersResult, productsData] = await Promise.all([
             getAllVehicles(),
             getAllInventoryItems(),
-            getAllSuppliers()
+            getAllSuppliers(),
+            getActiveProducts()
           ]);
           setVehicles(vehiclesData);
           setInventory(inventoryResult.success ? inventoryResult.data : []);
           setSuppliers(suppliersResult.success ? suppliersResult.data : []);
+          setProducts(productsData);
         } catch (error) {
           console.error('Error al cargar datos:', error);
         } finally {
@@ -123,16 +120,16 @@ const MovementModal = ({
 
   // Auto-llenar precio cuando se selecciona combustible
   useEffect(() => {
-    if (formData.fuelType && !formData.unitPrice) {
-      const fuelData = fuelTypes.find(f => f.value === formData.fuelType);
-      if (fuelData) {
+    if (formData.fuelType && !formData.unitPrice && products.length > 0) {
+      const productData = products.find(p => p.name === formData.fuelType || p.displayName === formData.fuelType);
+      if (productData && productData.defaultPrice) {
         setFormData(prev => ({
           ...prev,
-          unitPrice: fuelData.price.toString()
+          unitPrice: productData.defaultPrice.toString()
         }));
       }
     }
-  }, [formData.fuelType]);
+  }, [formData.fuelType, products]);
 
   // Validar stock disponible en tiempo real usando calculations.js
   useEffect(() => {
@@ -360,10 +357,10 @@ const MovementModal = ({
                   disabled={mode === 'view'}
                   className={validationErrors.fuelType ? 'error' : ''}
                 >
-                  <option value="">Seleccionar combustible...</option>
-                  {fuelTypes.map(fuel => (
-                    <option key={fuel.value} value={fuel.value}>
-                      {fuel.label}
+                  <option value="">Seleccionar producto/combustible...</option>
+                  {products.map(product => (
+                    <option key={product.id} value={product.name}>
+                      {product.icon} {product.displayName}
                     </option>
                   ))}
                 </select>

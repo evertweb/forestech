@@ -39,6 +39,13 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
       requiredPermission: null // Todos pueden ver vehículos
     },
     {
+      id: 'products',
+      name: 'Productos',
+      icon: '🛢️',
+      description: 'Tipos de combustibles',
+      requiredPermission: null // Todos pueden ver productos
+    },
+    {
       id: 'suppliers',
       name: 'Proveedores',
       icon: '🏪',

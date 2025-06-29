@@ -5,6 +5,7 @@ import './Dashboard.css';
 import { subscribeToInventory } from '../../services/inventoryService';
 import { subscribeToMovements } from '../../services/movementsService';
 import { subscribeToVehicles } from '../../services/vehiclesService';
+import { subscribeToProducts } from '../../services/productsService';
 
 const DashboardMain = () => {
   const [stats, setStats] = useState({
@@ -12,14 +13,17 @@ const DashboardMain = () => {
     activeVehicles: 0,
     pendingMovements: 0,
     lowStockAlerts: 0,
+    totalProducts: 0,
   });
   const [recentMovements, setRecentMovements] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataLoaded, setDataLoaded] = useState({
     inventory: false,
     movements: false,
-    vehicles: false
+    vehicles: false,
+    products: false
   });
 
   useEffect(() => {
@@ -65,10 +69,25 @@ const DashboardMain = () => {
       }
     );
 
+    const unsubProducts = subscribeToProducts(
+      (productsData) => {
+        const totalProducts = productsData.length;
+        setProducts(productsData);
+        setStats(prevStats => ({ ...prevStats, totalProducts }));
+        setDataLoaded(prev => ({ ...prev, products: true }));
+      },
+      (error) => {
+        console.error('Error loading products:', error);
+        // No mostramos error crítico por productos, es opcional
+        setDataLoaded(prev => ({ ...prev, products: true }));
+      }
+    );
+
     return () => {
       unsubInventory();
       unsubMovements();
       unsubVehicles();
+      unsubProducts();
     };
   }, []);
 
@@ -177,11 +196,43 @@ const DashboardMain = () => {
           )}
         </div>
         <div className="dashboard-widget">
-          <h3>Consumo por Tipo de Combustible</h3>
-          {/* TODO: Implementar gráfico de Chart.js */}
-          <div className="chart-placeholder">
-            <p>Gráfico de consumo próximamente</p>
-          </div>
+          <h3>📦 Stock por Tipo de Producto</h3>
+          {products.length > 0 ? (
+            <div className="products-summary">
+              {products.slice(0, 6).map(product => (
+                <div key={product.id} className="product-summary-item">
+                  <div className="product-icon" style={{ color: product.color }}>
+                    {product.icon}
+                  </div>
+                  <div className="product-info">
+                    <span className="product-name">{product.displayName}</span>
+                    <div className="product-stats">
+                      <span className="stock-value">
+                        {formatNumber(product.currentStock || 0)} {product.unit}
+                      </span>
+                      <span className={`stock-status ${
+                        (product.currentStock || 0) === 0 ? 'empty' :
+                        (product.currentStock || 0) <= (product.minThreshold || 0) ? 'low' : 'normal'
+                      }`}>
+                        {(product.currentStock || 0) === 0 ? '🔴 Sin stock' :
+                         (product.currentStock || 0) <= (product.minThreshold || 0) ? '🟡 Stock bajo' : '🟢 Normal'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {products.length > 6 && (
+                <div className="view-all-products">
+                  <span>+{products.length - 6} productos más</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="no-products">
+              <p>No hay productos registrados.</p>
+              <small>Ve a la sección Productos para crear los primeros tipos de combustible.</small>
+            </div>
+          )}
         </div>
       </div>
     </div>
