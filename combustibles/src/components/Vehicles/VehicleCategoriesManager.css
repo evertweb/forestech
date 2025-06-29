@@ -13,6 +13,9 @@
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #e2e8f0;
+  /* Mejorar responsividad */
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .categories-header h3 {
@@ -25,6 +28,9 @@
 .header-actions {
   display: flex;
   gap: 0.75rem;
+  /* Asegurar que los botones sean accesibles */
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .btn-primary, .btn-secondary {
@@ -50,6 +56,37 @@
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Mejorar accesibilidad en móvil */
+@media (max-width: 768px) {
+  .categories-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .categories-header h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .header-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .btn-primary, .btn-secondary {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    min-width: 120px;
+    /* Botones más grandes en móvil */
+    touch-action: manipulation;
+  }
+  
+  .categories-manager {
+    padding: 1rem;
+  }
 }
 
 .btn-secondary {

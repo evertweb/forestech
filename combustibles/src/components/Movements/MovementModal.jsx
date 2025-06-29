@@ -58,6 +58,8 @@ const MovementModal = ({
   useEffect(() => {
     const loadData = async () => {
       if (isOpen) {
+        // Prevenir scroll del fondo cuando el modal está abierto
+        document.body.style.overflow = 'hidden';
         setLoadingVehicles(true);
         try {
           console.log('🔄 Cargando datos para formulario de movimientos...');
@@ -86,10 +88,18 @@ const MovementModal = ({
         } finally {
           setLoadingVehicles(false);
         }
+      } else {
+        // Restaurar scroll del fondo cuando el modal se cierra
+        document.body.style.overflow = 'unset';
       }
     };
 
     loadData();
+    
+    // Cleanup function para restaurar overflow
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen]);
 
   // Inicializar formulario

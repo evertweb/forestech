@@ -67,7 +67,17 @@ const VehicleModalNew = ({
   useEffect(() => {
     if (isOpen) {
       loadCategories();
+      // Prevenir scroll del fondo cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restaurar scroll del fondo cuando el modal se cierra
+      document.body.style.overflow = 'unset';
     }
+    
+    // Cleanup function para restaurar overflow
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen]);
 
   useEffect(() => {
