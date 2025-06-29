@@ -499,6 +499,52 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - **TAREA 4**: Implementar módulo MANTENIMIENTO con cambios aceite, filtros, baterías
 - **FINAL**: Módulo Reportes + integración horómetro para consumo/hora tractores
 
+### 🔧 **Enero 29, 2025 - CORRECCIONES CRÍTICAS FIREBASE + MOVIMIENTOS ENTRADA + DASHBOARD**
+**Commit:** `fix(combustibles): Corregir errores críticos Firebase + movimientos ENTRADA + dashboard`
+
+#### ✅ **SOLUCIONES CRÍTICAS IMPLEMENTADAS:**
+
+#### 🔧 **Firebase Configuration Corregida:**
+- **Variables `.env.local` malformadas corregidas**: APP_ID duplicado sin salto de línea solucionado
+- **Configuración centralizada** en `shared/firebase/config.js` con fallbacks robustos
+- **Manejo errores Analytics/Performance**: Try/catch implementado para evitar crashes
+- **Eliminación errores 400 Bad Request**: Configuración Firebase completamente operativa
+
+#### 📥 **Movimientos ENTRADA Completamente Funcionales:**
+- **Creación automática inventario**: Sistema crea inventario si no existe para ubicación destino
+- **Estado automático COMPLETADO**: Movimientos se marcan como completados inmediatamente
+- **UX mejorada**: Etiqueta "Vehículo que hizo el transporte" para movimientos ENTRADA
+- **Campo "Ubicación Destino"**: Opcional para ENTRADA, fallback a "Principal"
+- **Lógica corregida**: `updateInventoryFromMovement` usa `destinationLocation` correctamente
+
+#### 📊 **Dashboard & UI Fixes Críticos:**
+- **Función `safeDateHelper`**: Manejo robusto fechas Firestore (toDate, seconds, toMillis)
+- **Error "Cannot read properties of undefined"**: Eliminado completamente
+- **Normalización fechas**: Procesamiento seguro en DashboardMain y InventoryCards
+- **Ordenamiento movimientos**: Sort correcto sin crashes por fechas undefined
+
+#### 🎯 **RESULTADOS TÉCNICOS:**
+- ✅ **Firebase**: Sin errores 400 Bad Request, Analytics/Performance operativos
+- ✅ **Movimientos ENTRADA**: Funcionales sin errores de inventario faltante  
+- ✅ **Dashboard**: Operativo sin crashes de fecha, actividad reciente funcional
+- ✅ **UX**: Etiquetas específicas por tipo, flujo simplificado
+- ✅ **Sistema resiliente**: Creación automática inventario, fechas robustas
+
+#### 📂 **Archivos Modificados:**
+- `shared/firebase/config.js` - Configuración centralizada con manejo errores
+- `combustibles/src/firebase/config.js` - Re-export desde shared
+- `alimentacion/src/firebase/config.js` - Variables .env.local corregidas  
+- `movementsService.js` - Estado COMPLETADO automático + creación inventario
+- `MovementModal.jsx` - UX mejorada + campo ubicación destino ENTRADA
+- `DashboardMain.jsx` - safeDateHelper + procesamiento seguro fechas
+- `InventoryCards.jsx` - getTimeAgo robusto con múltiples formatos fecha
+
+#### 📊 **Verificaciones Post-Corrección:**
+- ✅ **Firebase**: Configuración operativa sin errores consola
+- ✅ **Movimientos**: ENTRADA crea inventario automáticamente sin fallos
+- ✅ **Dashboard**: Carga sin crashes, fechas formateadas correctamente
+- ✅ **URL**: https://forestechdecolombia.com.co/combustibles/ funcional
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
