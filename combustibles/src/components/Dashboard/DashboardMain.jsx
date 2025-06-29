@@ -6,7 +6,7 @@ import { subscribeToInventory } from '../../services/inventoryService';
 import { subscribeToMovements } from '../../services/movementsService';
 import { subscribeToVehicles } from '../../services/vehiclesService';
 import { subscribeToProducts } from '../../services/productsService';
-import { subscribeToMaintenance } from '../../services/maintenanceService';
+// import { subscribeToMaintenance } from '../../services/maintenanceService';
 
 const DashboardMain = () => {
   const [stats, setStats] = useState({
@@ -29,7 +29,7 @@ const DashboardMain = () => {
     movements: false,
     vehicles: false,
     products: false,
-    maintenance: false
+    maintenance: true // Inicialmente true para evitar esperar
   });
 
   useEffect(() => {
@@ -89,41 +89,58 @@ const DashboardMain = () => {
       }
     );
 
-    const unsubMaintenance = subscribeToMaintenance(
-      (maintenance) => {
-        const totalMaintenance = maintenance.length;
-        const upcomingMaintenance = maintenance.filter(m => {
-          if (m.nextChangeDate) {
-            const nextDate = new Date(m.nextChangeDate);
-            const today = new Date();
-            return nextDate > today;
+    // Carga lazy del mantenimiento para evitar problemas de inicialización
+    const loadMaintenance = async () => {
+      try {
+        const { subscribeToMaintenance } = await import('../../services/maintenanceService');
+        const unsubMaintenance = subscribeToMaintenance(
+          (maintenance) => {
+            const totalMaintenance = maintenance.length;
+            const upcomingMaintenance = maintenance.filter(m => {
+              if (m.nextChangeDate) {
+                const nextDate = new Date(m.nextChangeDate);
+                const today = new Date();
+                return nextDate > today;
+              }
+              return false;
+            }).length;
+            const overdueMaintenance = maintenance.filter(m => {
+              if (m.nextChangeDate) {
+                const nextDate = new Date(m.nextChangeDate);
+                const today = new Date();
+                return nextDate < today;
+              }
+              return false;
+            }).length;
+            
+            setMaintenanceRecords(maintenance);
+            setStats(prevStats => ({ 
+              ...prevStats, 
+              totalMaintenance, 
+              upcomingMaintenance, 
+              overdueMaintenance 
+            }));
+            setDataLoaded(prev => ({ ...prev, maintenance: true }));
+          },
+          (error) => {
+            console.error('Error loading maintenance:', error);
+            // No mostramos error crítico por mantenimiento, es opcional
+            setDataLoaded(prev => ({ ...prev, maintenance: true }));
           }
-          return false;
-        }).length;
-        const overdueMaintenance = maintenance.filter(m => {
-          if (m.nextChangeDate) {
-            const nextDate = new Date(m.nextChangeDate);
-            const today = new Date();
-            return nextDate < today;
-          }
-          return false;
-        }).length;
-        
-        setMaintenanceRecords(maintenance);
-        setStats(prevStats => ({ 
-          ...prevStats, 
-          totalMaintenance, 
-          upcomingMaintenance, 
-          overdueMaintenance 
-        }));
+        );
+        return unsubMaintenance;
+      } catch (error) {
+        console.error('Error loading maintenance service:', error);
         setDataLoaded(prev => ({ ...prev, maintenance: true }));
-      },
-      (error) => {
-        console.error('Error loading maintenance:', error);
-        // No mostramos error crítico por mantenimiento, es opcional
-        setDataLoaded(prev => ({ ...prev, maintenance: true }));
+        return () => {};
       }
-    );
+    };
+
+    // Cargar mantenimiento después de un pequeño delay
+    let unsubMaintenance = () => {};
+    setTimeout(async () => {
+      unsubMaintenance = await loadMaintenance();
+    }, 100);
 
     return () => {
       unsubInventory();
