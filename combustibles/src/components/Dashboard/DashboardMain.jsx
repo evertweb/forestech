@@ -6,6 +6,7 @@ import { subscribeToInventory } from '../../services/inventoryService';
 import { subscribeToMovements } from '../../services/movementsService';
 import { subscribeToVehicles } from '../../services/vehiclesService';
 import { subscribeToProducts } from '../../services/productsService';
+import { subscribeToMaintenance } from '../../services/maintenanceService';
 
 const DashboardMain = () => {
   const [stats, setStats] = useState({
@@ -14,16 +15,21 @@ const DashboardMain = () => {
     pendingMovements: 0,
     lowStockAlerts: 0,
     totalProducts: 0,
+    totalMaintenance: 0,
+    upcomingMaintenance: 0,
+    overdueMaintenance: 0
   });
   const [recentMovements, setRecentMovements] = useState([]);
   const [products, setProducts] = useState([]);
+  const [maintenanceRecords, setMaintenanceRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataLoaded, setDataLoaded] = useState({
     inventory: false,
     movements: false,
     vehicles: false,
-    products: false
+    products: false,
+    maintenance: false
   });
 
   useEffect(() => {
@@ -83,11 +89,48 @@ const DashboardMain = () => {
       }
     );
 
+    const unsubMaintenance = subscribeToMaintenance(
+      (maintenance) => {
+        const totalMaintenance = maintenance.length;
+        const upcomingMaintenance = maintenance.filter(m => {
+          if (m.nextChangeDate) {
+            const nextDate = new Date(m.nextChangeDate);
+            const today = new Date();
+            return nextDate > today;
+          }
+          return false;
+        }).length;
+        const overdueMaintenance = maintenance.filter(m => {
+          if (m.nextChangeDate) {
+            const nextDate = new Date(m.nextChangeDate);
+            const today = new Date();
+            return nextDate < today;
+          }
+          return false;
+        }).length;
+        
+        setMaintenanceRecords(maintenance);
+        setStats(prevStats => ({ 
+          ...prevStats, 
+          totalMaintenance, 
+          upcomingMaintenance, 
+          overdueMaintenance 
+        }));
+        setDataLoaded(prev => ({ ...prev, maintenance: true }));
+      },
+      (error) => {
+        console.error('Error loading maintenance:', error);
+        // No mostramos error crítico por mantenimiento, es opcional
+        setDataLoaded(prev => ({ ...prev, maintenance: true }));
+      }
+    );
+
     return () => {
       unsubInventory();
       unsubMovements();
       unsubVehicles();
       unsubProducts();
+      unsubMaintenance();
     };
   }, []);
 
@@ -176,6 +219,20 @@ const DashboardMain = () => {
             <h2>{formatNumber(stats.lowStockAlerts)}</h2>
           </div>
         </div>
+        <div className="stat-card">
+          <div className="stat-icon maintenance-icon">🔧</div>
+          <div className="stat-info">
+            <p>Mantenimientos</p>
+            <h2>{formatNumber(stats.totalMaintenance)}</h2>
+          </div>
+        </div>
+        <div className={`stat-card ${stats.overdueMaintenance > 0 ? 'alert' : ''}`}>
+          <div className="stat-icon maintenance-alert-icon">⏰</div>
+          <div className="stat-info">
+            <p>Mantenimientos Vencidos</p>
+            <h2>{formatNumber(stats.overdueMaintenance)}</h2>
+          </div>
+        </div>
       </div>
 
       <div className="dashboard-content">
@@ -195,6 +252,35 @@ const DashboardMain = () => {
             <p>No hay movimientos recientes.</p>
           )}
         </div>
+        
+        <div className="dashboard-widget">
+          <h3>🔧 Mantenimientos Recientes</h3>
+          {maintenanceRecords.length > 0 ? (
+            <ul>
+              {maintenanceRecords.slice(0, 5).map(maintenance => (
+                <li key={maintenance.id}>
+                  <span className={`maintenance-type-badge ${maintenance.type}`}>
+                    {maintenance.type === 'oil_change' ? '🛢️' : 
+                     maintenance.type === 'battery_change' ? '🔋' : 
+                     maintenance.type === 'filter_change' ? '🔧' : '⚙️'}
+                  </span>
+                  <span className="maintenance-description">
+                    {maintenance.type === 'oil_change' ? 'Cambio de aceite' :
+                     maintenance.type === 'battery_change' ? 'Cambio de batería' :
+                     maintenance.type === 'filter_change' ? 'Cambio de filtros' : 'Mantenimiento general'}
+                    {' para '}{maintenance.vehicleName}
+                  </span>
+                  <span className="maintenance-date">
+                    {maintenance.date ? new Date(maintenance.date).toLocaleDateString() : 'N/A'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay mantenimientos registrados.</p>
+          )}
+        </div>
+        
         <div className="dashboard-widget">
           <h3>📦 Stock por Tipo de Producto</h3>
           {products.length > 0 ? (

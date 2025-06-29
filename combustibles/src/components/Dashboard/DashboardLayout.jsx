@@ -39,6 +39,13 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
       requiredPermission: null // Todos pueden ver vehículos
     },
     {
+      id: 'maintenance',
+      name: 'Mantenimiento',
+      icon: '🔧',
+      description: 'Cambios de aceite y baterías',
+      requiredPermission: 'canManageMaintenance'
+    },
+    {
       id: 'products',
       name: 'Productos',
       icon: '🛢️',

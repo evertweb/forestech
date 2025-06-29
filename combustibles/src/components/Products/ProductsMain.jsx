@@ -45,10 +45,20 @@ const ProductsMain = ({ userProfile }) => {
   // Inicializar productos predefinidos si no existen
   useEffect(() => {
     const initializePredefinedProducts = async () => {
+      console.log('🔍 Debug - Inicializando productos:', {
+        productsLength: products.length,
+        loading,
+        canManageProducts
+      });
+      
       if (products.length === 0 && !loading && canManageProducts) {
         try {
+          console.log('🚀 Creando productos predefinidos...');
           const predefinedProducts = getAllProducts();
+          console.log('📦 Productos predefinidos:', predefinedProducts);
+          
           for (const productInfo of predefinedProducts) {
+            console.log('➕ Creando producto:', productInfo.name);
             await createProduct({
               name: productInfo.name,
               displayName: productInfo.displayName,
@@ -64,9 +74,16 @@ const ProductsMain = ({ userProfile }) => {
               maxCapacity: 1000
             });
           }
+          console.log('✅ Productos predefinidos creados exitosamente');
         } catch (error) {
-          console.error('Error inicializando productos:', error);
+          console.error('❌ Error inicializando productos:', error);
         }
+      } else {
+        console.log('ℹ️ No se inicializan productos:', {
+          reason: products.length > 0 ? 'Ya existen productos' : 
+                  loading ? 'Está cargando' : 
+                  !canManageProducts ? 'Sin permisos' : 'Otra razón'
+        });
       }
     };
 
@@ -161,6 +178,38 @@ const ProductsMain = ({ userProfile }) => {
               onClick={handleCreateProduct}
             >
               ➕ Agregar Producto
+            </button>
+            <button 
+              className="btn-secondary"
+              onClick={async () => {
+                try {
+                  console.log('🧪 Forzando creación de productos predefinidos...');
+                  const predefinedProducts = getAllProducts();
+                  for (const productInfo of predefinedProducts) {
+                    await createProduct({
+                      name: productInfo.name,
+                      displayName: productInfo.displayName,
+                      category: productInfo.category,
+                      unit: productInfo.unit,
+                      defaultPrice: productInfo.defaultPrice,
+                      color: productInfo.color,
+                      icon: productInfo.icon,
+                      description: productInfo.description,
+                      isActive: true,
+                      currentStock: 0,
+                      minThreshold: 10,
+                      maxCapacity: 1000
+                    });
+                  }
+                  alert('Productos predefinidos creados exitosamente');
+                } catch (error) {
+                  console.error('Error:', error);
+                  alert('Error creando productos: ' + error.message);
+                }
+              }}
+              style={{ marginLeft: '10px' }}
+            >
+              🧪 Crear Predefinidos
             </button>
           </div>
         )}

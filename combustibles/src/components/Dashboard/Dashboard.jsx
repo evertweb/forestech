@@ -6,6 +6,7 @@ import DashboardMain from './DashboardMain';
 import InventoryMain from '../Inventory/InventoryMain';
 import MovementsMain from '../Movements/MovementsMain';
 import VehiclesMain from '../Vehicles/VehiclesMain';
+import MaintenanceMain from '../Maintenance/MaintenanceMain';
 import ProductsMain from '../Products/ProductsMain';
 import SuppliersMain from '../Suppliers/SuppliersMain';
 import AdminMain from '../Admin/AdminMain';
@@ -35,6 +36,8 @@ const Dashboard = () => {
         return <MovementsMain />;
       case 'vehicles':
         return <VehiclesMain />;
+      case 'maintenance':
+        return <MaintenanceMain />;
       case 'products':
         return <ProductsMain />;
       case 'suppliers':

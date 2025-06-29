@@ -18,6 +18,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { checkAndInitializeProducts } from '../utils/initializeProducts';
 
 const COLLECTION_NAME = 'combustibles_products';
 
@@ -149,17 +150,40 @@ export const getProductsByCategory = async (category) => {
  */
 export const getActiveProducts = async () => {
   try {
-    const q = query(
-      collection(db, COLLECTION_NAME), 
-      where('isActive', '==', true),
-      orderBy('name')
-    );
-    const querySnapshot = await getDocs(q);
+    // Verificar e inicializar productos si no existen
+    await checkAndInitializeProducts();
     
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    // Primero intentar consulta con índice compuesto
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME), 
+        where('isActive', '==', true),
+        orderBy('name')
+      );
+      const querySnapshot = await getDocs(q);
+      
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (indexError) {
+      console.warn('⚠️ Índice compuesto no disponible, usando consulta alternativa', indexError.message);
+      
+      // Consulta sin orderBy mientras se construye el índice
+      const qSimple = query(
+        collection(db, COLLECTION_NAME), 
+        where('isActive', '==', true)
+      );
+      const querySnapshot = await getDocs(qSimple);
+      
+      // Ordenar en cliente
+      const products = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      return products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
   } catch (error) {
     console.error('Error getting active products:', error);
     throw error;

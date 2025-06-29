@@ -61,18 +61,29 @@ const MovementModal = ({
       if (isOpen) {
         setLoadingVehicles(true);
         try {
+          console.log('🔄 Cargando datos para formulario de movimientos...');
           const [vehiclesData, inventoryResult, suppliersResult, productsData] = await Promise.all([
             getAllVehicles(),
             getAllInventoryItems(),
             getAllSuppliers(),
             getActiveProducts()
           ]);
+          
+          console.log('📊 Datos cargados:', {
+            vehicles: vehiclesData?.length || 0,
+            inventory: inventoryResult?.success ? inventoryResult.data?.length || 0 : 'Error',
+            suppliers: suppliersResult?.success ? suppliersResult.data?.length || 0 : 'Error',
+            products: productsData?.length || 0
+          });
+          
           setVehicles(vehiclesData);
           setInventory(inventoryResult.success ? inventoryResult.data : []);
           setSuppliers(suppliersResult.success ? suppliersResult.data : []);
           setProducts(productsData);
+          
+          console.log('✅ Datos cargados exitosamente');
         } catch (error) {
-          console.error('Error al cargar datos:', error);
+          console.error('❌ Error al cargar datos:', error);
         } finally {
           setLoadingVehicles(false);
         }
@@ -300,6 +311,34 @@ const MovementModal = ({
           <h3>{getModalTitle()}</h3>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
+
+        {/* Botón de prueba para debug */}
+        {mode === 'create' && (
+          <div style={{ padding: '10px', background: '#f0f0f0', borderBottom: '1px solid #ddd' }}>
+            <button 
+              onClick={() => {
+                console.log('🔍 Debug - Estado actual:', {
+                  products: products.length,
+                  vehicles: vehicles.length,
+                  suppliers: suppliers.length,
+                  inventory: inventory.length,
+                  loadingVehicles
+                });
+                alert(`Productos: ${products.length}, Vehículos: ${vehicles.length}, Proveedores: ${suppliers.length}`);
+              }}
+              style={{ 
+                background: '#007bff', 
+                color: 'white', 
+                border: 'none', 
+                padding: '5px 10px', 
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              🔍 Debug Datos
+            </button>
+          </div>
+        )}
 
         {/* Body */}
         <div className="modal-body">

@@ -1,115 +1,34 @@
-# CLAUDE.md
+## Análisis del Proyecto Forestech
 
-Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con código en este repositorio.
+Este es un análisis del proyecto `forestech` realizado por Gemini.
 
-## 🎯 **SELECTOR DE PROYECTO - IMPORTANTE**
+### Resumen del Proyecto
 
-**AL INICIAR CADA SESIÓN, CLAUDE DEBE PREGUNTAR:**
-```
-🔍 ¿En qué proyecto de Forestech trabajamos hoy?
+- **Nombre:** forestech
+- **Estructura:** Monorepo que contiene múltiples aplicaciones web (actualmente `alimentacion` y `combustibles`).
+- **Tecnologías Clave:** React, Vite, Firebase (Auth, Firestore, Storage), Chart.js.
+- **Framework/Estilo:** Aplicaciones React funcionales con Hooks y Context para la gestión del estado.
 
-🍽️  1. ALIMENTACION - App de liquidaciones de comidas
-⛽  2. COMBUSTIBLES - App de gestión de combustibles  
-🔧  3. SHARED - Recursos compartidos entre apps
-📋  4. GENERAL - Configuración global del monorepo
+### Convenciones de Código
 
-Responde con el número (1-4) para establecer el contexto correcto.
-```
+- **Commits:** Se sigue la especificación de "Conventional Commits". Los commits deben tener un tipo (`feat`, `fix`, `docs`, `refactor`, etc.) y un mensaje descriptivo.
+- **Autoría de IA:** Cuando un commit es generado por una IA, el mensaje debe indicar el agente utilizado (ej. "feat(combustibles): ... (hecho con gemini cli)").
+- **Estructura de Módulos:** El código se organiza por funcionalidad, separando la lógica de la interfaz de usuario (UI) de los servicios de datos y la configuración.
+  - `components/`: Componentes de React.
+  - `services/`: Lógica de negocio y comunicación con APIs/Firebase.
+  - `firebase/`: Configuración específica de Firebase.
+  - `utils/`: Funciones de utilidad.
+  - `contexts/`: Contextos de React para el estado global.
+- **Linting:** Se utiliza ESLint para mantener la calidad y consistencia del código.
 
-**CONTEXTOS DE TRABAJO:**
-- **[ALIMENTACION]**: Archivos en `forestech/alimentacion/src/...`
-- **[COMBUSTIBLES]**: Archivos en `forestech/combustibles/src/...` 
-- **[SHARED]**: Archivos en `forestech/shared/...`
-- **[GENERAL]**: Configuración Firebase, hosting, documentación
+### Áreas de Mejora Identificadas
 
-## 📚 Documentación Modular
+1.  **Centralización de Código:** Existe una duplicación significativa de código (constantes, servicios de Firebase, utilidades) entre los subproyectos. Se debe hacer un esfuerzo para mover toda la lógica compartida al directorio `/shared` y configurar las rutas de importación para eliminar la redundancia.
+2.  **Gestión del Monorepo:** Considerar la adopción de `npm workspaces` para gestionar las dependencias y los scripts de forma centralizada. Esto mejoraría la mantenibilidad y reduciría la duplicación de paquetes.
+3.  **Consistencia de Nomenclatura:** El proyecto de Firebase (`liquidacionapp-62962`) tiene un nombre diferente al del repositorio (`forestech`). Se recomienda alinear estos nombres si es posible.
 
-La documentación completa está organizada en módulos para mejor rendimiento:
+### Notas Adicionales
 
-### 🍽️ **ALIMENTACION** 
-📖 **[Ver docs/alimentacion/](./docs/alimentacion/README.md)**
-- Sistema de liquidaciones completamente funcional
-- Firebase Analytics + FCM + Sistema roles
-- Panel admin con invitaciones + notificaciones automáticas
-- URL: https://forestechdecolombia.com.co/alimentacion/
-
-### ⛽ **COMBUSTIBLES**
-📖 **[Ver docs/combustibles/](./docs/combustibles/README.md)**
-- Módulo inventario CRUD completado (Enero 2025)
-- Dashboard operativo con navegación
-- Próximos: Movimientos, Vehículos, Reportes
-- URL: https://forestechdecolombia.com.co/combustibles/
-
-### 🔧 **SHARED**
-📖 **[Ver docs/shared/](./docs/shared/README.md)**
-- Firebase compartido entre apps
-- Sistema roles y permisos unificado
-- Componentes UI reutilizables (planificado)
-
-### 📋 **GENERAL**
-📖 **[Ver docs/general/](./docs/general/README.md)**
-- Configuración monorepo completa
-- Multi-app Firebase hosting
-- Scripts desarrollo y deploy
-
-## Estructura Monorepo
-
-```
-forestech/                      # Monorepo principal
-├── alimentacion/               # 🍽️ App liquidaciones ✅ FUNCIONAL
-├── combustibles/               # ⛽ App combustibles 🔄 EN DESARROLLO
-├── shared/                     # 🔧 Recursos compartidos
-├── docs/                       # 📚 Documentación modular ✅ NUEVA
-├── public/                     # 🌐 Build output Firebase
-├── firebase.json               # Multi-app routing ✅
-└── package.json               # Scripts monorepo ✅
-```
-
-## Comandos Esenciales
-
-```bash
-# Desarrollo
-npm run dev:alimentacion    # Puerto 5173
-npm run dev:combustibles    # Puerto 5174
-
-# Build
-npm run build:all           # Build ambas apps
-npm run deploy              # Deploy Firebase
-
-# Linting
-npm run lint:alimentacion
-npm run lint:combustibles
-```
-
-## URLs Activas
-
-- 🍽️ **Alimentación**: https://forestechdecolombia.com.co/alimentacion/
-- ⛽ **Combustibles**: https://forestechdecolombia.com.co/combustibles/
-- 📋 **Firebase**: https://liquidacionapp-62962.web.app/
-
-## 🚀 Mejores Prácticas Claude
-
-### Flujo de Trabajo Obligatorio
-1. **TodoWrite** para tareas complejas (3+ pasos)
-2. **Búsqueda contexto** antes de implementar  
-3. **Anuncio del plan** antes de ejecutar
-4. **Verificación automática** (lint, build)
-5. **Commit automático** con mensaje descriptivo
-
-### Advertencias Críticas
-- **NUNCA** crear usuarios Firebase Auth desde frontend
-- **USAR** sistema invitaciones para nuevos usuarios
-- **SEGUIR** patrones existentes del proyecto
-- **EJECUTAR** lint/build antes de commits
-
-### Comunicación Proactiva
-```
-🔄 Implementando: [descripción]
-💡 Decisión técnica: Uso [patrón] porque [justificación]
-📁 Archivos modificados: [lista]
-✅ Verificaciones: lint ✅ build ✅
-```
-
----
-
-**📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
+- El usuario prefiere que me comunique en español.
+- El usuario prefiere que modifique solo la lógica y evite cambios visuales a menos que sean estrictamente necesarios o solicitados.
+- Después de cada modificación (arreglo, implementación, etc.), debo realizar un commit inmediatamente. El mensaje del commit debe ser muy detallado y seguir la regla de autoría.
