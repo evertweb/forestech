@@ -12,6 +12,9 @@ const MovementsList = ({
   viewMode,
   onEdit,
   onView,
+  onApprove,
+  onReject,
+  onDelete,
   userRole
 }) => {
   if (viewMode === 'table') {
@@ -20,6 +23,9 @@ const MovementsList = ({
         movements={movements}
         onEdit={onEdit}
         onView={onView}
+        onApprove={onApprove}
+        onReject={onReject}
+        onDelete={onDelete}
         userRole={userRole}
       />
     );
@@ -30,6 +36,9 @@ const MovementsList = ({
       movements={movements}
       onEdit={onEdit}
       onView={onView}
+      onApprove={onApprove}
+      onReject={onReject}
+      onDelete={onDelete}
       userRole={userRole}
     />
   );

@@ -6,7 +6,7 @@
 import React from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 
-const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, userRole }) => {
+const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
   // Formatear moneda
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-CO', {
@@ -207,6 +207,20 @@ const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, userRo
                     title="Editar movimiento"
                   >
                     ✏️ Editar
+                  </button>
+                )}
+
+                {userRole === 'admin' && (
+                  <button
+                    className="btn-delete"
+                    onClick={() => {
+                      if (window.confirm('¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.')) {
+                        onDelete(movement.id);
+                      }
+                    }}
+                    title="Eliminar movimiento"
+                  >
+                    🗑️ Eliminar
                   </button>
                 )}
               </div>

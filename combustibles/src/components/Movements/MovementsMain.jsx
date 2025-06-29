@@ -21,7 +21,7 @@ import './Movements.css';
 
 const MovementsMain = () => {
   // Context y estado
-  const { user, userProfile } = useCombustibles();
+  const { user, userProfile, deleteMovement } = useCombustibles();
   const [movements, setMovements] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -164,6 +164,20 @@ const MovementsMain = () => {
     }
   };
 
+  const handleDeleteMovement = async (movementId) => {
+    try {
+      const result = await deleteMovement(movementId);
+      if (result.success) {
+        alert('Movimiento eliminado exitosamente.');
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error('Error al eliminar movimiento:', error);
+      alert(`Error al eliminar movimiento: ${error.message}`);
+    }
+  };
+
   // Permisos del usuario
   const canCreateMovement = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
   const canEditMovement = userProfile?.role === 'admin';
@@ -269,7 +283,8 @@ const MovementsMain = () => {
           onView={handleViewMovement}
           onApprove={handleApproveMovement}
           onReject={handleRejectMovement}
-          userRole={user?.role}
+          onDelete={handleDeleteMovement} // Pasar la función de eliminar
+          userRole={userProfile?.role} // Usar el rol del perfil
         />
       )}
 
