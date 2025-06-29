@@ -6,6 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Maintenance/MaintenanceList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Maintenance/MaintenanceList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Maintenance/MaintenanceModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Maintenance/MaintenanceModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesCards.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesCards.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesFilters.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesFilters.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesMain.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesStats.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesStats.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/data/predefinedVehicles.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/firebase/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/firebase/config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/maintenanceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/maintenanceService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/utils/initializeVehicles.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +104,7 @@
       <workItem from="1751135184505" duration="8288000" />
       <workItem from="1751152961629" duration="103000" />
       <workItem from="1751153834929" duration="6176000" />
-      <workItem from="1751191441130" duration="13306000" />
+      <workItem from="1751191441130" duration="19316000" />
     </task>
     <servers />
   </component>

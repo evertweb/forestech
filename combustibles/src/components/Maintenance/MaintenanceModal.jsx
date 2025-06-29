@@ -13,7 +13,7 @@ import {
   getVehiclesForMaintenance,
   calculateNextOilChange
 } from '../../services/maintenanceService';
-import { formatCurrency, formatNumber } from '../../utils/calculations';
+// import { formatCurrency, formatNumber } from '../../utils/calculations';
 
 const MaintenanceModal = ({ 
   isOpen, 
@@ -52,7 +52,7 @@ const MaintenanceModal = ({
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  // const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   // Cargar vehículos disponibles
   useEffect(() => {
@@ -77,10 +77,10 @@ const MaintenanceModal = ({
       setErrors({});
       
       // Buscar vehículo seleccionado
-      if (maintenance?.vehicleId) {
-        const vehicle = vehicles.find(v => v.vehicleId === maintenance.vehicleId);
-        setSelectedVehicle(vehicle);
-      }
+      // if (maintenance?.vehicleId) {
+      //   const vehicle = vehicles.find(v => v.vehicleId === maintenance.vehicleId);
+      //   setSelectedVehicle(vehicle);
+      // }
     }
   }, [isOpen, maintenance, vehicles]);
 
@@ -116,7 +116,7 @@ const MaintenanceModal = ({
   // Manejar cambio de vehículo
   const handleVehicleChange = (vehicleId) => {
     const vehicle = vehicles.find(v => v.vehicleId === vehicleId);
-    setSelectedVehicle(vehicle);
+    // setSelectedVehicle(vehicle);
     
     setFormData(prev => ({
       ...prev,
@@ -238,20 +238,20 @@ const MaintenanceModal = ({
   };
 
   // Obtener nombre del tipo de mantenimiento
-  const getMaintenanceTypeName = (type) => {
-    switch (type) {
-      case MAINTENANCE_TYPES.OIL_CHANGE:
-        return 'Cambio de Aceite';
-      case MAINTENANCE_TYPES.BATTERY_CHANGE:
-        return 'Cambio de Batería';
-      case MAINTENANCE_TYPES.FILTER_CHANGE:
-        return 'Cambio de Filtros';
-      case MAINTENANCE_TYPES.GENERAL_MAINTENANCE:
-        return 'Mantenimiento General';
-      default:
-        return type;
-    }
-  };
+  // const getMaintenanceTypeName = (type) => {
+  //   switch (type) {
+  //     case MAINTENANCE_TYPES.OIL_CHANGE:
+  //       return 'Cambio de Aceite';
+  //     case MAINTENANCE_TYPES.BATTERY_CHANGE:
+  //       return 'Cambio de Batería';
+  //     case MAINTENANCE_TYPES.FILTER_CHANGE:
+  //       return 'Cambio de Filtros';
+  //     case MAINTENANCE_TYPES.GENERAL_MAINTENANCE:
+  //       return 'Mantenimiento General';
+  //     default:
+  //       return type;
+  //   }
+  // };
 
   if (!isOpen) return null;
 

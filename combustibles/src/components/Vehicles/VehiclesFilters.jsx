@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 
 const VehiclesFilters = ({
   filters,
@@ -74,26 +74,26 @@ const VehiclesFilters = ({
           {/* Filtros rápidos */}
           <div className="quick-filters">
             <button
-              className={`quick-filter ${filters.status === VEHICLE_STATUS.ACTIVO ? 'active' : ''}`}
-              onClick={() => handleQuickFilter({ status: VEHICLE_STATUS.ACTIVO })}
+              className={`quick-filter ${filters.status === 'activo' ? 'active' : ''}`}
+              onClick={() => handleQuickFilter({ status: 'activo' })}
             >
               ✅ Activos
             </button>
             <button
-              className={`quick-filter ${filters.status === VEHICLE_STATUS.MANTENIMIENTO ? 'active' : ''}`}
-              onClick={() => handleQuickFilter({ status: VEHICLE_STATUS.MANTENIMIENTO })}
+              className={`quick-filter ${filters.status === 'mantenimiento' ? 'active' : ''}`}
+              onClick={() => handleQuickFilter({ status: 'mantenimiento' })}
             >
               🔧 Mantenimiento
             </button>
             <button
-              className={`quick-filter ${filters.type === VEHICLE_TYPES.EXCAVADORA ? 'active' : ''}`}
-              onClick={() => handleQuickFilter({ type: VEHICLE_TYPES.EXCAVADORA })}
+              className={`quick-filter ${filters.type === 'excavadora' ? 'active' : ''}`}
+              onClick={() => handleQuickFilter({ type: 'excavadora' })}
             >
               🚚 Excavadoras
             </button>
             <button
-              className={`quick-filter ${filters.type === VEHICLE_TYPES.TRACTOR ? 'active' : ''}`}
-              onClick={() => handleQuickFilter({ type: VEHICLE_TYPES.TRACTOR })}
+              className={`quick-filter ${filters.type === 'tractor' ? 'active' : ''}`}
+              onClick={() => handleQuickFilter({ type: 'tractor' })}
             >
               🚜 Tractores
             </button>
@@ -143,15 +143,15 @@ const VehiclesFilters = ({
                 className="filter-select"
               >
                 <option value="">Todos los tipos</option>
-                <option value={VEHICLE_TYPES.EXCAVADORA}>🚚 Excavadora</option>
-                <option value={VEHICLE_TYPES.BULLDOZER}>🚜 Bulldozer</option>
-                <option value={VEHICLE_TYPES.CARGADOR}>🏗️ Cargador</option>
-                <option value={VEHICLE_TYPES.CAMION}>🚛 Camión</option>
-                <option value={VEHICLE_TYPES.GRUA}>🏗️ Grúa</option>
-                <option value={VEHICLE_TYPES.MOTOSIERRA}>🪚 Motosierra</option>
-                <option value={VEHICLE_TYPES.TRACTOR}>🚜 Tractor</option>
-                <option value={VEHICLE_TYPES.VOLQUETA}>🚛 Volqueta</option>
-                <option value={VEHICLE_TYPES.OTROS}>🚗 Otros</option>
+                <option value="excavadora">🚚 Excavadora</option>
+                <option value="bulldozer">🚜 Bulldozer</option>
+                <option value="cargador">🏗️ Cargador</option>
+                <option value="camion">🚛 Camión</option>
+                <option value="grua">🏗️ Grúa</option>
+                <option value="motosierra">🪚 Motosierra</option>
+                <option value="tractor">🚜 Tractor</option>
+                <option value="volqueta">🚛 Volqueta</option>
+                <option value="otros">🚗 Otros</option>
               </select>
             </div>
 

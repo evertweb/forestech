@@ -8,14 +8,16 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToVehicles, 
   getVehiclesStats,
-  VEHICLE_TYPES,
+  createVehicle,
+  updateVehicle,
   VEHICLE_STATUS,
   FUEL_COMPATIBILITY 
 } from '../../services/vehiclesService';
 import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
-import VehicleModal from './VehicleModal';
+import VehicleModalNew from './VehicleModalNew';
+import VehicleCategoriesManager from './VehicleCategoriesManager';
 import MaintenanceModal from './MaintenanceModal';
 import './Vehicles.css';
 
@@ -41,6 +43,7 @@ const VehiclesMain = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  const [showCategoriesManager, setShowCategoriesManager] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
@@ -255,16 +258,31 @@ const VehiclesMain = () => {
         />
       )}
 
-      {/* Modal Vehículo */}
+      {/* Modal Vehículo Nuevo */}
       {showModal && (
-        <VehicleModal
+        <VehicleModalNew
           isOpen={showModal}
           onClose={handleModalClose}
           vehicle={selectedVehicle}
           mode={modalMode}
-          onSuccess={() => {
+          onSave={async (vehicleData) => {
+            if (modalMode === 'create') {
+              await createVehicle(vehicleData);
+            } else {
+              await updateVehicle(selectedVehicle.id, vehicleData);
+            }
             handleModalClose();
-            // Los datos se actualizan automáticamente por la suscripción
+          }}
+          userRole={userProfile?.role}
+        />
+      )}
+
+      {/* Gestor de Categorías */}
+      {showCategoriesManager && (
+        <VehicleCategoriesManager
+          onClose={() => setShowCategoriesManager(false)}
+          onCategoryCreated={() => {
+            // Refrescar datos si es necesario
           }}
         />
       )}

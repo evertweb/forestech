@@ -15,10 +15,10 @@ import {
   query, 
   orderBy, 
   where,
-  limit,
+  // limit,
   onSnapshot,
   serverTimestamp,
-  runTransaction
+  // runTransaction
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 

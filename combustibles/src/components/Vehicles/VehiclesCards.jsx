@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 
 const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   // Formatear número
@@ -48,19 +48,19 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
     return `hace ${Math.ceil(diffDays / 365)} años`;
   };
 
-  // Obtener clase CSS para tipo de vehículo
+  // Obtener clase CSS para tipo de vehículo (dinámico)
   const getVehicleTypeClass = (type) => {
-    switch (type) {
-      case VEHICLE_TYPES.EXCAVADORA: return 'vehicle-excavadora';
-      case VEHICLE_TYPES.BULLDOZER: return 'vehicle-bulldozer';
-      case VEHICLE_TYPES.CARGADOR: return 'vehicle-cargador';
-      case VEHICLE_TYPES.CAMION: return 'vehicle-camion';
-      case VEHICLE_TYPES.GRUA: return 'vehicle-grua';
-      case VEHICLE_TYPES.MOTOSIERRA: return 'vehicle-motosierra';
-      case VEHICLE_TYPES.TRACTOR: return 'vehicle-tractor';
-      case VEHICLE_TYPES.VOLQUETA: return 'vehicle-volqueta';
-      default: return 'vehicle-default';
-    }
+    if (!type) return 'vehicle-default';
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('excavadora')) return 'vehicle-excavadora';
+    if (lowerType.includes('bulldozer')) return 'vehicle-bulldozer';
+    if (lowerType.includes('cargador')) return 'vehicle-cargador';
+    if (lowerType.includes('camion')) return 'vehicle-camion';
+    if (lowerType.includes('grua')) return 'vehicle-grua';
+    if (lowerType.includes('motosierra')) return 'vehicle-motosierra';
+    if (lowerType.includes('tractor')) return 'vehicle-tractor';
+    if (lowerType.includes('volqueta')) return 'vehicle-volqueta';
+    return 'vehicle-default';
   };
 
   // Obtener clase CSS para estado
@@ -74,19 +74,19 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
     }
   };
 
-  // Obtener icono para tipo de vehículo
+  // Obtener icono para tipo de vehículo (dinámico)
   const getVehicleIcon = (type) => {
-    switch (type) {
-      case VEHICLE_TYPES.EXCAVADORA: return '🚚';
-      case VEHICLE_TYPES.BULLDOZER: return '🚜';
-      case VEHICLE_TYPES.CARGADOR: return '🏗️';
-      case VEHICLE_TYPES.CAMION: return '🚛';
-      case VEHICLE_TYPES.GRUA: return '🏗️';
-      case VEHICLE_TYPES.MOTOSIERRA: return '🪚';
-      case VEHICLE_TYPES.TRACTOR: return '🚜';
-      case VEHICLE_TYPES.VOLQUETA: return '🚛';
-      default: return '🚗';
-    }
+    if (!type) return '🚗';
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('excavadora')) return '🚚'; 
+    if (lowerType.includes('bulldozer')) return '🚜';
+    if (lowerType.includes('cargador')) return '🏗️';
+    if (lowerType.includes('camion')) return '🚛';
+    if (lowerType.includes('grua')) return '🏗️';
+    if (lowerType.includes('motosierra')) return '🪚';
+    if (lowerType.includes('tractor')) return '🚜';
+    if (lowerType.includes('volqueta')) return '🚛';
+    return '🚗';
   };
 
   // Obtener icono para combustible

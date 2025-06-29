@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { formatNumber } from '../../utils/calculations';
 
 const VehiclesStats = ({ stats, filters }) => {
@@ -25,34 +25,30 @@ const VehiclesStats = ({ stats, filters }) => {
     return `${consumption.toFixed(2)} gal/hr`;
   };
 
-  // Obtener color para tipo de vehículo
+  // Obtener color para tipo de vehículo (dinámico)
   const getVehicleTypeColor = (type) => {
-    switch (type) {
-      case VEHICLE_TYPES.EXCAVADORA: return '#059669'; // Verde forestal
-      case VEHICLE_TYPES.BULLDOZER: return '#dc2626';  // Rojo
-      case VEHICLE_TYPES.CARGADOR: return '#2563eb';   // Azul
-      case VEHICLE_TYPES.CAMION: return '#7c3aed';     // Púrpura
-      case VEHICLE_TYPES.GRUA: return '#ea580c';       // Naranja
-      case VEHICLE_TYPES.MOTOSIERRA: return '#16a34a'; // Verde
-      case VEHICLE_TYPES.TRACTOR: return '#ca8a04';    // Amarillo
-      case VEHICLE_TYPES.VOLQUETA: return '#9333ea';   // Violeta
-      default: return '#6b7280'; // Gris
+    // Generar color basado en hash del tipo para consistencia
+    let hash = 0;
+    for (let i = 0; i < type.length; i++) {
+      hash = ((hash << 5) - hash + type.charCodeAt(i)) & 0xffffffff;
     }
+    const colors = ['#059669', '#dc2626', '#2563eb', '#7c3aed', '#ea580c', '#16a34a', '#ca8a04', '#9333ea'];
+    return colors[Math.abs(hash) % colors.length];
   };
 
-  // Obtener icono para tipo de vehículo
+  // Obtener icono para tipo de vehículo (dinámico)
   const getVehicleTypeIcon = (type) => {
-    switch (type) {
-      case VEHICLE_TYPES.EXCAVADORA: return '🚚';
-      case VEHICLE_TYPES.BULLDOZER: return '🚜';
-      case VEHICLE_TYPES.CARGADOR: return '🏗️';
-      case VEHICLE_TYPES.CAMION: return '🚛';
-      case VEHICLE_TYPES.GRUA: return '🏗️';
-      case VEHICLE_TYPES.MOTOSIERRA: return '🪚';
-      case VEHICLE_TYPES.TRACTOR: return '🚜';
-      case VEHICLE_TYPES.VOLQUETA: return '🚛';
-      default: return '🚗';
-    }
+    if (!type) return '🚗';
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('excavadora')) return '🚚';
+    if (lowerType.includes('bulldozer')) return '🚜';
+    if (lowerType.includes('cargador')) return '🏗️';
+    if (lowerType.includes('camion')) return '🚛';
+    if (lowerType.includes('grua')) return '🏗️';
+    if (lowerType.includes('motosierra')) return '🪚';
+    if (lowerType.includes('tractor')) return '🚜';
+    if (lowerType.includes('volqueta')) return '🚛';
+    return '🚗';
   };
 
   // Obtener color para estado
