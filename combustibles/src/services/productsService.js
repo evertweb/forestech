@@ -153,39 +153,54 @@ export const getActiveProducts = async () => {
     // Verificar e inicializar productos si no existen
     await checkAndInitializeProducts();
     
-    // Primero intentar consulta con índice compuesto
-    try {
-      const q = query(
-        collection(db, COLLECTION_NAME), 
-        where('isActive', '==', true),
-        orderBy('name')
-      );
-      const querySnapshot = await getDocs(q);
-      
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (indexError) {
-      console.warn('⚠️ Índice compuesto no disponible, usando consulta alternativa', indexError.message);
-      
-      // Consulta sin orderBy mientras se construye el índice
-      const qSimple = query(
-        collection(db, COLLECTION_NAME), 
-        where('isActive', '==', true)
-      );
-      const querySnapshot = await getDocs(qSimple);
-      
-      // Ordenar en cliente
-      const products = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
-      return products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    }
+    console.log('🔍 Obteniendo productos activos...');
+    
+    // Consulta con índice compuesto
+    const q = query(
+      collection(db, COLLECTION_NAME), 
+      where('isActive', '==', true),
+      orderBy('name')
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const products = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    console.log(`✅ Productos activos obtenidos: ${products.length}`);
+    return products;
+    
   } catch (error) {
-    console.error('Error getting active products:', error);
+    console.error('❌ Error obteniendo productos activos:', error);
+    
+    // Si es un error de índice, intentar consulta alternativa
+    if (error.code === 'failed-precondition' || error.message.includes('index')) {
+      console.warn('⚠️ Índice no disponible, usando consulta alternativa...');
+      
+      try {
+        const qSimple = query(
+          collection(db, COLLECTION_NAME), 
+          where('isActive', '==', true)
+        );
+        const querySnapshot = await getDocs(qSimple);
+        
+        // Ordenar en cliente
+        const products = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        const sortedProducts = products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        console.log(`✅ Productos activos obtenidos (ordenamiento en cliente): ${sortedProducts.length}`);
+        return sortedProducts;
+        
+      } catch (fallbackError) {
+        console.error('❌ Error en consulta alternativa:', fallbackError);
+        throw fallbackError;
+      }
+    }
+    
     throw error;
   }
 };
