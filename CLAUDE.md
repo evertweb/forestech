@@ -150,6 +150,59 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 
 ## 📅 **REGISTRO DE IMPLEMENTACIONES RECIENTES**
 
+### 🚜 **Enero 29, 2025 - SISTEMA VEHÍCULOS PERSONALIZABLE COMPLETADO**
+**Commit:** `feat(combustibles): Sistema vehículos personalizable completado - eliminar predefinidos + categorías dinámicas`
+
+#### ✅ **TRANSFORMACIÓN COMPLETA DEL SISTEMA VEHÍCULOS:**
+- **Eliminación vehículos predefinidos**: Removidos 23 vehículos automáticos y scripts de inicialización
+- **Sistema categorías dinámicas**: Usuarios pueden crear tipos personalizados de vehículos
+- **Nueva interfaz creación**: Modal completamente rediseñado desde cero
+- **Tiempo real optimizado**: Suscripciones Firebase con throttling inteligente
+
+#### 🗑️ **Archivos Eliminados:**
+- `predefinedVehicles.js` - 23 vehículos automáticos eliminados
+- `initializeVehicles.js` - Script de inicialización automática removido
+- Referencias a `VEHICLE_TYPES` constantes en toda la aplicación
+
+#### 🆕 **Nuevos Componentes Creados:**
+- **VehicleModalNew.jsx** (600+ líneas) - Modal creación vehículos desde cero
+- **VehicleCategoriesManager.jsx** (400+ líneas) - Gestión categorías en UI
+- **vehicleCategories.js** - 8 categorías base personalizables
+- **vehicleCategoriesService.js** (350+ líneas) - CRUD completo Firebase
+
+#### 🔧 **Funcionalidades Implementadas:**
+- **Formularios dinámicos** basados en categoría seleccionada
+- **Campos específicos** por tipo (enginePower, operatingWeight, bucketCapacity)
+- **Iconos y colores** personalizables por categoría
+- **Validaciones robustas** con Firebase transactions
+- **Sistema permisos** `userProfile?.role` mantenido
+
+#### ⚡ **Optimizaciones Tiempo Real:**
+- **Throttling Firebase**: Máximo 2 actualizaciones por segundo
+- **Detección cambios inteligente**: Evita re-renders innecesarios
+- **Suscripciones optimizadas**: En vehiclesMain, categorías y estadísticas
+- **Funciones dinámicas**: `getVehicleIcon()` por string matching
+
+#### 🔄 **Correcciones Técnicas Críticas:**
+- **SyntaxError resuelto**: Eliminadas referencias a constantes inexistentes
+- **Imports corregidos**: Todos los componentes actualizados
+- **Compatibilidad mantenida**: Integración con movimientos y horómetro
+- **Backward compatibility**: Vehículos existentes siguen funcionando
+
+#### 📊 **Verificaciones Completadas:**
+- ✅ **Lint**: Solo 8 warnings menores (dependencias useEffect)
+- ✅ **Build**: Exitoso (115KB CSS + 1.049MB JS)
+- ✅ **Dev server**: Carga correctamente en puerto 5175
+- ✅ **Sistema tiempo real**: Operativo sin errores
+- ✅ **Firebase**: Integración completa funcional
+
+#### 🎯 **Resultado Final:**
+- **Sistema 100% personalizable** por usuarios finales
+- **Eliminación total** de vehículos predefinidos automáticos
+- **Categorías dinámicas** con campos específicos por tipo
+- **Interfaz moderna** con UX optimizada para creación desde cero
+- **Performance mejorado** con suscripciones Firebase optimizadas
+
 ### 🔧 **Enero 29, 2025 - SOLUCIÓN ERROR FIRESTORE + DEPLOY EXITOSO**
 **Commit:** `fix(combustibles): Solucionar error índice Firestore y agregar inicialización automática productos`
 
