@@ -3,7 +3,43 @@
  * Lista específica solicitada por el usuario para TAREA 3
  */
 
-import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../services/vehiclesService';
+// Constantes locales para evitar dependencia circular
+const VEHICLE_TYPES = {
+  EXCAVADORA: 'excavadora',
+  BULLDOZER: 'bulldozer',
+  CARGADOR: 'cargador',
+  CAMION: 'camion',
+  GRUA: 'grua',
+  MOTOSIERRA: 'motosierra',
+  TRACTOR: 'tractor',
+  VOLQUETA: 'volqueta',
+  APOYO_LOGISTICO: 'apoyo_logistico',
+  ASPERJADORA: 'asperjadora',
+  MOTOBOMBA: 'motobomba',
+  CAMIONETA: 'camioneta',
+  FUMIGADORA: 'fumigadora',
+  CONTROL_QUIMICO: 'control_quimico',
+  GUADAÑAS: 'guadañas',
+  HIDROLAVADORA: 'hidrolavadora',
+  MOTO: 'moto',
+  PLANTA_ELECTRICA: 'planta_electrica',
+  CONTROL_HORMIGAS: 'control_hormigas',
+  OTROS: 'otros'
+};
+
+const VEHICLE_STATUS = {
+  ACTIVO: 'activo',
+  MANTENIMIENTO: 'mantenimiento',
+  INACTIVO: 'inactivo',
+  REPARACION: 'reparacion'
+};
+
+const FUEL_COMPATIBILITY = {
+  DIESEL: 'Diesel',
+  GASOLINA: 'Gasolina',
+  ACPM: 'ACPM',
+  MIXTO: 'Mixto'
+};
 
 export const PREDEFINED_VEHICLES = [
   // 1. APOYO LOGISTICO
