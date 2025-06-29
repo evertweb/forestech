@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import './Dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { calculateInventoryStats, formatNumber, formatCurrency } from '../../utils/calculations';
+import { formatNumber, formatCurrency } from '../../utils/calculations';
 
 const DashboardMain = () => {
   const { inventory, movements, vehicles, loading, error } = useCombustibles();
