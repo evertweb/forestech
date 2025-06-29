@@ -150,6 +150,38 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 
 ## 📅 **REGISTRO DE IMPLEMENTACIONES RECIENTES**
 
+### 🔧 **Enero 29, 2025 - SOLUCIÓN ERROR FIRESTORE + DEPLOY EXITOSO**
+**Commit:** `fix(combustibles): Solucionar error índice Firestore y agregar inicialización automática productos`
+
+#### ✅ **Problema Crítico Resuelto:**
+- **Error índice Firestore** en consulta productos activos para movimientos
+- **Sistema resiliente** con fallback automático implementado
+- **Inicialización automática** productos predefinidos si no existen
+
+#### 🔧 **Solución Técnica Implementada:**
+- **Try/catch anidado**: Consulta con índice → consulta simple + orden cliente
+- **Script initializeProducts.js**: Carga automática 9 productos predefinidos
+- **Manejo robusto errores**: Logs informativos + recuperación elegante
+- **Integración transparente**: No interrumpe flujo usuario
+
+#### 📊 **Verificaciones Completadas:**
+- ✅ **Build exitoso**: 104KB CSS + 1.035MB JS
+- ✅ **Deploy Firebase**: https://liquidacionapp-62962.web.app
+- ✅ **URLs activas**:
+  - 🍽️ **Alimentación**: https://forestechdecolombia.com.co/alimentacion/
+  - ⛽ **Combustibles**: https://forestechdecolombia.com.co/combustibles/ ✅ **ACTUALIZADO**
+- ✅ **Funcionalidad**: Modal movimientos operativo sin errores índice
+- ✅ **Productos**: Inicialización automática 9 productos predefinidos
+
+#### 🎯 **Estado Actual Combustibles (95% COMPLETADO):**
+- ✅ **Inventario** (100%) - CRUD completo con validaciones
+- ✅ **Movimientos** (100%) - 4 tipos + validación stock + productos dinámicos **SIN ERRORES**
+- ✅ **Vehículos** (100%) - 23 vehículos específicos + sistema horómetro tractores
+- ✅ **Productos** (100%) - Sistema dinámico + inicialización automática **CORREGIDO**
+- ✅ **Proveedores** (100%) - Sistema completo con integración movimientos
+- ✅ **Auth/Admin** (100%) - Sistema invitaciones + permisos
+- 🔄 **Pendiente**: Módulo MANTENIMIENTO + Reportes finales
+
 ### 🔥 **Enero 28, 2025 - Mejoras Combustibles**
 **Commit:** `feat(combustibles): Implementar mejoras completas en vehículos y movimientos`
 
