@@ -193,7 +193,7 @@ export const updateMovement = async (movementId, updateData) => {
 };
 
 /**
- * Eliminar un movimiento (solo si está pendiente)
+ * Eliminar un movimiento y revertir su impacto en el inventario.
  * @param {string} movementId - ID del movimiento
  * @returns {Promise<void>}
  */
@@ -203,28 +203,28 @@ export const deleteMovement = async (movementId) => {
       throw new Error('ID de movimiento requerido');
     }
 
-    // Verificar que el movimiento se puede eliminar
+    // Obtener el movimiento para poder revertirlo
     const movement = await getMovement(movementId);
     if (!movement) {
       throw new Error('Movimiento no encontrado');
     }
 
-    if (movement.status === MOVEMENT_STATUS.COMPLETADO) {
-      throw new Error('No se puede eliminar un movimiento completado');
-    }
+    // Se permite eliminar movimientos en cualquier estado, 
+    // revirtiendo el inventario si ya estaba completado.
 
     await runTransaction(db, async (transaction) => {
       const docRef = doc(db, COLLECTION_NAME, movementId);
       
-      // Si el movimiento ya afectó el inventario, revertir cambios
+      // Si el movimiento ya había afectado el inventario, revertir los cambios.
       if (movement.status === MOVEMENT_STATUS.COMPLETADO) {
         await revertInventoryChanges(transaction, movement);
       }
       
+      // Finalmente, eliminar el documento del movimiento.
       transaction.delete(docRef);
     });
 
-    console.log('✅ Movimiento eliminado exitosamente');
+    console.log('✅ Movimiento eliminado y cambios de inventario revertidos exitosamente');
 
   } catch (error) {
     console.error('❌ Error al eliminar movimiento:', error);

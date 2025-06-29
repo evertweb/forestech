@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 
-const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, userRole }) => {
+const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
   const [sortField, setSortField] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
 
@@ -280,6 +280,20 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, userRo
                         title="Editar movimiento"
                       >
                         ✏️
+                      </button>
+                    )}
+
+                    {userRole === 'admin' && (
+                      <button
+                        className="btn-action btn-delete"
+                        onClick={() => {
+                          if (window.confirm('¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.')) {
+                            onDelete(movement.id);
+                          }
+                        }}
+                        title="Eliminar movimiento"
+                      >
+                        🗑️
                       </button>
                     )}
                   </div>

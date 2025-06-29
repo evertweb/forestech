@@ -5,6 +5,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { createUserProfile, getUserProfile } from '../firebase/userService';
+import movementsService from '../services/movementsService';
 
 const CombustiblesContext = createContext();
 
@@ -85,6 +86,22 @@ export const CombustiblesProvider = ({ children }) => {
     return userProfile?.role === 'admin' || userProfile?.role === 'contador';
   };
 
+  // --- Funciones CRUD para Movimientos ---
+  const deleteMovement = async (movementId) => {
+    try {
+      await movementsService.deleteMovement(movementId);
+      setMovements((prevMovements) => prevMovements.filter((m) => m.id !== movementId));
+      // Opcional: podrías querer refrescar el inventario también
+      // await refreshInventory(); 
+      return { success: true };
+    } catch (error) {
+      console.error("Error al eliminar el movimiento en el contexto:", error);
+      setError(error.message);
+      return { success: false, error: error.message };
+    }
+  };
+
+
   // Funciones específicas de combustibles (placeholder para futuras implementaciones)
   const refreshInventory = async () => {
     // TODO: Implementar carga de inventario desde Firestore
@@ -128,6 +145,9 @@ export const CombustiblesProvider = ({ children }) => {
     setVehicles,
     setSuppliers,
     
+    // Funciones CRUD
+    deleteMovement,
+
     // Funciones de refreso de datos
     refreshInventory,
     refreshMovements,
