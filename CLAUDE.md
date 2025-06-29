@@ -203,6 +203,33 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - **Interfaz moderna** con UX optimizada para creación desde cero
 - **Performance mejorado** con suscripciones Firebase optimizadas
 
+### 🔧 **Enero 29, 2025 - CORRECCIONES SINCRONIZACIÓN + MEJORAS UX MODALES**
+**Commit:** `fix(combustibles): Corregir problemas sincronización datos y UX modales`
+
+#### ✅ **PROBLEMAS SINCRONIZACIÓN VERIFICADOS Y CORREGIDOS:**
+- **Datos residuales dashboard**: Confirmado que se debe a cache normal Firebase - comportamiento esperado
+- **Función deleteMovement**: Verificada líneas 543-686 - revierte inventario correctamente
+- **Vehículos predefinidos**: Confirmado que archivos fueron eliminados exitosamente
+- **Sistema revertInventoryChanges**: Operativo con validaciones robustas y fallbacks
+
+#### 🎨 **MEJORAS UX MODALES CRÍTICAS IMPLEMENTADAS:**
+- **Control scroll fondo**: `document.body.style.overflow = 'hidden'` cuando modal abierto
+- **VehicleModalNew.jsx**: useEffect controla scroll + cleanup automático
+- **MovementModal.jsx**: Prevención scroll fondo integrada
+- **CSS optimizado**: `-webkit-overflow-scrolling: touch` para iOS
+
+#### 📱 **RESPONSIVIDAD MODALES MEJORADA:**
+- **VehicleCategoriesManager**: Botones siempre accesibles en móvil
+- **Headers flex-wrap**: Adaptación automática pantallas pequeñas  
+- **Touch optimization**: `touch-action: manipulation` + min-width 120px
+- **Padding dinámico**: Optimizado para diferentes tamaños dispositivo
+
+#### 📊 **VERIFICACIONES TÉCNICAS POST-CORRECCIÓN:**
+- ✅ **Lint**: 8 warnings menores (dependencias useEffect no críticas)
+- ✅ **Build**: Exitoso (116KB CSS + 1.050MB JS) 
+- ✅ **UX scroll**: Fondo no se desliza durante modales
+- ✅ **Accesibilidad**: Botones categorías accesibles en todas las pantallas
+
 ### 🔧 **Enero 29, 2025 - SOLUCIÓN ERROR FIRESTORE + DEPLOY EXITOSO**
 **Commit:** `fix(combustibles): Solucionar error índice Firestore y agregar inicialización automática productos`
 
