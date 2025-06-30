@@ -425,35 +425,61 @@ console.log(result); // Resumen: creados, errores, total
 
 ## 📝 **ÚLTIMA ACTUALIZACIÓN - ENERO 30, 2025**
 
-### ✅ **MEJORAS UX MODAL VEHÍCULOS (RECIÉN IMPLEMENTADAS)**
-**Commit**: `feat(combustibles): Simplificar modal vehículos - auto-generación códigos + eliminar campo modelo`
+### ✅ **MEJORAS UX MODAL VEHÍCULOS SIMPLIFICADO + SELECTOR DESPLEGABLE**
+**Commits**: 
+- `feat(combustibles): Simplificar modal vehículos - auto-generación códigos + eliminar campo modelo`
+- `feat(combustibles): Transformar sección categorías a selector desplegable expandible`
 
 #### 🔧 **Cambios Implementados:**
-1. **Auto-generación códigos vehículo** - Prefijo categoría + nombre + timestamp
+
+##### 1. **Auto-generación códigos vehículo** - Prefijo categoría + nombre + timestamp
    - Función `generateVehicleId()` optimizada con algoritmo inteligente
    - Campo código ahora es solo lectura en modo creación
-   - Estilos CSS específicos para campos readonly
+   - Estilos CSS específicos para campos readonly (`form-input.readonly`)
 
-2. **Campo modelo eliminado** - Formulario simplificado y más eficiente
+##### 2. **Campo modelo eliminado** - Formulario simplificado y más eficiente
    - Removido del formulario de creación/edición líneas 402-413
    - Vista previa actualizada sin referencias al modelo línea 523
    - UX más limpia y enfocada en lo esencial
 
-3. **Sección especificaciones removida** - Modal más simple
-   - Eliminada sección "Especificaciones de Maquinaria Pesada" completa
-   - Función `renderField` removida por ser innecesaria
-   - Formulario 40% más corto y fácil de usar
+##### 3. **Transformación Selector de Categorías** - De tarjetas a dropdown expandible
+   - **Problema resuelto**: Tarjetas categorías no optimizadas para pantallas PC
+   - **Solución**: Selector desplegable (`<select>`) con información expandible bajo demanda
+   - **Componente CategoryInfo**: Panel informativo que se despliega opcionalmente
+   - **UX mejorada**: Vista compacta inicial + expansión detallada con un clic
 
-4. **UX mejorada** - Interacción más intuitiva
-   - Campo código se genera automáticamente al escribir nombre
-   - Placeholder informativo "Se genera automáticamente"
-   - Estilos visuales apropiados para campos no editables
+##### 4. **CSS Grid Optimizado para PC** - VehicleCategoriesManager.css
+   - Grid responsive: `grid-template-columns: repeat(auto-fit, minmax(300px, 400px))`
+   - Justificación centrada: `justify-content: center`
+   - Mejor aprovechamiento espacio horizontal en pantallas grandes
+
+##### 5. **Nuevo Sistema CSS para Selector Desplegable** (200+ líneas nuevas)
+   ```css
+   .category-select          /* Select principal */
+   .category-info-panel     /* Panel información categoría */
+   .category-compact        /* Vista compacta inicial */
+   .category-expanded       /* Vista expandida detallada */
+   .category-toggle-btn     /* Botón expandir/contraer */
+   ```
+
+##### 6. **Componente CategoryInfo** - 70+ líneas de lógica expandible
+   - Estado interno `isExpanded` para control de vista
+   - Información detallada: Descripción, tipos combustible, campos específicos
+   - Badges visuales para tipos de combustible y campos disponibles
+   - Animación CSS `slideDown` para transiciones suaves
 
 #### 📊 **Resultado Final:**
-- ✅ **UX simplificada** - Menos campos, más eficiencia
-- ✅ **Auto-generación inteligente** - Códigos únicos automáticos
-- ✅ **Formulario optimizado** - Proceso de creación más rápido
+- ✅ **UX PC optimizada** - Selector categorías eficiente para pantallas grandes
+- ✅ **Información bajo demanda** - Vista compacta + expansión opcional
+- ✅ **Auto-generación inteligente** - Códigos únicos automáticos  
+- ✅ **Formulario optimizado** - Proceso de creación más rápido y simple
+- ✅ **Responsive design** - Funciona perfectamente en mobile y desktop
 - ✅ **Código más limpio** - Eliminación funciones innecesarias
+
+#### 🔧 **Archivos Modificados:**
+- `VehicleModalNew.jsx` (565 líneas) - Modal simplificado + selector desplegable
+- `VehicleModalNew.css` (653 líneas) - 200+ líneas CSS nuevas para selector
+- `VehicleCategoriesManager.css` - Grid optimizado para PC
 
 Ver más detalles en:
 - [Roadmap](./roadmap.md)
