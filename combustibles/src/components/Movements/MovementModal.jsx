@@ -14,6 +14,7 @@ import { getAllVehicles } from '../../services/vehiclesService';
 import { getAllInventoryItems } from '../../services/inventoryService';
 import { getAllSuppliers } from '../../services/suppliersService';
 import { getActiveProducts } from '../../services/productsService';
+import { OPERATIONAL_LOCATIONS, formatLocationName } from '../../constants/locations';
 import { validateStockAvailability, formatCurrency } from '../../utils/calculations';
 
 const MovementModal = ({ 
@@ -28,7 +29,7 @@ const MovementModal = ({
     fuelType: '',
     quantity: '',
     unitPrice: '',
-    location: 'principal',
+    location: '',
     vehicleId: '',
     destinationLocation: '',
     description: '',
@@ -46,14 +47,6 @@ const MovementModal = ({
   const [stockWarning, setStockWarning] = useState('');
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
-
-  // Ubicaciones disponibles
-  const locations = [
-    'Bodega Austria',
-    'Bodega Ilusion',
-    'Campo Operativo',
-    'Estación Móvil'
-  ];
 
   // Cargar vehículos, inventario, proveedores y productos cuando se abre el modal
   useEffect(() => {
@@ -127,7 +120,7 @@ const MovementModal = ({
         fuelType: '',
         quantity: '',
         unitPrice: '',
-        location: 'principal',
+        location: '',
         vehicleId: '',
         destinationLocation: '',
         description: '',
@@ -196,19 +189,10 @@ const MovementModal = ({
 
   // Manejar cambios en el formulario
   const handleInputChange = (field, value) => {
-    // Si se cambia el tipo de movimiento, limpiar la ubicación para que el usuario vuelva a seleccionar
-    if (field === 'type') {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value,
-        location: value === MOVEMENT_TYPES.ENTRADA ? '' : 'principal'
-      }));
-    } else {
-      setFormData(prev => ({
+    setFormData(prev => ({
         ...prev,
         [field]: value
       }));
-    }
 
     // Limpiar error de validación para este campo
     if (validationErrors[field]) {
@@ -551,9 +535,10 @@ const MovementModal = ({
                     onChange={(e) => handleInputChange('location', e.target.value)}
                     disabled={mode === 'view'}
                   >
-                    {locations.map(location => (
-                      <option key={location} value={location}>
-                        📍 {location}
+                    <option value="">Seleccionar ubicación...</option>
+                    {OPERATIONAL_LOCATIONS.map(loc => (
+                      <option key={loc} value={loc}>
+                        📍 {formatLocationName(loc)}
                       </option>
                     ))}
                   </select>
@@ -653,9 +638,9 @@ const MovementModal = ({
                     className={validationErrors.destinationLocation ? 'error' : ''}
                   >
                     <option value="">Seleccionar ubicación destino (opcional)...</option>
-                    {locations.map(location => (
-                      <option key={location} value={location}>
-                        📍 {location}
+                    {OPERATIONAL_LOCATIONS.map(loc => (
+                      <option key={loc} value={loc}>
+                        📍 {formatLocationName(loc)}
                       </option>
                     ))}
                   </select>
@@ -681,9 +666,9 @@ const MovementModal = ({
                     className={validationErrors.destinationLocation ? 'error' : ''}
                   >
                     <option value="">Seleccionar destino...</option>
-                    {locations.filter(loc => loc !== formData.location).map(location => (
-                      <option key={location} value={location}>
-                        📍 {location}
+                    {OPERATIONAL_LOCATIONS.filter(loc => loc !== formData.location).map(loc => (
+                      <option key={loc} value={loc}>
+                        📍 {formatLocationName(loc)}
                       </option>
                     ))}
                   </select>

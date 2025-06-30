@@ -40,7 +40,7 @@ export const createInventoryItem = async (inventoryData, createdBy) => {
     const existingQuery = query(
       collection(db, INVENTORY_COLLECTION),
       where("fuelType", "==", inventoryData.fuelType),
-      where("location", "==", inventoryData.location)
+      where("location", "==", inventoryData.location.toLowerCase())
     );
     
     const existingDocs = await getDocs(existingQuery);
@@ -59,7 +59,7 @@ export const createInventoryItem = async (inventoryData, createdBy) => {
       maxCapacity: Number(inventoryData.maxCapacity),
       minThreshold: Number(inventoryData.minThreshold) || (inventoryData.maxCapacity * 0.15), // 15% por defecto
       unit: fuelInfo.unit,
-      location: inventoryData.location,
+      location: inventoryData.location.toLowerCase(), // Convertir a minúsculas al guardar
       pricePerUnit: Number(inventoryData.pricePerUnit) || 0,
       supplier: inventoryData.supplier || '',
       status: inventoryData.status || 'active',
