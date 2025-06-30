@@ -718,6 +718,55 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 #### 🌐 **URLs ACTUALIZADAS Y FUNCIONALES:**
 - ✅ **Combustibles**: https://forestechdecolombia.com.co/combustibles/ - **SISTEMA 100% COMPLETO**
 
+### 🔧 **Enero 30, 2025 - IMPLEMENTACIÓN HORÓMETROS MOVIMIENTOS + MANTENIMIENTO ACCESIBLE**
+**Commit:** `feat(combustibles): Implementar horómetro en movimientos SALIDA + pestaña Mantenimiento accesible`
+
+#### ✅ **PROBLEMAS ESPECÍFICOS RESUELTOS:**
+
+#### 🚫 **Problema 1: Pestaña Mantenimiento No Visible**
+- **Causa**: `requiredPermission: 'canManageMaintenance'` en DashboardLayout.jsx
+- **Solución**: Cambiado a `requiredPermission: null` 
+- **Resultado**: Todos los usuarios pueden ver pestaña (gestión según rol interno)
+
+#### ⏱️ **Problema 2: Sin Campo Horómetro en Movimientos SALIDA**
+- **Implementado**: Campo `currentHours` en MovementModal.jsx
+- **Detección automática**: Tractores por ID (TR1, TR2, TR3) + categoría 'tractor'
+- **Validación robusta**: Lectura requerida + debe ser incremental
+- **UI específica**: Solo visible para tractores en movimientos SALIDA
+
+#### 🔄 **FUNCIONALIDADES IMPLEMENTADAS:**
+
+#### 📝 **Formulario Movimientos Mejorado:**
+- Campo horómetro automático para tractores en SALIDA
+- Información contextual del vehículo seleccionado
+- Validación tiempo real con mensajes específicos
+- Última lectura mostrada como referencia
+
+#### 🎨 **Mejoras UX Específicas:**
+- Estilos CSS forest-theme con border verde
+- Gradiente visual para campo crítico
+- Información del tractor en panel separado
+- Mensajes de validación contextuales
+
+#### 🔧 **Integración Backend Automática:**
+- `updateVehicleHourMeter()` en movementsService.js (45+ líneas)
+- Actualización automática al crear movimiento SALIDA
+- Historial completo con timestamps y diferencias
+- Manejo robusto de errores sin afectar movimiento principal
+
+#### 📊 **VERIFICACIONES TÉCNICAS COMPLETADAS:**
+- ✅ **Build**: Exitoso (117KB CSS + 1.051MB JS)
+- ✅ **Linting**: Sin errores críticos
+- ✅ **Funcionalidad**: Horómetros integrados con movimientos
+- ✅ **Navegación**: Pestaña Mantenimiento accesible para todos
+- ✅ **Validaciones**: Lecturas incrementales + campos requeridos
+
+#### 🎯 **RESULTADO FINAL:**
+- ✅ **Pestaña Mantenimiento**: Visible para todos los roles
+- ✅ **Campo Horómetro**: Automático en SALIDA para tractores TR1, TR2, TR3
+- ✅ **Integración completa**: Backend + Frontend + UX + Validaciones
+- ✅ **Sistema robusto**: Historial, validaciones, manejo errores
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
