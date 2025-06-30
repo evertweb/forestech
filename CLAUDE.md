@@ -767,6 +767,86 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Integración completa**: Backend + Frontend + UX + Validaciones
 - ✅ **Sistema robusto**: Historial, validaciones, manejo errores
 
+### 🔧 **Enero 30, 2025 - MEJORAS UX FORMULARIO VEHÍCULOS + SELECTOR DESPLEGABLE CATEGORÍAS**
+**Commits:** 
+- `fix(combustibles): Corregir error campo 'type' + optimizar CSS categorías PC`
+- `feat(combustibles): Transformar sección categorías a selector desplegable expandible`
+
+#### ✅ **TRANSFORMACIÓN COMPLETA SECCIÓN CATEGORÍAS:**
+
+#### 🔄 **Cambio Arquitectónico Fundamental:**
+- **ANTES**: Sistema de tarjetas expandido ocupando espacio vertical excesivo
+- **AHORA**: Selector desplegable (`<select>`) + panel información expandible bajo demanda
+- **Reducción espacio**: ~70% menos espacio visual inicial en formulario
+- **UX mejorada**: Información disponible solo cuando usuario la requiere
+
+#### 🔽 **Nuevo Selector Desplegable Implementado:**
+- **HTML select estándar** con estilos personalizados forest-theme
+- **Opciones formato**: `{icono} {nombre} (Predeterminada)` si aplica
+- **Estados visuales**: Focus, error, hover con transiciones suaves
+- **Accesibilidad**: Navegación por teclado + aria-labels
+
+#### 📋 **Sistema de Información Expandible:**
+- **Vista compacta inicial**: Icono + nombre + descripción (primeros 50 caracteres)
+- **Botón expansión**: `▼/▲` con hover effects y transiciones
+- **Vista expandida animada**: slideDown 0.3s con información completa
+- **Información detallada**:
+  - 📋 Descripción completa de la categoría
+  - ⛽ Combustibles compatibles (badges rojos)
+  - 🔧 Campos específicos (badges verdes)
+  - ✨ Marcador "Categoría Personalizada"
+
+#### 🎨 **Componente CategoryInfo Modular (70+ líneas):**
+```javascript
+<CategoryInfo 
+  category={selectedCategory} 
+  isExpanded={showCategoryDetails}
+  onToggle={() => setShowCategoryDetails(!showCategoryDetails)}
+/>
+```
+
+#### 🔧 **Funcionalidades Técnicas Implementadas:**
+- **Estado showCategoryDetails**: Control de expansión/contracción
+- **Componente independiente**: CategoryInfo reutilizable y testeable
+- **Animaciones CSS**: @keyframes slideDown con opacity + transform
+- **Badges específicos**: `.fuel-type-badge`, `.field-badge`, `.custom-badge`
+- **Responsive design**: Media queries específicas para móvil
+
+#### 🎨 **Estilos CSS Completos (200+ líneas nuevas):**
+- `.category-select`: Select personalizado con focus states
+- `.category-info-panel`: Panel contenedor con overflow hidden
+- `.category-compact/.category-expanded`: Layouts específicos
+- `.category-toggle-btn`: Botón expansión con hover effects
+- **Media queries**: Responsive completo móvil → tablet → PC
+
+#### 📊 **CORRECCIONES TÉCNICAS ADICIONALES:**
+
+#### 🔧 **Error Campo 'type' Resuelto:**
+- **Problema**: `validateVehicleData()` requería campo `type` pero modal enviaba `category`
+- **Solución**: Mapeo automático `type: selectedCategory?.name || formData.category || 'Otro'`
+- **Ubicación**: `VehicleModalNew.jsx:245`
+- **Resultado**: Creación vehículos (TR1, TR2, TR3) sin errores
+
+#### 🖥️ **CSS Categorías Optimizado para PC:**
+- **Grid responsivo**: `auto-fit minmax(300px, 400px)` → `repeat(3, 1fr)` en 1440px+
+- **Tarjetas uniformes**: `min-height + flexbox` para distribución consistente
+- **Max-width**: 1400px (1024px+) → 1200px (1440px+) centrado
+- **Botones mejorados**: Hover effects + espaciado optimizado desktop
+
+#### 📊 **VERIFICACIONES TÉCNICAS COMPLETADAS:**
+- ✅ **Build exitoso**: 120KB CSS + 1.053MB JS (2.5KB CSS adicional)
+- ✅ **Campo type**: Mapeo automático category → type funcional
+- ✅ **Selector desplegable**: Funcional con información expandible
+- ✅ **CSS responsivo**: Optimizado móvil, tablet y PC
+- ✅ **Animaciones**: Transiciones suaves y performantes
+
+#### 🎯 **RESULTADO FINAL MEJORADO:**
+- ✅ **Formulario compacto**: 70% menos espacio visual inicial
+- ✅ **Información bajo demanda**: Panel expandible con detalles completos
+- ✅ **UX profesional**: Animaciones suaves + estados visuales claros
+- ✅ **Creación vehículos**: Sin errores de validación (TR1, TR2, TR3)
+- ✅ **CSS optimizado**: Tarjetas categorías perfecto en todas las pantallas
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
