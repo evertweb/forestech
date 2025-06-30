@@ -819,3 +819,53 @@
     text-align: center;
   }
 }
+
+/* ==== ESTILOS HORÓMETRO TRACTORES ==== */
+.tractor-info {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.tractor-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.tractor-info p:not(:last-child) {
+  margin-bottom: var(--spacing-xs);
+}
+
+.tractor-info strong {
+  color: var(--forest-primary);
+  font-weight: 600;
+}
+
+/* Campo horómetro específico */
+.form-group input[type="number"][placeholder*="tractor"] {
+  border-left: 4px solid var(--forest-primary);
+  background: linear-gradient(90deg, rgba(34, 139, 34, 0.05) 0%, white 100%);
+}
+
+.form-group input[type="number"][placeholder*="tractor"]:focus {
+  border-left-color: var(--forest-secondary);
+  box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: var(--spacing-xs);
+  display: block;
+  font-style: italic;
+}
+
+/* Resaltado para campo crítico */
+.form-group:has(input[placeholder*="tractor"]) label {
+  color: var(--forest-primary);
+  font-weight: 600;
+}

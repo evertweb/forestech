@@ -43,7 +43,7 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
       name: 'Mantenimiento',
       icon: '🔧',
       description: 'Cambios de aceite y baterías',
-      requiredPermission: 'canManageMaintenance'
+      requiredPermission: null // Todos pueden ver mantenimiento, pero gestión requiere permisos
     },
     {
       id: 'products',

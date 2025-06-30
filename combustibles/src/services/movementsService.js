@@ -529,6 +529,11 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
       updatedAt: serverTimestamp()
     });
 
+    // Actualizar horómetro del vehículo si es una salida y tiene datos del horómetro
+    if (movement.type === MOVEMENT_TYPES.SALIDA && movement.vehicleId && movement.currentHours) {
+      await updateVehicleHourMeter(transaction, movement.vehicleId, movement.currentHours);
+    }
+
   } catch (error) {
     console.error('❌ Error al actualizar inventario:', error);
     throw error;
@@ -682,6 +687,69 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
   } catch (error) {
     console.error('❌ Error en procesamiento de reversión:', error);
     throw error;
+  }
+};
+
+/**
+ * Actualizar horómetro del vehículo durante movimientos de salida
+ * @param {Transaction} transaction - Transacción Firestore
+ * @param {string} vehicleId - ID del vehículo
+ * @param {number} currentHours - Horas actuales del horómetro
+ */
+const updateVehicleHourMeter = async (transaction, vehicleId, currentHours) => {
+  try {
+    console.log(`🕒 Actualizando horómetro del vehículo ${vehicleId} a ${currentHours} horas`);
+
+    // Buscar el vehículo por vehicleId
+    const vehiclesQuery = query(
+      collection(db, 'combustibles_vehicles'),
+      where('vehicleId', '==', vehicleId)
+    );
+
+    const vehiclesSnapshot = await getDocs(vehiclesQuery);
+    
+    if (vehiclesSnapshot.empty) {
+      console.warn(`⚠️ Vehículo ${vehicleId} no encontrado para actualizar horómetro`);
+      return;
+    }
+
+    const vehicleDoc = vehiclesSnapshot.docs[0];
+    const vehicleData = vehicleDoc.data();
+    const vehicleRef = doc(db, 'combustibles_vehicles', vehicleDoc.id);
+
+    // Validar que la nueva lectura sea mayor a la anterior
+    const previousHours = parseFloat(vehicleData.currentHours) || 0;
+    const newHours = parseFloat(currentHours);
+
+    if (newHours < previousHours) {
+      console.warn(`⚠️ Nueva lectura horómetro (${newHours}) menor a la anterior (${previousHours}). Actualizando de todas formas.`);
+    }
+
+    // Crear registro de historial de horómetro
+    const hourMeterHistory = vehicleData.hourMeterHistory || [];
+    hourMeterHistory.push({
+      previousHours: previousHours,
+      newHours: newHours,
+      difference: newHours - previousHours,
+      updatedAt: new Date(),
+      updatedBy: 'movement_service',
+      source: 'fuel_consumption'
+    });
+
+    // Actualizar vehículo con nueva lectura
+    transaction.update(vehicleRef, {
+      currentHours: newHours,
+      hourMeterHistory: hourMeterHistory,
+      lastHourMeterUpdate: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`✅ Horómetro actualizado: ${vehicleId} - ${previousHours}h → ${newHours}h`);
+
+  } catch (error) {
+    console.error('❌ Error al actualizar horómetro del vehículo:', error);
+    // No hacer throw para no afectar el movimiento principal
+    console.warn('⚠️ Continuando con el movimiento sin actualización de horómetro');
   }
 };
 

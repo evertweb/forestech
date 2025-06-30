@@ -33,7 +33,8 @@ const MovementModal = ({
     destinationLocation: '',
     description: '',
     reference: '',
-    effectiveDate: new Date().toISOString().slice(0, 16) // Format for datetime-local
+    effectiveDate: new Date().toISOString().slice(0, 16), // Format for datetime-local
+    currentHours: '' // Para horómetros de tractores
   });
 
   const [loading, setLoading] = useState(false);
@@ -131,7 +132,8 @@ const MovementModal = ({
         destinationLocation: '',
         description: '',
         reference: '',
-        effectiveDate: new Date().toISOString().slice(0, 16)
+        effectiveDate: new Date().toISOString().slice(0, 16),
+        currentHours: ''
       });
     }
     setError('');
@@ -203,6 +205,33 @@ const MovementModal = ({
     }
   };
 
+  // Detectar si el vehículo seleccionado es un tractor
+  const getSelectedVehicle = () => {
+    if (!formData.vehicleId || !vehicles.length) return null;
+    return vehicles.find(v => v.vehicleId === formData.vehicleId);
+  };
+
+  const isTractor = () => {
+    const selectedVehicle = getSelectedVehicle();
+    if (!selectedVehicle) return false;
+    
+    // Detectar tractores por ID (TR1, TR2, TR3) o por categoría
+    const vehicleId = selectedVehicle.vehicleId?.toUpperCase();
+    const isTracktorById = vehicleId && (
+      vehicleId.includes('TR1') || 
+      vehicleId.includes('TR2') || 
+      vehicleId.includes('TR3') ||
+      vehicleId === 'TR1' ||
+      vehicleId === 'TR2' ||
+      vehicleId === 'TR3'
+    );
+    
+    const isTracktorByCategory = selectedVehicle.category === 'tractor' || 
+                                selectedVehicle.type?.toLowerCase().includes('tractor');
+    
+    return isTracktorById || isTracktorByCategory;
+  };
+
   // Validar formulario
   const validateForm = () => {
     const errors = {};
@@ -238,6 +267,21 @@ const MovementModal = ({
 
     if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA && !formData.destinationLocation) {
       errors.destinationLocation = 'Las transferencias requieren una ubicación destino';
+    }
+
+    // Validación de horómetro para tractores en salidas
+    if (formData.type === MOVEMENT_TYPES.SALIDA && isTractor()) {
+      if (!formData.currentHours) {
+        errors.currentHours = 'La lectura del horómetro es requerida para tractores';
+      } else if (parseFloat(formData.currentHours) < 0) {
+        errors.currentHours = 'La lectura del horómetro debe ser mayor a 0';
+      } else {
+        // Validar que la lectura sea incremental respecto a la anterior
+        const selectedVehicle = getSelectedVehicle();
+        if (selectedVehicle?.currentHours && parseFloat(formData.currentHours) < parseFloat(selectedVehicle.currentHours)) {
+          errors.currentHours = `La lectura debe ser mayor a la anterior: ${selectedVehicle.currentHours} hrs`;
+        }
+      }
     }
 
     // Validación crítica de stock usando calculations.js
@@ -547,6 +591,41 @@ const MovementModal = ({
                 )}
               </div>
             </div>
+
+            {/* Campo Horómetro para tractores en salidas */}
+            {formData.type === MOVEMENT_TYPES.SALIDA && isTractor() && (
+              <div className="form-row">
+                <div className="form-group">
+                  <label>⏱️ Lectura Horómetro *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={formData.currentHours}
+                    onChange={(e) => handleInputChange('currentHours', e.target.value)}
+                    disabled={mode === 'view'}
+                    placeholder="Horas actuales del tractor"
+                    className={validationErrors.currentHours ? 'error' : ''}
+                  />
+                  {validationErrors.currentHours && (
+                    <span className="field-error">{validationErrors.currentHours}</span>
+                  )}
+                  {getSelectedVehicle()?.currentHours && (
+                    <small className="field-hint">
+                      Última lectura: {getSelectedVehicle().currentHours} horas
+                    </small>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>ℹ️ Información del Tractor</label>
+                  <div className="tractor-info">
+                    <p><strong>Vehículo:</strong> {getSelectedVehicle()?.name || formData.vehicleId}</p>
+                    <p><strong>Tipo:</strong> {getSelectedVehicle()?.type || 'Tractor'}</p>
+                    <p><strong>Estado:</strong> {getSelectedVehicle()?.status || 'Activo'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* ENTRADA: Ubicación destino */}
             {formData.type === MOVEMENT_TYPES.ENTRADA && (
