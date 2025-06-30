@@ -25,6 +25,7 @@ const VehicleModalNew = ({
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showCategoriesManager, setShowCategoriesManager] = useState(false);
+  const [showCategoryDetails, setShowCategoryDetails] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -328,25 +329,28 @@ const VehicleModalNew = ({
               </div>
             ) : (
               <div className="categories-selector">
-                {categories.map(category => (
-                  <div 
-                    key={category.id}
-                    className={`category-option ${formData.category === category.id ? 'selected' : ''}`}
-                    onClick={() => handleCategoryChange(category.id)}
-                    style={{ '--category-color': category.color }}
-                  >
-                    <div className="category-icon" style={{ color: category.color }}>
-                      {category.icon}
-                    </div>
-                    <div className="category-info">
-                      <h4>{category.name}</h4>
-                      <p>{category.description}</p>
-                    </div>
-                    {DEFAULT_VEHICLE_CATEGORIES.some(cat => cat.id === category.id) && (
-                      <span className="default-badge">Predeterminada</span>
-                    )}
-                  </div>
-                ))}
+                <select
+                  value={formData.category}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className={`category-select ${errors.category ? 'error' : ''}`}
+                >
+                  <option value="">Seleccionar categoría del vehículo...</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.icon} {category.name}
+                      {DEFAULT_VEHICLE_CATEGORIES.some(cat => cat.id === category.id) && ' (Predeterminada)'}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Información expandible de la categoría seleccionada */}
+                {selectedCategory && (
+                  <CategoryInfo 
+                    category={selectedCategory} 
+                    isExpanded={showCategoryDetails}
+                    onToggle={() => setShowCategoryDetails(!showCategoryDetails)}
+                  />
+                )}
               </div>
             )}
 
@@ -559,6 +563,78 @@ const VehicleModalNew = ({
             setShowCategoriesManager(false);
           }}
         />
+      )}
+    </div>
+  );
+};
+
+// Componente para mostrar información expandible de la categoría
+const CategoryInfo = ({ category, isExpanded, onToggle }) => {
+  if (!category) return null;
+
+  return (
+    <div className="category-info-panel">
+      {/* Vista compacta */}
+      <div className="category-compact">
+        <div className="category-summary">
+          <span className="category-icon" style={{ color: category.color }}>
+            {category.icon}
+          </span>
+          <div className="category-basic-info">
+            <span className="category-name">{category.name}</span>
+            <span className="category-short-desc">
+              {category.description?.length > 50 
+                ? category.description.substring(0, 50) + '...' 
+                : category.description}
+            </span>
+          </div>
+        </div>
+        <button 
+          type="button"
+          className="category-toggle-btn"
+          onClick={onToggle}
+          aria-label={isExpanded ? 'Contraer información' : 'Expandir información'}
+        >
+          {isExpanded ? '▲' : '▼'}
+        </button>
+      </div>
+
+      {/* Vista expandida */}
+      {isExpanded && (
+        <div className="category-expanded">
+          <div className="category-detail-section">
+            <h4>📋 Descripción Completa</h4>
+            <p>{category.description}</p>
+          </div>
+
+          {category.fuelTypes && category.fuelTypes.length > 0 && (
+            <div className="category-detail-section">
+              <h4>⛽ Combustibles Compatibles</h4>
+              <div className="fuel-types-list">
+                {category.fuelTypes.map(fuel => (
+                  <span key={fuel} className="fuel-type-badge">{fuel}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {category.fields && category.fields.length > 0 && (
+            <div className="category-detail-section">
+              <h4>🔧 Campos Específicos</h4>
+              <div className="fields-list">
+                {category.fields.map(field => (
+                  <span key={field} className="field-badge">{field}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {category.isCustom && (
+            <div className="category-detail-section">
+              <span className="custom-badge">✨ Categoría Personalizada</span>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
