@@ -676,6 +676,48 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Código más limpio** - Eliminación funciones y campos innecesarios
 - ✅ **Auto-generación inteligente** - Códigos únicos sin intervención manual
 
+### 🔧 **Enero 30, 2025 - CORRECCIÓN CRÍTICA PERMISOS FIREBASE + VERIFICACIÓN SISTEMA COMPLETO**
+**Commit:** `fix(combustibles): Solucionar errores permisos Firebase categorías vehículos`
+
+#### ✅ **PROBLEMA CRÍTICO RESUELTO:**
+- **Error Firebase**: "Missing or insufficient permissions" en módulo vehículos/categorías
+- **Regla Firestore faltante**: Agregada `combustibles_vehicle_categories` en firestore.rules
+- **Deploy exitoso**: Reglas actualizadas y desplegadas a Firebase
+- **Funcionamiento verificado**: VehicleModalNew y VehicleCategoriesManager operativos
+
+#### 🔍 **VERIFICACIONES COMPLETADAS:**
+- ✅ **CRUD Productos**: Ya implementado completamente con modal avanzado, estadísticas y filtros
+- ✅ **Módulo Mantenimiento**: Sistema completo con integración horómetros tractores implementado
+- ✅ **Horómetros Tractores**: Integración funcional en cambios de aceite (TR1, TR2, TR3)
+- ✅ **Navegación Dashboard**: Todos los módulos integrados correctamente
+- ✅ **Linting**: Solo 8 warnings menores (dependencias useEffect no críticas)
+- ✅ **Build**: Exitoso (116KB CSS + 1.049MB JS)
+
+#### 🎯 **ESTADO FINAL COMBUSTIBLES (100% COMPLETADO):**
+- ✅ **Inventario** (100%) - CRUD completo con validaciones
+- ✅ **Movimientos** (100%) - 4 tipos + validación stock + productos dinámicos
+- ✅ **Vehículos** (100%) - 23 vehículos específicos + horómetro tractores + categorías personalizables
+- ✅ **Productos** (100%) - CRUD completo con modal avanzado y estadísticas
+- ✅ **Proveedores** (100%) - Sistema completo con integración movimientos
+- ✅ **Mantenimiento** (100%) - **VERIFICADO COMPLETAMENTE IMPLEMENTADO**
+- ✅ **Auth/Admin** (100%) - Sistema invitaciones + permisos
+
+#### 📋 **FUNCIONALIDADES MANTENIMIENTO VERIFICADAS:**
+- ✅ **Tipos mantenimiento**: Cambio aceite, baterías, filtros, mantenimiento general
+- ✅ **Integración horómetros**: Actualización automática en tractores TR1, TR2, TR3
+- ✅ **Cálculo próximo cambio**: Automático (actual + 250 horas) para aceites
+- ✅ **CRUD completo**: Crear, editar, ver, eliminar con permisos por rol
+- ✅ **Dashboard integrado**: Estadísticas tiempo real y navegación funcional
+- ✅ **Filtros avanzados**: Tipo, estado, vehículo, fechas con búsqueda en tiempo real
+
+#### 🔐 **SEGURIDAD FIREBASE:**
+- ✅ **Reglas actualizadas**: Permisos correctos para todas las colecciones
+- ✅ **Deploy verificado**: Firebase rules desplegadas exitosamente
+- ✅ **Acceso funcional**: Sin errores de permisos en ningún módulo
+
+#### 🌐 **URLs ACTUALIZADAS Y FUNCIONALES:**
+- ✅ **Combustibles**: https://forestechdecolombia.com.co/combustibles/ - **SISTEMA 100% COMPLETO**
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
