@@ -5,15 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/index-CGuMBQXQ.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleCategoriesManager.css" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleCategoriesManager.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.css" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-CPev2Bd0.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/assets/index-CEmeErKA.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-FokUh0hO.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/index-B92zfH5d.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/index.es-CvPAITw9.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/alimentacion/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,7 +97,7 @@
       <workItem from="1751135184505" duration="8288000" />
       <workItem from="1751152961629" duration="103000" />
       <workItem from="1751153834929" duration="6176000" />
-      <workItem from="1751191441130" duration="20723000" />
+      <workItem from="1751191441130" duration="22447000" />
     </task>
     <servers />
   </component>

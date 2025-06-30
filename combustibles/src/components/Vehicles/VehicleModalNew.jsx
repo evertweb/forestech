@@ -110,14 +110,23 @@ const VehicleModalNew = ({
   const handleCategoryChange = (categoryId) => {
     const category = getCategoryById(categoryId, categories);
     setSelectedCategory(category);
-    setFormData(prev => ({ 
-      ...prev, 
-      category: categoryId,
-      // Resetear tipo de combustible si no es compatible
-      fuelType: category?.fuelTypes?.includes(prev.fuelType) 
-        ? prev.fuelType 
-        : category?.fuelTypes?.[0] || FUEL_COMPATIBILITY.DIESEL
-    }));
+    
+    setFormData(prev => {
+      // Regenerar ID del vehículo si hay nombre y es modo crear
+      const newVehicleId = (mode === 'create' && prev.name && category) 
+        ? generateVehicleId(prev.name, category)
+        : prev.vehicleId;
+        
+      return {
+        ...prev, 
+        category: categoryId,
+        vehicleId: newVehicleId,
+        // Resetear tipo de combustible si no es compatible
+        fuelType: category?.fuelTypes?.includes(prev.fuelType) 
+          ? prev.fuelType 
+          : category?.fuelTypes?.[0] || FUEL_COMPATIBILITY.DIESEL
+      };
+    });
     setErrors({});
   };
 
@@ -129,27 +138,43 @@ const VehicleModalNew = ({
       setErrors(prev => ({ ...prev, [field]: null }));
     }
 
-    // Auto-generar ID del vehículo si no existe
-    if (field === 'name' && !formData.vehicleId && mode === 'create') {
+    // Auto-generar ID del vehículo cuando se cambia el nombre
+    if (field === 'name' && mode === 'create') {
       const autoId = generateVehicleId(value, selectedCategory);
       setFormData(prev => ({ ...prev, vehicleId: autoId }));
+    }
+    
+    // Regenerar ID cuando se cambia la categoría
+    if (field === 'category' && mode === 'create' && formData.name) {
+      const newCategory = selectedCategory;
+      if (newCategory) {
+        const autoId = generateVehicleId(formData.name, newCategory);
+        setFormData(prev => ({ ...prev, vehicleId: autoId }));
+      }
     }
   };
 
   const generateVehicleId = (name, category) => {
     if (!name || !category) return '';
     
-    const prefix = category.name
+    // Crear prefijo de 2-3 letras de la categoría
+    const categoryPrefix = category.name
       .split(' ')
       .map(word => word.charAt(0).toUpperCase())
-      .join('');
+      .join('')
+      .substring(0, 3);
     
-    const suffix = name
+    // Crear sufijo del nombre del vehículo (3-4 caracteres)
+    const nameSuffix = name
       .replace(/[^a-zA-Z0-9]/g, '')
-      .substring(0, 6)
+      .substring(0, 4)
       .toUpperCase();
     
-    return `${prefix}-${suffix}-${String(Math.floor(Math.random() * 100)).padStart(2, '0')}`;
+    // Generar número secuencial basado en timestamp para evitar duplicados
+    const timestamp = Date.now().toString();
+    const sequential = timestamp.slice(-3); // Últimos 3 dígitos
+    
+    return `${categoryPrefix}${nameSuffix}${sequential}`;
   };
 
   const validateForm = () => {
@@ -248,54 +273,6 @@ const VehicleModalNew = ({
     }
   };
 
-  const renderField = (fieldKey) => {
-    const field = AVAILABLE_FIELDS.find(f => f.key === fieldKey);
-    if (!field) return null;
-
-    const value = formData[fieldKey] || '';
-    const error = errors[fieldKey];
-
-    // Campo dependiente
-    if (field.dependsOn && !formData[field.dependsOn]) {
-      return null;
-    }
-
-    const commonProps = {
-      id: fieldKey,
-      value: value,
-      onChange: (e) => handleInputChange(fieldKey, e.target.value),
-      className: `form-input ${error ? 'error' : ''}`
-    };
-
-    return (
-      <div key={fieldKey} className="form-group">
-        <label htmlFor={fieldKey} className="form-label">
-          {field.icon} {field.label}
-        </label>
-        
-        {field.type === 'boolean' ? (
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={value}
-              onChange={(e) => handleInputChange(fieldKey, e.target.checked)}
-            />
-            <span>Sí, tiene {field.label.toLowerCase()}</span>
-          </label>
-        ) : (
-          <input
-            type={field.type}
-            {...commonProps}
-            placeholder={`Ingrese ${field.label.toLowerCase()}`}
-            min={field.type === 'number' ? '0' : undefined}
-            step={field.type === 'number' ? 'any' : undefined}
-          />
-        )}
-        
-        {error && <span className="field-error">{error}</span>}
-      </div>
-    );
-  };
 
   const getCompatibleFuelTypes = () => {
     if (!selectedCategory) return Object.values(FUEL_COMPATIBILITY);
@@ -384,9 +361,10 @@ const VehicleModalNew = ({
                   type="text"
                   id="vehicleId"
                   value={formData.vehicleId}
-                  onChange={(e) => handleInputChange('vehicleId', e.target.value)}
-                  className={`form-input ${errors.vehicleId ? 'error' : ''}`}
-                  placeholder="Ej: EXC-001, TR-123"
+                  className={`form-input ${errors.vehicleId ? 'error' : ''} ${mode === 'create' ? 'readonly' : ''}`}
+                  placeholder="Se genera automáticamente"
+                  readOnly={mode === 'create'}
+                  onChange={mode === 'edit' ? (e) => handleInputChange('vehicleId', e.target.value) : undefined}
                   required
                 />
                 {errors.vehicleId && <span className="field-error">{errors.vehicleId}</span>}
@@ -420,17 +398,6 @@ const VehicleModalNew = ({
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="model" className="form-label">🔧 Modelo</label>
-                <input
-                  type="text"
-                  id="model"
-                  value={formData.model}
-                  onChange={(e) => handleInputChange('model', e.target.value)}
-                  className="form-input"
-                  placeholder="Ej: 320D, 6120M"
-                />
-              </div>
 
               <div className="form-group">
                 <label htmlFor="year" className="form-label">📅 Año</label>
@@ -508,15 +475,6 @@ const VehicleModalNew = ({
             </div>
           </div>
 
-          {/* Campos específicos de la categoría */}
-          {selectedCategory && selectedCategory.fields && selectedCategory.fields.length > 0 && (
-            <div className="form-section">
-              <h3>🔧 Especificaciones de {selectedCategory.name}</h3>
-              <div className="dynamic-fields">
-                {selectedCategory.fields.map(fieldKey => renderField(fieldKey))}
-              </div>
-            </div>
-          )}
 
           {/* Fechas importantes */}
           <div className="form-section">
@@ -562,7 +520,7 @@ const VehicleModalNew = ({
                   <div className="preview-info">
                     <h4>{formData.name || 'Nombre del vehículo'}</h4>
                     <p>{formData.vehicleId || 'Código del vehículo'} • {selectedCategory.name}</p>
-                    <p>{formData.brand} {formData.model} {formData.year}</p>
+                    <p>{formData.brand} {formData.year}</p>
                   </div>
                 </div>
               </div>
