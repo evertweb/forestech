@@ -1,11 +1,32 @@
 // combustibles/src/components/Dashboard/DashboardMain.jsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import './Dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
+import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 
 const DashboardMain = () => {
   const { inventory, movements, vehicles, loading, error } = useCombustibles();
+
+  // Ejecutar diagnóstico del inventario al cargar
+  useEffect(() => {
+    if (!loading && inventory.length > 0) {
+      console.log('🔍 Ejecutando diagnóstico del inventario...');
+      logInventoryState(inventory);
+
+      // Detectar posibles duplicaciones
+      const duplicados = findDuplicateItems(inventory);
+      if (duplicados.length > 0) {
+        console.warn(`⚠️ Se detectaron ${duplicados.length} posibles items duplicados:`);
+        console.table(duplicados.map(item => ({
+          id: item.id,
+          tipo: item.fuelType,
+          ubicacion: item.location,
+          stock: item.currentStock
+        })));
+      }
+    }
+  }, [loading, inventory]);
 
   // Helper para manejar fechas de manera segura
   const safeDateHelper = (date) => {
@@ -21,17 +42,29 @@ const DashboardMain = () => {
     const activeVehicles = vehicles.filter(v => v.status === 'activo').length;
     const pendingMovements = movements.filter(m => m.status === 'pendiente').length;
     
-    // Calcular total de combustible sumando currentStock directamente
+    // Calcular total de combustible sumando currentStock directamente - evitar duplicación
+    // Aplica console.log para depuración
+    console.log('Inventario en DashboardMain:', inventory.map(item => ({
+      id: item.id,
+      fuelType: item.fuelType,
+      currentStock: item.currentStock,
+      pricePerUnit: item.pricePerUnit || item.unitPrice
+    })));
+
     const totalFuel = inventory
       .filter(item => item.isActive !== false) // Solo items activos
-      .reduce((sum, item) => sum + (parseFloat(item.currentStock) || 0), 0);
-    
+      .reduce((sum, item) => {
+        const stock = parseFloat(item.currentStock) || 0;
+        console.log(`Sumando stock de ${item.fuelType}: ${stock} gal`);
+        return sum + stock;
+      }, 0);
+
     // Calcular valor total multiplicando stock por precio
     const totalValue = inventory
       .filter(item => item.isActive !== false)
       .reduce((sum, item) => {
         const stock = parseFloat(item.currentStock) || 0;
-        const price = parseFloat(item.unitPrice) || 0;
+        const price = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
         return sum + (stock * price);
       }, 0);
     
@@ -181,24 +214,26 @@ const DashboardMain = () => {
           <h3>📦 Stock por Producto</h3>
           {inventory.length > 0 ? (
             <div className="products-summary">
-              {inventory.map(item => (
-                <div key={item.id} className="product-summary-item">
-                  <div className="product-icon">⛽</div>
-                  <div className="product-info">
-                    <span className="product-name">{item.fuelType}</span>
-                    <div className="product-stats">
-                      <span className="stock-value">
-                        {formatNumber(item.currentStock || 0)} gal
-                      </span>
-                      <span className={`stock-status ${
-                        (item.currentStock || 0) <= (item.minStock || 20) ? 'low' : 'normal'
-                      }`}>
-                        {(item.currentStock || 0) <= (item.minStock || 20) ? '🟡 Stock bajo' : '🟢 Normal'}
-                      </span>
+              {inventory.map(item => {
+                const currentStock = parseFloat(item.currentStock) || 0;
+                const minThreshold = parseFloat(item.minStock || item.minThreshold) || 20;
+                return (
+                  <div key={item.id} className="product-summary-item">
+                    <div className="product-icon">⛽</div>
+                    <div className="product-info">
+                      <span className="product-name">{item.fuelType || item.name}</span>
+                      <div className="product-stats">
+                        <span className="stock-value">
+                          {formatNumber(currentStock)} gal
+                        </span>
+                        <span className={`stock-status ${currentStock <= minThreshold ? 'low' : 'normal'}`}>
+                          {currentStock <= minThreshold ? '🟡 Stock bajo' : '🟢 Normal'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="no-products">

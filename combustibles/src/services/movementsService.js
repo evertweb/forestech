@@ -453,81 +453,87 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
 
     const inventorySnapshot = await getDocs(inventoryQuery);
     
-    let inventoryRef;
-    let inventoryData;
-    let newQuantity = 0;
-
     if (inventorySnapshot.empty) {
-      // Si no existe inventario, crear uno nuevo para ENTRADA
-      if (movement.type === MOVEMENT_TYPES.ENTRADA) {
-        console.log(`📦 Creando inventario automático para ${movement.fuelType} en ${targetLocation}`);
-        
-        inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
-        inventoryData = {
-          fuelType: movement.fuelType,
-          location: targetLocation,
-          capacity: 1000, // Capacidad por defecto
-          currentStock: 0,
-          minStock: 50,
-          unitPrice: movement.unitPrice || 0,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          isActive: true
-        };
-        
-        // Crear inventario en la transacción
-        transaction.set(inventoryRef, inventoryData);
-        newQuantity = movement.quantity; // Primera entrada
-      } else {
-        throw new Error(`No se encontró inventario para ${movement.fuelType} en ${targetLocation}`);
+      // --- LÓGICA DE CREACIÓN ---
+      // Si no existe inventario, solo se puede procesar una ENTRADA.
+      if (movement.type !== MOVEMENT_TYPES.ENTRADA) {
+        throw new Error(`No se encontró inventario para ${movement.fuelType} en ${targetLocation} para realizar un movimiento de ${movement.type}.`);
       }
+      
+      console.log(`📦 Creando inventario automático para ${movement.fuelType} en ${targetLocation}`);
+      
+      const inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
+      const newInventoryData = {
+        fuelType: movement.fuelType,
+        location: targetLocation,
+        name: movement.fuelType, // Asignar un nombre por defecto
+        capacity: 10000, // Capacidad por defecto, se puede ajustar luego
+        currentStock: movement.quantity, // <-- CORRECCIÓN: Iniciar con la cantidad del movimiento
+        minStock: 1500, // 15% de la capacidad por defecto
+        unitPrice: movement.unitPrice || 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        isActive: true,
+        lastMovement: {
+          movementId,
+          type: movement.type,
+          quantity: movement.quantity,
+          date: serverTimestamp()
+        }
+      };
+      
+      // Crear el nuevo item de inventario en la transacción
+      transaction.set(inventoryRef, newInventoryData);
+
     } else {
+      // --- LÓGICA DE ACTUALIZACIÓN ---
       // Usar inventario existente
       const inventoryDoc = inventorySnapshot.docs[0];
-      inventoryData = inventoryDoc.data();
-      inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
-      newQuantity = inventoryData.currentStock;
+      const inventoryData = inventoryDoc.data();
+      const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
+      let newQuantity = inventoryData.currentStock;
+
+      // Aplicar cambio según tipo de movimiento
+      switch (movement.type) {
+        case MOVEMENT_TYPES.ENTRADA:
+          newQuantity += movement.quantity;
+          break;
+        case MOVEMENT_TYPES.SALIDA:
+          newQuantity -= movement.quantity;
+          if (newQuantity < 0) {
+            throw new Error('Stock insuficiente para realizar la salida');
+          }
+          break;
+        case MOVEMENT_TYPES.AJUSTE:
+          newQuantity += movement.quantity; // Puede ser positivo o negativo
+          if (newQuantity < 0) newQuantity = 0;
+          break;
+        case MOVEMENT_TYPES.TRANSFERENCIA:
+          newQuantity -= movement.quantity;
+          if (newQuantity < 0) {
+            throw new Error('Stock insuficiente para realizar la transferencia');
+          }
+          // TODO: Agregar al destino (requiere lógica adicional)
+          break;
+      }
+
+      // Actualizar el inventario existente
+      transaction.update(inventoryRef, {
+        currentStock: newQuantity,
+        lastMovement: {
+          movementId,
+          type: movement.type,
+          quantity: movement.quantity,
+          date: serverTimestamp()
+        },
+        updatedAt: serverTimestamp()
+      });
     }
 
-    // Aplicar cambio según tipo de movimiento
-    switch (movement.type) {
-      case MOVEMENT_TYPES.ENTRADA:
-        newQuantity += movement.quantity;
-        break;
-      case MOVEMENT_TYPES.SALIDA:
-        newQuantity -= movement.quantity;
-        if (newQuantity < 0) {
-          throw new Error('Stock insuficiente para realizar la salida');
-        }
-        break;
-      case MOVEMENT_TYPES.AJUSTE:
-        // Para ajustes, la cantidad puede ser positiva o negativa
-        newQuantity += movement.quantity;
-        if (newQuantity < 0) {
-          newQuantity = 0; // No permitir stock negativo
-        }
-        break;
-      case MOVEMENT_TYPES.TRANSFERENCIA:
-        // Para transferencias, restar del origen
-        newQuantity -= movement.quantity;
-        if (newQuantity < 0) {
-          throw new Error('Stock insuficiente para realizar la transferencia');
-        }
-        // TODO: Agregar al destino (requiere lógica adicional)
-        break;
+    // Actualizar horómetro del vehículo si es una salida y tiene datos del horómetro
+    if (movement.type === MOVEMENT_TYPES.SALIDA && movement.vehicleId && movement.currentHours) {
+      await updateVehicleHourMeter(transaction, movement.vehicleId, movement.currentHours);
     }
-
-    // Actualizar inventario
-    transaction.update(inventoryRef, {
-      currentStock: newQuantity,
-      lastMovement: {
-        movementId,
-        type: movement.type,
-        quantity: movement.quantity,
-        date: serverTimestamp()
-      },
-      updatedAt: serverTimestamp()
-    });
 
     // Actualizar horómetro del vehículo si es una salida y tiene datos del horómetro
     if (movement.type === MOVEMENT_TYPES.SALIDA && movement.vehicleId && movement.currentHours) {

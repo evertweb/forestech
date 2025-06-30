@@ -27,7 +27,7 @@ export const calculateTotalInventoryValue = (inventoryItems = []) => {
   if (!Array.isArray(inventoryItems)) return 0;
   
   return inventoryItems.reduce((total, item) => {
-    const quantity = parseFloat(item.quantity) || 0;
+    const quantity = parseFloat(item.currentStock) || 0;
     const price = parseFloat(item.pricePerUnit) || 0;
     return total + (quantity * price);
   }, 0);
@@ -45,15 +45,15 @@ export const calculateAvailableStock = (inventoryItems = [], fuelType = null) =>
   if (fuelType) {
     return inventoryItems
       .filter(item => item.fuelType === fuelType)
-      .reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
+      .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
   }
-  
+
   // Retorna stock por cada tipo de combustible
   const stockByType = {};
   Object.values(FUEL_TYPES).forEach(type => {
     stockByType[type] = inventoryItems
       .filter(item => item.fuelType === type)
-      .reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
+      .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
   });
   
   return stockByType;
@@ -82,8 +82,8 @@ export const calculateLowStockAlerts = (inventoryItems = [], threshold = 0.15) =
   
   return inventoryItems
     .map(item => {
-      const currentStock = parseFloat(item.quantity) || 0;
-      const maxCapacity = parseFloat(item.capacity) || 0;
+      const currentStock = parseFloat(item.currentStock) || 0;
+      const maxCapacity = parseFloat(item.maxCapacity) || 0;
       const percentage = maxCapacity > 0 ? currentStock / maxCapacity : 0;
       const stockLevel = getStockLevel(currentStock, maxCapacity);
       
@@ -127,7 +127,7 @@ export const calculateInventoryStats = (inventoryItems = []) => {
   // Promedio de nivel de stock
   const averageStockLevel = inventoryItems.length > 0 
     ? inventoryItems.reduce((sum, item) => {
-        const percentage = calculateCapacityPercentage(item.quantity, item.capacity);
+        const percentage = calculateCapacityPercentage(item.currentStock, item.maxCapacity);
         return sum + percentage;
       }, 0) / inventoryItems.length
     : 0;
@@ -183,11 +183,23 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
       item.location === sourceLocation &&
       item.status === 'active'
     )
-    .reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
+    .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
   
   const isValid = availableStock >= requiredStock;
   const remainingStock = availableStock - requiredStock;
   
+  // Log para diagnóstico de problemas de stock
+  console.log(`Validación de stock - Tipo: ${fuelType}, Ubicación: ${sourceLocation}`, {
+    itemsEncontrados: inventoryItems.filter(item => 
+      item.fuelType === fuelType && 
+      item.location === sourceLocation &&
+      item.status === 'active'
+    ).length,
+    disponible: availableStock,
+    requerido: requiredStock,
+    valido: availableStock >= requiredStock
+  });
+
   return {
     isValid,
     availableStock,

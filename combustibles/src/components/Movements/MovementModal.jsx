@@ -161,6 +161,20 @@ const MovementModal = ({
     if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
         formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
       
+      // Mostrar información de diagnóstico sobre el inventario actual
+      console.log('Inventario disponible para validación:', {
+        totalItems: inventory.length,
+        itemsTipoSeleccionado: inventory.filter(item => item.fuelType === formData.fuelType).length,
+        itemsUbicacionSeleccionada: inventory.filter(item => 
+          item.fuelType === formData.fuelType && 
+          item.location === formData.location
+        ).length,
+        inventarioDetalles: inventory.filter(item => 
+          item.fuelType === formData.fuelType && 
+          item.location === formData.location
+        )
+      });
+
       // Crear objeto de movimiento para validación
       const movementForValidation = {
         type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
