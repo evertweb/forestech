@@ -147,8 +147,27 @@
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
+  /* Responsive grid optimizado para PC */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
+  justify-content: center;
+}
+
+/* Mejoras específicas para pantallas grandes */
+@media (min-width: 1024px) {
+  .categories-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 380px));
+    max-width: 1400px;
+    margin: 0 auto;
+    justify-content: start;
+  }
+}
+
+@media (min-width: 1440px) {
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
+  }
 }
 
 .category-card {
@@ -159,6 +178,17 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mejoras para pantallas PC */
+@media (min-width: 1024px) {
+  .category-card {
+    min-height: 180px;
+    padding: 1.25rem;
+  }
 }
 
 .category-card:hover {
@@ -293,6 +323,8 @@
 .category-actions {
   display: flex;
   gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
 }
 
 .btn-edit, .btn-delete {
@@ -301,9 +333,26 @@
   border: none;
   border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
   transition: all 0.2s ease;
+}
+
+/* Mejoras para PC */
+@media (min-width: 1024px) {
+  .category-actions {
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+  }
+  
+  .btn-edit, .btn-delete {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+  }
+  
+  .btn-edit:hover, .btn-delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .btn-edit {

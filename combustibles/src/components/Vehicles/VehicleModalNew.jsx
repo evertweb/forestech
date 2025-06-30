@@ -241,6 +241,9 @@ const VehicleModalNew = ({
       // Preparar datos para guardar
       const vehicleData = {
         ...formData,
+        // CAMPO CRÍTICO: Agregar type basado en la categoría seleccionada
+        type: selectedCategory?.name || formData.category || 'Otro',
+        
         // Convertir strings vacíos a null para campos numéricos opcionales
         enginePower: formData.enginePower ? Number(formData.enginePower) : null,
         fuelCapacity: formData.fuelCapacity ? Number(formData.fuelCapacity) : null,
