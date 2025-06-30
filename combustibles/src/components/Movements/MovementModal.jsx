@@ -28,7 +28,7 @@ const MovementModal = ({
     fuelType: '',
     quantity: '',
     unitPrice: '',
-    location: 'Principal',
+    location: 'principal',
     vehicleId: '',
     destinationLocation: '',
     description: '',
@@ -111,7 +111,7 @@ const MovementModal = ({
         fuelType: movement.fuelType || '',
         quantity: movement.quantity?.toString() || '',
         unitPrice: movement.unitPrice?.toString() || '',
-        location: movement.location || 'Principal',
+        location: movement.location || 'principal',
         vehicleId: movement.vehicleId || '',
         destinationLocation: movement.destinationLocation || '',
         description: movement.description || '',
@@ -127,7 +127,7 @@ const MovementModal = ({
         fuelType: '',
         quantity: '',
         unitPrice: '',
-        location: 'Principal',
+        location: 'principal',
         vehicleId: '',
         destinationLocation: '',
         description: '',
@@ -201,7 +201,7 @@ const MovementModal = ({
       setFormData(prev => ({
         ...prev,
         [field]: value,
-        location: value === MOVEMENT_TYPES.ENTRADA ? '' : 'Principal'
+        location: value === MOVEMENT_TYPES.ENTRADA ? '' : 'principal'
       }));
     } else {
       setFormData(prev => ({

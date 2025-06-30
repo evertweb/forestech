@@ -180,7 +180,7 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
   const availableStock = inventoryItems
     .filter(item => 
       item.fuelType === fuelType && 
-      item.location === sourceLocation &&
+            item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
       item.status === 'active'
     )
     .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
@@ -192,7 +192,7 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
   console.log(`Validación de stock - Tipo: ${fuelType}, Ubicación: ${sourceLocation}`, {
     itemsEncontrados: inventoryItems.filter(item => 
       item.fuelType === fuelType && 
-      item.location === sourceLocation &&
+            item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
       item.status === 'active'
     ).length,
     disponible: availableStock,
