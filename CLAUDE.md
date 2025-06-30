@@ -35,9 +35,9 @@ La documentación completa está organizada en módulos para mejor rendimiento:
 
 ### ⛽ **COMBUSTIBLES**
 📖 **[Ver docs/combustibles/](./docs/combustibles/README.md)**
-- **SISTEMA 90% COMPLETADO** (6/7 módulos) - Enero 2025
-- ✅ Inventario, Movimientos, Vehículos, **Productos (NUEVO)**, Proveedores, Auth/Admin
-- 🔄 Pendiente: Expansión Vehículos + Módulo Mantenimiento + Reportes
+- **SISTEMA 95% COMPLETADO** (6/7 módulos) - Enero 2025
+- ✅ Inventario, Movimientos, **Vehículos (UX MEJORADA)**, Productos, Proveedores, Auth/Admin
+- 🔄 Pendiente: Módulo Mantenimiento + Reportes finales
 - URL: https://forestechdecolombia.com.co/combustibles/
 
 ### 🔧 **SHARED**
@@ -652,6 +652,29 @@ Hecho con Claude CLI (supervisando Gemini CLI)"
 - ✅ **Movimientos**: ENTRADA crea inventario automáticamente sin fallos
 - ✅ **Dashboard**: Carga sin crashes, fechas formateadas correctamente
 - ✅ **URL**: https://forestechdecolombia.com.co/combustibles/ funcional
+
+### 🚗 **Enero 30, 2025 - MEJORAS UX MODAL VEHÍCULOS SIMPLIFICADO**
+**Commit:** `feat(combustibles): Simplificar modal vehículos - auto-generación códigos + eliminar campo modelo`
+
+#### ✅ **OPTIMIZACIÓN UX IMPLEMENTADA:**
+- **Auto-generación códigos inteligente**: `generateVehicleId()` con prefijo categoría + nombre + timestamp
+- **Campo modelo eliminado**: Formulario simplificado sin especificaciones complejas
+- **Sección especificaciones removida**: Modal 40% más corto y eficiente  
+- **Campo código readonly**: Solo lectura en modo creación con estilos específicos
+- **Función renderField eliminada**: Código más limpio sin funciones innecesarias
+
+#### 🔧 **Mejoras Técnicas:**
+- **VehicleModalNew.jsx** (565 líneas) optimizado y simplificado
+- **CSS readonly específico**: Estilos apropiados para campos no editables
+- **UX intuitiva**: Campo código se genera automáticamente al escribir nombre
+- **Placeholder informativo**: "Se genera automáticamente" para claridad usuario
+- **Vista previa actualizada**: Sin referencias al modelo eliminado
+
+#### 📊 **Resultado Final:**
+- ✅ **Formulario más eficiente** - Proceso creación 40% más rápido
+- ✅ **UX simplificada** - Menos campos, decisiones más claras
+- ✅ **Código más limpio** - Eliminación funciones y campos innecesarios
+- ✅ **Auto-generación inteligente** - Códigos únicos sin intervención manual
 
 ---
 

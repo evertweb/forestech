@@ -214,6 +214,11 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
     
+    // Categorías de vehículos de combustibles (ruta actual)
+    match /combustibles_vehicle_categories/{category_id} {
+      allow read, write: if request.auth != null;
+    }
+    
     // Mantenimientos de combustibles (ruta actual)
     match /combustibles_maintenance/{maintenance_id} {
       allow read, write: if request.auth != null;

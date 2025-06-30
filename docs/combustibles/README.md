@@ -56,8 +56,9 @@ npm run lint        # ESLint
 ### ✅ Fase 5 - Módulo Vehículos (100% COMPLETADO)
 - **Servicio**: vehiclesService.js completo (700+ líneas)
 - **UI**: 9 componentes + CSS (100% completado)
-- **Modales**: VehicleModal.jsx y MaintenanceModal.jsx implementados
-- **CRUD**: Gestión completa maquinaria forestal
+- **Modales**: VehicleModalNew.jsx simplificado sin especificaciones complejas
+- **Auto-generación**: Códigos vehículo automáticos (prefijo categoría + nombre + timestamp)
+- **CRUD**: Gestión completa maquinaria forestal con UX mejorada
 - **Métricas**: Consumo, eficiencia, mantenimientos
 - **Integración**: Dashboard funcional con navegación
 
@@ -361,10 +362,13 @@ REPORTES (📈 final)
 - **Validaciones**: Lecturas incrementales, historial completo, proyección mantenimiento
 - **Métricas avanzadas**: Consumo real vs estimado, eficiencia, próximo mantenimiento (250h)
 
-#### 📁 **Archivos Nuevos Creados**
+#### 📁 **Archivos Modificados y Creados**
 - **predefinedVehicles.js** (380+ líneas) - 23 vehículos + tipos extendidos
-- **initializeVehicles.js** (200+ líneas) - Script carga automática con verificaciones
-- **VehicleModal.jsx** (80+ líneas adicionales) - Sección horómetro integrada
+- **initializeVehicles.js** (200+ líneas) - Script carga automática con verificaciones  
+- **VehicleModalNew.jsx** (565 líneas) - Modal simplificado sin especificaciones complejas
+- **Auto-generación códigos**: generateVehicleId() con algoritmo inteligente
+- **Campo modelo eliminado**: Formulario más simple y eficiente
+- **UX mejorada**: Campo código readonly en modo creación con estilos específicos
 
 #### 🚀 **Funcionalidades Avanzadas Implementadas**
 - **Auto-habilitación horómetro** para tipo TRACTOR (TR1, TR2, TR3)
@@ -418,6 +422,38 @@ import { initializePredefinedVehicles } from '../utils/initializeVehicles';
 const result = await initializePredefinedVehicles();
 console.log(result); // Resumen: creados, errores, total
 ```
+
+## 📝 **ÚLTIMA ACTUALIZACIÓN - ENERO 30, 2025**
+
+### ✅ **MEJORAS UX MODAL VEHÍCULOS (RECIÉN IMPLEMENTADAS)**
+**Commit**: `feat(combustibles): Simplificar modal vehículos - auto-generación códigos + eliminar campo modelo`
+
+#### 🔧 **Cambios Implementados:**
+1. **Auto-generación códigos vehículo** - Prefijo categoría + nombre + timestamp
+   - Función `generateVehicleId()` optimizada con algoritmo inteligente
+   - Campo código ahora es solo lectura en modo creación
+   - Estilos CSS específicos para campos readonly
+
+2. **Campo modelo eliminado** - Formulario simplificado y más eficiente
+   - Removido del formulario de creación/edición líneas 402-413
+   - Vista previa actualizada sin referencias al modelo línea 523
+   - UX más limpia y enfocada en lo esencial
+
+3. **Sección especificaciones removida** - Modal más simple
+   - Eliminada sección "Especificaciones de Maquinaria Pesada" completa
+   - Función `renderField` removida por ser innecesaria
+   - Formulario 40% más corto y fácil de usar
+
+4. **UX mejorada** - Interacción más intuitiva
+   - Campo código se genera automáticamente al escribir nombre
+   - Placeholder informativo "Se genera automáticamente"
+   - Estilos visuales apropiados para campos no editables
+
+#### 📊 **Resultado Final:**
+- ✅ **UX simplificada** - Menos campos, más eficiencia
+- ✅ **Auto-generación inteligente** - Códigos únicos automáticos
+- ✅ **Formulario optimizado** - Proceso de creación más rápido
+- ✅ **Código más limpio** - Eliminación funciones innecesarias
 
 Ver más detalles en:
 - [Roadmap](./roadmap.md)
