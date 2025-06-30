@@ -227,14 +227,22 @@ export const updateInventoryItem = async (itemId, updateData, updatedBy) => {
 export const updateStock = async (itemId, newStock, updatedBy) => {
   try {
     const docRef = doc(db, INVENTORY_COLLECTION, itemId);
-    
+    // Obtener el stock actual antes de actualizar
+    const currentDoc = await getDoc(docRef);
+    if (!currentDoc.exists()) {
+      return { success: false, error: 'Item no encontrado' };
+    }
+    const currentStock = currentDoc.data().currentStock;
+    // Validar que no se intente dejar el stock en negativo
+    if (Number(newStock) < 0) {
+      return { success: false, error: 'No hay suficiente stock disponible para realizar esta salida.' };
+    }
     await updateDoc(docRef, {
       currentStock: Number(newStock),
       lastUpdated: new Date(),
       updatedBy: updatedBy
     });
-    
-    return { 
+    return {
       success: true, 
       message: 'Stock actualizado exitosamente'
     };

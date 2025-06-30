@@ -259,6 +259,10 @@ const MovementModal = ({
       errors.location = 'Las entradas requieren un proveedor';
     }
 
+    if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) && !formData.location) {
+      errors.location = 'La ubicación es requerida para salidas y transferencias';
+    }
+
     if (formData.type === MOVEMENT_TYPES.SALIDA && !formData.vehicleId) {
       errors.vehicleId = 'Las salidas requieren un vehículo';
     }
