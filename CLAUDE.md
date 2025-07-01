@@ -366,4 +366,80 @@ git diff --stat         # Solo estadísticas de cambios
 
 ---
 
-**Febrero 1, 2025**: Sistema de wizard implementado completamente. Formulario clásico eliminado. Aplicación Combustibles con experiencia optimizada y código simplificado.
+### ⛽ **COMBUSTIBLES - Febrero 1, 2025**
+#### 🔧 **CORRECCIONES CRÍTICAS: Wizard Movimientos y Visualización Profesional**
+
+**📍 Actualización Mayor**: Corrección completa de bugs críticos en wizard de movimientos y rediseño total de la visualización con interfaz profesional.
+
+#### 🚨 **Problemas Críticos Solucionados**:
+
+1. **🔧 Wizard SALIDAS - Error "Campo requerido: fuelType"**:
+   - **Problema**: Movimientos tipo SALIDA fallaban con error de validación
+   - **Causa**: Navegación inconsistente y mapeo de pasos problemático
+   - **Solución**: Mapeo específico para SALIDAS similar al de ENTRADAS
+   - **Archivos**: `MovementWizard.jsx`, `Step5_Vehicle.jsx`
+
+2. **🔧 Wizard ENTRADAS - Ubicación Incorrecta Step4**:
+   - **Problema**: Step4 mostraba ubicación vacía para entradas
+   - **Causa**: Usaba `formData.location` en lugar de `destinationLocation`
+   - **Solución**: Lógica condicional según tipo de movimiento
+   - **Archivo**: `Step4_Quantity.jsx:278`
+
+3. **🔧 Visualización - Bug Ubicación "principal"**:
+   - **Problema**: Entradas mostraban "principal" en lugar de ubicación real
+   - **Causa**: Tabla usaba campo incorrecto para entradas
+   - **Solución**: Lógica condicional `ENTRADA ? destinationLocation : location`
+   - **Archivo**: `MovementsTable.jsx:225-229`
+
+#### ✨ **Funcionalidades Implementadas**:
+
+1. **🧙‍♂️ Wizard SALIDAS - Mejoras Completas**:
+   - ✅ Confirmación visual Step4: "Se restará del inventario de [ubicación]"
+   - ✅ Mapeo específico navegación: `1→2→3→4→5→7→8` (7 pasos)
+   - ✅ Debug logs específicos en Step5 y submit final
+   - ✅ Validación robusta horómetros tractores
+
+2. **📊 Visualización Profesional - Rediseño Total**:
+   - ✅ **Vista única tabla**: Eliminada vista tarjetas completamente
+   - ✅ **CSS profesional**: +400 líneas estilos especializados
+   - ✅ **Header gradiente**: Tema forestal con tipografía mejorada
+   - ✅ **Espaciado generoso**: Padding aumentado, filas hover effects
+   - ✅ **Celdas especializadas**: Formato específico por tipo contenido
+   - ✅ **Responsive optimizado**: Perfecto móvil/desktop
+
+3. **🎨 Arquitectura Simplificada**:
+   - ✅ **MovementsList**: Eliminada lógica dual, solo tabla
+   - ✅ **MovementsFilters**: Removido selector vista, indicador "📋 Vista Tabla"
+   - ✅ **MovementsMain**: Sin estado `viewMode`, interfaz limpia
+   - ✅ **Consistencia UX**: Flujo único sin opciones confusas
+
+#### 📁 **Archivos Modificados**:
+- 🔧 `MovementWizard.jsx` - Mapeo navegación específico SALIDAS + debug
+- 🔧 `Step4_Quantity.jsx` - Confirmaciones visuales ENTRADAS/SALIDAS
+- 🔧 `Step5_Vehicle.jsx` - Debug específico selección vehículo
+- 🔧 `MovementsTable.jsx` - Fix ubicación condicional ENTRADA
+- 🔧 `MovementsList.jsx` - Simplificación vista única tabla
+- 🔧 `MovementsMain.jsx` - Eliminación estado viewMode
+- 🔧 `MovementsFilters.jsx` - Removido selector vista
+- 🎨 `Movements.css` - +400 líneas estilos tabla profesional
+
+#### ✅ **Verificaciones Completadas**:
+- **Lint**: ✅ Sin errores críticos (solo warnings pre-existentes)
+- **Build**: ✅ Construcción exitosa en 8.57s
+- **Deploy**: ✅ Firebase deploy exitoso
+- **Funcionalidad**: ✅ Wizard ENTRADA/SALIDA 100% funcional
+
+#### 🎯 **Resultado Final**:
+**SISTEMA COMPLETAMENTE FUNCIONAL**:
+- ✅ **Wizard Universal**: ENTRADAS y SALIDAS funcionando perfectamente
+- ✅ **Visualización Premium**: Tabla profesional espaciosa y clara  
+- ✅ **UX Coherente**: Interfaz unificada sin duplicaciones
+- ✅ **Mantenibilidad**: Código limpio y documentado
+
+#### 🌐 **URLs Actualizadas**:
+- **Combustibles**: https://forestechdecolombia.com.co/combustibles/
+- **Firebase**: https://liquidacionapp-62962.web.app/
+
+---
+
+**Febrero 1, 2025**: Sistema wizard y visualización completamente corregidos. Experiencia profesional 100% funcional.
