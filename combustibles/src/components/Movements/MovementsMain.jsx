@@ -17,6 +17,7 @@ import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
 import MovementModal from './MovementModal';
+import MovementWizard from './MovementWizard';
 import './Movements.css';
 
 const MovementsMain = () => {
@@ -40,6 +41,7 @@ const MovementsMain = () => {
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [selectedMovement, setSelectedMovement] = useState(null);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
@@ -106,6 +108,10 @@ const MovementsMain = () => {
     setShowModal(true);
   };
 
+  const handleCreateMovementWizard = () => {
+    setShowWizard(true);
+  };
+
   const handleEditMovement = (movement) => {
     setSelectedMovement(movement);
     setModalMode('edit');
@@ -121,6 +127,10 @@ const MovementsMain = () => {
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedMovement(null);
+  };
+
+  const handleWizardClose = () => {
+    setShowWizard(false);
   };
 
   const handleFilterChange = (newFilters) => {
@@ -221,12 +231,20 @@ const MovementsMain = () => {
         </div>
         
         {canCreateMovement && (
-          <button 
-            className="btn-create-movement"
-            onClick={handleCreateMovement}
-          >
-            ➕ Nuevo Movimiento
-          </button>
+          <div className="create-movement-options">
+            <button 
+              className="btn-create-movement primary"
+              onClick={handleCreateMovementWizard}
+            >
+              🧙‍♂️ Asistente Guiado
+            </button>
+            <button 
+              className="btn-create-movement secondary"
+              onClick={handleCreateMovement}
+            >
+              📝 Formulario Clásico
+            </button>
+          </div>
         )}
       </div>
 
@@ -267,12 +285,20 @@ const MovementsMain = () => {
             }
           </p>
           {movements.length === 0 && canCreateMovement && (
-            <button 
-              className="btn-create-first"
-              onClick={handleCreateMovement}
-            >
-              ➕ Crear Primer Movimiento
-            </button>
+            <div className="create-first-options">
+              <button 
+                className="btn-create-first primary"
+                onClick={handleCreateMovementWizard}
+              >
+                🧙‍♂️ Comenzar con Asistente
+              </button>
+              <button 
+                className="btn-create-first secondary"
+                onClick={handleCreateMovement}
+              >
+                📝 Usar Formulario Clásico
+              </button>
+            </div>
           )}
         </div>
       ) : (
@@ -288,7 +314,7 @@ const MovementsMain = () => {
         />
       )}
 
-      {/* Modal */}
+      {/* Modal Clásico */}
       {showModal && (
         <MovementModal
           isOpen={showModal}
@@ -297,6 +323,18 @@ const MovementsMain = () => {
           mode={modalMode}
           onSuccess={() => {
             handleModalClose();
+            // Los datos se actualizan automáticamente por la suscripción
+          }}
+        />
+      )}
+
+      {/* Wizard Guiado */}
+      {showWizard && (
+        <MovementWizard
+          isOpen={showWizard}
+          onClose={handleWizardClose}
+          onSuccess={() => {
+            handleWizardClose();
             // Los datos se actualizan automáticamente por la suscripción
           }}
         />
