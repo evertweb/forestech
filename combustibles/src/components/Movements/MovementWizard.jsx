@@ -3,7 +3,7 @@
  * Guía al usuario paso a paso con validaciones en tiempo real y feedback visual
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
@@ -120,14 +120,15 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const getTotalSteps = () => {
     if (!formData.type) return 8;
     
-    // Para transferencias: todos los pasos
+    // Para transferencias: todos los pasos (1,2,3,4,5,6,7,8)
     if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) return 8;
     
-    // Para salidas: incluye vehículo, sin destino
+    // Para salidas: incluye vehículo, sin destino (1,2,3,4,5,7,8)
     if (formData.type === MOVEMENT_TYPES.SALIDA) return 7;
     
-    // Para entradas y ajustes: sin vehículo ni destino
-    return 6;
+    // Para entradas y ajustes: sin vehículo ni destino (1,2,3,4,7,8) 
+    // Necesitan llegar al paso 7 (detalles), así que el máximo paso es 7
+    return 7;
   };
 
   // Actualizar datos del formulario
@@ -141,40 +142,88 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Validar paso actual
   const validateCurrentStep = () => {
+    let isValid = false;
+    
     switch (currentStep) {
       case 1:
-        return !!formData.type;
+        isValid = !!formData.type;
+        break;
       case 2:
-        return !!formData.fuelType;
+        isValid = !!formData.fuelType;
+        break;
       case 3:
         if (formData.type === MOVEMENT_TYPES.ENTRADA) {
-          return !!formData.location; // Proveedor para entradas
+          isValid = !!formData.location; // Proveedor para entradas
+        } else {
+          isValid = !!formData.location; // Ubicación origen para salidas/transferencias
         }
-        return !!formData.location; // Ubicación origen para salidas/transferencias
+        break;
       case 4:
-        return formData.quantity && parseFloat(formData.quantity) > 0;
+        isValid = formData.quantity && parseFloat(formData.quantity) > 0;
+        // DEBUG: Log temporal para identificar problema
+        console.log('🔍 [DEBUG Step 4] Validación cantidad:', {
+          step: currentStep,
+          quantity: formData.quantity,
+          parsedQuantity: parseFloat(formData.quantity),
+          isQuantityValid: !!formData.quantity,
+          isParsedValid: parseFloat(formData.quantity) > 0,
+          finalValidation: isValid,
+          formData: formData
+        });
+        break;
       case 5:
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          return !!formData.vehicleId;
+          isValid = !!formData.vehicleId;
+        } else {
+          isValid = true; // Skip para otros tipos
         }
-        return true; // Skip para otros tipos
+        break;
       case 6:
         if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
-          return !!formData.destinationLocation;
+          isValid = !!formData.destinationLocation;
+        } else {
+          isValid = true; // Skip para otros tipos
         }
-        return true; // Skip para otros tipos
+        break;
       case 7:
-        return !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+        isValid = !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+        break;
       case 8:
-        return true; // Resumen siempre válido si llegamos aquí
+        isValid = true; // Resumen siempre válido si llegamos aquí
+        break;
       default:
-        return false;
+        isValid = false;
     }
+    
+    // DEBUG: Log general de validación
+    console.log('🔍 [DEBUG General] validateCurrentStep:', {
+      currentStep,
+      isValid,
+      formDataKeys: Object.keys(formData),
+      formData
+    });
+    
+    return isValid;
   };
+
+  // Validación memoizada para evitar problemas de sincronización en el render
+  const isCurrentStepValid = useMemo(() => {
+    return validateCurrentStep();
+  }, [currentStep, formData, MOVEMENT_TYPES]);
 
   // Navegar al siguiente paso
   const nextStep = () => {
-    if (validateCurrentStep()) {
+    const isCurrentStepValid = validateCurrentStep();
+    
+    // DEBUG: Log del evento de navegación
+    console.log('🔍 [DEBUG nextStep] Intentando navegar:', {
+      currentStep,
+      isValid: isCurrentStepValid,
+      formData: formData,
+      type: formData.type
+    });
+    
+    if (isCurrentStepValid) {
       const totalSteps = getTotalSteps();
       
       // Determinar el siguiente paso basado en tipo de movimiento
@@ -182,16 +231,25 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       
       // Saltar pasos no aplicables
       if (currentStep === 4 && formData.type !== MOVEMENT_TYPES.SALIDA) {
+        // Para transferencias: ir al paso 6 (destino)
+        // Para entradas/ajustes: ir al paso 7 (detalles)
         nextStepNumber = formData.type === MOVEMENT_TYPES.TRANSFERENCIA ? 6 : 7;
       }
       if (currentStep === 5 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
         nextStepNumber = 7;
       }
       
+      console.log('🔍 [DEBUG Navigation] Navegando:', {
+        from: currentStep,
+        to: nextStepNumber,
+        totalSteps: totalSteps
+      });
+      
       if (nextStepNumber <= totalSteps) {
         setCurrentStep(nextStepNumber);
       }
     } else {
+      console.log('❌ [DEBUG] Validación falló, no se puede navegar');
       setError('Por favor completa este paso antes de continuar');
     }
   };
@@ -355,7 +413,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               <button 
                 className="btn-wizard btn-next"
                 onClick={nextStep}
-                disabled={!validateCurrentStep()}
+                disabled={!isCurrentStepValid}
               >
                 Siguiente →
               </button>
@@ -363,7 +421,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               <button 
                 className="btn-wizard btn-finish"
                 onClick={handleSubmit}
-                disabled={isLoading || !validateCurrentStep()}
+                disabled={isLoading || !isCurrentStepValid}
               >
                 {isLoading ? (
                   <>
