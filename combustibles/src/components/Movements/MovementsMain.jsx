@@ -16,7 +16,6 @@ import {
 import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
-import MovementModal from './MovementModal';
 import MovementWizard from './MovementWizard';
 import './Movements.css';
 
@@ -40,10 +39,8 @@ const MovementsMain = () => {
   // Estado de vista
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
   const [searchTerm, setSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
-  const [selectedMovement, setSelectedMovement] = useState(null);
-  const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
+  // Variables de estado limpias - solo wizard
 
   // Suscripción a movimientos en tiempo real
   useEffect(() => {
@@ -103,30 +100,12 @@ const MovementsMain = () => {
 
   // Manejadores de eventos
   const handleCreateMovement = () => {
-    setSelectedMovement(null);
-    setModalMode('create');
-    setShowModal(true);
-  };
-
-  const handleCreateMovementWizard = () => {
     setShowWizard(true);
   };
 
-  const handleEditMovement = (movement) => {
-    setSelectedMovement(movement);
-    setModalMode('edit');
-    setShowModal(true);
-  };
-
   const handleViewMovement = (movement) => {
-    setSelectedMovement(movement);
-    setModalMode('view');
-    setShowModal(true);
-  };
-
-  const handleModalClose = () => {
-    setShowModal(false);
-    setSelectedMovement(null);
+    // Vista de movimientos en modo lectura simplificado
+    alert(`📋 Detalles del movimiento:\n\nTipo: ${movement.type}\nCombustible: ${movement.fuelType}\nCantidad: ${movement.quantity} gal\nFecha: ${new Date(movement.createdAt).toLocaleDateString('es-CO')}`);
   };
 
   const handleWizardClose = () => {
@@ -190,7 +169,6 @@ const MovementsMain = () => {
 
   // Permisos del usuario
   const canCreateMovement = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
-  const canEditMovement = userProfile?.role === 'admin';
 
   if (loading) {
     return (
@@ -234,15 +212,9 @@ const MovementsMain = () => {
           <div className="create-movement-options">
             <button 
               className="btn-create-movement primary"
-              onClick={handleCreateMovementWizard}
-            >
-              🧙‍♂️ Asistente Guiado
-            </button>
-            <button 
-              className="btn-create-movement secondary"
               onClick={handleCreateMovement}
             >
-              📝 Formulario Clásico
+              ➕ Nuevo Movimiento
             </button>
           </div>
         )}
@@ -288,15 +260,9 @@ const MovementsMain = () => {
             <div className="create-first-options">
               <button 
                 className="btn-create-first primary"
-                onClick={handleCreateMovementWizard}
-              >
-                🧙‍♂️ Comenzar con Asistente
-              </button>
-              <button 
-                className="btn-create-first secondary"
                 onClick={handleCreateMovement}
               >
-                📝 Usar Formulario Clásico
+                ➕ Crear Primer Movimiento
               </button>
             </div>
           )}
@@ -305,37 +271,22 @@ const MovementsMain = () => {
         <MovementsList
           movements={filteredMovements}
           viewMode={viewMode}
-          onEdit={canEditMovement ? handleEditMovement : null}
+          onEdit={null} // Edición eliminada - solo wizard
           onView={handleViewMovement}
           onApprove={handleApproveMovement}
           onReject={handleRejectMovement}
-          onDelete={handleDeleteMovement} // Pasar la función de eliminar
-          userRole={userProfile?.role} // Usar el rol del perfil
+          onDelete={handleDeleteMovement}
+          userRole={userProfile?.role}
         />
       )}
 
-      {/* Modal Clásico */}
-      {showModal && (
-        <MovementModal
-          isOpen={showModal}
-          onClose={handleModalClose}
-          movement={selectedMovement}
-          mode={modalMode}
-          onSuccess={() => {
-            handleModalClose();
-            // Los datos se actualizan automáticamente por la suscripción
-          }}
-        />
-      )}
-
-      {/* Wizard Guiado */}
+      {/* Wizard - Única Opción */}
       {showWizard && (
         <MovementWizard
           isOpen={showWizard}
           onClose={handleWizardClose}
           onSuccess={() => {
             handleWizardClose();
-            // Los datos se actualizan automáticamente por la suscripción
           }}
         />
       )}

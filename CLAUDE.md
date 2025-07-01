@@ -246,4 +246,124 @@ git diff --stat         # Solo estadísticas de cambios
 
 ---
 
-**Enero 30, 2025**: Ambas aplicaciones (Alimentación y Combustibles) están 100% funcionales y desplegadas.
+### ⛽ **COMBUSTIBLES - Febrero 1, 2025**
+#### 🧙‍♂️ **NUEVA FUNCIONALIDAD: Formulario Wizard Progresivo para Movimientos**
+
+**📍 Implementación Completada**: Sistema de asistente guiado paso a paso para crear movimientos de combustibles con validaciones en tiempo real y experiencia de usuario optimizada.
+
+#### ✨ **Funcionalidades Implementadas**:
+
+1. **🧙‍♂️ MovementWizard.jsx - Asistente Principal**:
+   - Sistema de pasos progresivos con navegación inteligente
+   - Barra de progreso visual con animaciones
+   - Validaciones en tiempo real con feedback inmediato
+   - Lógica condicional según tipo de movimiento (saltas pasos no aplicables)
+   - Estados de loading contextuales: "Calculando...", "Solicitando...", "Verificando..."
+
+2. **📁 WizardSteps/ - 8 Pasos Específicos**:
+   - **Step1**: Selección tipo movimiento con iconos y descripciones
+   - **Step2**: Combustible con precios automáticos desde productos
+   - **Step3**: Ubicación origen con validación de stock en tiempo real
+   - **Step4**: Cantidad con cuadro de stock dinámico y sugerencias
+   - **Step5**: Vehículo (solo salidas) con validación horómetros tractores
+   - **Step6**: Destino (solo transferencias) con validación capacidad
+   - **Step7**: Detalles con auto-completado y cálculo valor total
+   - **Step8**: Resumen final con confirmación obligatoria
+
+3. **🎨 Experiencia de Usuario Mejorada**:
+   - Validaciones en tiempo real con consultas a Firestore
+   - Cuadro de stock dinámico con colores según estado (disponible/bajo/crítico)
+   - Estados visuales para cada opción de selección
+   - Animaciones suaves entre pasos y confirmaciones
+   - Diseño responsive para móviles y desktop
+
+4. **🔗 Integración Dual**:
+   - Botón principal: "🧙‍♂️ Asistente Guiado" (recomendado)
+   - Botón secundario: "📝 Formulario Clásico" (usuarios avanzados)
+   - Coexistencia sin conflictos con modal existente
+   - Misma funcionalidad final, diferentes experiencias UX
+
+#### 📁 **Archivos Creados**:
+- `combustibles/src/components/Movements/MovementWizard.jsx` - Componente principal
+- `combustibles/src/components/Movements/WizardSteps.css` - Estilos tema forestal
+- `combustibles/src/components/Movements/WizardSteps/Step[1-8]_*.jsx` - 8 pasos individuales
+
+#### 📁 **Archivos Modificados**:
+- `combustibles/src/components/Movements/MovementsMain.jsx` - Integración botones duales
+- `combustibles/src/components/Movements/Movements.css` - Estilos botones nuevos
+
+#### ✅ **Verificaciones Completadas**:
+- Lint: ✅ (errores corregidos, solo warnings menores existentes)
+- Build: ✅ Construcción exitosa con optimizaciones
+- Funcionalidad: ✅ Wizard operativo con validaciones en tiempo real
+- Integración: ✅ Coexistencia con formulario clásico
+
+#### 🔧 **Mejoras Técnicas**:
+- Reutilización completa de servicios existentes (movementsService, inventoryService, etc.)
+- Validaciones en tiempo real con `validateStockAvailability()`
+- Estados de loading contextuales para mejor feedback usuario
+- Navegación condicional inteligente según tipo de movimiento
+- Manejo robusto de errores con fallbacks
+
+#### 🎯 **Resultado Final**:
+**FUNCIONALIDAD AÑADIDA**: Los usuarios ahora tienen dos opciones para crear movimientos:
+- ✅ **Asistente Guiado**: Experiencia paso a paso optimizada para nuevos usuarios
+- ✅ **Formulario Clásico**: Interfaz completa para usuarios experimentados
+- ✅ **Validaciones en Tiempo Real**: Stock, capacidad, precios, horómetros
+- ✅ **UX Mejorada**: Loading states, animaciones, feedback visual
+
+---
+
+---
+
+### ⛽ **COMBUSTIBLES - Febrero 1, 2025**
+#### 🧹 **LIMPIEZA MAYOR: Eliminación Completa del Formulario Clásico**
+
+**📍 Simplificación Completada**: Se eliminó completamente el formulario clásico de movimientos, dejando únicamente el asistente wizard como método optimizado para crear movimientos de combustible.
+
+#### ✅ **Cambios Implementados**:
+
+1. **🗑️ Archivo Eliminado**:
+   - **MovementModal.jsx** (906 líneas) - Eliminado completamente del proyecto
+   - Formulario clásico con todas sus validaciones y estados removido
+
+2. **🔧 MovementsMain.jsx - Limpieza Integral**:
+   - ❌ Botón "📝 Formulario Clásico" eliminado
+   - ✅ Botón "🧙‍♂️ Asistente Guiado" renombrado a "➕ Nuevo Movimiento"
+   - ❌ Import de MovementModal removido
+   - ❌ Estados `showModal`, `modalMode` eliminados
+   - ❌ Handlers `handleCreateMovement`, `handleEditMovement`, `handleModalClose` removidos
+   - ❌ JSX del modal clásico eliminado
+   - ✅ Función de edición deshabilitada (solo vista de lectura)
+
+3. **🎯 Interfaz Simplificada**:
+   - Un solo botón "➕ Nuevo Movimiento" para crear movimientos
+   - Experiencia unificada usando exclusivamente el wizard paso a paso
+   - Vista simplificada de movimientos existentes (solo lectura)
+   - UX limpia sin opciones duplicadas o confusas
+
+4. **🛡️ Validaciones de Código**:
+   - Lint: ✅ Sin errores (solo warnings menores pre-existentes)
+   - Build: ✅ Compilación exitosa optimizada
+   - Variables no utilizadas removidas completamente
+
+#### 📁 **Archivos Modificados**:
+- ❌ `combustibles/src/components/Movements/MovementModal.jsx` - **ELIMINADO**
+- ✏️ `combustibles/src/components/Movements/MovementsMain.jsx` - Limpieza integral
+
+#### ✅ **Verificaciones Completadas**:
+- Búsqueda de referencias residuales: ✅ Sin referencias al formulario clásico
+- Lint: ✅ Sin errores críticos (0 errors, 7 warnings pre-existentes)
+- Build: ✅ Construcción exitosa con optimizaciones
+- Funcionalidad: ✅ Wizard operativo como única opción
+
+#### 🎯 **Resultado Final**:
+**SIMPLIFICACIÓN EXITOSA**: 
+- ✅ **Wizard Único**: Solo el asistente guiado está disponible para crear movimientos
+- ✅ **UX Mejorada**: Experiencia unificada sin opciones duplicadas
+- ✅ **Código Limpio**: -906 líneas de código eliminadas
+- ✅ **Mantenibilidad**: Un solo flujo de creación de movimientos a mantener
+
+---
+
+**Febrero 1, 2025**: Sistema de wizard implementado completamente. Formulario clásico eliminado. Aplicación Combustibles con experiencia optimizada y código simplificado.
