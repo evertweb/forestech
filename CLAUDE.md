@@ -102,6 +102,27 @@ npm run lint:combustibles
 - **SEGUIR** patrones existentes del proyecto
 - **EJECUTAR** lint/build antes de commits
 
+### Optimización de Tokens Git
+Para **reducir consumo de tokens** en operaciones git, usar comandos compactos:
+
+```bash
+# ❌ EVITAR - Consume muchos tokens
+git diff          # Salida masiva de cambios
+git status        # Salida verbose
+git log           # Log detallado
+
+# ✅ USAR - Comandos optimizados
+git status --porcelain  # Formato compacto
+git diff --name-only    # Solo nombres de archivos  
+git log --oneline -3    # Últimos 3 commits compactos
+git diff --stat         # Solo estadísticas de cambios
+
+# 🔧 Para commits, ejecutar en paralelo:
+# git status --porcelain && git diff --name-only && git log --oneline -3
+```
+
+**Ahorro**: De ~4000 líneas a ~10 líneas por operación git
+
 ### Comunicación Proactiva
 ```
 🔄 Implementando: [descripción]
