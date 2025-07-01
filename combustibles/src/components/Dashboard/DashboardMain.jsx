@@ -52,7 +52,7 @@ const DashboardMain = () => {
     })));
 
     const totalFuel = inventory
-      .filter(item => item.isActive !== false) // Solo items activos
+      .filter(item => item.status === 'active') // ✅ Solo items activos
       .reduce((sum, item) => {
         const stock = parseFloat(item.currentStock) || 0;
         console.log(`Sumando stock de ${item.fuelType}: ${stock} gal`);

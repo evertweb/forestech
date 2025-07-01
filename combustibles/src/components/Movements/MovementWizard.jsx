@@ -5,9 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService';
-import { getAllVehicles } from '../../services/vehiclesService';
-import { getAllInventoryItems } from '../../services/inventoryService';
-import { getAllSuppliers } from '../../services/suppliersService';
+import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
 
 // Importar pasos del wizard
@@ -23,6 +21,9 @@ import Step8_Summary from './WizardSteps/Step8_Summary';
 import './WizardSteps.css';
 
 const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
+  // Usar datos en tiempo real del contexto
+  const { inventory, vehicles, suppliers } = useCombustibles();
+  
   // Estado del wizard
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +44,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     currentHours: ''
   });
 
-  // Datos cargados del sistema
+  // Datos del sistema (solo productos necesitan carga independiente)
   const [systemData, setSystemData] = useState({
     vehicles: [],
     inventory: [],
@@ -76,7 +77,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     8: { title: 'Confirmación', description: 'Revisa y confirma' }
   };
 
-  // Cargar datos del sistema al abrir
+  // Sincronizar datos del contexto con systemData y cargar productos
   useEffect(() => {
     const loadSystemData = async () => {
       if (isOpen) {
@@ -84,23 +85,21 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         setSystemData(prev => ({ ...prev, loadingData: true }));
         
         try {
-          console.log('🔄 Cargando datos del sistema para wizard...');
-          const [vehiclesData, inventoryResult, suppliersResult, productsData] = await Promise.all([
-            getAllVehicles(),
-            getAllInventoryItems(),
-            getAllSuppliers(),
-            getActiveProducts()
-          ]);
+          console.log('🔄 Cargando productos y sincronizando datos en tiempo real...');
           
+          // Solo cargar productos independientemente - inventory, vehicles, suppliers vienen del contexto
+          const productsData = await getActiveProducts();
+          
+          // Usar datos del contexto (que están en tiempo real) + productos cargados
           setSystemData({
-            vehicles: vehiclesData || [],
-            inventory: inventoryResult.success ? inventoryResult.data : [],
-            suppliers: suppliersResult.success ? suppliersResult.data : [],
+            vehicles: vehicles || [],
+            inventory: inventory || [], // ✅ Datos en tiempo real del contexto
+            suppliers: suppliers || [], // ✅ Datos en tiempo real del contexto
             products: productsData || [],
             loadingData: false
           });
           
-          console.log('✅ Datos cargados para wizard');
+          console.log('✅ Datos sincronizados para wizard - inventario en tiempo real:', inventory?.length || 0, 'items');
         } catch (error) {
           console.error('❌ Error al cargar datos del sistema:', error);
           setSystemData(prev => ({ ...prev, loadingData: false }));
@@ -115,7 +114,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, inventory, vehicles, suppliers]); // ✅ Reaccionar a cambios del contexto
 
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {

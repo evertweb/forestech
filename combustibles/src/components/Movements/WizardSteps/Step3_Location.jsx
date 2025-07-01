@@ -27,13 +27,34 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError }) => {
         
         const stockByLocation = {};
         
+        // ✅ Debug: Log inventario completo y filtros aplicados
+        console.log('🔍 DEBUG Step3 - Datos para validación:', {
+          fuelType: formData.fuelType,
+          inventoryTotal: inventory.length,
+          inventarioMuestra: inventory.slice(0, 2),
+          operationalLocations: OPERATIONAL_LOCATIONS
+        });
+
         OPERATIONAL_LOCATIONS.forEach(location => {
-          const availableStock = inventory
-            .filter(item => 
-              item.fuelType === formData.fuelType && 
-              item.location?.toLowerCase() === location.toLowerCase() &&
-              item.status === 'active'
-            )
+          const itemsEncontrados = inventory.filter(item => 
+            item.fuelType === formData.fuelType && 
+            item.location?.toLowerCase() === location.toLowerCase() &&
+            item.status === 'active'
+          );
+          
+          console.log(`🔍 DEBUG ${location}:`, {
+            itemsEncontrados: itemsEncontrados.length,
+            detalles: itemsEncontrados.map(item => ({
+              id: item.id,
+              fuelType: item.fuelType,
+              location: item.location,
+              status: item.status,
+              currentStock: item.currentStock,
+              maxCapacity: item.maxCapacity
+            }))
+          });
+
+          const availableStock = itemsEncontrados
             .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
           
           const maxCapacity = inventory

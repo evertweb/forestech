@@ -498,13 +498,13 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
         fuelType: movement.fuelType,
         location: targetLocation,
         name: movement.fuelType, // Asignar un nombre por defecto
-        capacity: 10000, // Capacidad por defecto, se puede ajustar luego
+        maxCapacity: 10000, // ✅ Capacidad por defecto, se puede ajustar luego
         currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad del movimiento usando precisión
-        minStock: 1500, // 15% de la capacidad por defecto
-        unitPrice: movement.unitPrice || 0,
+        minThreshold: 1500, // ✅ 15% de la capacidad por defecto
+        pricePerUnit: movement.unitPrice || 0, // ✅ Usar pricePerUnit consistente
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        isActive: true,
+        status: 'active', // ✅ Usar status consistente con inventoryService
         lastMovement: {
           movementId,
           type: movement.type,
@@ -769,13 +769,13 @@ const handleTransferToDestination = async (transaction, movement, movementId) =>
         fuelType: movement.fuelType,
         location: movement.destinationLocation,
         name: movement.fuelType,
-        capacity: 10000, // Capacidad por defecto
+        maxCapacity: 10000, // ✅ Capacidad por defecto
         currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad transferida
-        minStock: 1500,
-        unitPrice: movement.unitPrice || 0,
+        minThreshold: 1500, // ✅ Usar minThreshold consistente
+        pricePerUnit: movement.unitPrice || 0, // ✅ Usar pricePerUnit consistente
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        isActive: true,
+        status: 'active', // ✅ Usar status consistente
         lastMovement: {
           movementId,
           type: 'transferencia_entrada',

@@ -20,13 +20,25 @@ export const normalizeInventoryItem = (item) => {
   normalized.maxCapacity = parseFloat(item.maxCapacity || item.capacity) || 0;
   normalized.minThreshold = parseFloat(item.minThreshold || item.minStock) || 0;
 
+  // ✅ NORMALIZAR CAMPO DE ESTADO: isActive vs status
+  if (item.isActive !== undefined && !item.status) {
+    normalized.status = item.isActive ? 'active' : 'inactive';
+    console.warn(`⚠️ Migrando campo obsoleto: isActive=${item.isActive} → status=${normalized.status} para ${item.fuelType || 'item'}`);
+  }
+
   // Eliminar campos ambiguos si existen los correctos
   if (normalized.pricePerUnit && normalized.unitPrice && normalized.pricePerUnit !== normalized.unitPrice) {
-    console.warn(`Inconsistencia en precios: ${normalized.pricePerUnit} vs ${normalized.unitPrice}`);
+    console.warn(`❌ Inconsistencia en precios: ${normalized.pricePerUnit} vs ${normalized.unitPrice} para ${item.fuelType || 'item'}`);
   }
 
   if (normalized.maxCapacity && normalized.capacity && normalized.maxCapacity !== normalized.capacity) {
-    console.warn(`Inconsistencia en capacidad: ${normalized.maxCapacity} vs ${normalized.capacity}`);
+    console.warn(`❌ Inconsistencia en capacidad: ${normalized.maxCapacity} vs ${normalized.capacity} para ${item.fuelType || 'item'}`);
+  }
+
+  // ✅ VALIDAR ESTADO FINAL
+  if (!normalized.status) {
+    normalized.status = 'active'; // Default seguro
+    console.warn(`⚠️ Campo status faltante, asignando 'active' por defecto para ${item.fuelType || 'item'}`);
   }
 
   return normalized;
