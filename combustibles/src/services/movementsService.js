@@ -17,6 +17,7 @@ import {
   runTransaction
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
 
 const COLLECTION_NAME = 'combustibles_movements';
 const INVENTORY_COLLECTION = 'combustibles_inventory';
@@ -468,7 +469,7 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
         location: targetLocation,
         name: movement.fuelType, // Asignar un nombre por defecto
         capacity: 10000, // Capacidad por defecto, se puede ajustar luego
-        currentStock: movement.quantity, // <-- CORRECCIÓN: Iniciar con la cantidad del movimiento
+        currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad del movimiento usando precisión
         minStock: 1500, // 15% de la capacidad por defecto
         unitPrice: movement.unitPrice || 0,
         createdAt: serverTimestamp(),
@@ -493,29 +494,32 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
       const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
       let newQuantity = inventoryData.currentStock;
 
-      // Aplicar cambio según tipo de movimiento
+      // Aplicar cambio según tipo de movimiento usando aritmética precisa
       switch (movement.type) {
         case MOVEMENT_TYPES.ENTRADA:
-          newQuantity += movement.quantity;
+          newQuantity = preciseAdd(newQuantity, movement.quantity);
           break;
         case MOVEMENT_TYPES.SALIDA:
-          newQuantity -= movement.quantity;
+          newQuantity = preciseSubtract(newQuantity, movement.quantity);
           if (newQuantity < 0) {
             throw new Error('Stock insuficiente para realizar la salida');
           }
           break;
         case MOVEMENT_TYPES.AJUSTE:
-          newQuantity += movement.quantity; // Puede ser positivo o negativo
+          newQuantity = preciseAdd(newQuantity, movement.quantity); // Puede ser positivo o negativo
           if (newQuantity < 0) newQuantity = 0;
           break;
         case MOVEMENT_TYPES.TRANSFERENCIA:
-          newQuantity -= movement.quantity;
+          newQuantity = preciseSubtract(newQuantity, movement.quantity);
           if (newQuantity < 0) {
             throw new Error('Stock insuficiente para realizar la transferencia');
           }
           // TODO: Agregar al destino (requiere lógica adicional)
           break;
       }
+
+      // Redondear resultado a 2 decimales para consistencia
+      newQuantity = preciseRound(newQuantity, 2);
 
       // Actualizar el inventario existente
       transaction.update(inventoryRef, {
@@ -639,11 +643,11 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
   try {
     let newQuantity = inventoryData.currentStock;
 
-    // Revertir cambio según tipo de movimiento (operación inversa)
+    // Revertir cambio según tipo de movimiento (operación inversa) usando aritmética precisa
     switch (movement.type) {
       case MOVEMENT_TYPES.ENTRADA:
         // Revertir entrada: restar la cantidad que se había sumado
-        newQuantity -= movement.quantity;
+        newQuantity = preciseSubtract(newQuantity, movement.quantity);
         if (newQuantity < 0) {
           console.warn('⚠️ Advertencia: La reversión resulta en stock negativo, ajustando a 0');
           newQuantity = 0;
@@ -652,12 +656,12 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
 
       case MOVEMENT_TYPES.SALIDA:
         // Revertir salida: sumar la cantidad que se había restado
-        newQuantity += movement.quantity;
+        newQuantity = preciseAdd(newQuantity, movement.quantity);
         break;
 
       case MOVEMENT_TYPES.AJUSTE:
         // Revertir ajuste: restar la cantidad que se había sumado
-        newQuantity -= movement.quantity;
+        newQuantity = preciseSubtract(newQuantity, movement.quantity);
         if (newQuantity < 0) {
           console.warn('⚠️ Advertencia: La reversión de ajuste resulta en stock negativo, ajustando a 0');
           newQuantity = 0;
@@ -666,13 +670,16 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
 
       case MOVEMENT_TYPES.TRANSFERENCIA:
         // Revertir transferencia: sumar la cantidad que se había restado del origen
-        newQuantity += movement.quantity;
+        newQuantity = preciseAdd(newQuantity, movement.quantity);
         // TODO: También habría que restar del destino si se implementa lógica completa de transferencias
         break;
 
       default:
         throw new Error(`Tipo de movimiento no soportado para reversión: ${movement.type}`);
     }
+
+    // Redondear resultado final para consistencia
+    newQuantity = preciseRound(newQuantity, 2);
 
     // Actualizar inventario con los valores revertidos
     transaction.update(inventoryRef, {

@@ -180,7 +180,7 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
   const availableStock = inventoryItems
     .filter(item => 
       item.fuelType === fuelType && 
-            item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
+      item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
       item.status === 'active'
     )
     .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
@@ -192,7 +192,7 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
   console.log(`Validación de stock - Tipo: ${fuelType}, Ubicación: ${sourceLocation}`, {
     itemsEncontrados: inventoryItems.filter(item => 
       item.fuelType === fuelType && 
-            item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
+      item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
       item.status === 'active'
     ).length,
     disponible: availableStock,
@@ -703,6 +703,74 @@ export const isValidPositiveNumber = (value, min = 0) => {
   return !isNaN(num) && num >= min && isFinite(num);
 };
 
+// ============================================================================
+// 🧮 ARITMÉTICA DECIMAL PRECISA
+// ============================================================================
+
+/**
+ * Suma dos números con precisión decimal
+ * @param {number} a - Primer número
+ * @param {number} b - Segundo número
+ * @param {number} decimals - Decimales de precisión (default: 2)
+ * @returns {number} Resultado de la suma
+ */
+export const preciseAdd = (a, b, decimals = 2) => {
+  const numA = parseFloat(a) || 0;
+  const numB = parseFloat(b) || 0;
+  return parseFloat((numA + numB).toFixed(decimals));
+};
+
+/**
+ * Resta dos números con precisión decimal
+ * @param {number} a - Primer número (minuendo)
+ * @param {number} b - Segundo número (sustraendo)
+ * @param {number} decimals - Decimales de precisión (default: 2)
+ * @returns {number} Resultado de la resta
+ */
+export const preciseSubtract = (a, b, decimals = 2) => {
+  const numA = parseFloat(a) || 0;
+  const numB = parseFloat(b) || 0;
+  return parseFloat((numA - numB).toFixed(decimals));
+};
+
+/**
+ * Multiplica dos números con precisión decimal
+ * @param {number} a - Primer número
+ * @param {number} b - Segundo número
+ * @param {number} decimals - Decimales de precisión (default: 2)
+ * @returns {number} Resultado de la multiplicación
+ */
+export const preciseMultiply = (a, b, decimals = 2) => {
+  const numA = parseFloat(a) || 0;
+  const numB = parseFloat(b) || 0;
+  return parseFloat((numA * numB).toFixed(decimals));
+};
+
+/**
+ * Divide dos números con precisión decimal
+ * @param {number} a - Dividendo
+ * @param {number} b - Divisor
+ * @param {number} decimals - Decimales de precisión (default: 2)
+ * @returns {number} Resultado de la división
+ */
+export const preciseDivide = (a, b, decimals = 2) => {
+  const numA = parseFloat(a) || 0;
+  const numB = parseFloat(b) || 0;
+  if (numB === 0) return 0;
+  return parseFloat((numA / numB).toFixed(decimals));
+};
+
+/**
+ * Redondea un número a la precisión especificada
+ * @param {number} value - Valor a redondear
+ * @param {number} decimals - Decimales de precisión (default: 2)
+ * @returns {number} Número redondeado
+ */
+export const preciseRound = (value, decimals = 2) => {
+  const num = parseFloat(value) || 0;
+  return parseFloat(num.toFixed(decimals));
+};
+
 // Exportación por defecto de todas las funciones principales
 export default {
   // Inventario
@@ -736,5 +804,12 @@ export default {
   formatCurrency,
   formatNumber,
   formatPercentage,
-  isValidPositiveNumber
+  isValidPositiveNumber,
+  
+  // Aritmética precisa
+  preciseAdd,
+  preciseSubtract,
+  preciseMultiply,
+  preciseDivide,
+  preciseRound
 };

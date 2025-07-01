@@ -146,43 +146,106 @@ const MovementModal = ({
     }
   }, [formData.fuelType, products]);
 
-  // Validar stock disponible en tiempo real usando calculations.js
+  // Estado para información de stock detallada
+  const [stockInfo, setStockInfo] = useState(null);
+
+  // Calcular información de stock disponible en tiempo real
   useEffect(() => {
     setStockWarning('');
+    setStockInfo(null);
     
-    // Solo validar para salidas y transferencias con datos completos
+    // Solo mostrar info para salidas y transferencias con combustible y ubicación seleccionados
     if ((formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) &&
-        formData.fuelType && formData.location && formData.quantity && inventory.length > 0) {
+        formData.fuelType && formData.location && formData.location.trim() !== '' && inventory.length > 0) {
       
-      // Mostrar información de diagnóstico sobre el inventario actual
-      console.log('Inventario disponible para validación:', {
-        totalItems: inventory.length,
-        itemsTipoSeleccionado: inventory.filter(item => item.fuelType === formData.fuelType).length,
-        itemsUbicacionSeleccionada: inventory.filter(item => 
+      // Calcular stock disponible en la ubicación específica
+      const availableStock = inventory
+        .filter(item => 
           item.fuelType === formData.fuelType && 
-          item.location === formData.location
-        ).length,
-        inventarioDetalles: inventory.filter(item => 
-          item.fuelType === formData.fuelType && 
-          item.location === formData.location
+          item.location?.toLowerCase() === formData.location?.toLowerCase() &&
+          item.status === 'active'
         )
+        .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
+
+      // Calcular capacidad máxima total para este combustible en esta ubicación
+      const maxCapacity = inventory
+        .filter(item => 
+          item.fuelType === formData.fuelType && 
+          item.location?.toLowerCase() === formData.location?.toLowerCase() &&
+          item.status === 'active'
+        )
+        .reduce((total, item) => total + (parseFloat(item.maxCapacity) || 0), 0);
+
+      // Calcular información de stock
+      const requiredStock = parseFloat(formData.quantity) || 0;
+      const remainingStock = availableStock - requiredStock;
+      const capacityPercentage = maxCapacity > 0 ? (availableStock / maxCapacity) * 100 : 0;
+      
+      // Determinar estado del stock
+      let status = 'available';
+      let icon = '✅';
+      let title = 'Stock Disponible';
+      let message = `Hay suficiente stock para realizar el movimiento.`;
+      
+      if (requiredStock > 0) {
+        if (availableStock < requiredStock) {
+          status = 'critical';
+          icon = '🚫';
+          title = 'Stock Insuficiente';
+          message = `No hay suficiente stock. Necesitas ${(requiredStock - availableStock).toFixed(2)} galones adicionales.`;
+        } else if (remainingStock < (availableStock * 0.2)) {
+          status = 'warning';
+          icon = '⚠️';
+          title = 'Stock Quedará Bajo';
+          message = `Después del movimiento, el stock quedará en ${remainingStock.toFixed(2)} galones (${((remainingStock / maxCapacity) * 100).toFixed(1)}%).`;
+        } else {
+          message = `Después del movimiento quedarán ${remainingStock.toFixed(2)} galones disponibles.`;
+        }
+      }
+
+      setStockInfo({
+        available: availableStock,
+        required: requiredStock,
+        remaining: remainingStock,
+        capacityPercentage,
+        maxCapacity,
+        status,
+        icon,
+        title,
+        message,
+        isValid: availableStock >= requiredStock
       });
 
-      // Crear objeto de movimiento para validación
-      const movementForValidation = {
-        type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
+      // Mostrar información de diagnóstico
+      console.log('🔍 Stock Analysis:', {
         fuelType: formData.fuelType,
-        quantity: formData.quantity,
-        sourceLocation: formData.location
-      };
+        location: formData.location,
+        available: availableStock,
+        required: requiredStock,
+        remaining: remainingStock,
+        status,
+        inventoryItems: inventory.filter(item => 
+          item.fuelType === formData.fuelType && 
+          item.location?.toLowerCase() === formData.location?.toLowerCase()
+        ).length
+      });
 
-      // Usar función centralizada de validación
-      const validation = validateStockAvailability(movementForValidation, inventory);
-      
-      if (!validation.isValid) {
-        setStockWarning(`🚫 ${validation.error}`);
-      } else if (validation.warning) {
-        setStockWarning(`⚠️ ${validation.warning}`);
+      // Validación adicional usando la función existente
+      if (requiredStock > 0) {
+        const movementForValidation = {
+          type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
+          fuelType: formData.fuelType,
+          quantity: formData.quantity,
+          sourceLocation: formData.location
+        };
+
+        const validation = validateStockAvailability(movementForValidation, inventory);
+        
+        if (!validation.isValid) {
+          setStockWarning(`🚫 ${validation.error}`);
+        } else if (validation.warning) {
+          setStockWarning(`⚠️ ${validation.warning}`);
+        }
       }
     }
   }, [formData.type, formData.fuelType, formData.location, formData.quantity, inventory]);
@@ -479,12 +542,65 @@ const MovementModal = ({
                   <span className="field-error">{validationErrors.quantity}</span>
                 )}
                 {stockWarning && !validationErrors.quantity && (
-                  <div className="stock-warning">
+                  <div className={`stock-warning ${stockInfo?.status === 'critical' ? 'critical' : ''}`}>
                     {stockWarning}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Cuadro de Stock en Tiempo Real */}
+            {stockInfo && (formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA) && mode !== 'view' && (
+              <div className={`stock-info-container ${stockInfo.status}`}>
+                <div className="stock-info-header">
+                  <div className="stock-info-icon">
+                    {stockInfo.icon}
+                  </div>
+                  <h4 className="stock-info-title">{stockInfo.title}</h4>
+                </div>
+                
+                <div className="stock-info-details">
+                  <div className="stock-detail-item">
+                    <span className="stock-detail-label">Stock Disponible</span>
+                    <span className="stock-detail-value">
+                      {stockInfo.available.toFixed(2)} gal
+                    </span>
+                  </div>
+                  
+                  <div className="stock-detail-item">
+                    <span className="stock-detail-label">
+                      {stockInfo.required > 0 ? 'Stock Restante' : 'Capacidad Total'}
+                    </span>
+                    <span className="stock-detail-value">
+                      {stockInfo.required > 0 
+                        ? `${Math.max(0, stockInfo.remaining).toFixed(2)} gal`
+                        : `${stockInfo.maxCapacity.toFixed(2)} gal`
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                {stockInfo.maxCapacity > 0 && (
+                  <div className="stock-bar-container">
+                    <div className="stock-bar">
+                      <div 
+                        className="stock-bar-fill" 
+                        style={{ 
+                          width: `${Math.min(100, Math.max(0, stockInfo.capacityPercentage))}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="stock-bar-label">
+                      {stockInfo.capacityPercentage.toFixed(1)}% de capacidad utilizada
+                    </div>
+                  </div>
+                )}
+
+                <div className="stock-info-message">
+                  {stockInfo.message}
+                </div>
+              </div>
+            )}
 
             {/* Precio y Valor Total */}
             <div className="form-row">

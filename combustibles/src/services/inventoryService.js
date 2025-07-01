@@ -232,7 +232,7 @@ export const updateStock = async (itemId, newStock, updatedBy) => {
     if (!currentDoc.exists()) {
       return { success: false, error: 'Item no encontrado' };
     }
-    const currentStock = currentDoc.data().currentStock;
+    // const currentStock = currentDoc.data().currentStock; // No se usa actualmente
     // Validar que no se intente dejar el stock en negativo
     if (Number(newStock) < 0) {
       return { success: false, error: 'No hay suficiente stock disponible para realizar esta salida.' };

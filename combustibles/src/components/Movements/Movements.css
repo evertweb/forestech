@@ -869,3 +869,210 @@
   color: var(--forest-primary);
   font-weight: 600;
 }
+
+/* ============ CUADRO DE STOCK EN TIEMPO REAL ============ */
+.stock-info-container {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  transition: var(--transition);
+}
+
+.stock-info-container.available {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+}
+
+.stock-info-container.warning {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+}
+
+.stock-info-container.critical {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+.stock-info-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.stock-info-icon {
+  font-size: 1.25rem;
+  padding: var(--spacing-xs);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.stock-info-container.available .stock-info-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.stock-info-container.warning .stock-info-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.stock-info-container.critical .stock-info-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.stock-info-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stock-info-container.available .stock-info-title {
+  color: #10b981;
+}
+
+.stock-info-container.warning .stock-info-title {
+  color: #f59e0b;
+}
+
+.stock-info-container.critical .stock-info-title {
+  color: #ef4444;
+}
+
+.stock-info-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.stock-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stock-detail-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.stock-detail-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.stock-info-container.available .stock-detail-value {
+  color: #10b981;
+}
+
+.stock-info-container.warning .stock-detail-value {
+  color: #f59e0b;
+}
+
+.stock-info-container.critical .stock-detail-value {
+  color: #ef4444;
+}
+
+.stock-info-message {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  padding: var(--spacing-sm);
+  border-radius: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.stock-info-container.available .stock-info-message {
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+}
+
+.stock-info-container.warning .stock-info-message {
+  background: rgba(245, 158, 11, 0.1);
+  color: #92400e;
+}
+
+.stock-info-container.critical .stock-info-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+}
+
+.stock-bar-container {
+  margin-top: var(--spacing-sm);
+}
+
+.stock-bar {
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.stock-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.stock-info-container.available .stock-bar-fill {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.stock-info-container.warning .stock-bar-fill {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.stock-info-container.critical .stock-bar-fill {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.stock-bar-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: var(--spacing-xs);
+  text-align: center;
+}
+
+/* Estilo para advertencias de stock */
+.stock-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #92400e;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.stock-warning.critical {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #991b1b;
+}
+
+/* Responsive para cuadro de stock */
+@media (max-width: 768px) {
+  .stock-info-details {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .stock-detail-value {
+    font-size: 1rem;
+  }
+}

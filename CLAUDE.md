@@ -125,6 +125,49 @@ npm run lint:combustibles
 
 **📌 IMPORTANTE**: Esta documentación modular mejora el rendimiento de Claude Code. Cada módulo contiene detalles específicos para evitar sobrecargar el contexto principal.
 
-## 📝 **Última Actualización**
+## 📝 **Últimas Actualizaciones**
+
+### ⛽ **COMBUSTIBLES - Enero 30, 2025**
+#### 🚀 **Nueva Funcionalidad: Cuadro de Stock en Tiempo Real**
+
+**📍 Ubicación**: `combustibles/src/components/Movements/MovementModal.jsx`
+
+#### ✨ **Funcionalidades Implementadas**:
+
+1. **📊 Cuadro de Stock Visual**:
+   - Muestra stock disponible en tiempo real para salidas/transferencias
+   - Información visual con iconos y colores según estado (✅ disponible, ⚠️ bajo, 🚫 insuficiente)
+   - Barra de progreso de capacidad utilizada
+   - Cálculo automático de stock restante después del movimiento
+
+2. **🔍 Validación Inteligente**:
+   - Validación en tiempo real de cantidad vs stock disponible
+   - Prevención de movimientos con stock insuficiente
+   - Alertas cuando el stock quedará bajo (< 20% del stock actual)
+   - Mensajes contextuales según la situación de stock
+
+3. **🎨 Interfaz Mejorada**:
+   - Cuadro responsive con gradientes y colores dinámicos
+   - Estados visuales: `available` (verde), `warning` (amarillo), `critical` (rojo)
+   - Información detallada: stock disponible, stock restante, porcentaje de capacidad
+   - Solo visible para movimientos de salida y transferencia
+
+#### 📁 **Archivos Modificados**:
+- `combustibles/src/components/Movements/MovementModal.jsx` - Lógica principal y renderizado
+- `combustibles/src/components/Movements/Movements.css` - Estilos CSS del cuadro de stock
+- `combustibles/src/services/inventoryService.js` - Corrección de variable no utilizada
+
+#### ✅ **Verificaciones Completadas**:
+- Lint: ✅ (solo advertencias menores de dependencias)
+- Build: ✅ Construcción exitosa
+- Funcionalidad: ✅ Cuadro de stock operativo en tiempo real
+
+#### 🔧 **Integración Técnica**:
+- Utiliza función existente `validateStockAvailability` de `calculations.js`
+- Cálculo automático en tiempo real cuando cambian: tipo, combustible, ubicación, cantidad
+- Estados reactivos con `useState` y `useEffect`
+- CSS responsive con variables CSS y gradientes
+
+---
 
 **Enero 30, 2025**: Ambas aplicaciones (Alimentación y Combustibles) están 100% funcionales y desplegadas.
