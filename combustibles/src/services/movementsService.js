@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
+import { OPERATIONAL_LOCATIONS } from '../constants/locations';
 
 const COLLECTION_NAME = 'combustibles_movements';
 const INVENTORY_COLLECTION = 'combustibles_inventory';
@@ -384,6 +385,16 @@ export const getMovementsStats = async (filters = {}) => {
 // ============ FUNCIONES AUXILIARES ============
 
 /**
+ * ✅ Validar si una ubicación es válida según las ubicaciones operacionales
+ * @param {string} location - Ubicación a validar
+ * @returns {boolean} - true si es válida
+ */
+const isValidLocation = (location) => {
+  if (!location) return false;
+  return OPERATIONAL_LOCATIONS.includes(location.toLowerCase());
+};
+
+/**
  * Validar datos de movimiento
  * @param {Object} movementData - Datos a validar
  */
@@ -417,6 +428,25 @@ const validateMovementData = (movementData) => {
 
   if (movementData.type === MOVEMENT_TYPES.TRANSFERENCIA && !movementData.destinationLocation) {
     throw new Error('Las transferencias deben tener una ubicación destino');
+  }
+
+  // ✅ Validar ubicaciones válidas
+  if (movementData.location && !isValidLocation(movementData.location)) {
+    throw new Error(`Ubicación origen inválida: ${movementData.location}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
+  }
+
+  if (movementData.destinationLocation && !isValidLocation(movementData.destinationLocation)) {
+    throw new Error(`Ubicación destino inválida: ${movementData.destinationLocation}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
+  }
+
+  // ✅ Validar que origen y destino sean diferentes en transferencias
+  if (movementData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
+    const origin = (movementData.location || 'principal').toLowerCase();
+    const destination = movementData.destinationLocation.toLowerCase();
+    
+    if (origin === destination) {
+      throw new Error('La ubicación origen y destino no pueden ser la misma en una transferencia');
+    }
   }
 };
 
@@ -514,7 +544,9 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
           if (newQuantity < 0) {
             throw new Error('Stock insuficiente para realizar la transferencia');
           }
-          // TODO: Agregar al destino (requiere lógica adicional)
+          
+          // ✅ IMPLEMENTAR SUMA AL DESTINO
+          await handleTransferToDestination(transaction, movement, movementId);
           break;
       }
 
@@ -671,7 +703,9 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
       case MOVEMENT_TYPES.TRANSFERENCIA:
         // Revertir transferencia: sumar la cantidad que se había restado del origen
         newQuantity = preciseAdd(newQuantity, movement.quantity);
-        // TODO: También habría que restar del destino si se implementa lógica completa de transferencias
+        
+        // ✅ TAMBIÉN REVERTIR DEL DESTINO
+        await revertTransferFromDestination(transaction, movement);
         break;
 
       default:
@@ -700,6 +734,145 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
   } catch (error) {
     console.error('❌ Error en procesamiento de reversión:', error);
     throw error;
+  }
+};
+
+/**
+ * ✅ Manejar suma de inventario en ubicación destino durante transferencias
+ * @param {Transaction} transaction - Transacción Firestore
+ * @param {Object} movement - Datos del movimiento de transferencia
+ * @param {string} movementId - ID del movimiento
+ */
+const handleTransferToDestination = async (transaction, movement, movementId) => {
+  try {
+    if (!movement.destinationLocation) {
+      throw new Error('Ubicación destino requerida para transferencias');
+    }
+
+    console.log(`🔄 Transfiriendo ${movement.quantity} ${movement.fuelType} a ${movement.destinationLocation}`);
+
+    // Buscar inventario destino
+    const destinationQuery = query(
+      collection(db, INVENTORY_COLLECTION),
+      where('fuelType', '==', movement.fuelType),
+      where('location', '==', movement.destinationLocation)
+    );
+
+    const destinationSnapshot = await getDocs(destinationQuery);
+
+    if (destinationSnapshot.empty) {
+      // Crear inventario automáticamente en destino
+      console.log(`📦 Creando inventario automático en destino: ${movement.fuelType} en ${movement.destinationLocation}`);
+      
+      const inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
+      const newInventoryData = {
+        fuelType: movement.fuelType,
+        location: movement.destinationLocation,
+        name: movement.fuelType,
+        capacity: 10000, // Capacidad por defecto
+        currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad transferida
+        minStock: 1500,
+        unitPrice: movement.unitPrice || 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        isActive: true,
+        lastMovement: {
+          movementId,
+          type: 'transferencia_entrada',
+          quantity: movement.quantity,
+          date: serverTimestamp(),
+          originLocation: movement.location
+        }
+      };
+      
+      transaction.set(inventoryRef, newInventoryData);
+    } else {
+      // Sumar al inventario existente en destino
+      const destinationDoc = destinationSnapshot.docs[0];
+      const destinationData = destinationDoc.data();
+      const destinationRef = doc(db, INVENTORY_COLLECTION, destinationDoc.id);
+      
+      const newQuantity = preciseRound(preciseAdd(destinationData.currentStock, movement.quantity), 2);
+
+      transaction.update(destinationRef, {
+        currentStock: newQuantity,
+        lastMovement: {
+          movementId,
+          type: 'transferencia_entrada',
+          quantity: movement.quantity,
+          date: serverTimestamp(),
+          originLocation: movement.location
+        },
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    console.log(`✅ Transferencia al destino completada exitosamente`);
+
+  } catch (error) {
+    console.error('❌ Error al transferir a destino:', error);
+    throw new Error(`Error en transferencia a destino: ${error.message}`);
+  }
+};
+
+/**
+ * ✅ Revertir suma de inventario en ubicación destino al eliminar transferencias
+ * @param {Transaction} transaction - Transacción Firestore
+ * @param {Object} movement - Movimiento de transferencia a revertir
+ */
+const revertTransferFromDestination = async (transaction, movement) => {
+  try {
+    if (!movement.destinationLocation) {
+      console.warn('⚠️ No hay ubicación destino para revertir');
+      return;
+    }
+
+    console.log(`🔄 Revirtiendo transferencia en destino: ${movement.destinationLocation}`);
+
+    // Buscar inventario destino
+    const destinationQuery = query(
+      collection(db, INVENTORY_COLLECTION),
+      where('fuelType', '==', movement.fuelType),
+      where('location', '==', movement.destinationLocation)
+    );
+
+    const destinationSnapshot = await getDocs(destinationQuery);
+
+    if (destinationSnapshot.empty) {
+      console.warn(`⚠️ No se encontró inventario destino para revertir: ${movement.fuelType} en ${movement.destinationLocation}`);
+      return;
+    }
+
+    const destinationDoc = destinationSnapshot.docs[0];
+    const destinationData = destinationDoc.data();
+    const destinationRef = doc(db, INVENTORY_COLLECTION, destinationDoc.id);
+    
+    // Restar la cantidad que se había sumado
+    let newQuantity = preciseSubtract(destinationData.currentStock, movement.quantity);
+    if (newQuantity < 0) {
+      console.warn('⚠️ Advertencia: La reversión en destino resulta en stock negativo, ajustando a 0');
+      newQuantity = 0;
+    }
+    
+    newQuantity = preciseRound(newQuantity, 2);
+
+    transaction.update(destinationRef, {
+      currentStock: newQuantity,
+      lastMovement: {
+        movementId: null,
+        type: 'reversion_transferencia',
+        quantity: movement.quantity,
+        date: serverTimestamp(),
+        note: `Reversión de transferencia desde ${movement.location}`
+      },
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`✅ Reversión en destino completada exitosamente`);
+
+  } catch (error) {
+    console.error('❌ Error al revertir transferencia en destino:', error);
+    throw new Error(`Error al revertir destino: ${error.message}`);
   }
 };
 

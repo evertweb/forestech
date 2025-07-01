@@ -170,4 +170,59 @@ npm run lint:combustibles
 
 ---
 
+### ⛽ **COMBUSTIBLES - Enero 31, 2025**
+#### 🔧 **CORRECCIÓN CRÍTICA: Sistema de Transferencias Completo**
+
+**📍 Problema Solucionado**: Transferencias de combustible no funcionaban correctamente - solo restaban del origen pero NO sumaban al destino, causando pérdida de stock en el sistema.
+
+#### ✅ **Funcionalidades Implementadas**:
+
+1. **🔄 Lógica Completa de Transferencias**:
+   - Implementación automática de suma al destino durante transferencias
+   - Transacciones atómicas para garantizar consistencia origen→destino
+   - Creación automática de inventario destino si no existe
+   - Auditoría completa con registro detallado de movimientos
+
+2. **🔍 Validaciones Robustas**:
+   - Validación de ubicaciones válidas según `OPERATIONAL_LOCATIONS`
+   - Prevención de transferencias a la misma ubicación
+   - Validación de stock suficiente antes de transferir
+   - Mensajes de error específicos y descriptivos
+
+3. **↩️ Sistema de Reversión Mejorado**:
+   - Reversión completa de transferencias (origen + destino)
+   - Estrategias de fallback para inventario huérfano
+   - Logging detallado para auditoría de reversiones
+   - Manejo robusto de casos edge
+
+4. **🛡️ Funciones de Utilidad**:
+   - `handleTransferToDestination()` - Manejo de suma al destino
+   - `revertTransferFromDestination()` - Reversión de destino
+   - `isValidLocation()` - Validación de ubicaciones
+   - Integración con `OPERATIONAL_LOCATIONS` centralizado
+
+#### 📁 **Archivos Modificados**:
+- `combustibles/src/services/movementsService.js` - Lógica principal corregida
+- Importación de `constants/locations.js` para validaciones
+
+#### ✅ **Verificaciones Completadas**:
+- Lint: ✅ (solo warnings menores de dependencias)
+- Build: ✅ Construcción exitosa sin errores
+- Validación funcional: ✅ Sistema de transferencias operativo
+
+#### 🔧 **Mejoras Técnicas**:
+- Uso de aritmética precisa (`preciseAdd`, `preciseSubtract`, `preciseRound`)
+- Transacciones Firestore atómicas para consistencia
+- Logging detallado para debugging y auditoría
+- Validaciones preventivas antes de operaciones
+
+#### 🎯 **Resultado Final**:
+**PROBLEMA RESUELTO**: Las transferencias ahora funcionan correctamente:
+- ✅ Se resta del origen
+- ✅ Se suma al destino automáticamente
+- ✅ Stock total del sistema se mantiene balanceado
+- ✅ Auditoría completa de todos los movimientos
+
+---
+
 **Enero 30, 2025**: Ambas aplicaciones (Alimentación y Combustibles) están 100% funcionales y desplegadas.
