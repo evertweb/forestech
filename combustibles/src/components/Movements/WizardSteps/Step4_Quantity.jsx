@@ -81,8 +81,8 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
           isValid: availableStock >= requiredQuantity
         });
 
-        // Validación adicional usando calculations.js
-        if (requiredQuantity > 0) {
+        // Validación adicional usando calculations.js - solo para movimientos que requieren stock
+        if (requiredQuantity > 0 && isStockRequired) {
           const movementForValidation = {
             type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
             fuelType: formData.fuelType,
@@ -99,6 +99,9 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
           } else {
             setValidationWarning('');
           }
+        } else if (!isStockRequired) {
+          // Para movimientos de entrada, limpiar cualquier warning de validación
+          setValidationWarning('');
         }
         
         setCalculating(false);
