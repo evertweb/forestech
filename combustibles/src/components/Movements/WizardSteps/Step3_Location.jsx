@@ -103,7 +103,12 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError }) => {
       // Simular validación final
       await new Promise(resolve => setTimeout(resolve, 400));
       
-      updateFormData('location', location);
+      // Para entradas usar supplierName, para otros tipos usar location
+      if (isEntrada) {
+        updateFormData('supplierName', location);
+      } else {
+        updateFormData('location', location);
+      }
       
       console.log('📍 Ubicación seleccionada:', location);
       
@@ -138,7 +143,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError }) => {
             {activeSuppliers.map((supplier) => (
               <div
                 key={supplier.id}
-                className={`supplier-option ${formData.location === supplier.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+                className={`supplier-option ${formData.supplierName === supplier.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
                 onClick={() => !loading && handleLocationSelection(supplier.name)}
               >
                 <div className="supplier-icon">🏪</div>
@@ -150,18 +155,18 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError }) => {
                   )}
                 </div>
                 <div className="supplier-selector">
-                  {formData.location === supplier.name && <span className="check-icon">✅</span>}
+                  {formData.supplierName === supplier.name && <span className="check-icon">✅</span>}
                 </div>
               </div>
             ))}
           </div>
 
-          {formData.location && (
+          {formData.supplierName && (
             <div className="selection-confirmation">
               <div className="confirmation-card">
                 <span className="confirmation-icon">🏪</span>
                 <div className="confirmation-text">
-                  <strong>Proveedor:</strong> {formData.location}
+                  <strong>Proveedor:</strong> {formData.supplierName}
                   <br />
                   <small>Origen del combustible confirmado</small>
                 </div>

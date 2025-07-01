@@ -16,6 +16,15 @@ export const OPERATIONAL_LOCATIONS = [
 ];
 
 /**
+ * Ubicaciones de almacenamiento específicas para movimientos de entrada.
+ * Solo las bodegas pueden recibir combustible de proveedores externos.
+ */
+export const STORAGE_LOCATIONS = [
+  'bodega austria',
+  'bodega ilusion'
+];
+
+/**
  * Formatea un nombre de ubicación para mostrarlo en la UI.
  * @param {string} location - El nombre de la ubicación en minúsculas.
  * @returns {string} - El nombre formateado con mayúsculas.

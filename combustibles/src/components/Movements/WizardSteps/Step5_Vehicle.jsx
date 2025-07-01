@@ -64,7 +64,14 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError }) => {
         updateFormData('currentHours', '');
       }
       
-      console.log('🚜 Vehículo seleccionado:', vehicle.vehicleId, 'Es tractor:', isTractor);
+      // 🔍 DEBUG: Logs específicos para Step5
+      console.log('🚜 [Step5] Vehículo seleccionado:', vehicle.vehicleId, 'Es tractor:', isTractor);
+      console.log('🔍 [Step5] FormData después de selección:', { 
+        vehicleId: vehicle.vehicleId, 
+        type: formData.type,
+        fuelType: formData.fuelType,
+        location: formData.location 
+      });
       
     } catch (err) {
       console.error('Error al validar vehículo:', err);

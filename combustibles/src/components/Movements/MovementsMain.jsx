@@ -37,7 +37,6 @@ const MovementsMain = () => {
   });
 
   // Estado de vista
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
   const [searchTerm, setSearchTerm] = useState('');
   const [showWizard, setShowWizard] = useState(false);
   // Variables de estado limpias - solo wizard
@@ -235,8 +234,6 @@ const MovementsMain = () => {
         onClearFilters={handleClearFilters}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
         totalResults={filteredMovements.length}
       />
 
@@ -270,7 +267,6 @@ const MovementsMain = () => {
       ) : (
         <MovementsList
           movements={filteredMovements}
-          viewMode={viewMode}
           onEdit={null} // Edición eliminada - solo wizard
           onView={handleViewMovement}
           onApprove={handleApproveMovement}

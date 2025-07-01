@@ -222,7 +222,10 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
 
                 <td className="location-cell">
                   <span className="location-text">
-                    📍 {movement.location || 'Principal'}
+                    📍 {movement.type === MOVEMENT_TYPES.ENTRADA 
+                      ? (movement.destinationLocation || 'Sin ubicación') 
+                      : (movement.location || 'Principal')
+                    }
                   </span>
                 </td>
 

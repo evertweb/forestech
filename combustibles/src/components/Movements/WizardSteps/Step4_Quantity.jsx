@@ -275,7 +275,21 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
               <div className="confirmation-text">
                 <strong>Cantidad:</strong> {parseFloat(formData.quantity).toFixed(2)} galones
                 <br />
-                <small>Se añadirá al inventario de {formData.location}</small>
+                <small>Se añadirá al inventario de {formData.destinationLocation || 'ubicación no especificada'}</small>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmación de cantidad para salidas */}
+        {isStockRequired && formData.quantity && parseFloat(formData.quantity) > 0 && stockInfo && stockInfo.isValid && (
+          <div className="selection-confirmation">
+            <div className="confirmation-card">
+              <span className="confirmation-icon">🔥</span>
+              <div className="confirmation-text">
+                <strong>Cantidad:</strong> {parseFloat(formData.quantity).toFixed(2)} galones
+                <br />
+                <small>Se restará del inventario de {formData.location}</small>
               </div>
             </div>
           </div>

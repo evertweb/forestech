@@ -9,6 +9,7 @@ import { formatLocationName } from '../../../constants/locations';
 
 const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setError }) => {
   const [confirmChecked, setConfirmChecked] = useState(false);
+  const [additionalComments, setAdditionalComments] = useState('');
 
   const { vehicles, products, suppliers } = systemData;
 
@@ -40,7 +41,10 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   };
 
   const getSupplierInfo = () => {
-    return suppliers.find(s => s.name === formData.location);
+    // Para entradas usar supplierName, para otros tipos usar location
+    const supplierName = formData.type === MOVEMENT_TYPES.ENTRADA ? 
+      formData.supplierName : formData.location;
+    return suppliers.find(s => s.name === supplierName);
   };
 
   const totalValue = (parseFloat(formData.quantity) || 0) * (parseFloat(formData.unitPrice) || 0);
@@ -55,7 +59,13 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
       return;
     }
     
-    onSubmit();
+    // Incluir comentarios adicionales en los datos del movimiento
+    const finalFormData = {
+      ...formData,
+      additionalComments: additionalComments.trim()
+    };
+    
+    onSubmit(finalFormData);
   };
 
   return (
@@ -223,6 +233,25 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
             </div>
           </div>
         )}
+
+        {/* Campo de comentarios adicionales */}
+        <div className="additional-comments-section">
+          <div className="comments-header">
+            <h4>💬 Comentarios Adicionales</h4>
+            <small>Opcional - Agrega información adicional sobre este movimiento</small>
+          </div>
+          <textarea
+            className="comments-textarea"
+            value={additionalComments}
+            onChange={(e) => setAdditionalComments(e.target.value)}
+            placeholder="Ejemplo: Combustible entregado por transporte especial, requiere almacenamiento prioritario, etc."
+            rows={3}
+            maxLength={500}
+          />
+          <div className="comments-counter">
+            {additionalComments.length}/500 caracteres
+          </div>
+        </div>
 
         {/* Confirmación requerida */}
         <div className="confirmation-section">

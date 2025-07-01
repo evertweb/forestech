@@ -5,19 +5,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
-import { OPERATIONAL_LOCATIONS, formatLocationName } from '../../../constants/locations';
+import { OPERATIONAL_LOCATIONS, STORAGE_LOCATIONS, formatLocationName } from '../../../constants/locations';
 
-const Step6_Destination = ({ formData, updateFormData, systemData, setError }) => {
+const Step6_Destination = ({ formData, updateFormData, systemData, setError, isEntryDestination = false }) => {
   const [loading, setLoading] = useState(false);
   const [destinationInfo, setDestinationInfo] = useState({});
   const [validatingCapacity, setValidatingCapacity] = useState(false);
 
   const { inventory } = systemData;
 
-  // Validar capacidad disponible en destinos
+  // Validar capacidad disponible en destinos (solo para transferencias)
   useEffect(() => {
     const validateDestinationCapacity = async () => {
-      if (formData.fuelType && formData.quantity && inventory.length > 0) {
+      // Solo validar capacidad para transferencias, NO para entradas
+      if (formData.fuelType && formData.quantity && inventory.length > 0 && !isEntryDestination) {
         setValidatingCapacity(true);
         
         // Simular validación en tiempo real
@@ -27,7 +28,7 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError }) =
         const capacityByLocation = {};
         
         OPERATIONAL_LOCATIONS
-          .filter(location => location !== formData.location) // Excluir origen
+          .filter(location => isEntryDestination ? true : location !== formData.location) // Para entradas, incluir todas las ubicaciones
           .forEach(location => {
             // Calcular capacidad actual
             const currentStock = inventory
@@ -88,12 +89,13 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError }) =
     };
 
     validateDestinationCapacity();
-  }, [formData.fuelType, formData.quantity, formData.location, inventory]);
+  }, [formData.fuelType, formData.quantity, formData.location, inventory, isEntryDestination]);
 
   const handleDestinationSelection = async (destination) => {
     const destInfo = destinationInfo[destination];
     
-    if (!destInfo?.canAcceptTransfer) {
+    // Solo validar capacidad para transferencias, no para entradas
+    if (!isEntryDestination && !destInfo?.canAcceptTransfer) {
       setError('Esta ubicación no puede recibir la cantidad solicitada');
       return;
     }
@@ -117,18 +119,20 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError }) =
     }
   };
 
-  // Solo mostrar este paso para transferencias
-  if (formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
+  // Solo mostrar este paso para transferencias o entradas (con isEntryDestination)
+  if (!isEntryDestination && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
     return null;
   }
 
-  const availableDestinations = OPERATIONAL_LOCATIONS.filter(loc => loc !== formData.location);
+  const availableDestinations = isEntryDestination ? 
+    STORAGE_LOCATIONS : // Para entradas, solo bodegas de almacenamiento
+    OPERATIONAL_LOCATIONS.filter(loc => loc !== formData.location); // Para transferencias, excluir origen
 
   return (
     <div className="wizard-step step-destination">
       <div className="step-content">
         <div className="step-question">
-          <h3>🎯 ¿Hacia qué ubicación se transfiere?</h3>
+          <h3>🎯 {isEntryDestination ? '¿A qué ubicación llegará el combustible?' : '¿Hacia qué ubicación se transfiere?'}</h3>
           <p>Selecciona la ubicación de destino:</p>
         </div>
 

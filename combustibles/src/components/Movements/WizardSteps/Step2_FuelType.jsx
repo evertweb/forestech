@@ -40,7 +40,9 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError }) => {
         updateFormData('unitPrice', product.defaultPrice.toString());
       }
       
-      console.log('🔄 Combustible seleccionado:', fuelType, 'Precio:', product.defaultPrice);
+      // 🔍 DEBUG: Log específico para fuelType
+      console.log('🔄 [Step2] Combustible seleccionado:', fuelType, 'Precio:', product.defaultPrice);
+      console.log('🔍 [Step2] FormData después de actualización:', { fuelType, unitPrice: product.defaultPrice });
       
     } catch (err) {
       console.error('Error al cargar combustible:', err);

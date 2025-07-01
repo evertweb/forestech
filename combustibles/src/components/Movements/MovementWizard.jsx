@@ -36,6 +36,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     quantity: '',
     unitPrice: '',
     location: '',
+    supplierName: '', // Para movimientos de entrada
     vehicleId: '',
     destinationLocation: '',
     description: '',
@@ -69,7 +70,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const stepConfig = {
     1: { title: 'Tipo de Movimiento', description: '¿Qué operación realizarás?' },
     2: { title: 'Combustible', description: '¿Qué producto vas a mover?' },
-    3: { title: 'Ubicación Origen', description: '¿De dónde proviene?' },
+    3: { title: 'Origen/Proveedor', description: formData.type === MOVEMENT_TYPES.ENTRADA ? '¿De qué proveedor?' : '¿De dónde proviene?' },
+    '3b': { title: 'Ubicación Destino', description: '¿A dónde llegará?' },
     4: { title: 'Cantidad', description: '¿Cuánto necesitas?' },
     5: { title: 'Vehículo/Equipo', description: '¿A qué destino?' },
     6: { title: 'Ubicación Destino', description: '¿Hacia dónde va?' },
@@ -120,15 +122,33 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const getTotalSteps = () => {
     if (!formData.type) return 8;
     
+    let steps;
+    
     // Para transferencias: todos los pasos (1,2,3,4,5,6,7,8)
-    if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) return 8;
-    
+    if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
+      steps = 8;
+    }
     // Para salidas: incluye vehículo, sin destino (1,2,3,4,5,7,8)
-    if (formData.type === MOVEMENT_TYPES.SALIDA) return 7;
+    else if (formData.type === MOVEMENT_TYPES.SALIDA) {
+      steps = 7;
+    }
+    // Para entradas: proveedor + destino + detalles (1,2,3,3b,4,7,8) = 7 pasos
+    else if (formData.type === MOVEMENT_TYPES.ENTRADA) {
+      steps = 7;
+    }
+    // Para ajustes: sin vehículo ni destino (1,2,3,4,7,8) = 6 pasos
+    else {
+      steps = 6;
+    }
     
-    // Para entradas y ajustes: sin vehículo ni destino (1,2,3,4,7,8) 
-    // Necesitan llegar al paso 7 (detalles), así que el máximo paso es 7
-    return 7;
+    // 🔍 DEBUG: Log para verificar totalSteps
+    console.log('🔍 [TOTAL STEPS]', {
+      type: formData.type,
+      totalSteps: steps,
+      currentStep: currentStep
+    });
+    
+    return steps;
   };
 
   // Actualizar datos del formulario
@@ -150,13 +170,22 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         break;
       case 2:
         isValid = !!formData.fuelType;
+        // 🔍 DEBUG: Log específico para fuelType
+        console.log('🔍 [STEP 2 VALIDATION]', {
+          fuelType: formData.fuelType,
+          isValid,
+          formData: formData
+        });
         break;
       case 3:
         if (formData.type === MOVEMENT_TYPES.ENTRADA) {
-          isValid = !!formData.location; // Proveedor para entradas
+          isValid = !!formData.supplierName; // Proveedor para entradas
         } else {
           isValid = !!formData.location; // Ubicación origen para salidas/transferencias
         }
+        break;
+      case '3b': // Paso adicional para destino en entradas
+        isValid = !!formData.destinationLocation;
         break;
       case 4:
         isValid = formData.quantity && parseFloat(formData.quantity) > 0;
@@ -229,13 +258,26 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       // Determinar el siguiente paso basado en tipo de movimiento
       let nextStepNumber = currentStep + 1;
       
-      // Saltar pasos no aplicables
-      if (currentStep === 4 && formData.type !== MOVEMENT_TYPES.SALIDA) {
-        // Para transferencias: ir al paso 6 (destino)
-        // Para entradas/ajustes: ir al paso 7 (detalles)
-        nextStepNumber = formData.type === MOVEMENT_TYPES.TRANSFERENCIA ? 6 : 7;
+      // Lógica especial para entradas (agregar paso 3b)
+      if (currentStep === 3 && formData.type === MOVEMENT_TYPES.ENTRADA) {
+        nextStepNumber = '3b'; // Ir al paso de destino para entradas
+      } else if (currentStep === '3b') {
+        nextStepNumber = 4; // Del paso 3b ir al paso 4 (cantidad)
       }
-      if (currentStep === 5 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
+      // Saltar pasos no aplicables para otros tipos
+      else if (currentStep === 4 && formData.type !== MOVEMENT_TYPES.SALIDA) {
+        // Para transferencias: ir al paso 6 (destino)
+        // Para entradas: ir al paso 7 (detalles) - ya pasamos por 3b
+        // Para ajustes: ir al paso 7 (detalles)
+        if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
+          nextStepNumber = 6;
+        } else if (formData.type === MOVEMENT_TYPES.ENTRADA) {
+          nextStepNumber = 7; // Entradas: del paso 4 (cantidad) al paso 7 (detalles)
+        } else {
+          nextStepNumber = 7; // Ajustes: del paso 4 al paso 7
+        }
+      }
+      else if (currentStep === 5 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
         nextStepNumber = 7;
       }
       
@@ -245,7 +287,27 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         totalSteps: totalSteps
       });
       
-      if (nextStepNumber <= totalSteps) {
+      // Mapear pasos lógicos a números para navegación
+      const getLogicalStepNumber = (step) => {
+        // Mapeo específico para entradas: 1→2→3→3b→4→7→8 (7 pasos)
+        if (formData.type === MOVEMENT_TYPES.ENTRADA) {
+          const entryMapping = { 1: 1, 2: 2, 3: 3, '3b': 4, 4: 5, 7: 6, 8: 7 };
+          return entryMapping[step] || step;
+        }
+        
+        // Mapeo específico para salidas: 1→2→3→4→5→7→8 (7 pasos)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          const exitMapping = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 7: 6, 8: 7 };
+          return exitMapping[step] || step;
+        }
+        
+        // Mapeo para otros tipos (transferencias, ajustes)
+        const generalMapping = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8 };
+        return generalMapping[step] || step;
+      };
+      const currentLogicalStep = getLogicalStepNumber(nextStepNumber);
+      
+      if (currentLogicalStep <= totalSteps) {
         setCurrentStep(nextStepNumber);
       }
     } else {
@@ -256,34 +318,62 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Navegar al paso anterior
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep > 1 && currentStep !== '3b') {
       let prevStepNumber = currentStep - 1;
       
-      // Saltar pasos no aplicables hacia atrás
-      if (currentStep === 7 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA && formData.type !== MOVEMENT_TYPES.SALIDA) {
+      // Lógica especial para navegación hacia atrás
+      if (currentStep === 4 && formData.type === MOVEMENT_TYPES.ENTRADA) {
+        prevStepNumber = '3b'; // Del paso 4 al 3b para entradas
+      } else if (currentStep === 7 && formData.type === MOVEMENT_TYPES.ENTRADA) {
+        prevStepNumber = 4; // Del paso 7 al 4 para entradas (saltamos vehículo y destino)
+      }
+      // Saltar pasos no aplicables hacia atrás para otros tipos
+      else if (currentStep === 7 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA && formData.type !== MOVEMENT_TYPES.SALIDA) {
         prevStepNumber = 4;
       }
-      if (currentStep === 6 && formData.type !== MOVEMENT_TYPES.SALIDA) {
+      else if (currentStep === 6 && formData.type !== MOVEMENT_TYPES.SALIDA) {
         prevStepNumber = 4;
       }
       
       setCurrentStep(prevStepNumber);
+    } else if (currentStep === '3b') {
+      setCurrentStep(3); // Del paso 3b al paso 3
     }
   };
 
   // Enviar formulario final
-  const handleSubmit = async () => {
+  const handleSubmit = async (finalData = null) => {
     setIsLoading(true);
     setError('');
 
     try {
+      // Usar datos finales si se proporcionan (incluyen comentarios), sino usar formData
+      const dataToUse = finalData || formData;
+      
+      // 🔍 DEBUG: Log completo antes de crear movimiento
+      console.log('🔍 [SUBMIT] Datos completos antes de crear movimiento:', dataToUse);
+      console.log('🔍 [SUBMIT] FuelType específico:', dataToUse.fuelType);
+      
+      // 🔍 DEBUG: Log específico para SALIDAS
+      if (dataToUse.type === MOVEMENT_TYPES.SALIDA) {
+        console.log('🔍 [SUBMIT SALIDA] Validando campos requeridos:', {
+          type: dataToUse.type,
+          fuelType: dataToUse.fuelType,
+          vehicleId: dataToUse.vehicleId,
+          location: dataToUse.location,
+          quantity: dataToUse.quantity,
+          unitPrice: dataToUse.unitPrice
+        });
+      }
+      
       const movementData = {
-        ...formData,
-        quantity: parseFloat(formData.quantity),
-        unitPrice: parseFloat(formData.unitPrice),
-        effectiveDate: new Date(formData.effectiveDate)
+        ...dataToUse,
+        quantity: parseFloat(dataToUse.quantity),
+        unitPrice: parseFloat(dataToUse.unitPrice),
+        effectiveDate: new Date(dataToUse.effectiveDate)
       };
 
+      console.log('🔍 [SUBMIT] MovementData enviado a createMovement:', movementData);
       await createMovement(movementData);
       onSuccess();
       
@@ -295,6 +385,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         quantity: '',
         unitPrice: '',
         location: '',
+        supplierName: '',
         vehicleId: '',
         destinationLocation: '',
         description: '',
@@ -328,6 +419,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         return <Step2_FuelType {...commonProps} />;
       case 3:
         return <Step3_Location {...commonProps} />;
+      case '3b':
+        return <Step6_Destination {...commonProps} isEntryDestination={true} />;
       case 4:
         return <Step4_Quantity {...commonProps} />;
       case 5:
@@ -346,7 +439,38 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   const totalSteps = getTotalSteps();
-  const progress = (currentStep / totalSteps) * 100;
+  // Mapear pasos para la barra de progreso
+  const getLogicalStepNumber = (step) => {
+    // Mapeo específico para entradas: 1→2→3→3b→4→7→8 (7 pasos)
+    if (formData.type === MOVEMENT_TYPES.ENTRADA) {
+      const entryMapping = { 1: 1, 2: 2, 3: 3, '3b': 4, 4: 5, 7: 6, 8: 7 };
+      return entryMapping[step] || step;
+    }
+    
+    // Mapeo específico para salidas: 1→2→3→4→5→7→8 (7 pasos)
+    if (formData.type === MOVEMENT_TYPES.SALIDA) {
+      const exitMapping = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 7: 6, 8: 7 };
+      return exitMapping[step] || step;
+    }
+    
+    // Mapeo para otros tipos (transferencias, ajustes)
+    const generalMapping = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8 };
+    return generalMapping[step] || step;
+  };
+  const currentLogicalStep = getLogicalStepNumber(currentStep);
+  const progress = (currentLogicalStep / totalSteps) * 100;
+
+  // 🔍 DEBUG: Logs temporales para navegación
+  console.log('🔍 [WIZARD DEBUG]', {
+    type: formData.type,
+    currentStep,
+    currentLogicalStep,
+    totalSteps,
+    progress,
+    isLastStep: currentStep >= totalSteps,
+    formDataKeys: Object.keys(formData).filter(k => formData[k]),
+    fuelType: formData.fuelType
+  });
 
   return (
     <div className="modal-overlay wizard-overlay" onClick={onClose}>
@@ -367,7 +491,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               ></div>
             </div>
             <div className="progress-text">
-              Paso {currentStep} de {totalSteps}
+              Paso {currentLogicalStep} de {totalSteps}
             </div>
           </div>
 
@@ -409,7 +533,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               ← Anterior
             </button>
 
-            {currentStep < totalSteps ? (
+            {currentLogicalStep < totalSteps ? (
               <button 
                 className="btn-wizard btn-next"
                 onClick={nextStep}

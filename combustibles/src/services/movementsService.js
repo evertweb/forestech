@@ -430,8 +430,18 @@ const validateMovementData = (movementData) => {
     throw new Error('Las transferencias deben tener una ubicación destino');
   }
 
-  // ✅ Validar ubicaciones válidas
-  if (movementData.location && !isValidLocation(movementData.location)) {
+  // ✅ Validaciones específicas para entradas
+  if (movementData.type === MOVEMENT_TYPES.ENTRADA) {
+    if (!movementData.supplierName) {
+      throw new Error('Las entradas deben tener un proveedor');
+    }
+    if (!movementData.destinationLocation) {
+      throw new Error('Las entradas deben tener una ubicación destino');
+    }
+  }
+
+  // ✅ Validar ubicaciones válidas (excepto para entradas que usan supplierName)
+  if (movementData.type !== MOVEMENT_TYPES.ENTRADA && movementData.location && !isValidLocation(movementData.location)) {
     throw new Error(`Ubicación origen inválida: ${movementData.location}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
   }
 

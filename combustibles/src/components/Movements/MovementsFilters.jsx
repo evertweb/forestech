@@ -12,8 +12,6 @@ const MovementsFilters = ({
   onClearFilters,
   searchTerm,
   onSearchChange,
-  viewMode,
-  onViewModeChange,
   totalResults
 }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -109,22 +107,11 @@ const MovementsFilters = ({
             )}
           </button>
 
-          {/* Modos de vista */}
-          <div className="view-modes">
-            <button
-              className={`view-mode ${viewMode === 'cards' ? 'active' : ''}`}
-              onClick={() => onViewModeChange('cards')}
-              title="Vista en tarjetas"
-            >
-              🎴
-            </button>
-            <button
-              className={`view-mode ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => onViewModeChange('table')}
-              title="Vista en tabla"
-            >
-              📋
-            </button>
+          {/* Vista única tabla - selector removido */}
+          <div className="view-indicator">
+            <span className="view-info">
+              📋 Vista Tabla
+            </span>
           </div>
         </div>
       </div>
