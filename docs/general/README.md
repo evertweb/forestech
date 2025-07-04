@@ -1,41 +1,24 @@
 # 📋 GENERAL - Configuración Global Monorepo
 
-## Estructura Monorepo Forestech
+## Estado Actual: CONFIGURADO Y OPERATIVO (2025)
 
 ```
 forestech/                      # Monorepo principal
-├── alimentacion/               # 🍽️ App liquidaciones
-├── combustibles/               # ⛽ App gestión combustibles
+├── alimentacion/               # 🍽️ App liquidaciones ✅ FUNCIONAL
+├── combustibles/               # ⛽ App gestión combustibles ✅ FUNCIONAL
 ├── shared/                     # 🔧 Recursos compartidos
 ├── docs/                       # 📚 Documentación modular
 ├── public/                     # 🌐 Build output Firebase
-├── firebase.json               # Configuración hosting
+├── firebase.json               # Configuración hosting multi-app
 ├── firestore.rules            # Reglas seguridad
 └── package.json               # Scripts monorepo
 ```
 
-## Configuración Firebase Hosting
+## URLs Operativas
 
-### Multi-App Routing
-```json
-{
-  "rewrites": [
-    {
-      "source": "/alimentacion/**",
-      "destination": "/alimentacion/index.html"
-    },
-    {
-      "source": "/combustibles/**", 
-      "destination": "/combustibles/index.html"
-    }
-  ]
-}
-```
-
-### URLs Operativas
-- 🍽️ **Alimentación**: `https://forestechdecolombia.com.co/alimentacion/`
-- ⛽ **Combustibles**: `https://forestechdecolombia.com.co/combustibles/`
-- 📋 **Firebase**: `https://liquidacionapp-62962.web.app/[app]/`
+- 🍽️ **Alimentación**: https://forestechdecolombia.com.co/alimentacion/
+- ⛽ **Combustibles**: https://forestechdecolombia.com.co/combustibles/
+- 📋 **Firebase**: https://liquidacionapp-62962.web.app/
 
 ## Scripts Monorepo
 
@@ -57,22 +40,25 @@ npm run lint:combustibles
 npm run deploy              # Deploy automático Firebase
 ```
 
-## Configuración DNS
+## Configuración Firebase
 
-### Dominio Personalizado (Configurado)
+### Multi-App Hosting
+```json
+{
+  "rewrites": [
+    {
+      "source": "/alimentacion/**",
+      "destination": "/alimentacion/index.html"
+    },
+    {
+      "source": "/combustibles/**", 
+      "destination": "/combustibles/index.html"
+    }
+  ]
+}
 ```
-Namecheap DNS: forestechdecolombia.com.co → liquidacionapp-62962.web.app
-Firebase: Maneja routing automático por rutas
-```
 
-### Escalabilidad Sin DNS Adicional
-Para nuevas apps (nomina, inventario):
-1. Agregar regla en `firebase.json`
-2. `firebase deploy`
-3. **Nueva URL funciona automáticamente**
-
-## Servicios Firebase Activos
-
+### Servicios Activos
 - **Authentication**: Email/Password + Google OAuth
 - **Firestore**: Base datos con reglas seguridad
 - **Storage**: Subida archivos (logos, firmas)
@@ -81,19 +67,41 @@ Para nuevas apps (nomina, inventario):
 - **Cloud Messaging**: Push notifications
 - **Hosting**: Multi-app con dominio personalizado
 
-## Reglas de Seguridad Firestore
+## GitHub Actions - Deploy Automático
 
-```javascript
-// Acceso por roles
-allow read, write: if request.auth != null 
-  && resource.data.userId == request.auth.uid;
+### Proceso Automatizado
+1. **Push a main** → Trigger automático
+2. **Install dependencies** → Monorepo completo + sub-apps
+3. **Auto-fix React Hooks** → Corrección automática warnings
+4. **Lint** → Alimentación + Combustibles
+5. **Build** → Ambas aplicaciones
+6. **Deploy Firebase** → Hosting automático
+7. **URLs actualizadas** → Producción en vivo
 
-// Admin full access
-allow read, write: if request.auth != null 
-  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+### Comandos para Desarrolladores
+```bash
+# ✅ ÚNICOS COMANDOS NECESARIOS
+git add .
+git commit -m "descripción cambios"
+git push origin main
+# GitHub Actions maneja todo lo demás automáticamente
 ```
 
-Ver más detalles en:
-- [Monorepo](./monorepo.md)
-- [Hosting](./hosting.md)
-- [Mejores Prácticas](./best-practices.md)
+## Dominio Personalizado
+
+- **Dominio**: forestechdecolombia.com.co
+- **Configuración**: DNS apunta a Firebase Hosting
+- **Escalabilidad**: Nuevas apps se agregan sin configuración DNS adicional
+
+## Escalabilidad
+
+Para agregar nuevas aplicaciones al monorepo:
+1. Crear carpeta nueva app
+2. Agregar regla en `firebase.json`
+3. Actualizar scripts en `package.json`
+4. Deploy automático con GitHub Actions
+5. Nueva URL disponible instantáneamente
+
+---
+
+**Última actualización**: Julio 2025 - Sistema completo operativo
