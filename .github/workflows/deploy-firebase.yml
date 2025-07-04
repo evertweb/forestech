@@ -21,7 +21,10 @@
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm ci
+          cd alimentacion && npm ci
+          cd ../combustibles && npm ci
 
       - name: Lint Alimentacion
         run: npm run lint:alimentacion
