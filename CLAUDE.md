@@ -814,4 +814,34 @@ ls -la .mcp-memory/
 
 ---
 
-**📌 NOTA CRÍTICA**: Todos los MCPs están configurados en `.mcp.json` pero solo memory-mcp está **instalado y funcionando**. Los demás requieren instalación individual usando las URLs GitHub específicas proporcionadas.
+**📌 ACTUALIZACIÓN CRÍTICA (Julio 4, 2025)**: 
+
+### ✅ **MCPs OPERATIVOS INTEGRADOS CON CLAUDE CODE**
+- **memory-mcp** 🧠 - ✅ FUNCIONANDO (NPX directo)
+- **filesystem-mcp** 📁 - ✅ FUNCIONANDO (NPX directo)  
+- **gemini-advanced-mcp** 🤖 - ✅ FUNCIONANDO (integrado Claude)
+- **gemini-mcp** 🔍 - ✅ FUNCIONANDO (integrado Claude)
+- **ide-mcp** 🛠️ - ✅ FUNCIONANDO (integrado Claude)
+- **git-mcp-remote** 🔧 - ✅ FUNCIONANDO (script remoto)
+- **sequential-thinking-mcp** 🧩 - ✅ FUNCIONANDO (script local)
+
+### 📋 **CONFIGURACIÓN CLAUDE CODE**
+**Archivo**: `/home/evert/.claude-code-mcp.json`
+```json
+{
+  "mcpServers": {
+    "memory": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-memory"] },
+    "filesystem": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem"] },
+    "forestech-git": { "command": "bash", "args": ["script-git-remoto"] },
+    "sequential-thinking": { "command": "bash", "args": ["script-local"] }
+  }
+}
+```
+
+### 🎯 **PRÓXIMOS OBJETIVOS MCPs**
+- **time-mcp**: ⚠️ No disponible vía NPX, requiere instalación manual
+- **fetch-mcp**: ⚠️ No disponible vía NPX, usar directorio local
+- **github-mcp**: ⚠️ Archivado, evaluar alternativas
+- **sentry-mcp**: ⚠️ Archivado, evaluar alternativas
+
+**ESTADO FINAL**: 7 de 10 MCPs prioritarios funcionando correctamente integrados con Claude Code.
