@@ -26,7 +26,7 @@ const AdminMain = () => {
     if (user && userProfile?.role === 'admin') {
       loadInvitations();
     }
-  }, [user, userProfile]);
+  }, [user, userProfile, loadInvitations]);
 
   const loadInvitations = async () => {
     setLoading(true);

@@ -79,7 +79,7 @@ const MaintenanceModal = ({
       setFormData(getInitialFormData());
       setErrors({});
     }
-  }, [isOpen, maintenance, vehicle]);
+  }, [isOpen, maintenance, vehicle, getInitialFormData]);
 
   // Manejar cambios en inputs
   const handleInputChange = (e) => {

@@ -6,23 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementWizard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementWizard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/Movements.css" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/Movements.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsFilters.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsFilters.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsList.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsMain.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsTable.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step2_FuelType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step2_FuelType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step3_Location.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step3_Location.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step4_Quantity.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step4_Quantity.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step5_Vehicle.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step5_Vehicle.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step6_Destination.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step6_Destination.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step8_Summary.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step8_Summary.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/constants/locations.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/constants/locations.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/services/movementsService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/movementsService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-CTOB7-qi.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-DtPYNwIM.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/jest.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/logo.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/pnpm-lock.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/Fetcher.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/Fetcher.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fetch-mcp/tsconfig.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -51,7 +51,7 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
         minThreshold: autoThreshold
       }));
     }
-  }, [formData.maxCapacity]);
+  }, [formData.maxCapacity, formData.minThreshold]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

@@ -238,7 +238,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   // Validación memoizada para evitar problemas de sincronización en el render
   const isCurrentStepValid = useMemo(() => {
     return validateCurrentStep();
-  }, [currentStep, formData, MOVEMENT_TYPES]);
+  }, [currentStep, formData, MOVEMENT_TYPES, validateCurrentStep]);
 
   // Navegar al siguiente paso
   const nextStep = () => {

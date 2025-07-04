@@ -79,7 +79,7 @@ const VehicleModalNew = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, loadCategories]);
 
   useEffect(() => {
     if (vehicle && categories.length > 0) {
@@ -87,7 +87,7 @@ const VehicleModalNew = ({
       setSelectedCategory(category);
       setFormData(getInitialFormData());
     }
-  }, [vehicle, categories]);
+  }, [vehicle, categories, getInitialFormData]);
 
   const loadCategories = async () => {
     try {

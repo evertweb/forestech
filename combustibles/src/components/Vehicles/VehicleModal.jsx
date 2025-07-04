@@ -58,7 +58,7 @@ const VehicleModal = ({
       setFormData(getInitialFormData());
       setErrors({});
     }
-  }, [isOpen, vehicle]);
+  }, [isOpen, vehicle, getInitialFormData]);
 
   // Manejar cambios en inputs
   const handleInputChange = (e) => {

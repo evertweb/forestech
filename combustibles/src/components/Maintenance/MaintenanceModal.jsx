@@ -82,7 +82,7 @@ const MaintenanceModal = ({
       //   setSelectedVehicle(vehicle);
       // }
     }
-  }, [isOpen, maintenance, vehicles]);
+  }, [isOpen, maintenance, vehicles, getInitialFormData]);
 
   // Calcular próximo cambio automáticamente
   useEffect(() => {
