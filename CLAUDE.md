@@ -195,7 +195,7 @@ git diff --stat         # Solo estadísticas de cambios
 - **Firebase**: Multi-app hosting configurado
 - **Dominio**: forestechdecolombia.com.co operativo
 - **CI/CD**: Deploy automático funcional con GitHub Actions
-- **MCPs**: 7 herramientas integradas con Claude Code
+- **MCPs**: 8 herramientas integradas con Claude Code
 
 ### 🤖 **MCPs Operativos**
 - **memory-mcp** 🧠 - Memoria persistente entre sesiones
@@ -205,6 +205,37 @@ git diff --stat         # Solo estadísticas de cambios
 - **ide-mcp** 🛠️ - Herramientas IDE
 - **git-mcp** 🔧 - Operaciones Git avanzadas
 - **sequential-thinking-mcp** 🧩 - Análisis paso a paso
+- **notion-mcp** 📚 - Documentación empresarial y colaboración
+
+### 📚 **Notion MCP - Utilidades para Forestech**
+
+El MCP de Notion está configurado con token de autorización y puede ser usado para:
+
+#### 🏢 **Documentación Empresarial**
+- Manuales de procedimientos operativos forestales
+- Guías de usuario para aplicaciones (alimentación/combustibles)
+- Base de conocimiento centralizada para empleados
+- Documentación técnica con multimedia
+
+#### 📊 **Reportes y Dashboards**
+- Reportes ejecutivos con métricas de ambas aplicaciones
+- Dashboard consolidado: liquidaciones + gestión combustibles
+- Seguimiento KPIs: eficiencia, costos, productividad
+- Análisis de tendencias operativas
+
+#### 👥 **Colaboración Corporativa**
+- Comunicación inter-departamental
+- Onboarding nuevos empleados
+- Compartir mejores prácticas operativas
+- Coordinación equipos campo/oficina
+
+#### 📋 **Gestión Operativa**
+- SOPs (Standard Operating Procedures) forestales
+- Protocolos seguridad y emergencia
+- Calendarios mantenimiento maquinaria
+- Tracking proyectos y tareas
+
+**Configuración actual**: Bearer token configurado, API versión 2022-06-28
 
 ---
 
