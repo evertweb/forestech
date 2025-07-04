@@ -40,13 +40,24 @@
       - name: Build Combustibles
         run: npm run build:combustibles
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Deploy to Firebase
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}
-          projectId: liquidacionapp-62962
-          channelId: live
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          echo "Configurando credenciales Firebase..."
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}' > /tmp/service-account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json
+          
+          echo "Verificando archivos build..."
+          ls -la public/
+          ls -la public/alimentacion/
+          ls -la public/combustibles/
+          
+          echo "Ejecutando deploy Firebase..."
+          firebase deploy --only hosting --project liquidacionapp-62962
 
       - name: Deployment Success
         if: success()
