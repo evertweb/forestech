@@ -1,0 +1,129 @@
+{
+  "mcpVersion": "2024-11-05",
+  "name": "Forestech Monorepo",
+  "version": "1.0.0",
+  "description": "Sistema MCP para monorepo Forestech con apps alimentacion y combustibles",
+  "projectType": "react-firebase-monorepo",
+  "documentationPath": "./CLAUDE.md",
+  
+  "routing": {
+    "defaultAgent": "auto",
+    "rules": {
+      "prefer_gemini_for": [
+        "search", 
+        "research", 
+        "documentation", 
+        "multimodal",
+        "large_context_analysis",
+        "web_search"
+      ],
+      "prefer_claude_for": [
+        "code_edit", 
+        "git_ops", 
+        "file_ops", 
+        "debugging",
+        "react_development",
+        "firebase_integration"
+      ],
+      "large_context_threshold": 100000
+    }
+  },
+
+  "project": {
+    "apps": [
+      {
+        "name": "alimentacion",
+        "path": "./alimentacion/",
+        "type": "react-vite",
+        "description": "Sistema de liquidaciones de comidas"
+      },
+      {
+        "name": "combustibles", 
+        "path": "./combustibles/",
+        "type": "react-vite",
+        "description": "Sistema de gestión de combustibles"
+      }
+    ],
+    "shared": {
+      "path": "./shared/",
+      "firebase": "./shared/firebase/",
+      "documentation": "./docs/"
+    }
+  },
+
+  "tools": [
+    {
+      "server": "mcp-server-filesystem",
+      "config": {
+        "allowedDirectories": [
+          "/home/evert/Documentos/appwebforestech/forestech"
+        ]
+      }
+    },
+    {
+      "server": "mcp-server-gemini-advanced",
+      "config": {
+        "model": "gemini-2.5-pro"
+      }
+    },
+    {
+      "server": "mcp-server-gemini",
+      "config": {
+        "model": "gemini-2.5-pro"
+      }
+    },
+    {
+      "server": "mcp-server-ide",
+      "config": {
+        "diagnostics": true
+      }
+    }
+  ],
+
+  "gitHooks": {
+    "preCommit": {
+      "enabled": true,
+      "mcp_analysis": true,
+      "claude_md_context": true
+    },
+    "postCommit": {
+      "enabled": true,
+      "activity_logging": true,
+      "documentation_tips": true
+    }
+  },
+
+  "development": {
+    "commands": {
+      "dev:alimentacion": "npm run dev:alimentacion",
+      "dev:combustibles": "npm run dev:combustibles", 
+      "build:all": "npm run build:all",
+      "deploy": "npm run deploy",
+      "lint:all": "npm run lint:alimentacion && npm run lint:combustibles"
+    },
+    "firebase": {
+      "project": "liquidacionapp-62962",
+      "hosting": "multi-app",
+      "apps": ["alimentacion", "combustibles"]
+    }
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "metrics_interval": 30,
+    "log_level": "info",
+    "activity_log": "~/.mcp-ecosystem/logs/git-activity.log"
+  },
+
+  "integration": {
+    "claude_code": {
+      "github_actions": true,
+      "auto_fix_hooks": true,
+      "documentation_sync": true
+    },
+    "vscode": {
+      "enabled": true,
+      "claude_code_extension": true
+    }
+  }
+}

@@ -148,6 +148,44 @@ git diff --stat         # Solo estadísticas de cambios
 
 ## 📝 **Últimas Actualizaciones**
 
+### ⛽ **COMBUSTIBLES - Julio 4, 2025**
+#### 🔧 **CORRECCIÓN CRÍTICA: Firebase Auth Invalid API Key**
+
+**📍 Problema Solucionado**: App combustibles tenía error "Firebase: Error (auth/invalid-api-key)" que impedía el funcionamiento completo de Firebase Auth.
+
+#### ✅ **Corrección Implementada**:
+
+1. **🔧 Variable Entorno Faltante**:
+   - **Problema**: `VITE_FIREBASE_MEASUREMENT_ID` no existía en `.env.local`
+   - **Solución**: Agregada `VITE_FIREBASE_MEASUREMENT_ID=G-MEASUREMENT_ID` 
+   - **Archivo**: `combustibles/.env.local`
+
+2. **🛡️ Fallback Robusto**:
+   - **Problema**: Firebase config requería valor definido o undefined
+   - **Solución**: Añadido `|| undefined` en `measurementId`
+   - **Archivo**: `combustibles/src/firebase/config.js:18`
+
+#### 📁 **Archivos Modificados**:
+- `combustibles/.env.local` - Agregada variable MEASUREMENT_ID
+- `combustibles/src/firebase/config.js` - Fallback undefined para measurementId
+
+#### ✅ **Verificaciones Completadas**:
+- Build: ✅ Construcción exitosa sin errores
+- Deploy: ✅ Firebase hosting actualizado 
+- Funcionalidad: ✅ App combustibles 100% operativa
+
+#### 🎯 **Resultado Final**:
+**ERROR FIREBASE SOLUCIONADO**: 
+- ✅ **Auth funcionando**: Sistema autenticación completamente operativo
+- ✅ **Configuración robusta**: Variables entorno con fallbacks seguros
+- ✅ **Deploy exitoso**: Aplicación actualizada en producción
+
+#### 🌐 **URLs Verificadas**:
+- **Combustibles**: https://forestechdecolombia.com.co/combustibles/
+- **Firebase**: https://liquidacionapp-62962.web.app/
+
+---
+
 ### ⛽ **COMBUSTIBLES - Enero 30, 2025**
 #### 🚀 **Nueva Funcionalidad: Cuadro de Stock en Tiempo Real**
 
