@@ -1,6 +1,6 @@
 // combustibles/src/components/Admin/AdminMain.jsx
 // Componente principal del módulo de administración
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInvitation, getInvitations, cancelInvitation } from '../../firebase/invitationService';
 import { ROLES } from '../../constants/roles';
@@ -28,7 +28,8 @@ const AdminMain = () => {
     }
   }, [user, userProfile, loadInvitations]);
 
-  const loadInvitations = async () => {
+  const loadInvitations = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const result = await getInvitations(user.uid);
@@ -42,7 +43,7 @@ const AdminMain = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const handleCreateInvitation = async (e) => {
     e.preventDefault();

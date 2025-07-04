@@ -3,7 +3,7 @@
  * Incluye diferentes tipos de mantenimiento y seguimiento de costos
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { VEHICLE_STATUS } from '../../services/vehiclesService';
 
 // Tipos de mantenimiento
@@ -40,7 +40,7 @@ const MaintenanceModal = ({
   userRole 
 }) => {
   // Estado inicial del formulario
-  const getInitialFormData = () => ({
+  const getInitialFormData = useCallback(() => ({
     vehicleId: vehicle?.vehicleId || '',
     vehicleName: vehicle?.name || '',
     type: maintenance?.type || MAINTENANCE_TYPES.PREVENTIVO,
@@ -66,7 +66,7 @@ const MaintenanceModal = ({
     nextMaintenanceHours: maintenance?.nextMaintenanceHours || 0,
     nextMaintenanceDate: maintenance?.nextMaintenanceDate ? 
       new Date(maintenance.nextMaintenanceDate).toISOString().split('T')[0] : ''
-  });
+  }), [maintenance, vehicle]);
 
   const [formData, setFormData] = useState(getInitialFormData());
   const [errors, setErrors] = useState({});

@@ -3,7 +3,7 @@
  * Incluye validaciones business logic y preview en tiempo real
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
@@ -17,7 +17,7 @@ const VehicleModal = ({
   userRole 
 }) => {
   // Estado inicial del formulario
-  const getInitialFormData = () => ({
+  const getInitialFormData = useCallback(() => ({
     vehicleId: vehicle?.vehicleId || '',
     name: vehicle?.name || '',
     type: vehicle?.type || VEHICLE_TYPES.EXCAVADORA,
@@ -44,7 +44,7 @@ const VehicleModal = ({
       new Date(vehicle.purchaseDate).toISOString().split('T')[0] : '',
     warrantyExpiration: vehicle?.warrantyExpiration ? 
       new Date(vehicle.warrantyExpiration).toISOString().split('T')[0] : ''
-  });
+  }), [vehicle]);
 
   const [formData, setFormData] = useState(getInitialFormData());
   const [errors, setErrors] = useState({});

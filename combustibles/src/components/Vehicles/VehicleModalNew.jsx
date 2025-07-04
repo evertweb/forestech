@@ -3,7 +3,7 @@
  * Utiliza sistema de categorías personalizables y campos dinámicos
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
 import { 
@@ -30,7 +30,7 @@ const VehicleModalNew = ({
   const [errors, setErrors] = useState({});
 
   // Estado inicial del formulario
-  const getInitialFormData = () => ({
+  const getInitialFormData = useCallback(() => ({
     vehicleId: vehicle?.vehicleId || '',
     name: vehicle?.name || '',
     category: vehicle?.category || '',
@@ -61,9 +61,28 @@ const VehicleModalNew = ({
       new Date(vehicle.lastMaintenanceDate).toISOString().split('T')[0] : '',
     purchaseDate: vehicle?.purchaseDate ? 
       new Date(vehicle.purchaseDate).toISOString().split('T')[0] : ''
-  });
+  }), [vehicle]);
 
   const [formData, setFormData] = useState(getInitialFormData());
+
+  const loadCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      const categoriesData = await getAllVehicleCategories();
+      setCategories(categoriesData);
+      
+      // Seleccionar primera categoría si es modo crear
+      if (mode === 'create' && categoriesData.length > 0) {
+        const firstCategory = categoriesData[0];
+        setSelectedCategory(firstCategory);
+        setFormData(prev => ({ ...prev, category: firstCategory.id }));
+      }
+    } catch (error) {
+      console.error('Error cargando categorías:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [mode]);
 
   useEffect(() => {
     if (isOpen) {
@@ -88,25 +107,6 @@ const VehicleModalNew = ({
       setFormData(getInitialFormData());
     }
   }, [vehicle, categories, getInitialFormData]);
-
-  const loadCategories = async () => {
-    try {
-      setLoading(true);
-      const categoriesData = await getAllVehicleCategories();
-      setCategories(categoriesData);
-      
-      // Seleccionar primera categoría si es modo crear
-      if (mode === 'create' && categoriesData.length > 0) {
-        const firstCategory = categoriesData[0];
-        setSelectedCategory(firstCategory);
-        setFormData(prev => ({ ...prev, category: firstCategory.id }));
-      }
-    } catch (error) {
-      console.error('Error cargando categorías:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCategoryChange = (categoryId) => {
     const category = getCategoryById(categoryId, categories);

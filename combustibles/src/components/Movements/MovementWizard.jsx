@@ -3,7 +3,7 @@
  * Guía al usuario paso a paso con validaciones en tiempo real y feedback visual
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
@@ -161,7 +161,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   };
 
   // Validar paso actual
-  const validateCurrentStep = () => {
+  const validateCurrentStep = useCallback(() => {
     let isValid = false;
     
     switch (currentStep) {
@@ -233,12 +233,12 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     });
     
     return isValid;
-  };
+  }, [currentStep, formData]);
 
   // Validación memoizada para evitar problemas de sincronización en el render
   const isCurrentStepValid = useMemo(() => {
     return validateCurrentStep();
-  }, [currentStep, formData, MOVEMENT_TYPES, validateCurrentStep]);
+  }, [validateCurrentStep]);
 
   // Navegar al siguiente paso
   const nextStep = () => {

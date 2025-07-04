@@ -3,7 +3,7 @@
  * Incluye secciones para cambios de aceite y baterías con integración horómetro
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   MAINTENANCE_TYPES, 
   MAINTENANCE_STATUS, 
@@ -24,7 +24,7 @@ const MaintenanceModal = ({
   userRole 
 }) => {
   // Estado inicial del formulario
-  const getInitialFormData = () => ({
+  const getInitialFormData = useCallback(() => ({
     type: maintenance?.type || MAINTENANCE_TYPES.OIL_CHANGE,
     vehicleId: maintenance?.vehicleId || '',
     vehicleName: maintenance?.vehicleName || '',
@@ -46,7 +46,7 @@ const MaintenanceModal = ({
     // Campos generales
     notes: maintenance?.notes || '',
     cost: maintenance?.cost || 0
-  });
+  }), [maintenance]);
 
   const [formData, setFormData] = useState(getInitialFormData());
   const [errors, setErrors] = useState({});
