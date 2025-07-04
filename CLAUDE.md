@@ -443,3 +443,42 @@ git diff --stat         # Solo estadísticas de cambios
 ---
 
 **Febrero 1, 2025**: Sistema wizard y visualización completamente corregidos. Experiencia profesional 100% funcional.
+
+---
+
+### 🚀 **CI/CD - Julio 4, 2025**
+#### 🔧 **CORRECCIÓN CRÍTICA: GitHub Actions Dependencies Bug**
+
+**📍 Problema Solucionado**: GitHub Actions fallaba porque no instalaba dependencias de las sub-aplicaciones del monorepo, causando errores de '@vitejs/plugin-react' y 'eslint: not found'.
+
+#### ✅ **Cambios Implementados**:
+
+1. **🔧 Workflow Fix (.github/workflows/deploy-firebase.yml)**:
+   - Instalación de dependencias para cada sub-aplicación
+   - `npm ci` en raíz + `alimentacion` + `combustibles`
+   - Resolución de errores de build y lint
+
+2. **🔄 Git Synchronization**:
+   - Sincronización local ↔ GitHub repository
+   - Reset y push exitoso de cambios
+   - Pipeline CI/CD operativo
+
+#### 📁 **Archivo Modificado**:
+- `.github/workflows/deploy-firebase.yml` - Instalación dependencias multi-app
+
+#### ✅ **Verificaciones Completadas**:
+- **Git Push**: ✅ Sincronización local → GitHub exitosa
+- **Workflow**: ✅ GitHub Actions ejecutándose con dependencias correctas
+- **Dependencies**: ✅ @vitejs/plugin-react y eslint disponibles
+
+#### 🎯 **Resultado Final**:
+**GITHUB ACTIONS FUNCIONAL**:
+- ✅ **Deploy Automático**: Push a main → build → deploy Firebase
+- ✅ **Dependencies Fix**: Sub-aplicaciones instalan correctamente 
+- ✅ **Lint & Build**: Todos los pasos del pipeline operativos
+- ✅ **Zero Manual Deploy**: Deploy 100% automático en GitHub
+
+#### 🌐 **URLs Funcionales**:
+- **GitHub Actions**: https://github.com/evertweb/forestech/actions
+- **Alimentación**: https://forestechdecolombia.com.co/alimentacion/
+- **Combustibles**: https://forestechdecolombia.com.co/combustibles/
