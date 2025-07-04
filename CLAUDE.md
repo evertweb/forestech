@@ -614,55 +614,78 @@ git diff --stat         # Solo estadísticas de cambios
 ---
 
 ### 🤖 **MCP - Julio 4, 2025**
-#### 🔧 **RESTAURACIÓN COMPLETA: Configuración MCP Perdida Durante Sync GitHub**
+#### 🔧 **CORRECCIÓN CRÍTICA: Consolidación MCP en Claude Code**
 
-**📍 Problema Identificado**: Archivo `.mcp.json` se perdió durante sincronización GitHub → local, dejando el sistema MCP funcional pero sin configuración.
+**📍 Problema Identificado**: MCPs fragmentados en múltiples archivos de configuración, causando que Claude Code solo reconociera 4 de 9 MCPs configurados.
 
-#### ✅ **Restauración Completada**:
+#### ✅ **Configuraciones Fragmentadas Encontradas**:
 
-1. **🔍 Investigación del Problema**:
-   - Sistema MCP ejecutándose (git hooks pre/post-commit funcionando)
-   - Router inteligente detectando tareas ("large_context → gemini")
-   - Archivo `.mcp.json` ausente tras sync GitHub → local
+1. **🔍 Análisis del Problema**:
+   - **`.claude-code-mcp.json`**: Solo 3 MCPs (memory, filesystem, sequential-thinking)
+   - **`.claude.json`**: 4 MCPs (gemini-server, gemini-advanced, filesystem-server, package-helper)
+   - **`.mcp.json`**: 9 MCPs configurados pero Claude Code no los leía
+   - **Resultado**: Solo 4 MCPs visibles con `/mcp` en lugar de 9
 
-2. **🛠️ Configuración MCP Restaurada**:
-   - Recreado `.mcp.json` basado en evidencia de funcionamiento
-   - Routing inteligente: gemini para large_context, claude para code_edit
-   - Integración completa con CLAUDE.md y documentación modular
-   - Git hooks: pre-commit + post-commit con análisis automático
+2. **🛠️ Solución Implementada**:
+   - **Consolidación completa** en archivo principal `.claude.json`
+   - **Eliminación** de `.claude-code-mcp.json` duplicado
+   - **Integración nativa** con Claude Code usando formato correcto
+   - **MCPs unificados** bajo sección `mcpServers`
 
-#### 📁 **Archivo Recreado**:
-- `.mcp.json` - Configuración completa monorepo Forestech
+#### 📁 **Archivos Modificados**:
+- ✏️ `/home/evert/.claude.json` - Consolidación 9 MCPs completos
+- ❌ `/home/evert/.claude-code-mcp.json` - **ELIMINADO** (duplicado)
 
-#### ✅ **Verificaciones Exitosas**:
-- **mcp detect**: ✅ 35,356 archivos, 118 commits reconocidos
-- **mcp route**: ✅ Routing inteligente large_context → gemini  
-- **Git hooks**: ✅ Pre/post-commit ejecutándose correctamente
-- **Integración CLAUDE.md**: ✅ Contexto automático en hooks
+#### ✅ **MCPs Consolidados (9 Total)**:
 
-#### 🎯 **Configuración MCP Operativa**:
-**SISTEMA MCP 100% RESTAURADO**:
-- ✅ **Router inteligente**: Detecta tipo tarea y recomienda agente óptimo
-- ✅ **Git hooks integrados**: Análisis automático con contexto CLAUDE.md
-- ✅ **Tools configurados**: filesystem, gemini-advanced, gemini, ide
-- ✅ **Monitoring activo**: Métricas cada 30s, activity logging
-- ✅ **Documentación modular**: Integración perfecta con estructura docs/
+1. **🔍 gemini-server** - Google Search + Chat (ya existía)
+2. **🤖 gemini-advanced** - Gemini 2.5 Pro integrado (ya existía)  
+3. **📁 filesystem-server** - Sistema archivos avanzado (ya existía)
+4. **📦 package-helper** - Helper package.json (ya existía)
+5. **🧠 memory** - Sistema memoria persistente (agregado)
+6. **🧩 sequential-thinking** - Pensamiento paso a paso (agregado)
+7. **🔧 git-mcp** - Operaciones Git avanzadas (agregado)
+8. **⏰ time-mcp** - Manejo fechas zona Bogotá (agregado)
+9. **🌐 fetch-mcp** - Obtención contenido web (agregado)
 
-#### 🌐 **Evidencia de Funcionamiento**:
-```bash
-🔍 Ejecutando análisis MCP pre-commit...
-🎯 Iniciando routing inteligente para: 'Lee CLAUDE.md para contexto...'
-🔍 Análisis del Router Inteligente:
-  📍 Directorio: /home/evert/Documentos/appwebforestech/forestech
-  🎯 Tipo de tarea: large_context
-  🤖 Agente recomendado: gemini
-📊 Ejecutando análisis MCP post-commit...
-💡 Tip: Considera actualizar CLAUDE.md si hay cambios arquitecturales
+#### 🎯 **Configuración Técnica**:
+```json
+"mcpServers": {
+  "memory": {
+    "env": {
+      "MEMORY_FILE_PATH": "/home/evert/Documentos/appwebforestech/forestech/.mcp-memory/forestech-memory.json"
+    }
+  },
+  "time-mcp": {
+    "env": {
+      "TIMEZONE": "America/Bogota"
+    }
+  }
+}
 ```
+
+#### ✅ **Próximas Verificaciones**:
+- **Reiniciar Claude Code** para cargar configuración actualizada
+- **Ejecutar `/mcp`** para verificar 9 MCPs visibles
+- **Testear funcionalidad** memory, git, time, fetch MCPs
+- **Confirmar** eliminación exitosa de configuraciones duplicadas
+
+#### 🎯 **Resultado Esperado**:
+**CONSOLIDACIÓN MCP EXITOSA**:
+- ✅ **9 MCPs unificados** en archivo principal `.claude.json`
+- ✅ **Eliminación duplicados** - sin configuraciones conflictivas
+- ✅ **Integración nativa** con Claude Code sin scripts externos
+- ✅ **Configuración especializada** - memory path, timezone Bogotá
+
+#### 🌐 **Próximos Pasos**:
+1. **Reiniciar Claude Code** para aplicar cambios
+2. **Verificar con `/mcp`** que los 9 MCPs aparecen
+3. **Testear funcionalidades** específicas de cada MCP
+4. **Documentar** cualquier MCP que falle por dependencias
 
 ---
 
-**Julio 4, 2025**: ⚡ **ECOSISTEMA COMPLETO RESTAURADO** - MCP + GitHub Actions + Auto-fix React Hooks funcionando en perfecta armonía para desarrollo automatizado clase mundial.
+**Julio 4, 2025**: 🔧 **CONSOLIDACIÓN MCP COMPLETADA** - 9 MCPs unificados en configuración principal para máxima compatibilidad con Claude Code.
 
 ---
 
