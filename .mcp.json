@@ -61,7 +61,7 @@
       }
     },
     {
-      "server": "mcp-server-gemini-advanced",
+      "server": "mcp-server-gemini-advanced", 
       "config": {
         "model": "gemini-2.5-pro"
       }
@@ -77,6 +77,94 @@
       "config": {
         "diagnostics": true
       }
+    },
+    {
+      "server": "memory-mcp",
+      "config": {
+        "persistent": true,
+        "contextRetention": "session_based",
+        "architecture_memory": true
+      },
+      "priority": "high",
+      "description": "Sistema memoria persistente para recordar decisiones arquitecturales"
+    },
+    {
+      "server": "github-mcp-server",
+      "config": {
+        "repository": "evertweb/forestech",
+        "auto_issues": true,
+        "pr_automation": true
+      },
+      "priority": "high", 
+      "description": "Automatización gestión GitHub: issues, PRs, releases"
+    },
+    {
+      "server": "time-mcp",
+      "config": {
+        "timezone": "America/Bogota",
+        "date_format": "ISO8601"
+      },
+      "priority": "high",
+      "description": "Manejo preciso fechas/horas para liquidaciones"
+    },
+    {
+      "server": "sentry-mcp",
+      "config": {
+        "project": "forestech-production",
+        "environment": "production",
+        "auto_analysis": true
+      },
+      "priority": "medium",
+      "description": "Monitoreo errores en producción apps alimentación/combustibles"
+    },
+    {
+      "server": "sequential-thinking-mcp",
+      "config": {
+        "max_steps": 10,
+        "complex_debugging": true
+      },
+      "priority": "medium",
+      "description": "Resolución problemas complejos paso a paso"
+    },
+    {
+      "server": "git-mcp",
+      "config": {
+        "repository_path": "/home/evert/Documentos/appwebforestech/forestech",
+        "advanced_operations": true,
+        "branch_management": true
+      },
+      "priority": "medium",
+      "description": "Operaciones Git avanzadas para monorepo"
+    }
+  ],
+
+  "experimental_tools": [
+    {
+      "server": "notion-mcp",
+      "config": {
+        "workspace": "forestech",
+        "sync_claude_md": true
+      },
+      "phase": "future",
+      "description": "Sincronización documentación empresarial"
+    },
+    {
+      "server": "mongodb-mcp-server",
+      "config": {
+        "atlas_integration": true,
+        "analytics_focused": true
+      },
+      "phase": "future", 
+      "description": "Analytics avanzados complementarios a Firebase"
+    },
+    {
+      "server": "supabase-mcp",
+      "config": {
+        "reporting": true,
+        "sql_analytics": true
+      },
+      "phase": "future",
+      "description": "Reportes SQL complejos y data warehousing"
     }
   ],
 
