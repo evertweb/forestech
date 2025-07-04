@@ -99,6 +99,13 @@ La documentación completa está organizada en módulos para mejor rendimiento:
 - Multi-app Firebase hosting
 - Scripts desarrollo y deploy
 
+### 🏢 **EMPRESARIAL** ⭐ **NUEVO**
+📖 **[Ver docs/empresarial/](./docs/empresarial/README.md)**
+- Documentación empresarial completa de Forestech
+- Manuales de usuario para empleados y operadores
+- Procedimientos Operativos Estándar (SOPs)
+- Métricas de impacto y beneficios cuantificados
+
 ## Estructura Monorepo
 
 ```
@@ -205,37 +212,35 @@ git diff --stat         # Solo estadísticas de cambios
 - **ide-mcp** 🛠️ - Herramientas IDE
 - **git-mcp** 🔧 - Operaciones Git avanzadas
 - **sequential-thinking-mcp** 🧩 - Análisis paso a paso
-- **notion-mcp** 📚 - Documentación empresarial y colaboración
+- **notion-mcp** 📚 - Documentación empresarial (⚠️ requiere configuración token)
 
-### 📚 **Notion MCP - Utilidades para Forestech**
+### 📚 **Testing Notion MCP - Resultados (Julio 2025)**
 
-El MCP de Notion está configurado con token de autorización y puede ser usado para:
+**Estado**: ⚠️ Requiere configuración adicional
 
-#### 🏢 **Documentación Empresarial**
-- Manuales de procedimientos operativos forestales
-- Guías de usuario para aplicaciones (alimentación/combustibles)
-- Base de conocimiento centralizada para empleados
-- Documentación técnica con multimedia
+#### ✅ **Funcionalidades Testeadas**
+- Conexión básica al workspace establecida
+- APIs de usuario y búsqueda operativas
+- Integración MCP correctamente configurada
 
-#### 📊 **Reportes y Dashboards**
-- Reportes ejecutivos con métricas de ambas aplicaciones
-- Dashboard consolidado: liquidaciones + gestión combustibles
-- Seguimiento KPIs: eficiencia, costos, productividad
-- Análisis de tendencias operativas
+#### ❌ **Limitaciones Identificadas**
+- Token de autorización inválido o expirado
+- Permisos de integración insuficientes
+- Workspace vacío requiere página padre inicial
 
-#### 👥 **Colaboración Corporativa**
-- Comunicación inter-departamental
-- Onboarding nuevos empleados
-- Compartir mejores prácticas operativas
-- Coordinación equipos campo/oficina
+#### 💡 **Utilidades Potenciales para Forestech**
+- **Documentación Empresarial**: Manuales SOPs y procedimientos
+- **Reportes Ejecutivos**: Dashboards consolidados
+- **Colaboración**: Comunicación inter-departamental
+- **Gestión Operativa**: Calendarios y tracking proyectos
 
-#### 📋 **Gestión Operativa**
-- SOPs (Standard Operating Procedures) forestales
-- Protocolos seguridad y emergencia
-- Calendarios mantenimiento maquinaria
-- Tracking proyectos y tareas
+#### 🔧 **Pasos para Activación Completa**
+1. Regenerar token de integración válido
+2. Configurar permisos: Read, Update, Insert content
+3. Crear página inicial como contenedor principal
+4. Migrar documentación local creada a Notion
 
-**Configuración actual**: Bearer token configurado, API versión 2022-06-28
+**Alternativa implementada**: Documentación empresarial local en `/docs/empresarial/`
 
 ---
 
