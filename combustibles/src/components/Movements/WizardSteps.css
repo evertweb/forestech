@@ -50,20 +50,31 @@
 
 /* ============ WIZARD OVERLAY Y MODAL ============ */
 .wizard-overlay {
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
   z-index: 1000;
 }
 
 .wizard-modal {
-  max-width: 900px;
-  width: 95%;
-  max-height: 95vh;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-  border: 2px solid var(--wizard-primary-light);
-  border-radius: var(--wizard-border-radius);
-  box-shadow: var(--wizard-shadow-xl);
-  animation: wizardSlideIn 0.4s ease-out;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  background: #ffffff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  animation: typeformSlideIn 0.5s ease-out;
+}
+
+@keyframes typeformSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes wizardSlideIn {
@@ -77,12 +88,13 @@
   }
 }
 
-/* ============ HEADER DEL WIZARD ============ */
+/* ============ HEADER DEL WIZARD - TYPEFORM STYLE ============ */
 .wizard-header {
-  background: linear-gradient(135deg, var(--wizard-primary) 0%, var(--wizard-primary-dark) 100%);
-  color: white;
-  padding: var(--wizard-spacing-lg);
-  border-radius: var(--wizard-border-radius) var(--wizard-border-radius) 0 0;
+  background: #ffffff;
+  color: #374151;
+  padding: var(--wizard-spacing-lg) var(--wizard-spacing-xl);
+  border-radius: 20px 20px 0 0;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .wizard-title {
@@ -103,19 +115,18 @@
 }
 
 .progress-bar {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f3f4f6;
   border-radius: 50px;
-  height: 8px;
+  height: 4px;
   overflow: hidden;
   margin-bottom: var(--wizard-spacing-sm);
 }
 
 .progress-fill {
-  background: linear-gradient(90deg, var(--wizard-accent) 0%, #ffffff 100%);
+  background: var(--wizard-primary);
   height: 100%;
   border-radius: 50px;
-  transition: width 0.5s ease-out;
-  animation: progressGlow 2s ease-in-out infinite alternate;
+  transition: width 0.4s ease-out;
 }
 
 @keyframes progressGlow {
@@ -1146,6 +1157,333 @@
   justify-content: center;
   min-height: 200px;
   gap: var(--wizard-spacing-md);
+}
+
+/* ============ DISEÑO TYPEFORM - ESTILO CENTRADO Y MINIMALISTA ============ */
+
+/* Layout estilo Typeform */
+.typeform-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: var(--wizard-spacing-xl) 0;
+}
+
+.typeform-question {
+  margin-bottom: var(--wizard-spacing-xl);
+  max-width: 600px;
+  width: 100%;
+}
+
+.typeform-question h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 var(--wizard-spacing-md) 0;
+  line-height: 1.2;
+}
+
+.typeform-question p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.typeform-question .question-number {
+  display: inline-block;
+  background: var(--wizard-primary);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 24px;
+  margin-right: var(--wizard-spacing-sm);
+}
+
+/* Opciones estilo Typeform */
+.typeform-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wizard-spacing-md);
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.typeform-option {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: var(--wizard-spacing-lg);
+  cursor: pointer;
+  transition: var(--wizard-transition);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: var(--wizard-spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.typeform-option::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: transparent;
+  transition: var(--wizard-transition);
+}
+
+.typeform-option:hover {
+  border-color: var(--wizard-primary-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.typeform-option:hover::before {
+  background: var(--wizard-primary-light);
+}
+
+.typeform-option.selected {
+  border-color: var(--wizard-primary);
+  background: rgba(5, 150, 105, 0.02);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.typeform-option.selected::before {
+  background: var(--wizard-primary);
+}
+
+.typeform-option-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 50px;
+  text-align: center;
+}
+
+.typeform-option-content h4 {
+  margin: 0 0 var(--wizard-spacing-xs) 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.typeform-option-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.typeform-option-selector {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.typeform-check {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--wizard-transition);
+}
+
+.typeform-option.selected .typeform-check {
+  border-color: var(--wizard-primary);
+  background: var(--wizard-primary);
+}
+
+.typeform-check-icon {
+  color: white;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: var(--wizard-transition);
+}
+
+.typeform-option.selected .typeform-check-icon {
+  opacity: 1;
+}
+
+/* Input estilo Typeform */
+.typeform-input-section {
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.typeform-input {
+  width: 100%;
+  border: none;
+  border-bottom: 3px solid #e5e7eb;
+  background: transparent;
+  padding: var(--wizard-spacing-lg) 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+  outline: none;
+  transition: var(--wizard-transition);
+}
+
+.typeform-input:focus {
+  border-bottom-color: var(--wizard-primary);
+}
+
+.typeform-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.typeform-unit {
+  display: block;
+  margin-top: var(--wizard-spacing-sm);
+  font-size: 1rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Navegación estilo Typeform */
+.typeform-navigation {
+  position: fixed;
+  bottom: var(--wizard-spacing-xl);
+  right: var(--wizard-spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--wizard-spacing-md);
+  z-index: 100;
+}
+
+.typeform-nav-hint {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: var(--wizard-spacing-sm) var(--wizard-spacing-md);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.typeform-nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--wizard-primary);
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--wizard-transition);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.typeform-nav-btn:hover:not(:disabled) {
+  background: var(--wizard-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+}
+
+.typeform-nav-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Animaciones suaves */
+.typeform-slide-enter {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.typeform-slide-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.4s ease-out;
+}
+
+.typeform-slide-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.typeform-slide-exit-active {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: all 0.3s ease-in;
+}
+
+/* Progress minimalista */
+.typeform-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #f3f4f6;
+  z-index: 1000;
+}
+
+.typeform-progress-fill {
+  height: 100%;
+  background: var(--wizard-primary);
+  transition: width 0.4s ease-out;
+}
+
+/* Footer invisible para mantener espaciado */
+.typeform-footer-spacer {
+  height: 100px;
+}
+
+/* Adaptaciones para pasos específicos */
+.wizard-body.typeform-mode {
+  padding: 0;
+  min-height: 500px;
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.wizard-header.typeform-mode {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: var(--wizard-spacing-lg) var(--wizard-spacing-xl) 0;
+}
+
+.wizard-header.typeform-mode .wizard-title {
+  position: absolute;
+  top: var(--wizard-spacing-lg);
+  right: var(--wizard-spacing-xl);
+  margin-bottom: 0;
+}
+
+.wizard-header.typeform-mode .wizard-progress {
+  display: none; /* Usamos la barra superior fija */
+}
+
+.wizard-header.typeform-mode .step-info {
+  display: none; /* No necesitamos info adicional */
+}
+
+.wizard-footer.typeform-mode {
+  display: none; /* Usamos navegación flotante */
 }
 
 /* ============ RESPONSIVE DESIGN ============ */
