@@ -1,0 +1,59 @@
+ name: 🚀 Deploy Forestech to Firebase
+
+  on:
+    push:
+      branches: [ main ]
+    workflow_dispatch: # Permite ejecutar manualmente desde GitHub
+
+  jobs:
+    deploy:
+      name: 🔥 Build & Deploy
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔍 Lint Alimentación
+        run: npm run lint:alimentacion
+        continue-on-error: true # No falla el build por warnings
+
+      - name: 🔍 Lint Combustibles
+        run: npm run lint:combustibles
+        continue-on-error: true # No falla el build por warnings
+
+      - name: 🏗️ Build Alimentación
+        run: npm run build:alimentacion
+
+      - name: 🏗️ Build Combustibles
+        run: npm run build:combustibles
+
+      - name: 🔥 Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}
+          projectId: liquidacionapp-62962
+          channelId: live
+
+      - name: ✅ Deployment Success
+        if: success()
+        run: |
+          echo "🎉 ¡Deploy exitoso!"
+          echo "🌐 Alimentación: https://forestechdecolombia.com.co/alimentacion/"
+          echo "⛽ Combustibles: https://forestechdecolombia.com.co/combustibles/"
+
+      - name: ❌ Deployment Failed
+        if: failure()
+        run: |
+          echo "💥 Deploy falló. Revisa los logs arriba."
+          echo "🔧 Contacta a Claude para ayuda con el debugging."
