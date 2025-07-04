@@ -80,13 +80,20 @@
     },
     {
       "server": "memory-mcp",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
       "config": {
         "persistent": true,
         "contextRetention": "session_based",
         "architecture_memory": true
       },
+      "env": {
+        "MEMORY_FILE_PATH": "/home/evert/Documentos/appwebforestech/forestech/.mcp-memory/forestech-memory.json"
+      },
       "priority": "high",
-      "description": "Sistema memoria persistente para recordar decisiones arquitecturales"
+      "status": "installed",
+      "description": "Sistema memoria persistente para recordar decisiones arquitecturales",
+      "installation_notes": "Instalado via NPX, memoria almacenada en .mcp-memory/forestech-memory.json"
     },
     {
       "server": "github-mcp-server",

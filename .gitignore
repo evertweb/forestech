@@ -17,6 +17,10 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+# MCP Memory files
+.mcp-memory/
+*.mcp-memory.json
+
 # Logs
 *.log
 npm-debug.log*
