@@ -64,6 +64,7 @@
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
   animation: typeformSlideIn 0.5s ease-out;
+  position: relative; /* Añadido para el posicionamiento de los botones */
 }
 
 @keyframes typeformSlideIn {
@@ -1356,9 +1357,9 @@
 
 /* Navegación estilo Typeform */
 .typeform-navigation {
-  position: fixed;
-  bottom: var(--wizard-spacing-xl);
-  right: var(--wizard-spacing-xl);
+  position: absolute; /* Cambiado de fixed a absolute */
+  bottom: var(--wizard-spacing-lg); /* Ajustado para estar más cerca */
+  right: var(--wizard-spacing-lg); /* Ajustado para estar más cerca */
   display: flex;
   align-items: center;
   gap: var(--wizard-spacing-md);
