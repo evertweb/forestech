@@ -320,158 +320,153 @@
 /* ========== CARDS VIEW ========== */
 .inventory-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
 .inventory-card {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 16px; /* Bordes más redondeados */
   padding: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Sombra sutil por defecto */
 }
 
 .inventory-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-5px); /* Efecto de levantamiento */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .fuel-info {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .fuel-icon {
-  font-size: 1.5rem;
+  font-size: 2rem; /* Icono más grande */
+  flex-shrink: 0;
 }
 
 .fuel-details h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.25rem; /* Fuente más grande para el nombre */
   font-weight: 600;
   color: #1e293b;
 }
 
 .location {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #64748b;
+  font-weight: 500;
 }
 
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+.stock-status .status-badge {
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
 }
 
 .stock-progress {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 0.5rem;
+  color: #475569;
 }
 
 .stock-text {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
-  color: #374151;
 }
 
-.percentage {
-  font-size: 0.9rem;
+.stock-text .value {
   font-weight: 600;
   color: #1e293b;
 }
 
+.percentage {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.progress-bar {
+  height: 8px; /* Barra más gruesa */
+  background-color: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
+}
+
 .restock-warning {
-  font-size: 0.8rem;
-  color: #dc2626;
+  font-size: 0.85rem;
+  color: #ef4444;
   margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  font-weight: 500;
+  text-align: right;
 }
 
 .card-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: #f8fafc;
-  border-radius: 8px;
+  margin-top: auto; /* Empuja las métricas y acciones al fondo */
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
 }
 
 .card-metrics .metric {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
+
+.metric-label {
+  color: #64748b;
+}
+
+.metric-value {
+  font-weight: 600;
+  color: #334155;
 }
 
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
   font-size: 0.8rem;
-}
-
-.status-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.status-dot.active { background: #10b981; }
-.status-dot.inactive { background: #6b7280; }
-.status-dot.maintenance { background: #f59e0b; }
-
-.last-update {
   color: #64748b;
 }
 
 .card-actions {
   display: flex;
-  gap: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  gap: 0.75rem;
 }
 
-.card-description {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+.card-actions .btn-sm {
+  font-weight: 600;
 }
 
-.card-description p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #64748b;
-  line-height: 1.5;
-}
 
 /* ========== TABLE VIEW ========== */
 .inventory-table-container {
