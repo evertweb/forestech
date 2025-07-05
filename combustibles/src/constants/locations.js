@@ -7,8 +7,6 @@
  */
 export const OPERATIONAL_LOCATIONS = [
   'principal',
-  'campamento austria',
-  'campamento ilusion',
   'bodega austria',
   'bodega ilusion',
   'campo operativo',
