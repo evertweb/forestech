@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const Step2_FuelType = ({ formData, updateFormData, systemData, setError }) => {
+const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 

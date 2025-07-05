@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { validateStockAvailability } from '../../../utils/calculations';
 
-const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
+const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [calculating, setCalculating] = useState(false);
   const [stockInfo, setStockInfo] = useState(null);
   const [validationWarning, setValidationWarning] = useState('');

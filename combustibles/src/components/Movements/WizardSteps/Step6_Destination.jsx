@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { OPERATIONAL_LOCATIONS, STORAGE_LOCATIONS, formatLocationName } from '../../../constants/locations';
 
-const Step6_Destination = ({ formData, updateFormData, systemData, setError, isEntryDestination = false }) => {
+const Step6_Destination = ({ formData, updateFormData, systemData, setError, isEntryDestination = false, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [destinationInfo, setDestinationInfo] = useState({});
   const [validatingCapacity, setValidatingCapacity] = useState(false);

@@ -6,7 +6,7 @@
 import React from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 
-const Step1_MovementType = ({ formData, updateFormData, setError }) => {
+const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) => {
   
   const movementOptions = [
     {

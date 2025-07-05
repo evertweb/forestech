@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { OPERATIONAL_LOCATIONS, formatLocationName } from '../../../constants/locations';
 
-const Step3_Location = ({ formData, updateFormData, systemData, setError }) => {
+const Step3_Location = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [stockInfo, setStockInfo] = useState({});
   const [validatingStock, setValidatingStock] = useState(false);

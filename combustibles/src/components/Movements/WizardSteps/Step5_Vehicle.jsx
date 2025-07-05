@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 
-const Step5_Vehicle = ({ formData, updateFormData, systemData, setError }) => {
+const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showHourMeter, setShowHourMeter] = useState(false);

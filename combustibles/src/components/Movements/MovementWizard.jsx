@@ -26,6 +26,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   
   // Estado del wizard
   const [currentStep, setCurrentStep] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -65,19 +66,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   //   7: false, // Detalles
   //   8: false  // Resumen
   // });
-
-  // Configuración de pasos
-  const stepConfig = {
-    1: { title: 'Tipo de Movimiento', description: '¿Qué operación realizarás?' },
-    2: { title: 'Combustible', description: '¿Qué producto vas a mover?' },
-    3: { title: 'Origen/Proveedor', description: formData.type === MOVEMENT_TYPES.ENTRADA ? '¿De qué proveedor?' : '¿De dónde proviene?' },
-    '3b': { title: 'Ubicación Destino', description: '¿A dónde llegará?' },
-    4: { title: 'Cantidad', description: '¿Cuánto necesitas?' },
-    5: { title: 'Vehículo/Equipo', description: '¿A qué destino?' },
-    6: { title: 'Ubicación Destino', description: '¿Hacia dónde va?' },
-    7: { title: 'Detalles', description: 'Información adicional' },
-    8: { title: 'Confirmación', description: 'Revisa y confirma' }
-  };
 
   // Sincronizar datos del contexto con systemData y cargar productos
   useEffect(() => {
@@ -242,6 +230,9 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Navegar al siguiente paso
   const nextStep = () => {
+    // Iniciar transición
+    setIsTransitioning(true);
+
     const isCurrentStepValid = validateCurrentStep();
     
     // DEBUG: Log del evento de navegación
@@ -314,10 +305,15 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       console.log('❌ [DEBUG] Validación falló, no se puede navegar');
       setError('Por favor completa este paso antes de continuar');
     }
+
+    // Finalizar transición después de un breve retraso para la animación
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   // Navegar al paso anterior
   const prevStep = () => {
+    setIsTransitioning(true);
+
     if (currentStep > 1 && currentStep !== '3b') {
       let prevStepNumber = currentStep - 1;
       
@@ -339,6 +335,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     } else if (currentStep === '3b') {
       setCurrentStep(3); // Del paso 3b al paso 3
     }
+
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   // Enviar formulario final
@@ -409,31 +407,23 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       updateFormData,
       systemData,
       error,
-      setError
+      setError,
+      isActive: !isTransitioning // El paso está activo cuando no hay transición
     };
 
-    switch (currentStep) {
-      case 1:
-        return <Step1_MovementType {...commonProps} />;
-      case 2:
-        return <Step2_FuelType {...commonProps} />;
-      case 3:
-        return <Step3_Location {...commonProps} />;
-      case '3b':
-        return <Step6_Destination {...commonProps} isEntryDestination={true} />;
-      case 4:
-        return <Step4_Quantity {...commonProps} />;
-      case 5:
-        return <Step5_Vehicle {...commonProps} />;
-      case 6:
-        return <Step6_Destination {...commonProps} />;
-      case 7:
-        return <Step7_Details {...commonProps} />;
-      case 8:
-        return <Step8_Summary {...commonProps} onSubmit={handleSubmit} isLoading={isLoading} />;
-      default:
-        return <div>Paso no encontrado</div>;
-    }
+    const stepComponents = {
+      1: <Step1_MovementType {...commonProps} />,
+      2: <Step2_FuelType {...commonProps} />,
+      3: <Step3_Location {...commonProps} />,
+      '3b': <Step6_Destination {...commonProps} isEntryDestination={true} />,
+      4: <Step4_Quantity {...commonProps} />,
+      5: <Step5_Vehicle {...commonProps} />,
+      6: <Step6_Destination {...commonProps} />,
+      7: <Step7_Details {...commonProps} />,
+      8: <Step8_Summary {...commonProps} onSubmit={handleSubmit} isLoading={isLoading} />
+    };
+
+    return stepComponents[currentStep] || <div>Paso no encontrado</div>;
   };
 
   if (!isOpen) return null;

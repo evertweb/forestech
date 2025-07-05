@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const Step7_Details = ({ formData, updateFormData, systemData, error, setError }) => {
+const Step7_Details = ({ formData, updateFormData, systemData, error, setError, isActive }) => {
   const [calculating, setCalculating] = useState(false);
   const [priceValidated, setPriceValidated] = useState(false);
 
