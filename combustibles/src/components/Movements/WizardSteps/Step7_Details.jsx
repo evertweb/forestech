@@ -167,10 +167,10 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError }
           <div className="description-counter">
             {formData.description.length}/500 caracteres
           </div>
-        }
+        </div>
       </div>
     </div>
   );
-};;
+};
 
 export default Step7_Details;

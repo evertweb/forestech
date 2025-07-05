@@ -25,7 +25,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   const getMovementTypeInfo = () => {
     const types = {
       [MOVEMENT_TYPES.ENTRADA]: { icon: '📥', title: 'Entrada', color: 'entrada' },
-      [MOVEMENT_TYPES.SALIDA]: { icon: '📤', title: 'Salida', color: 'salida' },
+      [MOVEMENT_TYPES.SALIDA]: { icon: '��', title: 'Salida', color: 'salida' },
       [MOVEMENT_TYPES.TRANSFERENCIA]: { icon: '🔄', title: 'Transferencia', color: 'transferencia' },
       [MOVEMENT_TYPES.AJUSTE]: { icon: '⚖️', title: 'Ajuste', color: 'ajuste' }
     };
@@ -69,7 +69,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   };
 
   return (
-    <div className={`wizard-step step-summary ${isActive ? 'active' : ''}`}>
+    <div className={`wizard-step step-summary`}>
       <div className="typeform-layout">
         <div className="typeform-question">
           <h3>✅ Confirma tu movimiento</h3>
@@ -130,7 +130,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
                   }
                 </span>
               </div>
-            }
+            </div>
 
             {/* Vehículo (solo para salidas) */}
             {formData.type === MOVEMENT_TYPES.SALIDA && vehicle && (
@@ -176,7 +176,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
                   {new Date(formData.effectiveDate).toLocaleString('es-CO')}
                 </span>
               </div>
-            }
+            </div>
 
             {/* Referencia */}
             {formData.reference && (
@@ -200,7 +200,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
               </div>
             )}
           </div>
-        }
+        </div>
 
         {/* Flujo visual para transferencias */}
         {formData.type === MOVEMENT_TYPES.TRANSFERENCIA && (
@@ -251,7 +251,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
           <div className="comments-counter">
             {additionalComments.length}/500 caracteres
           </div>
-        }
+        </div>
 
         {/* Confirmación requerida */}
         <div className="confirmation-section">
@@ -270,7 +270,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
           <div className="confirmation-warning">
             ⚠️ Una vez creado, el movimiento actualizará automáticamente el inventario
           </div>
-        }
+        </div>
 
         {/* Error de validación */}
         {error && (
@@ -303,7 +303,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
           <small className="final-note">
             El movimiento se guardará inmediatamente y actualizará el inventario
           </small>
-        }
+        </div>
       </div>
     </div>
   );
