@@ -91,8 +91,11 @@ forestech/
 ## 📜 **HISTORIAL DE CAMBIOS RECIENTES**
 
 -   **04/07/2025**:
-    -   **fix(combustibles)**: Se corrigieron errores de compilación en los componentes `Step7_Details.jsx` y `Step8_Summary.jsx` del asistente de movimientos, que impedían el build de la aplicación.
-    -   **refactor(combustibles)**: Se solucionaron todos los errores de ESLint en el `MovementWizard` y sus pasos, eliminando variables no utilizadas y corrigiendo la falta de props.
+    -   **fix(combustibles)**: Se solucionó un error de `crypto.hash` que impedía iniciar el servidor de desarrollo local (`npm run dev`). La solución consistió en limpiar y reinstalar las dependencias (`node_modules`, `package-lock.json`) para resolver inconsistencias.
+    -   **fix(combustibles)**: Se corrigió un bug de pérdida de estado en el `MovementWizard` que causaba un error al crear movimientos. Se refactorizó la lógica de reseteo del formulario para garantizar la integridad del estado.
+    -   **feat(combustibles)**: Se mejoró la UX del `MovementWizard` ajustando la posición de los botones de navegación para que estuvieran más cerca del formulario.
+    -   **fix(combustibles)**: Se corrigieron errores de compilación en los componentes `Step7_Details.jsx` y `Step8_Summary.jsx` del asistente de movimientos.
+    -   **refactor(combustibles)**: Se solucionaron todos los errores de ESLint en el `MovementWizard` y sus pasos.
 
 ---
 
