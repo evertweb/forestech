@@ -7,9 +7,8 @@ import React, { useState } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { formatLocationName } from '../../../constants/locations';
 
-const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setError }) => {
+const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setError, onCommentsChange }) => {
   const [confirmChecked, setConfirmChecked] = useState(false);
-  const [additionalComments, setAdditionalComments] = useState('');
 
   const { vehicles, products, suppliers } = systemData;
 
@@ -25,7 +24,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   const getMovementTypeInfo = () => {
     const types = {
       [MOVEMENT_TYPES.ENTRADA]: { icon: '📥', title: 'Entrada', color: 'entrada' },
-      [MOVEMENT_TYPES.SALIDA]: { icon: '��', title: 'Salida', color: 'salida' },
+      [MOVEMENT_TYPES.SALIDA]: { icon: '📤', title: 'Salida', color: 'salida' },
       [MOVEMENT_TYPES.TRANSFERENCIA]: { icon: '🔄', title: 'Transferencia', color: 'transferencia' },
       [MOVEMENT_TYPES.AJUSTE]: { icon: '⚖️', title: 'Ajuste', color: 'ajuste' }
     };
@@ -41,7 +40,6 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   };
 
   const getSupplierInfo = () => {
-    // Para entradas usar supplierName, para otros tipos usar location
     const supplierName = formData.type === MOVEMENT_TYPES.ENTRADA ? 
       formData.supplierName : formData.location;
     return suppliers.find(s => s.name === supplierName);
@@ -53,19 +51,16 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   const vehicle = getVehicleInfo();
   const supplier = getSupplierInfo();
 
-  const handleConfirmSubmit = () => {
+  const handleComments = (e) => {
+    onCommentsChange(e.target.value);
+  };
+
+  const handleConfirmClick = () => {
     if (!confirmChecked) {
       setError('Debes confirmar que la información es correcta');
       return;
     }
-    
-    // Incluir comentarios adicionales en los datos del movimiento
-    const finalFormData = {
-      ...formData,
-      additionalComments: additionalComments.trim()
-    };
-    
-    onSubmit(finalFormData);
+    onSubmit(); // Llama a la función del padre sin argumentos
   };
 
   return (
@@ -242,14 +237,14 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
           </div>
           <textarea
             className="comments-textarea"
-            value={additionalComments}
-            onChange={(e) => setAdditionalComments(e.target.value)}
+            value={formData.additionalComments || ''}
+            onChange={handleComments}
             placeholder="Ejemplo: Combustible entregado por transporte especial, requiere almacenamiento prioritario, etc."
             rows={3}
             maxLength={500}
           />
           <div className="comments-counter">
-            {additionalComments.length}/500 caracteres
+            {(formData.additionalComments || '').length}/500 caracteres
           </div>
         </div>
 
@@ -285,7 +280,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
           <button
             type="button"
             className={`btn-final-confirm ${!confirmChecked || isLoading ? 'disabled' : ''}`}
-            onClick={handleConfirmSubmit}
+            onClick={handleConfirmClick}
             disabled={!confirmChecked || isLoading}
           >
             {isLoading ? (

@@ -350,13 +350,13 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   };
 
   // Enviar formulario final
-  const handleSubmit = async (finalData = null) => {
+  const handleSubmit = async () => { // No necesita argumentos
     setIsLoading(true);
     setError('');
 
     try {
-      // Crear una copia explícita y limpia de los datos para evitar problemas de estado
-      const dataToSubmit = { ...formData, ...(finalData || {}) };
+      // Usar directamente el estado 'formData' que ya tiene los comentarios
+      const dataToSubmit = { ...formData };
       
       // 🔍 DEBUG: Log completo antes de crear movimiento
       console.log('🔍 [SUBMIT] Datos completos antes de crear movimiento:', dataToSubmit);
@@ -391,7 +391,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       systemData,
       error,
       setError,
-      isActive: !isTransitioning // El paso está activo cuando no hay transición
+      isActive: !isTransitioning
     };
 
     const stepComponents = {
@@ -403,7 +403,12 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       5: <Step5_Vehicle {...commonProps} />,
       6: <Step6_Destination {...commonProps} />,
       7: <Step7_Details {...commonProps} />,
-      8: <Step8_Summary {...commonProps} onSubmit={handleSubmit} isLoading={isLoading} />
+      8: <Step8_Summary 
+           {...commonProps} 
+           onSubmit={handleSubmit} 
+           isLoading={isLoading}
+           onCommentsChange={(comments) => updateFormData('additionalComments', comments)}
+         />
     };
 
     return stepComponents[currentStep] || <div>Paso no encontrado</div>;
