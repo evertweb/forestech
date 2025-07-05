@@ -78,7 +78,8 @@ forestech/
 
 ## 🎯 **ESTADO ACTUAL DEL PROYECTO (Julio 2025)**
 
--   **Aplicaciones Completadas**: Alimentación y Combustibles están 100% funcionales.
+-   **Aplicaciones Funcionales**: Alimentación y Combustibles están 100% funcionales.
+-   **Calidad del Código**: Se han resuelto errores críticos de compilación y todos los problemas de ESLint en la aplicación `combustibles`, mejorando su estabilidad y mantenibilidad.
 -   **Infraestructura**: Firebase multi-app hosting, dominio operativo, CI/CD con GitHub Actions.
 -   **MCPs (Capacidades de Gemini)**:
     -   **Acceso a Archivos**: Nativo (lectura, escritura, búsqueda, listado).
@@ -86,6 +87,12 @@ forestech/
     -   **Pensamiento Secuencial**: Nativo (parte integral de mi operación).
     -   **Notion**: Puede ser invocado bajo demanda (`run_shell_command`) si se proporcionan las credenciales y el comando de inicio del servidor MCP de Notion.
     -   Otras herramientas como `google_web_search` están disponibles para ampliar mis capacidades.
+
+## 📜 **HISTORIAL DE CAMBIOS RECIENTES**
+
+-   **04/07/2025**:
+    -   **fix(combustibles)**: Se corrigieron errores de compilación en los componentes `Step7_Details.jsx` y `Step8_Summary.jsx` del asistente de movimientos, que impedían el build de la aplicación.
+    -   **refactor(combustibles)**: Se solucionaron todos los errores de ESLint en el `MovementWizard` y sus pasos, eliminando variables no utilizadas y corrigiendo la falta de props.
 
 ---
 
