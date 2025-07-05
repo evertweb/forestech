@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/LICENSE" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/README.md" beforeDir="false" />
@@ -17,6 +19,7 @@
       <change beforePath="$PROJECT_DIR$/fetch-mcp/src/index.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/src/types.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +115,7 @@
       <workItem from="1751313717244" duration="448000" />
       <workItem from="1751314202728" duration="2225000" />
       <workItem from="1751316554466" duration="29115000" />
-      <workItem from="1751631740307" duration="20764000" />
+      <workItem from="1751631740307" duration="23353000" />
     </task>
     <servers />
   </component>

@@ -355,30 +355,17 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     setError('');
 
     try {
-      // Usar datos finales si se proporcionan (incluyen comentarios), sino usar formData
-      const dataToUse = finalData || formData;
+      // Crear una copia explícita y limpia de los datos para evitar problemas de estado
+      const dataToSubmit = { ...formData, ...(finalData || {}) };
       
       // 🔍 DEBUG: Log completo antes de crear movimiento
-      console.log('🔍 [SUBMIT] Datos completos antes de crear movimiento:', dataToUse);
-      console.log('🔍 [SUBMIT] FuelType específico:', dataToUse.fuelType);
-      
-      // 🔍 DEBUG: Log específico para SALIDAS
-      if (dataToUse.type === MOVEMENT_TYPES.SALIDA) {
-        console.log('🔍 [SUBMIT SALIDA] Validando campos requeridos:', {
-          type: dataToUse.type,
-          fuelType: dataToUse.fuelType,
-          vehicleId: dataToUse.vehicleId,
-          location: dataToUse.location,
-          quantity: dataToUse.quantity,
-          unitPrice: dataToUse.unitPrice
-        });
-      }
+      console.log('🔍 [SUBMIT] Datos completos antes de crear movimiento:', dataToSubmit);
       
       const movementData = {
-        ...dataToUse,
-        quantity: parseFloat(dataToUse.quantity),
-        unitPrice: parseFloat(dataToUse.unitPrice),
-        effectiveDate: new Date(dataToUse.effectiveDate)
+        ...dataToSubmit,
+        quantity: parseFloat(dataToSubmit.quantity),
+        unitPrice: parseFloat(dataToSubmit.unitPrice),
+        effectiveDate: new Date(dataToSubmit.effectiveDate)
       };
 
       console.log('🔍 [SUBMIT] MovementData enviado a createMovement:', movementData);
