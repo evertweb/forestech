@@ -54,8 +54,8 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError }) => {
 
   if (products.length === 0) {
     return (
-      <div className="wizard-step step-fuel-type">
-        <div className="step-content">
+      <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
+        <div className="typeform-layout">
           <div className="loading-state">
             <div className="loading-spinner"></div>
             <p>🔄 Cargando productos disponibles...</p>
@@ -66,9 +66,9 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError }) => {
   }
 
   return (
-    <div className="wizard-step step-fuel-type">
-      <div className="step-content">
-        <div className="step-question">
+    <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
+      <div className="typeform-layout">
+        <div className="typeform-question">
           <h3>⛽ ¿Qué combustible vas a mover?</h3>
           <p>Selecciona el producto del inventario:</p>
         </div>
@@ -80,19 +80,19 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError }) => {
           </div>
         )}
 
-        <div className="fuel-options">
+        <div className="typeform-options">
           {products.map((product) => (
             <div
               key={product.id}
-              className={`fuel-option ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+              className={`typeform-option ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
               onClick={() => !loading && handleFuelSelection(product.name, product)}
             >
-              <div className="fuel-icon">
+              <div className="typeform-option-icon">
                 {product.icon || '🛢️'}
               </div>
-              <div className="fuel-content">
+              <div className="typeform-option-content">
                 <h4>{product.displayName || product.name}</h4>
-                <p className="fuel-description">{product.description || 'Combustible'}</p>
+                <p>{product.description || 'Combustible'}</p>
                 
                 {product.defaultPrice && (
                   <div className="fuel-price">
@@ -102,13 +102,11 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError }) => {
                     </span>
                   </div>
                 )}
-                
-                {product.category && (
-                  <small className="fuel-category">{product.category}</small>
-                )}
               </div>
-              <div className="fuel-selector">
-                {formData.fuelType === product.name && <span className="check-icon">✅</span>}
+              <div className="typeform-option-selector">
+                <div className="typeform-check">
+                  <span className="typeform-check-icon">✓</span>
+                </div>
               </div>
             </div>
           ))}

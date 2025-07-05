@@ -133,53 +133,48 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
   };
 
   return (
-    <div className="wizard-step step-quantity">
-      <div className="step-content">
-        <div className="step-question">
+    <div className={`wizard-step step-quantity ${isActive ? 'active' : ''}`}>
+      <div className="typeform-layout">
+        <div className="typeform-question">
           <h3>📊 ¿Cuántos galones necesitas?</h3>
           <p>Especifica la cantidad de combustible:</p>
         </div>
 
         {/* Input de cantidad */}
-        <div className="quantity-input-section">
-          <div className="quantity-input-wrapper">
-            <label htmlFor="quantity">Cantidad (galones)</label>
-            <div className="quantity-input-container">
-              <input
-                id="quantity"
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.quantity}
-                onChange={(e) => handleQuantityChange(e.target.value)}
-                placeholder="0.0"
-                className={`quantity-input ${validationWarning ? 'error' : ''}`}
-              />
-              <span className="quantity-unit">gal</span>
+        <div className="typeform-input-section">
+          <input
+            id="quantity"
+            type="number"
+            step="0.1"
+            min="0"
+            value={formData.quantity}
+            onChange={(e) => handleQuantityChange(e.target.value)}
+            placeholder="0.0"
+            className={`typeform-input ${validationWarning ? 'error' : ''}`}
+          />
+          <span className="typeform-unit">galones</span>
+        </div>
+
+        {/* Sugerencias rápidas de cantidad */}
+        {stockInfo && stockInfo.available > 0 && (
+          <div className="quantity-suggestions">
+            <label>Cantidades sugeridas:</label>
+            <div className="suggestion-buttons">
+              {suggestQuantities().map((suggestion, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className="suggestion-btn"
+                  onClick={() => handleQuantityChange(suggestion.value)}
+                >
+                  {suggestion.label}
+                  <br />
+                  <small>{suggestion.value} gal</small>
+                </button>
+              ))}
             </div>
           </div>
-
-          {/* Sugerencias rápidas de cantidad */}
-          {stockInfo && stockInfo.available > 0 && (
-            <div className="quantity-suggestions">
-              <label>Cantidades sugeridas:</label>
-              <div className="suggestion-buttons">
-                {suggestQuantities().map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    className="suggestion-btn"
-                    onClick={() => handleQuantityChange(suggestion.value)}
-                  >
-                    {suggestion.label}
-                    <br />
-                    <small>{suggestion.value} gal</small>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
 
         {/* Indicador de cálculo */}
         {calculating && (
@@ -189,7 +184,7 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
           </div>
         )}
 
-        {/* Cuadro de información de stock en tiempo real */}
+        {/* Cuadro de información de stock en tiempo real (simplificado) */}
         {stockInfo && isStockRequired && !calculating && (
           <div className={`stock-info-container ${stockInfo.status}`}>
             <div className="stock-info-header">
@@ -198,62 +193,6 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
               </div>
               <h4 className="stock-info-title">{stockInfo.title}</h4>
             </div>
-            
-            <div className="stock-info-details">
-              <div className="stock-detail-item">
-                <span className="stock-detail-label">Stock Disponible</span>
-                <span className="stock-detail-value">
-                  {stockInfo.available.toFixed(2)} gal
-                </span>
-              </div>
-              
-              {stockInfo.required > 0 && (
-                <>
-                  <div className="stock-detail-item">
-                    <span className="stock-detail-label">Cantidad Solicitada</span>
-                    <span className="stock-detail-value">
-                      {stockInfo.required.toFixed(2)} gal
-                    </span>
-                  </div>
-                  
-                  <div className="stock-detail-item">
-                    <span className="stock-detail-label">Stock Restante</span>
-                    <span className="stock-detail-value">
-                      {stockInfo.remaining.toFixed(2)} gal
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Barra de capacidad */}
-            {stockInfo.maxCapacity > 0 && (
-              <div className="stock-bar-container">
-                <div className="stock-bar">
-                  <div 
-                    className="stock-bar-current" 
-                    style={{ 
-                      width: `${Math.min(100, stockInfo.capacityPercentage)}%` 
-                    }}
-                  ></div>
-                  {stockInfo.required > 0 && stockInfo.isValid && (
-                    <div 
-                      className="stock-bar-after" 
-                      style={{ 
-                        width: `${Math.min(100, (stockInfo.remaining / stockInfo.maxCapacity) * 100)}%` 
-                      }}
-                    ></div>
-                  )}
-                </div>
-                <div className="stock-bar-labels">
-                  <span>Actual: {stockInfo.capacityPercentage.toFixed(1)}%</span>
-                  {stockInfo.required > 0 && stockInfo.isValid && (
-                    <span>Después: {((stockInfo.remaining / stockInfo.maxCapacity) * 100).toFixed(1)}%</span>
-                  )}
-                </div>
-              </div>
-            )}
-
             <div className="stock-info-message">
               {stockInfo.message}
             </div>
@@ -267,29 +206,20 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError }) => {
           </div>
         )}
 
-        {/* Confirmación de cantidad para entradas */}
-        {!isStockRequired && formData.quantity && parseFloat(formData.quantity) > 0 && (
+        {/* Confirmación de cantidad */}
+        {formData.quantity && parseFloat(formData.quantity) > 0 && (
           <div className="selection-confirmation">
             <div className="confirmation-card">
               <span className="confirmation-icon">📊</span>
               <div className="confirmation-text">
                 <strong>Cantidad:</strong> {parseFloat(formData.quantity).toFixed(2)} galones
                 <br />
-                <small>Se añadirá al inventario de {formData.destinationLocation || 'ubicación no especificada'}</small>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Confirmación de cantidad para salidas */}
-        {isStockRequired && formData.quantity && parseFloat(formData.quantity) > 0 && stockInfo && stockInfo.isValid && (
-          <div className="selection-confirmation">
-            <div className="confirmation-card">
-              <span className="confirmation-icon">🔥</span>
-              <div className="confirmation-text">
-                <strong>Cantidad:</strong> {parseFloat(formData.quantity).toFixed(2)} galones
-                <br />
-                <small>Se restará del inventario de {formData.location}</small>
+                <small>
+                  {isStockRequired ? 
+                    `Se restará del inventario de ${formData.location}` : 
+                    `Se añadirá al inventario de ${formData.destinationLocation || 'ubicación no especificada'}`
+                  }
+                </small>
               </div>
             </div>
           </div>

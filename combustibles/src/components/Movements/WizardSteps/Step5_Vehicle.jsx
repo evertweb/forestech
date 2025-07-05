@@ -103,8 +103,8 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError }) => {
 
   if (vehicles.length === 0) {
     return (
-      <div className="wizard-step step-vehicle">
-        <div className="step-content">
+      <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
+        <div className="typeform-layout">
           <div className="loading-state">
             <div className="loading-spinner"></div>
             <p>🔄 Cargando vehículos disponibles...</p>
@@ -115,9 +115,9 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError }) => {
   }
 
   return (
-    <div className="wizard-step step-vehicle">
-      <div className="step-content">
-        <div className="step-question">
+    <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
+      <div className="typeform-layout">
+        <div className="typeform-question">
           <h3>🚜 ¿A qué vehículo/equipo va el combustible?</h3>
           <p>Selecciona el vehículo que recibirá el combustible:</p>
         </div>
@@ -129,39 +129,34 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError }) => {
           </div>
         )}
 
-        <div className="vehicle-options">
+        <div className="typeform-options">
           {vehicles.map((vehicle) => {
             const isTractor = checkIfTractor(vehicle);
             
             return (
               <div
                 key={vehicle.id}
-                className={`vehicle-option ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} 
+                className={`typeform-option ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} 
                            ${isTractor ? 'tractor' : ''} ${loading ? 'disabled' : ''}`}
                 onClick={() => !loading && handleVehicleSelection(vehicle)}
               >
-                <div className="vehicle-icon">
+                <div className="typeform-option-icon">
                   {isTractor ? '🚜' : '🚚'}
                 </div>
-                <div className="vehicle-content">
+                <div className="typeform-option-content">
                   <h4>{vehicle.vehicleId} - {vehicle.name}</h4>
-                  <p className="vehicle-type">{vehicle.type}</p>
+                  <p>{vehicle.type}</p>
                   
                   {vehicle.currentHours && isTractor && (
                     <small className="vehicle-hours">
                       ⏱️ Horómetro: {vehicle.currentHours} hrs
                     </small>
                   )}
-                  
-                  {vehicle.status && (
-                    <span className={`vehicle-status ${vehicle.status}`}>
-                      {vehicle.status === 'active' ? '✅ Activo' : '⚠️ ' + vehicle.status}
-                    </span>
-                  )}
                 </div>
-                <div className="vehicle-selector">
-                  {isTractor && <span className="tractor-badge">TRACTOR</span>}
-                  {formData.vehicleId === vehicle.vehicleId && <span className="check-icon">✅</span>}
+                <div className="typeform-option-selector">
+                  <div className="typeform-check">
+                    <span className="typeform-check-icon">✓</span>
+                  </div>
                 </div>
               </div>
             );
@@ -170,40 +165,31 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError }) => {
 
         {/* Campo de horómetro para tractores */}
         {showHourMeter && selectedVehicle && (
-          <div className="hour-meter-section">
-            <div className="hour-meter-header">
-              <h4>⏱️ Lectura del Horómetro</h4>
-              <p>Los tractores requieren registro de horómetro:</p>
-            </div>
+          <div className="typeform-input-section">
+            <label htmlFor="currentHours">Horas actuales *</label>
+            <input
+              id="currentHours"
+              type="number"
+              step="0.1"
+              min="0"
+              value={formData.currentHours}
+              onChange={(e) => handleHourMeterChange(e.target.value)}
+              placeholder="0.0"
+              className={`typeform-input ${localError ? 'error' : ''}`}
+            />
+            <span className="typeform-unit">horas</span>
             
-            <div className="hour-meter-input-wrapper">
-              <label htmlFor="currentHours">Horas actuales *</label>
-              <div className="hour-meter-input-container">
-                <input
-                  id="currentHours"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  value={formData.currentHours}
-                  onChange={(e) => handleHourMeterChange(e.target.value)}
-                  placeholder="0.0"
-                  className={`hour-meter-input ${localError ? 'error' : ''}`}
-                />
-                <span className="hour-meter-unit">hrs</span>
+            {selectedVehicle.currentHours && (
+              <small className="hour-meter-hint">
+                💡 Última lectura: {selectedVehicle.currentHours} horas
+              </small>
+            )}
+            
+            {localError && (
+              <div className="field-error">
+                {localError}
               </div>
-              
-              {selectedVehicle.currentHours && (
-                <small className="hour-meter-hint">
-                  💡 Última lectura: {selectedVehicle.currentHours} horas
-                </small>
-              )}
-              
-              {localError && (
-                <div className="field-error">
-                  {localError}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         )}
 

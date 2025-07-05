@@ -67,53 +67,44 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError }
   };
 
   return (
-    <div className="wizard-step step-details">
-      <div className="step-content">
-        <div className="step-question">
+    <div className={`wizard-step step-details ${isActive ? 'active' : ''}`}>
+      <div className="typeform-layout">
+        <div className="typeform-question">
           <h3>📋 Información adicional del movimiento</h3>
           <p>Completa los detalles restantes:</p>
         </div>
 
         {/* Precio unitario */}
-        <div className="detail-section">
-          <div className="detail-header">
-            <h4>💰 Precio Unitario</h4>
-          </div>
+        <div className="typeform-input-section">
+          <label htmlFor="unitPrice">💰 Precio por galón (COP) *</label>
+          <input
+            id="unitPrice"
+            type="number"
+            step="1"
+            min="0"
+            value={formData.unitPrice}
+            onChange={(e) => handlePriceChange(e.target.value)}
+            placeholder="0"
+            className={`typeform-input ${error ? 'error' : ''}`}
+          />
+          <span className="typeform-unit">COP</span>
           
-          <div className="price-input-wrapper">
-            <label htmlFor="unitPrice">Precio por galón (COP) *</label>
-            <div className="price-input-container">
-              <span className="currency-symbol">$</span>
-              <input
-                id="unitPrice"
-                type="number"
-                step="1"
-                min="0"
-                value={formData.unitPrice}
-                onChange={(e) => handlePriceChange(e.target.value)}
-                placeholder="0"
-                className={`price-input ${error ? 'error' : ''}`}
-              />
-              <span className="currency-unit">COP</span>
+          {calculating && (
+            <div className="calculating-price">
+              <div className="loading-spinner small"></div>
+              <span>💰 Validando precio...</span>
             </div>
-            
-            {calculating && (
-              <div className="calculating-price">
-                <div className="loading-spinner small"></div>
-                <span>💰 Validando precio...</span>
-              </div>
-            )}
-            
-            {getCurrentProduct()?.defaultPrice && (
-              <small className="price-suggestion">
-                💡 Precio sugerido: ${getCurrentProduct().defaultPrice.toLocaleString('es-CO')} COP
-              </small>
-            )}
-          </div>
+          )}
+          
+          {getCurrentProduct()?.defaultPrice && (
+            <small className="price-suggestion">
+              💡 Precio sugerido: ${getCurrentProduct().defaultPrice.toLocaleString('es-CO')} COP
+            </small>
+          )}
         </div>
 
         {/* Valor total calculado */}
-        {formData.quantity && formData.unitPrice && priceValidated && (
+        {formData.quantity && formData.unitPrice && priceValidated && ( // Solo mostrar si hay cantidad y precio
           <div className="total-value-section">
             <div className="total-value-card">
               <div className="total-icon">📊</div>
@@ -133,126 +124,53 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError }
         )}
 
         {/* Fecha efectiva */}
-        <div className="detail-section">
-          <div className="detail-header">
-            <h4>📅 Fecha y Hora Efectiva</h4>
-          </div>
-          
-          <div className="date-input-wrapper">
-            <label htmlFor="effectiveDate">¿Cuándo ocurrió este movimiento?</label>
-            <input
-              id="effectiveDate"
-              type="datetime-local"
-              value={formData.effectiveDate}
-              onChange={(e) => handleDateChange(e.target.value)}
-              className="date-input"
-            />
-            <small className="date-hint">
-              💡 Por defecto se usa la fecha y hora actual
-            </small>
-          </div>
+        <div className="typeform-input-section">
+          <label htmlFor="effectiveDate">📅 ¿Cuándo ocurrió este movimiento?</label>
+          <input
+            id="effectiveDate"
+            type="datetime-local"
+            value={formData.effectiveDate}
+            onChange={(e) => handleDateChange(e.target.value)}
+            className="typeform-input"
+          />
+          <small className="typeform-unit">
+            💡 Por defecto se usa la fecha y hora actual
+          </small>
         </div>
 
         {/* Referencia */}
-        <div className="detail-section">
-          <div className="detail-header">
-            <h4>📄 Referencia</h4>
-          </div>
-          
-          <div className="reference-input-wrapper">
-            <label htmlFor="reference">Número de factura, orden o referencia (opcional)</label>
-            <input
-              id="reference"
-              type="text"
-              value={formData.reference}
-              onChange={(e) => handleReferenceChange(e.target.value)}
-              placeholder="Ej: Factura #12345, Orden #ORD-001"
-              className="reference-input"
-              maxLength="100"
-            />
-            <small className="reference-hint">
-              📝 Ayuda a identificar el movimiento en reportes
-            </small>
-          </div>
+        <div className="typeform-input-section">
+          <label htmlFor="reference">📄 Número de factura, orden o referencia (opcional)</label>
+          <input
+            id="reference"
+            type="text"
+            value={formData.reference}
+            onChange={(e) => handleReferenceChange(e.target.value)}
+            placeholder="Ej: Factura #12345, Orden #ORD-001"
+            className="typeform-input"
+            maxLength="100"
+          />
         </div>
 
         {/* Descripción */}
-        <div className="detail-section">
-          <div className="detail-header">
-            <h4>📝 Descripción</h4>
+        <div className="typeform-input-section">
+          <label htmlFor="description">📝 Detalles adicionales del movimiento (opcional)</label>
+          <textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            placeholder="Ej: Combustible para operación en sector norte, mantenimiento programado, etc."
+            className="typeform-input"
+            rows="3"
+            maxLength="500"
+          />
+          <div className="description-counter">
+            {formData.description.length}/500 caracteres
           </div>
-          
-          <div className="description-input-wrapper">
-            <label htmlFor="description">Detalles adicionales del movimiento (opcional)</label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleDescriptionChange(e.target.value)}
-              placeholder="Ej: Combustible para operación en sector norte, mantenimiento programado, etc."
-              className="description-input"
-              rows="3"
-              maxLength="500"
-            />
-            <div className="description-counter">
-              {formData.description.length}/500 caracteres
-            </div>
-          </div>
-        </div>
-
-        {/* Resumen rápido de detalles */}
-        {priceValidated && (
-          <div className="details-summary">
-            <div className="summary-card">
-              <h4>📋 Resumen de Detalles</h4>
-              <div className="summary-items">
-                <div className="summary-item">
-                  <span className="summary-label">💰 Precio unitario:</span>
-                  <span className="summary-value">
-                    ${parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP/gal
-                  </span>
-                </div>
-                
-                {totalValue > 0 && (
-                  <div className="summary-item">
-                    <span className="summary-label">📊 Valor total:</span>
-                    <span className="summary-value total">
-                      {formatCurrency(totalValue)}
-                    </span>
-                  </div>
-                )}
-                
-                <div className="summary-item">
-                  <span className="summary-label">📅 Fecha:</span>
-                  <span className="summary-value">
-                    {new Date(formData.effectiveDate).toLocaleString('es-CO')}
-                  </span>
-                </div>
-                
-                {formData.reference && (
-                  <div className="summary-item">
-                    <span className="summary-label">📄 Referencia:</span>
-                    <span className="summary-value">{formData.reference}</span>
-                  </div>
-                )}
-                
-                {formData.description && (
-                  <div className="summary-item">
-                    <span className="summary-label">📝 Descripción:</span>
-                    <span className="summary-value description">
-                      {formData.description.length > 50 ? 
-                        formData.description.substring(0, 50) + '...' : 
-                        formData.description
-                      }
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        }
       </div>
     </div>
   );
-};
+};;
 
 export default Step7_Details;

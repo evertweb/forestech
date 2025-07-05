@@ -49,30 +49,31 @@ const Step1_MovementType = ({ formData, updateFormData, setError }) => {
   };
 
   return (
-    <div className="wizard-step step-movement-type">
-      <div className="step-content">
-        <div className="step-question">
+    <div className={`wizard-step step-movement-type ${isActive ? 'active' : ''}`}>
+      <div className="typeform-layout">
+        <div className="typeform-question">
           <h3>🍀 ¿Qué tipo de operación realizarás?</h3>
           <p>Selecciona el tipo de movimiento que necesitas registrar:</p>
         </div>
 
-        <div className="movement-options">
+        <div className="typeform-options">
           {movementOptions.map((option) => (
             <div
               key={option.type}
-              className={`movement-option ${formData.type === option.type ? 'selected' : ''} ${option.color}`}
+              className={`typeform-option ${formData.type === option.type ? 'selected' : ''} ${option.color}`}
               onClick={() => handleSelection(option.type)}
             >
-              <div className="option-icon">
+              <div className="typeform-option-icon">
                 {option.icon}
               </div>
-              <div className="option-content">
+              <div className="typeform-option-content">
                 <h4>{option.title}</h4>
-                <p className="option-description">{option.description}</p>
-                <small className="option-details">{option.details}</small>
+                <p>{option.description}</p>
               </div>
-              <div className="option-selector">
-                {formData.type === option.type && <span className="check-icon">✅</span>}
+              <div className="typeform-option-selector">
+                <div className="typeform-check">
+                  <span className="typeform-check-icon">✓</span>
+                </div>
               </div>
             </div>
           ))}

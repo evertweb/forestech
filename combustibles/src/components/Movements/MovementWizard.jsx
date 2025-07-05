@@ -474,43 +474,34 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="modal-overlay wizard-overlay" onClick={onClose}>
-      <div className="modal-content wizard-modal" onClick={e => e.stopPropagation()}>
-        {/* Header con progreso */}
-        <div className="wizard-header">
+      <div className="modal-content wizard-modal typeform-mode" onClick={e => e.stopPropagation()}>
+        {/* Barra de progreso superior estilo Typeform */}
+        <div className="typeform-progress">
+          <div 
+            className="typeform-progress-fill" 
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        {/* Header con título y botón de cerrar */}
+        <div className="wizard-header typeform-mode">
           <div className="wizard-title">
             <h3>🧙‍♂️ Asistente de Movimientos</h3>
             <button className="modal-close" onClick={onClose}>✕</button>
           </div>
-          
-          {/* Barra de progreso */}
-          <div className="wizard-progress">
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            <div className="progress-text">
-              Paso {currentLogicalStep} de {totalSteps}
-            </div>
-          </div>
-
-          {/* Información del paso actual */}
-          <div className="step-info">
-            <h4>{stepConfig[currentStep]?.title}</h4>
-            <p>{stepConfig[currentStep]?.description}</p>
-          </div>
         </div>
 
         {/* Contenido del paso */}
-        <div className="wizard-body">
+        <div className="wizard-body typeform-mode">
           {systemData.loadingData ? (
             <div className="wizard-loading">
               <div className="loading-spinner"></div>
               <p>🔄 Cargando datos del sistema...</p>
             </div>
           ) : (
-            renderCurrentStep()
+            <div className="wizard-step-container">
+              {renderCurrentStep()}
+            </div>
           )}
         </div>
 
@@ -522,42 +513,42 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           </div>
         )}
 
-        {/* Navegación */}
-        <div className="wizard-footer">
-          <div className="wizard-navigation">
+        {/* Navegación flotante estilo Typeform */}
+        <div className="typeform-navigation">
+          {currentStep > 1 && (
             <button 
-              className="btn-wizard btn-previous"
+              className="typeform-nav-btn"
               onClick={prevStep}
-              disabled={currentStep === 1}
+              disabled={isTransitioning}
+              aria-label="Paso anterior"
             >
-              ← Anterior
+              ←
             </button>
+          )}
 
-            {currentLogicalStep < totalSteps ? (
-              <button 
-                className="btn-wizard btn-next"
-                onClick={nextStep}
-                disabled={!isCurrentStepValid}
-              >
-                Siguiente →
-              </button>
-            ) : (
-              <button 
-                className="btn-wizard btn-finish"
-                onClick={handleSubmit}
-                disabled={isLoading || !isCurrentStepValid}
-              >
-                {isLoading ? (
-                  <>
-                    <span className="loading-spinner small"></span>
-                    Creando...
-                  </>
-                ) : (
-                  '✅ Confirmar Movimiento'
-                )}
-              </button>
-            )}
-          </div>
+          {currentLogicalStep < totalSteps ? (
+            <button 
+              className="typeform-nav-btn"
+              onClick={nextStep}
+              disabled={!isCurrentStepValid || isTransitioning}
+              aria-label="Siguiente paso"
+            >
+              →
+            </button>
+          ) : (
+            <button 
+              className="typeform-nav-btn"
+              onClick={handleSubmit}
+              disabled={isLoading || !isCurrentStepValid || isTransitioning}
+              aria-label="Confirmar movimiento"
+            >
+              {isLoading ? (
+                <span className="loading-spinner small"></span>
+              ) : (
+                '✓'
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -129,9 +129,9 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError, isE
     OPERATIONAL_LOCATIONS.filter(loc => loc !== formData.location); // Para transferencias, excluir origen
 
   return (
-    <div className="wizard-step step-destination">
-      <div className="step-content">
-        <div className="step-question">
+    <div className={`wizard-step step-destination ${isActive ? 'active' : ''}`}>
+      <div className="typeform-layout">
+        <div className="typeform-question">
           <h3>🎯 {isEntryDestination ? '¿A qué ubicación llegará el combustible?' : '¿Hacia qué ubicación se transfiere?'}</h3>
           <p>Selecciona la ubicación de destino:</p>
         </div>
@@ -143,7 +143,7 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError, isE
           </div>
         )}
 
-        <div className="destination-options">
+        <div className="typeform-options">
           {availableDestinations.map((location) => {
             const destInfo = destinationInfo[location];
             const isSelectable = !destInfo || destInfo.canAcceptTransfer;
@@ -151,12 +151,12 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError, isE
             return (
               <div
                 key={location}
-                className={`destination-option ${formData.destinationLocation === location ? 'selected' : ''} 
+                className={`typeform-option ${formData.destinationLocation === location ? 'selected' : ''} 
                            ${destInfo?.status || 'unknown'} ${!isSelectable || loading ? 'disabled' : ''}`}
                 onClick={() => isSelectable && !loading && handleDestinationSelection(location)}
               >
-                <div className="destination-icon">🎯</div>
-                <div className="destination-content">
+                <div className="typeform-option-icon">🎯</div>
+                <div className="typeform-option-content">
                   <h4>{formatLocationName(location)}</h4>
                   
                   {destInfo && (
@@ -187,18 +187,11 @@ const Step6_Destination = ({ formData, updateFormData, systemData, setError, isE
                       )}
                     </div>
                   )}
-                  
-                  {validatingCapacity && (
-                    <small className="validating-text">🔄 Verificando capacidad...</small>
-                  )}
                 </div>
-                
-                <div className="destination-selector">
-                  {destInfo?.status === 'insufficient' && <span className="warning-icon">🚫</span>}
-                  {destInfo?.status === 'no_capacity' && <span className="warning-icon">❌</span>}
-                  {destInfo?.status === 'warning' && <span className="warning-icon">⚠️</span>}
-                  {destInfo?.status === 'available' && <span className="success-icon">✅</span>}
-                  {formData.destinationLocation === location && <span className="check-icon">✅</span>}
+                <div className="typeform-option-selector">
+                  <div className="typeform-check">
+                    <span className="typeform-check-icon">✓</span>
+                  </div>
                 </div>
               </div>
             );
