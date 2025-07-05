@@ -138,20 +138,6 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
           </small>
         </div>
 
-        {/* Referencia */}
-        <div className="typeform-input-section">
-          <label htmlFor="reference">📄 Número de factura, orden o referencia (opcional)</label>
-          <input
-            id="reference"
-            type="text"
-            value={formData.reference}
-            onChange={(e) => handleReferenceChange(e.target.value)}
-            placeholder="Ej: Factura #12345, Orden #ORD-001"
-            className="typeform-input"
-            maxLength="100"
-          />
-        </div>
-
         {/* Descripción */}
         <div className="typeform-input-section">
           <label htmlFor="description">📝 Detalles adicionales del movimiento (opcional)</label>

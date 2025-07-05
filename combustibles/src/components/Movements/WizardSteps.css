@@ -1357,14 +1357,23 @@
 
 /* Navegación estilo Typeform */
 .typeform-navigation {
-  position: absolute; /* Cambiado de fixed a absolute */
-  bottom: var(--wizard-spacing-lg); /* Ajustado para estar más cerca */
-  right: var(--wizard-spacing-lg); /* Ajustado para estar más cerca */
+  position: absolute;
+  bottom: var(--wizard-spacing-lg);
+  right: var(--wizard-spacing-lg);
   display: flex;
   align-items: center;
   gap: var(--wizard-spacing-md);
   z-index: 100;
+  transition: all 0.3s ease-in-out;
 }
+
+/* Cuando es el último paso, mover el botón al centro inferior */
+.is-last-step .typeform-navigation {
+  bottom: var(--wizard-spacing-xl);
+  right: 50%;
+  transform: translateX(50%);
+}
+
 
 .typeform-nav-hint {
   background: rgba(0, 0, 0, 0.8);

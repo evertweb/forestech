@@ -7,8 +7,7 @@ import React, { useState } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { formatLocationName } from '../../../constants/locations';
 
-const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setError, onCommentsChange }) => {
-  const [confirmChecked, setConfirmChecked] = useState(false);
+const Step8_Summary = ({ formData, systemData, isLoading, error, onCommentsChange, confirmChecked, onConfirmChange }) => {
 
   const { vehicles, products, suppliers } = systemData;
 
@@ -54,15 +53,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
   const handleComments = (e) => {
     onCommentsChange(e.target.value);
   };
-
-  const handleConfirmClick = () => {
-    if (!confirmChecked) {
-      setError('Debes confirmar que la información es correcta');
-      return;
-    }
-    onSubmit(); // Llama a la función del padre sin argumentos
-  };
-
+  
   return (
     <div className={`wizard-step step-summary`}>
       <div className="typeform-layout">
@@ -255,7 +246,7 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
               type="checkbox"
               id="confirmMovement"
               checked={confirmChecked}
-              onChange={(e) => setConfirmChecked(e.target.checked)}
+              onChange={(e) => onConfirmChange(e.target.checked)}
             />
             <label htmlFor="confirmMovement">
               ✅ Confirmo que toda la información es correcta y autorizo crear este movimiento
@@ -275,30 +266,8 @@ const Step8_Summary = ({ formData, systemData, onSubmit, isLoading, error, setEr
           </div>
         )}
 
-        {/* Botón de confirmación final */}
-        <div className="final-actions">
-          <button
-            type="button"
-            className={`btn-final-confirm ${!confirmChecked || isLoading ? 'disabled' : ''}`}
-            onClick={handleConfirmClick}
-            disabled={!confirmChecked || isLoading}
-          >
-            {isLoading ? (
-              <>
-                <div className="loading-spinner small"></div>
-                💾 Creando movimiento...
-              </>
-            ) : (
-              <>
-                🚀 Crear Movimiento
-              </>
-            )}
-          </button>
-          
-          <small className="final-note">
-            El movimiento se guardará inmediatamente y actualizará el inventario
-          </small>
-        </div>
+        {/* Botón de confirmación final ha sido removido */}
+        
       </div>
     </div>
   );

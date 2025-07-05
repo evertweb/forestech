@@ -29,6 +29,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmChecked, setConfirmChecked] = useState(false); // Estado para el checkbox de confirmación
   
   // Datos del formulario
   const [formData, setFormData] = useState({
@@ -59,6 +60,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const resetWizard = () => {
     setCurrentStep(1);
     setError('');
+    setConfirmChecked(false); // Resetear el checkbox
     setFormData({
       type: '',
       fuelType: '',
@@ -408,6 +410,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
            onSubmit={handleSubmit} 
            isLoading={isLoading}
            onCommentsChange={(comments) => updateFormData('additionalComments', comments)}
+           confirmChecked={confirmChecked}
+           onConfirmChange={setConfirmChecked}
          />
     };
 
@@ -437,6 +441,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   };
   const currentLogicalStep = getLogicalStepNumber(currentStep);
   const progress = (currentLogicalStep / totalSteps) * 100;
+  const isLastStep = currentLogicalStep >= totalSteps;
 
   // 🔍 DEBUG: Logs temporales para navegación
   console.log('🔍 [WIZARD DEBUG]', {
@@ -445,14 +450,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     currentLogicalStep,
     totalSteps,
     progress,
-    isLastStep: currentStep >= totalSteps,
+    isLastStep: isLastStep,
     formDataKeys: Object.keys(formData).filter(k => formData[k]),
     fuelType: formData.fuelType
   });
 
   return (
     <div className="modal-overlay wizard-overlay" onClick={onClose}>
-      <div className="modal-content wizard-modal typeform-mode" onClick={e => e.stopPropagation()}>
+      <div className={`modal-content wizard-modal typeform-mode ${isLastStep ? 'is-last-step' : ''}`} onClick={e => e.stopPropagation()}>
         {/* Barra de progreso superior estilo Typeform */}
         <div className="typeform-progress">
           <div 
@@ -504,7 +509,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
             </button>
           )}
 
-          {currentLogicalStep < totalSteps ? (
+          {!isLastStep ? (
             <button 
               className="typeform-nav-btn"
               onClick={nextStep}
@@ -517,7 +522,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
             <button 
               className="typeform-nav-btn"
               onClick={handleSubmit}
-              disabled={isLoading || !isCurrentStepValid || isTransitioning}
+              disabled={isLoading || !confirmChecked || isTransitioning}
               aria-label="Confirmar movimiento"
             >
               {isLoading ? (
