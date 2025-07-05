@@ -55,36 +55,45 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     loadingData: true
   });
 
-  // Estados de validación por paso (comentadas por ahora)
-  // const [stepValidations, setStepValidations] = useState({
-  //   1: false, // Tipo de movimiento
-  //   2: false, // Combustible  
-  //   3: false, // Ubicación origen
-  //   4: false, // Cantidad
-  //   5: false, // Vehículo (condicional)
-  //   6: false, // Destino (condicional)
-  //   7: false, // Detalles
-  //   8: false  // Resumen
-  // });
+  // Función para resetear el estado del wizard
+  const resetWizard = () => {
+    setCurrentStep(1);
+    setError('');
+    setFormData({
+      type: '',
+      fuelType: '',
+      quantity: '',
+      unitPrice: '',
+      location: '',
+      supplierName: '',
+      vehicleId: '',
+      destinationLocation: '',
+      description: '',
+      reference: '',
+      effectiveDate: new Date().toISOString().slice(0, 16),
+      currentHours: ''
+    });
+  };
 
-  // Sincronizar datos del contexto con systemData y cargar productos
+  // Cargar datos del sistema y resetear el wizard cuando se abre
   useEffect(() => {
     const loadSystemData = async () => {
       if (isOpen) {
         document.body.style.overflow = 'hidden';
+        
+        // Resetear estado antes de cargar nuevos datos
+        resetWizard();
+        
         setSystemData(prev => ({ ...prev, loadingData: true }));
         
         try {
           console.log('🔄 Cargando productos y sincronizando datos en tiempo real...');
-          
-          // Solo cargar productos independientemente - inventory, vehicles, suppliers vienen del contexto
           const productsData = await getActiveProducts();
           
-          // Usar datos del contexto (que están en tiempo real) + productos cargados
           setSystemData({
             vehicles: vehicles || [],
-            inventory: inventory || [], // ✅ Datos en tiempo real del contexto
-            suppliers: suppliers || [], // ✅ Datos en tiempo real del contexto
+            inventory: inventory || [],
+            suppliers: suppliers || [],
             products: productsData || [],
             loadingData: false
           });
@@ -92,6 +101,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           console.log('✅ Datos sincronizados para wizard - inventario en tiempo real:', inventory?.length || 0, 'items');
         } catch (error) {
           console.error('❌ Error al cargar datos del sistema:', error);
+          setError('No se pudieron cargar los datos necesarios. Inténtalo de nuevo.');
           setSystemData(prev => ({ ...prev, loadingData: false }));
         }
       } else {
@@ -104,7 +114,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, inventory, vehicles, suppliers]); // ✅ Reaccionar a cambios del contexto
+  }, [isOpen, inventory, vehicles, suppliers]);
 
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {
@@ -373,24 +383,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
       console.log('🔍 [SUBMIT] MovementData enviado a createMovement:', movementData);
       await createMovement(movementData);
-      onSuccess();
       
-      // Reset wizard
-      setCurrentStep(1);
-      setFormData({
-        type: '',
-        fuelType: '',
-        quantity: '',
-        unitPrice: '',
-        location: '',
-        supplierName: '',
-        vehicleId: '',
-        destinationLocation: '',
-        description: '',
-        reference: '',
-        effectiveDate: new Date().toISOString().slice(0, 16),
-        currentHours: ''
-      });
+      // Notificar éxito y resetear para el próximo uso
+      onSuccess();
+      resetWizard();
       
     } catch (error) {
       console.error('Error al crear movimiento:', error);
