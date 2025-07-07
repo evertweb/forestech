@@ -10,18 +10,8 @@ import MaintenanceMain from '../Maintenance/MaintenanceMain';
 import ProductsMain from '../Products/ProductsMain';
 import SuppliersMain from '../Suppliers/SuppliersMain';
 import AdminMain from '../Admin/AdminMain';
+import ReportsMain from '../Reports/ReportsMain';
 import './Dashboard.css';
-
-const ReportsModule = () => (
-  <div className="module-placeholder">
-    <h2>📋 Módulo de Reportes</h2>
-    <p>Análisis y reportes de combustibles</p>
-    <div className="coming-soon">
-      <span>🚧 En desarrollo</span>
-      <p>Próximamente: Reportes personalizables, gráficos interactivos, y exportación.</p>
-    </div>
-  </div>
-);
 
 const Dashboard = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -43,7 +33,7 @@ const Dashboard = () => {
       case 'suppliers':
         return <SuppliersMain />;
       case 'reports':
-        return <ReportsModule />;
+        return <ReportsMain />;
       case 'admin':
         return <AdminMain />;
       default:

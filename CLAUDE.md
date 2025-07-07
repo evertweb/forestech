@@ -84,6 +84,12 @@ La documentación completa está organizada en módulos para mejor rendimiento:
 📖 **[Ver docs/combustibles/](./docs/combustibles/README.md)**
 - **SISTEMA 100% COMPLETADO** 
 - ✅ Inventario, Movimientos, Vehículos, Productos, Proveedores, Mantenimiento, Auth/Admin
+- ✅ **MÓDULO REPORTES COMPLETO** ⭐ **NUEVO**
+  - Dashboard ejecutivo con KPIs en tiempo real
+  - Reportes de inventario y alertas de stock
+  - Análisis de vehículos y consumo por horómetro
+  - Reportes financieros y proyecciones
+  - Exportación CSV/JSON y filtros avanzados
 - ✅ Sistema completo operativo y desplegado
 - URL: https://forestechdecolombia.com.co/combustibles/
 
@@ -126,14 +132,33 @@ forestech/                      # Monorepo principal
 npm run dev:alimentacion    # Puerto 5173
 npm run dev:combustibles    # Puerto 5174
 
-# Build
-npm run build:all           # Build ambas apps
-npm run deploy              # Deploy Firebase
-
-# Linting
+# Linting (REQUERIDO antes de commit)
 npm run lint:alimentacion
 npm run lint:combustibles
+
+# ❌ YA NO NECESARIO - GitHub Actions hace automáticamente:
+# npm run build:all          # ❌ GitHub Actions
+# npm run deploy             # ❌ GitHub Actions
 ```
+
+### 🚀 **DEPLOY AUTOMÁTICO CON GITHUB ACTIONS**
+
+**✅ FLUJO CORRECTO:** Solo commit + push
+```bash
+git add .
+git commit -m "descripción cambios"
+git push origin main
+```
+
+**🤖 GitHub Actions ejecuta automáticamente:**
+1. ✅ Install dependencies (monorepo completo)
+2. ✅ Auto-fix React Hooks warnings  
+3. ✅ Lint alimentacion + combustibles
+4. ✅ Build alimentacion + combustibles
+5. ✅ Firebase deploy automático
+6. ✅ Apps live en producción
+
+**⚠️ IMPORTANTE:** Solo ejecutar `npm run lint:*` localmente antes de commit
 
 ## URLs Activas
 
@@ -196,7 +221,7 @@ git diff --stat         # Solo estadísticas de cambios
 
 ### ✅ **Aplicaciones Completadas**
 - **🍽️ Alimentación**: Sistema de liquidaciones 100% funcional
-- **⛽ Combustibles**: Sistema de gestión de stock 100% funcional
+- **⛽ Combustibles**: Sistema completo 100% funcional + **MÓDULO REPORTES** ⭐
 
 ### 🔧 **Infraestructura**
 - **Firebase**: Multi-app hosting configurado
@@ -246,4 +271,4 @@ git diff --stat         # Solo estadísticas de cambios
 
 **📌 IMPORTANTE**: Esta documentación se mantiene actualizada. Cualquier cambio en el proyecto debe reflejarse aquí para mantener continuidad entre sesiones de Claude Code.
 
-**Última actualización**: Julio 2025 - Ambas aplicaciones 100% operativas en producción.
+**Última actualización**: Enero 2025 - Módulo de Reportes completado. Sistema de combustibles 100% funcional con análisis avanzado y horómetro automático para vehículos diesel.
