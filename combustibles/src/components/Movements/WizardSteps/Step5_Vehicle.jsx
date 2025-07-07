@@ -20,15 +20,19 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
       const vehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
       setSelectedVehicle(vehicle);
       
-      // Verificar si es tractor para mostrar horómetro
-      const isTractor = checkIfTractor(vehicle);
-      setShowHourMeter(isTractor);
+      // Verificar si requiere horómetro para mostrar campo
+      const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
+      setShowHourMeter(requiresHourMeter);
     }
   }, [formData.vehicleId, vehicles]);
 
-  const checkIfTractor = (vehicle) => {
+  const checkIfRequiresHourMeter = (vehicle) => {
     if (!vehicle) return false;
     
+    // Todos los vehículos diesel requieren horómetro en movimientos de salida
+    const isDieselVehicle = vehicle.fuelType === 'diesel' || vehicle.fuelType === 'Diesel';
+    
+    // Mantener compatibilidad con lógica anterior de tractores específicos
     const vehicleId = vehicle.vehicleId?.toUpperCase();
     const isTractorById = vehicleId && (
       vehicleId.includes('TR1') || 
@@ -42,7 +46,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
     const isTractorByCategory = vehicle.category === 'tractor' || 
                                vehicle.type?.toLowerCase().includes('tractor');
     
-    return isTractorById || isTractorByCategory;
+    return isDieselVehicle || isTractorById || isTractorByCategory;
   };
 
   const handleVehicleSelection = async (vehicle) => {
@@ -56,16 +60,16 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
       updateFormData('vehicleId', vehicle.vehicleId);
       setSelectedVehicle(vehicle);
       
-      const isTractor = checkIfTractor(vehicle);
-      setShowHourMeter(isTractor);
+      const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
+      setShowHourMeter(requiresHourMeter);
       
-      // Limpiar horómetro si no es tractor
-      if (!isTractor && formData.currentHours) {
+      // Limpiar horómetro si no requiere horómetro
+      if (!requiresHourMeter && formData.currentHours) {
         updateFormData('currentHours', '');
       }
       
       // 🔍 DEBUG: Logs específicos para Step5
-      console.log('🚜 [Step5] Vehículo seleccionado:', vehicle.vehicleId, 'Es tractor:', isTractor);
+      console.log('⛽ [Step5] Vehículo seleccionado:', vehicle.vehicleId, 'Requiere horómetro:', requiresHourMeter, 'Tipo combustible:', vehicle.fuelType);
       console.log('🔍 [Step5] FormData después de selección:', { 
         vehicleId: vehicle.vehicleId, 
         type: formData.type,
@@ -131,25 +135,30 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
         <div className="typeform-options">
           {vehicles.map((vehicle) => {
-            const isTractor = checkIfTractor(vehicle);
+            const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
             
             return (
               <div
                 key={vehicle.id}
                 className={`typeform-option ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} 
-                           ${isTractor ? 'tractor' : ''} ${loading ? 'disabled' : ''}`}
+                           ${requiresHourMeter ? 'diesel-vehicle' : ''} ${loading ? 'disabled' : ''}`}
                 onClick={() => !loading && handleVehicleSelection(vehicle)}
               >
                 <div className="typeform-option-icon">
-                  {isTractor ? '🚜' : '🚚'}
+                  {requiresHourMeter ? '⛽' : '🚚'}
                 </div>
                 <div className="typeform-option-content">
                   <h4>{vehicle.vehicleId} - {vehicle.name}</h4>
                   <p>{vehicle.type}</p>
                   
-                  {vehicle.currentHours && isTractor && (
+                  {vehicle.currentHours && requiresHourMeter && (
                     <small className="vehicle-hours">
                       ⏱️ Horómetro: {vehicle.currentHours} hrs
+                    </small>
+                  )}
+                  {requiresHourMeter && (
+                    <small className="diesel-indicator">
+                      ⛽ Vehículo diesel - Requiere horómetro
                     </small>
                   )}
                 </div>
@@ -163,10 +172,10 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
           })}
         </div>
 
-        {/* Campo de horómetro para tractores */}
+        {/* Campo de horómetro para vehículos diesel */}
         {showHourMeter && selectedVehicle && (
           <div className="typeform-input-section">
-            <label htmlFor="currentHours">Horas actuales *</label>
+            <label htmlFor="currentHours">Horómetro actual (horas trabajadas) *</label>
             <input
               id="currentHours"
               type="number"
@@ -199,7 +208,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
             <div className="confirmation-card vehicle-confirmation">
               <div className="confirmation-header">
                 <span className="confirmation-icon">
-                  {checkIfTractor(selectedVehicle) ? '🚜' : '🚚'}
+                  {checkIfRequiresHourMeter(selectedVehicle) ? '⛽' : '🚚'}
                 </span>
                 <div className="confirmation-text">
                   <strong>{selectedVehicle.vehicleId} - {selectedVehicle.name}</strong>
@@ -229,9 +238,9 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
                 )}
               </div>
               
-              {checkIfTractor(selectedVehicle) && !formData.currentHours && (
+              {checkIfRequiresHourMeter(selectedVehicle) && !formData.currentHours && (
                 <div className="warning-message">
-                  ⚠️ Se requiere lectura del horómetro para tractores
+                  ⚠️ Se requiere lectura del horómetro para vehículos diesel
                 </div>
               )}
             </div>

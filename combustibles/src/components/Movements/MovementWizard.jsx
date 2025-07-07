@@ -203,6 +203,17 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       case 5:
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
           isValid = !!formData.vehicleId;
+          
+          // Si hay vehículo seleccionado, verificar si requiere horómetro
+          if (isValid && formData.vehicleId) {
+            const selectedVehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
+            if (selectedVehicle) {
+              const requiresHourMeter = selectedVehicle.fuelType === 'diesel' || selectedVehicle.fuelType === 'Diesel';
+              if (requiresHourMeter) {
+                isValid = !!formData.currentHours && parseFloat(formData.currentHours) >= 0;
+              }
+            }
+          }
         } else {
           isValid = true; // Skip para otros tipos
         }
@@ -233,7 +244,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     });
     
     return isValid;
-  }, [currentStep, formData]);
+  }, [currentStep, formData, vehicles]);
 
   // Validación memoizada para evitar problemas de sincronización en el render
   const isCurrentStepValid = useMemo(() => {
