@@ -1,0 +1,235 @@
+{
+  "mcpVersion": "2024-11-05",
+  "name": "Forestech Monorepo",
+  "version": "1.0.0",
+  "description": "Sistema MCP para monorepo Forestech con apps alimentacion y combustibles",
+  "projectType": "react-firebase-monorepo",
+  "documentationPath": "./CLAUDE.md",
+  
+  "routing": {
+    "defaultAgent": "auto",
+    "rules": {
+      "prefer_gemini_for": [
+        "search", 
+        "research", 
+        "documentation", 
+        "multimodal",
+        "large_context_analysis",
+        "web_search"
+      ],
+      "prefer_claude_for": [
+        "code_edit", 
+        "git_ops", 
+        "file_ops", 
+        "debugging",
+        "react_development",
+        "firebase_integration"
+      ],
+      "large_context_threshold": 100000
+    }
+  },
+
+  "project": {
+    "apps": [
+      {
+        "name": "alimentacion",
+        "path": "./alimentacion/",
+        "type": "react-vite",
+        "description": "Sistema de liquidaciones de comidas"
+      },
+      {
+        "name": "combustibles", 
+        "path": "./combustibles/",
+        "type": "react-vite",
+        "description": "Sistema de gestión de combustibles"
+      }
+    ],
+    "shared": {
+      "path": "./shared/",
+      "firebase": "./shared/firebase/",
+      "documentation": "./docs/"
+    }
+  },
+
+  "tools": [
+    {
+      "server": "mcp-server-filesystem",
+      "config": {
+        "allowedDirectories": [
+          "/home/evert/Documentos/appwebforestech/forestech"
+        ]
+      }
+    },
+    {
+      "server": "mcp-server-gemini-advanced", 
+      "config": {
+        "model": "gemini-2.5-pro"
+      }
+    },
+    {
+      "server": "mcp-server-gemini",
+      "config": {
+        "model": "gemini-2.5-pro"
+      }
+    },
+    {
+      "server": "mcp-server-ide",
+      "config": {
+        "diagnostics": true
+      }
+    },
+    {
+      "server": "memory-mcp",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "config": {
+        "persistent": true,
+        "contextRetention": "session_based",
+        "architecture_memory": true
+      },
+      "env": {
+        "MEMORY_FILE_PATH": "/home/evert/Documentos/appwebforestech/forestech/.mcp-memory/forestech-memory.json"
+      },
+      "priority": "high",
+      "status": "installed",
+      "description": "Sistema memoria persistente para recordar decisiones arquitecturales",
+      "installation_notes": "Instalado via NPX, memoria almacenada en .mcp-memory/forestech-memory.json"
+    },
+    {
+      "server": "github-mcp-server",
+      "config": {
+        "repository": "evertweb/forestech",
+        "auto_issues": true,
+        "pr_automation": true
+      },
+      "priority": "high", 
+      "description": "Automatización gestión GitHub: issues, PRs, releases"
+    },
+    {
+      "server": "time-mcp",
+      "config": {
+        "timezone": "America/Bogota",
+        "date_format": "ISO8601"
+      },
+      "priority": "high",
+      "description": "Manejo preciso fechas/horas para liquidaciones"
+    },
+    {
+      "server": "sentry-mcp",
+      "config": {
+        "project": "forestech-production",
+        "environment": "production",
+        "auto_analysis": true
+      },
+      "priority": "medium",
+      "description": "Monitoreo errores en producción apps alimentación/combustibles"
+    },
+    {
+      "server": "sequential-thinking-mcp",
+      "config": {
+        "max_steps": 10,
+        "complex_debugging": true
+      },
+      "priority": "medium",
+      "description": "Resolución problemas complejos paso a paso"
+    },
+    {
+      "server": "git-mcp",
+      "config": {
+        "repository_path": "/home/evert/Documentos/appwebforestech/forestech",
+        "advanced_operations": true,
+        "branch_management": true
+      },
+      "priority": "medium",
+      "description": "Operaciones Git avanzadas para monorepo"
+    },
+    {
+      "server": "firebase-mcp",
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "experimental:mcp"],
+      "config": {
+        "project": "liquidacionapp-62962",
+        "only": ["auth", "firestore", "storage", "functions"]
+      },
+      "priority": "high",
+      "description": "Interactúa con los servicios de Firebase (Auth, Firestore, Storage, Functions)."
+    }
+  ],
+
+  "experimental_tools": [
+    {
+      "server": "notion-mcp",
+      "config": {
+        "workspace": "forestech",
+        "sync_claude_md": true
+      },
+      "phase": "future",
+      "description": "Sincronización documentación empresarial"
+    },
+    {
+      "server": "mongodb-mcp-server",
+      "config": {
+        "atlas_integration": true,
+        "analytics_focused": true
+      },
+      "phase": "future", 
+      "description": "Analytics avanzados complementarios a Firebase"
+    },
+    {
+      "server": "supabase-mcp",
+      "config": {
+        "reporting": true,
+        "sql_analytics": true
+      },
+      "phase": "future",
+      "description": "Reportes SQL complejos y data warehousing"
+    }
+  ],
+
+  "gitHooks": {
+    "preCommit": {
+      "enabled": true,
+      "mcp_analysis": true,
+      "claude_md_context": true
+    },
+    "postCommit": {
+      "enabled": true,
+      "activity_logging": true,
+      "documentation_tips": true
+    }
+  },
+
+  "development": {
+    "commands": {
+      "dev:alimentacion": "npm run dev:alimentacion",
+      "dev:combustibles": "npm run dev:combustibles", 
+      "build:all": "npm run build:all",
+      "deploy": "npm run deploy",
+      "lint:all": "npm run lint:alimentacion && npm run lint:combustibles"
+    },
+    "firebase": {
+      "project": "liquidacionapp-62962",
+      "hosting": "multi-app",
+      "apps": ["alimentacion", "combustibles"]
+    }
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "metrics_interval": 30,
+    "log_level": "info",
+    "activity_log": "~/.mcp-ecosystem/logs/git-activity.log"
+  },
+
+  "integration": {
+    "claude_code": {
+      "github_actions": true,
+      "auto_fix_hooks": true,
+      "documentation_sync": true
+    },
+    "vscode": {
+      "enabled": true,
+      "claude_code_extension": true
+    }
+  }
+}
