@@ -229,15 +229,153 @@ git diff --stat         # Solo estadísticas de cambios
 - **CI/CD**: Deploy automático funcional con GitHub Actions
 - **MCPs**: 8 herramientas integradas con Claude Code
 
-### 🤖 **MCPs Operativos**
-- **memory-mcp** 🧠 - Memoria persistente entre sesiones
-- **filesystem-mcp** 📁 - Sistema archivos avanzado
-- **gemini-advanced-mcp** 🤖 - Gemini 2.5 Pro integrado
-- **gemini-mcp** 🔍 - Google Search + Chat
-- **ide-mcp** 🛠️ - Herramientas IDE
-- **git-mcp** 🔧 - Operaciones Git avanzadas
-- **sequential-thinking-mcp** 🧩 - Análisis paso a paso
-- **notion-mcp** 📚 - Documentación empresarial (⚠️ requiere configuración token)
+### 🤖 **MCPs CONFIGURADOS - ANÁLISIS COMPLETO**
+
+**📍 Archivo de configuración**: `/home/evert/.claude.json` → sección `mcpServers`
+**📊 Total MCPs activos**: 8 (optimizados para Forestech) ⭐ **NUEVO: Time MCP**
+
+#### 🔧 **MCPs Principales y Sus Beneficios**
+
+1. **🧠 memory** - *Memoria Persistente*
+   - **Configuración**: `@modelcontextprotocol/server-memory`
+   - **Beneficio Forestech**: Almacena patrones de bugs, decisiones arquitectónicas, contexto entre sesiones
+   - **Uso específico**: Recordar configuraciones Firebase, patrones de componentes React, historiales de refactoring
+
+2. **🤖 gemini-advanced** - *Análisis Avanzado IA*
+   - **Configuración**: `git+https://github.com/DiversioTeam/gemini-cli-mcp.git`
+   - **Beneficio Forestech**: Análisis profundo de código, optimización de consultas Firestore, debugging complejo
+   - **Uso específico**: Optimizar cálculos de liquidaciones, análisis de performance en reportes
+
+3. **🔍 gemini-server** - *Búsqueda y Chat IA*
+   - **Configuración**: `@choplin/mcp-gemini-cli`
+   - **Beneficio Forestech**: Research técnico, soluciones a problemas específicos, documentación actualizada
+   - **Uso específico**: Investigar nuevas funcionalidades, resolver errores de integración Firebase
+
+4. **📁 filesystem-server** - *Gestión Avanzada de Archivos*
+   - **Configuración**: `@modelcontextprotocol/server-filesystem`
+   - **Beneficio Forestech**: Refactoring masivo, búsqueda de código, gestión de componentes
+   - **Uso específico**: Migrar componentes entre módulos, búsqueda de patrones en el monorepo
+
+5. **🧩 sequential-thinking** - *Análisis Paso a Paso*
+   - **Configuración**: `@modelcontextprotocol/server-sequential-thinking`
+   - **Beneficio Forestech**: Planificación de funcionalidades complejas, diseño de arquitectura
+   - **Uso específico**: Diseñar nuevos módulos, planificar migraciones de datos
+
+6. **📚 notion** - *Documentación Empresarial*
+   - **Configuración**: `@notionhq/notion-mcp-server`
+   - **Estado**: ⚠️ Funcional (requiere token actualizado)
+   - **Beneficio Forestech**: Manuales de usuario, SOPs, documentación empresarial
+   - **Uso específico**: Crear guías para operadores, documentar procesos de negocio
+
+7. **📦 package-helper** - *Gestión de Dependencias*
+   - **Configuración**: Filesystem especializado en `package.json`
+   - **Beneficio Forestech**: Gestión eficiente de dependencias del monorepo
+   - **Uso específico**: Actualizar dependencias, resolver conflictos de versiones
+
+8. **⏰ time** - *Funciones de Tiempo* ⭐ **NUEVO**
+   - **Configuración**: `uvx mcp-server-time`
+   - **Beneficio Forestech**: Timestamps precisos, conversión de zonas horarias, análisis temporal
+   - **Uso específico**: Logs de movimientos con horarios exactos, reportes por períodos, cálculos de horómetro
+   - **Funciones**: `get_current_time`, `convert_time` con soporte IANA timezone
+
+#### 🎯 **CASOS DE USO POR MÓDULO**
+
+**⛽ COMBUSTIBLES:**
+- **memory**: Recordar patrones de cálculo de consumo, configuraciones de horómetro
+- **gemini-advanced**: Optimizar algoritmos de inventario, análisis de reportes
+- **filesystem-server**: Gestionar componentes de vehículos, productos, movimientos
+- **sequential-thinking**: Planificar nuevas funcionalidades de reportes
+
+**🍽️ ALIMENTACIÓN:**
+- **memory**: Mantener historial de fórmulas de liquidación, configuraciones
+- **gemini-advanced**: Optimizar cálculos de deducción, validar lógica de negocio
+- **filesystem-server**: Gestionar componentes de dashboard, liquidaciones
+- **sequential-thinking**: Diseñar mejoras en notificaciones automáticas
+
+**🔧 SHARED:**
+- **filesystem-server**: Gestionar componentes reutilizables, utilidades
+- **package-helper**: Mantener dependencias compartidas entre módulos
+- **memory**: Almacenar patrones de configuración Firebase
+- **time**: Timestamps consistentes en logs y utilidades compartidas
+
+#### 🚀 **OPTIMIZACIONES RECOMENDADAS**
+
+1. **Uso Simultáneo**: Invocar múltiples MCPs en paralelo para máxima eficiencia
+2. **Memoria Específica**: Almacenar patrones específicos de Forestech en memory MCP
+3. **Análisis Regular**: Usar gemini-advanced semanalmente para optimización de código
+4. **Búsqueda Eficiente**: Aprovechar filesystem-server para refactoring masivo
+5. **Planificación Estructurada**: Usar sequential-thinking para funcionalidades complejas
+
+#### 📝 **CONFIGURACIÓN MANUAL DE NUEVOS MCPs**
+
+Para agregar nuevos MCPs manualmente:
+
+```bash
+# Ubicación del archivo de configuración
+nano /home/evert/.claude.json
+
+# Agregar en la sección "mcpServers":
+{
+  "mcpServers": {
+    "nuevo-mcp": {
+      "type": "stdio",
+      "command": "comando",
+      "args": ["argumentos"],
+      "env": {
+        "VARIABLE": "valor"
+      }
+    }
+  }
+}
+```
+
+**⚠️ IMPORTANTE**: Reiniciar Claude Code después de modificar la configuración
+
+#### 🔮 **MCP FIREBASE - PRÓXIMA MEJORA REVOLUCIONARIA**
+
+**🎯 Potencial más alto para optimizar Forestech**
+
+**⚠️ Estado actual**: No implementado (requiere configuración previa)
+
+**📋 Requisitos de instalación**:
+```bash
+# 1. Instalar Firebase CLI globalmente
+npm install -g firebase-tools
+
+# 2. Autenticar con Firebase
+firebase login
+
+# 3. Configurar proyecto (usar ID del proyecto Forestech)
+firebase use liquidacionapp-62962
+```
+
+**⚙️ Configuración MCP Firebase**:
+```json
+{
+  "firebase": {
+    "type": "stdio", 
+    "command": "npx",
+    "args": ["-y", "firebase-tools@latest", "experimental:mcp"],
+    "env": {}
+  }
+}
+```
+
+**🚀 Beneficios REVOLUCIONARIOS para Forestech**:
+- **Consultas directas Firestore**: Sin escribir código temporal
+- **Gestión usuarios Auth**: Verificar roles, permisos, estado usuarios
+- **Debugging en tiempo real**: Inspeccionar colecciones, documentos
+- **Análisis de datos**: Queries complejas desde conversación natural
+- **Reglas de seguridad**: Validar y testear reglas Firestore
+- **Métricas operativas**: Acceso directo a Analytics, Performance
+
+**💡 Casos de uso específicos**:
+- "¿Cuántos movimientos de combustible hubo esta semana?"
+- "Mostrar últimos usuarios registrados en alimentación"
+- "Verificar stock actual de diesel en todas las ubicaciones"
+- "Listar vehículos con horómetro > 1000 horas"
+
+**🔧 Recomendación**: Configurar Firebase CLI para desbloquear esta capacidad
 
 ### 📚 **Testing Notion MCP - Resultados (Julio 2025)**
 
@@ -271,4 +409,10 @@ git diff --stat         # Solo estadísticas de cambios
 
 **📌 IMPORTANTE**: Esta documentación se mantiene actualizada. Cualquier cambio en el proyecto debe reflejarse aquí para mantener continuidad entre sesiones de Claude Code.
 
-**Última actualización**: Enero 2025 - Módulo de Reportes completado. Sistema de combustibles 100% funcional con análisis avanzado y horómetro automático para vehículos diesel.
+**Última actualización**: Enero 2025 - **CONFIGURACIÓN MCPs MEJORADA** ⭐ 
+- **MCP Time agregado exitosamente** - Funciones temporales y timestamps precisos
+- 8 MCPs configurados y optimizados para máxima eficiencia en Forestech
+- Documentación detallada de casos de uso específicos por módulo  
+- **MCP Firebase evaluado** - Próxima mejora revolucionaria identificada
+- Guía completa para configuración manual de nuevos MCPs
+- Sistema de combustibles 100% funcional con módulo de reportes completo
