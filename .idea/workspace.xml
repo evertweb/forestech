@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/LICENSE" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/README.md" beforeDir="false" />
@@ -17,6 +18,7 @@
       <change beforePath="$PROJECT_DIR$/fetch-mcp/src/index.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/src/types.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/install-mcps.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/install-mcps.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,6 +115,7 @@
       <workItem from="1751314202728" duration="2225000" />
       <workItem from="1751316554466" duration="29115000" />
       <workItem from="1751631740307" duration="25142000" />
+      <workItem from="1752020292420" duration="1632000" />
     </task>
     <servers />
   </component>

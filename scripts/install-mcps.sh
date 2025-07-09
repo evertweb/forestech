@@ -34,7 +34,16 @@ else
     echo "⚠️  Git MCP will need manual installation."
 fi
 
-# 4. Verificar instalaciones
+# 4. Firebase MCP (NPM)
+echo "🔥 Configurando Firebase MCP..."
+if command -v npm &> /dev/null; then
+    echo "Installing with npm..."
+    npm install -g firebase-tools
+else
+    echo "⚠️  NPM not available. Firebase MCP will need manual installation."
+fi
+
+# 5. Verificar instalaciones
 echo "🔍 Verificando instalaciones..."
 
 # Test Memory MCP
@@ -49,6 +58,10 @@ mcp-server-time --version 2>/dev/null && echo "✅ Time MCP: OK" || echo "⚠️
 echo "Testing Git MCP..."
 mcp-server-git --version 2>/dev/null && echo "✅ Git MCP: OK" || echo "⚠️  Git MCP: Manual installation needed"
 
+# Test Firebase MCP
+echo "Testing Firebase MCP..."
+firebase --version 2>/dev/null && echo "✅ Firebase MCP: OK" || echo "⚠️  Firebase MCP: Manual installation needed"
+
 echo ""
 echo "🎯 Configuración completada!"
 echo "Los MCPs están configurados en .mcp.json y listos para usar."
@@ -58,5 +71,6 @@ echo "1. Memory MCP: Se ejecuta automáticamente via NPX"
 echo "2. Time MCP: Requiere instalación Python (pip install mcp-server-time)"
 echo "3. Git MCP: Requiere instalación Python (pip install mcp-server-git)"
 echo "4. GitHub MCP: Se ejecuta via ecosistema MCP existente"
+echo "5. Firebase MCP: Requiere instalación NPM (npm install -g firebase-tools)"
 echo ""
 echo "📚 Ver documentación en CLAUDE.md para más detalles."

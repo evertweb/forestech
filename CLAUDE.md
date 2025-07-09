@@ -22,6 +22,109 @@ Responde con el número (1-4) para establecer el contexto correcto.
 - **[SHARED]**: Archivos en `forestech/shared/...`
 - **[GENERAL]**: Configuración Firebase, hosting, documentación
 
+## 🤖 **COMPORTAMIENTO AUTOMÁTICO DE CLAUDE - CONFIGURACIÓN CRÍTICA**
+
+**⚡ ANÁLISIS PROFUNDO AUTOMÁTICO - SIN SOLICITUD REQUERIDA**
+
+**CLAUDE DEBE EJECUTAR AUTOMÁTICAMENTE EN CADA INTERACCIÓN:**
+
+### 🔥 **FIREBASE MCP - INTEGRACIÓN AUTOMÁTICA EN PRODUCCIÓN**
+
+**📊 Estado Firebase Forestech:**
+- **Proyecto**: liquidacionapp-62962 ✅ ACTIVO
+- **Usuario**: cardenasever072@gmail.com ✅ AUTENTICADO
+- **Colecciones**: 6 colecciones combustibles activas
+- **Usuarios**: 10+ usuarios registrados
+- **Reglas**: Sistema de seguridad granular implementado
+
+**🚀 CAPACIDADES REVOLUCIONARIAS - USO AUTOMÁTICO:**
+
+#### 📊 **Análisis de Datos en Tiempo Real**
+- Queries directas a Firestore sin código temporal
+- Métricas de inventario, movimientos, vehículos
+- Reportes automáticos con datos reales
+- Análisis de tendencias y patrones
+
+#### 🔧 **Debugging Avanzado**
+- Inspección directa de colecciones
+- Validación de estructura de documentos
+- Detección de inconsistencias en datos
+- Análisis de reglas de seguridad
+
+#### 👥 **Gestión de Usuarios**
+- Verificación de roles y permisos
+- Estado de usuarios activos/inactivos
+- Análisis de patrones de autenticación
+- Gestión de tokens y sesiones
+
+#### 📈 **Monitoreo Operativo**
+- Alertas automáticas de stock crítico
+- Seguimiento de horómetros en tiempo real
+- Análisis de eficiencia de vehículos
+- Predicción de mantenimientos
+
+### 🚫 **PROMPTS YA NO NECESARIOS - COMPORTAMIENTO AUTOMÁTICO**
+
+**EL USUARIO YA NO DEBE DECIRME:**
+- ❌ "usa todos los MCPs" → **AUTOMÁTICO**
+- ❌ "piensa paso a paso" → **AUTOMÁTICO**
+- ❌ "analiza con profundidad" → **AUTOMÁTICO**
+- ❌ "busca en paralelo" → **AUTOMÁTICO**
+- ❌ "usa firebase MCP" → **AUTOMÁTICO**
+- ❌ "usa sequential thinking" → **AUTOMÁTICO**
+- ❌ "revisa los datos actuales" → **AUTOMÁTICO**
+- ❌ "analiza múltiples escenarios" → **AUTOMÁTICO**
+- ❌ "usa memoria persistente" → **AUTOMÁTICO**
+- ❌ "integra datos de Firebase" → **AUTOMÁTICO**
+
+### ⚡ **FLUJO DE TRABAJO AUTOMÁTICO ESTABLECIDO**
+
+**PARA CADA TAREA/CONSULTA, CLAUDE EJECUTA AUTOMÁTICAMENTE:**
+
+1. **🧩 Sequential Thinking**: Análisis profundo multi-paso
+2. **🔥 Firebase MCP**: Datos reales de producción
+3. **📁 Filesystem**: Contexto del código existente
+4. **🧠 Memory**: Patrones y decisiones previas
+5. **🤖 Gemini Advanced**: Análisis técnico profundo
+6. **📊 Multiple Tools**: Operaciones paralelas máximas
+
+**RESULTADO**: Claude es proactivo, usa todas las capacidades automáticamente, el usuario se enfoca solo en QUÉ quiere lograr.
+
+### 🧠 **SISTEMA DE TRIGGERS PENSAMIENTO EXTENDIDO**
+
+**⚡ ACTIVACIÓN AUTOMÁTICA POR COMPLEJIDAD:**
+
+#### 🔥 **TRIGGERS MODO EXTENDIDO** (Análisis máximo automático)
+- **Arquitectura**: "refactorizar", "migrar", "rediseñar", "arquitectura"
+- **Debugging**: "error", "bug", "falla", "no funciona", "problema"
+- **Módulos nuevos**: "implementar", "crear módulo", "nueva funcionalidad"
+- **Integración**: "integrar", "conectar", "sincronizar", "API"
+- **Performance**: "optimizar", "mejorar performance", "lento", "rendimiento"
+- **Seguridad**: "seguridad", "vulnerabilidad", "permisos", "autenticación"
+- **Firebase**: "firestore", "firebase", "database", "colecciones"
+- **Múltiples archivos**: Tareas que afectan 3+ archivos
+
+#### 🎯 **TRIGGERS MODO PROFUNDO** (Sequential thinking automático)
+- **Modificaciones**: "modificar", "cambiar", "actualizar", "ajustar"
+- **Análisis**: "revisar", "analizar", "evaluar", "investigar"
+- **Componentes**: "componente", "hook", "service", "utilidad"
+- **Estilos**: "CSS", "diseño", "responsive", "tema"
+- **Tareas complejas**: Más de 2 pasos identificados
+
+#### ⚡ **TRIGGERS MODO BÁSICO** (Respuesta directa)
+- **Consultas simples**: "qué es", "cómo funciona", "explica"
+- **Lecturas**: "muestra", "lee", "contenido de"
+- **Status**: "estado", "versión", "info"
+- **Comandos**: "ejecuta", "run", "comando"
+
+#### 🎛️ **CONTROLES OVERRIDE MANUAL**
+- **"modo básico"** → Fuerza respuesta directa
+- **"modo extendido"** → Fuerza análisis máximo
+- **"sin análisis"** → Salta pensamiento profundo
+- **"máximo análisis"** → Activa todos los MCPs + validación
+
+**🔄 DETECCIÓN AUTOMÁTICA**: Claude analiza automáticamente cada prompt y activa el modo apropiado según los triggers detectados.
+
 ## 🧠 **PENSAMIENTO PASO A PASO OBLIGATORIO - MÁXIMA PRIORIDAD**
 
 **PARA CADA PROMPT/CONSULTA/TAREA, CLAUDE DEBE SEGUIR ESTE ANÁLISIS PROFUNDO:**
@@ -68,6 +171,7 @@ Responde con el número (1-4) para establecer el contexto correcto.
 - Búsquedas paralelas de contexto y datos
 - Validaciones simultáneas de múltiples escenarios
 - Operaciones concurrentes siempre que sea posible
+- **Triggers automáticos** para activar pensamiento extendido según complejidad
 
 ## 📚 Documentación Modular
 
@@ -409,10 +513,15 @@ firebase use liquidacionapp-62962
 
 **📌 IMPORTANTE**: Esta documentación se mantiene actualizada. Cualquier cambio en el proyecto debe reflejarse aquí para mantener continuidad entre sesiones de Claude Code.
 
-**Última actualización**: Enero 2025 - **CONFIGURACIÓN MCPs MEJORADA** ⭐ 
-- **MCP Time agregado exitosamente** - Funciones temporales y timestamps precisos
-- 8 MCPs configurados y optimizados para máxima eficiencia en Forestech
-- Documentación detallada de casos de uso específicos por módulo  
-- **MCP Firebase evaluado** - Próxima mejora revolucionaria identificada
-- Guía completa para configuración manual de nuevos MCPs
+**Última actualización**: Enero 2025 - **SISTEMA HOOKS CLAUDE CODE IMPLEMENTADO** ⭐ 
+- **🪝 Hooks automáticos**: 7 hooks funcionando en 3 niveles (Básico, Intermedio, Avanzado)
+- **🧹 Automatización completa**: Linting, cleanup, backups, validaciones automáticas
+- **📊 Monitoreo inteligente**: Logs categorizados, métricas, alertas y health checks
+- **🔥 Firebase MCP integrado**: Verificaciones automáticas y datos reales
+- **🧠 Triggers inteligentes**: Activación automática por complejidad de tarea
+- **🎛️ Controles override**: Usuario puede forzar modo específico
+- **🤖 Comportamiento automático**: Claude usa todas las capacidades sin solicitud
+- **⚡ Flujo automático**: Sequential thinking + Firebase + Memory + Gemini Advanced + Hooks
+- **🎯 Máxima eficiencia**: Usuario se enfoca solo en QUÉ quiere lograr
 - Sistema de combustibles 100% funcional con módulo de reportes completo
+- **✅ HOOKS VERIFICADOS**: Sistema probado y funcionando correctamente

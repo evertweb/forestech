@@ -1,0 +1,59 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/evert/Documentos/appwebforestech/forestech/hooks/level-1/post-tool-use-linting.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/evert/Documentos/appwebforestech/forestech/hooks/level-1/stop-cleanup.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/evert/Documentos/appwebforestech/forestech/hooks/level-1/notification-logging.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__firebase__.*|Edit|MultiEdit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/evert/Documentos/appwebforestech/forestech/hooks/level-2/pre-tool-use-verifications.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/evert/Documentos/appwebforestech/forestech/hooks/level-2/subagent-stop-validations.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
