@@ -23,13 +23,16 @@ export const useOptimizedData = (data, dependencies = []) => {
 export const useOptimizedCallbacks = (callbacks) => {
   return useMemo(() => {
     const optimizedCallbacks = {};
-
-    Object.keys(callbacks).forEach(key => {
-      optimizedCallbacks[key] = useCallback(callbacks[key], [callbacks[key]]);
-    });
+    const callbackKeys = Object.keys(callbacks);
+    
+    // Pre-create all callbacks to avoid calling hooks in loop
+    for (const key of callbackKeys) {
+      optimizedCallbacks[key] = callbacks[key];
+    }
 
     return optimizedCallbacks;
-  }, [callbacks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(callbacks));
 };
 
 // Función para comparación personalizada de props en React.memo

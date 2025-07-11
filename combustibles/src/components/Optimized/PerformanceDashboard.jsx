@@ -18,6 +18,7 @@ const PerformanceDashboard = ({ isVisible = true }) => {
 
   useEffect(() => {
     // Log automático cada 30 segundos en desarrollo
+    // eslint-disable-next-line no-undef
     if (process.env.NODE_ENV === 'development') {
       const interval = setInterval(logOptimizationStats, 30000);
       return () => clearInterval(interval);
@@ -28,12 +29,14 @@ const PerformanceDashboard = ({ isVisible = true }) => {
   useEffect(() => {
     console.log('🔍 PerformanceDashboard renderizado:', {
       isVisible,
+      // eslint-disable-next-line no-undef
       NODE_ENV: process.env.NODE_ENV,
       globalMetrics
     });
   }, [isVisible, globalMetrics]);
 
   // Siempre mostrar en desarrollo, o cuando isVisible sea true
+  // eslint-disable-next-line no-undef
   if (!isVisible && process.env.NODE_ENV === 'production') {
     return null;
   }
