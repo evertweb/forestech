@@ -185,7 +185,10 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                   <div className="type-content">
                     <span className="type-icon">{getMovementIcon(movement.type)}</span>
                     <span className="type-text">
-                      {movement.type.charAt(0).toUpperCase() + movement.type.slice(1)}
+                      {movement.type ?
+                        (movement.type.charAt(0).toUpperCase() + movement.type.slice(1)) :
+                        'Sin tipo'
+                      }
                     </span>
                   </div>
                 </td>
@@ -233,7 +236,10 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                   <div className={`status-badge ${getStatusClass(movement.status)}`}>
                     <span className="status-icon">{getStatusIcon(movement.status)}</span>
                     <span className="status-text">
-                      {movement.status.charAt(0).toUpperCase() + movement.status.slice(1)}
+                      {movement.status ? 
+                        (movement.status.charAt(0).toUpperCase() + movement.status.slice(1)) : 
+                        'Sin estado'
+                      }
                     </span>
                   </div>
                 </td>

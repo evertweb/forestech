@@ -5,76 +5,51 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/DirectMigrationPanel.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/HistoricalDataMigration.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/Migration.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationPage.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationProgress.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationSelector.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/PostMigrationAnalysis.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/MigrationWizard.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/MigrationWizard.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step1_FileUpload.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step2_ColumnMapping.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step3_ValueMapping.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step4_Validation.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step5_Execution.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/aliasService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/directMigrationService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/fileParsingService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/migrationManager.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/migrationService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/realDataMigrationService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/utils/dataMapper.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/utils/googleSheetsIntegration.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/stats.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/combustibles/GEMINI_ARCHITECTURE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/AdminMain-DPSSXXaL.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/AdminMain-afUgM0ui.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/DashboardMain-CAh4gurP.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/InventoryMain-CGZ6Bhog.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/InventoryMain-IBCPRbBR.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MaintenanceMain-BlOOTLys.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MaintenanceMain-CwCTJFzo.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MigrationPage-BOSfrvsH.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MigrationPage-Bt0sJ-KE.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MovementsMain-CX56GQB0.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MovementsMain-DPqKi7xb.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ProductsMain-D0DHXlsC.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ProductsMain-K81D-u5K.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ReportsMain-BWhrXjbE.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ReportsMain-uVG74J5u.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/SuppliersMain-D_nkYnHp.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/SuppliersMain-ElCAjoxt.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/VehiclesMain-Ddxx6IDS.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/VehiclesMain-oCtbq_EQ.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/index-CSyJsO2R.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/index-DF4h_PER.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/productsService-Dwy7fUdc.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/REFACTORING_COMPLETED.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/commit-fase3.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Examples/OptimizedMovementsPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/GuidedMigrationPanel.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Optimized/OptimizedMovementsList.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Optimized/PerformanceDashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Optimized/PerformanceDashboard.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/contexts/AuthContext.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/contexts/PerformanceContext.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/firebase/authService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/hooks/useCombustiblesCRUD.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/hooks/useFirestoreCache.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/hooks/useFirestoreData.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/hooks/useOptimizedComponents.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/hooks/usePageData.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/hooks/usePerformanceMonitor.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/migrationValidator.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/optimizedFirestore.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mcp.json" beforeDir="false" afterPath="$PROJECT_DIR$/.mcp.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PROMPT_TAREA_4.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/combustibles/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Dashboard/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Dashboard/Dashboard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Dashboard/DashboardLayout.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Dashboard/DashboardLayout.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Reports/ReportsMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Reports/ReportsMain.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Reports/VehicleReports.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Reports/VehicleReports.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Inventory/InventoryTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Inventory/InventoryTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Maintenance/MaintenanceMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Maintenance/MaintenanceMain.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationSelector.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationSelector.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsTable.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/MovementsTable.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/contexts/CombustiblesContext.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/contexts/CombustiblesContext.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/combustibles/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/main.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/services/productsService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/productsService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/vite.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/combustibles/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/combustibles/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/jest.config.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/logo.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/pnpm-lock.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/Fetcher.test.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/Fetcher.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/src/types.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fetch-mcp/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/fileParsingService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/fileParsingService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/stats.html" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/stats.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gemini.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/AdminMain-DPSSXXaL.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/DashboardMain-CAh4gurP.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/InventoryMain-CGZ6Bhog.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/MaintenanceMain-BlOOTLys.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/MigrationPage-Bt0sJ-KE.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/MovementsMain-CX56GQB0.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/ProductsMain-K81D-u5K.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/ReportsMain-uVG74J5u.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/SuppliersMain-D_nkYnHp.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/VehiclesMain-Ddxx6IDS.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-BDhjKbpo.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-CSI72ZUY.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-CSyJsO2R.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/productsService-Dwy7fUdc.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -104,11 +79,20 @@
     &quot;accountId&quot;: &quot;a3c6e3c0-aeed-495c-932f-0327ba7a1ecd&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/.config/github-copilot/intellij/mcp.json" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="2yBpK3LONYc4LxhbHOh7hCoFYJt" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -120,10 +104,11 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main-clean",
+    "SHELLCHECK.PATH": "I do mind",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/evert/Descargas/claude-code-jetbrains-plugin-0.1.9-beta.zip",
+    "last_opened_file_path": "/home/evert/Documentos/appwebforestech",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -173,6 +158,11 @@
       <workItem from="1751316554466" duration="29115000" />
       <workItem from="1751631740307" duration="25142000" />
       <workItem from="1752020292420" duration="1632000" />
+      <workItem from="1752196165154" duration="1633000" />
+      <workItem from="1752198217373" duration="300000" />
+      <workItem from="1752199009776" duration="1095000" />
+      <workItem from="1752230990732" duration="5402000" />
+      <workItem from="1752246696629" duration="5025000" />
     </task>
     <servers />
   </component>

@@ -1,7 +1,9 @@
 // combustibles/src/components/Inventory/InventoryTable.jsx
 // Vista de tabla para el inventario
+// ✨ OPTIMIZADO: React.memo aplicado para reducir re-renders - FASE 3
 import React, { useState } from 'react';
 import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
+import { withOptimization, createCustomCompare } from '../../hooks/useOptimizedComponents';
 
 const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   const [sortField, setSortField] = useState('name');
@@ -315,4 +317,4 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   );
 };
 
-export default InventoryTable;
+export default withOptimization(InventoryTable, createCustomCompare());

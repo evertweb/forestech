@@ -146,13 +146,35 @@
     {
       "server": "firebase-mcp",
       "command": "npx",
-      "args": ["-y", "firebase-tools@latest", "experimental:mcp"],
+      "args": [
+        "-y", 
+        "firebase-tools@latest", 
+        "experimental:mcp",
+        "--dir", "/home/evert/Documentos/appwebforestech/forestech",
+        "--only", "auth,firestore,storage,functions,hosting"
+      ],
       "config": {
         "project": "liquidacionapp-62962",
-        "only": ["auth", "firestore", "storage", "functions"]
+        "features": ["auth", "firestore", "storage", "functions", "hosting"],
+        "auto_detect": true,
+        "experimental": true
+      },
+      "env": {
+        "FIREBASE_PROJECT": "liquidacionapp-62962",
+        "FIREBASE_CONFIG_DIR": "/home/evert/Documentos/appwebforestech/forestech"
       },
       "priority": "high",
-      "description": "Interactúa con los servicios de Firebase (Auth, Firestore, Storage, Functions)."
+      "status": "active",
+      "description": "Firebase MCP avanzado para Forestech - Gestión completa Auth, Firestore, Storage, Functions y Hosting",
+      "capabilities": [
+        "Gestión usuarios alimentación/combustibles",
+        "Consultas directas Firestore en tiempo real",
+        "Acceso y gestión Storage para reportes",
+        "Deploy y debugging Functions",
+        "Gestión multi-app hosting",
+        "Análisis reglas seguridad",
+        "Monitoreo métricas Firebase"
+      ]
     }
   ],
 

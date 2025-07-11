@@ -3,7 +3,7 @@
  * Maneja Excel, CSV y otros formatos con detección automática de estructura
  */
 
-import * as XLSX from 'xlsx';
+// XLSX se importa dinámicamente cuando se necesita
 
 /**
  * Tipos de archivos soportados
@@ -97,8 +97,11 @@ export const validateFile = (file) => {
  * @param {object} options - Opciones de parsing
  * @returns {object} - Resultado del parsing
  */
-const parseExcelFile = (arrayBuffer, options = {}) => {
+const parseExcelFile = async (arrayBuffer, options = {}) => {
   try {
+    // Importar XLSX dinámicamente
+    const XLSX = await import('xlsx');
+    
     const workbook = XLSX.read(arrayBuffer, { 
       type: 'buffer',
       cellText: false,
@@ -337,7 +340,7 @@ export const parseFile = async (file, options = {}) => {
     
     switch (fileType) {
       case 'EXCEL':
-        result = parseExcelFile(arrayBuffer, options.excel);
+        result = await parseExcelFile(arrayBuffer, options.excel);
         break;
         
       case 'CSV':

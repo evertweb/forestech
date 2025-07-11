@@ -1,6 +1,9 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import { CombustiblesProvider, useCombustibles } from './contexts/CombustiblesContext';
+import { PerformanceProvider } from './contexts/PerformanceContext';
+import PerformanceDashboard from './components/Optimized/PerformanceDashboard';
 import Dashboard from './components/Dashboard/Dashboard';
 import Auth from './components/Auth/Auth';
 import './App.css';
@@ -29,9 +32,14 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <CombustiblesProvider>
-      <AppContent />
-    </CombustiblesProvider>
+    <AuthProvider>
+      <CombustiblesProvider>
+        <PerformanceProvider>
+          <PerformanceDashboard isVisible={process.env.NODE_ENV === 'development'} />
+          <AppContent />
+        </PerformanceProvider>
+      </CombustiblesProvider>
+    </AuthProvider>
   );
 }
 

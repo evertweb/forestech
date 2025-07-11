@@ -5,9 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
+// maintenanceService se importa estáticamente aquí (eliminar dynamic import)
 import { 
   subscribeToMaintenance, 
   getMaintenanceStats,
+  deleteMaintenanceRecord,
   MAINTENANCE_TYPES,
   MAINTENANCE_STATUS
 } from '../../services/maintenanceService';
@@ -150,8 +152,7 @@ const MaintenanceMain = () => {
 
     if (window.confirm('¿Estás seguro de que quieres eliminar este mantenimiento?')) {
       try {
-        // Importar la función de eliminación
-        const { deleteMaintenanceRecord } = await import('../../services/maintenanceService');
+        // Usar la función importada estáticamente
         await deleteMaintenanceRecord(maintenanceId);
         console.log('✅ Mantenimiento eliminado exitosamente');
       } catch (error) {
