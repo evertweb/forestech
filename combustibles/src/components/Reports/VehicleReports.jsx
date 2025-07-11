@@ -10,8 +10,7 @@ import {
   calculateOperationalCosts,
   calculateVehiclesStats,
   formatCurrency,
-  formatNumber,
-  formatPercentage
+  formatNumber
 } from '../../utils/calculations';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 

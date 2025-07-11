@@ -307,3 +307,28 @@ export const getLowStockProducts = async () => {
     throw error;
   }
 };
+
+/**
+ * Obtener producto por código
+ * @param {string} productCode - Código del producto
+ * @returns {Promise<Object|null>} - Producto encontrado o null
+ */
+export const getProductByCode = async (productCode) => {
+  try {
+    const q = query(
+      collection(db, COLLECTION_NAME), 
+      where('code', '==', productCode)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting product by code:', error);
+    throw error;
+  }
+};

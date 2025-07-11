@@ -32,6 +32,13 @@ const ReportsMain = () => {
     end: new Date().toISOString().slice(0, 10)
   });
 
+  // Calcular estadísticas principales (hooks antes del return condicional)
+  const inventoryStats = useMemo(() => calculateInventoryStats(inventory), [inventory]);
+  const movementsStats = useMemo(() => calculateMovementsStats(movements), [movements]);
+  const vehiclesStats = useMemo(() => calculateVehiclesStats(vehicles, movements), [vehicles, movements]);
+  const lowStockAlerts = useMemo(() => calculateLowStockAlerts(inventory), [inventory]);
+  const projections = useMemo(() => calculateConsumptionProjections(movements), [movements]);
+
   // Verificar permisos
   const canViewReports = userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
 
@@ -48,13 +55,6 @@ const ReportsMain = () => {
       </div>
     );
   }
-
-  // Calcular estadísticas principales
-  const inventoryStats = useMemo(() => calculateInventoryStats(inventory), [inventory]);
-  const movementsStats = useMemo(() => calculateMovementsStats(movements), [movements]);
-  const vehiclesStats = useMemo(() => calculateVehiclesStats(vehicles, movements), [vehicles, movements]);
-  const lowStockAlerts = useMemo(() => calculateLowStockAlerts(inventory), [inventory]);
-  const projections = useMemo(() => calculateConsumptionProjections(movements), [movements]);
 
   // Configuración de pestañas
   const reportTabs = [

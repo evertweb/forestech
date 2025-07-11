@@ -1,31 +1,34 @@
-// combustibles/src/components/Dashboard/DashboardLayout.jsx
-// Layout principal del Dashboard con navegación y sidebar
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 
-const DashboardLayout = ({ children, currentView, onViewChange }) => {
+const DashboardLayout = ({ children }) => {
   const { userProfile, isAdmin, isCounterOrAbove } = useCombustibles();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   const navigationItems = [
     {
       id: 'dashboard',
+      path: '/',
       name: 'Dashboard',
       icon: '📊',
       description: 'Vista general',
-      requiredPermission: null // Todos pueden ver dashboard
+      requiredPermission: null
     },
     {
       id: 'inventory',
+      path: '/inventario',
       name: 'Inventario',
-      icon: '🛢️', 
+      icon: '🛢️',
       description: 'Gestión de stock',
       requiredPermission: 'canManageInventory'
     },
     {
       id: 'movements',
+      path: '/movimientos',
       name: 'Movimientos',
       icon: '📈',
       description: 'Entradas y salidas',
@@ -33,27 +36,31 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
     },
     {
       id: 'vehicles',
+      path: '/vehiculos',
       name: 'Vehículos',
       icon: '🚜',
       description: 'Maquinaria forestal',
-      requiredPermission: null // Todos pueden ver vehículos
+      requiredPermission: null
     },
     {
       id: 'maintenance',
+      path: '/mantenimiento',
       name: 'Mantenimiento',
       icon: '🔧',
       description: 'Cambios de aceite y baterías',
-      requiredPermission: null // Todos pueden ver mantenimiento, pero gestión requiere permisos
+      requiredPermission: null
     },
     {
       id: 'products',
+      path: '/productos',
       name: 'Productos',
       icon: '🛢️',
       description: 'Tipos de combustibles',
-      requiredPermission: null // Todos pueden ver productos
+      requiredPermission: null
     },
     {
       id: 'suppliers',
+      path: '/proveedores',
       name: 'Proveedores',
       icon: '🏪',
       description: 'Gestión de proveedores',
@@ -61,28 +68,37 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
     },
     {
       id: 'reports',
+      path: '/reportes',
       name: 'Reportes',
       icon: '📋',
       description: 'Análisis y reportes',
       requiredPermission: 'canViewReports'
     },
     {
+      id: 'migration',
+      path: '/migracion',
+      name: 'Migración',
+      icon: '🔄',
+      description: 'Datos históricos',
+      requiredPermission: 'admin'
+    },
+    {
       id: 'admin',
+      path: '/admin',
       name: 'Administración',
       icon: '⚙️',
       description: 'Gestión de usuarios',
-      requiredPermission: 'admin' // Solo para admins
+      requiredPermission: 'admin'
     }
   ];
 
-  const handleViewChange = (viewId) => {
-    onViewChange(viewId);
-    setSidebarOpen(false); // Cerrar sidebar en móvil
+  const handleLinkClick = () => {
+    setSidebarOpen(false);
   };
 
   const hasPermission = (permission) => {
-    if (!permission) return true; // Sin restricción
-    if (permission === 'admin') return isAdmin(); // Verificar si es admin
+    if (!permission) return true;
+    if (permission === 'admin') return isAdmin();
     return userProfile?.combustiblesPermissions?.[permission] || false;
   };
 
@@ -98,7 +114,6 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
 
   return (
     <div className="dashboard-layout">
-      {/* Header */}
       <header className="dashboard-header">
         <div className="header-content">
           <button 
@@ -139,25 +154,24 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
       </header>
 
       <div className="dashboard-body">
-        {/* Sidebar */}
         <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <nav className="sidebar-nav">
             {visibleItems.map(item => (
-              <button
+              <Link
                 key={item.id}
-                className={`nav-item ${currentView === item.id ? 'active' : ''}`}
-                onClick={() => handleViewChange(item.id)}
+                to={item.path}
+                className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                onClick={handleLinkClick}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <div className="nav-content">
                   <span className="nav-name">{item.name}</span>
                   <span className="nav-description">{item.description}</span>
                 </div>
-              </button>
+              </Link>
             ))}
           </nav>
           
-          {/* Información del usuario en sidebar */}
           <div className="sidebar-footer">
             <div className="user-permissions">
               <h4>Permisos Activos:</h4>
@@ -171,7 +185,6 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
           </div>
         </aside>
 
-        {/* Contenido principal */}
         <main className="dashboard-main">
           <div className="main-content">
             {children}
@@ -179,7 +192,6 @@ const DashboardLayout = ({ children, currentView, onViewChange }) => {
         </main>
       </div>
 
-      {/* Overlay para cerrar sidebar en móvil */}
       {sidebarOpen && (
         <div 
           className="sidebar-overlay"

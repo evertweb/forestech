@@ -5,7 +5,64 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/DirectMigrationPanel.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/HistoricalDataMigration.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/Migration.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationProgress.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/MigrationSelector.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Migration/PostMigrationAnalysis.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/MigrationWizard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/MigrationWizard.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step1_FileUpload.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step2_ColumnMapping.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step3_ValueMapping.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step4_Validation.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/MigrationWizard/steps/Step5_Execution.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/aliasService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/directMigrationService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/fileParsingService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/migrationManager.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/migrationService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/realDataMigrationService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/utils/dataMapper.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/utils/googleSheetsIntegration.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/stats.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/combustibles/GEMINI_ARCHITECTURE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/AdminMain-DPSSXXaL.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/AdminMain-afUgM0ui.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/DashboardMain-CAh4gurP.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/InventoryMain-CGZ6Bhog.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/InventoryMain-IBCPRbBR.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MaintenanceMain-BlOOTLys.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MaintenanceMain-CwCTJFzo.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MigrationPage-BOSfrvsH.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MigrationPage-Bt0sJ-KE.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MovementsMain-CX56GQB0.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/MovementsMain-DPqKi7xb.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ProductsMain-D0DHXlsC.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ProductsMain-K81D-u5K.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ReportsMain-BWhrXjbE.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/ReportsMain-uVG74J5u.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/SuppliersMain-D_nkYnHp.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/SuppliersMain-ElCAjoxt.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/VehiclesMain-Ddxx6IDS.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/VehiclesMain-oCtbq_EQ.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/index-CSyJsO2R.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/index-DF4h_PER.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/combustibles/assets/productsService-Dwy7fUdc.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Dashboard/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Dashboard/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Dashboard/DashboardLayout.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Dashboard/DashboardLayout.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Reports/ReportsMain.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Reports/ReportsMain.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Reports/VehicleReports.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Reports/VehicleReports.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/productsService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/productsService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/vite.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/combustibles/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/combustibles/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/LICENSE" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/README.md" beforeDir="false" />
@@ -18,7 +75,7 @@
       <change beforePath="$PROJECT_DIR$/fetch-mcp/src/index.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/src/types.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fetch-mcp/tsconfig.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/install-mcps.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/install-mcps.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,31 +113,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/evert/Descargas/claude-code-jetbrains-plugin-0.1.9-beta.zip&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.index.html.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main-clean",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/evert/Descargas/claude-code-jetbrains-plugin-0.1.9-beta.zip",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
