@@ -11,7 +11,9 @@ import './Migration.css';
 const PostMigrationAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [_selectedProduct, setSelectedProduct] = useState('all');
+  // eslint-disable-next-line no-unused-vars
   const [dateRange, setDateRange] = useState({
     start: '2023-01-01',
     end: '2025-12-31'
