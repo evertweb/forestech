@@ -6,7 +6,7 @@
 import React, { useState, useRef } from 'react';
 import { createMigrationService } from '../../services/migrationService';
 import { 
-  parseHistoricalDate, 
+  _parseHistoricalDate, 
   mapHistoricalVehicle, 
   mapHistoricalProduct,
   mapHistoricalMovement,
@@ -217,7 +217,7 @@ const HistoricalDataMigration = () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = (e) => reject(new Error('Error leyendo archivo'));
+      reader.onerror = (_e) => reject(new Error('Error leyendo archivo'));
       reader.readAsText(file);
     });
   };

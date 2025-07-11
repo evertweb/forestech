@@ -128,6 +128,7 @@ const getRoleDisplayName = (role) => {
  * Hook personalizado para verificaciones rápidas de permisos
  * Útil para mostrar/ocultar elementos de UI sin crear componentes completos
  */
+// TODO: Separar componente de constantes/funciones para Fast Refresh
 export const usePermissionCheck = () => {
   const { isRole, hasPermission } = useUser();
 
@@ -167,6 +168,7 @@ export const usePermissionCheck = () => {
  * @param {Object} requirements - Requerimientos de acceso
  * @returns {React.Component} - Componente protegido
  */
+// TODO: Separar componente de constantes/funciones para Fast Refresh
 export const withRoleProtection = (Component, requirements = {}) => {
   return function ProtectedComponent(props) {
     return (

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
 import { withOptimization, createCustomCompare } from '../../hooks/useOptimizedComponents';
 
+// TODO: Separar componente de constantes/funciones para Fast Refresh
 const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');

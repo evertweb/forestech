@@ -82,7 +82,7 @@ const VehicleModalNew = ({
     } finally {
       setLoading(false);
     }
-  }, [mode]);
+  }, [mode, loadCategories]);
 
   useEffect(() => {
     if (isOpen) {

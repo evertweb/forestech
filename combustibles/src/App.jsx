@@ -35,7 +35,7 @@ function App() {
     <AuthProvider>
       <CombustiblesProvider>
         <PerformanceProvider>
-          <PerformanceDashboard isVisible={process.env.NODE_ENV === 'development'} />
+          <PerformanceDashboard isVisible={import.meta.env.NODE_ENV === 'development'} />
           <AppContent />
         </PerformanceProvider>
       </CombustiblesProvider>

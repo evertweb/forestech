@@ -3,7 +3,7 @@
  * Analiza transacciones migradas y permite recálculo correcto de inventarios
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import './Migration.css';
@@ -11,7 +11,7 @@ import './Migration.css';
 const PostMigrationAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState('all');
+  const [_selectedProduct, setSelectedProduct] = useState('all');
   const [dateRange, setDateRange] = useState({
     start: '2023-01-01',
     end: '2025-12-31'

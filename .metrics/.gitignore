@@ -1,0 +1,7 @@
+# Métricas de auto-fix - archivos locales
+*.json
+reports/*.md
+
+# Mantener solo estructura de directorios
+!.gitignore
+!README.md

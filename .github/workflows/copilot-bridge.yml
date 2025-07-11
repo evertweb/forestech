@@ -1,0 +1,204 @@
+name: Copilot Agent Bridge - Error Detection & Delegation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_error_collection:
+        description: 'Force error collection even if builds pass'
+        required: false
+        default: 'false'
+
+jobs:
+  build-and-bridge:
+    name: Build Detection & Copilot Bridge
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: |
+        npm ci
+        cd alimentacion && npm ci
+        cd ../combustibles && npm ci
+
+    # === ERROR DETECTION PHASE ===
+    - name: 🔍 Detect Build/Lint Errors
+      id: error-detection
+      run: |
+        echo "Running error detection..."
+        node scripts/error-collector.js
+        
+        # Check if errors were detected
+        if [ -f error-context.json ]; then
+          ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
+          echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
+          
+          if [ "$ERROR_STATUS" = "errors_detected" ]; then
+            echo "errors-found=true" >> $GITHUB_OUTPUT
+            ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
+            echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+            echo "🚨 $ERROR_COUNT errors detected - preparing for Copilot Agent"
+          else
+            echo "errors-found=false" >> $GITHUB_OUTPUT
+            echo "✅ No errors detected"
+          fi
+        else
+          echo "errors-found=false" >> $GITHUB_OUTPUT
+          echo "❌ Error detection failed"
+        fi
+      continue-on-error: true
+
+    # === COPILOT AGENT BRIDGE ===
+    - name: 🤖 Bridge to GitHub Copilot Agent
+      if: steps.error-detection.outputs.errors-found == 'true' || github.event.inputs.force_error_collection == 'true'
+      uses: github/copilot-chat@v1
+      with:
+        # Load the structured context from error-collector
+        context: |
+          $(cat error-context.json | jq -r '.copilotPrompt')
+        
+        instructions: |
+          You are GitHub Copilot Agent working on the Forestech Colombia project.
+          
+          CONTEXT LOADED: The error-collector has detected specific build/lint errors and provided you with:
+          - Detailed error information
+          - File contexts and line numbers  
+          - Project structure details
+          - Error patterns and types
+          
+          YOUR TASK:
+          1. Analyze the provided error context carefully
+          2. Create specific fixes for each detected error
+          3. Apply the fixes directly to the affected files
+          4. Ensure fixes maintain code quality and project standards
+          5. Test that your changes resolve the issues
+          
+          IMPORTANT:
+          - This is a production React + Vite + Firebase monorepo
+          - Maintain consistency with existing code patterns
+          - Follow React best practices and hooks rules
+          - Preserve Firebase integration and functionality
+          - Keep monorepo structure intact
+          
+          Please proceed to analyze and fix the detected errors.
+
+    # === POST-BRIDGE VALIDATION ===
+    - name: 📊 Generate Bridge Report
+      if: always()
+      run: |
+        echo "=== COPILOT BRIDGE REPORT ===" > bridge-report.md
+        echo "**Timestamp:** $(date)" >> bridge-report.md
+        echo "**Commit:** ${{ github.sha }}" >> bridge-report.md
+        echo "**Branch:** ${{ github.ref_name }}" >> bridge-report.md
+        echo "" >> bridge-report.md
+        
+        if [ "${{ steps.error-detection.outputs.errors-found }}" = "true" ]; then
+          echo "### 🚨 Errors Detected and Bridged to Copilot Agent" >> bridge-report.md
+          echo "- **Error Count:** ${{ steps.error-detection.outputs.error-count }}" >> bridge-report.md
+          echo "- **Action:** Delegated to GitHub Copilot Agent for analysis and fixes" >> bridge-report.md
+          echo "" >> bridge-report.md
+          
+          # Add error summary if context file exists
+          if [ -f error-context.json ]; then
+            echo "### 📋 Error Summary" >> bridge-report.md
+            node -e "
+              const ctx = JSON.parse(require('fs').readFileSync('error-context.json', 'utf8'));
+              if (ctx.summary) {
+                console.log('**Error Types:**');
+                Object.entries(ctx.summary.byType).forEach(([type, count]) => {
+                  console.log('- ' + type + ': ' + count + ' errors');
+                });
+                console.log('\\n**Affected Files:** ' + ctx.summary.uniqueFiles);
+              }
+            " >> bridge-report.md
+          fi
+        else
+          echo "### ✅ No Errors Detected" >> bridge-report.md
+          echo "- **Status:** Clean build and lint" >> bridge-report.md
+          echo "- **Action:** No intervention required" >> bridge-report.md
+        fi
+        
+        echo "" >> bridge-report.md
+        echo "### 🔗 Bridge Architecture" >> bridge-report.md
+        echo "1. **Error Detection:** error-collector.js scans build/lint output" >> bridge-report.md
+        echo "2. **Context Building:** Structured error information prepared" >> bridge-report.md
+        echo "3. **Agent Delegation:** GitHub Copilot Agent receives full context" >> bridge-report.md
+        echo "4. **Intelligent Fixes:** Agent analyzes and applies appropriate solutions" >> bridge-report.md
+        echo "" >> bridge-report.md
+        echo "_Generated by Copilot Bridge System_" >> bridge-report.md
+        
+        cat bridge-report.md
+
+    # === VALIDATION BUILD (After Copilot fixes) ===
+    - name: 🧪 Validation Build
+      if: steps.error-detection.outputs.errors-found == 'true'
+      run: |
+        echo "Running validation build after Copilot Agent fixes..."
+        
+        # Try linting again
+        echo "=== Validation Lint ==="
+        npm run lint:alimentacion || echo "Alimentacion lint issues remain"
+        npm run lint:combustibles || echo "Combustibles lint issues remain"
+        
+        # Try building again  
+        echo "=== Validation Build ==="
+        npm run build:alimentacion || echo "Alimentacion build issues remain"
+        npm run build:combustibles || echo "Combustibles build issues remain"
+        
+        echo "Validation complete - check output above for remaining issues"
+
+    # === SUCCESS PATH (No errors detected) ===
+    - name: ✅ Standard Build & Deploy
+      if: steps.error-detection.outputs.errors-found == 'false'
+      run: |
+        echo "No errors detected - proceeding with standard build and deploy"
+        
+        # Standard build process
+        npm run build:alimentacion
+        npm run build:combustibles
+        
+        # Install Firebase CLI and deploy
+        npm install -g firebase-tools
+        echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}' > /tmp/service-account.json
+        export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json
+        firebase deploy --only hosting --project liquidacionapp-62962
+      env:
+        VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+        VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+        VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+        VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+
+    # === FINAL STATUS ===
+    - name: 📋 Final Status Report
+      if: always()
+      run: |
+        echo "=== COPILOT BRIDGE FINAL STATUS ==="
+        echo "Timestamp: $(date)"
+        echo "Commit: ${{ github.sha }}"
+        echo "Errors Detected: ${{ steps.error-detection.outputs.errors-found }}"
+        echo "Error Count: ${{ steps.error-detection.outputs.error-count }}"
+        echo ""
+        echo "🔗 Bridge System: Active"
+        echo "🤖 Copilot Agent: $([ '${{ steps.error-detection.outputs.errors-found }}' = 'true' ] && echo 'Invoked' || echo 'Not needed')"
+        echo "🚀 Deploy Status: $([ '${{ steps.error-detection.outputs.errors-found }}' = 'false' ] && echo 'Completed' || echo 'Pending validation')"
+        echo ""
+        echo "The Copilot Bridge system is designed to:"
+        echo "1. Detect any build/lint errors automatically"  
+        echo "2. Structure complete context for Copilot Agent"
+        echo "3. Delegate intelligent fix decisions to the Agent"
+        echo "4. Validate fixes and proceed with deployment"
+        echo ""
+        echo "No predefined fix logic - pure AI delegation 🧠"

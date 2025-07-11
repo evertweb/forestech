@@ -15,6 +15,7 @@ import { analyticsEvents } from '../firebase/analytics';
 const UserContext = createContext();
 
 // Hook personalizado para usar el contexto
+// TODO: Separar componente de constantes/funciones para Fast Refresh
 export const useUser = () => {
   const context = useContext(UserContext);
   if (context === undefined) {

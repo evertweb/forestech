@@ -6,6 +6,7 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { withOptimization, useOptimizedCallbacks } from '../../hooks/useOptimizedComponents';
 import OptimizedMovementsList from '../Optimized/OptimizedMovementsList';
 
+// TODO: Separar componente de constantes/funciones para Fast Refresh
 const OptimizedMovementsPage = () => {
   // ✅ NIVEL 2: Fetching por demanda - solo datos de movimientos
   const { movements, vehicles, inventory, loading, error } = usePageData('movements');
