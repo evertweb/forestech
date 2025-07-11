@@ -41,6 +41,7 @@ jobs:
         node-version: '18'
 
     - name: 🤖 Create and Auto-Assign Issue to Copilot Agent
+      id: create-issue
       uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -74,10 +75,37 @@ jobs:
               labels: ['copilot-agent', 'build-improvement', 'automation']
             });
             
-            console.log(`✅ Issue created and assigned: #${issue.data.number}`);
+            console.log(`✅ Issue created: #${issue.data.number}`);
+            core.setOutput('issue-number', issue.data.number);
             
+            return issue.data.number;
           } catch (error) {
             console.log(`❌ Failed to create issue: ${error.message}`);
+            return null;
+          }
+
+    - name: 🤖 Assign to GitHub Copilot Agent
+      if: steps.create-issue.outputs.issue-number
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          try {
+            const issueNumber = ${{ steps.create-issue.outputs.issue-number }};
+            
+            // Use GitHub Copilot Agent assignment API
+            await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/assignees', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              assignees: ['copilot']
+            });
+            
+            console.log(`✅ Successfully assigned issue #${issueNumber} to GitHub Copilot Agent`);
+            
+          } catch (error) {
+            console.log(`⚠️ Assignment failed: ${error.message}`);
+            console.log('Manual assignment may be required');
           }
 
     - name: 🚀 Success Summary
