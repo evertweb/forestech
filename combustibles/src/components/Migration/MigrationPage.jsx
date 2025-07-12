@@ -16,10 +16,11 @@ function MigrationPage() {
           isFullPage={true}
           onClose={() => {
             // En una página completa, cerrar podría navegar a otra sección
-            console.log('Wizard cerrado');
+            // Placeholder for future navigation logic
           }}
-          onComplete={(result) => {
-            console.log('Migración completada:', result);
+          onComplete={() => {
+            // Handle migration completion
+            // Future: Show success notification or redirect
           }}
         />
       </div>

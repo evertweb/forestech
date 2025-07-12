@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { X, Upload, ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import migrationManager, { MIGRATION_STEPS } from '../../services/migrationManager';
 import './MigrationWizard.css';
@@ -150,7 +151,6 @@ const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) =>
       }
 
     } catch (error) {
-      console.error('Error procesando archivo:', error);
       setError(`Error procesando archivo: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -177,7 +177,6 @@ const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) =>
       }
 
     } catch (error) {
-      console.error('Error configurando mapeo de columnas:', error);
       setError(`Error en mapeo de columnas: ${error.message}`);
     } finally {
       setIsLoading(false);
@@ -192,71 +191,6 @@ const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) =>
     updateContext({
       valueMapping: userValueMappings
     });
-  };
-
-  /**
-   * Manejar validación de datos (Paso 4)
-   */
-  const _handleValidation = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await migrationManager.validateData(
-        migrationContext.fileData.data,
-        migrationContext.columnMapping,
-        migrationContext.valueMapping
-      );
-      
-      if (result.success) {
-        updateContext({
-          validationResult: result.validationResult
-        });
-      } else {
-        setError(result.error);
-      }
-
-    } catch (error) {
-      console.error('Error en validación:', error);
-      setError(`Error en validación: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Manejar ejecución de migración (Paso 5)
-   */
-  const _handleExecution = async (progressCallback) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await migrationManager.executeMigration(
-        migrationContext.validationResult,
-        migrationContext.valueMapping,
-        progressCallback
-      );
-      
-      if (result.success) {
-        updateContext({
-          executionResult: result.executionResult
-        });
-
-        // Notificar completado al componente padre
-        if (onComplete) {
-          onComplete(result.executionResult);
-        }
-      } else {
-        setError(result.error);
-      }
-
-    } catch (error) {
-      console.error('Error en ejecución:', error);
-      setError(`Error en migración: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   /**
@@ -283,11 +217,8 @@ const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) =>
    * Cerrar wizard con confirmación
    */
   const handleClose = () => {
-    if (migrationContext.step > MIGRATION_STEPS.FILE_UPLOAD) {
-      if (confirm('¿Estás seguro de que quieres cerrar el wizard? Se perderá el progreso actual.')) {
-        onClose();
-      }
-    } else {
+    // Close wizard - in full page mode, this may navigate elsewhere
+    if (onClose) {
       onClose();
     }
   };
@@ -296,10 +227,8 @@ const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) =>
    * Reiniciar wizard
    */
   const handleRestart = () => {
-    if (confirm('¿Estás seguro de que quieres reiniciar el wizard?')) {
-      setMigrationContext(migrationManager.createMigrationContext());
-      setError(null);
-    }
+    setMigrationContext(migrationManager.createMigrationContext());
+    setError(null);
   };
 
   if (!isOpen) return null;
@@ -667,6 +596,19 @@ const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) =>
       </div>
     </div>
   );
+};
+
+// PropTypes definition
+MigrationWizard.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onComplete: PropTypes.func,
+  isFullPage: PropTypes.bool
+};
+
+MigrationWizard.defaultProps = {
+  isFullPage: false,
+  onComplete: null
 };
 
 export default MigrationWizard;
