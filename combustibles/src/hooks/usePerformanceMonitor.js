@@ -13,7 +13,7 @@ export const useRenderCounter = (componentName) => {
     const timeSinceLastRender = now - lastRender.current;
     lastRender.current = now;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`🔄 [${componentName}] Render #${renderCount.current} (${timeSinceLastRender}ms desde último)`);
     }
   });
@@ -88,7 +88,7 @@ export const useOperationTimer = () => {
       const duration = performance.now() - startTime;
       timers.current.delete(operationId);
 
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log(`⏱️ [${operationId}] completado en ${duration.toFixed(2)}ms`);
       }
 
@@ -118,7 +118,7 @@ export const useWhyDidYouUpdate = (name, props) => {
         }
       });
 
-      if (Object.keys(changedProps).length > 0 && process.env.NODE_ENV === 'development') {
+      if (Object.keys(changedProps).length > 0 && import.meta.env.DEV) {
         console.log(`🔍 [${name}] Re-render causado por:`, changedProps);
       }
     }

@@ -28,7 +28,7 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
       if (days > 0) return `hace ${days} día${days > 1 ? 's' : ''}`;
       if (hours > 0) return `hace ${hours} hora${hours > 1 ? 's' : ''}`;
       return 'hace unos minutos';
-    } catch (_error) {
+    } catch {
       return 'fecha inválida';
     }
   };

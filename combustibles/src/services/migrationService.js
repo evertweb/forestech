@@ -7,18 +7,18 @@
 import { 
   collection, 
   addDoc,
-  updateDoc, 
+  // updateDoc, 
   doc, 
-  getDocs, 
-  query, 
-  where,
+  // getDocs, 
+  // query, 
+  // where,
   writeBatch,
   serverTimestamp,
-  runTransaction
+  // runTransaction
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { createVehicle, getVehicleByCode, updateVehicle } from './vehiclesService';
-import { createProduct, getProductByCode } from './productsService';
+import { /* createProduct, */ getProductByCode } from './productsService';
 
 // Colecciones Firebase
 const VEHICLES_COLLECTION = 'combustibles_vehicles';
@@ -35,7 +35,7 @@ class MigrationService {
     this.progress = {
       currentStep: '',
       totalSteps: 5,
-      currentStep: 0,
+      stepNumber: 0,
       vehicles: { total: 0, processed: 0, errors: 0 },
       movements: { total: 0, processed: 0, errors: 0 },
       products: { total: 0, processed: 0, errors: 0 },
@@ -453,7 +453,7 @@ class MigrationService {
         return directDate;
       }
       
-    } catch (error) {
+    } catch {
       console.warn(`⚠️ No se pudo parsear fecha: ${dateString}`);
     }
     

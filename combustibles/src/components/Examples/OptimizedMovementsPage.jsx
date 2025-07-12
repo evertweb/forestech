@@ -1,5 +1,6 @@
 // combustibles/src/components/Examples/OptimizedMovementsPage.jsx
 // Ejemplo práctico del sistema optimizado completo - NIVELES 2 Y 3
+/* eslint-disable react-refresh/only-export-components */
 import React, { useCallback } from 'react';
 import { usePageData } from '../../hooks/usePageData';
 import { useCombustibles } from '../../contexts/CombustiblesContext';

@@ -1,5 +1,6 @@
 // combustibles/src/contexts/AuthContext.jsx
 // Context minimalista solo para autenticación - NIVEL 2 OPTIMIZACIÓN
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';

@@ -82,7 +82,7 @@ const VehicleModalNew = ({
     } finally {
       setLoading(false);
     }
-  }, [mode, loadCategories]);
+  }, [mode]); // Removed loadCategories from dependencies as it's stable
 
   useEffect(() => {
     if (isOpen) {

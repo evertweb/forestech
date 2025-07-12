@@ -1,5 +1,6 @@
 // combustibles/src/components/Optimized/PerformanceDashboard.jsx
 // Dashboard de métricas de performance - FASE 3 MONITOREO
+/* eslint-disable react-refresh/only-export-components */
 import React, { useContext, useEffect, useState } from 'react';
 import { PerformanceContext } from '../../contexts/PerformanceContext';
 import { withOptimization } from '../../hooks/useOptimizedComponents';
@@ -18,7 +19,7 @@ const PerformanceDashboard = ({ isVisible = true }) => {
 
   useEffect(() => {
     // Log automático cada 30 segundos en desarrollo
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       const interval = setInterval(logOptimizationStats, 30000);
       return () => clearInterval(interval);
     }
@@ -28,13 +29,13 @@ const PerformanceDashboard = ({ isVisible = true }) => {
   useEffect(() => {
     console.log('🔍 PerformanceDashboard renderizado:', {
       isVisible,
-      NODE_ENV: process.env.NODE_ENV,
+      MODE: import.meta.env.MODE,
       globalMetrics
     });
   }, [isVisible, globalMetrics]);
 
   // Siempre mostrar en desarrollo, o cuando isVisible sea true
-  if (!isVisible && process.env.NODE_ENV === 'production') {
+  if (!isVisible && import.meta.env.PROD) {
     return null;
   }
 

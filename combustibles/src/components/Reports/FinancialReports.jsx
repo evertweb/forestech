@@ -9,7 +9,7 @@ import {
   calculatePeriodValue,
   calculateLocationCosts,
   calculateConsumptionProjections,
-  calculateOperationalCosts,
+  // calculateOperationalCosts,
   formatCurrency,
   formatNumber,
   formatPercentage
@@ -17,7 +17,7 @@ import {
 import { MOVEMENT_TYPES } from '../../services/movementsService';
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
-const FinancialReports = ({ movements, vehicles, suppliers, dateRange, inventory }) => {
+const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, inventory }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [comparisonPeriod, setComparisonPeriod] = useState('previous');
 

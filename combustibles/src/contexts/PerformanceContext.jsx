@@ -1,5 +1,6 @@
 // combustibles/src/contexts/PerformanceContext.jsx
 // Contexto global para métricas de performance - FASE 3 OPTIMIZACIÓN
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useCallback } from 'react';
 
 // Contexto global para métricas de performance

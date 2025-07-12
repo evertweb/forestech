@@ -68,7 +68,7 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
   // Calcular estadísticas
   const movementsStats = useMemo(() => calculateMovementsStats(filteredMovements), [filteredMovements]);
   const costsAnalysis = useMemo(() => calculateMovementCosts(filteredMovements), [filteredMovements]);
-  const periodValue = useMemo(() => 
+  const _periodValue = useMemo(() => 
     calculatePeriodValue(filteredMovements, dateRange), 
     [filteredMovements, dateRange]
   );

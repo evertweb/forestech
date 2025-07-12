@@ -4,6 +4,7 @@
  * Mantiene consistencia con los patrones de UI existentes
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { useUser } from '../contexts/UserContext';
 
@@ -132,33 +133,36 @@ const getRoleDisplayName = (role) => {
 export const usePermissionCheck = () => {
   const { isRole, hasPermission } = useUser();
 
-  return {
-    /**
-     * Verifica si el usuario puede ver un elemento
-     * @param {Object} requirements - Requerimientos de acceso
-     * @param {string} requirements.role - Rol requerido
-     * @param {string} requirements.permission - Permiso requerido
-     * @returns {boolean} - True si puede ver el elemento
-     */
-    canView: (requirements = {}) => {
-      if (requirements.role && !isRole(requirements.role)) {
-        return false;
-      }
-      if (requirements.permission && !hasPermission(requirements.permission)) {
-        return false;
-      }
-      return true;
-    },
-
-    /**
-     * Wrapper para mostrar elementos condicionalmente
-     * @param {Object} requirements - Requerimientos de acceso
-     * @param {React.ReactNode} element - Elemento a mostrar
-     * @returns {React.ReactNode|null} - Elemento o null
-     */
-    renderIf: (requirements, element) => {
-      return this.canView(requirements) ? element : null;
+  /**
+   * Verifica si el usuario puede ver un elemento
+   * @param {Object} requirements - Requerimientos de acceso
+   * @param {string} requirements.role - Rol requerido
+   * @param {string} requirements.permission - Permiso requerido
+   * @returns {boolean} - True si puede ver el elemento
+   */
+  const canView = (requirements = {}) => {
+    if (requirements.role && !isRole(requirements.role)) {
+      return false;
     }
+    if (requirements.permission && !hasPermission(requirements.permission)) {
+      return false;
+    }
+    return true;
+  };
+
+  /**
+   * Wrapper para mostrar elementos condicionalmente
+   * @param {Object} requirements - Requerimientos de acceso
+   * @param {React.ReactNode} element - Elemento a mostrar
+   * @returns {React.ReactNode|null} - Elemento o null
+   */
+  const renderIf = (requirements, element) => {
+    return canView(requirements) ? element : null;
+  };
+
+  return {
+    canView,
+    renderIf
   };
 };
 
