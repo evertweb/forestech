@@ -1,0 +1,54 @@
+name: ✨ Solicitud de Mejora
+description: Sugiere una nueva funcionalidad o mejora
+title: "[MEJORA] "
+labels: ["mejora"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por tu sugerencia! Describe tu idea para mejorar Forestech.
+        
+  - type: textarea
+    id: problema
+    attributes:
+      label: ¿Qué problema resuelve esta mejora?
+      description: Describe el problema o necesidad que esta mejora abordaría
+      placeholder: Explica la situación actual y por qué necesita mejorarse
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solucion
+    attributes:
+      label: Solución Propuesta
+      description: Describe tu idea para resolver el problema
+      placeholder: Explica cómo debería funcionar la nueva funcionalidad
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: aplicacion
+    attributes:
+      label: Aplicación Objetivo
+      description: ¿Para qué aplicación es esta mejora?
+      options:
+        - alimentacion (App de alimentación bovina)
+        - combustibles (App de gestión de combustibles)
+        - shared (Componentes compartidos)
+        - documentacion
+        - general (Todo el proyecto)
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      description: ¿Qué tan importante es esta mejora?
+      options:
+        - Baja (sería bueno tenerla)
+        - Media (mejoraría la experiencia)
+        - Alta (necesaria para el proyecto)
+        - Crítica (bloquea otras funcionalidades)
+    validations:
+      required: true
