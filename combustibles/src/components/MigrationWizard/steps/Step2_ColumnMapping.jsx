@@ -25,7 +25,7 @@ const Step2_ColumnMapping = ({
   columnSuggestions = {},
   onMappingChange,
   previewData = [],
-  _isLoading = false,
+  /* _isLoading = false, */
   error = null 
 }) => {
   const [mappings, setMappings] = useState(currentMapping);

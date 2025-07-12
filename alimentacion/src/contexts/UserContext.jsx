@@ -4,6 +4,7 @@
  * Mantiene consistencia con los patrones existentes del proyecto
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';

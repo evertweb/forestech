@@ -1,6 +1,6 @@
 // combustibles/src/hooks/useOptimizedComponents.js
 // Sistema de optimización con React.memo y cache - NIVEL 3 OPTIMIZACIÓN
-import { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo } from 'react';
 
 // HOC para optimizar componentes con React.memo inteligente
 export const withOptimization = (Component, customCompare) => {
@@ -29,7 +29,7 @@ export const useOptimizedCallbacks = (callbacks) => {
     });
 
     return optimizedCallbacks;
-  }, [callbacks]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [callbacks]);
 };
 
 // Función para comparación personalizada de props en React.memo

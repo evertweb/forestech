@@ -32,7 +32,7 @@ const Step3_ValueMapping = ({
   columnMapping = {},
   onValueMappingChange,
   currentValueMapping = {},
-  _isLoading = false,
+  /* _isLoading = false, */
   error = null 
 }) => {
   const [valueMappings, setValueMappings] = useState(currentValueMapping);

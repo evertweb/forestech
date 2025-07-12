@@ -4,6 +4,7 @@
  * Mantiene consistencia con los patrones de UI existentes
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { useUser } from '../contexts/UserContext';
 

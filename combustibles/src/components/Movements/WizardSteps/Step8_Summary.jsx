@@ -7,7 +7,7 @@ import React from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { formatLocationName } from '../../../constants/locations';
 
-const Step8_Summary = ({ formData, systemData, _isLoading, error, onCommentsChange, confirmChecked, onConfirmChange }) => {
+const Step8_Summary = ({ formData, systemData, /* _isLoading, */ error, onCommentsChange, confirmChecked, onConfirmChange }) => {
 
   const { vehicles, products, suppliers } = systemData;
 

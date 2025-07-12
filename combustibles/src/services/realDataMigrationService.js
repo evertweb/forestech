@@ -8,7 +8,7 @@ import {
   addDoc,
   getDocs, 
   query, 
-  where,
+  // where,
   writeBatch,
   serverTimestamp,
   doc
@@ -453,7 +453,7 @@ class RealDataMigrationService {
         const year = parseInt(parts[2]);
         return new Date(year, month, day);
       }
-    } catch (error) {
+    } catch {
       console.warn('Error parseando fecha real:', dateString);
     }
     return null;

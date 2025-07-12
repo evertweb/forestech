@@ -8,7 +8,7 @@ import { subscribeToSuppliers } from '../services/suppliersService';
 import { optimizedFirestore } from '../services/optimizedFirestore';
 
 // Hook genérico para suscripciones Firestore con cache y optimizaciones
-const useFirestoreSubscription = (subscribeFunction, enabled = true, _options = {}) => {
+const useFirestoreSubscription = (subscribeFunction, enabled = true, /* _options = {} */) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

@@ -269,7 +269,7 @@ export const recordAliasUsage = async (aliasType) => {
  * @param {number} daysUnused - Días sin uso para considerar limpieza
  * @returns {Promise<number>} - Número de alias eliminados
  */
-export const cleanupUnusedAliases = async (aliasType, _daysUnused = 90) => {
+export const cleanupUnusedAliases = async (aliasType, /* _daysUnused = 90 */) => {
   try {
     const aliases = await getAliasesByType(aliasType);
     if (!aliases || !aliases.mappings) {

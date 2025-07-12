@@ -8,7 +8,7 @@ import {
   addDoc,
   getDocs, 
   query, 
-  where,
+  // where,
   writeBatch,
   serverTimestamp,
   doc
@@ -153,7 +153,7 @@ class DirectMigrationService {
   /**
    * Preparar vehículos históricos
    */
-  prepareHistoricalVehicles(vehicleNames) {
+  prepareHistoricalVehicles(/* _vehicleNames */) {
     const vehicleMap = {
       'TR-1': {
         vehicleId: 'TR-001',
@@ -317,7 +317,7 @@ class DirectMigrationService {
         const year = parseInt(parts[2]);
         return new Date(year, month, day);
       }
-    } catch (error) {
+    } catch {
       console.warn('Error parseando fecha:', dateString);
     }
     return null;
