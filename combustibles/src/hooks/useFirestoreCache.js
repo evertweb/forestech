@@ -142,10 +142,12 @@ export const useFirestoreCache = (key, fetchFunction, dependencies = []) => {
 export const useOptimizedQuery = (collection, queryConfig = {}) => {
   const cacheKey = `${collection}_${JSON.stringify(queryConfig)}`;
 
-  const fetchFunction = useCallback(async (/* _signal */) => {
+  const fetchFunction = useCallback(async () => {
     // Aquí implementarías la lógica de consulta Firestore optimizada
     // con límites, índices, etc.
-    console.log(`Ejecutando consulta optimizada para ${collection}`, queryConfig);
+    if (import.meta.env.DEV) {
+      console.log(`Ejecutando consulta optimizada para ${collection}`, queryConfig);
+    }
 
     // TODO: Implementar consulta Firestore real
     return [];

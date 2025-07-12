@@ -3,8 +3,6 @@
  * Implementa todas las reglas de validación específicas del dominio
  */
 
-// import { parseFileDate } from '../utils/dataMapper';
-
 /**
  * Validador principal para archivos de migración
  */
