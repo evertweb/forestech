@@ -1,0 +1,304 @@
+# Configuración en Español para GitHub Actions y Issues
+# Este archivo define templates y configuraciones para mantener todo en español
+
+name: Configuración en Español - Templates y Etiquetas
+
+on:
+  workflow_dispatch:
+    inputs:
+      setup_type:
+        description: 'Tipo de configuración a ejecutar'
+        required: true
+        default: 'labels'
+        type: choice
+        options:
+          - labels
+          - templates
+          - both
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  configurar-espanol:
+    name: Configurar Proyecto en Español
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout del Repositorio
+      uses: actions/checkout@v4
+
+    - name: 🏷️ Configurar Etiquetas en Español
+      if: ${{ github.event.inputs.setup_type == 'labels' || github.event.inputs.setup_type == 'both' }}
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const labels = [
+            { name: 'error', color: 'B60205', description: 'Algo no funciona correctamente' },
+            { name: 'mejora', color: '0075CA', description: 'Nueva funcionalidad o solicitud' },
+            { name: 'copilot-agent', color: '6F42C1', description: 'Asignado al GitHub Copilot Agent' },
+            { name: 'mejora-build', color: 'FFC107', description: 'Mejoras en el sistema de build' },
+            { name: 'automatizacion', color: '00D4AA', description: 'Automatización y CI/CD' },
+            { name: 'react', color: '61DAFB', description: 'Relacionado con React' },
+            { name: 'firebase', color: 'FFA000', description: 'Relacionado con Firebase' },
+            { name: 'alimentacion', color: '4CAF50', description: 'App de alimentación bovina' },
+            { name: 'combustibles', color: 'FF5722', description: 'App de gestión de combustibles' },
+            { name: 'lint', color: 'E91E63', description: 'Problemas de linting' },
+            { name: 'documentacion', color: '0366D6', description: 'Mejoras o adiciones a la documentación' },
+            { name: 'urgente', color: 'D73A49', description: 'Requiere atención inmediata' },
+            { name: 'ayuda-buscada', color: '128A0C', description: 'Se busca ayuda adicional de la comunidad' },
+            { name: 'no-válido', color: 'FFFFFF', description: 'Este issue o PR no es válido' }
+          ];
+
+          console.log('🏷️ Configurando etiquetas en español...');
+          
+          for (const label of labels) {
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label.name,
+                color: label.color,
+                description: label.description
+              });
+              console.log(`✅ Etiqueta creada: ${label.name}`);
+            } catch (error) {
+              if (error.status === 422) {
+                // Label already exists, update it
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`📝 Etiqueta actualizada: ${label.name}`);
+              } else {
+                console.log(`❌ Error con etiqueta ${label.name}: ${error.message}`);
+              }
+            }
+          }
+
+    - name: 📝 Crear Templates de Issues en Español
+      if: ${{ github.event.inputs.setup_type == 'templates' || github.event.inputs.setup_type == 'both' }}
+      run: |
+        mkdir -p .github/ISSUE_TEMPLATE
+        
+        # Template para reportar errores
+        cat > .github/ISSUE_TEMPLATE/reporte-error.yml << 'EOF'
+        name: 🐛 Reporte de Error
+        description: Reporta un error o problema con el sistema
+        title: "[ERROR] "
+        labels: ["error"]
+        body:
+          - type: markdown
+            attributes:
+              value: |
+                Gracias por reportar un error. Por favor llena la información a continuación.
+                
+          - type: textarea
+            id: descripcion
+            attributes:
+              label: Descripción del Error
+              description: Describe qué error estás experimentando
+              placeholder: Explica qué sucedió y qué esperabas que sucediera
+            validations:
+              required: true
+              
+          - type: dropdown
+            id: aplicacion
+            attributes:
+              label: Aplicación Afectada
+              description: ¿En qué aplicación ocurre el error?
+              options:
+                - alimentacion (App de alimentación bovina)
+                - combustibles (App de gestión de combustibles)
+                - shared (Componentes compartidos)
+                - build/ci (Sistema de construcción)
+                - documentacion
+            validations:
+              required: true
+              
+          - type: textarea
+            id: pasos
+            attributes:
+              label: Pasos para Reproducir
+              description: Lista los pasos para reproducir el error
+              placeholder: |
+                1. Navega a...
+                2. Haz clic en...
+                3. El error aparece...
+            validations:
+              required: true
+              
+          - type: textarea
+            id: logs
+            attributes:
+              label: Logs de Error
+              description: Copia cualquier mensaje de error de la consola
+              render: shell
+        EOF
+        
+        # Template para solicitar mejoras
+        cat > .github/ISSUE_TEMPLATE/solicitud-mejora.yml << 'EOF'
+        name: ✨ Solicitud de Mejora
+        description: Sugiere una nueva funcionalidad o mejora
+        title: "[MEJORA] "
+        labels: ["mejora"]
+        body:
+          - type: markdown
+            attributes:
+              value: |
+                ¡Gracias por tu sugerencia! Describe tu idea para mejorar Forestech.
+                
+          - type: textarea
+            id: problema
+            attributes:
+              label: ¿Qué problema resuelve esta mejora?
+              description: Describe el problema o necesidad que esta mejora abordaría
+              placeholder: Explica la situación actual y por qué necesita mejorarse
+            validations:
+              required: true
+              
+          - type: textarea
+            id: solucion
+            attributes:
+              label: Solución Propuesta
+              description: Describe tu idea para resolver el problema
+              placeholder: Explica cómo debería funcionar la nueva funcionalidad
+            validations:
+              required: true
+              
+          - type: dropdown
+            id: aplicacion
+            attributes:
+              label: Aplicación Objetivo
+              description: ¿Para qué aplicación es esta mejora?
+              options:
+                - alimentacion (App de alimentación bovina)
+                - combustibles (App de gestión de combustibles)
+                - shared (Componentes compartidos)
+                - documentacion
+                - general (Todo el proyecto)
+            validations:
+              required: true
+              
+          - type: dropdown
+            id: prioridad
+            attributes:
+              label: Prioridad
+              description: ¿Qué tan importante es esta mejora?
+              options:
+                - Baja (sería bueno tenerla)
+                - Media (mejoraría la experiencia)
+                - Alta (necesaria para el proyecto)
+                - Crítica (bloquea otras funcionalidades)
+            validations:
+              required: true
+        EOF
+        
+        echo "✅ Templates de issues creados en español"
+
+    - name: 📋 Crear Template de Pull Request en Español
+      if: ${{ github.event.inputs.setup_type == 'templates' || github.event.inputs.setup_type == 'both' }}
+      run: |
+        mkdir -p .github
+        
+        cat > .github/pull_request_template.md << 'EOF'
+        ## 📋 Descripción
+        
+        Describe brevemente los cambios realizados en este PR.
+        
+        ## 🎯 Tipo de Cambio
+        
+        - [ ] 🐛 Corrección de error (fix)
+        - [ ] ✨ Nueva funcionalidad (feature)
+        - [ ] 🔧 Refactoring
+        - [ ] 📝 Documentación
+        - [ ] 🎨 Mejoras de UI/UX
+        - [ ] ⚡ Mejoras de rendimiento
+        - [ ] 🧪 Tests
+        
+        ## 🚀 Aplicación Afectada
+        
+        - [ ] 🐄 alimentacion (App de alimentación bovina)
+        - [ ] ⛽ combustibles (App de gestión de combustibles)
+        - [ ] 🔗 shared (Componentes compartidos)
+        - [ ] 🏗️ build/ci (Sistema de construcción)
+        - [ ] 📚 documentacion
+        
+        ## ✅ Checklist
+        
+        - [ ] Mi código sigue los estándares del proyecto
+        - [ ] He realizado una auto-revisión de mi código
+        - [ ] He comentado mi código, especialmente en áreas difíciles de entender
+        - [ ] He realizado los cambios correspondientes en la documentación
+        - [ ] Mis cambios no generan nuevas advertencias
+        - [ ] He agregado tests que prueban que mi fix es efectivo o que mi feature funciona
+        - [ ] Los tests unitarios nuevos y existentes pasan localmente con mis cambios
+        
+        ## 🧪 Cómo se ha probado
+        
+        Describe las pruebas que realizaste para verificar tus cambios:
+        
+        - [ ] Test A
+        - [ ] Test B
+        
+        **Configuración de prueba**:
+        * Versión del firmware:
+        * Hardware:
+        * Toolchain:
+        * SDK:
+        
+        ## 📱 Capturas de pantalla (si aplica)
+        
+        Agrega capturas de pantalla para ayudar a explicar tu cambio.
+        
+        ## 📝 Notas adicionales
+        
+        Agrega cualquier otra información sobre este PR aquí.
+        EOF
+        
+        echo "✅ Template de pull request creado en español"
+
+    - name: 🎉 Commit de Templates y Configuración
+      if: ${{ github.event.inputs.setup_type == 'templates' || github.event.inputs.setup_type == 'both' }}
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .github/ISSUE_TEMPLATE/ .github/pull_request_template.md
+        if git diff --staged --quiet; then
+          echo "No hay cambios para commitear"
+        else
+          git commit -m "🇪🇸 Agregar templates en español para issues y PRs
+          
+          - Templates de issues para reportes de errores y solicitudes de mejora
+          - Template de pull request con checklist en español
+          - Configuración adaptada al proyecto Forestech Colombia"
+          git push
+          echo "✅ Templates commiteados y pusheados"
+        fi
+
+    - name: 📊 Resumen de Configuración
+      run: |
+        echo "🇪🇸 ¡Configuración en español completada!"
+        echo ""
+        echo "✅ Configuraciones aplicadas:"
+        if [[ "${{ github.event.inputs.setup_type }}" == "labels" || "${{ github.event.inputs.setup_type }}" == "both" ]]; then
+          echo "  🏷️  Etiquetas en español configuradas"
+        fi
+        if [[ "${{ github.event.inputs.setup_type }}" == "templates" || "${{ github.event.inputs.setup_type }}" == "both" ]]; then
+          echo "  📝 Templates de issues y PRs en español"
+        fi
+        echo ""
+        echo "🎯 Características del sistema en español:"
+        echo "  • Issues automáticos en español"
+        echo "  • Workflows con nombres y mensajes en español"
+        echo "  • Claude configurado para responder en español"
+        echo "  • Copilot Agent con instrucciones en español"
+        echo "  • Templates de issues y PRs adaptados a Forestech"
+        echo ""
+        echo "🚀 El proyecto Forestech ahora está completamente configurado en español!"

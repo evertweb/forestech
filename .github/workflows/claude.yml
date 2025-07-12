@@ -12,19 +12,17 @@ on:
 
 jobs:
   claude:
-    # Temporarily disabled while Copilot Agent works
-    if: false  # Will re-enable after Copilot Agent fixes are complete
-    # Original condition:
-    # if: |
-    #   (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-    #   (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-    #   (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-    #   (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    # Re-enabled with proper configuration
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write  # Fixed: Added write permissions
+      issues: write         # Fixed: Added write permissions
       id-token: write
     steps:
       - name: Checkout repository
@@ -36,27 +34,33 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@beta
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Fixed: Added GitHub token
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
-          
-          # Optional: Customize the trigger phrase (default: @claude)
-          # trigger_phrase: "/claude"
-          
-          # Optional: Trigger when specific user is assigned to an issue
-          # assignee_trigger: "claude-bot"
-          
-          # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
-          
-          # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
-          
-          # Optional: Custom environment variables for Claude
-          # claude_env: |
-          #   NODE_ENV: test
+          # Configuración en español
+          custom_instructions: |
+            Eres Claude, un asistente de código inteligente para el proyecto Forestech Colombia.
+            
+            IMPORTANTE: Responde SIEMPRE en español.
+            
+            Contexto del proyecto:
+            - Monorepo React + Vite + Firebase
+            - Aplicaciones: alimentacion/ y combustibles/
+            - Stack: React, TypeScript, Firebase, ESLint
+            
+            Instrucciones de trabajo:
+            1. Analiza el código siguiendo estándares de calidad
+            2. Proporciona soluciones específicas y claras
+            3. Mantén los patrones existentes del código
+            4. Asegura que las correcciones no rompan funcionalidad
+            5. Responde en español con explicaciones detalladas
+            
+            Áreas de enfoque:
+            - Errores de linting y builds
+            - Patrones de React y hooks
+            - Optimización de rendimiento
+            - Mejores prácticas de JavaScript/TypeScript
+            
+          # Permitir comandos específicos del proyecto
+          allowed_tools: "Bash(npm install),Bash(npm run build:*),Bash(npm run lint:*),Bash(npm run dev:*)"
 

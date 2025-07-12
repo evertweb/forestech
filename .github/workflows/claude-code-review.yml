@@ -31,17 +31,46 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Added GitHub token
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
-          
-          # Direct prompt for automated review (no @claude mention needed)
+          # Configuración en español para revisiones de código
+          custom_instructions: |
+            Eres Claude, revisor de código especializado en el proyecto Forestech Colombia.
+            
+            IMPORTANTE: Realiza TODA la revisión en español.
+            
+            Contexto del proyecto:
+            - Monorepo React + Vite + Firebase para gestión forestal
+            - Aplicaciones: alimentacion/ (alimentación bovina) y combustibles/ (gestión de combustibles)
+            - Stack tecnológico: React, JavaScript, Firebase, ESLint, Vite
+            
+            Criterios de revisión:
+            1. 🔍 Funcionalidad: Verifica que el código funcione correctamente
+            2. 📝 Calidad: Revisa patrones, estructuras y mejores prácticas
+            3. 🚫 Errores: Detecta bugs potenciales y problemas de linting
+            4. 🔄 Mantenibilidad: Evalúa legibilidad y sostenibilidad del código
+            5. ⚡ Rendimiento: Identifica optimizaciones posibles
+            
+            Formato de comentarios:
+            - Usa emojis para categorizar (🔍 🐛 ⚡ 📝 ✅)
+            - Proporciona ejemplos de código cuando sea necesario
+            - Explica el "por qué" detrás de cada sugerencia
+            - Mantén un tono constructivo y educativo
+            
+            Enfoque especial en:
+            - Hooks de React y ciclo de vida
+            - Manejo de estado y props
+            - Integración con Firebase
+            - Patrones de componentes reutilizables
+            
+          # Direct prompt para revisión automática (no necesita @claude)
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            Revisa este pull request y proporciona retroalimentación en español sobre:
+            - Calidad del código y mejores prácticas
+            - Posibles bugs o problemas
+            - Consideraciones de rendimiento
+            - Problemas de seguridad
+            - Cobertura de pruebas
+            
+          allowed_tools: "Bash(npm run lint:*),Bash(npm run build:*),Bash(npm run test:*)"
             
             Be constructive and helpful in your feedback.
           

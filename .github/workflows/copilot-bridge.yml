@@ -1,4 +1,4 @@
-name: Copilot Agent Bridge - Error Detection & Delegation
+name: Copilot Agent Bridge - Detección de Errores y Delegación
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       force_error_collection:
-        description: 'Force error collection even if builds pass'
+        description: 'Forzar recolección de errores incluso si los builds pasan'
         required: false
         default: 'false'
 
@@ -18,22 +18,22 @@ permissions:
 
 jobs:
   build-and-bridge:
-    name: Build Detection & Copilot Bridge
+    name: Detección de Build y Puente a Copilot
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout del Repositorio
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
 
-    - name: Install Dependencies
+    - name: Instalar Dependencias
       run: |
-        npm ci || echo "Root npm install failed, continuing..."
+        npm ci || echo "Instalación npm raíz falló, continuando..."
         if [ -d "alimentacion" ]; then
           cd alimentacion && npm ci && cd ..
         fi
