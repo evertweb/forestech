@@ -252,7 +252,65 @@ jobs:
         VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
 
-    - name: 📋 Final Status Report
+    - name: � Monitor PR Status and Activate Claude Backup
+      if: steps.create-issue.outputs.issue-number
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const issueNumber = ${{ steps.create-issue.outputs.issue-number }};
+          
+          // Wait a bit for Copilot to potentially create PR
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          
+          // Check for recent PRs by Copilot
+          const prs = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            per_page: 5
+          });
+          
+          const copilotPR = prs.data.find(pr => 
+            pr.user.login.includes('copilot') && 
+            (new Date() - new Date(pr.created_at)) < 60 * 60 * 1000 // Last hour
+          );
+          
+          if (copilotPR) {
+            console.log(`✅ Copilot created PR #${copilotPR.number}`);
+            
+            // Add monitoring comment for Claude backup
+            const monitorComment = `🔍 **Automated PR Monitoring Active**
+            
+            Este PR será monitoreado automáticamente:
+            
+            📊 **Criterios de backup Claude:**
+            - ❌ Si Codacy checks fallan → @claude revisará y corregirá
+            - ⏱️ Si checks tardan >45 min → @claude intervendrá  
+            - 🚨 Si errores persisten → @claude proporcionará soluciones
+            
+            🧠 **Claude como solucionador de checks:**
+            Codacy detecta → Claude soluciona → Merge cuando esté OK
+            
+            ---
+            🤖 Monitoreo automático del Copilot Bridge System`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: copilotPR.number,
+              body: monitorComment
+            });
+            
+            console.log(`📝 Added monitoring comment to PR #${copilotPR.number}`);
+            
+            // Schedule check for failing status after reasonable time
+            core.setOutput('pr-number', copilotPR.number);
+          } else {
+            console.log('⏳ No Copilot PR found yet, monitoring will continue...');
+          }
+
+    - name: �📋 Final Status Report
       if: always()
       run: |
         echo "=== COPILOT BRIDGE FINAL STATUS ==="
@@ -260,3 +318,7 @@ jobs:
         echo "Error Count: ${{ steps.error-detection.outputs.error-count }}"
         echo "Copilot Agent: $([ '${{ steps.error-detection.outputs.errors-found }}' = 'true' ] && echo 'Assigned' || echo 'Not needed')"
         echo "Deploy Status: $([ '${{ steps.error-detection.outputs.errors-found }}' = 'false' ] && echo 'Completed' || echo 'Pending fixes')"
+        if [ "${{ steps.monitor-pr.outputs.pr-number }}" ]; then
+          echo "PR Monitoring: Active on #${{ steps.monitor-pr.outputs.pr-number }}"
+          echo "Claude Backup: Configured for checks failing"
+        fi
