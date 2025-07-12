@@ -9,6 +9,7 @@ import {
   calculatePeriodValue,
   calculateLocationCosts,
   calculateConsumptionProjections,
+  // eslint-disable-next-line no-unused-vars
   calculateOperationalCosts,
   formatCurrency,
   formatNumber,
@@ -17,6 +18,7 @@ import {
 import { MOVEMENT_TYPES } from '../../services/movementsService';
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
+// eslint-disable-next-line no-unused-vars
 const FinancialReports = ({ movements, vehicles, suppliers, dateRange, inventory }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [comparisonPeriod, setComparisonPeriod] = useState('previous');

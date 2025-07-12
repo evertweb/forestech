@@ -318,4 +318,6 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   );
 };
 
-export default withOptimization(InventoryTable, createCustomCompare());
+const InventoryTableMemo = withOptimization(InventoryTable, createCustomCompare());
+InventoryTableMemo.displayName = 'InventoryTable';
+export default InventoryTableMemo;

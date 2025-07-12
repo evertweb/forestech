@@ -87,11 +87,12 @@ const MigrationWizard = ({ isOpen, onClose, onComplete }) => {
     switch (migrationContext.step) {
       case MIGRATION_STEPS.FILE_UPLOAD:
         return migrationContext.fileData && migrationContext.fileData.success;
-      case MIGRATION_STEPS.COLUMN_MAPPING:
+      case MIGRATION_STEPS.COLUMN_MAPPING: {
         // Verificar que se han mapeado los campos obligatorios
         const requiredFields = ['fecha', 'cantidad', 'vehiculo', 'producto'];
         const mappedFields = Object.keys(migrationContext.columnMapping || {});
         return requiredFields.every(field => mappedFields.includes(field));
+      }
       case MIGRATION_STEPS.VALUE_MAPPING:
         // Value mapping es opcional, siempre se puede avanzar
         return true;
@@ -196,6 +197,7 @@ const MigrationWizard = ({ isOpen, onClose, onComplete }) => {
   /**
    * Manejar validación de datos (Paso 4)
    */
+  // eslint-disable-next-line no-unused-vars
   const handleValidation = async () => {
     setIsLoading(true);
     setError(null);
@@ -226,6 +228,7 @@ const MigrationWizard = ({ isOpen, onClose, onComplete }) => {
   /**
    * Manejar ejecución de migración (Paso 5)
    */
+  // eslint-disable-next-line no-unused-vars
   const handleExecution = async (progressCallback) => {
     setIsLoading(true);
     setError(null);
@@ -326,7 +329,7 @@ const MigrationWizard = ({ isOpen, onClose, onComplete }) => {
             ></div>
           </div>
           <div className="progress-steps">
-            {WIZARD_STEPS.map((step, index) => (
+            {WIZARD_STEPS.map((step) => (
               <div 
                 key={step.id}
                 className={`progress-step ${

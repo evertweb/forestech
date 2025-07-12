@@ -110,4 +110,6 @@ const OptimizedMovementsPage = () => {
 };
 
 // ✅ NIVEL 3: Exportar con React.memo optimización
-export default withOptimization(OptimizedMovementsPage);
+const OptimizedMovementsPageMemo = withOptimization(OptimizedMovementsPage);
+OptimizedMovementsPageMemo.displayName = 'OptimizedMovementsPage';
+export default OptimizedMovementsPageMemo;

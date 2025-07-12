@@ -42,6 +42,7 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
     updateFormData('effectiveDate', value);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleReferenceChange = (value) => {
     updateFormData('reference', value);
   };

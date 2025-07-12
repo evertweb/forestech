@@ -167,6 +167,7 @@ export const usePermissionCheck = () => {
  * @param {React.Component} Component - Componente a proteger
  * @param {Object} requirements - Requerimientos de acceso
  * @returns {React.Component} - Componente protegido
+// TODO: Separar componente de constantes/funciones para Fast Refresh
  */
 // TODO: Separar componente de constantes/funciones para Fast Refresh
 export const withRoleProtection = (Component, requirements = {}) => {

@@ -53,7 +53,7 @@ const MovementsList = ({ movements, onDelete, onEdit, loading }) => {
 };
 
 // Exportar componente optimizado con comparación personalizada
-export default withOptimization(MovementsList, (prevProps, nextProps) => {
+const OptimizedMovementsList = withOptimization(MovementsList, (prevProps, nextProps) => {
   return (
     prevProps.loading === nextProps.loading &&
     prevProps.movements?.length === nextProps.movements?.length &&
@@ -61,3 +61,5 @@ export default withOptimization(MovementsList, (prevProps, nextProps) => {
     prevProps.onEdit === nextProps.onEdit
   );
 });
+OptimizedMovementsList.displayName = 'OptimizedMovementsList';
+export default OptimizedMovementsList;

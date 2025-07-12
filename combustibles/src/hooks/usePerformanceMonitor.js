@@ -13,6 +13,7 @@ export const useRenderCounter = (componentName) => {
     const timeSinceLastRender = now - lastRender.current;
     lastRender.current = now;
 
+    // eslint-disable-next-line no-undef
     if (process.env.NODE_ENV === 'development') {
       console.log(`🔄 [${componentName}] Render #${renderCount.current} (${timeSinceLastRender}ms desde último)`);
     }
@@ -88,6 +89,7 @@ export const useOperationTimer = () => {
       const duration = performance.now() - startTime;
       timers.current.delete(operationId);
 
+      // eslint-disable-next-line no-undef
       if (process.env.NODE_ENV === 'development') {
         console.log(`⏱️ [${operationId}] completado en ${duration.toFixed(2)}ms`);
       }
@@ -118,6 +120,7 @@ export const useWhyDidYouUpdate = (name, props) => {
         }
       });
 
+      // eslint-disable-next-line no-undef
       if (Object.keys(changedProps).length > 0 && process.env.NODE_ENV === 'development') {
         console.log(`🔍 [${name}] Re-render causado por:`, changedProps);
       }

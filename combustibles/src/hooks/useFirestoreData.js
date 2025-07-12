@@ -59,49 +59,49 @@ const useFirestoreSubscription = (subscribeFunction, enabled = true, options = {
 
 // Hooks específicos optimizados
 export const useInventory = (autoSubscribe = false, optimized = true) => {
-  if (optimized) {
-    return useOptimizedCollection('inventory', autoSubscribe, {
-      orderByField: 'name',
-      limitCount: 100
-    });
-  }
-  return useFirestoreSubscription(subscribeToInventory, autoSubscribe);
+  const optimizedResult = useOptimizedCollection('inventory', optimized ? autoSubscribe : false, {
+    orderByField: 'name',
+    limitCount: 100
+  });
+  const standardResult = useFirestoreSubscription(subscribeToInventory, optimized ? false : autoSubscribe);
+  
+  return optimized ? optimizedResult : standardResult;
 };
 
 export const useVehicles = (autoSubscribe = false, optimized = true) => {
-  if (optimized) {
-    return useOptimizedCollection('vehicles', autoSubscribe, {
-      filters: [{ field: 'status', operator: '==', value: 'active' }],
-      orderByField: 'plate',
-      limitCount: 50
-    });
-  }
-  return useFirestoreSubscription(subscribeToVehicles, autoSubscribe);
+  const optimizedResult = useOptimizedCollection('vehicles', optimized ? autoSubscribe : false, {
+    filters: [{ field: 'status', operator: '==', value: 'active' }],
+    orderByField: 'plate',
+    limitCount: 50
+  });
+  const standardResult = useFirestoreSubscription(subscribeToVehicles, optimized ? false : autoSubscribe);
+  
+  return optimized ? optimizedResult : standardResult;
 };
 
 export const useSuppliers = (autoSubscribe = false, optimized = true) => {
-  if (optimized) {
-    return useOptimizedCollection('suppliers', autoSubscribe, {
-      filters: [{ field: 'status', operator: '==', value: 'active' }],
-      orderByField: 'name',
-      limitCount: 30
-    });
-  }
-  return useFirestoreSubscription(subscribeToSuppliers, autoSubscribe);
+  const optimizedResult = useOptimizedCollection('suppliers', optimized ? autoSubscribe : false, {
+    filters: [{ field: 'status', operator: '==', value: 'active' }],
+    orderByField: 'name',
+    limitCount: 30
+  });
+  const standardResult = useFirestoreSubscription(subscribeToSuppliers, optimized ? false : autoSubscribe);
+  
+  return optimized ? optimizedResult : standardResult;
 };
 
 export const useMovements = (autoSubscribe = false, optimized = true) => {
-  if (optimized) {
-    return useOptimizedCollection('movements', autoSubscribe, {
-      orderByField: 'createdAt',
-      orderDirection: 'desc',
-      limitCount: 100
-    });
-  }
-  return useFirestoreSubscription(
+  const optimizedResult = useOptimizedCollection('movements', optimized ? autoSubscribe : false, {
+    orderByField: 'createdAt',
+    orderDirection: 'desc',
+    limitCount: 100
+  });
+  const standardResult = useFirestoreSubscription(
     (onData, onError) => movementsService.subscribeToMovements(onData, onError),
-    autoSubscribe
+    optimized ? false : autoSubscribe
   );
+  
+  return optimized ? optimizedResult : standardResult;
 };
 
 // Hook para colecciones optimizadas

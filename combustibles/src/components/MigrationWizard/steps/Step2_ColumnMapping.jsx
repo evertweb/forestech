@@ -25,6 +25,7 @@ const Step2_ColumnMapping = ({
   columnSuggestions = {},
   onMappingChange,
   previewData = [],
+  // eslint-disable-next-line no-unused-vars
   isLoading = false,
   error = null 
 }) => {
