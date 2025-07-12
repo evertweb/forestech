@@ -59,7 +59,7 @@ const WIZARD_STEPS = [
 /**
  * Componente principal del wizard de migración
  */
-const MigrationWizard = ({ isOpen, onClose, onComplete }) => {
+const MigrationWizard = ({ isOpen, onClose, onComplete, isFullPage = false }) => {
   const [migrationContext, setMigrationContext] = useState(
     migrationManager.createMigrationContext()
   );
@@ -303,6 +303,187 @@ const MigrationWizard = ({ isOpen, onClose, onComplete }) => {
   };
 
   if (!isOpen) return null;
+
+  // Si es página completa, usar una estructura diferente
+  if (isFullPage) {
+    return (
+      <div className="migration-wizard migration-wizard-fullpage">
+        {/* Header */}
+        <div className="wizard-header">
+          <div className="wizard-title">
+            <h2>Asistente de Migración de Datos</h2>
+            <p>Importa datos históricos de forma segura y validada</p>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="wizard-progress">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <div className="progress-steps">
+            {WIZARD_STEPS.map((step) => (
+              <div 
+                key={step.id}
+                className={`progress-step ${
+                  migrationContext.step > step.id ? 'completed' :
+                  migrationContext.step === step.id ? 'active' : 'pending'
+                }`}
+              >
+                <div className="step-circle">
+                  {migrationContext.step > step.id ? (
+                    <CheckCircle size={16} />
+                  ) : (
+                    <span>{step.id}</span>
+                  )}
+                </div>
+                <span className="step-title">{step.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="wizard-content">
+          <div className="step-header">
+            <div className="step-icon">
+              <currentStepInfo.icon size={32} />
+            </div>
+            <div className="step-info">
+              <h3>{currentStepInfo.title}</h3>
+              <p>{currentStepInfo.description}</p>
+            </div>
+          </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="wizard-error">
+              <AlertCircle size={20} />
+              <span>{error}</span>
+              <button onClick={() => setError(null)}>×</button>
+            </div>
+          )}
+
+          {/* Step Content */}
+          <div className="step-content">
+            {migrationContext.step === MIGRATION_STEPS.FILE_UPLOAD && (
+              <Step1_FileUpload
+                onFileProcessed={handleFileUpload}
+                currentFile={migrationContext.fileData}
+                isLoading={isLoading}
+                error={error}
+              />
+            )}
+
+            {migrationContext.step === MIGRATION_STEPS.COLUMN_MAPPING && (
+              <Step2_ColumnMapping
+                fileHeaders={migrationContext.fileData?.preview?.headers || []}
+                currentMapping={migrationContext.columnMapping}
+                columnSuggestions={migrationContext.fileData?.columnSuggestions || {}}
+                onMappingChange={handleColumnMapping}
+                previewData={migrationContext.fileData?.preview?.preview || []}
+                isLoading={isLoading}
+                error={error}
+              />
+            )}
+
+            {migrationContext.step === MIGRATION_STEPS.VALUE_MAPPING && (
+              <Step3_ValueMapping
+                mappedData={migrationContext.fileData?.data || []}
+                columnMapping={migrationContext.columnMapping}
+                currentValueMapping={migrationContext.valueMapping}
+                onValueMappingChange={handleValueMapping}
+                isLoading={isLoading}
+                error={error}
+              />
+            )}
+
+            {migrationContext.step === MIGRATION_STEPS.VALIDATION && (
+              <Step4_Validation
+                fileData={migrationContext.fileData?.data || []}
+                columnMapping={migrationContext.columnMapping}
+                valueMapping={migrationContext.valueMapping}
+                currentValidation={migrationContext.validationResult}
+                isValidating={isLoading}
+                onValidationComplete={(result) => updateContext({ validationResult: result })}
+                error={error}
+              />
+            )}
+
+            {migrationContext.step === MIGRATION_STEPS.EXECUTION && (
+              <Step5_Execution
+                validationResult={migrationContext.validationResult}
+                valueMapping={migrationContext.valueMapping}
+                currentExecution={migrationContext.executionResult}
+                canExecute={migrationContext.validationResult?.isValid || false}
+                onExecutionComplete={(result) => {
+                  updateContext({ executionResult: result });
+                  if (onComplete) onComplete(result);
+                }}
+                onNavigateToStep={(stepId) => updateContext({ step: stepId })}
+                error={error}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="wizard-footer">
+          <div className="footer-left">
+            <button 
+              className="btn-secondary" 
+              onClick={handleRestart}
+              disabled={isLoading}
+            >
+              Reiniciar
+            </button>
+          </div>
+          
+          <div className="footer-right">
+            <button 
+              className="btn-secondary" 
+              onClick={handlePreviousStep}
+              disabled={!canGoBack || isLoading}
+            >
+              <ArrowLeft size={16} />
+              Anterior
+            </button>
+            
+            {migrationContext.step < WIZARD_STEPS.length ? (
+              <button 
+                className="btn-primary" 
+                onClick={handleNextStep}
+                disabled={!canAdvance || isLoading}
+              >
+                Siguiente
+                <ArrowRight size={16} />
+              </button>
+            ) : (
+              <button 
+                className="btn-success" 
+                onClick={handleClose}
+                disabled={isLoading}
+              >
+                Finalizar
+                <CheckCircle size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="wizard-loading">
+            <Loader className="spinner" size={32} />
+            <p>Procesando...</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="migration-wizard-overlay">
