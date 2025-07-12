@@ -11,8 +11,8 @@ import './Migration.css';
 const PostMigrationAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [_selectedProduct, setSelectedProduct] = useState('all');
-  const [dateRange, setDateRange] = useState({
+  const [_selectedProduct, _setSelectedProduct] = useState('all');
+  const [_dateRange, _setDateRange] = useState({
     start: '2023-01-01',
     end: '2025-12-31'
   });

@@ -64,7 +64,7 @@ const Step5_Execution = ({
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(null);
 
   // Refs para control de ejecución
-  const executionRef = useRef(null);
+  const _executionRef = useRef(null);
   const intervalRef = useRef(null);
 
   /**

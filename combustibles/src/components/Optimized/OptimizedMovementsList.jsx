@@ -1,5 +1,6 @@
 // combustibles/src/components/Optimized/OptimizedMovementsList.jsx
 // Ejemplo de componente optimizado con React.memo - NIVEL 3 OPTIMIZACIÓN
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { withOptimization, createCustomCompare, useArrayChanges } from '../../hooks/useOptimizedComponents';
 

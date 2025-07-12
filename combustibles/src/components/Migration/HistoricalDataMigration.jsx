@@ -217,7 +217,7 @@ const HistoricalDataMigration = () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = (_e) => reject(new Error('Error leyendo archivo'));
+      reader.onerror = () => reject(new Error('Error leyendo archivo'));
       reader.readAsText(file);
     });
   };

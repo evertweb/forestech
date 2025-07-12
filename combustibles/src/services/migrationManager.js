@@ -10,7 +10,7 @@ import vehiclesService from './vehiclesService';
 import { createProduct } from './productsService';
 import { OPERATIONAL_LOCATIONS } from '../constants/locations';
 import { PRODUCT_TYPES } from '../constants/productTypes';
-import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
+import { /* preciseAdd, preciseSubtract, preciseRound */ } from '../utils/calculations';
 
 /**
  * Estados del wizard de migración
@@ -548,19 +548,21 @@ const validateField = (value, fieldConfig, fieldName, rowNumber) => {
   }
 
   switch (fieldConfig.type) {
-    case 'date':
+    case 'date': {
       const date = parseDate(value);
       if (!date) {
         return { error: `Fecha inválida '${value}' en fila ${rowNumber}` };
       }
       return { value: date };
+    }
 
-    case 'number':
+    case 'number': {
       const number = parseFloat(value);
       if (isNaN(number) || number < 0) {
         return { error: `Número inválido '${value}' en fila ${rowNumber}` };
       }
       return { value: number };
+    }
 
     case 'string':
       return { value: value.toString().trim() };

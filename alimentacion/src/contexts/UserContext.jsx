@@ -4,6 +4,7 @@
  * Mantiene consistencia con los patrones existentes del proyecto
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';
@@ -41,7 +42,9 @@ export const UserProvider = ({ children }) => {
         setError(null);
 
         if (firebaseUser) {
-          console.log('🔄 Usuario autenticado:', firebaseUser.email);
+          if (import.meta.env.DEV) {
+            console.log('🔄 Usuario autenticado:', firebaseUser.email);
+          }
           
           // Obtener o crear perfil del usuario
           const profileResult = await getOrCreateUserProfile(firebaseUser);
@@ -56,7 +59,9 @@ export const UserProvider = ({ children }) => {
               email_verified: firebaseUser.emailVerified
             });
             
-            console.log('✅ Perfil cargado:', profileResult.profile.role, firebaseUser.email);
+            if (import.meta.env.DEV) {
+              console.log('✅ Perfil cargado:', profileResult.profile.role, firebaseUser.email);
+            }
           } else {
             console.error('❌ Error cargando perfil:', profileResult.error);
             setError(profileResult.message || 'Error cargando perfil de usuario');
@@ -64,7 +69,9 @@ export const UserProvider = ({ children }) => {
             setUserProfile(null);
           }
         } else {
-          console.log('👋 Usuario desconectado');
+          if (import.meta.env.DEV) {
+            console.log('👋 Usuario desconectado');
+          }
           setUser(null);
           setUserProfile(null);
           setError(null);

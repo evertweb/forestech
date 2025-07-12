@@ -25,7 +25,7 @@ const Step2_ColumnMapping = ({
   columnSuggestions = {},
   onMappingChange,
   previewData = [],
-  isLoading = false,
+  /* _isLoading = false, */
   error = null 
 }) => {
   const [mappings, setMappings] = useState(currentMapping);
@@ -148,7 +148,7 @@ const Step2_ColumnMapping = ({
   /**
    * Obtener descripción del campo
    */
-  const getFieldDescription = (fieldName) => {
+  const _getFieldDescription = (fieldName) => {
     return REQUIRED_FIELDS[fieldName]?.description || 
            OPTIONAL_FIELDS[fieldName]?.description || 
            'Campo del sistema';

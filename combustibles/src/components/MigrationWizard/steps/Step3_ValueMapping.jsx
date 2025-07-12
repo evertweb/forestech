@@ -32,7 +32,7 @@ const Step3_ValueMapping = ({
   columnMapping = {},
   onValueMappingChange,
   currentValueMapping = {},
-  isLoading = false,
+  /* _isLoading = false, */
   error = null 
 }) => {
   const [valueMappings, setValueMappings] = useState(currentValueMapping);
@@ -161,7 +161,7 @@ const Step3_ValueMapping = ({
             lastUsed: aliases?.metadata?.lastUsed || null,
             usageCount: aliases?.metadata?.usageCount || 0
           };
-        } catch (error) {
+        } catch {
           stats[aliasType] = { totalAliases: 0, lastUsed: null, usageCount: 0 };
         }
       }

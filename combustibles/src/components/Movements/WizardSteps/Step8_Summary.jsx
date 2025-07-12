@@ -3,11 +3,11 @@
  * Muestra todos los datos ingresados para revisión antes de crear el movimiento
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { formatLocationName } from '../../../constants/locations';
 
-const Step8_Summary = ({ formData, systemData, isLoading, error, onCommentsChange, confirmChecked, onConfirmChange }) => {
+const Step8_Summary = ({ formData, systemData, /* _isLoading, */ error, onCommentsChange, confirmChecked, onConfirmChange }) => {
 
   const { vehicles, products, suppliers } = systemData;
 
