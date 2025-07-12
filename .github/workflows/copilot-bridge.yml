@@ -66,8 +66,54 @@ jobs:
         fi
       continue-on-error: true
 
-    - name: 🤖 Create and Assign Issue to Copilot Agent
+    - name: 🛡️ Check for Existing Copilot Issues (Anti-Loop Protection)
       if: steps.error-detection.outputs.errors-found == 'true' || github.event.inputs.force_error_collection == 'true'
+      id: check-existing-issues
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          // Anti-loop protection: Check for recent Copilot issues
+          const now = new Date();
+          const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+          
+          const issues = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: 'copilot-agent',
+            state: 'open',
+            since: oneHourAgo.toISOString(),
+            per_page: 10
+          });
+          
+          console.log(`🔍 Found ${issues.data.length} recent Copilot issues`);
+          
+          if (issues.data.length >= 3) {
+            console.log('🛡️ ANTI-LOOP PROTECTION: Too many recent Copilot issues');
+            core.setOutput('should-skip', 'true');
+            core.setOutput('reason', 'rate-limit');
+            return;
+          }
+          
+          // Check for issues created in last 10 minutes (immediate duplicates)
+          const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+          const recentIssues = issues.data.filter(issue => 
+            new Date(issue.created_at) > tenMinutesAgo
+          );
+          
+          if (recentIssues.length > 0) {
+            console.log('🛡️ ANTI-LOOP PROTECTION: Recent issue found, skipping duplicate');
+            core.setOutput('should-skip', 'true');
+            core.setOutput('reason', 'duplicate');
+            core.setOutput('existing-issue', recentIssues[0].number);
+            return;
+          }
+          
+          core.setOutput('should-skip', 'false');
+          console.log('✅ Safe to create new Copilot issue');
+
+    - name: 🤖 Create and Assign Issue to Copilot Agent
+      if: steps.check-existing-issues.outputs.should-skip == 'false'
       id: create-issue
       uses: actions/github-script@v7
       with:
@@ -117,6 +163,20 @@ jobs:
             console.log(`❌ Failed to create issue: ${error.message}`);
             return null;
           }
+
+    - name: ⚠️ Anti-Loop Protection Warning
+      if: steps.check-existing-issues.outputs.should-skip == 'true'
+      run: |
+        echo "🛡️ ANTI-LOOP PROTECTION ACTIVATED"
+        echo "Reason: ${{ steps.check-existing-issues.outputs.reason }}"
+        if [ "${{ steps.check-existing-issues.outputs.reason }}" = "duplicate" ]; then
+          echo "Existing issue: #${{ steps.check-existing-issues.outputs.existing-issue }}"
+          echo "Skipping duplicate issue creation to prevent loops"
+        elif [ "${{ steps.check-existing-issues.outputs.reason }}" = "rate-limit" ]; then
+          echo "Too many recent Copilot issues detected"
+          echo "Rate limiting activated to prevent infinite loops"
+        fi
+        echo "System remains stable - no new issues created"
 
     - name: 🤖 Auto-Assign to GitHub Copilot Agent
       if: steps.create-issue.outputs.issue-number

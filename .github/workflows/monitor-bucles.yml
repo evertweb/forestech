@@ -1,0 +1,155 @@
+name: 🛡️ Monitor de Bucles Infinitos
+
+on:
+  schedule:
+    # Ejecutar cada 30 minutos durante horas activas
+    - cron: '*/30 8-20 * * 1-5'  # Cada 30 min, 8AM-8PM, Lun-Vie
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Tipo de verificación'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - workflows
+          - issues
+          - commits
+
+permissions:
+  contents: read
+  issues: read
+  actions: read
+
+jobs:
+  monitor-loops:
+    name: Detectar Bucles Infinitos
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: 🔍 Execute Loop Detection
+      id: loop-detection
+      run: |
+        echo "🛡️ Iniciando detección de bucles infinitos..."
+        
+        CHECK_TYPE="${{ github.event.inputs.check_type || 'full' }}"
+        echo "Tipo de verificación: $CHECK_TYPE"
+        
+        if [ "$CHECK_TYPE" = "full" ]; then
+          ./scripts/monitor-bucles.sh monitor
+        else
+          ./scripts/monitor-bucles.sh "$CHECK_TYPE"
+        fi
+      continue-on-error: true
+
+    - name: 🚨 Create Alert Issue if Loop Detected
+      if: steps.loop-detection.outcome == 'failure'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          // Verificar si ya existe un issue de alerta activo
+          const existingIssues = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: 'bucle-infinito,alerta-sistema',
+            state: 'open'
+          });
+          
+          if (existingIssues.data.length > 0) {
+            console.log('🔄 Issue de alerta ya existe, actualizando...');
+            
+            const existingIssue = existingIssues.data[0];
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: existingIssue.number,
+              body: `## 🚨 Nueva Detección de Bucle Infinito
+              
+              **Timestamp:** ${new Date().toISOString()}
+              **Workflow Run:** [#${context.runNumber}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+              
+              El sistema de monitoreo continúa detectando patrones de bucle infinito.
+              
+              ⚠️ **Acción inmediata requerida para prevenir costos excesivos**`
+            });
+            
+            return;
+          }
+          
+          // Crear nuevo issue de alerta
+          const alertIssue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 ALERTA CRÍTICA: Bucle Infinito Detectado en Workflows',
+            body: `## 🚨 Sistema de Alerta - Bucle Infinito Detectado
+            
+            **Timestamp:** ${new Date().toISOString()}
+            **Detectado por:** Monitor automatizado de bucles
+            **Severidad:** CRÍTICA
+            
+            ### 🔍 Detalles de la Detección
+            El sistema de monitoreo ha identificado patrones que sugieren un bucle infinito en los workflows:
+            
+            - ⚠️ Múltiples ejecuciones de workflows en corto tiempo
+            - 🤖 Exceso de issues asignados al Copilot Agent
+            - 🔄 Patrones de commits automáticos consecutivos
+            
+            ### 🛠️ Acciones Inmediatas Requeridas
+            
+            1. **Revisar workflows recientes** en [Actions](/${context.repo.owner}/${context.repo.repo}/actions)
+            2. **Verificar issues del Copilot Agent** abiertos recientemente
+            3. **Pausar workflows automáticos** temporalmente si es necesario
+            4. **Investigar la causa raíz** del comportamiento recursivo
+            
+            ### 🛡️ Safeguards Activados
+            - Circuit breakers en deploy workflows
+            - Rate limiting en creación de issues
+            - Validación de duplicados activa
+            
+            ### 📊 Información Técnica
+            - **Repositorio:** ${context.repo.owner}/${context.repo.repo}
+            - **Branch:** ${context.ref}
+            - **Workflow Run:** [#${context.runNumber}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            
+            ---
+            
+            🚨 **Esta es una alerta automatizada del sistema de prevención de bucles infinitos**
+            
+            Para resolver este issue:
+            1. Identifica y corrige la causa del bucle
+            2. Verifica que los safeguards funcionen correctamente  
+            3. Cierra este issue cuando el sistema esté estable`,
+            labels: ['bucle-infinito', 'alerta-sistema', 'urgente', 'automatizacion']
+          });
+          
+          console.log(`🚨 Issue de alerta creado: #${alertIssue.data.number}`);
+
+    - name: ✅ Monitoring Success
+      if: steps.loop-detection.outcome == 'success'
+      run: |
+        echo "✅ Monitoreo completado exitosamente"
+        echo "No se detectaron bucles infinitos"
+        echo "Sistema operando normalmente"
+
+    - name: 📊 Generate Monitoring Report
+      if: always()
+      run: |
+        echo "📊 REPORTE DE MONITOREO - $(date)"
+        echo "================================="
+        echo "Outcome: ${{ steps.loop-detection.outcome }}"
+        echo "Checks ejecutados: ${{ github.event.inputs.check_type || 'full' }}"
+        echo "Workflow ID: ${{ github.run_id }}"
+        echo "Commit: ${{ github.sha }}"
+        echo ""
+        if [ "${{ steps.loop-detection.outcome }}" = "failure" ]; then
+          echo "🚨 ESTADO: Bucle infinito detectado"
+          echo "🛠️ ACCIÓN: Issue de alerta creado"
+        else
+          echo "✅ ESTADO: Sistema normal"
+          echo "🔄 PRÓXIMO CHECK: 30 minutos"
+        fi

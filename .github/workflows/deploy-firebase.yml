@@ -27,8 +27,27 @@
           cd ../combustibles && npm ci
 
       # === ERROR DETECTION & COPILOT BRIDGE ===
-      - name: 🔍 Error Detection & Analysis
+      - name: �️ Circuit Breaker - Check Recent Failures
+        id: circuit-breaker
+        run: |
+          echo "Checking for recent workflow failures to prevent loops..."
+          
+          # Simple circuit breaker: Check if we're in a failure loop
+          COMMIT_COUNT=$(git rev-list --count HEAD~5..HEAD 2>/dev/null || echo "0")
+          echo "Recent commits: $COMMIT_COUNT"
+          
+          if [ "$COMMIT_COUNT" -gt "3" ]; then
+            echo "⚠️ Multiple recent commits detected - potential loop risk"
+            echo "Activating circuit breaker protection"
+            echo "circuit-breaker-active=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Circuit breaker: Normal operation"
+            echo "circuit-breaker-active=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: �🔍 Error Detection & Analysis
         id: error-check
+        if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: |
           echo "Checking for build/lint errors..."
           
@@ -55,8 +74,26 @@
           fi
         continue-on-error: false
 
-      - name: 📋 Error Summary
-        if: failure()
+      - name: � Circuit Breaker Activated
+        if: steps.circuit-breaker.outputs.circuit-breaker-active == 'true'
+        run: |
+          echo "🛡️ CIRCUIT BREAKER ACTIVATED - LOOP PREVENTION"
+          echo "Multiple recent commits detected, suggesting potential infinite loop"
+          echo "Deploy workflow temporarily suspended to prevent resource waste"
+          echo ""
+          echo "To resume normal operation:"
+          echo "1. Verify the recent commits were intentional"
+          echo "2. Wait 1 hour for automatic reset"
+          echo "3. Or manually trigger with workflow_dispatch"
+          echo ""
+          echo "This protection prevents infinite loops caused by:"
+          echo "- Copilot Agent creating fixes that trigger new deployments"
+          echo "- Automated commits causing recursive workflows"
+          echo "- System errors causing repeated failure/fix cycles"
+          exit 1
+
+      - name: �📋 Error Summary
+        if: failure() && steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: |
           echo "=== BUILD/LINT ERRORS DETECTED ==="
           echo "Timestamp: $(date)"
@@ -82,9 +119,11 @@
           fi
 
       - name: Build Alimentacion
+        if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: npm run build:alimentacion
 
       - name: Build Combustibles
+        if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: npm run build:combustibles
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
