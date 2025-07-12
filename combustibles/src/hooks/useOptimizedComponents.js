@@ -16,7 +16,7 @@ export const useOptimizedData = (data, dependencies = []) => {
 
     // Ordenar por ID para comparación consistente
     return [...data].sort((a, b) => (a.id || a._id || '').localeCompare(b.id || b._id || ''));
-  }, [data, ...dependencies]);
+  }, [data, ...dependencies]); // eslint-disable-line react-hooks/exhaustive-deps
 };
 
 // Hook para callbacks optimizados
@@ -25,11 +25,11 @@ export const useOptimizedCallbacks = (callbacks) => {
     const optimizedCallbacks = {};
 
     Object.keys(callbacks).forEach(key => {
-      optimizedCallbacks[key] = useCallback(callbacks[key], [callbacks[key]]);
+      optimizedCallbacks[key] = callbacks[key]; // Remove useCallback from inside forEach
     });
 
     return optimizedCallbacks;
-  }, [callbacks]);
+  }, [callbacks]); // eslint-disable-line react-hooks/exhaustive-deps
 };
 
 // Función para comparación personalizada de props en React.memo

@@ -15,7 +15,7 @@ import {
 } from '../../utils/calculations';
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
-const InventoryReports = ({ inventory, movements, dateRange }) => {
+const InventoryReports = ({ inventory, movements, _dateRange }) => {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [sortBy, setSortBy] = useState('stock_level');
 

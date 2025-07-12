@@ -42,7 +42,7 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
     updateFormData('effectiveDate', value);
   };
 
-  const handleReferenceChange = (value) => {
+  const _handleReferenceChange = (value) => {
     updateFormData('reference', value);
   };
 
