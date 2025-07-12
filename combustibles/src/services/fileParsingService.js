@@ -210,6 +210,7 @@ const parseCSVFile = (csvContent, options = {}) => {
     const { 
       delimiter = ',',
       quote = '"',
+      // eslint-disable-next-line no-unused-vars
       escape = '"',
       skipEmptyLines = true,
       trimValues = true
@@ -343,10 +344,11 @@ export const parseFile = async (file, options = {}) => {
         result = await parseExcelFile(arrayBuffer, options.excel);
         break;
         
-      case 'CSV':
+      case 'CSV': {
         const textContent = new TextDecoder('utf-8').decode(arrayBuffer);
         result = parseCSVFile(textContent, options.csv);
         break;
+      }
         
       default:
         return createParsingResult(

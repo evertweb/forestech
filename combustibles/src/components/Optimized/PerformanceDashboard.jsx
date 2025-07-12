@@ -159,4 +159,6 @@ const getPerformanceStatusText = (optimizationRatio, cacheEfficiency) => {
   return 'Necesita Mejora';
 };
 
-export default withOptimization(PerformanceDashboard);
+const OptimizedPerformanceDashboard = withOptimization(PerformanceDashboard);
+OptimizedPerformanceDashboard.displayName = 'PerformanceDashboard';
+export default OptimizedPerformanceDashboard;

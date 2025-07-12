@@ -15,6 +15,7 @@ import {
 } from '../../utils/calculations';
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
+// eslint-disable-next-line no-unused-vars
 const InventoryReports = ({ inventory, movements, dateRange }) => {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [sortBy, setSortBy] = useState('stock_level');

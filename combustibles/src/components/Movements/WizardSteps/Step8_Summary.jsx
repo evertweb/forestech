@@ -3,10 +3,12 @@
  * Muestra todos los datos ingresados para revisión antes de crear el movimiento
  */
 
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { formatLocationName } from '../../../constants/locations';
 
+// eslint-disable-next-line no-unused-vars
 const Step8_Summary = ({ formData, systemData, isLoading, error, onCommentsChange, confirmChecked, onConfirmChange }) => {
 
   const { vehicles, products, suppliers } = systemData;
