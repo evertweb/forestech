@@ -26,7 +26,7 @@ const AdminMain = () => {
     if (user && userProfile?.role === 'admin') {
       loadInvitations();
     }
-  }, [user, userProfile, loadInvitations]);
+  }, [user, userProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadInvitations = useCallback(async () => {
     if (!user) return;
