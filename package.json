@@ -3,20 +3,39 @@
   "version": "1.0.0",
   "description": "Forestech Colombia - Monorepo de aplicaciones web",
   "main": "index.js",
+  "workspaces": [
+    "alimentacion",
+    "combustibles"
+  ],
   "scripts": {
-    "dev:alimentacion": "cd alimentacion && npm run dev",
-    "dev:combustibles": "cd combustibles && npm run dev",
-    "build:alimentacion": "cd alimentacion && npm run build",
-    "build:combustibles": "cd combustibles && npm run build",
+    "dev:alimentacion": "npm run dev --workspace=alimentacion",
+    "dev:combustibles": "npm run dev --workspace=combustibles",
+    "build:alimentacion": "npm run build --workspace=alimentacion",
+    "build:combustibles": "npm run build --workspace=combustibles",
     "build:all": "npm run build:alimentacion && npm run build:combustibles",
-    "lint:alimentacion": "cd alimentacion && npm run lint",
-    "lint:combustibles": "cd combustibles && npm run lint",
+    "build:parallel": "npm run build --workspace=alimentacion & npm run build --workspace=combustibles & wait",
+    "lint:alimentacion": "npm run lint --workspace=alimentacion",
+    "lint:combustibles": "npm run lint --workspace=combustibles", 
     "lint:all": "npm run lint:alimentacion && npm run lint:combustibles",
     "deploy": "npm run build:all && firebase deploy",
-    "install:all": "cd alimentacion && npm install && cd ../combustibles && npm install"
+    "install:all": "npm ci"
   },
   "private": true,
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "firebase": "^11.9.1",
+    "chart.js": "^4.5.0",
+    "react-chartjs-2": "^5.3.0"
+  },
   "devDependencies": {
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "globals": "^16.0.0"
   }
 }
