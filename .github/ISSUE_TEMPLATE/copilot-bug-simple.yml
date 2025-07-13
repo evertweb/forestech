@@ -1,0 +1,119 @@
+name: 🐛 Bug - Copilot Fix Rápido
+description: "¿Algo no funciona? ¡Describe el problema en 3 pasos y Copilot lo arreglará!"
+title: "[🐛 BUG] "
+labels: ["copilot-agent", "bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 👋 ¡Hola! Encontraste un bug 
+        
+        **En 3 simples pasos, Copilot puede arreglarlo automáticamente:**
+        
+        📝 **Paso 1**: ¿En qué parte de Forestech está el problema?  
+        🔍 **Paso 2**: ¿Qué está pasando exactamente?  
+        🎯 **Paso 3**: ¿Qué debería pasar en su lugar?
+        
+        ---
+
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: "📍 Paso 1: ¿Dónde está el problema?"
+      description: "Selecciona el módulo afectado"
+      options:
+        - "🍽️ Alimentación (liquidaciones de comidas)"
+        - "⛽ Combustibles (inventario y vehículos)" 
+        - "🔧 Shared (componentes compartidos)"
+        - "🏗️ Build/Deploy (sistema de construcción)"
+        - "📚 Documentación"
+        - "🤔 No estoy seguro"
+    validations:
+      required: true
+
+  - type: textarea
+    id: que_pasa
+    attributes:
+      label: "🔍 Paso 2: ¿Qué está pasando?"
+      description: "Describe el problema como se lo contarías a un compañero"
+      placeholder: |
+        Ejemplo: "Cuando hago clic en 'Agregar combustible', la página se queda en blanco y no puedo agregar nada"
+        
+        💡 Tip: Mientras más claro seas, más rápido Copilot puede arreglarlo
+    validations:
+      required: true
+
+  - type: textarea
+    id: que_deberia_pasar
+    attributes:
+      label: "🎯 Paso 3: ¿Qué debería pasar?"
+      description: "¿Cuál es el comportamiento correcto?"
+      placeholder: |
+        Ejemplo: "Debería aparecer un formulario para agregar un nuevo registro de combustible"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgencia
+    attributes:
+      label: "⚡ ¿Qué tan urgente es?"
+      description: "Esto ayuda a Copilot a priorizar"
+      options:
+        - "🚨 Crítico - Bloquea el trabajo"
+        - "⚠️ Alto - Molesta pero puedo seguir trabajando"
+        - "🟡 Medio - Sería bueno arreglarlo pronto"
+        - "🟢 Bajo - No hay prisa"
+      default: 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: pasos_reproducir
+    attributes:
+      label: "🔄 OPCIONAL: ¿Cómo reproduzco el error?"
+      description: "Solo si es útil - lista los pasos"
+      placeholder: |
+        1. Abrir la app
+        2. Hacer clic en...
+        3. Ver el error
+      render: markdown
+
+  - type: textarea
+    id: error_consola
+    attributes:
+      label: "💻 OPCIONAL: ¿Hay algún error en la consola?"
+      description: "Si aparece texto rojo en la consola del navegador (F12), pégalo aquí"
+      render: shell
+
+  - type: checkboxes
+    id: confirmacion
+    attributes:
+      label: "✅ Confirmación final"
+      description: "Marca todas para enviar a Copilot"
+      options:
+        - label: "He descrito claramente qué está mal"
+          required: true
+        - label: "He explicado qué debería pasar"
+          required: true
+        - label: "Entiendo que @github-copilot trabajará en esto automáticamente"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 ¿Qué pasa después?
+        
+        1. **Copilot analiza** tu reporte automáticamente
+        2. **Investiga el código** para encontrar la causa
+        3. **Crea una solución** siguiendo las mejores prácticas
+        4. **Genera un Pull Request** con la corrección
+        5. **Tú revisas** y apruebas los cambios
+        
+        🎉 **¡Por lo general toma menos de 30 minutos!**
+        
+        **📧 Recibirás notificaciones cuando:**
+        - Copilot comience a trabajar
+        - Se cree el Pull Request  
+        - Esté listo para revisar

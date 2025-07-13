@@ -344,10 +344,12 @@ git diff --stat         # Solo estadísticas de cambios
 - **ROI comprobado**: 16.8 horas/mes ahorradas
 - **Estado**: ✅ ACTIVO y funcionando en producción
 
-### 🤖 **MCPs CONFIGURADOS - ANÁLISIS COMPLETO**
+### 🤖 **MCPs CONFIGURADOS - ANÁLISIS COMPLETO** ⭐ **ACTUALIZADO ENERO 2025**
 
-**📍 Archivo de configuración**: `/home/evert/.claude.json` → sección `mcpServers`
-**📊 Total MCPs activos**: 9 (optimizados para Forestech) ⭐ **NUEVO: Google Workspace MCP**
+**📍 Configuraciones MCP:**
+- **Claude Code Local**: `/home/evert/.claude.json` → 9 MCPs avanzados  
+- **GitHub Copilot Agent**: Repository Settings → 4 MCPs optimizados ✅ **NUEVO**
+**📊 Total MCPs activos**: 13 herramientas entre ambos sistemas
 
 #### 🔧 **MCPs Principales y Sus Beneficios**
 
@@ -398,6 +400,30 @@ git diff --stat         # Solo estadísticas de cambios
    - **Beneficio Forestech**: Automatización completa del flujo documental empresarial
    - **Uso específico**: Alertas Gmail automáticas, respaldos Drive, reportes Sheets, calendarios operativos
    - **Funciones**: Drive, Gmail, Calendar, Docs, Sheets, Slides, Forms, Tasks, Chat
+
+### 🤖 **GITHUB COPILOT AGENT - MCPs OPTIMIZADOS** ⭐ **REVOLUCIONARIO ENERO 2025**
+
+**🎯 Configuración específica para Copilot Agent en GitHub Repository Settings:**
+
+1. **📂 github-forestech** - *Gestión Inteligente Repositorio*
+   - **Tools**: create_issue, get_issue, create_pull_request, list_files, get_file_content
+   - **Beneficio**: Automatización completa issues → análisis → fixes → PRs
+   - **Configuración**: Repository evertweb/forestech detectado automáticamente
+
+2. **⏰ time-bogota** - *Zona Horaria Colombia*  
+   - **Tools**: get_current_time, convert_timezone, format_time, calculate_duration
+   - **Beneficio**: Timestamps correctos América/Bogotá en todos los procesos
+   - **Configuración**: Locale es-CO integrado
+
+3. **🧠 sequential-thinking-es** - *Análisis Paso a Paso en Español*
+   - **Tools**: think_step_by_step, analyze_problem, break_down_task, evaluate_options
+   - **Beneficio**: Resolución estructurada de problemas complejos
+   - **Configuración**: 15 pasos máximo, idioma español forzado
+
+4. **💾 memory-forestech** - *Memoria Específica del Proyecto*
+   - **Tools**: store_memory, retrieve_memory, search_memory, update_memory
+   - **Beneficio**: Contexto persistente entre issues y sesiones
+   - **Configuración**: Scope session, contexto monorepo Forestech
 
 #### 🎯 **CASOS DE USO POR MÓDULO**
 
@@ -604,9 +630,98 @@ firebase use liquidacionapp-62962
 
 **Alternativa implementada**: Documentación empresarial local en `/docs/empresarial/`
 
+## 🤖 **GITHUB COPILOT AGENT - CONFIGURACIÓN COMPLETA ESPAÑOL** ⭐ **ENERO 2025**
+
+### 📋 **Issue Templates Didácticos Implementados**
+
+**🎯 Revolucionarios templates de issues diseñados para ser:**
+- **📝 Didácticos**: Lenguaje natural, ejemplos claros, tips útiles
+- **⚡ Dinámicos**: Formularios que se adaptan al contexto
+- **🧠 Inteligentes**: Priorizan automáticamente según impacto
+- **⏱️ Estimativos**: Tiempo esperado de resolución
+
+#### **Templates Disponibles:**
+
+1. **🐛 Bug - Copilot Fix Rápido** (`copilot-bug-simple.yml`)
+   - **Enfoque**: 3 pasos simples (¿Dónde? ¿Qué pasa? ¿Qué debería pasar?)
+   - **Tiempo estimado**: ⏱️ 30 minutos promedio
+   - **Nivel**: Principiante-friendly con ejemplos
+
+2. **✨ Nueva Función - Copilot Implementa** (`copilot-feature-simple.yml`)
+   - **Enfoque**: 4 pasos lógicos (Módulo → Problema → Funcionalidad → Diseño)
+   - **Tiempo estimado**: ⏱️ 30 min - 8 horas según complejidad
+   - **Nivel**: Guiado paso a paso con estimaciones automáticas
+
+3. **🔧 Mejorar Código - Copilot Optimiza** (`copilot-mejora-simple.yml`)
+   - **Enfoque**: Tipo de mejora → Problema actual → Resultado esperado
+   - **Tiempo estimado**: ⏱️ 1-12 horas según alcance
+   - **Nivel**: Enfocado en calidad y performance
+
+4. **❓ Pregunta - Copilot Explica** (`copilot-consulta.yml`)
+   - **Enfoque**: Consulta adaptada al nivel técnico del usuario
+   - **Tiempo estimado**: ⏱️ 5-15 minutos respuesta
+   - **Nivel**: Personalizable desde principiante a experto
+
+### 🔧 **Archivos de Configuración Copilot**
+
+**📁 `.github/copilot/` - Configuración completa:**
+
+1. **`.chatmode.md`** - Configuración obligatoria idioma español
+2. **`copilot-setup-steps.yml`** - Setup automático entorno Forestech
+3. **`custom_instructions.md`** - Patrones código (64KB) + directiva español
+
+### 🌐 **JSON MCP Configuración GitHub**
+
+**📋 Para Repository Settings → Copilot coding agent:**
+
+```json
+{
+  "mcpServers": {
+    "github-forestech": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_REPOSITORY": "evertweb/forestech",
+        "GITHUB_OWNER": "evertweb"
+      },
+      "tools": ["create_issue", "get_issue", "create_pull_request", "list_files", "get_file_content"]
+    },
+    "time-bogota": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time"],
+      "env": { "TZ": "America/Bogota", "LOCALE": "es-CO" },
+      "tools": ["get_current_time", "convert_timezone", "format_time"]
+    }
+  }
+}
+```
+
+### 🚀 **Flujo Copilot Agent Optimizado**
+
+**Cuando se crea un issue con templates:**
+
+1. **🔧 Setup Automático**: `copilot-setup-steps.yml` configura entorno
+2. **🌐 Idioma Forzado**: `.chatmode.md` asegura respuestas en español
+3. **📚 Contexto Técnico**: `custom_instructions.md` proporciona patrones Forestech
+4. **🤖 MCPs Activos**: 4 herramientas especializadas disponibles
+5. **📖 Documentación**: `CLAUDE.md` como referencia principal
+6. **⚡ Ejecución**: Issue → Análisis → Solución → PR → Notificación
+
+### 📊 **Beneficios Logrados**
+
+- **🎯 Precisión**: Contexto específico de Forestech en cada respuesta
+- **⏱️ Velocidad**: Setup automático + MCPs optimizados
+- **🌐 Localización**: 100% español colombiano garantizado
+- **🧠 Inteligencia**: Análisis paso a paso + memoria persistente
+- **📱 Usabilidad**: Templates didácticos para todos los niveles
+
 ---
 
 **📌 IMPORTANTE**: Esta documentación se mantiene actualizada. Cualquier cambio en el proyecto debe reflejarse aquí para mantener continuidad entre sesiones de Claude Code.
+
+**🎉 CONFIGURACIÓN COMPLETA**: GitHub Copilot Agent 100% optimizado para Forestech en español - Enero 2025
 
 ## 🚀 **CI/CD WORKFLOWS - ARQUITECTURA REVOLUCIONARIA**
 

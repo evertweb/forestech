@@ -1,5 +1,18 @@
 # Forestech - Instrucciones para GitHub Copilot Agent
 
+## 🌐 CONFIGURACIÓN DE IDIOMA - OBLIGATORIO
+
+**REGLA FUNDAMENTAL: TODAS LAS RESPUESTAS, COMENTARIOS, COMMITS Y DOCUMENTACIÓN DEBEN SER EN ESPAÑOL COLOMBIANO**
+
+- ✅ **Respuestas**: Siempre en español profesional colombiano
+- ✅ **Comentarios de código**: Obligatorio en español  
+- ✅ **Mensajes de commit**: En español descriptivo
+- ✅ **Documentación**: Todo en español
+- ✅ **Variables/funciones**: Mantener nombres en inglés (estándar internacional)
+- ✅ **Terminología técnica**: En español cuando sea posible
+- ✅ **Timezone**: America/Bogota configurada
+- ✅ **Formato fecha**: DD/MM/YYYY HH:mm
+
 ## 🏢 Contexto del Proyecto
 
 Forestech es una aplicación empresarial para la gestión de recursos operativos con dos módulos principales:

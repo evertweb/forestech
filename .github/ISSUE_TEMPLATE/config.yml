@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentación Forestech
+    url: https://github.com/evertweb/forestech/blob/main/CLAUDE.md
+    about: "Documentación completa del proyecto, arquitectura y patrones"
+  
+  - name: 🍽️ App Alimentación (Producción)
+    url: https://forestechdecolombia.com.co/alimentacion/
+    about: "Sistema de liquidaciones de comidas en producción"
+    
+  - name: ⛽ App Combustibles (Producción)  
+    url: https://forestechdecolombia.com.co/combustibles/
+    about: "Sistema de gestión de combustibles en producción"
+    
+  - name: 🔥 Firebase Console
+    url: https://console.firebase.google.com/project/liquidacionapp-62962
+    about: "Consola de Firebase para administración (requiere permisos)"

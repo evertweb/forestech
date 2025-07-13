@@ -1,0 +1,174 @@
+name: 🔧 Mejorar Código - Copilot Optimiza  
+description: "¿El código funciona pero podría estar mejor? ¡Copilot puede optimizarlo!"
+title: "[🔧 MEJORA] "
+labels: ["copilot-agent", "refactor"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🛠️ ¡Perfecto! Quieres mejorar el código
+        
+        **Copilot puede optimizar código existente en estos casos:**
+        
+        🐌 **Rendimiento**: Va lento o consume mucha memoria  
+        🍝 **Código espagueti**: Difícil de entender o mantener  
+        📱 **Responsive**: No se ve bien en móviles  
+        🔄 **Duplicación**: El mismo código repetido en varios lugares  
+        🧪 **Tests**: Falta testing o cobertura  
+
+        ---
+
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: "📍 ¿Qué parte necesita mejoras?"
+      description: "Selecciona el área a optimizar"
+      options:
+        - "🍽️ Alimentación - Componente específico"
+        - "🍽️ Alimentación - Toda la app"
+        - "⛽ Combustibles - Componente específico" 
+        - "⛽ Combustibles - Toda la app"
+        - "🔧 Shared - Componentes reutilizables"
+        - "🏗️ Build/Deploy - Configuración del proyecto"
+        - "📱 Responsive - Diseño en móviles/tablets"
+        - "🚀 Performance - Velocidad general"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo_mejora
+    attributes:
+      label: "🎯 ¿Qué tipo de mejora necesitas?"
+      description: "Esto ayuda a Copilot a enfocar el trabajo"
+      options:
+        - "🐌 Performance - Va lento, consume mucha memoria"
+        - "🍝 Refactor - Código difícil de entender/mantener"
+        - "📱 Responsive - No se ve bien en móviles"
+        - "🔄 DRY - Eliminar código duplicado"
+        - "🧪 Testing - Agregar o mejorar tests"
+        - "🔐 Seguridad - Validaciones o vulnerabilidades"
+        - "🎨 UI/UX - Mejorar diseño e interfaz"
+        - "♿ Accesibilidad - Hacer más accesible"
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: problema_actual
+    attributes:
+      label: "🔍 ¿Cuál es el problema actual?"
+      description: "Describe qué está mal o qué se podría mejorar"
+      placeholder: |
+        Ejemplos:
+        - "La página de vehículos tarda 5 segundos en cargar"
+        - "El código del dashboard tiene funciones de 200 líneas que nadie entiende"
+        - "Los formularios no se ven bien en móviles"
+        - "Tengo el mismo código para validar formularios en 10 archivos diferentes"
+        
+        💡 Tip: Se específico sobre qué molesta o qué es difícil
+    validations:
+      required: true
+
+  - type: textarea
+    id: archivos_afectados
+    attributes:
+      label: "📁 OPCIONAL: ¿Qué archivos están involucrados?"
+      description: "Si conoces archivos específicos, ayuda mucho"
+      placeholder: |
+        Ejemplos:
+        - src/components/Dashboard.jsx
+        - src/hooks/useVehicles.js  
+        - src/services/firebase.js
+        
+        💡 Tip: No te preocupes si no los sabes - Copilot los puede encontrar
+      render: shell
+
+  - type: textarea
+    id: resultado_esperado
+    attributes:
+      label: "🎯 ¿Cómo debería quedar después?"
+      description: "Describe el resultado ideal"
+      placeholder: |
+        Ejemplos:
+        - "Debería cargar en menos de 2 segundos"
+        - "El código debería ser fácil de entender y modificar"
+        - "Debería verse perfecto en todos los dispositivos"
+        - "Una sola función reutilizable para validar"
+        
+        💡 Tip: Piensa en cómo te sentirías si estuviera "perfecto"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impacto
+    attributes:
+      label: "⚡ ¿Qué tanto impacto tendría esta mejora?"
+      description: "Para priorizar el trabajo"
+      options:
+        - "🚨 Alto - Afecta mucho el trabajo diario"
+        - "🟡 Medio - Sería una buena mejora"
+        - "🟢 Bajo - Perfección técnica"
+        - "🤔 No estoy seguro"
+      default: 1
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: consideraciones
+    attributes:
+      label: "⚠️ Consideraciones importantes"
+      description: "Marca las que apliquen"
+      options:
+        - label: "⚡ Debe mantenerse la velocidad actual (o mejorar)"
+        - label: "🔒 No romper funcionalidad existente"
+        - label: "📱 Debe funcionar en móviles"
+        - label: "🧪 Agregar tests si no los hay"
+        - label: "📚 Documentar cambios importantes"
+
+  - type: checkboxes
+    id: confirmacion
+    attributes:
+      label: "✅ Confirmación final"
+      description: "Marca todas para enviar a Copilot"
+      options:
+        - label: "He explicado claramente qué necesita mejorarse"
+          required: true
+        - label: "He descrito el resultado esperado"
+          required: true
+        - label: "Entiendo que @github-copilot optimizará esto automáticamente"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 ¿Qué pasa después?
+        
+        **Copilot va a:**
+        
+        1. **Analizar** el código actual y identificar problemas
+        2. **Planificar** la optimización manteniendo funcionalidad
+        3. **Refactorizar** siguiendo las mejores prácticas
+        4. **Mejorar** performance, legibilidad y mantenibilidad
+        5. **Verificar** que todo sigue funcionando correctamente
+        6. **Crear Pull Request** con explicación detallada de cambios
+        
+        ⏱️ **Tiempo estimado:**
+        - 🟢 Componente específico: 1-2 horas
+        - 🟡 Módulo completo: 2-6 horas
+        - 🔴 Refactor mayor: 4-12 horas
+        
+        **🔍 Copilot va a revisar:**
+        - Performance y uso de memoria
+        - Legibilidad y mantenibilidad
+        - Patrones y arquitectura
+        - Tests y cobertura
+        - Compatibilidad móvil
+        
+        **📧 Te notificaremos cuando:**
+        - Comience el análisis
+        - Encuentre optimizaciones específicas
+        - El Pull Request esté listo
+        
+        🎯 **¡Tu código va a quedar mucho mejor!**

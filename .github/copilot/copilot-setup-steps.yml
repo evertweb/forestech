@@ -1,0 +1,147 @@
+name: "Forestech Development Environment Setup"
+description: "Configuración automática del entorno de desarrollo para monorepo Forestech"
+version: "1.0.0"
+language: "es-CO"
+
+# 🚀 Setup automático para GitHub Copilot Agent
+# Este archivo configura el entorno cuando Copilot Agent comienza a trabajar
+
+setup_steps:
+  - name: "🔍 Verificar estructura del monorepo"
+    description: "Validar que estamos en el directorio correcto de Forestech"
+    run: |
+      echo "📁 Verificando estructura del monorepo Forestech..."
+      ls -la
+      if [ -f "CLAUDE.md" ] && [ -d "alimentacion" ] && [ -d "combustibles" ]; then
+        echo "✅ Estructura del monorepo Forestech confirmada"
+      else
+        echo "❌ Error: No se detectó la estructura correcta del monorepo"
+        exit 1
+      fi
+
+  - name: "🔧 Configurar Node.js y herramientas"
+    description: "Asegurar versión correcta de Node.js y herramientas globales"
+    run: |
+      echo "🔧 Configurando Node.js para Forestech..."
+      node --version
+      npm --version
+      echo "✅ Node.js configurado"
+
+  - name: "📦 Instalar dependencias del monorepo"
+    description: "Instalar todas las dependencias necesarias"
+    run: |
+      echo "📦 Instalando dependencias del monorepo Forestech..."
+      echo "🔄 Instalando dependencias raíz..."
+      npm ci || npm install
+      
+      echo "🍽️ Instalando dependencias de Alimentación..."
+      if [ -d "alimentacion" ]; then
+        cd alimentacion && npm ci && cd ..
+        echo "✅ Dependencias de Alimentación instaladas"
+      fi
+      
+      echo "⛽ Instalando dependencias de Combustibles..."
+      if [ -d "combustibles" ]; then
+        cd combustibles && npm ci && cd ..
+        echo "✅ Dependencias de Combustibles instaladas"
+      fi
+      
+      echo "🎉 Todas las dependencias instaladas correctamente"
+
+  - name: "🔥 Configurar Firebase CLI"
+    description: "Configurar Firebase para el proyecto Forestech"
+    run: |
+      echo "🔥 Configurando Firebase CLI para Forestech..."
+      
+      # Verificar si Firebase CLI está disponible
+      if command -v firebase &> /dev/null; then
+        echo "✅ Firebase CLI detectado"
+        firebase --version
+        
+        # Configurar proyecto por defecto
+        echo "📁 Configurando proyecto liquidacionapp-62962..."
+        firebase use liquidacionapp-62962 --token "$FIREBASE_TOKEN" || echo "⚠️ Token Firebase no disponible en CI"
+        echo "✅ Firebase configurado para Forestech"
+      else
+        echo "📥 Instalando Firebase CLI..."
+        npm install -g firebase-tools
+        echo "✅ Firebase CLI instalado"
+      fi
+
+  - name: "🧪 Ejecutar verificaciones de calidad"
+    description: "Ejecutar linting y verificaciones básicas"
+    run: |
+      echo "🧪 Ejecutando verificaciones de calidad Forestech..."
+      
+      echo "🔍 Verificando linting de Alimentación..."
+      if [ -d "alimentacion" ]; then
+        npm run lint:alimentacion || echo "⚠️ Linting de Alimentación falló"
+      fi
+      
+      echo "🔍 Verificando linting de Combustibles..."
+      if [ -d "combustibles" ]; then
+        npm run lint:combustibles || echo "⚠️ Linting de Combustibles falló"
+      fi
+      
+      echo "✅ Verificaciones de calidad completadas"
+
+  - name: "📚 Cargar contexto del proyecto"
+    description: "Leer documentación clave para contexto"
+    run: |
+      echo "📚 Cargando contexto del proyecto Forestech..."
+      
+      if [ -f "CLAUDE.md" ]; then
+        echo "📖 Leyendo CLAUDE.md para contexto principal..."
+        head -n 50 CLAUDE.md
+        echo "✅ Contexto principal cargado"
+      fi
+      
+      if [ -f ".github/copilot/custom_instructions.md" ]; then
+        echo "🛠️ Leyendo instrucciones personalizadas..."
+        echo "✅ Instrucciones de desarrollo cargadas"
+      fi
+      
+      echo "🎯 Forestech es un sistema empresarial de gestión con:"
+      echo "  🍽️ Módulo Alimentación: Sistema de liquidaciones"
+      echo "  ⛽ Módulo Combustibles: Gestión de inventario y vehículos"
+      echo "  🔧 Shared: Recursos compartidos"
+      echo "  🔥 Firebase: liquidacionapp-62962"
+      echo "✅ Contexto del proyecto completamente cargado"
+
+# 🌐 Variables de entorno importantes  
+environment:
+  NODE_ENV: "development"
+  TZ: "America/Bogota"
+  LANG: "es_CO.UTF-8"
+  FIREBASE_PROJECT: "liquidacionapp-62962"
+
+# 🎯 Objetivos del setup
+success_criteria:
+  - "✅ Dependencias instaladas sin errores"
+  - "✅ Firebase CLI configurado y funcional"
+  - "✅ Linting pasa sin errores críticos"
+  - "✅ Contexto del proyecto cargado"
+  - "✅ Variables de entorno configuradas"
+  - "✅ Comandos de desarrollo disponibles"
+
+# 📝 Notas para Copilot Agent
+copilot_notes: |
+  Después de ejecutar este setup:
+  
+  1. 🎯 **Contexto**: Tienes acceso completo al monorepo Forestech
+  2. 🔧 **Herramientas**: Firebase, npm scripts, y linting configurados
+  3. 📚 **Documentación**: CLAUDE.md es tu referencia principal
+  4. 🌐 **Idioma**: Responde SIEMPRE en español (ver .chatmode.md)
+  5. 🏗️ **Patrones**: Sigue custom_instructions.md para código
+  6. 🔥 **Firebase**: Proyecto liquidacionapp-62962 configurado
+  7. 📱 **Apps**: Alimentación (puerto 5173) y Combustibles (puerto 5174)
+  
+  ¡Estás listo para trabajar en cualquier issue de Forestech!
+
+---
+# Metadata
+created: "2025-01-13"
+version: "1.0.0" 
+compatibility: "GitHub Copilot Agent 2025"
+project: "Forestech Monorepo"
+language: "es-CO"

@@ -1,0 +1,150 @@
+name: ✨ Nueva Función - Copilot Implementa
+description: "¿Tienes una idea genial? ¡Descríbela y Copilot la implementará por ti!"
+title: "[✨ FUNCIÓN] "
+labels: ["copilot-agent", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚀 ¡Genial! Quieres una nueva función
+        
+        **Copilot puede implementar tu idea siguiendo estos pasos:**
+        
+        💡 **Paso 1**: ¿Para qué módulo es la función?  
+        🎯 **Paso 2**: ¿Qué problema resuelve?  
+        🛠️ **Paso 3**: ¿Cómo debería funcionar?  
+        🎨 **Paso 4**: ¿Cómo debería verse?
+
+        ---
+
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: "📍 Paso 1: ¿Para qué módulo?"
+      description: "¿Dónde quieres agregar esta función?"
+      options:
+        - "🍽️ Alimentación (liquidaciones de comidas)"
+        - "⛽ Combustibles (inventario y vehículos)"
+        - "🔧 Shared (para usar en ambas apps)"
+        - "🏗️ Sistema general (configuración, deploy, etc.)"
+        - "📱 Ambas apps (alimentación y combustibles)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: "🎯 Paso 2: ¿Qué problema resuelve?"
+      description: "Explica por qué necesitas esta función"
+      placeholder: |
+        Ejemplo: "Los operadores pierden tiempo calculando manualmente el combustible que queda cada día. Necesitan ver rápidamente cuánto combustible tienen sin hacer cálculos."
+        
+        💡 Tip: Piensa en el día a día de quien va a usar esta función
+    validations:
+      required: true
+
+  - type: textarea
+    id: como_funciona
+    attributes:
+      label: "🛠️ Paso 3: ¿Cómo debería funcionar?"
+      description: "Describe paso a paso cómo usarías esta función"
+      placeholder: |
+        Ejemplo:
+        1. El operador entra a la app de combustibles
+        2. Ve un widget en el dashboard que dice "Combustible disponible hoy"
+        3. Muestra: Diesel: 1,250L | Gasolina: 800L
+        4. Si hay poco combustible (menos de 500L), aparece en rojo
+        
+        💡 Tip: Imagina que le explicas a alguien cómo usarlo
+    validations:
+      required: true
+
+  - type: textarea
+    id: como_se_ve
+    attributes:
+      label: "🎨 Paso 4: ¿Cómo debería verse?"
+      description: "Describe la interfaz o adjunta una imagen/mockup"
+      placeholder: |
+        Ejemplo: "Una tarjeta en la parte superior del dashboard, con iconos de combustible, números grandes y colores (verde=OK, amarillo=poco, rojo=crítico)"
+        
+        💡 Tip: Puedes hacer un dibujo a mano y adjuntar la foto
+    validations:
+      required: true
+
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: "⚡ ¿Qué tan importante es?"
+      description: "Esto ayuda a Copilot a estimar el esfuerzo"
+      options:
+        - "🚨 Crítica - Lo necesito urgente para trabajar"
+        - "⚠️ Alta - Sería un gran alivio tenerla"
+        - "🟡 Media - Mejoraría bastante el flujo"
+        - "🟢 Baja - Sería bueno tenerla algún día"
+      default: 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complejidad
+    attributes:
+      label: "🔧 ¿Qué tan compleja crees que es?"
+      description: "No te preocupes si no estás seguro - es solo para planificar"
+      options:
+        - "🟢 Simple - Como agregar un botón o cambiar un texto"
+        - "🟡 Media - Como agregar una nueva página o formulario"
+        - "🔴 Compleja - Involucra cálculos, reportes o integraciones"
+        - "🤔 No tengo idea"
+      default: 3
+
+  - type: textarea
+    id: notas_extra
+    attributes:
+      label: "📝 OPCIONAL: ¿Algo más que deba saber Copilot?"
+      description: "Detalles técnicos, referencias, restricciones, etc."
+      placeholder: |
+        Ejemplos:
+        - "Debe funcionar en móviles también"
+        - "Basarse en la función X que ya existe"
+        - "Solo para usuarios con rol de admin"
+
+  - type: checkboxes
+    id: confirmacion
+    attributes:
+      label: "✅ Confirmación final"
+      description: "Marca todas para enviar a Copilot"
+      options:
+        - label: "He explicado claramente el problema que resuelve"
+          required: true
+        - label: "He descrito cómo debería funcionar"
+          required: true
+        - label: "Entiendo que @github-copilot implementará esto automáticamente"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 ¿Qué pasa después?
+        
+        **Copilot va a:**
+        
+        1. **Analizar** tu solicitud y el código existente
+        2. **Diseñar** la solución siguiendo las mejores prácticas de Forestech
+        3. **Implementar** los componentes, hooks y servicios necesarios
+        4. **Crear** la interfaz responsive (móvil, tablet, desktop)
+        5. **Generar** tests básicos para la nueva función
+        6. **Crear un Pull Request** completo y listo para revisar
+        
+        ⏱️ **Tiempo estimado según complejidad:**
+        - 🟢 Simple: 30-60 minutos
+        - 🟡 Media: 1-3 horas  
+        - 🔴 Compleja: 3-8 horas
+        
+        **📧 Te notificaremos cuando:**
+        - Copilot comience el trabajo
+        - Necesite aclaraciones (si algo no está claro)
+        - El Pull Request esté listo para revisar
+        
+        🎉 **¡Tu idea se convertirá en código real muy pronto!**
