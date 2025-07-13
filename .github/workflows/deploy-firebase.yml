@@ -1,60 +1,106 @@
-  name: Deploy Forestech to Firebase
+name: Deploy Forestech to Firebase (Optimized)
 
-  on:
-    push:
-      branches: [main]
-    workflow_dispatch:
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
-  jobs:
-    deploy:
-      name: Build and Deploy
-      runs-on: ubuntu-latest
+env:
+  NODE_VERSION: '18'
 
-      steps:
+jobs:
+  # ⚡ JOB 1: Setup y Cache Inteligente
+  setup:
+    name: Setup Dependencies & Cache
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js with Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      # 🚀 CACHE INTELIGENTE: Multi-layer cache strategy
+      - name: Cache node_modules
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            alimentacion/node_modules
+            combustibles/node_modules
+          key: deps-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            deps-${{ runner.os }}-
+
+      # ⚡ WORKSPACE INSTALL: Single install for all packages
+      - name: Install Dependencies (Workspace)
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Verify Workspace Setup
+        run: |
+          echo "✅ Workspace dependencies installed"
+          npm ls --depth=0
+          echo "📦 Alimentacion packages:"
+          npm ls --workspace=alimentacion --depth=0
+          echo "📦 Combustibles packages:"
+          npm ls --workspace=combustibles --depth=0
+
+  # 🛡️ JOB 2: Error Detection (Preservar sistema AI)
+  error-detection:
+    name: Error Detection & Analysis  
+    runs-on: ubuntu-latest
+    needs: setup
+    outputs:
+      has-errors: ${{ steps.error-check.outputs.has-errors }}
+      error-count: ${{ steps.error-check.outputs.error-count }}
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install Dependencies
-        run: |
-          npm ci
-          cd alimentacion && npm ci
-          cd ../combustibles && npm ci
+      - name: Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            alimentacion/node_modules
+            combustibles/node_modules
+          key: deps-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
 
-      # === ERROR DETECTION & COPILOT BRIDGE ===
-      - name: �️ Circuit Breaker - Check Recent Failures
+      - name: 🔍 Circuit Breaker Check
         id: circuit-breaker
         run: |
-          echo "Checking for recent workflow failures to prevent loops..."
-          
-          # Simple circuit breaker: Check if we're in a failure loop
           COMMIT_COUNT=$(git rev-list --count HEAD~5..HEAD 2>/dev/null || echo "0")
           echo "Recent commits: $COMMIT_COUNT"
           
           if [ "$COMMIT_COUNT" -gt "3" ]; then
-            echo "⚠️ Multiple recent commits detected - potential loop risk"
-            echo "Activating circuit breaker protection"
+            echo "⚠️ Circuit breaker activated - too many recent commits"
             echo "circuit-breaker-active=true" >> $GITHUB_OUTPUT
+            exit 1
           else
             echo "✅ Circuit breaker: Normal operation"
             echo "circuit-breaker-active=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: �🔍 Error Detection & Analysis
+      - name: 🔍 Error Detection & Analysis
         id: error-check
         if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: |
-          echo "Checking for build/lint errors..."
-          
-          # Run error collector to detect issues
+          echo "Running error detection..."
           node scripts/error-collector.js
           
-          # Check if errors were found
           if [ -f error-context.json ]; then
             ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
             echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
@@ -62,11 +108,12 @@
             if [ "$ERROR_STATUS" = "errors_detected" ]; then
               echo "has-errors=true" >> $GITHUB_OUTPUT
               ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
+              echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
               echo "🚨 $ERROR_COUNT errors detected - will delegate to Copilot Agent"
-              exit 1  # Trigger failure to activate Copilot bridge
+              exit 1
             else
               echo "has-errors=false" >> $GITHUB_OUTPUT
-              echo "✅ No errors detected - proceeding with build"
+              echo "✅ No errors detected - proceeding with optimized build"
             fi
           else
             echo "has-errors=false" >> $GITHUB_OUTPUT
@@ -74,57 +121,48 @@
           fi
         continue-on-error: false
 
-      - name: � Circuit Breaker Activated
-        if: steps.circuit-breaker.outputs.circuit-breaker-active == 'true'
-        run: |
-          echo "🛡️ CIRCUIT BREAKER ACTIVATED - LOOP PREVENTION"
-          echo "Multiple recent commits detected, suggesting potential infinite loop"
-          echo "Deploy workflow temporarily suspended to prevent resource waste"
-          echo ""
-          echo "To resume normal operation:"
-          echo "1. Verify the recent commits were intentional"
-          echo "2. Wait 1 hour for automatic reset"
-          echo "3. Or manually trigger with workflow_dispatch"
-          echo ""
-          echo "This protection prevents infinite loops caused by:"
-          echo "- Copilot Agent creating fixes that trigger new deployments"
-          echo "- Automated commits causing recursive workflows"
-          echo "- System errors causing repeated failure/fix cycles"
-          exit 1
+  # 🚀 JOB 3: Parallel Builds (Solo si no hay errores)
+  build:
+    name: Build Apps (Parallel)
+    runs-on: ubuntu-latest
+    needs: [setup, error-detection]
+    if: needs.error-detection.outputs.has-errors != 'true'
+    strategy:
+      matrix:
+        app: [alimentacion, combustibles]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: �📋 Error Summary
-        if: failure() && steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
-        run: |
-          echo "=== BUILD/LINT ERRORS DETECTED ==="
-          echo "Timestamp: $(date)"
-          echo "Commit: ${{ github.sha }}"
-          echo ""
-          echo "🔗 Copilot Bridge System will be activated"
-          echo "🤖 GitHub Copilot Agent will receive structured error context"
-          echo "🎯 Agent will analyze and apply intelligent fixes"
-          echo ""
-          echo "No predefined fixes - pure AI delegation for maximum flexibility"
-          echo ""
-          if [ -f error-context.json ]; then
-            echo "Error context prepared and ready for Copilot Agent"
-            node -e "
-              const ctx = JSON.parse(require('fs').readFileSync('error-context.json', 'utf8'));
-              if (ctx.summary) {
-                console.log('Error Summary:');
-                console.log('- Total Errors: ' + ctx.summary.totalErrors);
-                console.log('- Unique Files: ' + ctx.summary.uniqueFiles);
-                console.log('- Error Types: ' + Object.keys(ctx.summary.byType).join(', '));
-              }
-            "
-          fi
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Build Alimentacion
-        if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
-        run: npm run build:alimentacion
+      - name: Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            alimentacion/node_modules
+            combustibles/node_modules
+          key: deps-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
 
-      - name: Build Combustibles
-        if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
-        run: npm run build:combustibles
+      # 🎯 CACHE BUILD OUTPUTS: Vite cache per app
+      - name: Cache Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ matrix.app }}/dist
+            ${{ matrix.app }}/node_modules/.vite
+          key: build-${{ matrix.app }}-${{ runner.os }}-${{ hashFiles(format('{0}/**', matrix.app)) }}
+          restore-keys: |
+            build-${{ matrix.app }}-${{ runner.os }}-
+
+      # ⚡ PARALLEL BUILD: Each app builds simultaneously
+      - name: Build ${{ matrix.app }}
+        run: npm run build --workspace=${{ matrix.app }}
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
@@ -134,34 +172,86 @@
           VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
 
+      # 📁 UPLOAD BUILD ARTIFACTS: For deploy job
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.app }}
+          path: public/${{ matrix.app }}/
+          retention-days: 1
+
+  # 🚀 JOB 4: Deploy (Merge artifacts + Deploy)
+  deploy:
+    name: Deploy to Firebase
+    runs-on: ubuntu-latest
+    needs: [setup, error-detection, build]
+    if: needs.error-detection.outputs.has-errors != 'true'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 📁 DOWNLOAD ALL BUILD ARTIFACTS
+      - name: Download Alimentacion Build
+        uses: actions/download-artifact@v4
+        with:
+          name: build-alimentacion
+          path: public/alimentacion/
+
+      - name: Download Combustibles Build  
+        uses: actions/download-artifact@v4
+        with:
+          name: build-combustibles
+          path: public/combustibles/
+
+      - name: Verify Build Files
+        run: |
+          echo "✅ Build verification:"
+          ls -la public/
+          echo "📁 Alimentacion files:"
+          ls -la public/alimentacion/ | head -10
+          echo "📁 Combustibles files:"
+          ls -la public/combustibles/ | head -10
+
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      # 🚀 FIREBASE DEPLOY: Optimized deployment
       - name: Deploy to Firebase
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
-          echo "Configurando credenciales Firebase..."
+          echo "🔧 Configurando credenciales Firebase..."
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}' > /tmp/service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json
           
-          echo "Verificando archivos build..."
-          ls -la public/
-          ls -la public/alimentacion/
-          ls -la public/combustibles/
-          
-          echo "Ejecutando deploy Firebase..."
+          echo "🚀 Ejecutando deploy optimizado..."
           firebase deploy --only hosting --project liquidacionapp-62962
 
-      - name: Deployment Success
+      - name: 🎉 Deployment Success
         if: success()
         run: |
-          echo "Deploy exitoso!"
-          echo "Alimentacion: https://forestechdecolombia.com.co/alimentacion/"
-          echo "Combustibles: https://forestechdecolombia.com.co/combustibles/"
+          echo "🎉 Deploy exitoso con optimizaciones!"
+          echo "🍽️ Alimentacion: https://forestechdecolombia.com.co/alimentacion/"
+          echo "⛽ Combustibles: https://forestechdecolombia.com.co/combustibles/"
+          echo ""
+          echo "⚡ Optimizaciones aplicadas:"
+          echo "  - Workspace monorepo (single npm install)"
+          echo "  - Cache multi-layer (dependencies + build artifacts)"
+          echo "  - Parallel builds (alimentacion + combustibles simultáneos)"
+          echo "  - Build artifact caching"
 
-      - name: Deployment Failed
-        if: failure()
+  # 🚨 JOB 5: Error Bridge (Solo si hay errores)
+  error-bridge:
+    name: Activate Copilot Bridge
+    runs-on: ubuntu-latest
+    needs: [setup, error-detection]
+    if: failure() && needs.error-detection.outputs.has-errors == 'true'
+    steps:
+      - name: 🚨 Trigger Copilot Bridge
         run: |
-          echo "Deploy fallo. Revisa los logs arriba."
-          echo "Contacta a Claude para ayuda con el debugging."
+          echo "🚨 Build errors detected: ${{ needs.error-detection.outputs.error-count }}"
+          echo "🤖 Activating Copilot Bridge system..."
+          echo "🔗 Error context prepared for GitHub Copilot Agent"
+          echo ""
+          echo "Sistema mantenido: Copilot Bridge se activará automáticamente"
+          exit 1
