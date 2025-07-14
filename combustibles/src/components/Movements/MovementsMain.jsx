@@ -99,7 +99,12 @@ const MovementsMain = () => {
 
   // Manejadores de eventos
   const handleCreateMovement = () => {
+    console.log('🔍 [DEBUG] handleCreateMovement called');
+    console.log('🔍 [DEBUG] userProfile:', userProfile);
+    console.log('🔍 [DEBUG] canCreateMovement:', canCreateMovement);
+    console.log('🔍 [DEBUG] Setting showWizard to true');
     setShowWizard(true);
+    console.log('🔍 [DEBUG] showWizard state updated');
   };
 
   const handleViewMovement = (movement) => {
@@ -168,6 +173,14 @@ const MovementsMain = () => {
 
   // Permisos del usuario
   const canCreateMovement = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
+
+  // Debug logging
+  console.log('🔍 [DEBUG] Movements permissions check:', {
+    userProfile: userProfile,
+    role: userProfile?.role,
+    canCreateMovement,
+    showWizard
+  });
 
   if (loading) {
     return (
@@ -278,13 +291,16 @@ const MovementsMain = () => {
 
       {/* Wizard - Única Opción */}
       {showWizard && (
-        <MovementWizard
-          isOpen={showWizard}
-          onClose={handleWizardClose}
-          onSuccess={() => {
-            handleWizardClose();
-          }}
-        />
+        <>
+          {console.log('🔍 [DEBUG] Rendering MovementWizard, showWizard:', showWizard)}
+          <MovementWizard
+            isOpen={showWizard}
+            onClose={handleWizardClose}
+            onSuccess={() => {
+              handleWizardClose();
+            }}
+          />
+        </>
       )}
     </div>
   );
