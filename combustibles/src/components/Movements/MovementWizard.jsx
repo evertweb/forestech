@@ -22,7 +22,7 @@ import './WizardSteps.css';
 
 const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   // Usar datos en tiempo real del contexto
-  const { inventory, vehicles, suppliers } = useCombustibles();
+  const { inventory, vehicles, suppliers, subscribeToSuppliers } = useCombustibles();
   
   // Estado del wizard
   const [currentStep, setCurrentStep] = useState(1);
@@ -90,6 +90,19 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         
         try {
           console.log('🔄 Cargando productos y sincronizando datos en tiempo real...');
+          
+          // Asegurar que tenemos datos de suppliers
+          if (suppliers.length === 0 && subscribeToSuppliers) {
+            console.log('🔄 Suscribiéndose a suppliers...');
+            subscribeToSuppliers();
+          }
+          
+          console.log('🔍 [WIZARD DEBUG] Datos disponibles:', {
+            vehicles: vehicles?.length || 0,
+            inventory: inventory?.length || 0,
+            suppliers: suppliers?.length || 0
+          });
+          
           const productsData = await getActiveProducts();
           
           setSystemData({
@@ -101,6 +114,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           });
           
           console.log('✅ Datos sincronizados para wizard - inventario en tiempo real:', inventory?.length || 0, 'items');
+          console.log('✅ Suppliers cargados:', suppliers?.length || 0, 'proveedores');
         } catch (error) {
           console.error('❌ Error al cargar datos del sistema:', error);
           setError('No se pudieron cargar los datos necesarios. Inténtalo de nuevo.');
@@ -116,7 +130,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, inventory, vehicles, suppliers]);
+  }, [isOpen, inventory, vehicles, suppliers, subscribeToSuppliers]);
 
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {
@@ -469,6 +483,11 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   return (
     <div className="modal-overlay wizard-overlay" onClick={onClose}>
       <div className={`modal-content wizard-modal typeform-mode ${isLastStep ? 'is-last-step' : ''}`} onClick={e => e.stopPropagation()}>
+        {/* Botón de escape global */}
+        <button className="typeform-escape" onClick={onClose} aria-label="Cerrar wizard">
+          ✕
+        </button>
+
         {/* Barra de progreso superior estilo Typeform */}
         <div className="typeform-progress">
           <div 
@@ -543,6 +562,12 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               )}
             </button>
           )}
+        </div>
+
+        {/* Indicador de paso actual */}
+        <div className="typeform-step-indicator">
+          <div className="step-number">{currentLogicalStep}</div>
+          <span>de {totalSteps}</span>
         </div>
       </div>
     </div>

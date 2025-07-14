@@ -1,9 +1,9 @@
 /**
  * Step4_Quantity - Cuarto paso del wizard: Especificar cantidad de combustible
- * Incluye validación de stock en tiempo real y cuadro dinámico de información
+ * Diseño estilo Typeform: entrada de cantidad conversacional y visual
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { validateStockAvailability } from '../../../utils/calculations';
 
@@ -11,9 +11,33 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
   const [calculating, setCalculating] = useState(false);
   const [stockInfo, setStockInfo] = useState(null);
   const [validationWarning, setValidationWarning] = useState('');
+  const inputRef = useRef(null);
 
   const { inventory } = systemData;
   const isStockRequired = formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA;
+
+  // Auto-focus del input cuando se activa el paso
+  useEffect(() => {
+    if (isActive && inputRef.current) {
+      setTimeout(() => inputRef.current.focus(), 300);
+    }
+  }, [isActive]);
+
+  // Navegación por teclado
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleKeyPress = (e) => {
+      // Enter para continuar si la cantidad es válida
+      if (e.key === 'Enter' && formData.quantity && parseFloat(formData.quantity) > 0) {
+        // Trigger para avanzar paso
+        return;
+      }
+    };
+
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, [isActive, formData.quantity]);
 
   // Calcular información de stock en tiempo real
   useEffect(() => {
@@ -33,38 +57,28 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
           )
           .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
 
-        // Calcular capacidad máxima
-        const maxCapacity = inventory
-          .filter(item => 
-            item.fuelType === formData.fuelType && 
-            item.location?.toLowerCase() === formData.location?.toLowerCase() &&
-            item.status === 'active'
-          )
-          .reduce((total, item) => total + (parseFloat(item.maxCapacity) || 0), 0);
-
         const requiredQuantity = parseFloat(formData.quantity) || 0;
         const remainingStock = availableStock - requiredQuantity;
-        const capacityPercentage = maxCapacity > 0 ? (availableStock / maxCapacity) * 100 : 0;
         
         // Determinar estado
         let status = 'available';
         let icon = '✅';
-        let title = 'Stock Suficiente';
-        let message = 'Hay suficiente combustible disponible.';
+        let title = 'Stock Disponible';
+        let message = 'Perfecto, hay suficiente combustible.';
         
         if (requiredQuantity > 0) {
           if (availableStock < requiredQuantity) {
             status = 'critical';
             icon = '🚫';
-            title = 'Stock Insuficiente';
-            message = `Faltan ${(requiredQuantity - availableStock).toFixed(2)} galones.`;
+            title = 'Cantidad No Disponible';
+            message = `Solo hay ${availableStock.toFixed(2)} galones disponibles`;
           } else if (remainingStock < (availableStock * 0.2)) {
             status = 'warning';
             icon = '⚠️';
             title = 'Stock Quedará Bajo';
-            message = `Después del movimiento quedarán ${remainingStock.toFixed(2)} galones.`;
+            message = `Quedarán solo ${remainingStock.toFixed(2)} galones`;
           } else {
-            message = `Después del movimiento quedarán ${remainingStock.toFixed(2)} galones disponibles.`;
+            message = `Quedarán ${remainingStock.toFixed(2)} galones en stock`;
           }
         }
 
@@ -72,8 +86,6 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
           available: availableStock,
           required: requiredQuantity,
           remaining: Math.max(0, remainingStock),
-          maxCapacity,
-          capacityPercentage,
           status,
           icon,
           title,
@@ -81,7 +93,7 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
           isValid: availableStock >= requiredQuantity
         });
 
-        // Validación adicional usando calculations.js - solo para movimientos que requieren stock
+        // Validación adicional
         if (requiredQuantity > 0 && isStockRequired) {
           const movementForValidation = {
             type: formData.type === MOVEMENT_TYPES.SALIDA ? 'outbound' : 'transfer',
@@ -100,7 +112,6 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
             setValidationWarning('');
           }
         } else if (!isStockRequired) {
-          // Para movimientos de entrada, limpiar cualquier warning de validación
           setValidationWarning('');
         }
         
@@ -125,51 +136,76 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
     
     const available = stockInfo.available;
     return [
-      { label: '25%', value: (available * 0.25).toFixed(1) },
-      { label: '50%', value: (available * 0.50).toFixed(1) },
-      { label: '75%', value: (available * 0.75).toFixed(1) },
-      { label: 'Todo', value: available.toFixed(1) }
+      { label: '25 gal', value: '25' },
+      { label: '50 gal', value: '50' },
+      { label: '100 gal', value: '100' },
+      { label: `${available.toFixed(0)} gal`, value: available.toFixed(1) }
     ];
+  };
+
+  const getMovementEmoji = () => {
+    switch (formData.type) {
+      case MOVEMENT_TYPES.ENTRADA: return '📥';
+      case MOVEMENT_TYPES.SALIDA: return '⛽';
+      case MOVEMENT_TYPES.TRANSFERENCIA: return '🔄';
+      case MOVEMENT_TYPES.AJUSTE: return '⚖️';
+      default: return '📊';
+    }
+  };
+
+  const getQuantityQuestion = () => {
+    switch (formData.type) {
+      case MOVEMENT_TYPES.ENTRADA: 
+        return '¿Cuántos galones estás recibiendo?';
+      case MOVEMENT_TYPES.SALIDA: 
+        return '¿Cuántos galones necesitas entregar?';
+      case MOVEMENT_TYPES.TRANSFERENCIA: 
+        return '¿Cuántos galones vas a transferir?';
+      case MOVEMENT_TYPES.AJUSTE: 
+        return '¿Cuál es la cantidad del ajuste?';
+      default: 
+        return '¿Cuántos galones necesitas?';
+    }
   };
 
   return (
     <div className={`wizard-step step-quantity ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
         <div className="typeform-question">
-          <h3>📊 ¿Cuántos galones necesitas?</h3>
-          <p>Especifica la cantidad de combustible:</p>
+          <h2>{getMovementEmoji()} {getQuantityQuestion()}</h2>
+          <p>Ingresa la cantidad en galones</p>
         </div>
 
-        {/* Input de cantidad */}
+        {/* Input de cantidad estilo Typeform */}
         <div className="typeform-input-section">
           <input
+            ref={inputRef}
             id="quantity"
             type="number"
             step="0.1"
             min="0"
             value={formData.quantity}
             onChange={(e) => handleQuantityChange(e.target.value)}
-            placeholder="0.0"
+            placeholder="0"
             className={`typeform-input ${validationWarning ? 'error' : ''}`}
+            autoComplete="off"
           />
           <span className="typeform-unit">galones</span>
         </div>
 
-        {/* Sugerencias rápidas de cantidad */}
+        {/* Sugerencias rápidas */}
         {stockInfo && stockInfo.available > 0 && (
-          <div className="quantity-suggestions">
-            <label>Cantidades sugeridas:</label>
-            <div className="suggestion-buttons">
+          <div className="typeform-suggestions">
+            <label className="typeform-suggestions-label">Cantidades comunes:</label>
+            <div className="typeform-suggestions-buttons">
               {suggestQuantities().map((suggestion, index) => (
                 <button
                   key={index}
                   type="button"
-                  className="suggestion-btn"
+                  className="typeform-suggestion-btn"
                   onClick={() => handleQuantityChange(suggestion.value)}
                 >
                   {suggestion.label}
-                  <br />
-                  <small>{suggestion.value} gal</small>
                 </button>
               ))}
             </div>
@@ -180,11 +216,11 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
         {calculating && (
           <div className="calculating-indicator">
             <div className="loading-spinner small"></div>
-            <span>⚙️ Calculando disponibilidad...</span>
+            <span>⚙️ Verificando disponibilidad...</span>
           </div>
         )}
 
-        {/* Cuadro de información de stock en tiempo real (simplificado) */}
+        {/* Información de stock simplificada */}
         {stockInfo && isStockRequired && !calculating && (
           <div className={`stock-info-container ${stockInfo.status}`}>
             <div className="stock-info-header">
@@ -206,18 +242,18 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
           </div>
         )}
 
-        {/* Confirmación de cantidad */}
+        {/* Confirmación visual */}
         {formData.quantity && parseFloat(formData.quantity) > 0 && (
           <div className="selection-confirmation">
             <div className="confirmation-card">
-              <span className="confirmation-icon">📊</span>
+              <span className="confirmation-icon">{getMovementEmoji()}</span>
               <div className="confirmation-text">
-                <strong>Cantidad:</strong> {parseFloat(formData.quantity).toFixed(2)} galones
+                <strong>Perfecto! {parseFloat(formData.quantity).toLocaleString('es-CO')} galones</strong>
                 <br />
                 <small>
                   {isStockRequired ? 
-                    `Se restará del inventario de ${formData.location}` : 
-                    `Se añadirá al inventario de ${formData.destinationLocation || 'ubicación no especificada'}`
+                    `Saldrán del inventario de ${formData.location}` : 
+                    `Se agregarán al inventario`
                   }
                 </small>
               </div>
