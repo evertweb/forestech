@@ -826,77 +826,121 @@
   color: var(--wizard-primary-dark);
 }
 
-/* Estados mejorados para stock */
-.stock-info-container {
-  background: white;
+/* Estilos para textarea en Step8 */
+.typeform-textarea {
+  width: 100%;
   border: 2px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1rem;
+  color: #2d3748;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.typeform-textarea:focus {
+  border-color: var(--wizard-primary);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.typeform-textarea::placeholder {
+  color: #a0aec0;
+}
+
+/* Mensaje final optimizado */
+.final-message {
+  text-align: center;
   padding: 1.5rem;
-  margin: 1.5rem auto;
-  max-width: 500px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(5, 150, 105, 0.02) 100%);
+  border-radius: 16px;
+  margin-top: 2rem;
+  border: 1px solid rgba(5, 150, 105, 0.2);
 }
 
-.stock-info-container.available {
-  border-color: #10b981;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
-}
-
-.stock-info-container.warning {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
-}
-
-.stock-info-container.critical {
-  border-color: #ef4444;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
-}
-
-.stock-info-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.stock-info-icon {
-  font-size: 1.75rem;
-}
-
-.stock-info-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
+.final-message p {
+  margin: 0.5rem 0;
   color: #2d3748;
 }
 
-.stock-info-message {
-  font-size: 1rem;
-  color: #4a5568;
-  line-height: 1.5;
-  text-align: center;
-  font-weight: 500;
+.final-message p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
-/* Mejoras para validaciones */
-.validation-warning {
-  background: rgba(245, 158, 11, 0.1);
-  border: 2px solid rgba(245, 158, 11, 0.3);
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 1rem auto;
-  color: #92400e;
-  font-weight: 500;
-  text-align: center;
-  max-width: 500px;
-  animation: warningPulse 0.5s ease-out;
+.final-message p:last-child {
+  color: #718096;
+  font-size: 0.95rem;
 }
 
-@keyframes warningPulse {
-  0% { transform: scale(0.98); opacity: 0.8; }
-  50% { transform: scale(1.01); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+/* Estilos mejorados para horómetro */
+.vehicle-hours {
+  color: #718096;
+  font-size: 0.875rem;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Indicador de stock mini mejorado */
+.stock-indicator {
+  margin-top: 0.5rem;
+}
+
+.stock-bar-mini {
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.stock-fill-mini {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Mejoras adicionales para responsive */
+@media (max-width: 768px) {
+  .typeform-question h2 {
+    font-size: 2rem;
+  }
+  
+  .typeform-option {
+    padding: 1.25rem;
+  }
+  
+  .typeform-option-icon {
+    font-size: 2rem;
+    width: 50px;
+  }
+  
+  .typeform-option-content h4 {
+    font-size: 1.1rem;
+  }
+  
+  .typeform-input {
+    font-size: 1.75rem;
+  }
+  
+  .typeform-nav-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 1.4rem;
+  }
+  
+  .summary-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .summary-value {
+    font-size: 1.5rem;
+  }
 }
 
 /* ============ DETALLES ESPECÍFICOS ============ */
