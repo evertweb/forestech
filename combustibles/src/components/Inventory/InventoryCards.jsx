@@ -39,14 +39,14 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
         const fuelInfo = FUEL_INFO[item.fuelType] || {};
         const stockPercentage = parseFloat(item.stockPercentage) || 0;
         
-        let stockAlertKey = 'default';
-        if (stockPercentage === 0) stockAlertKey = 'empty';
+        let stockAlertKey = 'medium'; // default válido
+        if (stockPercentage === 0) stockAlertKey = 'critical'; // empty → critical
         else if (stockPercentage <= 15) stockAlertKey = 'critical';
         else if (stockPercentage <= 30) stockAlertKey = 'low';
         else if (stockPercentage >= 95) stockAlertKey = 'full';
-        else stockAlertKey = 'normal';
+        else stockAlertKey = 'high'; // normal → high
         
-        const stockAlert = STOCK_ALERTS[stockAlertKey];
+        const stockAlert = STOCK_ALERTS[stockAlertKey] || STOCK_ALERTS.medium;
 
         const currentStock = parseFloat(item.currentStock) || 0;
         const maxCapacity = parseFloat(item.maxCapacity) || parseFloat(item.capacity) || 1; // Evitar división por cero
