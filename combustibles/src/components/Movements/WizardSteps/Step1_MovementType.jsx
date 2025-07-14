@@ -63,7 +63,7 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive]);
+  }, [isActive, handleSelection, movementOptions]);
 
   return (
     <div className={`wizard-step step-movement-type ${isActive ? 'active' : ''}`}>
@@ -74,7 +74,7 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
         </div>
 
         <div className="typeform-options">
-          {movementOptions.map((option, index) => (
+          {movementOptions.map((option) => (
             <div
               key={option.type}
               className={`typeform-option ${formData.type === option.type ? 'selected' : ''} ${option.color}`}

@@ -39,7 +39,7 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, products]);
+  }, [isActive, products, handleFuelSelection]);
 
   const handleFuelSelection = async (fuelType, product) => {
     setLoading(true);
@@ -96,7 +96,7 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
         )}
 
         <div className="typeform-options">
-          {products.map((product, index) => (
+          {products.map((product) => (
             <div
               key={product.id}
               className={`typeform-option ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}

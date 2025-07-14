@@ -38,7 +38,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, suppliers, isEntrada]);
+  }, [isActive, suppliers, isEntrada, handleLocationSelection]);
 
   // Validar stock disponible en tiempo real para salidas/transferencias
   useEffect(() => {
@@ -104,7 +104,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
         updateFormData('location', location);
       }
       
-    } catch (err) {
+    } catch {
       setError('Error al validar la ubicación');
     } finally {
       setLoading(false);
@@ -141,6 +141,13 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
   if (isEntrada) {
     const activeSuppliers = suppliers.filter(s => s.status === 'active');
     
+    // Debug para entender el problema
+    console.log('🔍 [Step3 DEBUG] Suppliers data:', {
+      suppliersLength: suppliers.length,
+      activeSuppliersLength: activeSuppliers.length,
+      suppliers: suppliers
+    });
+    
     return (
       <div className={`wizard-step step-location ${isActive ? 'active' : ''}`}>
         <div className="typeform-layout">
@@ -156,29 +163,43 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
             </div>
           )}
 
-          <div className="typeform-options">
-            {activeSuppliers.map((supplier, index) => (
-              <div
-                key={supplier.id}
-                className={`typeform-option ${formData.supplierName === supplier.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
-                onClick={() => !loading && handleLocationSelection(supplier.name)}
-              >
-                <div className="typeform-option-icon">🏪</div>
-                <div className="typeform-option-content">
-                  <h4>{supplier.name}</h4>
-                  <p>{supplier.location || 'Proveedor de combustibles'}</p>
-                  {supplier.contact && (
-                    <small className="supplier-contact">📞 {supplier.contact}</small>
-                  )}
-                </div>
-                <div className="typeform-option-selector">
-                  <div className="typeform-check">
-                    <span className="typeform-check-icon">✓</span>
+          {suppliers.length === 0 ? (
+            <div className="loading-state">
+              <div className="loading-spinner"></div>
+              <p>🔄 Cargando proveedores...</p>
+            </div>
+          ) : activeSuppliers.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🏪</div>
+              <h3>No hay proveedores disponibles</h3>
+              <p>No se encontraron proveedores activos en el sistema.</p>
+              <p>Contacta al administrador para agregar proveedores.</p>
+            </div>
+          ) : (
+            <div className="typeform-options">
+              {activeSuppliers.map((supplier) => (
+                <div
+                  key={supplier.id}
+                  className={`typeform-option ${formData.supplierName === supplier.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+                  onClick={() => !loading && handleLocationSelection(supplier.name)}
+                >
+                  <div className="typeform-option-icon">🏪</div>
+                  <div className="typeform-option-content">
+                    <h4>{supplier.name}</h4>
+                    <p>{supplier.location || 'Proveedor de combustibles'}</p>
+                    {supplier.contact && (
+                      <small className="supplier-contact">📞 {supplier.contact}</small>
+                    )}
+                  </div>
+                  <div className="typeform-option-selector">
+                    <div className="typeform-check">
+                      <span className="typeform-check-icon">✓</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {formData.supplierName && (
             <div className="selection-confirmation">
@@ -214,7 +235,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
         )}
 
         <div className="typeform-options">
-          {OPERATIONAL_LOCATIONS.map((location, index) => {
+          {OPERATIONAL_LOCATIONS.map((location) => {
             const stockData = stockInfo[location] || {};
             const isLocationSelected = formData.location === location;
             

@@ -1,6 +1,22 @@
 /**
- * Step8_Summary - Resumen final del wizard
- * Diseño estilo Typeform: confirmación elegante y clara
+ * Step8_Summary - Resumen final del wizard  const getActionDescription = () => {
+    const quantity = parseFloat(formData.quantity) || 0;
+    const fuel = getProductInfo()?.displayName || formData.fuelType;
+    const vehicle = getVehicleInfo();
+    
+    switch (formData.type) {
+      case MOVEMENT_TYPES.ENTRADA:
+        return `Recibir ${quantity} galones de ${fuel} de ${formData.supplierName}`;
+      case MOVEMENT_TYPES.SALIDA:
+        return `Entregar ${quantity} galones de ${fuel} a ${vehicle?.vehicleId || 'vehículo'}`;
+      case MOVEMENT_TYPES.TRANSFERENCIA:
+        return `Transferir ${quantity} galones de ${fuel} desde ${formatLocationName(formData.location)} hacia ${formatLocationName(formData.destinationLocation)}`;
+      case MOVEMENT_TYPES.AJUSTE:
+        return `Ajustar ${quantity} galones de ${fuel} en ${formatLocationName(formData.location)}`;
+      default:
+        return `Procesar ${quantity} galones de ${fuel}`;
+    }
+  };Typeform: confirmación elegante y clara
  */
 
 import React from 'react';
@@ -10,14 +26,13 @@ import { formatLocationName } from '../../../constants/locations';
 const Step8_Summary = ({ 
   formData, 
   systemData, 
-  isLoading,
   error, 
   onCommentsChange, 
   confirmChecked, 
   onConfirmChange 
 }) => {
 
-  const { vehicles, products, suppliers } = systemData;
+  const { vehicles, products } = systemData;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-CO', {
@@ -49,12 +64,12 @@ const Step8_Summary = ({
   const getSummaryDescription = () => {
     const quantity = parseFloat(formData.quantity).toLocaleString('es-CO');
     const fuel = getProductInfo()?.displayName || formData.fuelType;
+    const vehicle = getVehicleInfo();
     
     switch (formData.type) {
       case MOVEMENT_TYPES.ENTRADA:
         return `Recibir ${quantity} galones de ${fuel} de ${formData.supplierName}`;
       case MOVEMENT_TYPES.SALIDA:
-        const vehicle = getVehicleInfo();
         return `Entregar ${quantity} galones de ${fuel} a ${vehicle?.vehicleId || 'vehículo'}`;
       case MOVEMENT_TYPES.TRANSFERENCIA:
         return `Transferir ${quantity} galones de ${fuel} desde ${formatLocationName(formData.location)} hacia ${formatLocationName(formData.destinationLocation)}`;

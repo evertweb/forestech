@@ -15,14 +15,9 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   const { vehicles } = systemData;
 
-  // Solo mostrar para salidas
-  if (formData.type !== MOVEMENT_TYPES.SALIDA) {
-    return null;
-  }
-
   // Navegación por teclado
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || formData.type !== MOVEMENT_TYPES.SALIDA) return;
 
     const handleKeyPress = (e) => {
       const compatibleVehicles = getCompatibleVehicles();
@@ -40,7 +35,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   // Buscar vehículo seleccionado
   useEffect(() => {
-    if (formData.vehicleId && vehicles.length > 0) {
+    if (formData.vehicleId && vehicles.length > 0 && formData.type === MOVEMENT_TYPES.SALIDA) {
       const vehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
       setSelectedVehicle(vehicle);
       
@@ -53,6 +48,11 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
       }
     }
   }, [formData.vehicleId, vehicles]);
+
+  // Solo mostrar para salidas
+  if (formData.type !== MOVEMENT_TYPES.SALIDA) {
+    return null;
+  }
 
   const checkIfRequiresHourMeter = (vehicle) => {
     if (!vehicle) return false;
@@ -96,7 +96,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
         updateFormData('currentHours', '');
       }
       
-    } catch (err) {
+    } catch {
       setError('Error al seleccionar vehículo');
     } finally {
       setLoading(false);
@@ -157,7 +157,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
         )}
 
         <div className="typeform-options">
-          {compatibleVehicles.map((vehicle, index) => (
+          {compatibleVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
               className={`typeform-option ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} ${loading ? 'disabled' : ''}`}

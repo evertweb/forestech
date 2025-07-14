@@ -61,7 +61,7 @@ const useFirestoreSubscription = (subscribeFunction, enabled = true, /* _options
 /* eslint-disable react-hooks/rules-of-hooks */
 export const useInventory = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('inventory', autoSubscribe, {
+    return useOptimizedCollection('combustibles_inventory', autoSubscribe, {
       orderByField: 'name',
       limitCount: 100
     });
@@ -71,7 +71,7 @@ export const useInventory = (autoSubscribe = false, optimized = true) => {
 
 export const useVehicles = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('vehicles', autoSubscribe, {
+    return useOptimizedCollection('combustibles_vehicles', autoSubscribe, {
       filters: [{ field: 'status', operator: '==', value: 'active' }],
       orderByField: 'plate',
       limitCount: 50
@@ -82,7 +82,7 @@ export const useVehicles = (autoSubscribe = false, optimized = true) => {
 
 export const useSuppliers = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('suppliers', autoSubscribe, {
+    return useOptimizedCollection('combustibles_suppliers', autoSubscribe, {
       filters: [{ field: 'status', operator: '==', value: 'active' }],
       orderByField: 'name',
       limitCount: 30
@@ -93,7 +93,7 @@ export const useSuppliers = (autoSubscribe = false, optimized = true) => {
 
 export const useMovements = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('movements', autoSubscribe, {
+    return useOptimizedCollection('combustibles_movements', autoSubscribe, {
       orderByField: 'createdAt',
       orderDirection: 'desc',
       limitCount: 100
