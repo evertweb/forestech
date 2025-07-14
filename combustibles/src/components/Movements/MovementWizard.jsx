@@ -21,9 +21,6 @@ import Step8_Summary from './WizardSteps/Step8_Summary';
 import './WizardSteps.css';
 
 const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
-  // Debug logging
-  console.log('🔍 [DEBUG] MovementWizard render:', { isOpen, onClose: !!onClose, onSuccess: !!onSuccess });
-  
   // Usar datos en tiempo real del contexto
   const { inventory, vehicles, suppliers } = useCombustibles();
   
@@ -432,10 +429,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     return stepComponents[currentStep] || <div>Paso no encontrado</div>;
   };
 
-  if (!isOpen) {
-    console.log('🔍 [DEBUG] MovementWizard not rendering - isOpen is false');
-    return null;
-  }
+  if (!isOpen) return null;
 
   const totalSteps = getTotalSteps();
   // Mapear pasos para la barra de progreso
