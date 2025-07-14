@@ -1,9 +1,9 @@
 /**
  * Step1_MovementType - Primer paso del wizard: Selección del tipo de movimiento
- * Permite al usuario elegir entre entrada, salida, transferencia o ajuste
+ * Diseño estilo Typeform: conversacional, centrado y elegante
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 
 const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) => {
@@ -12,34 +12,34 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
     {
       type: MOVEMENT_TYPES.ENTRADA,
       icon: '📥',
-      title: 'Entrada',
-      description: 'Compra o reabastecimiento de combustible',
+      title: 'Entrada de Combustible',
+      description: 'Registrar combustible que llega de proveedores',
       color: 'entrada',
-      details: 'Registra combustible que llega desde proveedores'
+      details: 'Para compras, reabastecimientos y recepciones'
     },
     {
       type: MOVEMENT_TYPES.SALIDA,
-      icon: '📤', 
-      title: 'Salida',
-      description: 'Consumo de combustible por vehículos',
+      icon: '⛽', 
+      title: 'Salida de Combustible',
+      description: 'Asignar combustible a vehículos y equipos',
       color: 'salida',
-      details: 'Asigna combustible a vehículos y equipos'
+      details: 'Para consumo y operaciones de campo'
     },
     {
       type: MOVEMENT_TYPES.TRANSFERENCIA,
       icon: '🔄',
       title: 'Transferencia', 
-      description: 'Movimiento entre ubicaciones',
+      description: 'Mover combustible entre ubicaciones',
       color: 'transferencia',
-      details: 'Traslada combustible entre tanques o sitios'
+      details: 'Entre tanques, sitios o almacenes'
     },
     {
       type: MOVEMENT_TYPES.AJUSTE,
       icon: '⚖️',
-      title: 'Ajuste',
-      description: 'Corrección de inventario',
+      title: 'Ajuste de Inventario',
+      description: 'Corregir stock por diferencias o calibraciones',
       color: 'ajuste', 
-      details: 'Ajusta stock por mermas, pérdidas o calibraciones'
+      details: 'Para mermas, pérdidas o correcciones'
     }
   ];
 
@@ -48,16 +48,33 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
     setError('');
   };
 
+  // Navegación por teclado
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleKeyPress = (e) => {
+      // Números 1-4 para seleccionar opciones
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= 4) {
+        const selectedOption = movementOptions[num - 1];
+        handleSelection(selectedOption.type);
+      }
+    };
+
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, [isActive]);
+
   return (
     <div className={`wizard-step step-movement-type ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
         <div className="typeform-question">
-          <h3>🍀 ¿Qué tipo de operación realizarás?</h3>
-          <p>Selecciona el tipo de movimiento que necesitas registrar:</p>
+          <h2>🌿 ¡Hola! ¿Qué operación necesitas registrar hoy?</h2>
+          <p>Selecciona el tipo de movimiento que vas a realizar</p>
         </div>
 
         <div className="typeform-options">
-          {movementOptions.map((option) => (
+          {movementOptions.map((option, index) => (
             <div
               key={option.type}
               className={`typeform-option ${formData.type === option.type ? 'selected' : ''} ${option.color}`}
@@ -86,9 +103,9 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
                 {movementOptions.find(opt => opt.type === formData.type)?.icon}
               </span>
               <div className="confirmation-text">
-                <strong>Seleccionado:</strong> {movementOptions.find(opt => opt.type === formData.type)?.title}
+                <strong>Perfecto! Has seleccionado:</strong> {movementOptions.find(opt => opt.type === formData.type)?.title}
                 <br />
-                <small>{movementOptions.find(opt => opt.type === formData.type)?.description}</small>
+                <small>{movementOptions.find(opt => opt.type === formData.type)?.details}</small>
               </div>
             </div>
           </div>

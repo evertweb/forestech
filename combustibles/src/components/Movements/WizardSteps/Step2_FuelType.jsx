@@ -1,6 +1,6 @@
 /**
  * Step2_FuelType - Segundo paso del wizard: Selección del tipo de combustible
- * Muestra productos disponibles con precios automáticos y estado de loading
+ * Diseño estilo Typeform: conversacional y centrado en el producto
  */
 
 import React, { useState, useEffect } from 'react';
@@ -24,6 +24,23 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
     }
   }, [formData.fuelType, formData.unitPrice, products, updateFormData]);
 
+  // Navegación por teclado
+  useEffect(() => {
+    if (!isActive) return;
+
+    const handleKeyPress = (e) => {
+      // Números 1-N para seleccionar productos
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= products.length) {
+        const selectedProduct = products[num - 1];
+        handleFuelSelection(selectedProduct.name, selectedProduct);
+      }
+    };
+
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, [isActive, products]);
+
   const handleFuelSelection = async (fuelType, product) => {
     setLoading(true);
     setError('');
@@ -40,9 +57,7 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
         updateFormData('unitPrice', product.defaultPrice.toString());
       }
       
-      // 🔍 DEBUG: Log específico para fuelType
       console.log('🔄 [Step2] Combustible seleccionado:', fuelType, 'Precio:', product.defaultPrice);
-      console.log('🔍 [Step2] FormData después de actualización:', { fuelType, unitPrice: product.defaultPrice });
       
     } catch (err) {
       console.error('Error al cargar combustible:', err);
@@ -69,19 +84,19 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
     <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
         <div className="typeform-question">
-          <h3>⛽ ¿Qué combustible vas a mover?</h3>
-          <p>Selecciona el producto del inventario:</p>
+          <h2>⛽ ¿Qué tipo de combustible necesitas?</h2>
+          <p>Elige el producto que vas a mover</p>
         </div>
 
         {loading && (
           <div className="loading-overlay">
             <div className="loading-spinner"></div>
-            <p>📡 Solicitando precios actualizados...</p>
+            <p>📡 Actualizando precios...</p>
           </div>
         )}
 
         <div className="typeform-options">
-          {products.map((product) => (
+          {products.map((product, index) => (
             <div
               key={product.id}
               className={`typeform-option ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
@@ -92,13 +107,12 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
               </div>
               <div className="typeform-option-content">
                 <h4>{product.displayName || product.name}</h4>
-                <p>{product.description || 'Combustible'}</p>
+                <p>{product.description || 'Combustible premium'}</p>
                 
                 {product.defaultPrice && (
                   <div className="fuel-price">
-                    <span className="price-label">Precio actual:</span>
                     <span className="price-value">
-                      ${product.defaultPrice.toLocaleString('es-CO')} COP/gal
+                      ${product.defaultPrice.toLocaleString('es-CO')} COP/galón
                     </span>
                   </div>
                 )}
@@ -120,22 +134,22 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
                   {selectedProduct.icon || '🛢️'}
                 </span>
                 <div className="confirmation-text">
-                  <strong>{selectedProduct.displayName || selectedProduct.name}</strong>
+                  <strong>Excelente! Has elegido {selectedProduct.displayName || selectedProduct.name}</strong>
                   <br />
-                  <small>{selectedProduct.description || 'Combustible seleccionado'}</small>
+                  <small>{selectedProduct.description || 'Combustible de calidad premium'}</small>
                 </div>
               </div>
               
               {selectedProduct.defaultPrice && (
                 <div className="price-confirmation">
                   <div className="price-info">
-                    <span className="price-label">💰 Precio por galón:</span>
+                    <span className="price-label">💰 Precio actual:</span>
                     <span className="price-amount">
-                      ${selectedProduct.defaultPrice.toLocaleString('es-CO')} COP
+                      ${selectedProduct.defaultPrice.toLocaleString('es-CO')} COP/galón
                     </span>
                   </div>
                   <small className="price-note">
-                    ✨ Precio aplicado automáticamente (puedes modificarlo más adelante)
+                    ✨ Aplicamos el precio automáticamente (lo puedes ajustar después)
                   </small>
                 </div>
               )}
