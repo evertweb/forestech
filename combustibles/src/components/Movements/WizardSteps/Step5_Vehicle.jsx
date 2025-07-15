@@ -3,7 +3,7 @@
  * Diseño estilo Typeform: centrado en el vehículo y uso intuitivo
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 
 const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActive }) => {
@@ -15,69 +15,28 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   const { vehicles } = systemData;
 
-  // Navegación por teclado
-  useEffect(() => {
-    if (!isActive || formData.type !== MOVEMENT_TYPES.SALIDA) return;
-
-    const handleKeyPress = (e) => {
-      const compatibleVehicles = getCompatibleVehicles();
-      const num = parseInt(e.key);
-      
-      if (num >= 1 && num <= compatibleVehicles.length) {
-        const selectedVehicle = compatibleVehicles[num - 1];
-        handleVehicleSelection(selectedVehicle);
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, vehicles, formData.fuelType]);
-
-  // Buscar vehículo seleccionado
-  useEffect(() => {
-    if (formData.vehicleId && vehicles.length > 0 && formData.type === MOVEMENT_TYPES.SALIDA) {
-      const vehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
-      setSelectedVehicle(vehicle);
-      
-      const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
-      setShowHourMeter(requiresHourMeter);
-
-      // Auto-focus en horómetro si es requerido
-      if (requiresHourMeter && hourMeterRef.current) {
-        setTimeout(() => hourMeterRef.current.focus(), 500);
-      }
-    }
-  }, [formData.vehicleId, vehicles]);
-
-  // Solo mostrar para salidas
-  if (formData.type !== MOVEMENT_TYPES.SALIDA) {
-    return null;
-  }
-
-  const checkIfRequiresHourMeter = (vehicle) => {
+  // Función para determinar si requiere horómetro
+  const checkIfRequiresHourMeter = useCallback((vehicle) => {
     if (!vehicle) return false;
-    
-    const isDieselVehicle = vehicle.fuelType === 'diesel' || vehicle.fuelType === 'Diesel';
-    const isTractorByCategory = vehicle.category === 'tractor' || 
-                               vehicle.type?.toLowerCase().includes('tractor');
-    
-    return isDieselVehicle || isTractorByCategory;
-  };
+    return vehicle.type === 'heavy' || 
+           vehicle.type === 'construction' || 
+           vehicle.category === 'maquinaria';
+  }, []);
 
-  const getCompatibleVehicles = () => {
-    if (!formData.fuelType) return vehicles;
+  // Función para obtener vehículos compatibles
+  const getCompatibleVehicles = useCallback(() => {
+    if (!formData.fuelType || vehicles.length === 0) return [];
     
+    const requiredFuelType = formData.fuelType.toLowerCase();
     return vehicles.filter(vehicle => {
-      const vehicleFuelType = vehicle.fuelType?.toLowerCase();
-      const requiredFuelType = formData.fuelType?.toLowerCase();
-      
-      return vehicleFuelType === requiredFuelType || 
+      const vehicleFuelType = vehicle.fuelType?.toLowerCase() || '';
+      return vehicle.status === 'active' && 
              (requiredFuelType === 'diesel' && vehicleFuelType === 'diesel') ||
              (requiredFuelType === 'gasolina' && vehicleFuelType === 'gasolina');
     });
-  };
+  }, [formData.fuelType, vehicles]);
 
-  const handleVehicleSelection = async (vehicle) => {
+  const handleVehicleSelection = useCallback(async (vehicle) => {
     setLoading(true);
     setError('');
     setLocalError('');
@@ -101,7 +60,46 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
     } finally {
       setLoading(false);
     }
-  };
+  }, [updateFormData, setError, checkIfRequiresHourMeter]);
+
+  // Navegación por teclado
+  useEffect(() => {
+    if (!isActive || formData.type !== MOVEMENT_TYPES.SALIDA) return;
+
+    const handleKeyPress = (e) => {
+      const compatibleVehicles = getCompatibleVehicles();
+      const num = parseInt(e.key);
+      
+      if (num >= 1 && num <= compatibleVehicles.length) {
+        const selectedVehicle = compatibleVehicles[num - 1];
+        handleVehicleSelection(selectedVehicle);
+      }
+    };
+
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, [isActive, vehicles, formData.fuelType, getCompatibleVehicles, handleVehicleSelection]);
+
+  // Buscar vehículo seleccionado
+  useEffect(() => {
+    if (formData.vehicleId && vehicles.length > 0 && formData.type === MOVEMENT_TYPES.SALIDA) {
+      const vehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
+      setSelectedVehicle(vehicle);
+      
+      const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
+      setShowHourMeter(requiresHourMeter);
+
+      // Auto-focus en horómetro si es requerido
+      if (requiresHourMeter && hourMeterRef.current) {
+        setTimeout(() => hourMeterRef.current.focus(), 500);
+      }
+    }
+  }, [formData.vehicleId, vehicles]);
+
+  // Solo mostrar para salidas
+  if (formData.type !== MOVEMENT_TYPES.SALIDA) {
+    return null;
+  }
 
   const handleHourMeterChange = (value) => {
     const numValue = parseFloat(value);

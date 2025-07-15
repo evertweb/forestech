@@ -3,13 +3,39 @@
  * Diseño estilo Typeform: conversacional y centrado en el producto
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const { products } = systemData;
+
+  const handleFuelSelection = useCallback(async (fuelType, product) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Simular carga de precios actualizados
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      updateFormData('fuelType', fuelType);
+      setSelectedProduct(product);
+      
+      // Auto-completar precio
+      if (product.defaultPrice) {
+        updateFormData('unitPrice', product.defaultPrice.toString());
+      }
+      
+      console.log('🔄 [Step2] Combustible seleccionado:', fuelType, 'Precio:', product.defaultPrice);
+      
+    } catch (err) {
+      console.error('Error al cargar combustible:', err);
+      setError('Error al cargar información del combustible');
+    } finally {
+      setLoading(false);
+    }
+  }, [updateFormData, setError]);
 
   // Actualizar producto seleccionado cuando cambia el combustible
   useEffect(() => {
@@ -40,32 +66,6 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
   }, [isActive, products, handleFuelSelection]);
-
-  const handleFuelSelection = async (fuelType, product) => {
-    setLoading(true);
-    setError('');
-    
-    try {
-      // Simular carga de precios actualizados
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      updateFormData('fuelType', fuelType);
-      setSelectedProduct(product);
-      
-      // Auto-completar precio
-      if (product.defaultPrice) {
-        updateFormData('unitPrice', product.defaultPrice.toString());
-      }
-      
-      console.log('🔄 [Step2] Combustible seleccionado:', fuelType, 'Precio:', product.defaultPrice);
-      
-    } catch (err) {
-      console.error('Error al cargar combustible:', err);
-      setError('Error al cargar información del combustible');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (products.length === 0) {
     return (

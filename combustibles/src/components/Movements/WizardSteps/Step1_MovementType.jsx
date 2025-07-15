@@ -3,7 +3,7 @@
  * Diseño estilo Typeform: conversacional, centrado y elegante
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 
 const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) => {
@@ -43,10 +43,10 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
     }
   ];
 
-  const handleSelection = (type) => {
+  const handleSelection = useCallback((type) => {
     updateFormData('type', type);
     setError('');
-  };
+  }, [updateFormData, setError]);
 
   // Navegación por teclado
   useEffect(() => {

@@ -3,7 +3,7 @@
  * Diseño estilo Typeform: conversacional y centrado en la ubicación
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { OPERATIONAL_LOCATIONS, formatLocationName } from '../../../constants/locations';
 
@@ -14,6 +14,26 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
   const { suppliers, inventory } = systemData;
   const isEntrada = formData.type === MOVEMENT_TYPES.ENTRADA;
+
+  const handleLocationSelection = useCallback(async (location) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      if (isEntrada) {
+        updateFormData('supplierName', location);
+      } else {
+        updateFormData('location', location);
+      }
+      
+    } catch {
+      setError('Error al validar la ubicación');
+    } finally {
+      setLoading(false);
+    }
+  }, [isEntrada, updateFormData, setError]);
 
   // Navegación por teclado
   useEffect(() => {
@@ -90,26 +110,6 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
     validateLocationStock();
   }, [formData.fuelType, isEntrada, inventory]);
-
-  const handleLocationSelection = async (location) => {
-    setLoading(true);
-    setError('');
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      if (isEntrada) {
-        updateFormData('supplierName', location);
-      } else {
-        updateFormData('location', location);
-      }
-      
-    } catch {
-      setError('Error al validar la ubicación');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getLocationIcon = (location) => {
     switch (location.toLowerCase()) {
