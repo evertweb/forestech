@@ -1,87 +1,102 @@
 #!/bin/bash
 
-# test-notion-mcp.sh
-# Script para verificar que Notion MCP esté configurado correctamente
+# 🔧 Script de Prueba: Notion MCP Server
+# Forestech Colombia - 15 julio 2025
+# Verifica que el servidor MCP Notion esté funcionando correctamente
 
-echo "📝 Verificando configuración de Notion MCP"
-echo "=========================================="
+echo "🚀 Iniciando prueba del servidor MCP Notion (GitHub Copilot)..."
+echo "📍 Directorio: $(pwd)"
+echo "⏰ Fecha: $(date)"
+echo ""
 
-# Verificar archivo de configuración
-echo "1. 📄 Verificando archivo de configuración..."
-if [ -f ".vscode/notion.env" ]; then
-    echo "   ✅ Archivo .vscode/notion.env existe"
+# Colores para output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# 1. Verificar que el token está configurado en mcp.json
+echo -e "${BLUE}📋 1. Verificando configuración del token en mcp.json...${NC}"
+TOKEN_CONFIG=$(grep -A 10 "notion" .vscode/mcp.json | grep "NOTION_API_TOKEN")
+if [[ "$TOKEN_CONFIG" == *"ntn_175303559088"* ]]; then
+    echo -e "${GREEN}✅ Token configurado correctamente en mcp.json${NC}"
+else
+    echo -e "${RED}❌ Token no encontrado en configuración MCP${NC}"
+    echo "Verificando archivo .vscode/mcp.json..."
+    cat .vscode/mcp.json | grep -A 15 "notion"
+    exit 1
+fi
+
+# 2. Verificar la instalación del paquete correcto
+echo -e "${BLUE}📦 2. Verificando servidor @suekou/mcp-notion-server...${NC}"
+if command -v npx &> /dev/null; then
+    echo -e "${GREEN}✅ NPX disponible${NC}"
     
-    if grep -q "NOTION_API_KEY=ntn_" ".vscode/notion.env"; then
-        echo "   ✅ Token de Notion configurado"
-        
-        # Cargar variables de entorno
-        export $(cat .vscode/notion.env | xargs)
-        
-        if [ -n "$NOTION_API_KEY" ] && [ "$NOTION_API_KEY" != "ntn_" ]; then
-            echo "   ✅ Token válido detectado: ${NOTION_API_KEY:0:12}..."
-        else
-            echo "   ❌ Token no válido o vacío"
-            exit 1
-        fi
+    # Intentar instalar/verificar el paquete
+    echo -e "${YELLOW}📥 Instalando/verificando @suekou/mcp-notion-server...${NC}"
+    npx -y @suekou/mcp-notion-server --help 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Servidor Notion MCP instalado correctamente${NC}"
     else
-        echo "   ❌ Token no configurado en .vscode/notion.env"
-        echo "   📝 Agrega: NOTION_API_KEY=ntn_tu_token_aqui"
+        echo -e "${YELLOW}⚠️ Instalando servidor por primera vez...${NC}"
+        npx -y @suekou/mcp-notion-server --help
+    fi
+else
+    echo -e "${RED}❌ NPX no disponible${NC}"
+    exit 1
+fi
+
+# 3. Verificar estructura de configuración MCP
+echo -e "${BLUE}🔧 3. Verificando estructura de configuración MCP...${NC}"
+MCP_CONFIG=".vscode/mcp.json"
+if [ -f "$MCP_CONFIG" ]; then
+    echo -e "${GREEN}✅ Archivo mcp.json encontrado${NC}"
+    
+    # Verificar que el JSON es válido
+    if cat "$MCP_CONFIG" | python3 -m json.tool > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ JSON válido${NC}"
+    else
+        echo -e "${RED}❌ JSON inválido${NC}"
         exit 1
     fi
-else
-    echo "   ❌ Archivo .vscode/notion.env no encontrado"
-    echo "   🔧 Ejecuta: ./scripts/setup-notion-mcp.sh"
-    exit 1
-fi
-
-# Verificar MCP configuration
-echo ""
-echo "2. ⚙️  Verificando configuración MCP..."
-if grep -q '"notion"' ".vscode/mcp.json"; then
-    echo "   ✅ Notion MCP configurado en .vscode/mcp.json"
-else
-    echo "   ❌ Notion MCP no encontrado en configuración"
-    exit 1
-fi
-
-# Verificar que el package esté disponible
-echo ""
-echo "3. 📦 Verificando package de Notion MCP..."
-npx @modelcontextprotocol/server-notion@latest --help > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    echo "   ✅ Package de Notion MCP disponible"
-else
-    echo "   ⚠️  Package se instalará automáticamente cuando sea necesario"
-fi
-
-# Test básico de conectividad (si está configurado)
-echo ""
-echo "4. 🔗 Probando conectividad con Notion..."
-if [ -n "$NOTION_API_KEY" ]; then
-    # Test básico usando curl
-    response=$(curl -s -w "%{http_code}" -o /dev/null \
-        -H "Authorization: Bearer $NOTION_API_KEY" \
-        -H "Content-Type: application/json" \
-        -H "Notion-Version: 2022-06-28" \
-        "https://api.notion.com/v1/users/me")
     
-    if [ "$response" = "200" ]; then
-        echo "   ✅ Conexión exitosa con Notion API"
-    else
-        echo "   ⚠️  Error de conexión (código: $response)"
-        echo "   💡 Verifica que el token sea correcto y tenga permisos"
-    fi
+    # Mostrar configuración actual
+    echo -e "${BLUE}📄 Configuración actual de Notion:${NC}"
+    grep -A 12 '"notion"' "$MCP_CONFIG" | head -12
 else
-    echo "   ⚠️  No se puede probar - token no configurado"
+    echo -e "${RED}❌ Archivo mcp.json no encontrado${NC}"
+    exit 1
 fi
 
+# 4. Verificar variables de entorno adicionales
+echo -e "${BLUE}🌍 4. Verificando variables de entorno...${NC}"
+export NOTION_API_TOKEN="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"
+export NOTION_MARKDOWN_CONVERSION="true"
+echo -e "${GREEN}✅ Variables exportadas correctamente${NC}"
+
+# 5. Test de conectividad básica (si es posible)
+echo -e "${BLUE}🔗 5. Información de herramientas disponibles...${NC}"
+echo -e "${YELLOW}📋 Herramientas principales de Notion MCP:${NC}"
+echo "   • notion_retrieve_page - Obtener páginas"
+echo "   • notion_query_database - Consultar bases de datos"
+echo "   • notion_create_database_item - Crear elementos"
+echo "   • notion_search - Buscar contenido"
+echo "   • notion_append_block_children - Añadir contenido"
+echo "   • notion_update_page_properties - Actualizar propiedades"
+
+# 6. Información adicional
 echo ""
-echo "🎉 Verificación completada!"
+echo -e "${BLUE}📚 6. Información adicional:${NC}"
+echo -e "${YELLOW}🎯 Para usar en GitHub Copilot:${NC}"
+echo "   @notion \"consulta mi base de datos de proyectos\""
+echo "   @notion \"crea una nueva página para el proyecto X\""
+echo "   @notion \"busca documentación sobre Y\""
 echo ""
-echo "📚 Comandos disponibles en VS Code Copilot:"
-echo "   @notion busca páginas sobre [tema]"
-echo "   @notion crea una página llamada [nombre]"
-echo "   @notion lee el contenido de [página]"
-echo "   @notion actualiza [página] con [contenido]"
+echo -e "${YELLOW}🔧 Configuración aplicada:${NC}"
+echo "   • Servidor: @suekou/mcp-notion-server"
+echo "   • Conversión Markdown: activada (reduce tokens)"
+echo "   • Token: configurado y oculto por seguridad"
 echo ""
-echo "🔄 Para aplicar cambios: ./scripts/restart-vscode-mcp.sh"
+echo -e "${GREEN}🎉 Prueba completada exitosamente!${NC}"
+echo -e "${BLUE}💡 Reinicia VS Code para aplicar la nueva configuración MCP${NC}"

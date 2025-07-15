@@ -48,10 +48,11 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-notion@latest"
+        "@suekou/mcp-notion-server"
       ],
       "env": {
-        "NOTION_API_KEY": "${env:NOTION_API_KEY}"
+        "NOTION_API_TOKEN": "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",
+        "NOTION_MARKDOWN_CONVERSION": "true"
       }
     }
   }

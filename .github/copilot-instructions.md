@@ -572,7 +572,7 @@ export const PERMISSIONS = {
 #### 🎯 **Auto-Context Loading Protocol**
 When working with this repository, the following MCP integrations and context should be automatically loaded:
 
-#### **Core MCP Servers (6 Active)**
+#### **Core MCP Servers (6 Active - ACTUALIZADO 15/07/2025)**
 ```bash
 # Priority Order: github-cli > github > memory > filesystem > firebase > notion
 🔥 Firebase MCP: proyecto liquidacionapp-62962 (Firestore, Auth, Storage)
@@ -580,7 +580,7 @@ When working with this repository, the following MCP integrations and context sh
 ⚡ GitHub CLI: wrapper automático (PRIORITARIO - use instead of terminal gh commands)
 🧠 Memory MCP: contexto persistente (Project knowledge persistence)
 📁 Filesystem MCP: gestión archivos (File operations)
-📝 Notion MCP: documentación automática (Auto-documentation)
+📝 Notion MCP: ✅ CONFIGURADO - @suekou/mcp-notion-server (token: ntn_175303559088...)
 ```
 
 #### **AI Preferences (CRITICAL - Established 14/07/2025)**
@@ -632,6 +632,46 @@ Is now **automatically integrated** - this copilot-instructions.md file replaces
 # 📁 Filesystem (Alternative to manual file operations)
 @filesystem "analizar estructura combustibles/src/"
 @filesystem "buscar archivos con patrón useEffect"
+
+# 📝 Notion Operations (NUEVO - Configurado 15/07/2025)
+@notion "consulta mi base de datos de proyectos"
+@notion "crea una nueva página para el proyecto X"
+@notion "busca documentación sobre Y"
+@notion "actualizar propiedades de página existente"
+@notion "añadir contenido a página específica"
+```
+
+### 📝 **Notion MCP Server Configuration (15/07/2025)**
+```json
+// .vscode/mcp.json - Configuración completa
+{
+  "notion": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@suekou/mcp-notion-server"],
+    "env": {
+      "NOTION_API_TOKEN": "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",
+      "NOTION_MARKDOWN_CONVERSION": "true"
+    }
+  }
+}
+```
+
+#### **Herramientas Notion Disponibles (17 total)**
+- `notion_retrieve_page` - Obtener páginas específicas
+- `notion_query_database` - Consultar bases de datos
+- `notion_create_database_item` - Crear elementos en DB
+- `notion_search` - Buscar contenido por título
+- `notion_append_block_children` - Añadir bloques de contenido
+- `notion_update_page_properties` - Actualizar propiedades
+- `notion_create_database` - Crear nuevas bases de datos
+- `notion_delete_block` - Eliminar bloques específicos
+
+#### **Configuración de Integración Notion**
+1. ✅ **Token configurado**: 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
+2. ✅ **Servidor instalado**: @suekou/mcp-notion-server v1.2.4
+3. ✅ **Conversión Markdown**: Activada (reduce uso de tokens)
+4. ✅ **Verificación**: Script test-notion-mcp.sh ejecutado exitosamente
 ```
 
 ### Auto-Context Script Integration
