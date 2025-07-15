@@ -9,8 +9,13 @@ node_modules/
 .env.local
 .env.production
 
-# IDE files
-.vscode/
+# MCP Configuration files (contienen API keys)
+.vscode/notion.env
+.vscode/memory.json
+
+# IDE files específicos (pero mantener .vscode/mcp.json)
+.vscode/settings.json
+.vscode/launch.json
 .idea/
 
 # OS generated files

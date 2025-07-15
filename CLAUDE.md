@@ -1,10 +1,85 @@
 # CLAUDE.md
 
-Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con código en este repositor#### 🤖 **MCPs GitHub Copilot Agent**
+Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con código en este repositorio.
+
+## 🚨 **IMPORTANTE - ACTUALIZACIÓN 15/07/2025**
+
+### ⚡ **Auto-Context Loading ACTIVO**
+El contexto completo del proyecto ahora se carga **automáticamente** vía `.github/copilot-instructions.md`. 
+
+**EL SUPERPROMPT MANUAL YA NO ES NECESARIO:**
+```bash
+# ❌ OBSOLETO - Ya no usar:
+🎯 Cargar contexto Forestech completo: MCPs + Wrappers + CLAUDE.md + Git
+
+# ✅ NUEVO - Automático al abrir repo:
+Contexto se carga automáticamente desde .github/copilot-instructions.md
+```
+
+### 🔄 **Migración Completada**
+- ✅ **MCPs**: Configuraciones migradas a copilot-instructions.md
+- ✅ **AI Preferences**: github-cli wrapper prioridad establecida
+- ✅ **Project Context**: Arquitectura y patrones integrados
+- ✅ **Firebase Integration**: liquidacionapp-62962 access automático
+- ✅ **Git Workflow**: Branch management y CI/CD patterns incluidos
+
+### 🎯 **Nuevo Flujo de Trabajo**
+1. **Abrir repositorio** → Contexto se carga automáticamente
+2. **Usar MCPs** → Prioridad github-cli > github > memory > filesystem > firebase
+3. **Evitar comandos directos** → Usar MCP wrappers internamente
+4. **Documentación sync** → Preguntar por actualizaciones a claude.md
+
+#### 🤖 **MCPs GitHub Copilot Agent**
 1. **📂 github-forestech**: Gestión inteligente repositorio
 2. **⏰ time-bogota**: Zona horaria América/Bogotá
 3. **🧠 sequential-thinking-es**: Análisis paso a paso español
 4. **💾 memory-forestech**: Memoria específica proyecto
+5. **🔥 firebase**: Integración Firebase MCP server ⭐ **NUEVO**
+6. **🐙 github-cli**: Wrapper GitHub CLI automático ⭐ **CONFIGURADO**
+
+#### 🔧 **PREFERENCIAS PERMANENTES DEL AI** ⭐ **CRÍTICO**
+**CONFIGURACIÓN ESTABLECIDA EL 14/07/2025:**
+- **SIEMPRE usar github-cli MCP wrapper** para operaciones GitHub
+- **NUNCA ejecutar comandos gh** directamente en terminal
+- **Usar herramientas MCP automáticamente** como parte de procesos internos
+- **Evitar comandos directos en terminal** - preferir herramientas MCP
+- **Configuración persistente** entre sesiones en `.vscode/ai-preferences.json`
+
+**PRIORIDAD MCPs:** github-cli > github > memory > filesystem > firebase > notion
+
+#### 🚀 **COMANDO MAESTRO - ESTADO MIGRADO** ⚠️ **OBSOLETO**
+**SUPERPROMPT ANTERIOR (Ya no necesario):**
+```
+🎯 Cargar contexto Forestech completo: MCPs + Wrappers + CLAUDE.md + Git
+```
+
+**✅ MIGRACIÓN COMPLETADA AL 15/07/2025:**
+- ❌ **Comando manual obsoleto** - Ya no usar
+- ✅ **Auto-loading activo** - Contexto se carga automáticamente vía `.github/copilot-instructions.md`
+- ✅ **MCPs configurados** - Prioridad github-cli > github > memory > filesystem > firebase > notion
+- ✅ **AI Preferences** - Configuración persistente establecida
+- ✅ **Firebase Integration** - liquidacionapp-62962 acceso automático
+
+**NUEVO FLUJO:**
+1. Abrir repositorio → Contexto automático
+2. Usar MCPs → Prioridad establecida
+3. Sync documentación → Preguntar por actualizaciones a claude.md
+
+**NOTA:** `scripts/master-context-loader.sh` disponible como fallback legacy
+
+#### 🔥 **Firebase MCP Server - Integración Completa** ⭐ **IMPLEMENTADO**
+- **Proyecto**: liquidacionapp-62962 ✅ CONFIGURADO
+- **Usuario**: cardenasever072@gmail.com ✅ AUTENTICADO  
+- **Características**: firestore, auth, storage
+- **Estado**: Integrado en VS Code Copilot workflow
+
+**Capacidades disponibles:**
+- ✅ Gestión proyectos Firebase
+- ✅ Consultas Firestore en tiempo real
+- ✅ Gestión usuarios Authentication
+- ✅ Reglas de seguridad Firestore/Storage
+- ✅ Firebase Cloud Messaging
+- ✅ Consultas a Gemini in Firebase
 
 #### ⚠️ **Fix Memory MCP - Julio 2025**
 **Problema**: GitHub Copilot Agent bloquea herramientas memory MCP
@@ -40,6 +115,23 @@ Responde con el número (1-4) para establecer el contexto correcto.
 ## 🤖 **COMPORTAMIENTO AUTOMÁTICO DE CLAUDE**
 
 **⚡ ANÁLISIS AUTOMÁTICO:** Claude ejecuta automáticamente análisis profundo sin necesidad de solicitudes específicas.
+
+### 📋 **SYNC DOCUMENTACIÓN - NUEVO PROTOCOLO**
+**Claude debe preguntar activamente:**
+```
+📝 ¿Debo actualizar la documentación en CLAUDE.md con los cambios/patrones identificados en esta sesión?
+
+✅ Sí - Actualizar claude.md con nuevos patrones
+❌ No - Solo aplicar cambios al código
+🔄 Parcial - Solo aspectos específicos
+```
+
+**Aspectos a sincronizar:**
+- 🏗️ **Nuevos patrones arquitectura** identificados
+- 🔧 **Configuraciones MCP** actualizadas  
+- 🚀 **Workflows CI/CD** modificados
+- 📊 **Estado del proyecto** actualizado
+- 🐛 **Problemas resueltos** documentados
 
 ### 🔥 **FIREBASE MCP - INTEGRACIÓN PRODUCCIÓN**
 - **Proyecto**: liquidacionapp-62962 ✅ ACTIVO
@@ -113,6 +205,13 @@ gh pr merge [NUMERO] --merge --delete-branch
 
 ## 📊 **ESTADO ACTUAL DEL PROYECTO - JULIO 2025**
 
+### 🔄 **ÚLTIMA ACTUALIZACIÓN: 15/07/2025**
+- ✅ **Auto-context loading** implementado en `.github/copilot-instructions.md`
+- ✅ **Superprompt manual** migrado y obsoleto
+- ✅ **MCPs priority system** establecido automáticamente
+- ✅ **AI preferences** configuración persistente activa
+- ✅ **Documentation sync** protocolo activo
+
 ### ✅ **Aplicaciones Completadas**
 - **🍽️ Alimentación**: Sistema de liquidaciones 100% funcional
 - **⛽ Combustibles**: Sistema completo + módulo reportes
@@ -142,6 +241,7 @@ gh pr merge [NUMERO] --merge --delete-branch
 2. **⏰ time-bogota**: Zona horaria América/Bogotá
 3. **🧠 sequential-thinking-es**: Análisis en español
 4. **💾 memory-forestech**: Memoria específica proyecto
+5. **🔥 firebase**: Firebase MCP server oficial
 
 ## 🚀 **CI/CD Y WORKFLOWS**
 
@@ -175,3 +275,83 @@ gh pr merge [NUMERO] --merge --delete-branch
 ---
 
 **📌 Documentación completa actualizada y optimizada - Julio 2025**
+
+## 🔥 Firebase MCP Server Integration
+
+### ✅ Estado: CONFIGURADO Y LISTO
+
+**Configuración Completada:**
+- ✅ Firebase CLI autenticado (cardenasever072@gmail.com)
+- ✅ Proyecto configurado: liquidacionapp-62962 (LiquidacionApp)
+- ✅ MCP server configurado en `.vscode/mcp.json`
+- ✅ Scripts de verificación y mantenimiento creados
+
+**Archivos Configurados:**
+```
+.vscode/mcp.json              # Configuración MCP para VS Code Copilot
+scripts/test-firebase-mcp.sh  # Script de verificación del sistema
+scripts/restart-vscode-mcp.sh # Script para reiniciar VS Code con MCP
+```
+
+**Capacidades Habilitadas:**
+- 🔥 Consultas directas a Firestore desde Copilot
+- 👤 Gestión de usuarios de Authentication
+- 📦 Operaciones con Firebase Storage
+- 🤖 Gemini in Firebase para asistencia avanzada
+
+**Comandos de Mantenimiento:**
+```bash
+# Verificar estado del sistema
+./scripts/test-firebase-mcp.sh
+
+# Reiniciar VS Code con MCP
+./scripts/restart-vscode-mcp.sh
+```
+
+**Uso en VS Code Copilot:**
+```
+@firebase ¿cuáles son las colecciones en mi Firestore?
+@firebase lista los usuarios autenticados
+@firebase ayúdame con las reglas de seguridad
+@firebase optimiza esta consulta: [tu consulta]
+```
+
+## 📄 Notion Integration
+
+### ✅ Estado: CONFIGURADO PARA AUTOMATIZACIÓN
+
+**Token de Integración Configurado:**
+- ✅ Token: `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`
+- ✅ Cliente instalado: @notionhq/client
+- ✅ Scripts de automatización creados
+- ✅ Contenido preparado para subida
+
+**Archivos de Automatización:**
+```
+scripts/notion-integration.js   # Script completo de integración
+scripts/notion-simple.js        # Script simplificado
+scripts/notion-manual.js        # Helper para copia manual
+scripts/setup-notion.sh         # Setup automático
+NOTION-READY-Combustibles.md    # Contenido listo para Notion
+```
+
+**Estado Actual:**
+- ✅ API configurada y funcional
+- ⚠️  Requiere permisos adicionales en Notion workspace
+- ✅ Alternativa manual funcionando perfectamente
+
+**Comandos Disponibles:**
+```bash
+# Automatización completa (requiere permisos workspace)
+node scripts/notion-integration.js
+
+# Preparar contenido para copia manual
+node scripts/notion-manual.js
+
+# Setup inicial
+./scripts/setup-notion.sh
+```
+
+**Uso Recomendado:**
+1. **Manual inmediato**: Copiar contenido de `NOTION-READY-Combustibles.md`
+2. **Automatización futura**: Configurar permisos completos en notion.so/my-integrations

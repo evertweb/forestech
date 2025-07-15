@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "created": "2025-07-14",
+  "preferences": {
+    "github": {
+      "preferWrapper": true,
+      "defaultMCP": "github-cli",
+      "avoidDirectCommands": true,
+      "autoUseWrapper": true,
+      "description": "Siempre usar github-cli MCP wrapper internamente, nunca ejecutar comandos gh directamente en terminal"
+    },
+    "terminal": {
+      "avoidDirectExecution": true,
+      "preferMCPTools": true,
+      "description": "Evitar ejecutar comandos directamente en terminal, usar herramientas MCP cuando sea posible"
+    },
+    "automation": {
+      "useWrappersInternally": true,
+      "persistAcrossSessions": true,
+      "description": "Usar wrappers automáticamente como parte de procesos internos"
+    }
+  },
+  "mcpPriority": [
+    "github-cli",
+    "github",
+    "memory",
+    "filesystem",
+    "firebase",
+    "notion"
+  ],
+  "instructions": {
+    "forAI": "SIEMPRE usar github-cli MCP wrapper para operaciones GitHub. NUNCA ejecutar comandos gh directamente en terminal. Usar herramientas MCP automáticamente como parte de procesos internos.",
+    "userRequirement": "Usuario requiere que el AI use el wrapper GitHub CLI internamente sin ejecutar comandos en terminal"
+  }
+}

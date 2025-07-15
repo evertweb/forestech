@@ -6,11 +6,28 @@ import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 
 const DashboardMain = () => {
-  const { inventory, movements, vehicles, loading, error } = useCombustibles();
+  const { 
+    inventory, 
+    movements, 
+    vehicles, 
+    dataLoading,
+    dataError, 
+    subscribeToInventory,
+    subscribeToMovements,
+    subscribeToVehicles
+  } = useCombustibles();
+
+  // ✅ Suscribirse a los datos esenciales cuando se monta el componente
+  useEffect(() => {
+    console.log('🚀 Dashboard iniciando suscripciones a datos...');
+    subscribeToInventory();
+    subscribeToMovements();
+    subscribeToVehicles();
+  }, [subscribeToInventory, subscribeToMovements, subscribeToVehicles]);
 
   // Ejecutar diagnóstico del inventario al cargar
   useEffect(() => {
-    if (!loading && inventory.length > 0) {
+    if (!dataLoading && inventory.length > 0) {
       console.log('🔍 Ejecutando diagnóstico del inventario...');
       logInventoryState(inventory);
 
@@ -26,7 +43,7 @@ const DashboardMain = () => {
         })));
       }
     }
-  }, [loading, inventory]);
+  }, [dataLoading, inventory]);
 
   // Helper para manejar fechas de manera segura
   const safeDateHelper = (date) => {
@@ -111,7 +128,7 @@ const DashboardMain = () => {
     }
   };
 
-  if (loading) {
+  if (dataLoading) {
     return (
       <div className="dashboard-main">
         <h1 className="dashboard-title">Dashboard Operativo</h1>
@@ -123,12 +140,12 @@ const DashboardMain = () => {
     );
   }
 
-  if (error) {
+  if (dataError) {
     return (
       <div className="dashboard-main">
         <h1 className="dashboard-title">Dashboard Operativo</h1>
         <div className="error-message">
-          <p>⚠️ {error}</p>
+          <p>⚠️ {dataError}</p>
           <button onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       </div>
