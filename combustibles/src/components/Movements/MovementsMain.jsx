@@ -64,7 +64,7 @@ const MovementsMain = () => {
     );
 
     return () => unsubscribe();
-  }, [user, filters]);
+  }, [user, filters.type, filters.status, filters.fuelType, filters.vehicleId, filters.dateRange]); // ⚠️ FIXED: Specific filter dependencies
 
   // Cargar estadísticas
   useEffect(() => {
@@ -80,7 +80,7 @@ const MovementsMain = () => {
     if (user) {
       loadStats();
     }
-  }, [user, movements, filters]);
+  }, [user, movements, filters.type, filters.status, filters.fuelType, filters.vehicleId, filters.dateRange]); // ⚠️ FIXED: Specific filter dependencies
 
   // Filtrar movimientos por búsqueda
   const filteredMovements = movements.filter(movement => {

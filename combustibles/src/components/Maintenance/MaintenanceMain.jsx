@@ -66,7 +66,7 @@ const MaintenanceMain = () => {
     );
 
     return () => unsubscribe();
-  }, [user, filters]);
+  }, [user, filters.type, filters.status, filters.vehicleId, filters.dateFrom, filters.dateTo]); // ⚠️ FIXED: Specific filter dependencies
 
   // Cargar estadísticas
   useEffect(() => {
@@ -82,7 +82,7 @@ const MaintenanceMain = () => {
     if (user) {
       loadStats();
     }
-  }, [user, maintenanceRecords, filters]);
+  }, [user, maintenanceRecords, filters.type, filters.status, filters.vehicleId, filters.dateFrom, filters.dateTo]); // ⚠️ FIXED: Specific filter dependencies
 
   // Filtrar mantenimientos por búsqueda
   const filteredMaintenance = maintenanceRecords.filter(record => {

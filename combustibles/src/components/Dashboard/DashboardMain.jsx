@@ -20,10 +20,17 @@ const DashboardMain = () => {
   // ✅ Suscribirse a los datos esenciales cuando se monta el componente
   useEffect(() => {
     console.log('🚀 Dashboard iniciando suscripciones a datos...');
-    subscribeToInventory();
-    subscribeToMovements();
-    subscribeToVehicles();
-  }, [subscribeToInventory, subscribeToMovements, subscribeToVehicles]);
+    const unsubInventory = subscribeToInventory();
+    const unsubMovements = subscribeToMovements();
+    const unsubVehicles = subscribeToVehicles();
+
+    // Cleanup function para evitar memory leaks
+    return () => {
+      if (typeof unsubInventory === 'function') unsubInventory();
+      if (typeof unsubMovements === 'function') unsubMovements();
+      if (typeof unsubVehicles === 'function') unsubVehicles();
+    };
+  }, []); // ⚠️ FIXED: Empty dependency array - subscribe only once
 
   // Ejecutar diagnóstico del inventario al cargar
   useEffect(() => {

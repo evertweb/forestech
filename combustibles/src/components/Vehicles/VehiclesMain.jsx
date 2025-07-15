@@ -70,7 +70,7 @@ const VehiclesMain = () => {
     );
 
     return () => unsubscribe();
-  }, [user, filters]);
+  }, [user, filters.type, filters.status, filters.fuelType, filters.location, filters.maintenance]); // ⚠️ FIXED: Specific filter dependencies
 
   // Cargar estadísticas
   useEffect(() => {
@@ -86,7 +86,7 @@ const VehiclesMain = () => {
     if (user) {
       loadStats();
     }
-  }, [user, vehicles, filters]);
+  }, [user, vehicles, filters.type, filters.status, filters.fuelType, filters.location, filters.maintenance]); // ⚠️ FIXED: Specific filter dependencies
 
   // Filtrar vehículos por búsqueda
   const filteredVehicles = vehicles.filter(vehicle => {

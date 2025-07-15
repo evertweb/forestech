@@ -19,17 +19,14 @@ export const useOptimizedData = (data, dependencies = []) => {
   }, [data, ...dependencies]); // eslint-disable-line react-hooks/exhaustive-deps
 };
 
-// Hook para callbacks optimizados
-export const useOptimizedCallbacks = (callbacks) => {
+// Hook para callbacks optimizados - FIXED
+export const useOptimizedCallbacks = (callbacksObject) => {
+  // ⚠️ FIXED: Memoize based on callback values, not the object reference
+  const callbackValues = Object.values(callbacksObject);
+  
   return useMemo(() => {
-    const optimizedCallbacks = {};
-
-    Object.keys(callbacks).forEach(key => {
-      optimizedCallbacks[key] = callbacks[key]; // Remove useCallback from inside forEach
-    });
-
-    return optimizedCallbacks;
-  }, [callbacks]);
+    return callbacksObject; // Return the original object if callbacks are stable
+  }, callbackValues); // eslint-disable-line react-hooks/exhaustive-deps
 };
 
 // Función para comparación personalizada de props en React.memo

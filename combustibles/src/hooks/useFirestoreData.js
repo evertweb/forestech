@@ -1,6 +1,6 @@
 // combustibles/src/hooks/useFirestoreData.js
 // Hooks personalizados para Firestore con fetching por demanda - NIVEL 2 Y 3 OPTIMIZACIÓN
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import movementsService from '../services/movementsService';
 import { subscribeToInventory } from '../services/inventoryService';
 import { subscribeToVehicles } from '../services/vehiclesService';
@@ -57,47 +57,56 @@ const useFirestoreSubscription = (subscribeFunction, enabled = true, /* _options
   return { data, loading, error, subscribe, unsubscribe };
 };
 
+// Configuraciones estáticas para evitar recreación de objetos
+const INVENTORY_OPTIONS = {
+  orderByField: 'name',
+  limitCount: 100
+};
+
+const VEHICLES_OPTIONS = {
+  filters: [{ field: 'status', operator: '==', value: 'active' }],
+  orderByField: 'plate',
+  limitCount: 50
+};
+
+const SUPPLIERS_OPTIONS = {
+  filters: [{ field: 'status', operator: '==', value: 'active' }],
+  orderByField: 'name',
+  limitCount: 30
+};
+
+const MOVEMENTS_OPTIONS = {
+  orderByField: 'createdAt',
+  orderDirection: 'desc',
+  limitCount: 100
+};
+
 // Hooks específicos optimizados
 /* eslint-disable react-hooks/rules-of-hooks */
 export const useInventory = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('combustibles_inventory', autoSubscribe, {
-      orderByField: 'name',
-      limitCount: 100
-    });
+    return useOptimizedCollection('combustibles_inventory', autoSubscribe, INVENTORY_OPTIONS);
   }
   return useFirestoreSubscription(subscribeToInventory, autoSubscribe);
 };
 
 export const useVehicles = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('combustibles_vehicles', autoSubscribe, {
-      filters: [{ field: 'status', operator: '==', value: 'active' }],
-      orderByField: 'plate',
-      limitCount: 50
-    });
+    return useOptimizedCollection('combustibles_vehicles', autoSubscribe, VEHICLES_OPTIONS);
   }
   return useFirestoreSubscription(subscribeToVehicles, autoSubscribe);
 };
 
 export const useSuppliers = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('combustibles_suppliers', autoSubscribe, {
-      filters: [{ field: 'status', operator: '==', value: 'active' }],
-      orderByField: 'name',
-      limitCount: 30
-    });
+    return useOptimizedCollection('combustibles_suppliers', autoSubscribe, SUPPLIERS_OPTIONS);
   }
   return useFirestoreSubscription(subscribeToSuppliers, autoSubscribe);
 };
 
 export const useMovements = (autoSubscribe = false, optimized = true) => {
   if (optimized) {
-    return useOptimizedCollection('combustibles_movements', autoSubscribe, {
-      orderByField: 'createdAt',
-      orderDirection: 'desc',
-      limitCount: 100
-    });
+    return useOptimizedCollection('combustibles_movements', autoSubscribe, MOVEMENTS_OPTIONS);
   }
   return useFirestoreSubscription(
     (onData, onError) => movementsService.subscribeToMovements(onData, onError),
@@ -112,6 +121,14 @@ const useOptimizedCollection = (collectionName, autoSubscribe = false, options =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const unsubscribeRef = useRef(null);
+
+  // ⚠️ FIXED: Memoize options to prevent infinite re-renders
+  const memoizedOptions = useMemo(() => options, [
+    options.orderByField,
+    options.orderDirection,
+    options.limitCount,
+    JSON.stringify(options.filters)
+  ]);
 
   const subscribe = useCallback(() => {
     if (unsubscribeRef.current) return; // Ya suscrito
@@ -129,11 +146,11 @@ const useOptimizedCollection = (collectionName, autoSubscribe = false, options =
         }
         setLoading(false);
       },
-      options
+      memoizedOptions
     );
 
     unsubscribeRef.current = unsubscribe;
-  }, [collectionName, options]);
+  }, [collectionName, memoizedOptions]);
 
   const unsubscribe = useCallback(() => {
     if (unsubscribeRef.current) {
