@@ -228,6 +228,10 @@ body {
   font-weight: 700;
   margin-bottom: 0.25rem;
   color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .stat-label {
@@ -237,6 +241,10 @@ body {
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .stat-trend {
@@ -269,6 +277,19 @@ body {
   box-sizing: border-box;
 }
 
+/* Better responsive for breakdown sections */
+@media (max-width: 960px) {
+  .stats-breakdown {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-breakdown {
+    grid-template-columns: 1fr;
+  }
+}
+
 .breakdown-section {
   background: white;
   border-radius: 12px;
@@ -294,9 +315,10 @@ body {
 
 .breakdown-item {
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--spacing-sm);
+  min-width: 0;
 }
 
 .breakdown-header {
@@ -312,6 +334,10 @@ body {
 .breakdown-label {
   font-size: 0.875rem;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .breakdown-value {
@@ -826,6 +852,22 @@ body {
   .stats-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
+  }
+}
+
+/* Tablet and medium screens - 2x2 grid for better readability */
+@media (max-width: 1199px) and (min-width: 769px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .stat-card {
+    padding: 1.25rem;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
   }
 }
 
@@ -1611,12 +1653,10 @@ body {
     font-size: 0.75rem;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
+  /* Breakdown sections more responsive on tablets */
   .stats-breakdown {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
   }
 }
 
@@ -1641,14 +1681,9 @@ body {
   .date-content {
     align-items: flex-start;
   }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
 
   .stats-breakdown {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: 1fr;
     gap: 0.75rem;
   }
 
