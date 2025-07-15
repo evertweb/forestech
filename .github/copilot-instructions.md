@@ -1,6 +1,14 @@
 # Forestech Colombia - AI Coding Instructions
 
-## 🏗️ Architecture Overview
+## �🇸 IDIOMA Y COMUNICACIÓN
+**IMPORTANTE**: Todas las respuestas, comentarios, issues, PRs y comunicaciones deben ser EN ESPAÑOL.
+- ✅ Usar español colombiano para todas las interacciones
+- ✅ Nombres de variables y funciones pueden estar en inglés (por convención de programación)
+- ✅ Comentarios de código y documentación en español
+- ✅ Mensajes de commit, issues y PRs en español
+- ✅ Logs y mensajes de error del sistema en español cuando sea posible
+
+## �🏗️ Architecture Overview
 
 **Forestech** is a production monorepo with 2 React apps sharing Firebase infrastructure:
 - `alimentacion/` - Settlement calculations app (port 5173)
