@@ -1,0 +1,164 @@
+name: ✨ Solicitar Funcionalidad
+description: "¿Tienes una idea para mejorar Forestech? Describe tu propuesta y será implementada automáticamente"
+title: "[✨ NUEVA FUNCIÓN] "
+labels: ["copilot-agent", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚀 ¡Excelente! Tienes una nueva idea
+        
+        **💡 Tu idea puede convertirse en realidad automáticamente:**
+        
+        📍 **¿Para qué?** → Selecciona el módulo  
+        🎯 **¿Por qué?** → Explica el problema que resuelve  
+        🛠️ **¿Cómo?** → Describe cómo debería funcionar  
+        🎨 **¿Se ve cómo?** → Explica la interfaz
+        
+        ⚡ **El issue se asigna automáticamente a @github-copilot para implementación**
+
+        ---
+
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: "📍 ¿Para qué módulo es esta función?"
+      description: "Selecciona dónde quieres agregar la funcionalidad"
+      options:
+        - "🍽️ Alimentación (liquidaciones de comidas)"
+        - "⛽ Combustibles (inventario y vehículos)"
+        - "🔧 Ambas aplicaciones (funcionalidad compartida)"
+        - "🏗️ Sistema general (configuración, reportes, etc.)"
+        - "📱 Mejora de interfaz general"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problema_resuelve
+    attributes:
+      label: "🎯 ¿Qué problema resuelve esta función?"
+      description: "Explica por qué necesitas esta funcionalidad"
+      placeholder: |
+        Ejemplo: "Los operadores pierden tiempo calculando manualmente el combustible restante cada día. Necesitan ver de un vistazo cuánto combustible queda sin hacer cálculos."
+        
+        💡 Piensa en el día a día de quien va a usar esta función
+    validations:
+      required: true
+
+  - type: textarea
+    id: como_deberia_funcionar
+    attributes:
+      label: "🛠️ ¿Cómo debería funcionar?"
+      description: "Describe paso a paso cómo usarías esta función"
+      placeholder: |
+        Ejemplo:
+        1. El operador entra al dashboard de combustibles
+        2. Ve un widget que muestra "Stock Actual" 
+        3. Muestra: Diesel: 1,250L | Gasolina: 800L | ACPM: 450L
+        4. Si hay stock bajo (menos de 500L), aparece en color rojo
+        5. Al hacer clic, puede ver el detalle por tanque
+        
+        💡 Describe cada paso como si le explicaras a alguien cómo usarlo
+    validations:
+      required: true
+
+  - type: textarea
+    id: interfaz_visual
+    attributes:
+      label: "🎨 ¿Cómo debería verse?"
+      description: "Describe la interfaz o adjunta mockups/imágenes"
+      placeholder: |
+        Ejemplo: "Una tarjeta en la parte superior del dashboard, con íconos de combustible, números grandes y código de colores (verde=OK, amarillo=poco, rojo=crítico). Debe verse bien en móviles."
+        
+        💡 Puedes hacer un dibujo a mano y adjuntar la foto
+    validations:
+      required: true
+
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: "⚡ ¿Qué tan importante es?"
+      description: "Esto ayuda a estimar el esfuerzo y priorizar"
+      options:
+        - "🚨 Crítica - Lo necesito urgentemente para trabajar"
+        - "⚠️ Alta - Sería un gran alivio tenerla"
+        - "🟡 Media - Mejoraría bastante el flujo de trabajo"
+        - "🟢 Baja - Sería bueno tenerla algún día"
+      default: 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo_funcionalidad
+    attributes:
+      label: "🔧 ¿Qué tipo de funcionalidad es?"
+      description: "Esto ayuda a planificar la implementación"
+      options:
+        - "📊 Dashboard/Indicador - Mostrar información"
+        - "📝 Formulario/CRUD - Crear, editar, eliminar datos"
+        - "📈 Reporte/Análisis - Generar reportes o gráficos"
+        - "🔔 Notificación/Alerta - Avisar sobre eventos"
+        - "⚙️ Configuración/Ajuste - Personalizar comportamiento"
+        - "🔄 Automatización - Procesos automáticos"
+        - "📱 Mejora UI/UX - Mejorar interfaz existente"
+        - "🤔 No estoy seguro"
+      default: 0
+
+  - type: textarea
+    id: notas_adicionales
+    attributes:
+      label: "📝 OPCIONAL: Notas adicionales"
+      description: "Restricciones, referencias, ideas técnicas, etc."
+      placeholder: |
+        Ejemplos:
+        - "Solo para usuarios con rol de administrador"
+        - "Debe funcionar offline también"
+        - "Basarse en la función X que ya existe"
+        - "Integrar con el sistema Y"
+
+  - type: checkboxes
+    id: consideraciones
+    attributes:
+      label: "📋 Consideraciones técnicas"
+      description: "Marca las que apliquen"
+      options:
+        - label: "📱 Debe funcionar perfectamente en móviles"
+        - label: "🔐 Requiere permisos específicos de usuario"
+        - label: "⚡ Debe ser rápida y eficiente"
+        - label: "🔄 Debe integrarse con funcionalidades existentes"
+        - label: "📊 Debe incluir métricas/analytics"
+
+  - type: checkboxes
+    id: confirmacion
+    attributes:
+      label: "✅ Listo para implementación automática"
+      options:
+        - label: "He explicado claramente el problema que resuelve"
+          required: true
+        - label: "He descrito cómo debería funcionar"
+          required: true
+        - label: "He explicado cómo debería verse"
+          required: true
+        - label: "Entiendo que @github-copilot implementará esto automáticamente"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 ¿Qué sucede ahora?
+        
+        1. **Análisis de Viabilidad** → Copilot evalúa la solicitud y el código existente
+        2. **Diseño de Solución** → Planifica la arquitectura siguiendo las mejores prácticas
+        3. **Implementación** → Crea componentes, hooks, servicios y estilos necesarios
+        4. **Testing** → Agrega pruebas básicas para la nueva funcionalidad
+        5. **Pull Request** → Entrega un PR completo listo para revisar
+        
+        ⏱️ **Tiempo estimado según complejidad:**
+        - 📊 Dashboard/Indicador: 1-2 horas
+        - 📝 Formulario básico: 2-4 horas
+        - 📈 Reportes/Gráficos: 3-6 horas
+        - 🔄 Automatización: 4-8 horas
+        
+        🎯 **¡Tu idea se convertirá en código funcional muy pronto!**

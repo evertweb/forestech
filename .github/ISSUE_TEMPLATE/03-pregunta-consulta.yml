@@ -1,0 +1,182 @@
+name: ❓ Pregunta o Consulta
+description: "¿Tienes dudas sobre el código, necesitas explicaciones o quieres optimizar algo? ¡Pregunta aquí!"
+title: "[❓ CONSULTA] "
+labels: ["copilot-agent", "question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🤔 ¡Perfecto! Tienes una pregunta
+        
+        **🧠 Copilot puede ayudarte con:**
+        
+        📚 **Explicar** cómo funciona el código o un patrón  
+        🔍 **Encontrar** dónde está implementada una función  
+        🧭 **Guiar** para implementar algo tú mismo  
+        🔧 **Optimizar** código que funciona pero podría estar mejor  
+        🐛 **Investigar** por qué algo no funciona como esperas
+        
+        ⚡ **Tu pregunta será respondida directamente en este issue por @github-copilot**
+
+        ---
+
+  - type: dropdown
+    id: tipo_consulta
+    attributes:
+      label: "🎯 ¿Qué tipo de ayuda necesitas?"
+      description: "Esto ayuda a dar la mejor respuesta"
+      options:
+        - "📚 Explicar - ¿Cómo funciona este código/patrón?"
+        - "🔍 Encontrar - ¿Dónde está implementado X?"
+        - "🧭 Guiar - ¿Cómo implemento Y paso a paso?"
+        - "🔧 Optimizar - Este código funciona pero podría estar mejor"
+        - "🏗️ Arquitectura - ¿Cuál es la mejor forma de hacer Z?"
+        - "🐛 Investigar - ¿Por qué está pasando esto?"
+        - "📖 Documentar - ¿Puedes explicar esto para el equipo?"
+        - "🤔 Otra pregunta"
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "📍 ¿Sobre qué área de Forestech?"
+      description: "Para saber dónde buscar la respuesta"
+      options:
+        - "🍽️ Alimentación (liquidaciones de comidas)"
+        - "⛽ Combustibles (inventario y vehículos)"
+        - "🔧 Componentes compartidos (shared)"
+        - "🔥 Firebase (base de datos, autenticación, storage)"
+        - "🎨 Frontend (React, componentes, hooks, UI)"
+        - "🏗️ Build/Deploy (configuración, CI/CD, workflows)"
+        - "📱 Mobile/Responsive (diseño móvil)"
+        - "🧪 Testing (pruebas y validación)"
+        - "🔐 Seguridad (permisos, validaciones)"
+        - "🌐 Arquitectura general del proyecto"
+    validations:
+      required: true
+
+  - type: textarea
+    id: pregunta_detallada
+    attributes:
+      label: "❓ ¿Cuál es tu pregunta específica?"
+      description: "Explica tu duda con el mayor detalle posible"
+      placeholder: |
+        Ejemplos de buenas preguntas:
+        
+        📚 EXPLICAR:
+        "¿Cómo funciona el sistema de roles en Firebase? Veo admin, operador y cliente pero no entiendo cómo se validan los permisos"
+        
+        🔍 ENCONTRAR:
+        "¿En qué archivo está la función que calcula el precio total de combustible? Necesito modificar la fórmula"
+        
+        🧭 GUIAR:
+        "Quiero agregar una notificación push cuando el stock esté bajo. ¿Por dónde empiezo y qué archivos debo tocar?"
+        
+        🔧 OPTIMIZAR:
+        "La página de vehículos tarda 5 segundos en cargar. ¿Puedes revisar el código y optimizarlo?"
+        
+        🏗️ ARQUITECTURA:
+        "¿Debería crear un nuevo componente o modificar Dashboard.jsx para mostrar gráficos de consumo?"
+        
+        💡 Mientras más contexto des, mejor respuesta recibirás
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto_adicional
+    attributes:
+      label: "📝 OPCIONAL: Contexto adicional"
+      description: "Información extra que puede ayudar"
+      placeholder: |
+        Ejemplos:
+        - "Esto es para el reporte mensual que envío a gerencia"
+        - "Estoy siguiendo el patrón de la página de vehículos"
+        - "El problema aparece solo en producción, en desarrollo funciona"
+        - "Soy nuevo en React/Firebase"
+        - "Ya revisé el archivo X pero no entiendo Y"
+        - "Necesito que funcione en móviles también"
+
+  - type: textarea
+    id: archivos_relacionados
+    attributes:
+      label: "📁 OPCIONAL: Archivos relacionados"
+      description: "Si conoces archivos específicos involucrados"
+      placeholder: |
+        Ejemplos:
+        - src/components/Dashboard.jsx
+        - src/hooks/useVehicles.js  
+        - src/services/combustiblesService.js
+        
+        💡 No te preocupes si no los conoces - Copilot los puede encontrar
+      render: shell
+
+  - type: dropdown
+    id: nivel_tecnico
+    attributes:
+      label: "🎓 ¿Cuál es tu nivel técnico?"
+      description: "Para adaptar la explicación a tu experiencia"
+      options:
+        - "🆕 Principiante - Soy nuevo en programación"
+        - "📚 Intermedio - Sé programar pero soy nuevo en React/Firebase"
+        - "🛠️ Avanzado - Conozco bien las tecnologías"
+        - "🧙‍♂️ Experto - Solo necesito detalles específicos del proyecto"
+      default: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo_respuesta
+    attributes:
+      label: "💬 ¿Qué tipo de respuesta prefieres?"
+      description: "Copilot adaptará su estilo de respuesta"
+      options:
+        - "📖 Explicación detallada con ejemplos de código"
+        - "📝 Tutorial paso a paso"
+        - "💡 Respuesta directa y concisa"
+        - "🔗 Referencias a código existente en el proyecto"
+        - "📚 Documentación completa para compartir"
+      default: 0
+
+  - type: checkboxes
+    id: confirmacion
+    attributes:
+      label: "✅ Listo para recibir respuesta"
+      options:
+        - label: "He explicado claramente mi pregunta"
+          required: true
+        - label: "He dado suficiente contexto para una buena respuesta"
+          required: true
+        - label: "Entiendo que @github-copilot responderá directamente en este issue"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 ¿Qué sucede ahora?
+        
+        **Copilot va a:**
+        
+        1. **Analizar** tu pregunta y el contexto específico de Forestech
+        2. **Investigar** el código relevante del proyecto
+        3. **Preparar** una respuesta adaptada a tu nivel técnico
+        4. **Incluir** ejemplos prácticos del código real
+        5. **Responder** directamente en este issue con detalles específicos
+        
+        **🎯 Tipos de respuesta según tu consulta:**
+        
+        - **📚 Explicaciones**: Incluirán diagramas y ejemplos del código real de Forestech
+        - **🔍 Ubicaciones**: Te mostrarán exactamente dónde está cada cosa con enlaces
+        - **🧭 Guías**: Pasos específicos adaptados a la arquitectura del proyecto
+        - **🔧 Optimizaciones**: Análisis del código actual + propuesta de mejoras
+        - **🏗️ Arquitectura**: Recomendaciones basadas en patrones ya usados
+        - **🐛 Investigaciones**: Análisis de logs, código y configuración
+        
+        ⏱️ **Tiempo de respuesta**: Generalmente 5-20 minutos
+        
+        **💡 Ventaja especial:** Copilot conoce todo el contexto de Forestech, así que las respuestas serán específicas para tu proyecto, no explicaciones genéricas.
+        
+        🎉 **¡Tu duda será resuelta con ejemplos reales del código!**

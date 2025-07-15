@@ -1,0 +1,117 @@
+name: 🐛 Reportar Problema
+description: "¿Algo no funciona correctamente? Reporta el problema y será solucionado automáticamente"
+title: "[🐛 PROBLEMA] "
+labels: ["copilot-agent", "bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚨 ¡Algo no está funcionando bien!
+        
+        **📋 En solo 3 pasos podemos solucionarlo:**
+        
+        📍 **¿Dónde?** → Selecciona el módulo afectado  
+        🔍 **¿Qué pasa?** → Describe el problema  
+        🎯 **¿Qué debería pasar?** → Explica lo correcto
+        
+        ⚡ **El issue se asigna automáticamente a @github-copilot para corrección inmediata**
+
+        ---
+
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: "📍 ¿Dónde está el problema?"
+      description: "Selecciona el área afectada"
+      options:
+        - "🍽️ Alimentación (liquidaciones de comidas)"
+        - "⛽ Combustibles (inventario y vehículos)" 
+        - "🔧 Componentes compartidos"
+        - "🏗️ Build/Deploy/Configuración"
+        - "📚 Documentación"
+        - "🤔 No estoy seguro"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: "🔍 ¿Qué está pasando exactamente?"
+      description: "Describe el problema como se lo contarías a un compañero"
+      placeholder: |
+        Ejemplo: "Cuando hago clic en 'Agregar vehículo', la página se queda en blanco y no aparece el formulario"
+        
+        💡 Mientras más claro seas, más rápido se puede solucionar
+    validations:
+      required: true
+
+  - type: textarea
+    id: comportamiento_correcto
+    attributes:
+      label: "🎯 ¿Qué debería pasar en su lugar?"
+      description: "Describe el comportamiento correcto esperado"
+      placeholder: "Ejemplo: Debería aparecer un formulario para agregar los datos del vehículo"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgencia
+    attributes:
+      label: "⚡ ¿Qué tan urgente es?"
+      description: "Esto ayuda a priorizar la solución"
+      options:
+        - "🚨 Crítico - Bloquea el trabajo completamente"
+        - "⚠️ Alto - Molesta pero puedo seguir trabajando"
+        - "🟡 Medio - Sería bueno arreglarlo pronto"
+        - "🟢 Bajo - No hay prisa"
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: pasos_reproducir
+    attributes:
+      label: "🔄 OPCIONAL: Pasos para reproducir"
+      description: "Solo si es útil - ayuda a encontrar la causa"
+      placeholder: |
+        1. Abrir la aplicación
+        2. Navegar a...
+        3. Hacer clic en...
+        4. Ver el error
+      render: markdown
+
+  - type: textarea
+    id: informacion_tecnica
+    attributes:
+      label: "💻 OPCIONAL: Información técnica"
+      description: "Errores de consola, capturas de pantalla, etc."
+      placeholder: "Pega aquí cualquier mensaje de error de la consola (F12) o información adicional"
+      render: shell
+
+  - type: checkboxes
+    id: confirmacion
+    attributes:
+      label: "✅ Listo para solución automática"
+      options:
+        - label: "He descrito claramente el problema"
+          required: true
+        - label: "He explicado qué debería pasar correctamente"
+          required: true
+        - label: "Entiendo que @github-copilot trabajará en esto automáticamente"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🤖 ¿Qué sucede ahora?
+        
+        1. **Análisis Automático** → Copilot investiga la causa del problema
+        2. **Corrección** → Genera una solución siguiendo las mejores prácticas
+        3. **Pull Request** → Crea un PR con la corrección completa
+        4. **Notificación** → Te avisa cuando esté listo para revisar
+        
+        ⏱️ **Tiempo típico**: 15-45 minutos según la complejidad
+        
+        🎯 **¡Tu problema será solucionado automáticamente!**
