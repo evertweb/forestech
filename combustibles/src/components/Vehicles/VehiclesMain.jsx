@@ -8,8 +8,6 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToVehicles, 
   getVehiclesStats,
-  createVehicle,
-  updateVehicle,
   VEHICLE_STATUS,
   FUEL_COMPATIBILITY 
 } from '../../services/vehiclesService';

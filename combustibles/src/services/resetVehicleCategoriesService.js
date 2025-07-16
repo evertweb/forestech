@@ -6,9 +6,7 @@
 import { 
   collection, 
   getDocs, 
-  writeBatch,
-  query,
-  where
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { DEFAULT_VEHICLE_CATEGORIES } from '../data/vehicleCategories';

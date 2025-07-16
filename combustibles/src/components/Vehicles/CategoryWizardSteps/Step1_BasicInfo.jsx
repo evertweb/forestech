@@ -10,10 +10,8 @@ const Step1_BasicInfo = ({
   formData, 
   updateFormData, 
   errors, 
-  isActive,
-  extraData 
+  isActive
 }) => {
-  const { fuelTypes = [] } = extraData || {};
 
   // Navegación por teclado
   useEffect(() => {

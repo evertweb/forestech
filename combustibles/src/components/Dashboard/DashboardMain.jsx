@@ -30,7 +30,7 @@ const DashboardMain = () => {
       if (typeof unsubMovements === 'function') unsubMovements();
       if (typeof unsubVehicles === 'function') unsubVehicles();
     };
-  }, []); // ⚠️ FIXED: Empty dependency array - subscribe only once
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ejecutar diagnóstico del inventario al cargar
   useEffect(() => {

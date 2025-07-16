@@ -17,7 +17,6 @@ import Step1_BasicInfo from './CategoryWizardSteps/Step1_BasicInfo';
 import Step2_Visual from './CategoryWizardSteps/Step2_Visual';
 import Step3_Fields from './CategoryWizardSteps/Step3_Fields';
 import Step4_Summary from './CategoryWizardSteps/Step4_Summary';
-import Step4_Summary from './CategoryWizardSteps/Step4_Summary';
 
 const CategoryWizard = ({ 
   isOpen, 
@@ -140,7 +139,7 @@ const CategoryWizard = ({
         }
         break;
 
-      case 4: // Resumen - validar todo
+      case 4: { // Resumen - validar todo
         // Ejecutar todas las validaciones anteriores
         const allErrors = {};
         for (let i = 1; i < 4; i++) {
@@ -148,6 +147,7 @@ const CategoryWizard = ({
           Object.assign(allErrors, stepErrors);
         }
         return allErrors;
+      }
 
       default:
         break;

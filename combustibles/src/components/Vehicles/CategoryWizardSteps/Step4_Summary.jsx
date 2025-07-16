@@ -13,7 +13,7 @@ const Step4_Summary = ({
   isLoading,
   extraData 
 }) => {
-  const { availableFields = [], fuelTypes = [] } = extraData || {};
+  const { availableFields: _availableFields = [], fuelTypes = [] } = extraData || {};
   const [showJsonPreview, setShowJsonPreview] = useState(false);
 
   // Navegación por teclado para vista JSON
@@ -179,7 +179,7 @@ const Step4_Summary = ({
               <h4>Detalle de Campos Personalizados</h4>
             </div>
             <div className="custom-fields-detail">
-              {formData.fields.map((field, index) => (
+              {formData.fields.map((field) => (
                 <div key={field.key} className="custom-field-item">
                   <div className="field-info">
                     <span className="field-icon">{field.icon}</span>

@@ -162,7 +162,7 @@ const VehicleWizard = ({
         }
         break;
 
-      case 5: // Resumen - validar todo
+      case 5: { // Resumen - validar todo
         // Ejecutar todas las validaciones anteriores
         const allErrors = {};
         for (let i = 1; i < 5; i++) {
@@ -170,6 +170,7 @@ const VehicleWizard = ({
           Object.assign(allErrors, stepErrors);
         }
         return allErrors;
+      }
 
       default:
         break;

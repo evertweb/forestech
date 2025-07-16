@@ -3,7 +3,7 @@
  * Estado, ubicación, horómetro y fechas importantes
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { VEHICLE_STATUS } from '../../../services/vehiclesService';
 import './VehicleWizardSteps.css';
 
@@ -14,7 +14,7 @@ const Step4_Operational = ({
   isActive 
 }) => {
 
-  const statusOptions = [
+  const statusOptions = useMemo(() => [
     {
       value: VEHICLE_STATUS.ACTIVO,
       icon: '✅',
@@ -50,7 +50,7 @@ const Step4_Operational = ({
       description: 'Permanentemente fuera de operación',
       color: 'status-out-of-service'
     }
-  ];
+  ], []);
 
   // Navegación por teclado
   useEffect(() => {

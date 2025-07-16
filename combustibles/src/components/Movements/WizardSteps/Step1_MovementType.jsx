@@ -3,12 +3,12 @@
  * Diseño estilo Typeform: conversacional, centrado y elegante
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 
 const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) => {
   
-  const movementOptions = [
+  const movementOptions = useMemo(() => [
     {
       type: MOVEMENT_TYPES.ENTRADA,
       icon: '📥',
@@ -41,7 +41,7 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
       color: 'ajuste', 
       details: 'Para mermas, pérdidas o correcciones'
     }
-  ];
+  ], []);
 
   const handleSelection = useCallback((type) => {
     updateFormData('type', type);

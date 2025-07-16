@@ -9,7 +9,6 @@ import '../WizardSteps/VehicleWizardSteps.css';
 const Step3_Fields = ({ 
   formData, 
   updateFormData, 
-  errors, 
   isActive,
   extraData 
 }) => {
