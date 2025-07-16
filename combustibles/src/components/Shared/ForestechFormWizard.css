@@ -1,0 +1,454 @@
+/**
+ * ForestechFormWizard.css - Estilos base para formularios wizard reutilizables
+ * Basado en WizardSteps.css pero optimizado para reutilización
+ */
+
+/* ============ VARIABLES CSS BASE ============ */
+:root {
+  /* Colores tema Forestech */
+  --forestech-primary: #059669;
+  --forestech-primary-dark: #047857;
+  --forestech-primary-light: #10b981;
+  --forestech-secondary: #065f46;
+  --forestech-accent: #34d399;
+  
+  /* Colores tema Vehículos */
+  --vehicles-primary: #3b82f6;
+  --vehicles-primary-dark: #2563eb;
+  --vehicles-primary-light: #60a5fa;
+  --vehicles-secondary: #1e40af;
+  --vehicles-accent: #93c5fd;
+  
+  /* Colores tema Productos */
+  --products-primary: #f59e0b;
+  --products-primary-dark: #d97706;
+  --products-primary-light: #fbbf24;
+  --products-secondary: #92400e;
+  --products-accent: #fcd34d;
+  
+  /* Layout */
+  --wizard-border-radius: 16px;
+  --wizard-border-radius-small: 8px;
+  --wizard-spacing-xs: 4px;
+  --wizard-spacing-sm: 8px;
+  --wizard-spacing-md: 16px;
+  --wizard-spacing-lg: 24px;
+  --wizard-spacing-xl: 32px;
+  
+  /* Sombras */
+  --wizard-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --wizard-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --wizard-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --wizard-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  
+  /* Animaciones */
+  --wizard-transition: all 0.3s ease-in-out;
+  --wizard-transition-fast: all 0.15s ease-in-out;
+}
+
+/* ============ BARRA DE PROGRESO TYPEFORM ============ */
+.typeform-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(226, 232, 240, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.typeform-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--current-primary) 0%, 
+    var(--current-primary-light) 100%);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px var(--current-primary-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.typeform-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    transparent 100%);
+  animation: progressShimmer 2s ease-in-out infinite;
+}
+
+@keyframes progressShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ============ MODAL BASE ============ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 0;
+}
+
+.wizard-overlay {
+  background: linear-gradient(135deg, 
+    rgba(5, 150, 105, 0.15) 0%, 
+    rgba(16, 185, 129, 0.25) 50%, 
+    rgba(52, 211, 153, 0.15) 100%);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  animation: overlayFadeIn 0.6s ease-out;
+}
+
+/* Temas específicos para overlay */
+.wizard-overlay.vehicles {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.15) 0%, 
+    rgba(96, 165, 250, 0.25) 50%, 
+    rgba(147, 197, 253, 0.15) 100%);
+}
+
+.wizard-overlay.products {
+  background: linear-gradient(135deg, 
+    rgba(245, 158, 11, 0.15) 0%, 
+    rgba(251, 191, 36, 0.25) 50%, 
+    rgba(252, 211, 77, 0.15) 100%);
+}
+
+@keyframes overlayFadeIn {
+  from { 
+    opacity: 0; 
+    backdrop-filter: blur(0px);
+  }
+  to { 
+    opacity: 1; 
+    backdrop-filter: blur(12px);
+  }
+}
+
+.modal-content {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============ WIZARD MODAL ============ */
+.forestech-wizard-modal {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  background: linear-gradient(135deg, 
+    #ffffff 0%, 
+    #f8fafc 50%, 
+    #f1f5f9 100%);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: wizardSlideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Patrón de fondo sutil */
+.forestech-wizard-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, var(--current-bg-pattern-1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, var(--current-bg-pattern-2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, var(--current-bg-pattern-3) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes wizardSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============ HEADER DEL WIZARD ============ */
+.forestech-wizard-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  color: #1a202c;
+  padding: var(--wizard-spacing-xl) var(--wizard-spacing-xl) var(--wizard-spacing-lg);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.wizard-progress-info {
+  flex: 1;
+}
+
+.step-counter {
+  display: inline-block;
+  background: var(--current-primary);
+  color: white;
+  padding: var(--wizard-spacing-xs) var(--wizard-spacing-md);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: var(--wizard-spacing-md);
+}
+
+.wizard-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 var(--wizard-spacing-sm) 0;
+  line-height: 1.2;
+}
+
+.wizard-subtitle {
+  font-size: 1.125rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.wizard-close-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--wizard-transition-fast);
+  color: #ef4444;
+  font-size: 1.25rem;
+  margin-left: var(--wizard-spacing-lg);
+}
+
+.wizard-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+/* ============ CONTENIDO DEL WIZARD ============ */
+.forestech-wizard-content {
+  flex: 1;
+  padding: var(--wizard-spacing-xl);
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.wizard-step-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  transition: var(--wizard-transition);
+}
+
+.wizard-step-container.transitioning {
+  opacity: 0.7;
+  transform: translateY(10px);
+}
+
+/* ============ ERROR GENERAL ============ */
+.wizard-error-general {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--wizard-border-radius-small);
+  padding: var(--wizard-spacing-md);
+  margin: 0 var(--wizard-spacing-xl);
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  gap: var(--wizard-spacing-sm);
+  position: relative;
+  z-index: 10;
+}
+
+.error-icon {
+  font-size: 1.125rem;
+}
+
+/* ============ FOOTER DEL WIZARD ============ */
+.forestech-wizard-footer {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  padding: var(--wizard-spacing-lg) var(--wizard-spacing-xl);
+  position: relative;
+  z-index: 10;
+}
+
+.wizard-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.wizard-navigation-right {
+  display: flex;
+  gap: var(--wizard-spacing-md);
+}
+
+/* ============ BOTONES DEL WIZARD ============ */
+.wizard-btn {
+  padding: var(--wizard-spacing-md) var(--wizard-spacing-xl);
+  border: none;
+  border-radius: var(--wizard-border-radius-small);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--wizard-transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--wizard-spacing-sm);
+  min-height: 48px;
+}
+
+.wizard-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.wizard-btn-primary {
+  background: var(--current-primary);
+  color: white;
+  box-shadow: var(--wizard-shadow-md);
+}
+
+.wizard-btn-primary:hover:not(:disabled) {
+  background: var(--current-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--wizard-shadow-lg);
+}
+
+.wizard-btn-secondary {
+  background: rgba(100, 116, 139, 0.1);
+  color: #475569;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.wizard-btn-secondary:hover:not(:disabled) {
+  background: rgba(100, 116, 139, 0.2);
+  transform: translateY(-1px);
+}
+
+.wizard-btn-success {
+  background: var(--current-primary);
+  color: white;
+  box-shadow: var(--wizard-shadow-md);
+}
+
+.wizard-btn-success:hover:not(:disabled) {
+  background: var(--current-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--wizard-shadow-lg);
+}
+
+/* ============ TEMAS ESPECÍFICOS ============ */
+/* Tema Forestech (default) */
+.forestech-wizard-modal.forestech,
+.forestech-wizard-modal:not(.vehicles):not(.products) {
+  --current-primary: var(--forestech-primary);
+  --current-primary-dark: var(--forestech-primary-dark);
+  --current-primary-light: var(--forestech-primary-light);
+  --current-primary-shadow: rgba(5, 150, 105, 0.4);
+  --current-bg-pattern-1: rgba(5, 150, 105, 0.03);
+  --current-bg-pattern-2: rgba(16, 185, 129, 0.03);
+  --current-bg-pattern-3: rgba(52, 211, 153, 0.02);
+}
+
+/* Tema Vehículos */
+.forestech-wizard-modal.vehicles {
+  --current-primary: var(--vehicles-primary);
+  --current-primary-dark: var(--vehicles-primary-dark);
+  --current-primary-light: var(--vehicles-primary-light);
+  --current-primary-shadow: rgba(59, 130, 246, 0.4);
+  --current-bg-pattern-1: rgba(59, 130, 246, 0.03);
+  --current-bg-pattern-2: rgba(96, 165, 250, 0.03);
+  --current-bg-pattern-3: rgba(147, 197, 253, 0.02);
+}
+
+/* Tema Productos */
+.forestech-wizard-modal.products {
+  --current-primary: var(--products-primary);
+  --current-primary-dark: var(--products-primary-dark);
+  --current-primary-light: var(--products-primary-light);
+  --current-primary-shadow: rgba(245, 158, 11, 0.4);
+  --current-bg-pattern-1: rgba(245, 158, 11, 0.03);
+  --current-bg-pattern-2: rgba(251, 191, 36, 0.03);
+  --current-bg-pattern-3: rgba(252, 211, 77, 0.02);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .wizard-title {
+    font-size: 1.75rem;
+  }
+  
+  .wizard-subtitle {
+    font-size: 1rem;
+  }
+  
+  .forestech-wizard-header,
+  .forestech-wizard-content,
+  .forestech-wizard-footer {
+    padding-left: var(--wizard-spacing-lg);
+    padding-right: var(--wizard-spacing-lg);
+  }
+  
+  .wizard-navigation {
+    flex-direction: column;
+    gap: var(--wizard-spacing-md);
+  }
+  
+  .wizard-navigation-right {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .wizard-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

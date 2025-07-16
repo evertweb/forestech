@@ -1,59 +1,36 @@
 {
-  "servers": {
-    "firebase": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@google-cloud/firebase-mcp@latest",
-        "--project",
-        "liquidacionapp-62962",
-        "--dir",
-        "/home/evert/Documentos/appwebforestech/forestech"
-      ]
-    },
-    "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/"
-    },
-    "github-cli": {
-      "type": "stdio",
-      "command": "node",
-      "args": [
-        "/home/evert/Documentos/appwebforestech/forestech/scripts/custom-github-mcp.js"
-      ]
-    },
-    "memory": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory@latest"
-      ],
-      "env": {
-        "MEMORY_FILE_PATH": "/home/evert/Documentos/appwebforestech/forestech/.vscode/memory.json"
-      }
-    },
-    "filesystem": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem@latest",
-        "/home/evert/Documentos/appwebforestech/forestech"
-      ]
-    },
-    "notion": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@suekou/mcp-notion-server"
-      ],
-      "env": {
-        "NOTION_API_TOKEN": "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",
-        "NOTION_MARKDOWN_CONVERSION": "true"
-      }
-    }
-  }
+	"servers": {
+		"firebase": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@google-cloud/firebase-mcp@latest",
+				"--project",
+				"liquidacionapp-62962",
+				"--dir",
+				"/home/evert/Documentos/appwebforestech/forestech"
+			]
+		},
+			"memory": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-memory@latest"
+			],
+			"env": {
+				"MEMORY_FILE_PATH": "/home/evert/Documentos/appwebforestech/forestech/.vscode/memory.json"
+			}
+		},
+		"filesystem": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-filesystem@latest",
+				"/home/evert/Documentos/appwebforestech/forestech"
+			]
+		}
+	}
 }

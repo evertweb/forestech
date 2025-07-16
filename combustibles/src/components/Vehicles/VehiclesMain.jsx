@@ -16,7 +16,7 @@ import {
 import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
-import VehicleModalNew from './VehicleModalNew';
+import VehicleWizard from './VehicleWizard';
 import VehicleCategoriesManager from './VehicleCategoriesManager';
 import MaintenanceModal from './MaintenanceModal';
 import './Vehicles.css';
@@ -258,22 +258,16 @@ const VehiclesMain = () => {
         />
       )}
 
-      {/* Modal Vehículo Nuevo */}
+      {/* Modal Vehículo Nuevo - Wizard */}
       {showModal && (
-        <VehicleModalNew
+        <VehicleWizard
           isOpen={showModal}
           onClose={handleModalClose}
-          vehicle={selectedVehicle}
-          mode={modalMode}
-          onSave={async (vehicleData) => {
-            if (modalMode === 'create') {
-              await createVehicle(vehicleData);
-            } else {
-              await updateVehicle(selectedVehicle.id, vehicleData);
-            }
+          vehicle={modalMode === 'edit' ? selectedVehicle : null}
+          onSuccess={(vehicleData) => {
+            console.log('✅ Vehículo guardado:', vehicleData);
             handleModalClose();
           }}
-          userRole={userProfile?.role}
         />
       )}
 

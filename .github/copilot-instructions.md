@@ -8,6 +8,77 @@
 - ✅ Mensajes de commit, issues y PRs en español
 - ✅ Logs y mensajes de error del sistema en español cuando sea posible
 
+## 📋 GESTIÓN DE TAREAS PENDIENTES
+**OBLIGATORIO**: Para tareas complejas, mantener una lista de seguimiento del progreso.
+
+### Formato de Lista de Tareas
+```markdown
+## 🎯 TAREAS PENDIENTES - [Nombre del Proyecto/Feature]
+
+### 📌 EN PROGRESO
+- [ ] Tarea actual en desarrollo
+- [ ] Subtarea específica
+
+### ✅ COMPLETADAS
+- [x] Tarea ya finalizada
+- [x] Otra tarea completada
+
+### 🔄 PENDIENTES
+- [ ] Próxima tarea a realizar
+- [ ] Tarea futura identificada
+
+### 🚨 BLOQUEADAS/ISSUES
+- [ ] Tarea bloqueada por dependencia
+- [ ] Issue que requiere atención
+
+### 📝 NOTAS
+- Observaciones importantes
+- Decisiones técnicas tomadas
+- Referencias útiles
+```
+
+### Cuándo Crear Lista de Tareas
+- **Tareas complejas**: > 30 minutos estimados
+- **Múltiples archivos**: Modificaciones en 3+ archivos
+- **Refactoring**: Cambios estructurales significativos
+- **Nuevas features**: Implementación de funcionalidades completas
+- **Debugging complejo**: Investigación de bugs multi-componente
+- **Migraciones**: Actualizaciones de dependencias o arquitectura
+
+### Protocolo de Actualización
+1. **Inicio de sesión**: Crear lista con tareas identificadas
+2. **Durante desarrollo**: Actualizar estado cada 15-20 minutos
+3. **Completar tarea**: Mover de "EN PROGRESO" a "COMPLETADAS"
+4. **Nuevas tareas**: Agregar a "PENDIENTES" si surgen durante desarrollo
+5. **Fin de sesión**: Resumen de progreso y próximos pasos
+
+### Ejemplo Práctico
+```markdown
+## 🎯 TAREAS PENDIENTES - Optimización CombustiblesContext
+
+### 📌 EN PROGRESO
+- [ ] Implementar patrón de suscripción manual en useEssentialData
+
+### ✅ COMPLETADAS  
+- [x] Analizar performance issues en CombustiblesContext
+- [x] Identificar suscripciones automáticas problemáticas
+- [x] Diseñar patrón de suscripción manual
+
+### 🔄 PENDIENTES
+- [ ] Actualizar componentes para usar subscribeToInventory()
+- [ ] Implementar cleanup automático de suscripciones
+- [ ] Agregar métricas de performance
+- [ ] Documentar nuevo patrón en README
+
+### 🚨 BLOQUEADAS/ISSUES
+- [ ] Verificar compatibilidad con React 19 (pendiente pruebas)
+
+### 📝 NOTAS
+- Patrón manual reduce lecturas Firebase en 60%
+- Mantener backward compatibility durante transición
+- Considerar useCallback para optimización adicional
+```
+
 ## �🏗️ Architecture Overview
 
 **Forestech** is a production monorepo with 2 React apps sharing Firebase infrastructure:
@@ -636,6 +707,9 @@ Is now **automatically integrated** - this copilot-instructions.md file replaces
 # 🧠 Memory & Context
 @memory "guardar patrones arquitectura identificados"
 @memory "recuperar convenciones establecidas"
+@memory "guardar lista tareas pendientes [proyecto]"
+@memory "recuperar progreso tareas [sesión]"
+@memory "actualizar estado tarea [tarea-id]"
 
 # 📁 Filesystem (Alternative to manual file operations)
 @filesystem "analizar estructura combustibles/src/"

@@ -1,0 +1,941 @@
+/**
+ * VehicleWizardSteps.css - Estilos específicos para los pasos del wizard de vehículos
+ * Extiende ForestechFormWizard.css con elementos específicos
+ */
+
+/* ============ ESTILOS BASE PARA PASOS ============ */
+.wizard-step {
+  width: 100%;
+  min-height: 400px;
+  animation: stepFadeIn 0.5s ease-out;
+}
+
+.wizard-step.active {
+  animation: stepSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes stepSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ LAYOUT TYPEFORM ============ */
+.typeform-layout {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.typeform-question {
+  margin-bottom: 3rem;
+  text-align: left;
+}
+
+.typeform-question h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+.typeform-question .highlight {
+  color: var(--current-primary);
+  font-weight: 800;
+}
+
+.typeform-question p {
+  font-size: 1.125rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ============ SECCIONES ============ */
+.typeform-section {
+  margin-bottom: 2.5rem;
+}
+
+.typeform-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .typeform-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* ============ INPUTS Y LABELS ============ */
+.typeform-label {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.typeform-input-group {
+  margin-bottom: 2rem;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.25rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.typeform-input,
+.typeform-select,
+.typeform-textarea {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  font-family: inherit;
+}
+
+.typeform-input:focus,
+.typeform-select:focus,
+.typeform-textarea:focus {
+  outline: none;
+  border-color: var(--current-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.typeform-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+/* ============ OPCIONES TIPO TYPEFORM ============ */
+.typeform-options {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.typeform-option {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.typeform-option:hover {
+  border-color: var(--current-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.typeform-option.selected {
+  border-color: var(--current-primary);
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    rgba(59, 130, 246, 0.1) 100%);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+}
+
+/* ============ HEADERS DE OPCIONES ============ */
+.option-header,
+.category-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.option-icon,
+.category-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.option-number,
+.category-number {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.typeform-option.selected .option-number,
+.typeform-option.selected .category-number {
+  background: var(--current-primary);
+  color: white;
+}
+
+/* ============ CONTENIDO DE OPCIONES ============ */
+.option-content,
+.category-content {
+  flex: 1;
+}
+
+.option-title,
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.5rem 0;
+}
+
+.option-description,
+.category-description {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ============ INDICADORES DE SELECCIÓN ============ */
+.selection-indicator {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--current-primary);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+}
+
+.typeform-option.selected .selection-indicator {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.checkmark {
+  font-size: 1rem;
+}
+
+/* ============ GRIDS ESPECÍFICOS ============ */
+/* Grid de categorías */
+.category-grid {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Grid de combustible */
+.fuel-options {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .fuel-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grid de estado */
+.status-options {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .status-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============ COLORES ESPECÍFICOS POR TEMA ============ */
+/* Categorías */
+.category-agriculture {
+  border-color: #10b981;
+}
+.category-agriculture.selected {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border-color: #10b981;
+}
+
+.category-transport {
+  border-color: #3b82f6;
+}
+.category-transport.selected {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-color: #3b82f6;
+}
+
+.category-construction {
+  border-color: #f59e0b;
+}
+.category-construction.selected {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border-color: #f59e0b;
+}
+
+.category-road {
+  border-color: #8b5cf6;
+}
+.category-road.selected {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border-color: #8b5cf6;
+}
+
+.category-equipment {
+  border-color: #ef4444;
+}
+.category-equipment.selected {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%);
+  border-color: #ef4444;
+}
+
+.category-general {
+  border-color: #64748b;
+}
+.category-general.selected {
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.05) 0%, rgba(100, 116, 139, 0.1) 100%);
+  border-color: #64748b;
+}
+
+/* Combustibles */
+.fuel-diesel {
+  border-color: #1f2937;
+}
+.fuel-diesel.selected {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.05) 0%, rgba(31, 41, 55, 0.1) 100%);
+  border-color: #1f2937;
+}
+
+.fuel-gasoline {
+  border-color: #dc2626;
+}
+.fuel-gasoline.selected {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border-color: #dc2626;
+}
+
+.fuel-mixed {
+  border-color: #7c3aed;
+}
+.fuel-mixed.selected {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0.1) 100%);
+  border-color: #7c3aed;
+}
+
+/* Estados */
+.status-active {
+  border-color: #10b981;
+}
+.status-active.selected {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border-color: #10b981;
+}
+
+.status-maintenance {
+  border-color: #3b82f6;
+}
+.status-maintenance.selected {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-color: #3b82f6;
+}
+
+.status-repair {
+  border-color: #f59e0b;
+}
+.status-repair.selected {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border-color: #f59e0b;
+}
+
+.status-inactive {
+  border-color: #64748b;
+}
+.status-inactive.selected {
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.05) 0%, rgba(100, 116, 139, 0.1) 100%);
+  border-color: #64748b;
+}
+
+.status-out-of-service {
+  border-color: #ef4444;
+}
+.status-out-of-service.selected {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%);
+  border-color: #ef4444;
+}
+
+/* ============ CAMPOS ESPECIALES ============ */
+/* Checkbox personalizado */
+.checkbox-group {
+  margin: 1rem 0;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.checkbox-option:hover {
+  border-color: var(--current-primary);
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.checkbox-option input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  margin-right: 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkbox-option input[type="checkbox"]:checked + .checkbox-custom {
+  background: var(--current-primary);
+  border-color: var(--current-primary);
+}
+
+.checkbox-option input[type="checkbox"]:checked + .checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.checkbox-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Campo dependiente */
+.dependent-field {
+  margin-left: 2rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--current-primary);
+  background: rgba(59, 130, 246, 0.02);
+  border-radius: 0 8px 8px 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ CAMPOS DE CATEGORÍA ============ */
+.category-fields {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.fields-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.fields-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.field-tag {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.field-tag.more {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--current-primary);
+  font-weight: 600;
+}
+
+/* ============ PREVIEW Y RESUMEN ============ */
+.step-preview {
+  margin-top: 3rem;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.preview-card {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    rgba(59, 130, 246, 0.02) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.preview-card h4 {
+  color: var(--current-primary);
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.preview-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.preview-label {
+  font-weight: 600;
+  color: #64748b;
+}
+
+.preview-value {
+  font-weight: 500;
+  color: #1a202c;
+}
+
+.preview-value.highlight {
+  color: var(--current-primary);
+  font-weight: 700;
+}
+
+/* Preview específico para categorías */
+.selected-category-preview {
+  text-align: center;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.preview-icon {
+  font-size: 1.5rem;
+}
+
+.preview-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.preview-description {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ============ RESUMEN (STEP 5) ============ */
+.summary-sections {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.summary-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.summary-header {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    rgba(59, 130, 246, 0.1) 100%);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.summary-icon {
+  font-size: 1.25rem;
+}
+
+.summary-header h3 {
+  color: var(--current-primary);
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.summary-content {
+  padding: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.item-label {
+  font-weight: 600;
+  color: #64748b;
+  min-width: 150px;
+}
+
+.item-value {
+  font-weight: 500;
+  color: #1a202c;
+  text-align: right;
+  flex: 1;
+}
+
+.item-value.highlight {
+  color: var(--current-primary);
+  font-weight: 700;
+}
+
+/* ============ CONFIRMACIÓN ============ */
+.confirmation-section {
+  margin: 3rem 0;
+}
+
+.confirmation-card {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.05) 0%, 
+    rgba(16, 185, 129, 0.1) 100%);
+  border: 2px solid #10b981;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.confirmation-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.confirmation-card h3 {
+  color: #059669;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.confirmation-card p {
+  color: #064e3b;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.action-hint {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 500;
+}
+
+/* ============ ERRORES ============ */
+.input-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.input-error-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  color: #dc2626;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.error-icon {
+  font-size: 1rem;
+}
+
+/* ============ HINTS Y AYUDAS ============ */
+.input-hint {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.navigation-hint {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+/* ============ INFORMACIÓN ADICIONAL ============ */
+.info-section {
+  margin-top: 3rem;
+}
+
+.info-card {
+  background: linear-gradient(135deg, 
+    rgba(245, 158, 11, 0.05) 0%, 
+    rgba(245, 158, 11, 0.02) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  color: #f59e0b;
+  margin-top: 0.25rem;
+}
+
+.info-content h4 {
+  color: #92400e;
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.info-content ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #78350f;
+}
+
+.info-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.info-content strong {
+  color: #92400e;
+}
+
+/* ============ ESTADO VACÍO ============ */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  color: #374151;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0 0 2rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 640px) {
+  .typeform-question h2 {
+    font-size: 1.75rem;
+  }
+  
+  .typeform-question p {
+    font-size: 1rem;
+  }
+  
+  .typeform-option {
+    padding: 1rem;
+  }
+  
+  .option-content,
+  .category-content {
+    margin-left: 0;
+  }
+  
+  .summary-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .item-label {
+    min-width: auto;
+  }
+  
+  .item-value {
+    text-align: left;
+  }
+  
+  .dependent-field {
+    margin-left: 1rem;
+  }
+}
+
+/* ============ GESTIÓN DE CATEGORÍAS ============ */
+.manage-categories-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+  text-align: center;
+}
+
+.wizard-btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--vehicles-primary, #4A90E2);
+  color: var(--vehicles-primary, #4A90E2);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wizard-btn-outline:hover {
+  background-color: var(--vehicles-primary, #4A90E2);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
+}
+
+.wizard-btn-outline:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+}
+
+/* Animación específica para el botón de gestión */
+.manage-categories-section .wizard-btn-outline {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(74, 144, 226, 0.05);
+  }
+}
+
+.manage-categories-section:hover .wizard-btn-outline {
+  animation: none;
+}
