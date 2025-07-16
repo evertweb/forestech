@@ -32,7 +32,6 @@ export { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories';
 export const FUEL_COMPATIBILITY = {
   DIESEL: 'Diesel',
   GASOLINA: 'Gasolina',
-  ACPM: 'ACPM',
   MIXTO: 'Mixto' // Para equipos que usan múltiples combustibles
 };
 
@@ -835,7 +834,6 @@ const calculateEstimatedConsumption = (vehicleData) => {
   const fuelFactors = {
     [FUEL_COMPATIBILITY.DIESEL]: 1.0,
     [FUEL_COMPATIBILITY.GASOLINA]: 1.2,
-    [FUEL_COMPATIBILITY.ACPM]: 0.95,
     [FUEL_COMPATIBILITY.MIXTO]: 1.1
   };
 

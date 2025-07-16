@@ -9,6 +9,7 @@ import {
   setDoc, 
   getDocs, 
   query, 
+  where,
   limit 
 } from 'firebase/firestore';
 import { db } from '../firebase/config.js';
@@ -23,45 +24,43 @@ export const initializePredefinedProducts = async () => {
   try {
     console.log('🔄 Verificando productos existentes...');
     
-    // Verificar si ya existen productos
-    const existingQuery = query(collection(db, COLLECTION_NAME), limit(1));
-    const existingDocs = await getDocs(existingQuery);
+    // Verificar específicamente si existe DIESEL
+    const dieselQuery = query(
+      collection(db, COLLECTION_NAME), 
+      where('name', '==', 'DIESEL'),
+      limit(1)
+    );
+    const dieselDocs = await getDocs(dieselQuery);
     
-    if (!existingDocs.empty) {
-      console.log('✅ Productos ya existen en Firebase');
+    if (!dieselDocs.empty) {
+      console.log('✅ Producto DIESEL ya existe en Firebase');
       return;
     }
     
-    console.log('📦 Creando productos predefinidos...');
+    console.log('📦 Creando producto DIESEL faltante...');
     
-    // Crear cada producto predefinido
-    const productPromises = Object.values(PRODUCT_INFO).map(async (productInfo) => {
-      const productData = {
-        name: productInfo.name,
-        displayName: productInfo.displayName,
-        category: productInfo.category,
-        unit: productInfo.unit,
-        defaultPrice: productInfo.defaultPrice,
-        color: productInfo.color,
-        icon: productInfo.icon,
-        description: productInfo.description,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        createdBy: 'system-initialization'
-      };
-      
-      const docRef = doc(collection(db, COLLECTION_NAME));
-      await setDoc(docRef, productData);
-      
-      console.log(`✅ Producto creado: ${productInfo.displayName}`);
-      return { id: docRef.id, ...productData };
-    });
+    // Crear solo el producto DIESEL que falta
+    const dieselInfo = PRODUCT_INFO.DIESEL;
+    const productData = {
+      name: dieselInfo.name,
+      displayName: dieselInfo.displayName,
+      category: dieselInfo.category,
+      unit: dieselInfo.unit,
+      defaultPrice: dieselInfo.defaultPrice,
+      color: dieselInfo.color,
+      icon: dieselInfo.icon,
+      description: dieselInfo.description,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: 'manual-fix'
+    };
     
-    const createdProducts = await Promise.all(productPromises);
+    const docRef = doc(collection(db, COLLECTION_NAME));
+    await setDoc(docRef, productData);
     
-    console.log(`🎉 ${createdProducts.length} productos inicializados correctamente`);
-    return createdProducts;
+    console.log(`✅ Producto DIESEL creado: ${dieselInfo.displayName}`);
+    return [{ id: docRef.id, ...productData }];
     
   } catch (error) {
     console.error('❌ Error inicializando productos:', error);

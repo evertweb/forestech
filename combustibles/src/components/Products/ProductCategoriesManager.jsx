@@ -1,27 +1,23 @@
 /**
- * VehicleCategoriesManager - Gestión de categorías de vehículos personalizables
+ * ProductCategoriesManager - Gestión de categorías de productos personalizables
  * Permite crear, editar y eliminar categorías dinámicamente
  */
 
 import React, { useState, useEffect } from 'react';
 import {
   createCategory,
-  getAllVehicleCategories,
+  getAllProductCategories,
   updateCategory,
   deleteCategory,
   subscribeToCategories,
-  getCategoryStats
-} from '../../services/vehicleCategoriesService';
-import { resetVehicleCategories, hasCustomCategories } from '../../services/resetVehicleCategoriesService';
-import { 
-  DEFAULT_VEHICLE_CATEGORIES,
+  getCategoryStats,
+  DEFAULT_PRODUCT_CATEGORIES,
   AVAILABLE_FIELDS,
-  FUEL_TYPES,
   generateCategoryId
-} from '../../data/vehicleCategories';
-import './VehicleCategoriesManager.css';
+} from '../../services/productCategoriesService';
+import './ProductCategoriesManager.css';
 
-const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
+const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
   const [categories, setCategories] = useState([]);
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,28 +25,27 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [hasCustom, setHasCustom] = useState(false);
+
+  // Unidades disponibles para productos
+  const AVAILABLE_UNITS = ['gal', 'L', 'kg', 'g', 'ml', 'oz', 'lb'];
 
   // Estado del formulario
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    icon: '🚗',
+    icon: '📦',
     color: '#2E86AB',
-    fuelTypes: [],
+    units: [],
     fields: []
   });
 
   useEffect(() => {
     loadCategoriesAndStats();
-    checkCustomCategories();
     
     // Suscribirse a cambios en tiempo real
     const unsubscribe = subscribeToCategories((updatedCategories) => {
       setCategories(updatedCategories);
       loadStats();
-      checkCustomCategories();
     });
 
     return () => unsubscribe && unsubscribe();
@@ -60,7 +55,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
     try {
       setLoading(true);
       const [categoriesData, statsData] = await Promise.all([
-        getAllVehicleCategories(),
+        getAllProductCategories(),
         getCategoryStats()
       ]);
       setCategories(categoriesData);
@@ -82,42 +77,43 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
     }
   };
 
-  const checkCustomCategories = async () => {
-    try {
-      const hasCustomCats = await hasCustomCategories();
-      setHasCustom(hasCustomCats);
-    } catch (error) {
-      console.error('Error verificando categorías personalizadas:', error);
-    }
-  };
-
   const handleCreateCategory = () => {
     setSelectedCategory(null);
     setFormData({
       name: '',
       description: '',
-      icon: '🚗',
+      icon: '📦',
       color: '#2E86AB',
-      fuelTypes: [],
+      units: [],
       fields: []
     });
     setShowModal(true);
   };
 
   const handleEditCategory = (category) => {
+    if (category.isDefault) {
+      setError('No se pueden editar las categorías predeterminadas');
+      return;
+    }
+    
     setSelectedCategory(category);
     setFormData({
       name: category.name || '',
       description: category.description || '',
-      icon: category.icon || '🚗',
+      icon: category.icon || '📦',
       color: category.color || '#2E86AB',
-      fuelTypes: category.fuelTypes || [],
+      units: category.units || [],
       fields: category.fields || []
     });
     setShowModal(true);
   };
 
   const handleDeleteCategory = async (category) => {
+    if (category.isDefault) {
+      setError('No se pueden eliminar las categorías predeterminadas');
+      return;
+    }
+
     const confirmed = window.confirm(
       `¿Está seguro de eliminar la categoría "${category.name}"?\n\nEsta acción no se puede deshacer.`
     );
@@ -184,45 +180,22 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
     }));
   };
 
-  const handleFuelTypeToggle = (fuelType) => {
+  const handleUnitToggle = (unit) => {
     setFormData(prev => ({
       ...prev,
-      fuelTypes: prev.fuelTypes.includes(fuelType)
-        ? prev.fuelTypes.filter(f => f !== fuelType)
-        : [...prev.fuelTypes, fuelType]
+      units: prev.units.includes(unit)
+        ? prev.units.filter(u => u !== unit)
+        : [...prev.units, unit]
     }));
   };
 
-  const handleResetCategories = async () => {
-    try {
-      setSaving(true);
-      setError('');
-      
-      const result = await resetVehicleCategories();
-      
-      if (result.success) {
-        setShowResetConfirm(false);
-        setError('');
-        alert(`✅ ${result.message}`);
-        // Los datos se actualizarán automáticamente via suscripción
-      } else {
-        setError('Error al resetear categorías');
-      }
-    } catch (error) {
-      console.error('Error reseteando categorías:', error);
-      setError(error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const getStatsForCategory = (categoryId) => {
-    return stats.find(stat => stat.id === categoryId) || { vehicleCount: 0, activeVehicles: 0 };
+    return stats.find(stat => stat.id === categoryId) || { productCount: 0, activeProducts: 0 };
   };
 
   if (loading) {
     return (
-      <div className="categories-manager">
+      <div className="product-categories-manager">
         <div className="loading">
           <div className="spinner"></div>
           <p>Cargando categorías...</p>
@@ -232,9 +205,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
   }
 
   return (
-    <div className="categories-manager">
+    <div className="product-categories-manager">
       <div className="categories-header">
-        <h3>📋 Gestión de Categorías</h3>
+        <h3>🏷️ Gestión de Categorías de Productos</h3>
         <div className="header-actions">
           <button 
             className="btn-primary"
@@ -243,17 +216,6 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
           >
             ➕ Nueva Categoría
           </button>
-          
-          {hasCustom && (
-            <button 
-              className="btn-warning"
-              onClick={() => setShowResetConfirm(true)}
-              disabled={saving}
-            >
-              🗑️ Eliminar Todas
-            </button>
-          )}
-          
           <button 
             className="btn-secondary"
             onClick={onClose}
@@ -277,7 +239,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
           return (
             <div 
               key={category.id} 
-              className="category-card custom"
+              className={`category-card ${category.isDefault ? 'default' : 'custom'}`}
               style={{ '--category-color': category.color }}
             >
               <div className="category-header">
@@ -288,25 +250,26 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
                   <h4>{category.name}</h4>
                   <p>{category.description}</p>
                 </div>
+                {category.isDefault && <span className="default-badge">Predeterminada</span>}
               </div>
 
               <div className="category-stats">
                 <div className="stat">
-                  <span className="stat-value">{categoryStats.vehicleCount}</span>
-                  <span className="stat-label">Vehículos</span>
+                  <span className="stat-value">{categoryStats.productCount}</span>
+                  <span className="stat-label">Productos</span>
                 </div>
                 <div className="stat">
-                  <span className="stat-value">{categoryStats.activeVehicles}</span>
+                  <span className="stat-value">{categoryStats.activeProducts}</span>
                   <span className="stat-label">Activos</span>
                 </div>
               </div>
 
               <div className="category-details">
-                <div className="fuel-types">
-                  <strong>Combustibles:</strong>
-                  <div className="fuel-list">
-                    {(category.fuelTypes || []).map(fuel => (
-                      <span key={fuel} className="fuel-tag">{fuel}</span>
+                <div className="units">
+                  <strong>Unidades:</strong>
+                  <div className="units-list">
+                    {(category.units || []).map(unit => (
+                      <span key={unit} className="unit-tag">{unit}</span>
                     ))}
                   </div>
                 </div>
@@ -333,19 +296,21 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
                 <button 
                   className="btn-edit"
                   onClick={() => handleEditCategory(category)}
-                  disabled={saving}
-                  title="Editar categoría"
+                  disabled={category.isDefault || saving}
+                  title={category.isDefault ? 'No se pueden editar categorías predeterminadas' : 'Editar categoría'}
                 >
                   ✏️ Editar
                 </button>
                 <button 
                   className="btn-delete"
                   onClick={() => handleDeleteCategory(category)}
-                  disabled={saving || categoryStats.vehicleCount > 0}
+                  disabled={category.isDefault || saving || categoryStats.productCount > 0}
                   title={
-                    categoryStats.vehicleCount > 0 
-                      ? 'No se puede eliminar una categoría con vehículos asignados'
-                      : 'Eliminar categoría'
+                    category.isDefault 
+                      ? 'No se pueden eliminar categorías predeterminadas'
+                      : categoryStats.productCount > 0 
+                        ? 'No se puede eliminar una categoría con productos asignados'
+                        : 'Eliminar categoría'
                   }
                 >
                   🗑️ Eliminar
@@ -370,15 +335,28 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
               <div className="form-section">
                 <h4>Información Básica</h4>
                 
-                <div className="form-group">
-                  <label>Nombre *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Ej: Maquinaria Pesada"
-                    required
-                  />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Nombre *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Ej: Aditivos"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Icono</label>
+                    <input
+                      type="text"
+                      value={formData.icon}
+                      onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                      placeholder="📦"
+                      className="icon-input"
+                    />
+                  </div>
                 </div>
 
                 <div className="form-group">
@@ -386,47 +364,34 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe el tipo de vehículos que incluye esta categoría"
+                    placeholder="Describe el tipo de productos que incluye esta categoría"
                     rows="2"
                   />
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Icono</label>
-                    <input
-                      type="text"
-                      value={formData.icon}
-                      onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                      placeholder="🚗"
-                      className="icon-input"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Color</label>
-                    <input
-                      type="color"
-                      value={formData.color}
-                      onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
-                      className="color-input"
-                    />
-                  </div>
+                <div className="form-group">
+                  <label>Color</label>
+                  <input
+                    type="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
+                    className="color-input"
+                  />
                 </div>
               </div>
 
-              {/* Tipos de combustible */}
+              {/* Unidades disponibles */}
               <div className="form-section">
-                <h4>Tipos de Combustible Compatibles</h4>
-                <div className="fuel-types-grid">
-                  {Object.values(FUEL_TYPES).map(fuelType => (
-                    <label key={fuelType} className="checkbox-label">
+                <h4>Unidades de Medida</h4>
+                <div className="units-grid">
+                  {AVAILABLE_UNITS.map(unit => (
+                    <label key={unit} className="checkbox-label">
                       <input
                         type="checkbox"
-                        checked={formData.fuelTypes.includes(fuelType)}
-                        onChange={() => handleFuelTypeToggle(fuelType)}
+                        checked={formData.units.includes(unit)}
+                        onChange={() => handleUnitToggle(unit)}
                       />
-                      <span>{fuelType}</span>
+                      <span>{unit}</span>
                     </label>
                   ))}
                 </div>
@@ -494,41 +459,8 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated }) => {
           </div>
         </div>
       )}
-
-      {/* Modal de confirmación para reset */}
-      {showResetConfirm && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>🗑️ Confirmar Eliminación</h3>
-              <button onClick={() => setShowResetConfirm(false)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <p><strong>¿Estás seguro de que deseas eliminar todas las categorías?</strong></p>
-              <p>Esta acción eliminará todas las categorías de vehículos de la aplicación.</p>
-              <p className="warning">⚠️ Esta acción no se puede deshacer.</p>
-            </div>
-            <div className="modal-actions">
-              <button 
-                className="btn-secondary"
-                onClick={() => setShowResetConfirm(false)}
-                disabled={saving}
-              >
-                Cancelar
-              </button>
-              <button 
-                className="btn-danger"
-                onClick={handleResetCategories}
-                disabled={saving}
-              >
-                {saving ? 'Eliminando...' : 'Eliminar Todas'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default VehicleCategoriesManager;
+export default ProductCategoriesManager;

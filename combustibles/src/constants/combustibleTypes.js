@@ -7,7 +7,6 @@
 export const FUEL_TYPES = {
   DIESEL: 'diesel',
   GASOLINE: 'gasoline', 
-  ACPM: 'acpm',
   LUBRICANTS: 'lubricants',
   TWO_STROKE: 'two_stroke',
   MIXED: 'mixed'  // Agregado desde vehicleTypes.js para compatibilidad
@@ -33,16 +32,6 @@ export const FUEL_INFO = {
     color: '#ef4444', // red-500
     icon: '⛽',
     density: 0.75, // kg/L aproximado
-    priceUnit: 'COP/galón'
-  },
-  [FUEL_TYPES.ACPM]: {
-    name: 'ACPM',
-    description: 'Aceite Combustible Para Motor',
-    unit: 'galones',
-    category: 'Combustible',
-    color: '#8b5cf6', // violet-500
-    icon: '🚜',
-    density: 0.85, // kg/L aproximado
     priceUnit: 'COP/galón'
   },
   [FUEL_TYPES.LUBRICANTS]: {

@@ -20,7 +20,6 @@ const MovementsFilters = ({
   const fuelTypes = [
     { value: 'Diesel', label: 'Diesel 🚛' },
     { value: 'Gasolina', label: 'Gasolina 🚗' },
-    { value: 'ACPM', label: 'ACPM 🚚' },
     { value: 'Lubricante', label: 'Lubricante 🛢️' }
   ];
 

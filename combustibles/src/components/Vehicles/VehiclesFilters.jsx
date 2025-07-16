@@ -182,7 +182,6 @@ const VehiclesFilters = ({
                 <option value="">Todos los combustibles</option>
                 <option value={FUEL_COMPATIBILITY.DIESEL}>🚛 Diesel</option>
                 <option value={FUEL_COMPATIBILITY.GASOLINA}>🚗 Gasolina</option>
-                <option value={FUEL_COMPATIBILITY.ACPM}>🚚 ACPM</option>
                 <option value={FUEL_COMPATIBILITY.MIXTO}>⛽ Mixto</option>
               </select>
             </div>

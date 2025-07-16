@@ -78,7 +78,6 @@ const VehiclesStats = ({ stats, filters }) => {
     switch (fuelType) {
       case FUEL_COMPATIBILITY.DIESEL: return '🚛';
       case FUEL_COMPATIBILITY.GASOLINA: return '🚗';
-      case FUEL_COMPATIBILITY.ACPM: return '🚚';
       case FUEL_COMPATIBILITY.MIXTO: return '⛽';
       default: return '⛽';
     }

@@ -8,6 +8,7 @@ import { subscribeToProducts, createProduct, updateProduct, deleteProduct } from
 import { PRODUCT_INFO, PRODUCT_CATEGORIES, getAllProducts } from '../../constants/productTypes';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
+import ProductCategoriesManager from './ProductCategoriesManager';
 import './Products.css';
 
 const ProductsMain = ({ userProfile }) => {
@@ -20,6 +21,7 @@ const ProductsMain = ({ userProfile }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showStats, setShowStats] = useState(true);
+  const [showCategoriesManager, setShowCategoriesManager] = useState(false);
 
   // Permisos de usuario
   const canManageProducts = ['admin', 'supervisor'].includes(userProfile?.role);
@@ -181,6 +183,13 @@ const ProductsMain = ({ userProfile }) => {
             </button>
             <button 
               className="btn-secondary"
+              onClick={() => setShowCategoriesManager(true)}
+              style={{ marginLeft: '10px' }}
+            >
+              🏷️ Gestionar Categorías
+            </button>
+            <button 
+              className="btn-secondary"
               onClick={async () => {
                 try {
                   console.log('🧪 Forzando creación de productos predefinidos...');
@@ -337,6 +346,17 @@ const ProductsMain = ({ userProfile }) => {
         onSave={handleModalSave}
         userRole={userProfile?.role}
       />
+
+      {/* Gestor de Categorías */}
+      {showCategoriesManager && (
+        <ProductCategoriesManager
+          onClose={() => setShowCategoriesManager(false)}
+          onCategoryCreated={() => {
+            // Refrescar productos si es necesario
+            console.log('Nueva categoría creada');
+          }}
+        />
+      )}
     </div>
   );
 };

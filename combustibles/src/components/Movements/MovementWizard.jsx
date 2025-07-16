@@ -10,6 +10,7 @@ import { getActiveProducts } from '../../services/productsService';
 
 // Importar pasos del wizard
 import Step1_MovementType from './WizardSteps/Step1_MovementType';
+import Step2_Date from './WizardSteps/Step2_Date';
 import Step2_FuelType from './WizardSteps/Step2_FuelType';
 import Step3_Location from './WizardSteps/Step3_Location';
 import Step4_Quantity from './WizardSteps/Step4_Quantity';
@@ -142,7 +143,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
       steps = 8;
     }
-    // Para salidas: incluye vehículo, sin destino (1,2,3,4,5,7,8)
+    // Para salidas: nuevo flujo optimizado (1,2,3,4,5,6,7) = 7 pasos
+    // 1=tipo, 2=fecha, 3=producto, 4=vehículo, 5=cantidad, 6=precio, 7=resumen
     else if (formData.type === MOVEMENT_TYPES.SALIDA) {
       steps = 7;
     }
@@ -183,38 +185,29 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         isValid = !!formData.type;
         break;
       case 2:
-        isValid = !!formData.fuelType;
-        // 🔍 DEBUG: Log específico para fuelType
-        console.log('🔍 [STEP 2 VALIDATION]', {
-          fuelType: formData.fuelType,
-          isValid,
-          formData: formData
-        });
+        // Para SALIDA: validar fecha (paso 2)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          isValid = !!formData.effectiveDate;
+        } else {
+          // Para otros tipos: validar fuelType (paso 2 original)
+          isValid = !!formData.fuelType;
+        }
         break;
       case 3:
-        if (formData.type === MOVEMENT_TYPES.ENTRADA) {
+        // Para SALIDA: validar producto/fuelType (paso 3)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          isValid = !!formData.fuelType;
+        } else if (formData.type === MOVEMENT_TYPES.ENTRADA) {
           isValid = !!formData.supplierName; // Proveedor para entradas
         } else {
-          isValid = !!formData.location; // Ubicación origen para salidas/transferencias
+          isValid = !!formData.location; // Ubicación origen para transferencias/ajustes
         }
         break;
       case '3b': // Paso adicional para destino en entradas
         isValid = !!formData.destinationLocation;
         break;
       case 4:
-        isValid = formData.quantity && parseFloat(formData.quantity) > 0;
-        // DEBUG: Log temporal para identificar problema
-        console.log('🔍 [DEBUG Step 4] Validación cantidad:', {
-          step: currentStep,
-          quantity: formData.quantity,
-          parsedQuantity: parseFloat(formData.quantity),
-          isQuantityValid: !!formData.quantity,
-          isParsedValid: parseFloat(formData.quantity) > 0,
-          finalValidation: isValid,
-          formData: formData
-        });
-        break;
-      case 5:
+        // Para SALIDA: validar vehículo (paso 4)
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
           isValid = !!formData.vehicleId;
           
@@ -229,18 +222,41 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
             }
           }
         } else {
-          isValid = true; // Skip para otros tipos
+          // Para otros tipos: validar cantidad (paso 4 original)
+          isValid = formData.quantity && parseFloat(formData.quantity) > 0;
+        }
+        break;
+      case 5:
+        // Para SALIDA: validar cantidad (paso 5)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          isValid = formData.quantity && parseFloat(formData.quantity) > 0;
+        } else {
+          // Para otros tipos: validar vehículo si es necesario
+          if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
+            isValid = true; // Skip vehículo para transferencias
+          } else {
+            isValid = true; // Skip para otros tipos
+          }
         }
         break;
       case 6:
-        if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
+        // Para SALIDA: validar precio (paso 6)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          isValid = !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+        } else if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
           isValid = !!formData.destinationLocation;
         } else {
           isValid = true; // Skip para otros tipos
         }
         break;
       case 7:
-        isValid = !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+        // Para SALIDA: resumen (paso 7)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          isValid = true; // Resumen siempre válido si llegamos aquí
+        } else {
+          // Para otros tipos: validar precio (paso 7 original)
+          isValid = !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+        }
         break;
       case 8:
         isValid = true; // Resumen siempre válido si llegamos aquí
@@ -286,13 +302,18 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       // Determinar el siguiente paso basado en tipo de movimiento
       let nextStepNumber = currentStep + 1;
       
+      // ✅ NUEVA LÓGICA PARA SALIDAS: flujo directo sin saltos
+      if (formData.type === MOVEMENT_TYPES.SALIDA) {
+        // Flujo directo: 1→2→3→4→5→6→7
+        nextStepNumber = currentStep + 1;
+      }
       // Lógica especial para entradas (agregar paso 3b)
-      if (currentStep === 3 && formData.type === MOVEMENT_TYPES.ENTRADA) {
+      else if (currentStep === 3 && formData.type === MOVEMENT_TYPES.ENTRADA) {
         nextStepNumber = '3b'; // Ir al paso de destino para entradas
       } else if (currentStep === '3b') {
         nextStepNumber = 4; // Del paso 3b ir al paso 4 (cantidad)
       }
-      // Saltar pasos no aplicables para otros tipos
+      // Saltar pasos no aplicables para otros tipos (transferencias, ajustes)
       else if (currentStep === 4 && formData.type !== MOVEMENT_TYPES.SALIDA) {
         // Para transferencias: ir al paso 6 (destino)
         // Para entradas: ir al paso 7 (detalles) - ya pasamos por 3b
@@ -305,28 +326,28 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           nextStepNumber = 7; // Ajustes: del paso 4 al paso 7
         }
       }
-      else if (currentStep === 5 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
+      else if (currentStep === 5 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA && formData.type !== MOVEMENT_TYPES.SALIDA) {
         nextStepNumber = 7;
       }
       
       console.log('🔍 [DEBUG Navigation] Navegando:', {
         from: currentStep,
         to: nextStepNumber,
-        totalSteps: totalSteps
+        totalSteps: totalSteps,
+        movementType: formData.type
       });
       
       // Mapear pasos lógicos a números para navegación
       const getLogicalStepNumber = (step) => {
+        // ✅ Mapeo específico para SALIDAS: 1→2→3→4→5→6→7 (7 pasos lineales)
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          return step; // Sin mapeo especial, flujo directo
+        }
+        
         // Mapeo específico para entradas: 1→2→3→3b→4→7→8 (7 pasos)
         if (formData.type === MOVEMENT_TYPES.ENTRADA) {
           const entryMapping = { 1: 1, 2: 2, 3: 3, '3b': 4, 4: 5, 7: 6, 8: 7 };
           return entryMapping[step] || step;
-        }
-        
-        // Mapeo específico para salidas: 1→2→3→4→5→7→8 (7 pasos)
-        if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          const exitMapping = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 7: 6, 8: 7 };
-          return exitMapping[step] || step;
         }
         
         // Mapeo para otros tipos (transferencias, ajustes)
@@ -354,8 +375,13 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     if (currentStep > 1 && currentStep !== '3b') {
       let prevStepNumber = currentStep - 1;
       
-      // Lógica especial para navegación hacia atrás
-      if (currentStep === 4 && formData.type === MOVEMENT_TYPES.ENTRADA) {
+      // ✅ NUEVA LÓGICA PARA SALIDAS: navegación lineal hacia atrás
+      if (formData.type === MOVEMENT_TYPES.SALIDA) {
+        // Flujo directo hacia atrás: 7→6→5→4→3→2→1
+        prevStepNumber = currentStep - 1;
+      }
+      // Lógica especial para navegación hacia atrás en otros tipos
+      else if (currentStep === 4 && formData.type === MOVEMENT_TYPES.ENTRADA) {
         prevStepNumber = '3b'; // Del paso 4 al 3b para entradas
       } else if (currentStep === 7 && formData.type === MOVEMENT_TYPES.ENTRADA) {
         prevStepNumber = 4; // Del paso 7 al 4 para entradas (saltamos vehículo y destino)
@@ -421,6 +447,28 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       isActive: !isTransitioning
     };
 
+    // ✅ NUEVA LÓGICA DE RENDERIZADO PARA SALIDAS
+    if (formData.type === MOVEMENT_TYPES.SALIDA) {
+      const exitStepComponents = {
+        1: <Step1_MovementType {...commonProps} />,
+        2: <Step2_Date {...commonProps} />,           // PASO 2: Fecha
+        3: <Step2_FuelType {...commonProps} />,       // PASO 3: Producto (reutiliza Step2_FuelType)
+        4: <Step5_Vehicle {...commonProps} />,        // PASO 4: Vehículo (reutiliza Step5_Vehicle)
+        5: <Step4_Quantity {...commonProps} />,       // PASO 5: Cantidad (reutiliza Step4_Quantity)
+        6: <Step7_Details {...commonProps} />,        // PASO 6: Precio (reutiliza Step7_Details)
+        7: <Step8_Summary                             // PASO 7: Resumen
+             {...commonProps} 
+             onSubmit={handleSubmit} 
+             isLoading={isLoading}
+             onCommentsChange={(comments) => updateFormData('additionalComments', comments)}
+             confirmChecked={confirmChecked}
+             onConfirmChange={setConfirmChecked}
+           />
+      };
+      return exitStepComponents[currentStep] || <div>Paso no encontrado</div>;
+    }
+
+    // Lógica original para otros tipos de movimientos
     const stepComponents = {
       1: <Step1_MovementType {...commonProps} />,
       2: <Step2_FuelType {...commonProps} />,
@@ -448,16 +496,15 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const totalSteps = getTotalSteps();
   // Mapear pasos para la barra de progreso
   const getLogicalStepNumber = (step) => {
+    // ✅ Mapeo específico para SALIDAS: 1→2→3→4→5→6→7 (7 pasos lineales)
+    if (formData.type === MOVEMENT_TYPES.SALIDA) {
+      return step; // Sin mapeo especial, flujo directo
+    }
+    
     // Mapeo específico para entradas: 1→2→3→3b→4→7→8 (7 pasos)
     if (formData.type === MOVEMENT_TYPES.ENTRADA) {
       const entryMapping = { 1: 1, 2: 2, 3: 3, '3b': 4, 4: 5, 7: 6, 8: 7 };
       return entryMapping[step] || step;
-    }
-    
-    // Mapeo específico para salidas: 1→2→3→4→5→7→8 (7 pasos)
-    if (formData.type === MOVEMENT_TYPES.SALIDA) {
-      const exitMapping = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 7: 6, 8: 7 };
-      return exitMapping[step] || step;
     }
     
     // Mapeo para otros tipos (transferencias, ajustes)
@@ -499,7 +546,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         {/* Header con título y botón de cerrar */}
         <div className="wizard-header typeform-mode">
           <div className="wizard-title">
-            <h3>🧙‍♂️ Asistente de Movimientos</h3>
             <button className="modal-close" onClick={onClose}>✕</button>
           </div>
         </div>

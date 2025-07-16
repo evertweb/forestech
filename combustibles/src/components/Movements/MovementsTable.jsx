@@ -49,7 +49,6 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
     switch (fuelType?.toLowerCase()) {
       case 'diesel': return '🚛';
       case 'gasolina': return '🚗';
-      case 'acpm': return '🚚';
       case 'lubricante': return '🛢️';
       default: return '⛽';
     }

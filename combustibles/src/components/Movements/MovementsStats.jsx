@@ -184,7 +184,6 @@ const MovementsStats = ({ stats, filters }) => {
                 switch (fuel?.toLowerCase()) {
                   case 'diesel': return '🚛';
                   case 'gasolina': return '🚗';
-                  case 'acpm': return '🚚';
                   case 'lubricante': return '🛢️';
                   default: return '⛽';
                 }

@@ -30,9 +30,10 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
     const requiredFuelType = formData.fuelType.toLowerCase();
     return vehicles.filter(vehicle => {
       const vehicleFuelType = vehicle.fuelType?.toLowerCase() || '';
-      return vehicle.status === 'active' && 
-             (requiredFuelType === 'diesel' && vehicleFuelType === 'diesel') ||
-             (requiredFuelType === 'gasolina' && vehicleFuelType === 'gasolina');
+      return vehicle.status === 'activo' && (
+        (requiredFuelType === 'diesel' && vehicleFuelType === 'diesel') ||
+        (requiredFuelType === 'gasolina' && vehicleFuelType === 'gasolina')
+      );
     });
   }, [formData.fuelType, vehicles]);
 
@@ -132,7 +133,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
         <div className="typeform-layout">
           <div className="typeform-question">
             <h2>🚫 No hay vehículos compatibles</h2>
-            <p>No se encontraron vehículos que usen {formData.fuelType}</p>
+            <p>No se encontraron vehículos activos que usen {formData.fuelType}</p>
           </div>
         </div>
       </div>

@@ -71,9 +71,36 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
     return (
       <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
         <div className="typeform-layout">
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>🔄 Cargando productos disponibles...</p>
+          <div className="typeform-question">
+            <h2>⛽ Crear producto diesel manualmente</h2>
+            <p>No hay productos disponibles. Creemos uno temporalmente.</p>
+          </div>
+          
+          <div className="typeform-options">
+            <div
+              className="typeform-option"
+              onClick={() => handleFuelSelection('DIESEL', {
+                name: 'DIESEL',
+                displayName: 'Diesel 🚛',
+                icon: '🚛',
+                description: 'Combustible diesel para vehículos pesados',
+                defaultPrice: 12500
+              })}
+            >
+              <div className="typeform-option-icon">🚛</div>
+              <div className="typeform-option-content">
+                <h4>Diesel 🚛</h4>
+                <p>Combustible diesel para vehículos pesados</p>
+                <div className="fuel-price">
+                  <span className="price-value">$12,500 COP/galón</span>
+                </div>
+              </div>
+              <div className="typeform-option-selector">
+                <div className="typeform-check">
+                  <span className="typeform-check-icon">✓</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

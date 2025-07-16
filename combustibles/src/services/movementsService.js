@@ -48,16 +48,46 @@ export const createMovement = async (movementData) => {
     // Validar datos requeridos
     validateMovementData(movementData);
 
-    // Preparar datos del movimiento
+    // ✅ PREPARAR DATOS DEL MOVIMIENTO EN EL ORDEN OPTIMIZADO PARA SALIDAS
+    // Orden: fecha → tipo → producto → vehículo → cantidad → precio → detalles
     const movement = {
-      ...movementData,
+      // 1. FECHA (efectiveDate) - Campo principal para ordenamiento
+      effectiveDate: movementData.effectiveDate || serverTimestamp(),
+      
+      // 2. TIPO DE MOVIMIENTO
+      type: movementData.type,
+      
+      // 3. PRODUCTO (fuelType) 
+      fuelType: movementData.fuelType,
+      
+      // 4. VEHÍCULO (para salidas)
+      ...(movementData.type === MOVEMENT_TYPES.SALIDA && movementData.vehicleId && {
+        vehicleId: movementData.vehicleId,
+        currentHours: movementData.currentHours || null
+      }),
+      
+      // 5. CANTIDAD
+      quantity: movementData.quantity,
+      
+      // 6. PRECIO
+      unitPrice: movementData.unitPrice,
+      totalValue: calculateMovementValue(movementData),
+      
+      // 7. UBICACIONES (según tipo de movimiento)
+      ...(movementData.location && { location: movementData.location }),
+      ...(movementData.destinationLocation && { destinationLocation: movementData.destinationLocation }),
+      ...(movementData.supplierName && { supplierName: movementData.supplierName }),
+      
+      // 8. DETALLES ADICIONALES
+      ...(movementData.description && { description: movementData.description }),
+      ...(movementData.reference && { reference: movementData.reference }),
+      ...(movementData.additionalComments && { additionalComments: movementData.additionalComments }),
+      
+      // 9. METADATOS DEL SISTEMA (al final)
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      status: MOVEMENT_STATUS.COMPLETADO, // Marcar como completado ya que se actualiza inventario automáticamente
-      approvedAt: serverTimestamp(), // Marcar como aprobado automáticamente
-      // Campos calculados
-      totalValue: calculateMovementValue(movementData),
-      effectiveDate: movementData.effectiveDate || serverTimestamp()
+      status: MOVEMENT_STATUS.COMPLETADO,
+      approvedAt: serverTimestamp()
     };
 
     // Crear movimiento en transacción para actualizar inventario

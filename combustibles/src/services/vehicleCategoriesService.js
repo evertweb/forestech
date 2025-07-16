@@ -133,12 +133,6 @@ export const updateCategory = async (categoryId, updates) => {
       throw new Error('ID de categoría requerido');
     }
 
-    // Validar si es una categoría predeterminada
-    const isDefault = DEFAULT_VEHICLE_CATEGORIES.some(cat => cat.id === categoryId);
-    if (isDefault) {
-      throw new Error('No se pueden modificar las categorías predeterminadas');
-    }
-
     // Validar datos si se está actualizando la estructura
     if (updates.name || updates.fuelTypes || updates.fields) {
       const validation = validateCategory({ ...updates, id: categoryId });
@@ -181,12 +175,6 @@ export const deleteCategory = async (categoryId) => {
   try {
     if (!categoryId) {
       throw new Error('ID de categoría requerido');
-    }
-
-    // Validar si es una categoría predeterminada
-    const isDefault = DEFAULT_VEHICLE_CATEGORIES.some(cat => cat.id === categoryId);
-    if (isDefault) {
-      throw new Error('No se pueden eliminar las categorías predeterminadas');
     }
 
     // Verificar si hay vehículos usando esta categoría

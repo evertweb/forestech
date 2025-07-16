@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInvitation, getInvitations, cancelInvitation } from '../../firebase/invitationService';
 import { ROLES } from '../../constants/roles';
+import DataReset from './DataReset';
 import './Admin.css';
 
 const AdminMain = () => {
@@ -158,6 +159,12 @@ const AdminMain = () => {
         >
           ⚙️ Configuración
         </button>
+        <button 
+          className={`tab-button ${activeTab === 'reset' ? 'active' : ''}`}
+          onClick={() => setActiveTab('reset')}
+        >
+          🔥 Reset de Datos
+        </button>
       </div>
 
       <div className="admin-content">
@@ -252,6 +259,10 @@ const AdminMain = () => {
               <p>Próximamente: Configuraciones generales, notificaciones, y parámetros del sistema.</p>
             </div>
           </div>
+        )}
+
+        {activeTab === 'reset' && (
+          <DataReset />
         )}
       </div>
 

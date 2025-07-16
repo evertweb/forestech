@@ -74,14 +74,15 @@ const DashboardLayout = ({ children }) => {
       description: 'Análisis y reportes',
       requiredPermission: 'canViewReports'
     },
-    {
+    // Migración pausada temporalmente en producción
+    ...(import.meta.env.MODE === 'development' ? [{
       id: 'migration',
       path: '/migracion',
       name: 'Migración',
       icon: '🔄',
       description: 'Datos históricos',
       requiredPermission: 'admin'
-    },
+    }] : []),
     {
       id: 'admin',
       path: '/admin',

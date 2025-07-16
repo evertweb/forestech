@@ -4,7 +4,7 @@
  */
 
 export const PRODUCT_TYPES = {
-  ACPM: 'ACPM',
+  DIESEL: 'DIESEL',
   GASOLINA: 'GASOLINA', 
   ACEITE_HIDRAULICO: 'ACEITE_HIDRAULICO',
   ACEITE_MOTOR_20W50: 'ACEITE_MOTOR_20W50',
@@ -16,9 +16,9 @@ export const PRODUCT_TYPES = {
 };
 
 export const PRODUCT_INFO = {
-  [PRODUCT_TYPES.ACPM]: {
-    name: 'ACPM',
-    displayName: 'ACPM 🚛',
+  [PRODUCT_TYPES.DIESEL]: {
+    name: 'DIESEL',
+    displayName: 'Diesel 🚛',
     category: 'Combustible',
     unit: 'gal',
     defaultPrice: 12500,

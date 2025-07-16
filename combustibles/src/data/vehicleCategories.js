@@ -3,72 +3,8 @@
  * Permite crear, modificar y gestionar categorías dinámicamente
  */
 
-// Categorías predeterminadas básicas (solo como referencia inicial)
-export const DEFAULT_VEHICLE_CATEGORIES = [
-  {
-    id: 'maquinaria_pesada',
-    name: 'Maquinaria Pesada',
-    description: 'Excavadoras, bulldozers, cargadores, grúas',
-    icon: '🏗️',
-    color: '#FF6B35',
-    fuelTypes: ['Diesel', 'ACPM'],
-    fields: ['enginePower', 'operatingWeight', 'bucketCapacity']
-  },
-  {
-    id: 'transporte',
-    name: 'Transporte',
-    description: 'Camiones, camionetas, volquetas',
-    icon: '🚛',
-    color: '#2E86AB',
-    fuelTypes: ['Diesel', 'ACPM', 'Gasolina'],
-    fields: ['plateNumber', 'loadCapacity', 'enginePower']
-  },
-  {
-    id: 'herramientas_motorizadas',
-    name: 'Herramientas Motorizadas',
-    description: 'Motosierras, guadañas, fumigadoras',
-    icon: '🔧',
-    color: '#A23B72',
-    fuelTypes: ['Gasolina', 'Mixto'],
-    fields: ['enginePower', 'weight']
-  },
-  {
-    id: 'equipos_bombeo',
-    name: 'Equipos de Bombeo',
-    description: 'Motobombas, hidrolavadoras, plantas eléctricas',
-    icon: '💧',
-    color: '#F18F01',
-    fuelTypes: ['Diesel', 'Gasolina'],
-    fields: ['flow', 'pressure', 'enginePower']
-  },
-  {
-    id: 'vehiculos_ligeros',
-    name: 'Vehículos Ligeros',
-    description: 'Motocicletas, cuatrimotos, vehículos de apoyo',
-    icon: '🏍️',
-    color: '#C73E1D',
-    fuelTypes: ['Gasolina'],
-    fields: ['plateNumber', 'enginePower']
-  },
-  {
-    id: 'agricola',
-    name: 'Agrícola/Forestal',
-    description: 'Tractores, asperjadoras, equipos forestales',
-    icon: '🚜',
-    color: '#2F7D32',
-    fuelTypes: ['Diesel', 'ACPM'],
-    fields: ['enginePower', 'hasHourMeter', 'implementType']
-  },
-  {
-    id: 'otros',
-    name: 'Otros',
-    description: 'Equipos especializados y otros vehículos',
-    icon: '⚙️',
-    color: '#616161',
-    fuelTypes: ['Diesel', 'Gasolina', 'ACPM', 'Mixto'],
-    fields: ['enginePower']
-  }
-];
+// Categorías iniciales (totalmente editables por admin)
+export const DEFAULT_VEHICLE_CATEGORIES = [];
 
 // Estados de vehículos
 export const VEHICLE_STATUS = {
@@ -83,11 +19,10 @@ export const VEHICLE_STATUS = {
 export const FUEL_TYPES = {
   DIESEL: 'Diesel',
   GASOLINA: 'Gasolina',
-  ACPM: 'ACPM',
   MIXTO: 'Mixto'
 };
 
-// Campos adicionales disponibles para categorías
+// Campos adicionales disponibles para categorías (simplificados)
 export const AVAILABLE_FIELDS = [
   {
     key: 'plateNumber',
@@ -103,27 +38,15 @@ export const AVAILABLE_FIELDS = [
   },
   {
     key: 'fuelCapacity',
-    label: 'Capacidad de Combustible (Litros)',
+    label: 'Capacidad de Combustible (L)',
     type: 'number',
     icon: '⛽'
   },
   {
-    key: 'operatingWeight',
-    label: 'Peso Operativo (Toneladas)',
-    type: 'number',
-    icon: '⚖️'
-  },
-  {
     key: 'loadCapacity',
-    label: 'Capacidad de Carga (Toneladas)',
+    label: 'Capacidad de Carga (Ton)',
     type: 'number',
     icon: '📦'
-  },
-  {
-    key: 'bucketCapacity',
-    label: 'Capacidad de Balde (m³)',
-    type: 'number',
-    icon: '🪣'
   },
   {
     key: 'hasHourMeter',
@@ -137,30 +60,6 @@ export const AVAILABLE_FIELDS = [
     type: 'number',
     icon: '🕐',
     dependsOn: 'hasHourMeter'
-  },
-  {
-    key: 'implementType',
-    label: 'Tipo de Implemento',
-    type: 'text',
-    icon: '🔧'
-  },
-  {
-    key: 'flow',
-    label: 'Caudal (L/min)',
-    type: 'number',
-    icon: '💧'
-  },
-  {
-    key: 'pressure',
-    label: 'Presión (PSI)',
-    type: 'number',
-    icon: '💨'
-  },
-  {
-    key: 'weight',
-    label: 'Peso (Kg)',
-    type: 'number',
-    icon: '⚖️'
   }
 ];
 
