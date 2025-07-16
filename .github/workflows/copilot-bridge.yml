@@ -3,7 +3,7 @@ name: Copilot Agent Bridge - Detección de Errores y Delegación
 on:
   # 🔄 NUEVO ORDEN: Solo se ejecuta cuando el deploy falla
   workflow_run:
-    workflows: ["Deploy Forestech to Firebase"]
+    workflows: ["Deploy Forestech to Firebase (Optimized)"]
     types:
       - completed
     branches: [main]
