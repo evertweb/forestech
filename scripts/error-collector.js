@@ -48,8 +48,8 @@ class ErrorCollector {
     console.log('🔍 Recolectando errores de linting...');
     
     const commands = [
-      { cmd: 'npm run lint:alimentacion', name: 'Alimentacion Lint' },
-      { cmd: 'npm run lint:combustibles', name: 'Combustibles Lint' }
+      { cmd: 'npm run lint --workspace=alimentacion', name: 'Alimentacion Lint' },
+      { cmd: 'npm run lint --workspace=combustibles', name: 'Combustibles Lint' }
     ];
 
     for (const { cmd, name } of commands) {
@@ -69,8 +69,8 @@ class ErrorCollector {
     console.log('🏗️ Recolectando errores de build...');
     
     const commands = [
-      { cmd: 'npm run build:alimentacion', name: 'Alimentacion Build' },
-      { cmd: 'npm run build:combustibles', name: 'Combustibles Build' }
+      { cmd: 'npm run build --workspace=alimentacion', name: 'Alimentacion Build' },
+      { cmd: 'npm run build --workspace=combustibles', name: 'Combustibles Build' }
     ];
 
     for (const { cmd, name } of commands) {

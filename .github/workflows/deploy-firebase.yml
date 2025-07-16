@@ -99,25 +99,36 @@ jobs:
         if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: |
           echo "Running error detection..."
-          node scripts/error-collector.js
           
-          if [ -f error-context.json ]; then
-            ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
-            echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
+          # Ejecutar error-collector.js y capturar el resultado
+          if node scripts/error-collector.js; then
+            echo "✅ Error detection script executed successfully"
             
-            if [ "$ERROR_STATUS" = "errors_detected" ]; then
-              echo "has-errors=true" >> $GITHUB_OUTPUT
-              ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
-              echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
-              echo "🚨 $ERROR_COUNT errors detected - will delegate to Copilot Agent"
-              exit 1
+            # Verificar si se encontraron errores
+            if [ -f error-context.json ]; then
+              ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
+              echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
+              
+              if [ "$ERROR_STATUS" = "errors_detected" ]; then
+                echo "has-errors=true" >> $GITHUB_OUTPUT
+                ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
+                echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+                echo "🚨 $ERROR_COUNT errors detected - will delegate to Copilot Agent"
+                exit 1
+              else
+                echo "has-errors=false" >> $GITHUB_OUTPUT
+                echo "✅ No errors detected - proceeding with optimized build"
+              fi
             else
               echo "has-errors=false" >> $GITHUB_OUTPUT
-              echo "✅ No errors detected - proceeding with optimized build"
+              echo "✅ Error detection completed successfully"
             fi
           else
-            echo "has-errors=false" >> $GITHUB_OUTPUT
-            echo "✅ Error detection completed successfully"
+            echo "❌ Error detection script failed - treating as errors found"
+            echo "has-errors=true" >> $GITHUB_OUTPUT
+            echo "error-count=1" >> $GITHUB_OUTPUT
+            echo "🚨 Error detection failed - will delegate to Copilot Agent"
+            exit 1
           fi
         continue-on-error: false
 
@@ -245,7 +256,7 @@ jobs:
     name: Activate Copilot Bridge
     runs-on: ubuntu-latest
     needs: [setup, error-detection]
-    if: failure() && needs.error-detection.outputs.has-errors == 'true'
+    if: failure() || needs.error-detection.outputs.has-errors == 'true'
     steps:
       - name: 🚨 Trigger Copilot Bridge
         run: |
