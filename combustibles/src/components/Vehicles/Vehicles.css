@@ -47,28 +47,174 @@
   min-height: 100vh;
 }
 
+/* ============ HEADER CON PESTAÑAS ============ */
 .vehicles-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-lg);
   flex-wrap: wrap;
-  gap: var(--spacing-md);
+}
+
+.header-title {
+  flex: 1;
+  min-width: 300px;
 }
 
 .header-title h2 {
-  color: var(--forest-primary);
   font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 var(--spacing-xs) 0;
+  color: var(--forest-primary-dark);
+  margin: 0 0 var(--spacing-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .header-title p {
   color: #6b7280;
+  font-size: 1.1rem;
   margin: 0;
-  font-size: 1rem;
+  line-height: 1.5;
 }
 
+/* Navegación por pestañas */
+.tabs-navigation {
+  display: flex;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: var(--transition);
+  border-right: 1px solid rgba(5, 150, 105, 0.1);
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: center;
+}
+
+.tab-btn:last-child {
+  border-right: none;
+}
+
+.tab-btn:hover {
+  background: rgba(5, 150, 105, 0.05);
+  color: var(--forest-primary);
+}
+
+.tab-btn.active {
+  background: var(--forest-primary);
+  color: white;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tab-btn.active:hover {
+  background: var(--forest-primary-dark);
+}
+
+/* Acciones de cada pestaña */
+.tab-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-md);
+}
+
+/* Contenido de pestaña categorías */
+.categories-tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-description {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.tab-description h3 {
+  color: var(--forest-primary-dark);
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.tab-description p {
+  color: #374151;
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ RESPONSIVE PARA PESTAÑAS ============ */
+@media (max-width: 768px) {
+  .vehicles-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .tabs-navigation {
+    width: 100%;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: auto;
+    font-size: 0.9rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .header-title h2 {
+    font-size: 1.75rem;
+  }
+
+  .header-title p {
+    font-size: 1rem;
+  }
+
+  .tab-description {
+    padding: var(--spacing-md);
+  }
+
+  .tab-description h3 {
+    font-size: 1.25rem;
+  }
+
+  .tab-description p {
+    font-size: 1rem;
+  }
+}
+
+/* ============ ESTILOS ORIGINALES MANTENIDOS ============ */
+
+/* Estilos para botones de vehículos - ahora en tab-actions */
 .btn-create-vehicle {
   background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;

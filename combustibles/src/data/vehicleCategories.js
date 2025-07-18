@@ -22,44 +22,31 @@ export const FUEL_TYPES = {
   MIXTO: 'Mixto'
 };
 
-// Campos adicionales disponibles para categorías (simplificados)
+// Campos esenciales disponibles para categorías (simplificados)
 export const AVAILABLE_FIELDS = [
   {
     key: 'plateNumber',
     label: 'Número de Placa',
     type: 'text',
-    icon: '🏷️'
-  },
-  {
-    key: 'enginePower',
-    label: 'Potencia del Motor (HP)',
-    type: 'number',
-    icon: '⚡'
-  },
-  {
-    key: 'fuelCapacity',
-    label: 'Capacidad de Combustible (L)',
-    type: 'number',
-    icon: '⛽'
-  },
-  {
-    key: 'loadCapacity',
-    label: 'Capacidad de Carga (Ton)',
-    type: 'number',
-    icon: '📦'
+    icon: '🏷️',
+    required: true,
+    description: 'Identificación única del vehículo'
   },
   {
     key: 'hasHourMeter',
-    label: 'Tiene Horómetro',
+    label: 'Verificación de Horómetro',
     type: 'boolean',
-    icon: '⏰'
+    icon: '⏰',
+    required: false,
+    description: 'Registro de horas de funcionamiento'
   },
   {
-    key: 'currentHours',
-    label: 'Horas Actuales',
-    type: 'number',
-    icon: '🕐',
-    dependsOn: 'hasHourMeter'
+    key: 'uniqueCode',
+    label: 'Código Único',
+    type: 'text',
+    icon: '🔢',
+    required: true,
+    description: 'Código interno de identificación'
   }
 ];
 
@@ -109,9 +96,21 @@ export const validateCategory = (category) => {
   if (category.name && category.name.length < 2) {
     errors.push('Nombre debe tener al menos 2 caracteres');
   }
+
+  if (!category.uniqueCode || typeof category.uniqueCode !== 'string') {
+    errors.push('Código único requerido y debe ser texto');
+  }
+
+  if (category.uniqueCode && category.uniqueCode.length < 3) {
+    errors.push('Código único debe tener al menos 3 caracteres');
+  }
   
   if (category.fuelTypes && !Array.isArray(category.fuelTypes)) {
     errors.push('Tipos de combustible debe ser un array');
+  }
+
+  if (category.fuelTypes && category.fuelTypes.length === 0) {
+    errors.push('Debe seleccionar al menos un tipo de combustible');
   }
   
   if (category.fields && !Array.isArray(category.fields)) {

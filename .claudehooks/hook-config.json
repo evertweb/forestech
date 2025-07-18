@@ -1,0 +1,41 @@
+{
+  "enabled": true,
+  "verbose": false,
+  "timing": true,
+  "hooks": {
+    "userPromptSubmit": {
+      "enabled": true,
+      "priority": 1
+    },
+    "contextSwitcher": {
+      "enabled": true,
+      "priority": 2
+    },
+    "taskClassifier": {
+      "enabled": true,
+      "priority": 3
+    },
+    "directoryValidator": {
+      "enabled": true,
+      "priority": 4
+    },
+    "shellOptimizer": {
+      "enabled": true,
+      "priority": 5
+    },
+    "patternLogger": {
+      "enabled": true,
+      "priority": 6
+    }
+  },
+  "execution": {
+    "timeout": 30000,
+    "maxRetries": 3,
+    "parallelExecution": true
+  },
+  "reporting": {
+    "enabled": true,
+    "detailedLogs": false,
+    "performanceMetrics": true
+  }
+}

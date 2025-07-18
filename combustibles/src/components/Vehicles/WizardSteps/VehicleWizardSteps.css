@@ -140,7 +140,7 @@
 .typeform-options {
   display: grid;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem; /* Aumentar margen inferior para evitar que se corte con el footer */
 }
 
 .typeform-option {
@@ -260,6 +260,7 @@
 .category-grid {
   grid-template-columns: 1fr;
   gap: 1rem;
+  margin-bottom: 2rem; /* Agregar margen inferior para evitar solapamiento */
 }
 
 @media (min-width: 768px) {
@@ -272,11 +273,13 @@
 .fuel-options {
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  margin-bottom: 2rem; /* Agregar margen inferior para evitar solapamiento */
 }
 
 @media (max-width: 768px) {
   .fuel-options {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
@@ -938,4 +941,79 @@
 
 .manage-categories-section:hover .wizard-btn-outline {
   animation: none;
+}
+
+/* ============ MEJORAS DE LAYOUT Y ESPACIADO ============ */
+
+/* Sección para gestionar categorías */
+.manage-categories-section {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(59, 130, 246, 0.02);
+  border-radius: 12px;
+  border: 1px dashed rgba(59, 130, 246, 0.3);
+}
+
+.manage-hint {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Separación extra para evitar solapamiento con footer */
+.step-category .typeform-layout,
+.step-technical .typeform-layout {
+  padding-bottom: 3rem;
+}
+
+/* Asegurar que las opciones tengan suficiente espacio */
+.category-option,
+.fuel-option {
+  min-height: 120px; /* Altura mínima para evitar recortes */
+}
+
+/* Navegación hint con mejor separación */
+.navigation-hint {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(100, 116, 139, 0.05);
+  border-radius: 8px;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.875rem;
+  border: 1px solid rgba(100, 116, 139, 0.1);
+}
+
+/* Preview mejorado */
+.step-preview {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Empty state mejorado */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: rgba(100, 116, 139, 0.02);
+  border-radius: 12px;
+  border: 2px dashed rgba(100, 116, 139, 0.2);
+  margin: 2rem 0;
+}
+
+.empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.empty-state h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
 }

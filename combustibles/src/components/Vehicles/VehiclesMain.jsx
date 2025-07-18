@@ -1,6 +1,6 @@
 /**
  * VehiclesMain - Componente principal del módulo de vehículos
- * Gestiona la visualización y filtrado de vehículos forestales
+ * Ahora incluye pestañas para gestionar vehículos y categorías por separado
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,15 +11,22 @@ import {
   VEHICLE_STATUS,
   FUEL_COMPATIBILITY 
 } from '../../services/vehiclesService';
+
+// Componentes de la pestaña Vehículos
 import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
 import VehicleWizard from './VehicleWizard';
-import VehicleCategoriesManager from './VehicleCategoriesManager';
 import MaintenanceModal from './MaintenanceModal';
+
+// Componentes de la pestaña Categorías
+import VehicleCategoriesManager from './VehicleCategoriesManager';
+
 import './Vehicles.css';
 
 const VehiclesMain = () => {
+  // Estado para manejo de pestañas
+  const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'categories'
   // Context y estado
   const { user, userProfile } = useCombustibles();
   const [vehicles, setVehicles] = useState([]);
@@ -41,7 +48,6 @@ const VehiclesMain = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
-  const [showCategoriesManager, setShowCategoriesManager] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
@@ -183,22 +189,150 @@ const VehiclesMain = () => {
 
   return (
     <div className="vehicles-main">
-      {/* Header */}
+      {/* Header con pestañas */}
       <div className="vehicles-header">
         <div className="header-title">
           <h2>🚜 Gestión de Vehículos</h2>
           <p>Administra la maquinaria y vehículos forestales</p>
         </div>
         
-        {canCreateVehicle && (
+        {/* Navegación por pestañas */}
+        <div className="tabs-navigation">
+          <button 
+            className={`tab-btn ${activeTab === 'vehicles' ? 'active' : ''}`}
+            onClick={() => setActiveTab('vehicles')}
+          >
+            🚜 Vehículos
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => setActiveTab('categories')}
+          >
+            🏷️ Categorías
+          </button>
+        </div>
+      </div>
+
+      {/* Contenido según pestaña activa */}
+      {activeTab === 'vehicles' && (
+        <VehiclesTabContent 
+          vehicles={vehicles}
+          stats={stats}
+          filters={filters}
+          searchTerm={searchTerm}
+          viewMode={viewMode}
+          filteredVehicles={filteredVehicles}
+          loading={loading}
+          error={error}
+          canCreateVehicle={canCreateVehicle}
+          canEditVehicle={canEditVehicle}
+          canManageVehicle={canManageVehicle}
+          user={user}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+          onSearchChange={setSearchTerm}
+          onViewModeChange={setViewMode}
+          onCreateVehicle={handleCreateVehicle}
+          onEditVehicle={handleEditVehicle}
+          onViewVehicle={handleViewVehicle}
+          onMaintenanceVehicle={handleMaintenanceVehicle}
+        />
+      )}
+
+      {activeTab === 'categories' && (
+        <CategoriesTabContent />
+      )}
+
+      {/* Modales que se mantienen globales */}
+      {showModal && (
+        <VehicleWizard
+          isOpen={showModal}
+          onClose={handleModalClose}
+          vehicle={modalMode === 'edit' ? selectedVehicle : null}
+          onSuccess={(vehicleData) => {
+            console.log('✅ Vehículo guardado:', vehicleData);
+            handleModalClose();
+          }}
+        />
+      )}
+
+      {showMaintenanceModal && (
+        <MaintenanceModal
+          isOpen={showMaintenanceModal}
+          onClose={handleModalClose}
+          vehicle={selectedVehicle}
+          onSuccess={() => {
+            handleModalClose();
+            // Los datos se actualizan automáticamente por la suscripción
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+// Componente para el contenido de la pestaña Vehículos
+const VehiclesTabContent = ({ 
+  vehicles, 
+  stats, 
+  filters, 
+  searchTerm, 
+  viewMode,
+  filteredVehicles,
+  loading,
+  error,
+  canCreateVehicle,
+  canEditVehicle,
+  canManageVehicle,
+  user,
+  onFilterChange,
+  onClearFilters,
+  onSearchChange,
+  onViewModeChange,
+  onCreateVehicle,
+  onEditVehicle,
+  onViewVehicle,
+  onMaintenanceVehicle
+}) => {
+
+  if (loading) {
+    return (
+      <div className="loading-state">
+        <div className="loading-spinner"></div>
+        <p>Cargando vehículos...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-state">
+        <div className="error-icon">⚠️</div>
+        <h3>Error al cargar vehículos</h3>
+        <p>{error}</p>
+        <button 
+          className="btn-retry"
+          onClick={() => window.location.reload()}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Botón crear vehículo */}
+      {canCreateVehicle && (
+        <div className="tab-actions">
           <button 
             className="btn-create-vehicle"
-            onClick={handleCreateVehicle}
+            onClick={onCreateVehicle}
           >
             ➕ Nuevo Vehículo
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Estadísticas */}
       {stats && (
@@ -211,12 +345,12 @@ const VehiclesMain = () => {
       {/* Filtros y búsqueda */}
       <VehiclesFilters
         filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
+        onFilterChange={onFilterChange}
+        onClearFilters={onClearFilters}
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        onSearchChange={onSearchChange}
         viewMode={viewMode}
-        onViewModeChange={setViewMode}
+        onViewModeChange={onViewModeChange}
         totalResults={filteredVehicles.length}
       />
 
@@ -239,7 +373,7 @@ const VehiclesMain = () => {
           {vehicles.length === 0 && canCreateVehicle && (
             <button 
               className="btn-create-first"
-              onClick={handleCreateVehicle}
+              onClick={onCreateVehicle}
             >
               ➕ Registrar Primer Vehículo
             </button>
@@ -249,48 +383,32 @@ const VehiclesMain = () => {
         <VehiclesList
           vehicles={filteredVehicles}
           viewMode={viewMode}
-          onEdit={canEditVehicle ? handleEditVehicle : null}
-          onView={handleViewVehicle}
-          onMaintenance={canManageVehicle ? handleMaintenanceVehicle : null}
+          onEdit={canEditVehicle ? onEditVehicle : null}
+          onView={onViewVehicle}
+          onMaintenance={canManageVehicle ? onMaintenanceVehicle : null}
           userRole={user?.role}
         />
       )}
+    </>
+  );
+};
 
-      {/* Modal Vehículo Nuevo - Wizard */}
-      {showModal && (
-        <VehicleWizard
-          isOpen={showModal}
-          onClose={handleModalClose}
-          vehicle={modalMode === 'edit' ? selectedVehicle : null}
-          onSuccess={(vehicleData) => {
-            console.log('✅ Vehículo guardado:', vehicleData);
-            handleModalClose();
-          }}
-        />
-      )}
-
-      {/* Gestor de Categorías */}
-      {showCategoriesManager && (
-        <VehicleCategoriesManager
-          onClose={() => setShowCategoriesManager(false)}
-          onCategoryCreated={() => {
-            // Refrescar datos si es necesario
-          }}
-        />
-      )}
-
-      {/* Modal Mantenimiento */}
-      {showMaintenanceModal && (
-        <MaintenanceModal
-          isOpen={showMaintenanceModal}
-          onClose={handleModalClose}
-          vehicle={selectedVehicle}
-          onSuccess={() => {
-            handleModalClose();
-            // Los datos se actualizan automáticamente por la suscripción
-          }}
-        />
-      )}
+// Componente para el contenido de la pestaña Categorías
+const CategoriesTabContent = () => {
+  return (
+    <div className="categories-tab-content">
+      <div className="tab-description">
+        <h3>🏷️ Gestión de Categorías de Vehículos</h3>
+        <p>Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal</p>
+      </div>
+      
+      <VehicleCategoriesManager
+        embedded={true} // Indicar que está embebido, no es modal
+        onClose={null} // No necesita close cuando está embebido
+        onCategoryCreated={() => {
+          // Refrescar datos si es necesario
+        }}
+      />
     </div>
   );
 };

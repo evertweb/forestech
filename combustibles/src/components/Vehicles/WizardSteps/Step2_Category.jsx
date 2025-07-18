@@ -3,8 +3,7 @@
  * Estilo conversacional con opciones visuales
  */
 
-import React, { useEffect, useCallback, useState } from 'react';
-import CategoryWizard from '../CategoryWizard';
+import React, { useEffect, useCallback } from 'react';
 import './VehicleWizardSteps.css';
 
 const Step2_Category = ({ 
@@ -14,8 +13,7 @@ const Step2_Category = ({
   isActive,
   extraData 
 }) => {
-  const { categories = [], onCategoriesUpdate } = extraData || {};
-  const [isCategoryWizardOpen, setIsCategoryWizardOpen] = useState(false);
+  const { categories = [], onRequestCategoryCreation } = extraData || {};
 
   // Navegación por teclado
   useEffect(() => {
@@ -40,24 +38,10 @@ const Step2_Category = ({
 
   // Manejar apertura del wizard de categorías
   const handleManageCategories = useCallback(() => {
-    setIsCategoryWizardOpen(true);
-  }, []);
-
-  // Manejar éxito en creación de categoría
-  const handleCategorySuccess = useCallback((newCategory) => {
-    console.log('✅ Nueva categoría creada:', newCategory);
-    setIsCategoryWizardOpen(false);
-    
-    // Actualizar la lista de categorías si hay callback
-    if (onCategoriesUpdate) {
-      onCategoriesUpdate();
+    if (onRequestCategoryCreation) {
+      onRequestCategoryCreation();
     }
-    
-    // Seleccionar automáticamente la nueva categoría
-    if (newCategory?.id) {
-      updateFormData('category', newCategory.id);
-    }
-  }, [onCategoriesUpdate, updateFormData]);
+  }, [onRequestCategoryCreation]);
 
   // Iconos por defecto según el tipo de categoría
   const getCategoryIcon = (category) => {
@@ -161,7 +145,7 @@ const Step2_Category = ({
               className="wizard-btn wizard-btn-secondary"
               onClick={handleManageCategories}
             >
-              Gestionar Categorías
+              🏷️ Ir a Gestión de Categorías
             </button>
           </div>
         )}
@@ -173,8 +157,9 @@ const Step2_Category = ({
               className="wizard-btn wizard-btn-outline"
               onClick={handleManageCategories}
             >
-              ⚙️ Gestionar Categorías
+              🏷️ Ir a Gestión de Categorías
             </button>
+            <p className="manage-hint">¿Necesitas crear una nueva categoría? Ve a la pestaña Categorías</p>
           </div>
         )}
 
@@ -207,13 +192,6 @@ const Step2_Category = ({
         </div>
 
       </div>
-
-      {/* CategoryWizard para gestionar categorías */}
-      <CategoryWizard
-        isOpen={isCategoryWizardOpen}
-        onClose={() => setIsCategoryWizardOpen(false)}
-        onSuccess={handleCategorySuccess}
-      />
     </div>
   );
 };

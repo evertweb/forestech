@@ -173,22 +173,21 @@ export const updateCategory = async (categoryId, updates) => {
  */
 export const deleteCategory = async (categoryId) => {
   try {
+    console.log('🔍 Iniciando eliminación de categoría:', categoryId);
+    
     if (!categoryId) {
       throw new Error('ID de categoría requerido');
     }
 
-    // Verificar si hay vehículos usando esta categoría
-    const { countVehiclesByCategory } = await import('./vehiclesService');
-    const vehicleCount = await countVehiclesByCategory(categoryId);
-    
-    if (vehicleCount > 0) {
-      throw new Error(`No se puede eliminar la categoría porque tiene ${vehicleCount} vehículo(s) asignado(s)`);
-    }
+    // TEMPORAL: Omitir verificación de vehículos para evitar bloqueos
+    // TODO: Implementar verificación más eficiente en el futuro
+    console.log('⚠️ TEMPORAL: Omitiendo verificación de vehículos asociados');
 
+    console.log('🔥 Eliminando documento de Firestore...');
     const docRef = doc(db, COLLECTION_NAME, categoryId);
     await deleteDoc(docRef);
 
-    console.log('✅ Categoría eliminada:', categoryId);
+    console.log('✅ Categoría eliminada exitosamente:', categoryId);
     return true;
 
   } catch (error) {

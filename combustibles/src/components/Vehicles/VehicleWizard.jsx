@@ -8,6 +8,7 @@ import { createVehicle, updateVehicle, VEHICLE_STATUS } from '../../services/veh
 import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
 import { FUEL_TYPES } from '../../data/vehicleCategories';
 import ForestechFormWizard from '../Shared/ForestechFormWizard';
+import CategoryWizard from './CategoryWizard';
 
 // Importar pasos del wizard
 import Step1_BasicInfo from './WizardSteps/Step1_BasicInfo';
@@ -79,6 +80,14 @@ const VehicleWizard = ({
   const handleCategoriesUpdate = useCallback(() => {
     loadCategories();
   }, [loadCategories]);
+
+  // Función para solicitar navegación a pestaña de categorías
+  const handleRequestCategoryCreation = useCallback(() => {
+    // Cerrar el wizard actual y comunicar al padre que debe cambiar a la pestaña de categorías
+    console.log('🔄 Solicitud para ir a la pestaña de categorías');
+    onClose(); // Cerrar el wizard
+    // El componente padre (VehiclesMain) podría manejar esto cambiando a activeTab = 'categories'
+  }, [onClose]);
 
   // Definir pasos del wizard
   const wizardSteps = [
@@ -252,7 +261,8 @@ const VehicleWizard = ({
       extraData={{ 
         categories, 
         loadingCategories,
-        onCategoriesUpdate: handleCategoriesUpdate 
+        onCategoriesUpdate: handleCategoriesUpdate,
+        onRequestCategoryCreation: handleRequestCategoryCreation
       }}
     />
   );

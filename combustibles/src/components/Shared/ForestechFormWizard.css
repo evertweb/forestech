@@ -267,12 +267,14 @@
 .forestech-wizard-content {
   flex: 1;
   padding: var(--wizard-spacing-xl);
+  padding-bottom: 120px; /* Espacio extra para evitar que el footer corte el contenido */
   position: relative;
   z-index: 5;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Cambiar de center a flex-start para evitar centrado que corta */
   justify-content: center;
   min-height: 0;
+  overflow-y: auto; /* Permitir scroll si el contenido es muy alto */
 }
 
 .wizard-step-container {

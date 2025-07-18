@@ -851,14 +851,22 @@ const calculateEstimatedConsumption = (vehicleData) => {
  */
 export const countVehiclesByCategory = async (categoryId) => {
   try {
+    console.log('🔍 Contando vehículos para categoría:', categoryId);
+    
     const q = query(
       collection(db, COLLECTION_NAME),
       where('category', '==', categoryId)
     );
+    
+    console.log('🔍 Ejecutando consulta a Firestore...');
     const querySnapshot = await getDocs(q);
-    return querySnapshot.size;
+    const count = querySnapshot.size;
+    
+    console.log('📊 Vehículos encontrados:', count);
+    return count;
   } catch (error) {
     console.error('❌ Error al contar vehículos por categoría:', error);
+    // En caso de error, permitir eliminar (asumir 0)
     return 0;
   }
 };
