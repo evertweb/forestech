@@ -407,7 +407,10 @@ const Auth = () => {
       style={{
         backgroundImage: backgroundImage ? 
           `linear-gradient(135deg, rgba(27, 67, 50, 0.8) 0%, rgba(45, 80, 22, 0.8) 50%, rgba(27, 67, 50, 0.8) 100%), ${backgroundImage}` :
-          'linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%)'
+          `radial-gradient(circle at 20% 20%, rgba(82, 165, 113, 0.4) 0%, transparent 50%),
+           radial-gradient(circle at 80% 80%, rgba(101, 200, 120, 0.4) 0%, transparent 50%),
+           radial-gradient(circle at 40% 60%, rgba(64, 130, 109, 0.4) 0%, transparent 50%),
+           linear-gradient(135deg, #1b4332 0%, #2d5016 25%, #40826d 50%, #2d5016 75%, #1b4332 100%)`
       }}
     >
       {imageLoading && (

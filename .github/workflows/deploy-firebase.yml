@@ -141,6 +141,7 @@ jobs:
     strategy:
       matrix:
         app: [alimentacion, combustibles]
+      fail-fast: false  # Don't fail entire matrix on single failure
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -171,10 +172,15 @@ jobs:
           restore-keys: |
             build-${{ matrix.app }}-${{ runner.os }}-
 
-      # ⚡ PARALLEL BUILD: Each app builds simultaneously
-      - name: Build ${{ matrix.app }}
-        run: npm run build --workspace=${{ matrix.app }}
+      # ⚡ PARALLEL BUILD: Each app builds simultaneously with optimization
+      - name: Build ${{ matrix.app }} with Retry
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          command: npm run build --workspace=${{ matrix.app }}
         env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
           VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
