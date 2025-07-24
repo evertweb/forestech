@@ -10,7 +10,6 @@ import './App.css';
 
 // Lazy load de los componentes de ruta
 const DashboardMain = lazy(() => import('./components/Dashboard/DashboardMain'));
-const MigrationPage = lazy(() => import('./components/Migration/MigrationPage'));
 const InventoryMain = lazy(() => import('./components/Inventory/InventoryMain'));
 const MovementsMain = lazy(() => import('./components/Movements/MovementsMain'));
 const VehiclesMain = lazy(() => import('./components/Vehicles/VehiclesMain'));
@@ -73,7 +72,6 @@ function AppContent() {
               <Route path="productos" element={<ProductsMain />} />
               <Route path="proveedores" element={<SuppliersMain />} />
               <Route path="reportes" element={<ReportsMain />} />
-              <Route path="migracion" element={<MigrationPage />} />
               <Route path="admin" element={<AdminMain />} />
             </Route>
           </Routes>

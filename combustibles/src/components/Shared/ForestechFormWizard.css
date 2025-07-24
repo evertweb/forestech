@@ -63,10 +63,11 @@
   background: linear-gradient(90deg, 
     var(--current-primary) 0%, 
     var(--current-primary-light) 100%);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px var(--current-primary-shadow);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 15px var(--current-primary-shadow);
   position: relative;
   overflow: hidden;
+  animation: progressPulse 3s ease-in-out infinite;
 }
 
 .typeform-progress-fill::after {
@@ -263,6 +264,43 @@
   transform: scale(1.1);
 }
 
+/* Indicadores de pasos */
+.step-indicators {
+  display: flex;
+  gap: var(--wizard-spacing-sm);
+  margin-top: var(--wizard-spacing-md);
+}
+
+.step-indicator {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: rgba(226, 232, 240, 0.5);
+  color: #64748b;
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  transition: var(--wizard-transition);
+  cursor: default;
+}
+
+.step-indicator.active {
+  background: var(--current-primary);
+  color: white;
+  border-color: var(--current-primary);
+  box-shadow: 0 0 0 4px rgba(var(--current-primary-rgb), 0.2);
+  transform: scale(1.1);
+}
+
+.step-indicator.completed {
+  background: var(--current-primary-light);
+  color: white;
+  border-color: var(--current-primary-light);
+}
+
 /* ============ CONTENIDO DEL WIZARD ============ */
 .forestech-wizard-content {
   flex: 1;
@@ -274,9 +312,86 @@
   align-items: flex-start; /* Cambiar de center a flex-start para evitar centrado que corta */
   justify-content: center;
   min-height: 0;
-  overflow-y: auto; /* Permitir scroll si el contenido es muy alto */
+  overflow: hidden; /* Ocultar overflow para transiciones horizontales */
 }
 
+/* Contenedor de pasos estilo Typeform */
+.typeform-steps-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Slides individuales de pasos */
+.wizard-step-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, opacity;
+}
+
+/* Estados de los slides */
+.wizard-step-slide.current {
+  opacity: 1;
+  visibility: visible;
+  z-index: 10;
+  animation: slideInCurrent 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.wizard-step-slide.past {
+  opacity: 0;
+  visibility: hidden;
+  z-index: 5;
+  transform: translateX(-30px) scale(0.98);
+}
+
+.wizard-step-slide.future {
+  opacity: 0;
+  visibility: hidden;
+  z-index: 5;
+  transform: translateX(30px) scale(0.98);
+}
+
+.wizard-step-slide.transitioning {
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Wrapper del contenido del paso */
+.step-content-wrapper {
+  width: 100%;
+  height: 100%;
+  max-height: calc(100vh - 300px); /* Altura máxima considerando header y footer */
+  overflow-y: auto;
+  padding-right: 8px; /* Espacio para scrollbar si es necesario */
+}
+
+/* Scroll personalizado para el contenido */
+.step-content-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.step-content-wrapper::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.3);
+  border-radius: 3px;
+}
+
+.step-content-wrapper::-webkit-scrollbar-thumb {
+  background: var(--current-primary);
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+.step-content-wrapper::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
+}
+
+/* Compatibilidad con wizard-step-container legacy */
 .wizard-step-container {
   width: 100%;
   max-width: 800px;
@@ -287,6 +402,87 @@
 .wizard-step-container.transitioning {
   opacity: 0.7;
   transform: translateY(10px);
+}
+
+/* Animaciones mejoradas para transiciones */
+@keyframes slideInCurrent {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(50px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-50px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-30px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(30px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+/* Animación de entrada para elementos del formulario */
+@keyframes fadeInUp {
+  from {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animación para la barra de progreso */
+@keyframes progressPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--current-primary-shadow);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--current-primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--current-primary-rgb), 0);
+  }
 }
 
 /* ============ ERROR GENERAL ============ */
@@ -395,6 +591,7 @@
   --current-primary-dark: var(--forestech-primary-dark);
   --current-primary-light: var(--forestech-primary-light);
   --current-primary-shadow: rgba(5, 150, 105, 0.4);
+  --current-primary-rgb: 5, 150, 105;
   --current-bg-pattern-1: rgba(5, 150, 105, 0.03);
   --current-bg-pattern-2: rgba(16, 185, 129, 0.03);
   --current-bg-pattern-3: rgba(52, 211, 153, 0.02);
@@ -406,6 +603,7 @@
   --current-primary-dark: var(--vehicles-primary-dark);
   --current-primary-light: var(--vehicles-primary-light);
   --current-primary-shadow: rgba(59, 130, 246, 0.4);
+  --current-primary-rgb: 59, 130, 246;
   --current-bg-pattern-1: rgba(59, 130, 246, 0.03);
   --current-bg-pattern-2: rgba(96, 165, 250, 0.03);
   --current-bg-pattern-3: rgba(147, 197, 253, 0.02);
@@ -417,6 +615,7 @@
   --current-primary-dark: var(--products-primary-dark);
   --current-primary-light: var(--products-primary-light);
   --current-primary-shadow: rgba(245, 158, 11, 0.4);
+  --current-primary-rgb: 245, 158, 11;
   --current-bg-pattern-1: rgba(245, 158, 11, 0.03);
   --current-bg-pattern-2: rgba(251, 191, 36, 0.03);
   --current-bg-pattern-3: rgba(252, 211, 77, 0.02);

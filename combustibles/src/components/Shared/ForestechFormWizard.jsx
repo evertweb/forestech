@@ -77,13 +77,18 @@ const ForestechFormWizard = ({
 
     if (currentStep < steps.length) {
       setIsTransitioning(true);
+      
+      // Transición más suave con animación escalonada
       setTimeout(() => {
         setCurrentStep(prev => prev + 1);
-        setIsTransitioning(false);
         if (onStepChange) {
           onStepChange(currentStep + 1, formData);
         }
-      }, 150);
+      }, 200);
+
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 400);
     }
   }, [currentStep, steps.length, validateCurrentStep, onStepChange, formData]);
 
@@ -91,13 +96,18 @@ const ForestechFormWizard = ({
   const goToPreviousStep = useCallback(() => {
     if (currentStep > 1) {
       setIsTransitioning(true);
+      
+      // Transición más suave con animación escalonada
       setTimeout(() => {
         setCurrentStep(prev => prev - 1);
-        setIsTransitioning(false);
         if (onStepChange) {
           onStepChange(currentStep - 1, formData);
         }
-      }, 150);
+      }, 200);
+
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 400);
     }
   }, [currentStep, onStepChange, formData]);
 
@@ -165,6 +175,19 @@ const ForestechFormWizard = ({
                 <span className="step-counter">{currentStep} de {steps.length}</span>
                 <h1 className="wizard-title">{title}</h1>
                 <p className="wizard-subtitle">{subtitle}</p>
+                
+                {/* Mini indicadores de pasos */}
+                <div className="step-indicators">
+                  {steps.map((step, index) => (
+                    <div 
+                      key={index}
+                      className={`step-indicator ${index + 1 === currentStep ? 'active' : ''} ${index + 1 < currentStep ? 'completed' : ''}`}
+                      title={step.title}
+                    >
+                      {index + 1 < currentStep ? '✓' : index + 1}
+                    </div>
+                  ))}
+                </div>
               </div>
               
               <button 
@@ -178,20 +201,46 @@ const ForestechFormWizard = ({
 
             {/* Contenido del paso actual */}
             <div className="forestech-wizard-content">
-              {CurrentStepComponent && (
-                <div className={`wizard-step-container ${isTransitioning ? 'transitioning' : ''}`}>
-                  <CurrentStepComponent
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                    setError={(field, message) => setErrors(prev => ({ ...prev, [field]: message }))}
-                    isActive={!isTransitioning}
-                    stepNumber={currentStep}
-                    totalSteps={steps.length}
-                    extraData={extraData}
-                  />
-                </div>
-              )}
+              <div className="typeform-steps-container">
+                {steps.map((step, index) => {
+                  const StepComponent = step.component;
+                  const stepNumber = index + 1;
+                  const isCurrentStep = stepNumber === currentStep;
+                  const isPastStep = stepNumber < currentStep;
+                  const isFutureStep = stepNumber > currentStep;
+                  
+                  return (
+                    <div 
+                      key={stepNumber}
+                      className={`
+                        wizard-step-slide 
+                        ${isCurrentStep ? 'current' : ''}
+                        ${isPastStep ? 'past' : ''}
+                        ${isFutureStep ? 'future' : ''}
+                        ${isTransitioning ? 'transitioning' : ''}
+                      `}
+                      style={{
+                        transform: `translateX(${(stepNumber - currentStep) * 100}%)`,
+                        opacity: isCurrentStep ? 1 : 0,
+                        visibility: isCurrentStep ? 'visible' : 'hidden'
+                      }}
+                    >
+                      <div className="step-content-wrapper">
+                        <StepComponent
+                          formData={formData}
+                          updateFormData={updateFormData}
+                          errors={errors}
+                          setError={(field, message) => setErrors(prev => ({ ...prev, [field]: message }))}
+                          isActive={isCurrentStep && !isTransitioning}
+                          stepNumber={stepNumber}
+                          totalSteps={steps.length}
+                          extraData={extraData}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Error general */}

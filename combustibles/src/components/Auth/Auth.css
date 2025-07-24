@@ -1,64 +1,113 @@
 /* combustibles/src/components/Auth/Auth.css */
-/* Estilos para el componente de autenticación */
+/* Estilos para el componente de autenticación - Pantalla completa con imagen de fondo */
 
 .auth-container {
   min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 20px;
+  overflow-y: auto;
+}
+
+/* Fallback si la imagen no carga */
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%);
+  z-index: -1;
 }
 
 .auth-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
-  max-width: 400px;
+  max-width: 450px;
   width: 100%;
-  animation: slideUp 0.5s ease-out;
+  animation: slideUp 0.6s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .auth-header {
   background: linear-gradient(135deg, #2d5016, #1b4332);
   color: white;
-  padding: 32px 24px;
+  padding: 40px 32px;
   text-align: center;
+  position: relative;
+}
+
+/* Efecto glassmorphism en el header */
+.auth-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
 }
 
 .auth-header h1 {
-  font-size: 2rem;
-  margin: 0 0 8px 0;
+  font-size: 2.2rem;
+  margin: 0 0 12px 0;
   font-weight: 700;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .auth-header h2 {
-  font-size: 1.25rem;
-  margin: 0 0 8px 0;
+  font-size: 1.35rem;
+  margin: 0 0 12px 0;
   font-weight: 600;
-  opacity: 0.9;
+  opacity: 0.95;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .auth-header p {
   margin: 0;
-  opacity: 0.8;
-  font-size: 0.9rem;
+  opacity: 0.85;
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .auth-form {
-  padding: 32px 24px;
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .form-group {
@@ -74,18 +123,23 @@
 
 .form-group input {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border: 2px solid rgba(229, 231, 235, 0.8);
+  border-radius: 12px;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #2d5016;
-  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+  box-shadow: 
+    0 0 0 3px rgba(45, 80, 22, 0.1),
+    0 2px 8px rgba(45, 80, 22, 0.1);
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
 }
 
 .form-group input:disabled {
@@ -105,14 +159,16 @@
 
 .auth-button {
   width: 100%;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
 }
 
 .auth-button:disabled {
@@ -126,23 +182,43 @@
 }
 
 .auth-button.primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 
+    0 6px 20px rgba(45, 80, 22, 0.3),
+    0 2px 6px rgba(45, 80, 22, 0.2);
+}
+
+.auth-button.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.auth-button.primary:hover::before {
+  left: 100%;
 }
 
 .auth-button.google {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   color: #374151;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(229, 231, 235, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  backdrop-filter: blur(5px);
 }
 
 .auth-button.google:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: rgba(249, 250, 251, 0.95);
+  border-color: rgba(209, 213, 219, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .auth-divider {
@@ -239,21 +315,87 @@
 @media (max-width: 480px) {
   .auth-container {
     padding: 16px;
+    background-attachment: scroll; /* Mejor rendimiento en móviles */
+  }
+  
+  .auth-card {
+    max-width: 100%;
+    margin: 0;
   }
   
   .auth-header {
-    padding: 24px 20px;
+    padding: 32px 24px;
   }
   
   .auth-form {
-    padding: 24px 20px;
+    padding: 32px 24px;
   }
   
   .auth-header h1 {
-    font-size: 1.75rem;
+    font-size: 2rem;
   }
   
   .auth-header h2 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .auth-container {
+    padding: 12px;
+  }
+  
+  .auth-header {
+    padding: 28px 20px;
+  }
+  
+  .auth-form {
+    padding: 28px 20px;
+  }
+  
+  .auth-header h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Loading overlay para imagen de fondo */
+.image-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.5s ease-out;
+}
+
+.image-loading-spinner {
+  text-align: center;
+  color: white;
+}
+
+.image-loading-spinner .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto 16px;
+}
+
+.image-loading-spinner p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

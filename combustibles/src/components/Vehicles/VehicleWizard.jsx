@@ -33,7 +33,6 @@ const VehicleWizard = ({
     name: vehicle?.name || '',
     brand: vehicle?.brand || '',
     model: vehicle?.model || '',
-    year: vehicle?.year || new Date().getFullYear(),
     
     // Categoría (Step 2) 
     category: vehicle?.category || '',
@@ -136,9 +135,6 @@ const VehicleWizard = ({
         if (!formData.model?.trim()) {
           errors.model = 'El modelo es obligatorio';
         }
-        if (!formData.year || formData.year < 1900 || formData.year > new Date().getFullYear() + 1) {
-          errors.year = 'El año debe ser válido';
-        }
         break;
 
       case 2: // Categoría
@@ -198,13 +194,17 @@ const VehicleWizard = ({
     try {
       console.log('💾 Guardando vehículo:', formData);
       
+      // Encontrar la categoría seleccionada para obtener su nombre
+      const selectedCategory = categories.find(cat => cat.id === formData.category);
+      const categoryName = selectedCategory?.name || 'Otro';
+
       // Preparar datos para guardar
       const vehicleData = {
         vehicleId: formData.vehicleId.trim(),
         name: formData.name.trim(),
         brand: formData.brand.trim(),
         model: formData.model.trim(),
-        year: parseInt(formData.year),
+        type: categoryName, // Campo requerido por vehiclesService
         category: formData.category,
         fuelType: formData.fuelType,
         plateNumber: formData.plateNumber?.trim() || '',

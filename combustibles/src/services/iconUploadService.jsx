@@ -92,10 +92,9 @@ export const resizeImage = (file, maxSize = 128) => {
  * Subir icono personalizado a Firebase Storage
  * @param {File} file - Archivo de imagen
  * @param {string} categoryId - ID de la categoría
- * @param {Function} onProgress - Callback de progreso (opcional)
  * @returns {Promise<string>} - URL de descarga del icono
  */
-export const uploadCategoryIcon = async (file, categoryId, onProgress) => {
+export const uploadCategoryIcon = async (file, categoryId) => {
   try {
     // Validar archivo
     const validation = validateImageFile(file);
@@ -205,7 +204,7 @@ export const generateImagePreview = (file) => {
       resolve(e.target.result);
     };
     
-    reader.onerror = (e) => {
+    reader.onerror = () => {
       reject(new Error('Error al leer el archivo'));
     };
     

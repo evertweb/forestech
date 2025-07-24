@@ -17,6 +17,12 @@ service firebase.storage {
       allow read, write: if request.auth != null;
     }
     
+    // Permitir manejo de imágenes de autenticación (solo admins)
+    match /auth/{allPaths=**} {
+      allow read: if true; // Lectura pública para mostrar imagen de fondo
+      allow write: if request.auth != null; // Solo usuarios autenticados pueden subir
+    }
+    
     // Permitir lectura y escritura para archivos de usuarios autenticados
     match /users/{userId}/{allPaths=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;

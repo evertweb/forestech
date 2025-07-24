@@ -6,7 +6,7 @@
 /* ============ ESTILOS BASE PARA PASOS ============ */
 .wizard-step {
   width: 100%;
-  min-height: 400px;
+  min-height: 100px;
   animation: stepFadeIn 0.5s ease-out;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .typeform-question {
-  margin-bottom: 3rem;
+  margin-bottom: 16rem;
   text-align: left;
 }
 
@@ -1016,4 +1016,252 @@
 .empty-state p {
   color: #64748b;
   margin-bottom: 1.5rem;
+}
+
+/* ============ SUBSTEP NAVIGATION STYLES ============ */
+
+/* Contenedor de progreso de subpasos */
+.substep-progress {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.substep-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.substep-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--current-primary) 0%, #06b6d4 100%);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+}
+
+.substep-counter {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  background: rgba(100, 116, 139, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+/* Contenedor de subpasos */
+.substeps-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  min-height: 400px;
+  margin-bottom: 2rem;
+}
+
+/* Slides de subpasos */
+.substep-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 400px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(100%);
+}
+
+.substep-slide.current {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 2;
+}
+
+.substep-slide.past {
+  transform: translateX(-100%);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.substep-slide.future {
+  transform: translateX(100%);
+  opacity: 0;  
+  visibility: hidden;
+}
+
+.substep-slide.transitioning {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Navegación de subpasos */
+.substep-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.substep-btn {
+  background: var(--current-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.substep-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+  background: #2563eb;
+}
+
+.substep-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.substep-btn-back {
+  background: #64748b;
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+}
+
+.substep-btn-back:hover {
+  background: #475569;
+  box-shadow: 0 8px 20px rgba(100, 116, 139, 0.3);
+}
+
+.substep-btn-next.disabled {
+  background: #e2e8f0;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.substep-btn-next.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Input específicos para subpasos */
+.substep-input {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-width: 1px;
+}
+
+.substep-input:focus {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: var(--current-primary);
+  transform: translateY(-1px);
+}
+
+/* Sección específica para fechas y notas */
+.dates-and-notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dates-and-notes-section .typeform-row {
+  margin-bottom: 1.5rem;
+}
+
+.dates-and-notes-section .typeform-input-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Animaciones mejoradas para transiciones de subpasos */
+@keyframes substepSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes substepSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+.substep-slide.current {
+  animation: substepSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mejorar la experiencia en móviles */
+@media (max-width: 640px) {
+  .substeps-container {
+    min-height: 350px;
+  }
+  
+  .substep-navigation {
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+  
+  .substep-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .substep-progress {
+    margin-bottom: 1.5rem;
+  }
+  
+  .dates-and-notes-section .typeform-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Mejor separación visual entre subpasos complejos */
+.substep-slide .typeform-section {
+  margin-bottom: 1.5rem;
+}
+
+.substep-slide .typeform-input-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Highlight mejorado para el substep actual */
+.substep-slide.current .typeform-question h2 {
+  animation: questionAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes questionAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

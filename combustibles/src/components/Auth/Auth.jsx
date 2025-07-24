@@ -1,6 +1,6 @@
 // combustibles/src/components/Auth/Auth.jsx
-// Componente de autenticación con soporte de invitaciones
-import React, { useState } from 'react';
+// Componente de autenticación con soporte de invitaciones y fondo dinámico
+import React, { useState, useEffect } from 'react';
 import { 
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -10,6 +10,7 @@ import {
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
+import { getBackgroundImageUrl, preloadBackgroundImage } from '../../services/backgroundImageService';
 import './Auth.css';
 
 const Auth = () => {
@@ -17,6 +18,10 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // Estado para la imagen de fondo
+  const [backgroundImage, setBackgroundImage] = useState('');
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Login state
   const [email, setEmail] = useState('');
@@ -33,6 +38,28 @@ const Auth = () => {
   // Invitation validation state
   const [inviteCode, setInviteCode] = useState('');
   const [validatedInvite, setValidatedInvite] = useState(null);
+
+  // Cargar imagen de fondo al montar el componente
+  useEffect(() => {
+    const loadBackgroundImage = async () => {
+      try {
+        const imageUrl = await getBackgroundImageUrl();
+        
+        // Precargar la imagen para evitar flickering
+        const loaded = await preloadBackgroundImage(imageUrl);
+        
+        if (loaded) {
+          setBackgroundImage(`url('${imageUrl}')`);
+        }
+      } catch (error) {
+        console.warn('Error cargando imagen de fondo:', error);
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    loadBackgroundImage();
+  }, []);
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
@@ -375,7 +402,23 @@ const Auth = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div 
+      className="auth-container"
+      style={{
+        backgroundImage: backgroundImage ? 
+          `linear-gradient(135deg, rgba(27, 67, 50, 0.8) 0%, rgba(45, 80, 22, 0.8) 50%, rgba(27, 67, 50, 0.8) 100%), ${backgroundImage}` :
+          'linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%)'
+      }}
+    >
+      {imageLoading && (
+        <div className="image-loading-overlay">
+          <div className="image-loading-spinner">
+            <div className="spinner"></div>
+            <p>Cargando...</p>
+          </div>
+        </div>
+      )}
+      
       <div className="auth-card">
         <div className="auth-header">
           <h1>⛽ Combustibles</h1>

@@ -23,7 +23,6 @@ const VehicleModal = ({
     type: vehicle?.type || VEHICLE_TYPES.EXCAVADORA,
     brand: vehicle?.brand || '',
     model: vehicle?.model || '',
-    year: vehicle?.year || new Date().getFullYear(),
     fuelType: vehicle?.fuelType || FUEL_COMPATIBILITY.DIESEL,
     fuelCapacity: vehicle?.fuelCapacity || 0,
     enginePower: vehicle?.enginePower || 0,
@@ -113,14 +112,6 @@ const VehicleModal = ({
       newErrors.estimatedConsumptionPerHour = 'El consumo no puede ser negativo';
     } else if (formData.estimatedConsumptionPerHour > 50) {
       newErrors.estimatedConsumptionPerHour = 'El consumo no puede ser mayor a 50 gal/hr';
-    }
-
-    // Validaciones de año
-    const currentYear = new Date().getFullYear();
-    if (formData.year < 1990) {
-      newErrors.year = 'El año no puede ser anterior a 1990';
-    } else if (formData.year > currentYear + 1) {
-      newErrors.year = `El año no puede ser mayor a ${currentYear + 1}`;
     }
 
     // Validaciones de fechas
@@ -259,9 +250,6 @@ const VehicleModal = ({
                 )}
                 {formData.fuelCapacity > 0 && (
                   <span className="spec">🛢️ {formData.fuelCapacity} gal</span>
-                )}
-                {formData.year && (
-                  <span className="spec">📅 {formData.year}</span>
                 )}
               </div>
             </div>
@@ -442,23 +430,6 @@ const VehicleModal = ({
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="year">Año</label>
-                  <input
-                    type="number"
-                    id="year"
-                    name="year"
-                    value={formData.year}
-                    onChange={handleInputChange}
-                    min="1990"
-                    max={new Date().getFullYear() + 1}
-                    className={errors.year ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
-                  />
-                  {errors.year && (
-                    <span className="error-text">{errors.year}</span>
-                  )}
-                </div>
 
                 <div className="form-group">
                   <label htmlFor="serialNumber">Número de Serie</label>

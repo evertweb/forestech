@@ -36,7 +36,6 @@ const VehicleModalNew = ({
     category: vehicle?.category || '',
     brand: vehicle?.brand || '',
     model: vehicle?.model || '',
-    year: vehicle?.year || new Date().getFullYear(),
     fuelType: vehicle?.fuelType || FUEL_COMPATIBILITY.DIESEL,
     status: vehicle?.status || VEHICLE_STATUS.ACTIVO,
     currentLocation: vehicle?.currentLocation || '',
@@ -213,10 +212,6 @@ const VehicleModalNew = ({
       }
     });
 
-    // Validar año
-    if (formData.year && (formData.year < 1900 || formData.year > new Date().getFullYear() + 1)) {
-      newErrors.year = `Año debe estar entre 1900 y ${new Date().getFullYear() + 1}`;
-    }
 
     // Validar horómetro para tractores
     if (formData.hasHourMeter && formData.currentHours) {
@@ -255,7 +250,6 @@ const VehicleModalNew = ({
         flow: formData.flow ? Number(formData.flow) : null,
         pressure: formData.pressure ? Number(formData.pressure) : null,
         weight: formData.weight ? Number(formData.weight) : null,
-        year: Number(formData.year),
         
         // Convertir fechas
         lastMaintenanceDate: formData.lastMaintenanceDate ? new Date(formData.lastMaintenanceDate) : null,
@@ -363,17 +357,20 @@ const VehicleModalNew = ({
             
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="vehicleId" className="form-label">🏷️ Código del Vehículo *</label>
+                <label htmlFor="vehicleId" className="form-label">🔢 Código Único de Identificación *</label>
                 <input
                   type="text"
                   id="vehicleId"
                   value={formData.vehicleId}
                   className={`form-input ${errors.vehicleId ? 'error' : ''} ${mode === 'create' ? 'readonly' : ''}`}
-                  placeholder="Se genera automáticamente"
+                  placeholder="Se genera automáticamente al escribir el nombre"
                   readOnly={mode === 'create'}
                   onChange={mode === 'edit' ? (e) => handleInputChange('vehicleId', e.target.value) : undefined}
                   required
                 />
+                <small className="field-help">
+                  Este código se genera automáticamente basado en el nombre y categoría del vehículo
+                </small>
                 {errors.vehicleId && <span className="field-error">{errors.vehicleId}</span>}
               </div>
 
@@ -403,21 +400,6 @@ const VehicleModalNew = ({
                   className="form-input"
                   placeholder="Ej: Caterpillar, John Deere"
                 />
-              </div>
-
-
-              <div className="form-group">
-                <label htmlFor="year" className="form-label">📅 Año</label>
-                <input
-                  type="number"
-                  id="year"
-                  value={formData.year}
-                  onChange={(e) => handleInputChange('year', e.target.value)}
-                  className={`form-input ${errors.year ? 'error' : ''}`}
-                  min="1900"
-                  max={new Date().getFullYear() + 1}
-                />
-                {errors.year && <span className="field-error">{errors.year}</span>}
               </div>
             </div>
 
@@ -527,7 +509,7 @@ const VehicleModalNew = ({
                   <div className="preview-info">
                     <h4>{formData.name || 'Nombre del vehículo'}</h4>
                     <p>{formData.vehicleId || 'Código del vehículo'} • {selectedCategory.name}</p>
-                    <p>{formData.brand} {formData.year}</p>
+                    <p>{formData.brand}</p>
                   </div>
                 </div>
               </div>

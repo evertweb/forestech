@@ -5,6 +5,7 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInvitation, getInvitations, cancelInvitation } from '../../firebase/invitationService';
 import { ROLES } from '../../constants/roles';
 import DataReset from './DataReset';
+import BackgroundImageManager from './BackgroundImageManager';
 import './Admin.css';
 
 const AdminMain = () => {
@@ -160,6 +161,12 @@ const AdminMain = () => {
           ⚙️ Configuración
         </button>
         <button 
+          className={`tab-button ${activeTab === 'background' ? 'active' : ''}`}
+          onClick={() => setActiveTab('background')}
+        >
+          🖼️ Imagen Login
+        </button>
+        <button 
           className={`tab-button ${activeTab === 'reset' ? 'active' : ''}`}
           onClick={() => setActiveTab('reset')}
         >
@@ -259,6 +266,10 @@ const AdminMain = () => {
               <p>Próximamente: Configuraciones generales, notificaciones, y parámetros del sistema.</p>
             </div>
           </div>
+        )}
+
+        {activeTab === 'background' && (
+          <BackgroundImageManager />
         )}
 
         {activeTab === 'reset' && (
