@@ -41,7 +41,22 @@ export const getBackgroundImageUrl = async () => {
     
     console.log('✅ Imagen de fondo cargada desde Firebase Storage');
     console.log('🔗 URL:', url);
-    return url;
+    
+    // Verificar que la URL es accesible antes de usarla
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      if (response.ok) {
+        console.log('✅ URL verificada como accesible');
+        return url;
+      } else {
+        console.warn('⚠️ URL de Firebase no accesible, usando fallback');
+        throw new Error('URL no accesible');
+      }
+    } catch (fetchError) {
+      console.warn('⚠️ Error verificando URL de Firebase:', fetchError);
+      throw fetchError;
+    }
+    
   } catch (error) {
     console.warn('⚠️ No se pudo cargar imagen de Firebase Storage:', {
       code: error.code,

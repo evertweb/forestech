@@ -22,24 +22,94 @@ Un comando por vez cuando podrían ser paralelos
 - **Build verification**: lint + test + build checks simultáneos
 - **Firebase queries**: Múltiples colecciones + usuarios + reglas a la vez
 
-## 🚨 **IMPORTANTE - ACTUALIZACIÓN 15/07/2025**
+## 🤖 **MCPs CONFIGURADOS AUTOMÁTICAMENTE**
 
-### ⚡ **Auto-Context Loading ACTIVO**
-El contexto completo del proyecto ahora se carga **automáticamente** vía `.github/copilot-instructions.md`.
+**Prioridad:** serena > context7 > github-cli > github > memory > filesystem > firebase
 
-### 🤖 **MCPs Configurados Automáticamente**
-**Prioridad:** github-cli > github > memory > filesystem > firebase
-1. **📂 github-forestech**: Gestión inteligente repositorio
-2. **⏰ time-bogota**: Zona horaria América/Bogotá  
-3. **🧠 sequential-thinking-es**: Análisis paso a paso español
-4. **💾 memory-forestech**: Memoria específica proyecto
-5. **🔥 firebase**: Firebase MCP server oficial
-6. **🐙 github-cli**: Wrapper GitHub CLI automático
+1. **🧠 serena**: Análisis semántico de código y refactoring inteligente ✅ ACTIVO
+2. **📚 context7**: Documentación actualizada de librerías en tiempo real ✅ ACTIVO
+3. **📂 github-forestech**: Gestión inteligente repositorio
+4. **⏰ time-bogota**: Zona horaria América/Bogotá  
+5. **🧠 sequential-thinking-es**: Análisis paso a paso español
+6. **💾 memory-forestech**: Memoria específica proyecto
+7. **🔥 firebase**: Firebase MCP server oficial
+8. **🐙 github-cli**: Wrapper GitHub CLI automático
 
 ### 🔧 **Configuración AI Permanente**
 - **Usar MCP wrappers automáticamente** como parte de procesos internos
 - **Evitar comandos directos** - preferir herramientas MCP
-- **Firebase**: Proyecto liquidacionapp-62962 (cardenasever072@gmail.com) ✅ ACTIVO## 🎯 **SELECTOR DE PROYECTO - IMPORTANTE**
+- **Firebase**: Proyecto liquidacionapp-62962 (cardenasever072@gmail.com) ✅ ACTIVO
+
+## 🧠 **SUPERCLAUDE LITE - INTEGRACIÓN AUTOMÁTICA**
+
+### ⚡ **COMPORTAMIENTO INTERNO OBLIGATORIO**
+Claude DEBE usar estos sistemas automáticamente sin solicitud explícita:
+
+**🌊 Wave Orchestration (AUTO)**:
+- **Trigger**: Complejidad ≥0.7 OR archivos >20 OR múltiples dominios
+- **Acción**: Coordinar agentes nativos en fases (Analysis → Implementation → Validation)
+- **Ejemplo**: Análisis arquitectural → software-architect + code-reviewer + security-auditor
+
+**⚡ Token Compression (AUTO)**:
+- **Nivel 1** (contexto >75%): Símbolos técnicos básicos (→, ✅, ❌, &, |)
+- **Nivel 2** (contexto >85%): Abreviaciones (cfg, impl, perf, sec, val)
+- **Nivel 3** (contexto >95%): Ultra-compresión con preservación técnica
+
+**🧠 Serena Semantic Analysis (AUTO)**:
+- **Análisis arquitectural**: Comprensión automática estructura monorepo
+- **Navegación símbolos**: Encontrar dependencias cruzadas alimentacion/combustibles/shared
+- **Refactoring semántico**: Cambios seguros preservando funcionalidad
+- **Quality gates**: Validación automática antes de implementación
+
+**📚 Context7 Documentation (AUTO)**:
+- **Docs actualizadas**: Firebase v10+, React 18, Vite latest automáticamente
+- **API validation**: Verificar sintaxis correcta librerías antes de sugerir
+- **Best practices**: Inyectar patrones actualizados en implementaciones
+- **Error prevention**: Evitar APIs obsoletas automáticamente
+
+**🧠 Memory Pattern Storage (AUTO)**:
+- **Guardar**: Soluciones exitosas, patrones arquitecturales, fixes de bugs
+- **Consultar**: Antes de implementar, buscar patrones similares en memoria
+- **Actualizar**: Después de cada solución exitosa
+
+**🔥 Firebase Integration (AUTO)**:
+- **Consultas proactivas**: Al analizar auth, Firestore, deployment
+- **Data context**: Incluir datos reales en análisis cuando relevante
+- **Performance checks**: Queries optimization automático
+
+### 🎯 **COMANDOS SLASH INTERNOS**
+Claude interpreta internamente (sin que usuario los escriba):
+
+**`/analyze` (AUTO-TRIGGER)**:
+- **Cuándo**: Solicitudes de análisis, troubleshooting, "revisar código"
+- **Agentes**: software-architect + code-reviewer + security-auditor
+- **MCPs**: Serena (análisis semántico) + Context7 (docs actualizadas) + Memory (patrones) + Firebase (datos)
+
+**`/build` (AUTO-TRIGGER)**:
+- **Cuándo**: "compilar", "deploy", "generar build"
+- **Agentes**: software-architect + performance-optimizer
+- **MCPs**: Serena (validación estructura) + Context7 (best practices build) + GitHub CLI (PRs) + Firebase (deploy)
+
+**`/implement` (AUTO-TRIGGER)**:
+- **Cuándo**: "crear feature", "implementar", "desarrollar"
+- **Agentes**: Selección automática según dominio detectado
+- **MCPs**: Serena (navegación símbolos) + Context7 (APIs actualizadas) + Memory (patrones) + GitHub CLI (branches)
+
+**`/improve` (AUTO-TRIGGER)**:
+- **Cuándo**: "optimizar", "mejorar", "refactorizar"
+- **Agentes**: code-reviewer + performance-optimizer + security-auditor
+- **MCPs**: Serena (refactoring semántico) + Context7 (mejores prácticas) + Memory (guardar mejoras) + Firebase (performance)
+
+### 🚀 **FLAGS AUTOMÁTICOS**
+Claude aplica automáticamente según contexto:
+
+**`--wave-mode auto`**: Proyectos >50 archivos o complejidad alta
+**`--compress auto`**: Uso contexto >75%
+**`--focus [domain]`**: Según keywords detectados (security, performance, architecture)
+**`--scope system`**: Cambios que afectan múltiples apps
+**`--memory-save`**: SIEMPRE activo para guardar patrones
+
+## 🎯 **SELECTOR DE PROYECTO - IMPORTANTE**
 
 **AL INICIAR CADA SESIÓN, CLAUDE DEBE PREGUNTAR:**
 ```
@@ -53,128 +123,41 @@ El contexto completo del proyecto ahora se carga **automáticamente** vía `.git
 Responde con el número (1-4) para establecer el contexto correcto.
 ```
 
-**CONTEXTOS DE TRABAJO:**
-- **[ALIMENTACION]**: Archivos en `forestech/alimentacion/src/...`
-- **[COMBUSTIBLES]**: Archivos en `forestech/combustibles/src/...` 
-- **[SHARED]**: Archivos en `forestech/shared/...`
-- **[GENERAL]**: Configuración Firebase, hosting, documentación
-
 ## 🤖 **COMPORTAMIENTO AUTOMÁTICO DE CLAUDE**
 
 **⚡ ANÁLISIS AUTOMÁTICO:** Claude ejecuta automáticamente análisis profundo sin necesidad de solicitudes específicas.
 
-### ⚡ **COMPORTAMIENTO AUTOMÁTICO**
-- **Análisis profundo automático** sin solicitudes específicas
-- **Herramientas en paralelo** cuando sea posible
-- **MCPs integrados** automáticamente en flujo
-- **Firebase datos reales** de producción disponibles
+### ⚡ **COMPORTAMIENTO AUTOMÁTICO MEJORADO**
+- **SuperClaude Lite integrado**: Wave orchestration, token compression, memory patterns
+- **Agentes nativos coordinados**: software-architect, code-reviewer, security-auditor, performance-optimizer, ux-ui-evaluator
+- **MCPs enterprise activados**: Serena (análisis semántico) + Context7 (docs actualizadas) + Firebase + Memory + GitHub CLI
+- **Herramientas paralelas optimizadas**: Máximo rendimiento en operaciones complejas
+- **Context switching inteligente**: Auto-detección alimentacion/combustibles/shared/general
 
-## 📚 **DOCUMENTACIÓN Y ESTRUCTURA**
+### 🔄 **WORKFLOW INTERNO AUTOMATIZADO**
+1. **Context Detection** → Detectar dominio y complejidad automáticamente
+2. **Serena Analysis** → Análisis semántico automático estructura código y dependencias
+3. **Context7 Validation** → Verificar APIs actualizadas y best practices
+4. **Agent Coordination** → Activar agentes nativos apropiados según contexto
+5. **MCP Integration** → Consultar Firebase, Memory, GitHub CLI proactivamente  
+6. **Wave Orchestration** → Multi-fase para operaciones complejas (>0.7 complejidad)
+7. **Token Optimization** → Compresión adaptativa según uso contexto
+8. **Pattern Storage** → Guardar soluciones exitosas en Memory MCP
+9. **Quality Validation** → Validación automática con agentes especializados
 
-### �️ **Estructura Monorepo**
-```
-forestech/                      # Monorepo principal
-├── alimentacion/               # 🍽️ App liquidaciones ✅ FUNCIONAL
-├── combustibles/               # ⛽ App combustibles ✅ FUNCIONAL
-├── shared/                     # 🔧 Recursos compartidos
-├── docs/                       # 📚 Documentación modular
-├── public/                     # 🌐 Build output Firebase
-├── firebase.json               # Multi-app routing
-└── package.json               # Scripts monorepo
-```
+## 📚 **DOCUMENTACIÓN MODULAR**
 
-### 📖 **Apps y Documentación**
-- **🍽️ ALIMENTACION**: Sistema liquidaciones completo → [docs/alimentacion/](./docs/alimentacion/README.md)
-- **⛽ COMBUSTIBLES**: Sistema completo + módulo reportes → [docs/combustibles/](./docs/combustibles/README.md)  
-- **🔧 SHARED**: Recursos compartidos → [docs/shared/](./docs/shared/README.md)
-- **🏢 EMPRESARIAL**: Manuales y SOPs → [docs/empresarial/](./docs/empresarial/README.md)
+**Para información técnica del proyecto, consultar:**
 
-## ⚙️ **COMANDOS Y DESARROLLO**
+- **📂 Estructura**: [docs/project/STRUCTURE.md](./docs/project/STRUCTURE.md)
+- **⚙️ Comandos**: [docs/project/COMMANDS.md](./docs/project/COMMANDS.md)  
+- **📊 Estado**: [docs/project/STATUS.md](./docs/project/STATUS.md)
+- **🚀 CI/CD**: [docs/project/CICD.md](./docs/project/CICD.md)
 
-### 🚀 **Comandos Esenciales**
-```bash
-# Desarrollo
-npm run dev:alimentacion    # Puerto 5173
-npm run dev:combustibles    # Puerto 5174
-
-# Linting (REQUERIDO antes de commit)
-npm run lint:alimentacion
-npm run lint:combustibles
-
-# Deploy automático con GitHub Actions
-git add .
-git commit -m "descripción cambios"
-git push origin main
-```
-
-### 🌐 **URLs Activas**
-- 🍽️ **Alimentación**: https://forestechdecolombia.com.co/alimentacion/
-- ⛽ **Combustibles**: https://forestechdecolombia.com.co/combustibles/
-- 📋 **Firebase**: https://liquidacionapp-62962.web.app/
-
-### 🔍 **Testing PRs con GitHub CLI**
-```bash
-# Flujo para analizar PRs antes de merge
-gh pr list                    # Ver PRs disponibles
-gh pr checkout [NUMERO]      # Descargar PR para testing local
-npm run dev                  # Probar funcionamiento  
-gh pr merge [NUMERO] --merge --delete-branch
-```
-
-## 📊 **ESTADO ACTUAL DEL PROYECTO - JULIO 2025**
-
-### 🔄 **ÚLTIMA ACTUALIZACIÓN: 16/07/2025**
-- ✅ **Auto-context loading** implementado en `.github/copilot-instructions.md`
-- ✅ **Superprompt manual** migrado y obsoleto
-- ✅ **MCPs priority system** establecido automáticamente
-- ✅ **AI preferences** configuración persistente activa
-- ✅ **Documentation sync** protocolo activo
-- ✅ **Control total categorías** - Sistema administrativo completo implementado
-
-### ✅ **Aplicaciones Completadas**
-- **🍽️ Alimentación**: Sistema de liquidaciones 100% funcional
-- **⛽ Combustibles**: Sistema completo + módulo reportes
-
-### 🔧 **Infraestructura**
-- **Firebase**: Multi-app hosting (liquidacionapp-62962) ✅
-- **Dominio**: forestechdecolombia.com.co operativo ✅  
-- **CI/CD**: Sistema dual AI agents activo ✅
-- **MCPs**: 13 herramientas integradas ✅
-
-### 📊 **Estado Actual**
-- ✅ **Control total categorías** - Sistema administrativo completo implementado
-- ✅ **Auto-context loading** - Contexto automático activo
-- ✅ **Sistema Combustibles** - 100% operativo en producción
-
-## 🚀 **CI/CD Y WORKFLOWS**
-
-### 🏆 **Sistema Dual AI Agents + Build Optimizado**
-
-**🔗 Arquitectura "Defense in Depth" con 5 workflows coordinados:**
-
-1. **🚀 deploy-firebase.yml** - Pipeline optimizado principal
-   - **Performance**: 83% reducción tiempo build (8-12min → 2min)
-   - **Workspace Monorepo**: Single npm install, builds paralelos
-   - **Cache Multi-Layer**: Dependencies + Build artifacts + Vite cache
-
-2. **📋 claude-check-resolver.yml** - Monitor PRs inteligente
-3. **🌉 copilot-bridge.yml** - Sistema puente revolucionario 
-4. **🛡️ monitor-bucles.yml** - Vigilancia preventiva
-5. **🔧 deploy-firebase-old.yml** - Backup emergency (manual)
-
-### ⚡ **Flujo Optimizado**
-```
-🚀 Push → Deploy-Firebase (2min) → ✅ Success
-    ↓ (si falla)
-🌉 Copilot-Bridge → 🤖 Agent crea PR → 📊 Claude-Check-Resolver → ✅ Fix
-```
-
-### 🎯 **Ventajas Competitivas**
-- **🧠 Dual AI Coordination**: Copilot + Claude sin conflictos
-- **⚡ Zero-logic Architecture**: Adaptabilidad infinita  
-- **🛡️ Defense in Depth**: 5 capas de protección
-- **📈 ROI Verificado**: 50+ horas/mes ahorradas
+**Para contexto automático del proyecto:**
+- **Auto-context loading**: `.github/copilot-instructions.md`
+- **Apps específicas**: `docs/[alimentacion|combustibles|shared]/README.md`
 
 ---
 
-**📌 Documentación optimizada - Julio 2025**
+**📌 Reglas de comportamiento Claude Code - Julio 2025**

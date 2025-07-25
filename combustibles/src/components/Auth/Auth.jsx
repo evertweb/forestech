@@ -49,7 +49,12 @@ const Auth = () => {
         const loaded = await preloadBackgroundImage(imageUrl);
         
         if (loaded) {
-          setBackgroundImage(`url('${imageUrl}')`);
+          // Asegurar que la URL esté correctamente escapada para CSS
+          const cssUrl = imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
+          setBackgroundImage(`url("${cssUrl}")`);
+          console.log('🎨 Imagen de fondo aplicada al estado:', `url("${cssUrl}")`);
+        } else {
+          console.warn('⚠️ No se pudo precargar la imagen, usando gradiente por defecto');
         }
       } catch (error) {
         console.warn('Error cargando imagen de fondo:', error);
@@ -401,16 +406,27 @@ const Auth = () => {
     }
   };
 
+  // Debug: Verificar estado de backgroundImage antes del render
+  console.log('🖼️ Estado backgroundImage antes del render:', {
+    backgroundImage,
+    imageLoading,
+    hasBackgroundImage: !!backgroundImage
+  });
+
   return (
     <div 
       className="auth-container"
       style={{
         backgroundImage: backgroundImage ? 
-          `linear-gradient(135deg, rgba(27, 67, 50, 0.8) 0%, rgba(45, 80, 22, 0.8) 50%, rgba(27, 67, 50, 0.8) 100%), ${backgroundImage}` :
+          `linear-gradient(135deg, rgba(27, 67, 50, 0.3) 0%, rgba(45, 80, 22, 0.2) 50%, rgba(27, 67, 50, 0.3) 100%), ${backgroundImage}` :
           `radial-gradient(circle at 20% 20%, rgba(82, 165, 113, 0.4) 0%, transparent 50%),
            radial-gradient(circle at 80% 80%, rgba(101, 200, 120, 0.4) 0%, transparent 50%),
            radial-gradient(circle at 40% 60%, rgba(64, 130, 109, 0.4) 0%, transparent 50%),
-           linear-gradient(135deg, #1b4332 0%, #2d5016 25%, #40826d 50%, #2d5016 75%, #1b4332 100%)`
+           linear-gradient(135deg, #1b4332 0%, #2d5016 25%, #40826d 50%, #2d5016 75%, #1b4332 100%)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
       }}
     >
       {imageLoading && (

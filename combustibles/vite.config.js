@@ -21,24 +21,24 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor libraries (React ecosystem)
+          // Vendor libraries (React ecosystem)  
           vendor: ['react', 'react-dom'],
           // UI components and icons
-          ui: ['react-aria-components', 'lucide-react'],
+          ui: ['react-aria-components', 'lucide-react', '@untitledui/icons'],
           // Charts and data visualization
           charts: ['chart.js', 'react-chartjs-2'],
           // Firebase and utilities
           firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
-          // Utils and smaller libraries
-          utils: ['classnames', 'date-fns']
+          // Utils and smaller libraries (only installed ones)
+          utils: ['clsx', 'tailwind-merge', 'xlsx']
         }
       }
     },
     // Performance optimizations
     target: 'esnext',
-    minify: 'terser',
+    minify: 'esbuild', // Use esbuild instead of terser (faster and no extra dependency)
     chunkSizeWarningLimit: 1000,
-    // Build speed optimizations
+    // Build speed optimizations  
     sourcemap: false, // Disable sourcemaps for production builds
     // Reduce bundle size
     reportCompressedSize: false,
