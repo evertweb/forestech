@@ -193,19 +193,19 @@ jobs:
         script: |
           try {
             const fs = require('fs');
-            let context = {};
+            let errorContext = {};
             
             try {
               const contextData = fs.readFileSync('error-context.json', 'utf8');
-              context = JSON.parse(contextData);
+              errorContext = JSON.parse(contextData);
             } catch (error) {
               console.log('Could not load error context:', error.message);
-              context = { summary: { totalErrors: 'Unknown' } };
+              errorContext = { summary: { totalErrors: 'Unknown' } };
             }
             
             const issueBody = `## 🚨 Detección Automática de Errores - Asignación al Agente Copilot
             
-            Errores de build detectados: ${context.summary?.totalErrors || 'Múltiples'} errores
+            Errores de build detectados: ${errorContext.summary?.totalErrors || 'Múltiples'} errores
             
             @github-copilot Por favor analiza y corrige los errores de build/lint detectados:
             
@@ -223,7 +223,7 @@ jobs:
             - Apps: alimentacion (puerto 5173) y combustibles (puerto 5174)
             - Seguir convenciones establecidas en .github/copilot-instructions.md
             
-            Contexto específico: ${context.copilotPrompt || 'Ver error-context.json para detalles'}
+            Contexto específico: ${errorContext.copilotPrompt || 'Ver error-context.json para detalles'}
             
             ---
             Generado automáticamente por el Sistema Copilot Bridge`;
@@ -231,7 +231,7 @@ jobs:
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🤖 Agente Copilot: Corregir ${context.summary?.totalErrors || 'Múltiples'} Errores de Build/Lint`,
+              title: `🤖 Agente Copilot: Corregir ${errorContext.summary?.totalErrors || 'Múltiples'} Errores de Build/Lint`,
               body: issueBody,
               labels: ['copilot-agent', 'errores-build', 'automatizacion']
             });
