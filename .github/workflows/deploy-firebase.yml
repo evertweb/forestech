@@ -94,40 +94,80 @@ jobs:
             echo "circuit-breaker-active=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🔍 Error Detection & Analysis
+      - name: 🔍 Error Detection & Analysis - MEJORADO
         id: error-check
         if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
         run: |
-          echo "Running error detection..."
+          echo "Running improved error detection..."
           
-          # Ejecutar error-collector.js y capturar el resultado
-          if node scripts/error-collector.js; then
+          # MEJORA: Capturar exit code y output del error-collector
+          set +e  # No fallar inmediatamente en errores
+          node scripts/error-collector.js
+          COLLECTOR_EXIT_CODE=$?
+          set -e  # Restaurar fail on error
+          
+          echo "Error collector exit code: $COLLECTOR_EXIT_CODE"
+          
+          # MEJORA: Manejar diferentes escenarios
+          if [ $COLLECTOR_EXIT_CODE -eq 0 ]; then
             echo "✅ Error detection script executed successfully"
             
-            # Verificar si se encontraron errores
+            # Verificar contexto generado
             if [ -f error-context.json ]; then
               ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
               echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
               
               if [ "$ERROR_STATUS" = "errors_detected" ]; then
-                echo "has-errors=true" >> $GITHUB_OUTPUT
                 ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
+                echo "has-errors=true" >> $GITHUB_OUTPUT
                 echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
                 echo "🚨 $ERROR_COUNT errors detected - will delegate to Copilot Agent"
-                exit 1
+                
+                # MEJORA: Mostrar resumen de errores para debugging
+                echo "📊 Error summary:"
+                node -e "
+                  const ctx = JSON.parse(require('fs').readFileSync('error-context.json', 'utf8'));
+                  if (ctx.summary) {
+                    console.log('- Total Errors: ' + ctx.summary.totalErrors);
+                    console.log('- Error Types: ' + Object.keys(ctx.summary.byType || {}).join(', '));
+                    console.log('- Files Affected: ' + ctx.summary.uniqueFiles);
+                  }
+                "
+                exit 1  # Activar Copilot Bridge
               else
                 echo "has-errors=false" >> $GITHUB_OUTPUT
                 echo "✅ No errors detected - proceeding with optimized build"
               fi
             else
+              echo "⚠️ error-context.json not generated, assuming no errors"
               echo "has-errors=false" >> $GITHUB_OUTPUT
-              echo "✅ Error detection completed successfully"
             fi
           else
-            echo "❌ Error detection script failed - treating as errors found"
-            echo "has-errors=true" >> $GITHUB_OUTPUT
+            echo "❌ Error detection script failed with exit code: $COLLECTOR_EXIT_CODE"
+            echo "This usually indicates script/environment issues, not app errors"
+            
+            # MEJORA: Distinguir entre script broken vs app errors
+            if [ $COLLECTOR_EXIT_CODE -eq 127 ]; then
+              echo "🚨 Script not found or permission issues"
+            elif [ $COLLECTOR_EXIT_CODE -eq 1 ]; then
+              echo "🔍 Script found issues - checking if context was generated"
+              if [ -f error-context.json ]; then
+                echo "✅ Context generated despite exit code 1"
+                ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
+                if [ "$ERROR_STATUS" = "errors_detected" ]; then
+                  ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
+                  echo "has-errors=true" >> $GITHUB_OUTPUT
+                  echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+                  echo "🚨 Confirmed: $ERROR_COUNT errors found"
+                  exit 1
+                fi
+              fi
+            fi
+            
+            # Fallback: Asumir error de script, no de aplicación
+            echo "has-errors=script-error" >> $GITHUB_OUTPUT
             echo "error-count=1" >> $GITHUB_OUTPUT
-            echo "🚨 Error detection failed - will delegate to Copilot Agent"
+            echo "🚨 Script error detected - will delegate to Copilot Agent"
             exit 1
           fi
         continue-on-error: false

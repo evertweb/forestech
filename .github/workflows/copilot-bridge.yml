@@ -71,29 +71,71 @@ jobs:
           cd combustibles && npm ci && cd ..
         fi
 
-    - name: 🔍 Detect Build/Lint Errors
+    - name: 🔍 Detect Build/Lint Errors - MEJORADO
       id: error-detection
       run: |
-        echo "Running error detection..."
-        node scripts/error-collector.js
+        echo "Running improved error detection in Copilot Bridge..."
         
+        # MEJORA: Siempre ejecutar fresh error detection
+        # No confiar en archivos error-context.json anteriores
+        if [ -f error-context.json ]; then
+          echo "🗑️ Removing stale error-context.json"
+          rm error-context.json
+        fi
+        
+        # MEJORA: Capturar exit code del error-collector
+        set +e
+        node scripts/error-collector.js
+        COLLECTOR_EXIT_CODE=$?
+        set -e
+        
+        echo "Error collector exit code: $COLLECTOR_EXIT_CODE"
+        
+        # MEJORA: Análisis detallado del resultado
         if [ -f error-context.json ]; then
           ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
           echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
           
           if [ "$ERROR_STATUS" = "errors_detected" ]; then
-            echo "errors-found=true" >> $GITHUB_OUTPUT
             ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
+            echo "errors-found=true" >> $GITHUB_OUTPUT
             echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
-            echo "🚨 $ERROR_COUNT errors detected - preparing for Copilot Agent"
+            echo "🚨 CONFIRMED: $ERROR_COUNT errors detected for Copilot Agent"
+            
+            # MEJORA: Logging detallado para debugging
+            echo "📊 Detailed error breakdown:"
+            node -e "
+              const ctx = JSON.parse(require('fs').readFileSync('error-context.json', 'utf8'));
+              if (ctx.summary && ctx.summary.byType) {
+                Object.entries(ctx.summary.byType).forEach(([type, count]) => {
+                  console.log('  - ' + type + ': ' + count + ' errors');
+                });
+              }
+              if (ctx.errors && ctx.errors.byFile) {
+                const fileCount = Object.keys(ctx.errors.byFile).length;
+                console.log('  - Affected files: ' + fileCount);
+              }
+            "
           else
             echo "errors-found=false" >> $GITHUB_OUTPUT
-            echo "✅ No errors detected"
+            echo "✅ No errors detected in fresh scan"
           fi
         else
-          echo "errors-found=false" >> $GITHUB_OUTPUT
-          echo "❌ Error detection failed"
+          # MEJORA: Manejar caso cuando script falla pero contexto no se genera
+          if [ $COLLECTOR_EXIT_CODE -ne 0 ]; then
+            echo "❌ Error collector failed AND no context generated"
+            echo "This indicates script/environment issues"
+            echo "errors-found=script-failure" >> $GITHUB_OUTPUT
+            echo "error-count=1" >> $GITHUB_OUTPUT
+            echo "🚨 Script failure detected - will create diagnostic issue"
+          else
+            echo "errors-found=false" >> $GITHUB_OUTPUT
+            echo "✅ No errors detected (clean run)"
+          fi
         fi
+        
+        # MEJORA: Timestamp para tracking
+        echo "detection-timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_OUTPUT
       continue-on-error: true
 
     - name: 🛡️ Check for Existing Copilot Issues (Anti-Loop Protection)

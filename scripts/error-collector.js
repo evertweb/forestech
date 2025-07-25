@@ -24,25 +24,32 @@ class ErrorCollector {
   }
 
   /**
-   * Ejecuta comando y captura errores
+   * Ejecuta comando y captura errores - MEJORADO
    */
   async runCommand(command, workdir = '.') {
     return new Promise((resolve) => {
-      exec(command, { cwd: workdir }, (error, stdout, stderr) => {
+      exec(command, { cwd: workdir, timeout: 60000 }, (error, stdout, stderr) => {
+        // MEJORA: Diferenciar entre "script failed" vs "script found issues"
+        const hasRealError = error && error.code !== 1; // ESLint usa código 1 para warnings/errors
+        const lintFoundIssues = error && error.code === 1 && (stdout.includes('error') || stderr.includes('error'));
+        
         resolve({
           success: error === null,
           exitCode: error?.code || 0,
           stdout: stdout || '',
           stderr: stderr || '',
           command,
-          workdir
+          workdir,
+          hasRealError,
+          lintFoundIssues,
+          scriptExists: !stderr.includes('Missing script')
         });
       });
     });
   }
 
   /**
-   * Ejecuta linting y recolecta errores
+   * Ejecuta linting y recolecta errores - MEJORADO
    */
   async collectLintErrors() {
     console.log('🔍 Recolectando errores de linting...');
@@ -53,17 +60,49 @@ class ErrorCollector {
     ];
 
     for (const { cmd, name } of commands) {
-      const result = await this.runCommand(cmd);
-      
-      if (!result.success) {
-        const lintErrors = this.parseLintOutput(result.stderr, name, result.stdout);
-        this.errors.push(...lintErrors);
+      try {
+        const result = await this.runCommand(cmd);
+        
+        // MEJORA: Manejar diferentes tipos de resultados
+        if (result.hasRealError) {
+          // Error real del script (no existe, syntax error, etc.)
+          console.log(`❌ ${name}: Script error - ${result.stderr}`);
+          this.errors.push({
+            type: 'script',
+            source: name,
+            severity: 'error',
+            message: `Script failed: ${result.stderr}`,
+            command: cmd,
+            context: null
+          });
+        } else if (result.lintFoundIssues || (!result.success && result.exitCode === 1)) {
+          // ESLint encontró issues - parsear normalmente
+          console.log(`🔍 ${name}: Linting issues found, parsing...`);
+          const lintErrors = this.parseLintOutput(result.stderr, name, result.stdout);
+          this.errors.push(...lintErrors);
+        } else if (!result.scriptExists) {
+          // Script no existe
+          console.log(`⚠️ ${name}: Script 'lint' not found, skipping...`);
+        } else {
+          // Todo bien
+          console.log(`✅ ${name}: No linting errors`);
+        }
+      } catch (error) {
+        console.log(`❌ ${name}: Unexpected error - ${error.message}`);
+        this.errors.push({
+          type: 'unexpected',
+          source: name,
+          severity: 'error',
+          message: `Unexpected error: ${error.message}`,
+          command: cmd,
+          context: null
+        });
       }
     }
   }
 
   /**
-   * Ejecuta build y recolecta errores
+   * Ejecuta build y recolecta errores - MEJORADO
    */
   async collectBuildErrors() {
     console.log('🏗️ Recolectando errores de build...');
@@ -74,11 +113,40 @@ class ErrorCollector {
     ];
 
     for (const { cmd, name } of commands) {
-      const result = await this.runCommand(cmd);
-      
-      if (!result.success) {
-        const buildErrors = this.parseBuildOutput(result.stderr, name);
-        this.errors.push(...buildErrors);
+      try {
+        const result = await this.runCommand(cmd);
+        
+        // MEJORA: Mejor manejo de errores de build
+        if (result.hasRealError) {
+          console.log(`❌ ${name}: Build script error - ${result.stderr}`);
+          this.errors.push({
+            type: 'build-script',
+            source: name,
+            severity: 'error',
+            message: `Build script failed: ${result.stderr}`,
+            command: cmd,
+            context: null
+          });
+        } else if (!result.success) {
+          // Build falló con errores de compilación
+          console.log(`🔍 ${name}: Build compilation errors found, parsing...`);
+          const buildErrors = this.parseBuildOutput(result.stderr, name);
+          this.errors.push(...buildErrors);
+        } else if (!result.scriptExists) {
+          console.log(`⚠️ ${name}: Script 'build' not found, skipping...`);
+        } else {
+          console.log(`✅ ${name}: Build successful`);
+        }
+      } catch (error) {
+        console.log(`❌ ${name}: Unexpected build error - ${error.message}`);
+        this.errors.push({
+          type: 'build-unexpected',
+          source: name,
+          severity: 'error',
+          message: `Unexpected build error: ${error.message}`,
+          command: cmd,
+          context: null
+        });
       }
     }
   }
