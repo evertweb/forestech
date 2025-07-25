@@ -150,8 +150,8 @@ jobs:
           const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
           
           const issues = await github.rest.issues.listForRepo({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
             labels: 'copilot-agent',
             state: 'open',
             since: oneHourAgo.toISOString(),
@@ -229,8 +229,8 @@ jobs:
             Generado automáticamente por el Sistema Copilot Bridge`;
             
             const issue = await github.rest.issues.create({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               title: `🤖 Agente Copilot: Corregir ${context.summary?.totalErrors || 'Múltiples'} Errores de Build/Lint`,
               body: issueBody,
               labels: ['copilot-agent', 'errores-build', 'automatizacion']
@@ -270,8 +270,8 @@ jobs:
             
             // Assign to GitHub Copilot Agent using assignees API
             await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/assignees', {
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               issue_number: issueNumber,
               assignees: ['copilot']
             });
@@ -316,8 +316,8 @@ jobs:
           
           // Check for recent PRs by Copilot
           const prs = await github.rest.pulls.list({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
             state: 'open',
             per_page: 5
           });
@@ -347,8 +347,8 @@ jobs:
             🤖 Monitoreo automático del Copilot Bridge System`;
             
             await github.rest.issues.createComment({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               issue_number: copilotPR.number,
               body: monitorComment
             });
