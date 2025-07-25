@@ -229,8 +229,8 @@ jobs:
             Generado automáticamente por el Sistema Copilot Bridge`;
             
             const issue = await github.rest.issues.create({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               title: `🤖 Agente Copilot: Corregir ${context.summary?.totalErrors || 'Múltiples'} Errores de Build/Lint`,
               body: issueBody,
               labels: ['copilot-agent', 'errores-build', 'automatizacion']
