@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Debug and temporary files
+test-background-debug.js
+test-background-image-debug.js
+upload-background-fix.js
+temp-test-image.js

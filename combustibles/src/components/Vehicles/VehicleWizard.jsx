@@ -240,7 +240,7 @@ const VehicleWizard = ({
       console.error('❌ Error al guardar vehículo:', error);
       throw error;
     }
-  }, [vehicle, onSuccess]);
+  }, [vehicle, categories, onSuccess]);
 
   if (loadingCategories) {
     return null; // O un loading spinner

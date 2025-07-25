@@ -3,7 +3,7 @@
  * Gestiona cambios de aceite, filtros y baterías con integración horómetro tractores
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 // maintenanceService se importa estáticamente aquí (eliminar dynamic import)
 import { 
@@ -43,46 +43,49 @@ const MaintenanceMain = () => {
   const [selectedMaintenance, setSelectedMaintenance] = useState(null);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
+  // Función estabilizada para manejar la suscripción con filtros
+  const handleMaintenanceSubscription = useCallback((callback) => {
+    return subscribeToMaintenance(callback, filters);
+  }, [filters]);
+
+  // Función estabilizada para cargar estadísticas
+  const loadMaintenanceStats = useCallback(async () => {
+    try {
+      const statsData = await getMaintenanceStats(filters);
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    }
+  }, [filters]);
+
   // Suscripción a mantenimientos en tiempo real
   useEffect(() => {
     if (!user) return;
 
     setLoading(true);
     
-    const unsubscribe = subscribeToMaintenance(
-      (maintenanceData, error) => {
-        if (error) {
-          console.error('Error en suscripción de mantenimientos:', error);
-          setError('Error al cargar mantenimientos');
-          setLoading(false);
-          return;
-        }
-
-        setMaintenanceRecords(maintenanceData);
-        setError(null);
+    const unsubscribe = handleMaintenanceSubscription((maintenanceData, error) => {
+      if (error) {
+        console.error('Error en suscripción de mantenimientos:', error);
+        setError('Error al cargar mantenimientos');
         setLoading(false);
-      },
-      filters // Aplicar filtros en tiempo real
-    );
+        return;
+      }
+
+      setMaintenanceRecords(maintenanceData);
+      setError(null);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
-  }, [user, filters.type, filters.status, filters.vehicleId, filters.dateFrom, filters.dateTo]); // ⚠️ FIXED: Specific filter dependencies
+  }, [user, handleMaintenanceSubscription]);
 
   // Cargar estadísticas
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const statsData = await getMaintenanceStats(filters);
-        setStats(statsData);
-      } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
-      }
-    };
-
     if (user) {
-      loadStats();
+      loadMaintenanceStats();
     }
-  }, [user, maintenanceRecords, filters.type, filters.status, filters.vehicleId, filters.dateFrom, filters.dateTo]); // ⚠️ FIXED: Specific filter dependencies
+  }, [user, maintenanceRecords, loadMaintenanceStats]);
 
   // Filtrar mantenimientos por búsqueda
   const filteredMaintenance = maintenanceRecords.filter(record => {

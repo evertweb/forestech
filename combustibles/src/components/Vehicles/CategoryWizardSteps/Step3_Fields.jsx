@@ -35,7 +35,7 @@ const Step3_Fields = ({
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, availableFields]);
+  }, [isActive, availableFields, handleFieldToggle]);
 
   const handleFieldToggle = useCallback((field) => {
     const isSelected = selectedFields.some(f => f.key === field.key);

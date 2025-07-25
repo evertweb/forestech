@@ -3,7 +3,7 @@
  * Selección de icono y color para identificar la categoría
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import '../WizardSteps/VehicleWizardSteps.css';
 
 const Step2_Visual = ({ 
@@ -12,6 +12,21 @@ const Step2_Visual = ({
   errors, 
   isActive 
 }) => {
+
+  const iconOptions = useMemo(() => [
+    { icon: '🚜', name: 'Tractor', description: 'Para vehículos agrícolas' },
+    { icon: '🚛', name: 'Camión', description: 'Para vehículos de carga' },
+    { icon: '🚧', name: 'Excavadora', description: 'Para maquinaria de construcción' },
+    { icon: '🛤️', name: 'Motoniveladora', description: 'Para trabajo en carreteras' },
+    { icon: '🏗️', name: 'Bulldozer', description: 'Para movimiento de tierra' },
+    { icon: '⚒️', name: 'Retroexcavadora', description: 'Para excavación y carga' },
+    { icon: '🚚', name: 'Volqueta', description: 'Para transporte de materiales' },
+    { icon: '🏋️', name: 'Montacargas', description: 'Para manejo de materiales' },
+    { icon: '💨', name: 'Compresor', description: 'Para equipos neumáticos' },
+    { icon: '⚡', name: 'Generador', description: 'Para equipos eléctricos' },
+    { icon: '🚗', name: 'Vehículo', description: 'Para vehículos generales' },
+    { icon: '🚙', name: 'Camioneta', description: 'Para vehículos utilitarios' }
+  ], []);
 
   // Navegación por teclado
   useEffect(() => {
@@ -28,7 +43,7 @@ const Step2_Visual = ({
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, updateFormData]);
+  }, [isActive, iconOptions, updateFormData]);
 
   const handleIconSelect = useCallback((icon) => {
     updateFormData('icon', icon);
@@ -37,21 +52,6 @@ const Step2_Visual = ({
   const handleColorSelect = useCallback((color) => {
     updateFormData('color', color);
   }, [updateFormData]);
-
-  const iconOptions = [
-    { icon: '🚜', name: 'Tractor', description: 'Para vehículos agrícolas' },
-    { icon: '🚛', name: 'Camión', description: 'Para vehículos de carga' },
-    { icon: '🚧', name: 'Excavadora', description: 'Para maquinaria de construcción' },
-    { icon: '🛤️', name: 'Motoniveladora', description: 'Para trabajo en carreteras' },
-    { icon: '🏗️', name: 'Bulldozer', description: 'Para movimiento de tierra' },
-    { icon: '⚒️', name: 'Retroexcavadora', description: 'Para excavación y carga' },
-    { icon: '🚚', name: 'Volqueta', description: 'Para transporte de materiales' },
-    { icon: '🏋️', name: 'Montacargas', description: 'Para manejo de materiales' },
-    { icon: '💨', name: 'Compresor', description: 'Para equipos neumáticos' },
-    { icon: '⚡', name: 'Generador', description: 'Para equipos eléctricos' },
-    { icon: '🚗', name: 'Vehículo', description: 'Para vehículos generales' },
-    { icon: '🚙', name: 'Camioneta', description: 'Para vehículos utilitarios' }
-  ];
 
   const colorOptions = [
     { color: '#3b82f6', name: 'Azul', description: 'Profesional y confiable' },

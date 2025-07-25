@@ -3,7 +3,7 @@
  * Ahora incluye pestañas para gestionar vehículos y categorías por separado
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToVehicles, 
@@ -51,46 +51,49 @@ const VehiclesMain = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
+  // Función estabilizada para manejar la suscripción con filtros
+  const handleVehiclesSubscription = useCallback((callback) => {
+    return subscribeToVehicles(callback, filters);
+  }, [filters]);
+
+  // Función estabilizada para cargar estadísticas
+  const loadVehiclesStats = useCallback(async () => {
+    try {
+      const statsData = await getVehiclesStats(filters);
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    }
+  }, [filters]);
+
   // Suscripción a vehículos en tiempo real
   useEffect(() => {
     if (!user) return;
 
     setLoading(true);
     
-    const unsubscribe = subscribeToVehicles(
-      (vehiclesData, error) => {
-        if (error) {
-          console.error('Error en suscripción de vehículos:', error);
-          setError('Error al cargar vehículos');
-          setLoading(false);
-          return;
-        }
-
-        setVehicles(vehiclesData);
-        setError(null);
+    const unsubscribe = handleVehiclesSubscription((vehiclesData, error) => {
+      if (error) {
+        console.error('Error en suscripción de vehículos:', error);
+        setError('Error al cargar vehículos');
         setLoading(false);
-      },
-      filters // Aplicar filtros en tiempo real
-    );
+        return;
+      }
+
+      setVehicles(vehiclesData);
+      setError(null);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
-  }, [user, filters.type, filters.status, filters.fuelType, filters.location, filters.maintenance]); // ⚠️ FIXED: Specific filter dependencies
+  }, [user, handleVehiclesSubscription]);
 
   // Cargar estadísticas
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const statsData = await getVehiclesStats(filters);
-        setStats(statsData);
-      } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
-      }
-    };
-
     if (user) {
-      loadStats();
+      loadVehiclesStats();
     }
-  }, [user, vehicles, filters.type, filters.status, filters.fuelType, filters.location, filters.maintenance]); // ⚠️ FIXED: Specific filter dependencies
+  }, [user, vehicles, loadVehiclesStats]);
 
   // Filtrar vehículos por búsqueda
   const filteredVehicles = vehicles.filter(vehicle => {
