@@ -79,7 +79,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, vehicles, formData.fuelType, getCompatibleVehicles, handleVehicleSelection]);
+  }, [isActive, vehicles, formData.fuelType, formData.type, getCompatibleVehicles, handleVehicleSelection]);
 
   // Buscar vehículo seleccionado
   useEffect(() => {
@@ -95,7 +95,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
         setTimeout(() => hourMeterRef.current.focus(), 500);
       }
     }
-  }, [formData.vehicleId, vehicles]);
+  }, [formData.vehicleId, formData.type, vehicles, checkIfRequiresHourMeter]);
 
   // Solo mostrar para salidas
   if (formData.type !== MOVEMENT_TYPES.SALIDA) {

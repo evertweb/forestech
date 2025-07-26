@@ -3,7 +3,7 @@
  * Gestiona la visualización y filtrado de movimientos de combustibles
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToMovements, 
@@ -41,46 +41,49 @@ const MovementsMain = () => {
   const [showWizard, setShowWizard] = useState(false);
   // Variables de estado limpias - solo wizard
 
+  // Función estabilizada para manejar la suscripción con filtros
+  const handleMovementsSubscription = useCallback((callback) => {
+    return subscribeToMovements(callback, filters);
+  }, [filters]);
+
+  // Función estabilizada para cargar estadísticas
+  const loadMovementsStats = useCallback(async () => {
+    try {
+      const statsData = await getMovementsStats(filters);
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    }
+  }, [filters]);
+
   // Suscripción a movimientos en tiempo real
   useEffect(() => {
     if (!user) return;
 
     setLoading(true);
     
-    const unsubscribe = subscribeToMovements(
-      (movementsData, error) => {
-        if (error) {
-          console.error('Error en suscripción de movimientos:', error);
-          setError('Error al cargar movimientos');
-          setLoading(false);
-          return;
-        }
-
-        setMovements(movementsData);
-        setError(null);
+    const unsubscribe = handleMovementsSubscription((movementsData, error) => {
+      if (error) {
+        console.error('Error en suscripción de movimientos:', error);
+        setError('Error al cargar movimientos');
         setLoading(false);
-      },
-      filters // Aplicar filtros en tiempo real
-    );
+        return;
+      }
+
+      setMovements(movementsData);
+      setError(null);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
-  }, [user, filters.type, filters.status, filters.fuelType, filters.vehicleId, filters.dateRange]); // ⚠️ FIXED: Specific filter dependencies
+  }, [user, handleMovementsSubscription]);
 
   // Cargar estadísticas
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const statsData = await getMovementsStats(filters);
-        setStats(statsData);
-      } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
-      }
-    };
-
     if (user) {
-      loadStats();
+      loadMovementsStats();
     }
-  }, [user, movements, filters.type, filters.status, filters.fuelType, filters.vehicleId, filters.dateRange]); // ⚠️ FIXED: Specific filter dependencies
+  }, [user, movements, loadMovementsStats]);
 
   // Filtrar movimientos por búsqueda
   const filteredMovements = movements.filter(movement => {

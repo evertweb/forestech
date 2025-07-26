@@ -123,12 +123,7 @@ const useOptimizedCollection = (collectionName, autoSubscribe = false, options =
   const unsubscribeRef = useRef(null);
 
   // ⚠️ FIXED: Memoize options to prevent infinite re-renders
-  const memoizedOptions = useMemo(() => options, [
-    options.orderByField,
-    options.orderDirection,
-    options.limitCount,
-    JSON.stringify(options.filters)
-  ]);
+  const memoizedOptions = useMemo(() => options, [options]);
 
   const subscribe = useCallback(() => {
     if (unsubscribeRef.current) return; // Ya suscrito
