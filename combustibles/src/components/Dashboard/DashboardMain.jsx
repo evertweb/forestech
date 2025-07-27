@@ -12,6 +12,13 @@ const DashboardMain = () => {
   const renderStats = useRenderCounter('DashboardMain');
   const { updateGlobalMetrics } = useContext(PerformanceContext);
 
+  // ✅ Log render stats in development mode for debugging
+  useEffect(() => {
+    if (import.meta.env.DEV && renderStats?.renderCount > 0) {
+      console.log(`📊 Dashboard render stats:`, renderStats);
+    }
+  }, [renderStats]);
+
   const { 
     inventory, 
     movements, 

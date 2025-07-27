@@ -1,6 +1,7 @@
 // combustibles/src/hooks/usePerformanceMonitor.js
 // Sistema de monitoreo de performance - FASE 3 OPTIMIZACIÓN
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { optimizedFirestore } from '../services/optimizedFirestore';
 
 // Hook para monitorear renders de componentes
 export const useRenderCounter = (componentName) => {
@@ -17,12 +18,14 @@ export const useRenderCounter = (componentName) => {
     const isOptimized = componentName.includes('Optimized') || componentName.includes('Memo');
     if (!isOptimized) {
       try {
-        const { optimizedFirestore } = require('../services/optimizedFirestore');
         if (optimizedFirestore.performanceTracker?.updateGlobalMetrics) {
           optimizedFirestore.performanceTracker.updateGlobalMetrics('unoptimizedComponents', 1);
         }
-      } catch (error) {
+      } catch (err) {
         // Silently handle error if optimizedFirestore is not available
+        if (import.meta.env.DEV) {
+          console.warn('Performance tracking error:', err.message);
+        }
       }
     }
 

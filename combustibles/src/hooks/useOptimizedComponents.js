@@ -1,6 +1,7 @@
 // combustibles/src/hooks/useOptimizedComponents.js
 // Sistema de optimización con React.memo y cache - NIVEL 3 OPTIMIZACIÓN
 import { memo, useMemo } from 'react';
+import { optimizedFirestore } from '../services/optimizedFirestore';
 
 // HOC para optimizar componentes con React.memo inteligente
 export const withOptimization = (Component, customCompare) => {
@@ -8,7 +9,6 @@ export const withOptimization = (Component, customCompare) => {
   OptimizedComponent.displayName = `Optimized(${Component.displayName || Component.name})`;
   
   // ✅ Track optimized component creation
-  const { optimizedFirestore } = require('../services/optimizedFirestore');
   if (optimizedFirestore.performanceTracker?.updateGlobalMetrics) {
     optimizedFirestore.performanceTracker.updateGlobalMetrics('optimizedComponents', 1);
   }
