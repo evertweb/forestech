@@ -2,6 +2,7 @@
 // Contexto global para métricas de performance - FASE 3 OPTIMIZACIÓN
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useCallback, useEffect } from 'react';
+import { optimizedFirestore } from '../services/optimizedFirestore';
 
 // Contexto global para métricas de performance
 export const PerformanceContext = createContext();
@@ -39,7 +40,6 @@ export const PerformanceProvider = ({ children }) => {
 
   // ✅ Inject performance tracker into optimizedFirestore on mount
   useEffect(() => {
-    const { optimizedFirestore } = require('../services/optimizedFirestore');
     optimizedFirestore.setPerformanceTracker({ updateGlobalMetrics });
     
     console.log('🔗 PerformanceContext conectado con optimizedFirestore');
