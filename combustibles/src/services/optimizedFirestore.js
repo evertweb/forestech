@@ -18,6 +18,26 @@ class OptimizedFirestoreService {
     this.activeQueries = new Map();
     this.queryCache = new Map();
     this.CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+    this.performanceTracker = null; // Will be injected
+  }
+
+  // Inject performance tracker
+  setPerformanceTracker(tracker) {
+    this.performanceTracker = tracker;
+  }
+
+  // Track Firebase read
+  trackFirebaseRead() {
+    if (this.performanceTracker?.updateGlobalMetrics) {
+      this.performanceTracker.updateGlobalMetrics('totalFirebaseReads', 1);
+    }
+  }
+
+  // Track cache hit
+  trackCacheHit() {
+    if (this.performanceTracker?.updateGlobalMetrics) {
+      this.performanceTracker.updateGlobalMetrics('totalCacheHits', 1);
+    }
   }
 
   // Consulta optimizada con paginación y cache
@@ -38,12 +58,14 @@ class OptimizedFirestoreService {
       const cached = this.queryCache.get(cacheKey);
       if (Date.now() - cached.timestamp < this.CACHE_TTL) {
         console.log(`📋 Cache hit para ${collectionName}`);
+        this.trackCacheHit(); // ✅ Track cache hit
         return cached.data;
       }
     }
 
     try {
       console.log(`🔥 Ejecutando consulta optimizada: ${collectionName}`);
+      this.trackFirebaseRead(); // ✅ Track Firebase read
 
       let q = collection(db, collectionName);
 
@@ -114,8 +136,14 @@ class OptimizedFirestoreService {
       // Aplicar ordenamiento y límite
       q = query(q, orderBy(orderByField, orderDirection), limit(limitCount));
 
+      // ✅ Track Firebase read for subscription
+      this.trackFirebaseRead();
+
       const unsubscribe = onSnapshot(q,
         (snapshot) => {
+          // ✅ Track Firebase read for each snapshot update
+          this.trackFirebaseRead();
+
           // Debounce para evitar múltiples actualizaciones rápidas
           if (debounceTimer) clearTimeout(debounceTimer);
 
@@ -154,6 +182,7 @@ class OptimizedFirestoreService {
         q = query(q, where(filter.field, filter.operator, filter.value));
       });
 
+      this.trackFirebaseRead(); // ✅ Track Firebase read for count
       const snapshot = await getCountFromServer(q);
       return snapshot.data().count;
     } catch (error) {

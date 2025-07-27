@@ -1,7 +1,7 @@
 // combustibles/src/contexts/PerformanceContext.jsx
 // Contexto global para métricas de performance - FASE 3 OPTIMIZACIÓN
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useCallback, useEffect } from 'react';
 
 // Contexto global para métricas de performance
 export const PerformanceContext = createContext();
@@ -36,6 +36,14 @@ export const PerformanceProvider = ({ children }) => {
     console.log(`⚠️ Components sin optimizar: ${globalMetrics.unoptimizedComponents}`);
     console.log(`🎯 Ratio optimización: ${optimizationRatio.toFixed(1)}%`);
   }, [globalMetrics]);
+
+  // ✅ Inject performance tracker into optimizedFirestore on mount
+  useEffect(() => {
+    const { optimizedFirestore } = require('../services/optimizedFirestore');
+    optimizedFirestore.setPerformanceTracker({ updateGlobalMetrics });
+    
+    console.log('🔗 PerformanceContext conectado con optimizedFirestore');
+  }, [updateGlobalMetrics]);
 
   return (
     <PerformanceContext.Provider value={{

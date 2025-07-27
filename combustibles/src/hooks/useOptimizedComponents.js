@@ -6,6 +6,13 @@ import { memo, useMemo } from 'react';
 export const withOptimization = (Component, customCompare) => {
   const OptimizedComponent = memo(Component, customCompare);
   OptimizedComponent.displayName = `Optimized(${Component.displayName || Component.name})`;
+  
+  // ✅ Track optimized component creation
+  const { optimizedFirestore } = require('../services/optimizedFirestore');
+  if (optimizedFirestore.performanceTracker?.updateGlobalMetrics) {
+    optimizedFirestore.performanceTracker.updateGlobalMetrics('optimizedComponents', 1);
+  }
+  
   return OptimizedComponent;
 };
 

@@ -2,8 +2,12 @@
 /* Estilos para el módulo de administración */
 
 .admin-main {
-  padding: 0;
   width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: var(--spacing-lg, 24px);
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .admin-header {

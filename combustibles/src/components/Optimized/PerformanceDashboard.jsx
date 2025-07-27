@@ -35,7 +35,8 @@ const PerformanceDashboard = ({ isVisible = true }) => {
   }, [isVisible, globalMetrics]);
 
   // Siempre mostrar en desarrollo, o cuando isVisible sea true
-  if (!isVisible && import.meta.env.PROD) {
+  const shouldShow = isVisible || import.meta.env.DEV;
+  if (!shouldShow) {
     return null;
   }
 

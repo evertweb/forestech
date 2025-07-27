@@ -4,7 +4,11 @@
 /* ========== LAYOUT PRINCIPAL ========== */
 .inventory-main {
   width: 100%;
-  padding: 0;
+  max-width: none;
+  margin: 0;
+  padding: var(--spacing-lg, 24px);
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .inventory-header {
@@ -61,9 +65,11 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-card {

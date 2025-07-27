@@ -1,11 +1,17 @@
 // combustibles/src/components/Dashboard/DashboardMain.jsx
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useContext } from 'react';
+import { useRenderCounter } from '../../hooks/usePerformanceMonitor';
+import { PerformanceContext } from '../../contexts/PerformanceContext';
 import './Dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 
 const DashboardMain = () => {
+  // ✅ Track renders for this component
+  const renderStats = useRenderCounter('DashboardMain');
+  const { updateGlobalMetrics } = useContext(PerformanceContext);
+
   const { 
     inventory, 
     movements, 
@@ -16,6 +22,25 @@ const DashboardMain = () => {
     subscribeToMovements,
     subscribeToVehicles
   } = useCombustibles();
+
+  // ✅ Update global render count on each render
+  useEffect(() => {
+    updateGlobalMetrics('totalRenders', 1);
+  });
+
+  // ✅ Initialize some test metrics for debugging
+  useEffect(() => {
+    // Only run once when component mounts
+    const timer = setTimeout(() => {
+      console.log('🧪 Inicializando métricas de prueba para performance dashboard');
+      updateGlobalMetrics('totalFirebaseReads', 5);
+      updateGlobalMetrics('totalCacheHits', 2);
+      updateGlobalMetrics('optimizedComponents', 3);
+      updateGlobalMetrics('unoptimizedComponents', 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ✅ Suscribirse a los datos esenciales cuando se monta el componente
   useEffect(() => {

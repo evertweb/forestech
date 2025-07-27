@@ -41,10 +41,12 @@
 
 /* ============ COMPONENTE PRINCIPAL ============ */
 .vehicles-main {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   padding: var(--spacing-lg);
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* ============ HEADER CON PESTAÑAS ============ */
@@ -241,9 +243,11 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-card {

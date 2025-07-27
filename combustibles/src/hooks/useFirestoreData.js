@@ -7,6 +7,10 @@ import { subscribeToVehicles } from '../services/vehiclesService';
 import { subscribeToSuppliers } from '../services/suppliersService';
 import { optimizedFirestore } from '../services/optimizedFirestore';
 
+// Cache para datos ya cargados
+const dataCache = new Map();
+const CACHE_TTL = 2 * 60 * 1000; // 2 minutos
+
 // Hook genérico para suscripciones Firestore con cache y optimizaciones
 const useFirestoreSubscription = (subscribeFunction, enabled = true, /* _options = {} */) => {
   const [data, setData] = useState([]);
@@ -125,8 +129,30 @@ const useOptimizedCollection = (collectionName, autoSubscribe = false, options =
   // ⚠️ FIXED: Memoize options to prevent infinite re-renders
   const memoizedOptions = useMemo(() => options, [options]);
 
+  // ✅ Check cache before subscribing
+  const checkCache = useCallback((cacheKey) => {
+    if (dataCache.has(cacheKey)) {
+      const cached = dataCache.get(cacheKey);
+      if (Date.now() - cached.timestamp < CACHE_TTL) {
+        console.log(`📋 Cache hit en useOptimizedCollection: ${collectionName}`);
+        optimizedFirestore.trackCacheHit();
+        setData(cached.data);
+        setLoading(false);
+        return true;
+      }
+    }
+    return false;
+  }, [collectionName]);
+
   const subscribe = useCallback(() => {
     if (unsubscribeRef.current) return; // Ya suscrito
+
+    const cacheKey = `${collectionName}_${JSON.stringify(memoizedOptions)}`;
+    
+    // ✅ Try cache first
+    if (checkCache(cacheKey)) {
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -138,6 +164,11 @@ const useOptimizedCollection = (collectionName, autoSubscribe = false, options =
           setError(err.message);
         } else {
           setData(newData);
+          // ✅ Update cache
+          dataCache.set(cacheKey, {
+            data: newData,
+            timestamp: Date.now()
+          });
         }
         setLoading(false);
       },
@@ -145,7 +176,7 @@ const useOptimizedCollection = (collectionName, autoSubscribe = false, options =
     );
 
     unsubscribeRef.current = unsubscribe;
-  }, [collectionName, memoizedOptions]);
+  }, [collectionName, memoizedOptions, checkCache]);
 
   const unsubscribe = useCallback(() => {
     if (unsubscribeRef.current) {

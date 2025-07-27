@@ -5,9 +5,12 @@
 
 /* === COMPONENTE PRINCIPAL === */
 .products-main {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: var(--spacing-lg, 24px);
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .products-header {
@@ -228,9 +231,11 @@
 
 .stats-general {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-card {

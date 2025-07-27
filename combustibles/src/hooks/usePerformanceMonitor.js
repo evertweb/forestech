@@ -13,6 +13,19 @@ export const useRenderCounter = (componentName) => {
     const timeSinceLastRender = now - lastRender.current;
     lastRender.current = now;
 
+    // ✅ Track unoptimized component if it's not wrapped with withOptimization
+    const isOptimized = componentName.includes('Optimized') || componentName.includes('Memo');
+    if (!isOptimized) {
+      try {
+        const { optimizedFirestore } = require('../services/optimizedFirestore');
+        if (optimizedFirestore.performanceTracker?.updateGlobalMetrics) {
+          optimizedFirestore.performanceTracker.updateGlobalMetrics('unoptimizedComponents', 1);
+        }
+      } catch (error) {
+        // Silently handle error if optimizedFirestore is not available
+      }
+    }
+
     if (import.meta.env.DEV) {
       console.log(`🔄 [${componentName}] Render #${renderCount.current} (${timeSinceLastRender}ms desde último)`);
     }

@@ -15,6 +15,7 @@ import {
   writeBatch
 } from "firebase/firestore";
 import { db } from "../firebase/config";
+import { optimizedFirestore } from './optimizedFirestore';
 import { FUEL_INFO, getStockLevel } from "../constants/combustibleTypes";
 
 // Rutas de colecciones
@@ -99,6 +100,8 @@ export const getAllInventoryItems = async () => {
       orderBy("fuelType", "asc")
     );
     
+    // ✅ Track Firebase read
+    optimizedFirestore.trackFirebaseRead();
     const querySnapshot = await getDocs(q);
     const items = [];
     
@@ -131,6 +134,8 @@ export const getAllInventoryItems = async () => {
 export const getInventoryItem = async (itemId) => {
   try {
     const docRef = doc(db, INVENTORY_COLLECTION, itemId);
+    // ✅ Track Firebase read
+    optimizedFirestore.trackFirebaseRead();
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
