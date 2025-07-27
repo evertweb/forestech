@@ -17,12 +17,10 @@ const BACKGROUND_CONFIG = {
   // Imagen de fallback si no se puede cargar desde Firebase
   fallbackUrl: '/api/placeholder/1920/1080',
   
-  // URLs de imágenes predeterminadas que se pueden usar
+  // URLs de imágenes predeterminadas que se pueden usar (CORS compatible)
   defaultImages: [
-    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80', // Bosque
-    'https://images.unsplash.com/photo-1574263867128-6fbaa6ccbacd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80', // Tanque combustible
-    'https://images.unsplash.com/photo-1582718471137-d4b7a5c82d8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80', // Industrial
-    'https://images.unsplash.com/photo-1586810883395-3a5c2f6c84b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'  // Energía
+    '/assets/background-forest.svg', // Imagen SVG local de bosque
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJmb3Jlc3QiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGI3OTg4IiAvPgo8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iIzMzNjM1OSIgLz4KPHN0b3Agb2Zmc2V0PSI3MCUiIHN0b3AtY29sb3I9IiMyMTU0MzIiIC8+CjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFmMzIyZiIgLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2ZvcmVzdCkiLz4KPC9zdmc+'
   ]
 };
 
@@ -42,20 +40,7 @@ export const getBackgroundImageUrl = async () => {
     console.log('✅ Imagen de fondo cargada desde Firebase Storage');
     console.log('🔗 URL:', url);
     
-    // Verificar que la URL es accesible antes de usarla
-    try {
-      const response = await fetch(url, { method: 'HEAD' });
-      if (response.ok) {
-        console.log('✅ URL verificada como accesible');
-        return url;
-      } else {
-        console.warn('⚠️ URL de Firebase no accesible, usando fallback');
-        throw new Error('URL no accesible');
-      }
-    } catch (fetchError) {
-      console.warn('⚠️ Error verificando URL de Firebase:', fetchError);
-      throw fetchError;
-    }
+    return url;
     
   } catch (error) {
     console.warn('⚠️ No se pudo cargar imagen de Firebase Storage:', {

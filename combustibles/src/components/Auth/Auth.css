@@ -390,3 +390,162 @@
     transform: rotate(360deg);
   }
 }
+
+/* =================== LOGIN MINIMALISTA PROGRESIVO =================== */
+
+/* Estado minimal de la auth-card */
+.auth-card.minimal {
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  border-radius: 0;
+  max-width: none;
+  width: auto;
+  animation: none;
+}
+
+.auth-card.minimal .auth-form {
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+/* Estado expandido de la auth-card */
+.auth-card.expanded {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  max-width: 450px;
+  width: 100%;
+  animation: expandCard 0.6s ease-out;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes expandCard {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.8);
+    background: transparent;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(15px);
+  }
+}
+
+/* Contenedor del botón minimalista */
+.minimal-login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  width: 100%;
+  overflow: visible;
+  padding: 30px 20px;
+  box-sizing: border-box;
+}
+
+/* Botón minimalista inicial */
+.minimal-login-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  padding: 20px 40px !important;
+  border-radius: 50px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+  max-width: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  transform-origin: center center;
+}
+
+.minimal-login-btn:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.05) !important;
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.1) !important;
+}
+
+.minimal-login-btn:active {
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Animación sutil del botón */
+.minimal-login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s;
+}
+
+.minimal-login-btn:hover::before {
+  left: 100%;
+}
+
+/* Formulario expandido */
+.expanded-form {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expanded-form.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Transiciones suaves para el estado expandido */
+.auth-card.expanded .auth-form {
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.98);
+  transition: all 0.4s ease;
+}
+
+/* Responsive para botón minimalista */
+@media (max-width: 480px) {
+  .minimal-login-btn {
+    font-size: 1.1rem !important;
+    padding: 16px 32px !important;
+  }
+  
+  .minimal-login-container {
+    min-height: 50vh;
+    padding: 25px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .minimal-login-btn {
+    font-size: 1rem !important;
+    padding: 14px 28px !important;
+  }
+  
+  .minimal-login-container {
+    padding: 20px 12px;
+  }
+}

@@ -22,6 +22,10 @@ const Auth = () => {
   // Estado para la imagen de fondo
   const [backgroundImage, setBackgroundImage] = useState('');
   const [imageLoading, setImageLoading] = useState(true);
+  
+  // Estado para UI progresivo
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   // Login state
   const [email, setEmail] = useState('');
@@ -206,11 +210,35 @@ const Auth = () => {
     });
   };
 
+  const handleExpandLogin = () => {
+    setIsExpanded(true);
+    // Pequeño delay para la animación
+    setTimeout(() => {
+      setShowForm(true);
+    }, 300);
+  };
+
   const renderContent = () => {
     switch (view) {
       case 'login':
+        if (!isExpanded) {
+          // Vista minimalista inicial - solo botón
+          return (
+            <div className="minimal-login-container">
+              <button 
+                onClick={handleExpandLogin}
+                className="auth-button minimal-login-btn"
+                disabled={loading || imageLoading}
+              >
+                ⛽ Ingresar al Sistema
+              </button>
+            </div>
+          );
+        }
+
+        // Vista expandida - formulario completo
         return (
-          <>
+          <div className={`expanded-form ${showForm ? 'show' : ''}`}>
             <form onSubmit={handleEmailLogin}>
               <div className="form-group">
                 <label htmlFor="email">Email:</label>
@@ -271,7 +299,7 @@ const Auth = () => {
                 ¿Tienes un código de invitación? Regístrate aquí
               </button>
             </div>
-          </>
+          </div>
         );
 
       case 'invite':
@@ -438,16 +466,18 @@ const Auth = () => {
         </div>
       )}
       
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1>⛽ Combustibles</h1>
-          <h2>Forestech Colombia</h2>
-          <p>
-            {view === 'login' && 'Sistema de gestión de combustibles'}
-            {view === 'invite' && 'Validar código de invitación'}
-            {view === 'register' && 'Crear nueva cuenta'}
-          </p>
-        </div>
+      <div className={`auth-card ${isExpanded ? 'expanded' : 'minimal'}`}>
+        {isExpanded && (
+          <div className="auth-header">
+            <h1>⛽ Combustibles</h1>
+            <h2>Forestech Colombia</h2>
+            <p>
+              {view === 'login' && 'Sistema de gestión de combustibles'}
+              {view === 'invite' && 'Validar código de invitación'}
+              {view === 'register' && 'Crear nueva cuenta'}
+            </p>
+          </div>
+        )}
 
         <div className="auth-form">
           {error && (
@@ -464,18 +494,20 @@ const Auth = () => {
 
           {renderContent()}
 
-          <div className="auth-footer">
-            <p>
-              <small>
-                Solo usuarios autorizados pueden acceder al sistema.
-                <br />
-                {view === 'login' 
-                  ? 'Contacta al administrador para obtener un código de invitación.'
-                  : 'Si no tienes código, contacta al administrador.'
-                }
-              </small>
-            </p>
-          </div>
+          {isExpanded && (
+            <div className="auth-footer">
+              <p>
+                <small>
+                  Solo usuarios autorizados pueden acceder al sistema.
+                  <br />
+                  {view === 'login' 
+                    ? 'Contacta al administrador para obtener un código de invitación.'
+                    : 'Si no tienes código, contacta al administrador.'
+                  }
+                </small>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
