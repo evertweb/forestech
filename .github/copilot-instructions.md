@@ -646,163 +646,163 @@ export const PERMISSIONS = {
 
 ## 🔍 Debugging & AI Tools
 
-### MCP Integrations (Auto-loaded Context System)
+## ⚡ EJECUCIÓN PARALELA DE HERRAMIENTAS (CRÍTICO)
 
-#### 🎯 **Auto-Context Loading Protocol**
-When working with this repository, the following MCP integrations and context should be automatically loaded:
+**GitHub Copilot DEBE usar múltiples operaciones en paralelo cuando sea posible:**
 
-#### **Core MCP Servers (6 Active - ACTUALIZADO 15/07/2025)**
+### ✅ Patrones Correctos - Operaciones Paralelas
 ```bash
-# Priority Order: github-cli > github > memory > filesystem > firebase > notion
-🔥 Firebase MCP: proyecto liquidacionapp-62962 (Firestore, Auth, Storage)
-🐙 GitHub HTTP: api.githubcopilot.com/mcp/ (Repository operations)  
-⚡ GitHub CLI: wrapper automático (PRIORITARIO - use instead of terminal gh commands)
-🧠 Memory MCP: contexto persistente (Project knowledge persistence)
-📁 Filesystem MCP: gestión archivos (File operations)
-📝 Notion MCP: ✅ CONFIGURADO - @suekou/mcp-notion-server (token: ntn_175303559088...)
+# Análisis simultáneo de múltiples archivos
+- Leer varios archivos a la vez
+- Ejecutar grep + ls + análisis estructura simultáneamente
+- Git operations: status + diff + log en paralelo
+- Firebase queries: múltiples colecciones + usuarios + reglas a la vez
 ```
 
-#### **AI Preferences (CRITICAL - Established 14/07/2025)**
-```json
-// .vscode/ai-preferences.json - PERMANENT CONFIGURATION
-{
-  "github_operations": "always_use_github_cli_mcp_wrapper",
-  "terminal_commands": "avoid_direct_gh_commands", 
-  "mcp_priority": "github-cli > github > memory > filesystem > firebase > notion",
-  "auto_tools": "use_mcp_internally_not_user_terminal"
-}
-```
-
-#### **Legacy Superprompt Integration**
-The previous manual context loading command:
-```
-🎯 Cargar contexto Forestech completo: MCPs + Wrappers + CLAUDE.md + Git
-```
-
-Is now **automatically integrated** - this copilot-instructions.md file replaces the need for manual context loading by providing:
-- ✅ MCP tool configurations and priorities
-- ✅ Project architecture and patterns  
-- ✅ Git workflow understanding
-- ✅ CLAUDE.md integration (see below)
-- ✅ AI preferences and tool usage rules
-
-#### **CLAUDE.md Integration Points**
-- **Dual AI System**: Copilot + Claude coordination
-- **Project Selector**: ALIMENTACION | COMBUSTIBLES | SHARED | GENERAL
-- **MCPs**: Firebase, GitHub, Memory, Filesystem integrations
-- **Preferences**: Always use github-cli MCP wrapper, avoid direct terminal commands
-
-### MCP Tool Usage Commands
+### ❌ Antipatrones - Evitar Ejecución Secuencial Innecesaria
 ```bash
-# 🔥 Firebase Operations
-@firebase "consulta usuarios activos en Authentication"
-@firebase "obtener inventario combustibles Firestore"
-@firebase "revisar reglas seguridad Firestore"
-
-# 🐙 GitHub Operations (Use github-cli wrapper - PRIORITY)
-@github-cli "crear PR con cambios actuales"
-@github-cli "obtener issues abiertos"
-@github-cli "revisar workflows activos"
-
-# 🧠 Memory & Context
-@memory "guardar patrones arquitectura identificados"
-@memory "recuperar convenciones establecidas"
-@memory "guardar lista tareas pendientes [proyecto]"
-@memory "recuperar progreso tareas [sesión]"
-@memory "actualizar estado tarea [tarea-id]"
-
-# 📁 Filesystem (Alternative to manual file operations)
-@filesystem "analizar estructura combustibles/src/"
-@filesystem "buscar archivos con patrón useEffect"
-
-# 📝 Notion Operations (NUEVO - Configurado 15/07/2025)
-@notion "consulta mi base de datos de proyectos"
-@notion "crea una nueva página para el proyecto X"
-@notion "busca documentación sobre Y"
-@notion "actualizar propiedades de página existente"
-@notion "añadir contenido a página específica"
+# NO hacer operaciones una por una cuando pueden ser paralelas
+- Read → esperar → Grep → esperar → LS
+- Un comando por vez cuando podrían ser simultáneos
+- Consultas Firebase secuenciales cuando pueden ser paralelas
 ```
 
-### 📝 **Notion MCP Server Configuration (15/07/2025)**
-```json
-// .vscode/mcp.json - Configuración completa
-{
-  "notion": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@suekou/mcp-notion-server"],
-    "env": {
-      "NOTION_API_TOKEN": "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",
-      "NOTION_MARKDOWN_CONVERSION": "true"
-    }
-  }
-}
+### 🚀 Casos de Uso Paralelo
+- **Análisis arquitectural**: Múltiples archivos + estructura + dependencias
+- **Debugging complejo**: Logs + código + configuración simultáneamente
+- **Build verification**: Lint + test + build checks a la vez
+- **Performance analysis**: Múltiples métricas y archivos simultáneamente
+
+## 🤖 MCPS AVANZADOS CONFIGURADOS
+
+### MCPs Enterprise Activos
+**Prioridad actualizada:** serena > context7 > github-cli > github > memory > filesystem > firebase > notion
+
+#### 🧠 Serena (Análisis Semántico)
+- **Funcionalidad**: Análisis arquitectural inteligente y refactoring semántico
+- **Auto-uso**: Navegación de símbolos, dependencias cruzadas, calidad automática
+- **Contexto**: Comprensión estructura monorepo alimentacion/combustibles/shared
+
+#### 📚 Context7 (Documentación Actualizada)
+- **Funcionalidad**: Docs en tiempo real de Firebase v10+, React 19, Vite latest
+- **Auto-uso**: Validación API, prevención errores, mejores prácticas inyectadas
+- **Contexto**: Verificar sintaxis correcta antes de sugerir implementaciones
+
+#### ⏰ Time-Bogotá (Zona Horaria)
+- **Configuración**: América/Bogotá para timestamps y logging
+- **Auto-uso**: Fechas, logs, created_at automáticamente en zona horaria correcta
+
+#### 🧠 Sequential-Thinking-ES (Análisis Paso a Paso)
+- **Funcionalidad**: Razonamiento estructurado en español para tareas complejas
+- **Auto-uso**: Debugging complejo, arquitectura, planificación de refactoring
+
+## 🎯 SELECTOR DE PROYECTO AUTOMÁTICO
+
+**Al iniciar cada sesión, GitHub Copilot debe preguntar:**
+
+```
+🔍 ¿En qué proyecto de Forestech trabajamos hoy?
+
+🍽️  1. ALIMENTACION - App de liquidaciones de comidas (puerto 5173)
+⛽  2. COMBUSTIBLES - App de gestión de combustibles (puerto 5174)  
+🔧  3. SHARED - Recursos compartidos entre apps
+📋  4. GENERAL - Configuración global del monorepo
+
+Responde con el número (1-4) para establecer el contexto correcto.
 ```
 
-#### **Herramientas Notion Disponibles (17 total)**
-- `notion_retrieve_page` - Obtener páginas específicas
-- `notion_query_database` - Consultar bases de datos
-- `notion_create_database_item` - Crear elementos en DB
-- `notion_search` - Buscar contenido por título
-- `notion_append_block_children` - Añadir bloques de contenido
-- `notion_update_page_properties` - Actualizar propiedades
-- `notion_create_database` - Crear nuevas bases de datos
-- `notion_delete_block` - Eliminar bloques específicos
-
-#### **Configuración de Integración Notion**
-1. ✅ **Token configurado**: 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
-2. ✅ **Servidor instalado**: @suekou/mcp-notion-server v1.2.4
-3. ✅ **Conversión Markdown**: Activada (reduce uso de tokens)
-4. ✅ **Verificación**: Script test-notion-mcp.sh ejecutado exitosamente
-```
-
-### Auto-Context Script Integration
+### 🔄 Contexto Automático por Proyecto
 ```bash
-# The master context loader script is available at:
-# scripts/master-context-loader.sh
+# 1. ALIMENTACION
+- Contexto: UserContext, cálculos liquidaciones, Firebase settlements
+- Archivos principales: alimentacion/src/components/, alimentacion/src/firebase/
+- Puerto desarrollo: 5173
 
-# But now THIS FILE provides the same context automatically:
-# - MCP configurations and priorities
-# - AI preferences (github-cli wrapper priority)
-# - Project patterns and architecture
-# - Git workflow understanding
-# - Firebase project configuration
+# 2. COMBUSTIBLES  
+- Contexto: AuthContext + CombustiblesContext, 14 módulos, 6 hooks, 15+ servicios
+- Archivos principales: combustibles/src/, más complejo que alimentacion
+- Puerto desarrollo: 5174
+
+# 3. SHARED
+- Contexto: Firebase config unificado, constantes, roles, permisos
+- Archivos principales: shared/firebase/, shared/constants/
+
+# 4. GENERAL
+- Contexto: Monorepo, CI/CD, documentación, scripts, package.json raíz
+- Archivos principales: .github/workflows/, scripts/, docs/
 ```
 
-### Legacy Context Migration
-The manual superprompt `🎯 Cargar contexto Forestech completo` has been **migrated into this file** providing:
+## 🧠 COMPORTAMIENTO AUTOMÁTICO INTELIGENTE
 
-1. **MCP Priority System**: github-cli > github > memory > filesystem > firebase > notion
-2. **AI Preferences**: Never use direct gh commands, always use MCP wrappers
-3. **Project Context**: Monorepo structure, tech stack, deployment patterns
-4. **Firebase Integration**: liquidacionapp-62962 project with full service access
-5. **Git Workflow**: Branch management, commit patterns, CI/CD coordination
+### ⚡ Auto-Análisis Profundo (Sin Solicitud Explícita)
+GitHub Copilot ejecuta automáticamente:
 
-### URLs & Hosting
-- **Production**: `forestechdecolombia.com.co/{app}/`
-- **Firebase**: `liquidacionapp-62962.web.app/{app}/`
-- Multi-app routing via `firebase.json` rewrites
+#### 🌊 Wave Orchestration (AUTO)
+- **Trigger**: Complejidad ≥0.7 OR archivos >20 OR múltiples dominios
+- **Acción**: Coordinar análisis en fases (Analysis → Implementation → Validation)
+- **Ejemplo**: Análisis arquitectural → refactoring → security audit → performance
 
-## 🧪 Testing Philosophy
+#### ⚡ Token Compression (AUTO)
+- **Nivel 1** (contexto >75%): Símbolos técnicos (→, ✅, ❌, &, |)
+- **Nivel 2** (contexto >85%): Abreviaciones (cfg, impl, perf, sec, val)
+- **Nivel 3** (contexto >95%): Ultra-compresión preservando información técnica
 
-- **Real data integration**: Apps connect to live Firebase in development
-- **AI-assisted fixes**: Copilot Bridge automatically resolves build errors
-- **Gradual migration**: Old components can coexist with optimized patterns
-- **Performance monitoring**: `PerformanceContext` tracks cache hits and render cycles
+#### 🔍 Auto-Analysis Patterns (AUTO)
+- **Context Detection**: Detectar automáticamente dominio (auth, Firebase, React, build)
+- **Dependency Analysis**: Identificar dependencias cruzadas alimentacion ↔ combustibles ↔ shared
+- **Quality Gates**: Validación automática antes de implementar cambios
+- **Pattern Recognition**: Identificar patrones existentes y mantener consistencia
 
-## ✅ Context Auto-Loading Verification
+### 🎯 Comandos Internos Automáticos
+GitHub Copilot interpreta automáticamente (sin que usuario los escriba):
 
-When an AI agent starts working on this project, verify these elements are loaded:
+#### `/analyze` (AUTO-TRIGGER)
+- **Cuándo**: "revisar código", "analizar", "troubleshooting"
+- **Acción**: Análisis semántico + documentación actualizada + patrones memoria
+- **Contexto**: Firebase datos reales + estructura monorepo
 
-### 🎯 **Critical Preferences (Established 14/07/2025)**
+#### `/implement` (AUTO-TRIGGER)  
+- **Cuándo**: "crear feature", "implementar", "desarrollar"
+- **Acción**: Navegación símbolos + APIs actualizadas + patrones establecidos
+- **Contexto**: Mantener convenciones proyecto + performance patterns
+
+#### `/improve` (AUTO-TRIGGER)
+- **Cuándo**: "optimizar", "mejorar", "refactorizar"
+- **Acción**: Refactoring semántico + mejores prácticas + memoria soluciones
+- **Contexto**: Performance + security + maintainability
+
+#### `/validate` (AUTO-TRIGGER)
+- **Cuándo**: Antes de implementar cambios significativos
+- **Acción**: Quality audit + dependency check + breaking change detection
+- **Contexto**: Compatibilidad React 19 + Firebase + monorepo
+
+### 🚀 Flags Automáticos Internos
 ```bash
-✅ MCP Priority: github-cli wrapper is primary for GitHub ops
-✅ Terminal Commands: Avoid direct gh commands, use MCP wrappers
-✅ AI Tools: Use MCPs internally, not user-facing terminal commands
-✅ Firebase Project: liquidacionapp-62962 access confirmed
+--parallel-execution: SIEMPRE activo para operaciones simultáneas
+--context-aware: Auto-detección alimentacion/combustibles/shared/general
+--memory-persistent: Guardar patrones exitosos automáticamente
+--spanish-first: Todas las respuestas y documentación en español
+--performance-optimize: Considerar impacto performance en cada sugerencia
+--firebase-aware: Contexto proyecto liquidacionapp-62962 automático
 ```
 
-### 📋 **Project Understanding Checklist**
+## 📚 DOCUMENTACIÓN MODULAR INTEGRADA
+
+### 🔗 Referencias Documentación Específica
+- **📂 Estructura Detallada**: [docs/project/STRUCTURE.md](./docs/project/STRUCTURE.md)
+- **⚙️ Comandos Avanzados**: [docs/project/COMMANDS.md](./docs/project/COMMANDS.md)  
+- **📊 Estado Proyecto**: [docs/project/STATUS.md](./docs/project/STATUS.md)
+- **🚀 CI/CD Workflows**: [docs/project/CICD.md](./docs/project/CICD.md)
+- **Apps Específicas**: 
+  - `docs/alimentacion/README.md`
+  - `docs/combustibles/README.md` 
+  - `docs/shared/README.md`
+
+### 🔄 Sincronización Automática CLAUDE.md ↔ Copilot-Instructions
+- **Bidireccional**: Cambios importantes se reflejan en ambos archivos
+- **Claude específico**: Comportamientos avanzados, MCPs enterprise
+- **Copilot específico**: Patrones código, convenciones, arquitectura técnica
+- **Común**: Estructura proyecto, Firebase config, scripts monorepo
 ```bash
 ✅ Architecture Patterns: React 19 + Vite + Firebase patterns understood
 ✅ Monorepo Structure: alimentacion + combustibles + shared recognized
