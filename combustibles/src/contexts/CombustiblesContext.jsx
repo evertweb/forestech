@@ -3,8 +3,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from 'react';
 import { useAuth } from './AuthContext';
-import { useEssentialData } from '../hooks/useFirestoreData';
 import { useCombustiblesCRUD } from '../hooks/useCombustiblesCRUD';
+import { subscribeToInventory } from '../services/inventoryService';
+import { subscribeToVehicles } from '../services/vehiclesService';
+import { subscribeToSuppliers } from '../services/suppliersService';
+import movementsService from '../services/movementsService';
 
 const CombustiblesContext = createContext();
 
@@ -23,8 +26,15 @@ export const CombustiblesProvider = ({ children }) => {
   // Hook para operaciones CRUD
   const crud = useCombustiblesCRUD();
   
-  // Hook para datos esenciales (SIN auto-suscripción por defecto)
-  const data = useEssentialData([]);
+  // Datos básicos (eliminamos useEssentialData por performance tracking)
+  const data = {
+    inventory: [],
+    movements: [],
+    vehicles: [],
+    suppliers: [],
+    dataLoading: false,
+    dataError: null
+  };
 
   // Combinar toda la funcionalidad
   const value = {
@@ -45,10 +55,10 @@ export const CombustiblesProvider = ({ children }) => {
     ...crud,
     
     // Funciones para suscribirse manualmente cuando se necesiten los datos
-    subscribeToInventory: data.subscribeToInventory,
-    subscribeToVehicles: data.subscribeToVehicles,
-    subscribeToSuppliers: data.subscribeToSuppliers,
-    subscribeToMovements: data.subscribeToMovements,
+    subscribeToInventory,
+    subscribeToVehicles,
+    subscribeToSuppliers,
+    subscribeToMovements: movementsService.subscribeToMovements,
   };
 
   return (

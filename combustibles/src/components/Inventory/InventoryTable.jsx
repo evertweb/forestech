@@ -1,10 +1,9 @@
 // combustibles/src/components/Inventory/InventoryTable.jsx
 // Vista de tabla para el inventario
 // ✨ OPTIMIZADO: React.memo aplicado para reducir re-renders - FASE 3
-/* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react';
 import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
-import { withOptimization, createCustomCompare } from '../../hooks/useOptimizedComponents';
+// withOptimization eliminado
 
 // TODO: Separar componente de constantes/funciones para Fast Refresh
 const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
@@ -319,4 +318,4 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   );
 };
 
-export default withOptimization(InventoryTable, createCustomCompare());
+export default InventoryTable;

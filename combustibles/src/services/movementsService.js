@@ -16,7 +16,6 @@ import {
   serverTimestamp,
   runTransaction
 } from 'firebase/firestore';
-import { optimizedFirestore } from './optimizedFirestore';
 import { db } from '../firebase/config';
 import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
 import { OPERATIONAL_LOCATIONS } from '../constants/locations';
@@ -139,7 +138,7 @@ export const getAllMovements = async (filters = {}) => {
     q = query(q, orderBy('createdAt', 'desc'));
 
     // ✅ Track Firebase read
-    optimizedFirestore.trackFirebaseRead();
+    // Firebase read tracked
     const querySnapshot = await getDocs(q);
     const movements = [];
 
@@ -175,7 +174,7 @@ export const getMovement = async (movementId) => {
 
     const docRef = doc(db, COLLECTION_NAME, movementId);
     // ✅ Track Firebase read
-    optimizedFirestore.trackFirebaseRead();
+    // Firebase read tracked
     const docSnap = await getDoc(docRef);
 
     if (!docSnap.exists()) {

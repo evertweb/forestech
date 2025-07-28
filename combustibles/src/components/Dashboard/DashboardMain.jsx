@@ -1,60 +1,69 @@
 // combustibles/src/components/Dashboard/DashboardMain.jsx
-import React, { useMemo, useEffect, useContext } from 'react';
-import { useRenderCounter } from '../../hooks/usePerformanceMonitor';
-import { PerformanceContext } from '../../contexts/PerformanceContext';
+import React, { useMemo, useEffect, useState } from 'react';
 import './Dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 
 const DashboardMain = () => {
-  // ✅ Track renders for this component
-  const renderStats = useRenderCounter('DashboardMain');
-  const { updateGlobalMetrics } = useContext(PerformanceContext);
-
-  // ✅ Log render stats in development mode for debugging
-  useEffect(() => {
-    if (import.meta.env.DEV && renderStats?.renderCount > 0) {
-      console.log(`📊 Dashboard render stats:`, renderStats);
-    }
-  }, [renderStats]);
+  // Estado local para los datos del dashboard
+  const [inventory, setInventory] = useState([]);
+  const [movements, setMovements] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState(null);
 
   const { 
-    inventory, 
-    movements, 
-    vehicles, 
-    dataLoading,
-    dataError, 
     subscribeToInventory,
     subscribeToMovements,
     subscribeToVehicles
   } = useCombustibles();
 
-  // ✅ Update global render count on each render
-  useEffect(() => {
-    updateGlobalMetrics('totalRenders', 1);
-  });
-
-  // ✅ Initialize some test metrics for debugging
-  useEffect(() => {
-    // Only run once when component mounts
-    const timer = setTimeout(() => {
-      console.log('🧪 Inicializando métricas de prueba para performance dashboard');
-      updateGlobalMetrics('totalFirebaseReads', 5);
-      updateGlobalMetrics('totalCacheHits', 2);
-      updateGlobalMetrics('optimizedComponents', 3);
-      updateGlobalMetrics('unoptimizedComponents', 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ✅ Suscribirse a los datos esenciales cuando se monta el componente
   useEffect(() => {
     console.log('🚀 Dashboard iniciando suscripciones a datos...');
-    const unsubInventory = subscribeToInventory();
-    const unsubMovements = subscribeToMovements();
-    const unsubVehicles = subscribeToVehicles();
+    let loadingCount = 3; // Contador para saber cuándo terminar loading
+    
+    const updateLoading = () => {
+      loadingCount--;
+      if (loadingCount === 0) {
+        setDataLoading(false);
+      }
+    };
+
+    // Callback para inventario
+    const unsubInventory = subscribeToInventory((data, error) => {
+      if (error) {
+        console.error('Error inventory:', error);
+        setDataError(error);
+      } else {
+        setInventory(data || []);
+      }
+      updateLoading();
+    });
+
+    // Callback para movimientos  
+    const unsubMovements = subscribeToMovements((data, error) => {
+      if (error) {
+        console.error('Error movements:', error);
+        setDataError(error);
+      } else {
+        setMovements(data || []);
+      }
+      updateLoading();
+    });
+
+    // Callback para vehículos
+    const unsubVehicles = subscribeToVehicles((data, error) => {
+      if (error) {
+        console.error('Error vehicles:', error);
+        setDataError(error);
+      } else {
+        setVehicles(data || []);
+      }
+      updateLoading();
+    });
 
     // Cleanup function para evitar memory leaks
     return () => {
@@ -62,7 +71,7 @@ const DashboardMain = () => {
       if (typeof unsubMovements === 'function') unsubMovements();
       if (typeof unsubVehicles === 'function') unsubVehicles();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [subscribeToInventory, subscribeToMovements, subscribeToVehicles]);
 
   // Ejecutar diagnóstico del inventario al cargar
   useEffect(() => {
