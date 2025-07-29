@@ -1,0 +1,15 @@
+{
+  "name": "Forestech Enterprise (High-Performance)",
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "32gb",
+    "storage": "128gb"
+  },
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=16384 --max-semi-space-size=512",
+    "VITE_CACHE_DIR": "/workspace/.vite-cache",
+    "FIREBASE_EMULATOR_HUB": "0.0.0.0:4400",
+    "ENVIRONMENT": "enterprise"
+  },
+  "description": "Para demos, CI/CD, desarrollo complejo, múltiples servicios simultáneos."
+}

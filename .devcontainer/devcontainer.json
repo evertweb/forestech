@@ -2,6 +2,13 @@
   "name": "Forestech Development Environment",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
   
+  // 🏗️ Requerimientos de recursos optimizados
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  
   // 🔧 Features adicionales
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
@@ -191,11 +198,18 @@
     "source=${localWorkspaceFolder}/.devcontainer/cache,target=/home/vscode/.cache,type=bind,consistency=cached"
   ],
 
-  // 🌍 Variables de entorno
+  // 🌍 Variables de entorno con optimizaciones de memoria
   "containerEnv": {
     "NODE_ENV": "development",
     "FIREBASE_CONFIG_PATH": "/workspace/.firebase/config.json",
-    "CLAUDE_WORKSPACE": "/workspace"
+    "CLAUDE_WORKSPACE": "/workspace",
+    // Optimizaciones Node.js para 8GB RAM
+    "NODE_OPTIONS": "--max-old-space-size=6144 --max-semi-space-size=128",
+    // Optimizaciones Vite
+    "VITE_DEFINE": "globalThis",
+    // Cache optimizations
+    "npm_config_cache": "/workspace/.npm-cache",
+    "yarn_cache_folder": "/workspace/.yarn-cache"
   },
 
   // ⚙️ Configuración del contenedor

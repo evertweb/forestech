@@ -7,6 +7,12 @@ set -e
 
 echo "🚀 Iniciando configuración post-creación de Forestech..."
 
+# 🎯 Optimizar recursos según máquina detectada
+if [ -f "/workspace/.devcontainer/resource-optimizer.sh" ]; then
+    echo "🎯 Ejecutando optimizador de recursos..."
+    bash /workspace/.devcontainer/resource-optimizer.sh
+fi
+
 # 📂 Cambiar al directorio de trabajo
 cd /workspace
 
