@@ -2,12 +2,8 @@
   "name": "Forestech Enhanced - Con funcionalidades críticas",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
   
-  // 🏗️ Recursos mejorados para funcionalidades avanzadas
-  "hostRequirements": {
-    "cpus": 4,
-    "memory": "16gb",
-    "storage": "64gb"
-  },
+  // 🏗️ Recursos flexibles - asignar manualmente al crear Codespace
+  // Ya no especificamos hostRequirements - el usuario asignará recursos manualmente
   
   // 🔧 Features con herramientas adicionales
   "features": {
@@ -187,8 +183,8 @@
     "FIREBASE_CONFIG_PATH": "/workspaces/forestech/.firebase/config.json",
     "CLAUDE_WORKSPACE": "/workspaces/forestech",
     
-    // Optimizaciones para 16GB RAM
-    "NODE_OPTIONS": "--max-old-space-size=8192 --max-semi-space-size=256",
+    // Optimizaciones adaptables según RAM asignada
+    "NODE_OPTIONS": "--max-old-space-size=4096 --max-semi-space-size=128",
     
     // MCPs y herramientas
     "MCP_CONFIG_PATH": "/workspaces/forestech/.mcp.json",
