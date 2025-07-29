@@ -38,6 +38,24 @@ fi
 echo "🔥 Instalando Firebase CLI..."
 npm install -g firebase-tools --silent
 
+# 🤖 Instalar Claude Code automáticamente
+echo "🤖 Instalando Claude Code..."
+if command -v curl &> /dev/null; then
+    curl -sSL https://claude.ai/install.sh | bash || {
+        echo "⚠️  Error instalando Claude Code automáticamente"
+        echo "📋 Instálalo manualmente después: curl -sSL https://claude.ai/install.sh | bash"
+    }
+    
+    # Añadir Claude al PATH si se instaló correctamente
+    if [ -f "$HOME/.claude/bin/claude" ]; then
+        echo 'export PATH="$HOME/.claude/bin:$PATH"' >> ~/.bashrc
+        export PATH="$HOME/.claude/bin:$PATH"
+        echo "✅ Claude Code instalado y configurado"
+    fi
+else
+    echo "⚠️  curl no disponible, instala Claude Code manualmente"
+fi
+
 # 📝 Crear scripts básicos
 echo "📝 Creando scripts de desarrollo..."
 mkdir -p /workspace/scripts
@@ -166,5 +184,14 @@ EOF
 echo ""
 echo "✅ Setup light completado exitosamente!"
 echo "🎉 Forestech listo para desarrollo económico"
-echo "📚 Consulta: cat CODESPACE-LIGHT.md"
-echo "🚀 Inicia con: ./scripts/dev-simple.sh"
+echo ""
+echo "📋 Comandos disponibles:"
+echo "🚀 Iniciar desarrollo:  ./scripts/dev-simple.sh"
+echo "🤖 Verificar Claude:    claude --version"
+echo "🔧 Instalar Claude:     ./scripts/install-claude.sh (si es necesario)"
+echo "📚 Documentación:       cat CODESPACE-LIGHT.md"
+echo ""
+echo "🎯 URLs de desarrollo:"
+echo "📱 Combustibles:        http://localhost:5173"
+echo "🍽️ Alimentación:        http://localhost:3000"
+echo "🔥 Firebase UI:         http://localhost:4000"
