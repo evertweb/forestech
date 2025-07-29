@@ -36,7 +36,7 @@ export const getBackgroundImageUrl = async () => {
     
     return url;
     
-  } catch (error) {
+  } catch {
     
     // Usar una imagen predeterminada aleatoria como fallback
     const randomIndex = Math.floor(Math.random() * BACKGROUND_CONFIG.defaultImages.length);
@@ -88,7 +88,7 @@ export const uploadBackgroundImage = async (file) => {
 
     // Subir imagen a Firebase Storage
     const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
-    const uploadResult = await uploadBytes(imageRef, file);
+    const _uploadResult = await uploadBytes(imageRef, file);
     
     // Obtener URL de descarga
     const url = await getDownloadURL(imageRef);
@@ -134,7 +134,7 @@ export const preloadBackgroundImage = (url) => {
       resolve(true);
     };
     
-    img.onerror = (error) => {
+    img.onerror = () => {
       resolve(false);
     };
     

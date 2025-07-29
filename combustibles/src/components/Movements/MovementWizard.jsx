@@ -35,7 +35,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   
   // Estado local para suppliers (fix para el error)
   const [suppliers, setSuppliers] = useState([]);
-  const [suppliersLoading, setSuppliersLoading] = useState(false);
+  const [_suppliersLoading, setSuppliersLoading] = useState(false);
   
   // Datos del formulario
   const [formData, setFormData] = useState({
@@ -152,7 +152,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         suppliersUnsubscribe();
       }
     };
-  }, [isOpen, inventory, vehicles, subscribeToSuppliers]);
+  }, [isOpen, inventory, vehicles, subscribeToSuppliers, suppliers]);
 
   // Actualizar systemData cuando los suppliers locales cambien
   useEffect(() => {
