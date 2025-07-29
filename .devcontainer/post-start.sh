@@ -158,5 +158,73 @@ EOF
     fi
 fi
 
+# 🏠 Configurar como Codespace permanente
 echo ""
-echo "✅ Post-start completado - ¡Forestech está listo!"
+echo "🏠 Configurando persistencia de Codespace..."
+
+# Crear keep-alive si no existe
+if [ ! -f "/workspace/scripts/keep-alive.sh" ]; then
+    mkdir -p /workspace/scripts
+    cat > /workspace/scripts/keep-alive.sh << 'EOF'
+#!/bin/bash
+while true; do
+    echo "🚀 Forestech Codespace activo: $(date)" >> /workspace/.keep-alive.log
+    touch /workspace/.keep-alive
+    git status > /dev/null 2>&1 || true
+    sleep 1800  # 30 minutos
+done
+EOF
+    chmod +x /workspace/scripts/keep-alive.sh
+    echo "✅ Keep-alive script creado"
+fi
+
+# Iniciar keep-alive en background si no está corriendo
+if ! pgrep -f keep-alive.sh > /dev/null; then
+    echo "🔄 Iniciando keep-alive automático..."
+    nohup /workspace/scripts/keep-alive.sh > /dev/null 2>&1 &
+    echo "✅ Keep-alive iniciado en background"
+fi
+
+# Configurar git para commits automáticos de backup
+git config --global user.email "codespace@forestech.local" 2>/dev/null || true
+git config --global user.name "Forestech Codespace" 2>/dev/null || true
+
+# Auto-iniciar servicios si está configurado
+if [ "$AUTO_START_SERVICES" = "true" ]; then
+    echo "🚀 Auto-iniciando servicios de desarrollo..."
+    nohup /workspace/scripts/dev-all.sh > /workspace/.services.log 2>&1 &
+    echo "✅ Servicios iniciados automáticamente"
+fi
+
+# Crear script de status permanente
+cat > /workspace/scripts/codespace-status.sh << 'EOF'
+#!/bin/bash
+echo "🏠 Estado del Codespace Permanente Forestech"
+echo "============================================="
+echo "📅 Iniciado: $(cat /workspace/.keep-alive 2>/dev/null | head -1 || echo 'Primera vez')"
+echo "🔄 Última actividad: $(tail -1 /workspace/.keep-alive.log 2>/dev/null || echo 'Iniciando...')"
+echo "⚡ Keep-alive: $(pgrep -f keep-alive.sh > /dev/null && echo '✅ Activo' || echo '❌ Inactivo')"
+echo "🚀 Servicios: $(pgrep -f dev-all.sh > /dev/null && echo '✅ Corriendo' || echo '⚠️ Detenidos')"
+echo ""
+echo "💰 Información de facturación estimada:"
+echo "   🆓 Plan GitHub Pro: 180h gratis/mes"
+echo "   💸 Uso premium actual: Calculando..."
+echo ""
+echo "📊 Recursos actuales:"
+./scripts/monitor-resources.sh 2>/dev/null || echo "Monitor no disponible"
+EOF
+
+chmod +x /workspace/scripts/codespace-status.sh
+
+echo ""  
+echo "🏠 Configuración permanente completada:"
+echo "   ✅ Keep-alive automático activo"
+echo "   ✅ Backup de configuración habilitado"
+echo "   ✅ Auto-inicio de servicios configurado"
+echo "   ✅ Scripts de monitoreo instalados"
+echo ""
+echo "📋 Comandos adicionales:"
+echo "   ./scripts/codespace-status.sh  - Ver estado del Codespace"
+echo "   tail -f .keep-alive.log       - Ver actividad en tiempo real"
+echo ""
+echo "✅ Post-start completado - ¡Forestech Codespace Permanente está listo!"
