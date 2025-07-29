@@ -7,7 +7,20 @@ set -e
 
 echo "🚀 Configuración ligera de Forestech iniciando..."
 
-cd /workspace
+# 🔍 Detectar directorio correcto automáticamente
+if [ -d "/workspaces/forestech" ]; then
+    WORKSPACE_DIR="/workspaces/forestech"
+    echo "📂 Codespace detectado: usando /workspaces/forestech"
+elif [ -d "/workspace" ]; then
+    WORKSPACE_DIR="/workspace"
+    echo "📂 Container detectado: usando /workspace"
+else
+    # Usar directorio actual si no encontramos los estándar
+    WORKSPACE_DIR="$(pwd)"
+    echo "📂 Usando directorio actual: $WORKSPACE_DIR"
+fi
+
+cd "$WORKSPACE_DIR"
 
 # 📦 Solo instalar dependencias Node.js (no paquetes del sistema)
 echo "📦 Instalando dependencias Node.js del proyecto..."
@@ -58,10 +71,10 @@ fi
 
 # 📝 Crear scripts básicos
 echo "📝 Creando scripts de desarrollo..."
-mkdir -p /workspace/scripts
+mkdir -p "$WORKSPACE_DIR/scripts"
 
 # Script dev completo pero eficiente
-cat > /workspace/scripts/dev-simple.sh << 'EOF'
+cat > "$WORKSPACE_DIR/scripts/dev-simple.sh" << 'EOF'
 #!/bin/bash
 echo "🚀 Iniciando servicios Forestech - Flujo completo..."
 
@@ -74,9 +87,9 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # 🔥 Iniciar Firebase Emulators primero
-if [ -f "/workspace/firebase.json" ]; then
+if [ -f "firebase.json" ]; then
     echo "🔥 Iniciando Firebase Emulators..."
-    (cd /workspace && firebase emulators:start --only auth,firestore,functions,hosting) &
+    firebase emulators:start --only auth,firestore,functions,hosting &
     
     # Esperar que Firebase inicie
     echo "⏳ Esperando Firebase Emulators..."
@@ -84,15 +97,15 @@ if [ -f "/workspace/firebase.json" ]; then
 fi
 
 # ⛽ Iniciar Combustibles  
-if [ -d "/workspace/combustibles" ]; then
+if [ -d "combustibles" ]; then
     echo "⛽ Iniciando Combustibles (Vite)..."
-    (cd /workspace/combustibles && npm run dev) &
+    (cd combustibles && npm run dev) &
 fi
 
 # 🍽️ Iniciar Alimentación
-if [ -d "/workspace/alimentacion" ]; then
+if [ -d "alimentacion" ]; then
     echo "🍽️ Iniciando Alimentación..."
-    (cd /workspace/alimentacion && npm start) &
+    (cd alimentacion && npm start) &
 fi
 
 echo ""
@@ -111,10 +124,10 @@ echo "Presiona Ctrl+C para detener todos los servicios"
 wait
 EOF
 
-chmod +x /workspace/scripts/dev-simple.sh
+chmod +x "$WORKSPACE_DIR/scripts/dev-simple.sh"
 
 # 🎯 Crear archivo de configuración de entorno
-cat > /workspace/.env.light << 'EOF'
+cat > "$WORKSPACE_DIR/.env.light" << 'EOF'
 # 🚀 Forestech Light Environment
 NODE_ENV=development
 NODE_OPTIONS=--max-old-space-size=4096
@@ -123,7 +136,7 @@ FAST_REFRESH=true
 EOF
 
 # 📚 Documentación rápida
-cat > /workspace/CODESPACE-LIGHT.md << 'EOF'
+cat > "$WORKSPACE_DIR/CODESPACE-LIGHT.md" << 'EOF'
 # 🚀 Forestech Codespace Light - Flujo Completo
 
 ## ⚡ Mismo flujo que tu PC local, pero económico
@@ -195,3 +208,5 @@ echo "🎯 URLs de desarrollo:"
 echo "📱 Combustibles:        http://localhost:5173"
 echo "🍽️ Alimentación:        http://localhost:3000"
 echo "🔥 Firebase UI:         http://localhost:4000"
+echo ""
+echo "📂 Directorio de trabajo: $WORKSPACE_DIR"
