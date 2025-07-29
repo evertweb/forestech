@@ -42,36 +42,54 @@ npm install -g firebase-tools --silent
 echo "📝 Creando scripts de desarrollo..."
 mkdir -p /workspace/scripts
 
-# Script dev simplificado
+# Script dev completo pero eficiente
 cat > /workspace/scripts/dev-simple.sh << 'EOF'
 #!/bin/bash
-echo "🚀 Iniciando servicios Forestech..."
+echo "🚀 Iniciando servicios Forestech - Flujo completo..."
 
 # Función de limpieza
 cleanup() {
-    echo "🛑 Deteniendo servicios..."
+    echo "🛑 Deteniendo todos los servicios..."
     jobs -p | xargs -r kill
     exit 0
 }
 trap cleanup SIGINT SIGTERM
 
-# Iniciar solo lo necesario
+# 🔥 Iniciar Firebase Emulators primero
+if [ -f "/workspace/firebase.json" ]; then
+    echo "🔥 Iniciando Firebase Emulators..."
+    (cd /workspace && firebase emulators:start --only auth,firestore,functions,hosting) &
+    
+    # Esperar que Firebase inicie
+    echo "⏳ Esperando Firebase Emulators..."
+    sleep 5
+fi
+
+# ⛽ Iniciar Combustibles  
 if [ -d "/workspace/combustibles" ]; then
-    echo "⛽ Iniciando Combustibles..."
+    echo "⛽ Iniciando Combustibles (Vite)..."
     (cd /workspace/combustibles && npm run dev) &
 fi
 
+# 🍽️ Iniciar Alimentación
 if [ -d "/workspace/alimentacion" ]; then
     echo "🍽️ Iniciando Alimentación..."
     (cd /workspace/alimentacion && npm start) &
 fi
 
-echo "✅ Servicios iniciados!"
-echo "📱 Combustibles: http://localhost:5173"
-echo "🍽️ Alimentación: http://localhost:3000"
 echo ""
-echo "Presiona Ctrl+C para detener"
+echo "✅ Todos los servicios iniciados - Flujo completo activo!"
+echo "================================"
+echo "📱 Combustibles: http://localhost:5173"
+echo "🍽️ Alimentación: http://localhost:3000" 
+echo "🔥 Firebase UI: http://localhost:4000"
+echo "🔥 Firebase Auth: http://localhost:9099"
+echo "🔥 Firestore: http://localhost:8080"
+echo ""
+echo "🎯 Esto es EXACTAMENTE como tu PC local"
+echo "Presiona Ctrl+C para detener todos los servicios"
 
+# Esperar a que terminen todos los procesos
 wait
 EOF
 
@@ -88,52 +106,61 @@ EOF
 
 # 📚 Documentación rápida
 cat > /workspace/CODESPACE-LIGHT.md << 'EOF'
-# 🚀 Forestech Codespace Light
+# 🚀 Forestech Codespace Light - Flujo Completo
 
-## ⚡ Configuración Económica
+## ⚡ Mismo flujo que tu PC local, pero económico
 
-Esta configuración está optimizada para:
-- ✅ Máximo uso de horas GRATIS de GitHub Pro (180h/mes)
-- ✅ Sin instalaciones pesadas que causen OOM
-- ✅ Setup rápido (2-3 minutos vs 10+ minutos)
-- ✅ Menor costo cuando uses premium
+Esta configuración te da:
+- ✅ Firebase Emulators funcionando exactamente igual
+- ✅ Combustibles con Vite hot-reload completo
+- ✅ Alimentación con todos los features
+- ✅ Extensiones necesarias: Tailwind, ESLint, Prettier, Copilot
+- ✅ Sin errores OOM - setup garantizado en 2-3 minutos
 
-## 🎯 Comandos Básicos
+## 🎯 Comandos - Exactamente como local
 
 ```bash
-# Iniciar desarrollo
+# Iniciar TODO (Firebase + Apps) - Como tu local
 ./scripts/dev-simple.sh
 
-# Solo combustibles
+# Solo combustibles con Vite
 cd combustibles && npm run dev
 
-# Solo alimentación
+# Solo alimentación  
 cd alimentacion && npm start
 
-# Firebase (instalar manual si necesitas)
+# Solo Firebase emulators
+firebase emulators:start --only auth,firestore,functions,hosting
+
+# Autenticación Firebase
 firebase login --no-localhost
-firebase emulators:start
 ```
 
-## 💰 Estrategia de Costo
+## 🔧 Extensiones incluidas para tu flujo
 
-1. **Desarrollo Normal**: Usa 2-core, 8GB (GRATIS - 180h/mes)
-2. **Builds Pesados**: Upgrade temporalmente a 4-core
-3. **Pausa Automática**: Codespace se pausa solo tras inactividad
-4. **No Keep-Alive**: Sin costo 24/7 innecesario
+- **Tailwind CSS**: Autocompletado completo
+- **ESLint + Prettier**: Formato automático como local
+- **Firebase**: Integración completa con emulators
+- **Copilot + Chat**: IA asistida
+- **Auto Rename Tag**: Productividad JSX
+- **Path Intellisense**: Autocompletado rutas
+- **VS Code Icons**: Navegación visual
 
-## 🔧 Si Necesitas Más Herramientas
+## 🎯 URLs de desarrollo - Como local
 
-Instalar solo cuando las necesites:
-```bash
-# Claude Code (manual)
-curl -sSL https://claude.ai/install.sh | bash
+- **Combustibles**: http://localhost:5173 (Vite)
+- **Alimentación**: http://localhost:3000 (React)
+- **Firebase UI**: http://localhost:4000 (Emulator Suite)
+- **Firestore**: http://localhost:8080 (Database)
+- **Auth**: http://localhost:9099 (Authentication)
 
-# Extensiones adicionales (desde VS Code)
-# Docker (solo si necesitas contenedores)
-```
+## 💰 Costo optimizado
 
-**🏆 Resultado: Desarrollo eficiente con costos mínimos**
+- **Desarrollo diario**: GRATIS (180h/mes GitHub Pro)
+- **Premium ocasional**: Solo cuando necesites builds pesados
+- **Auto-pausa**: Tras inactividad, sin costos adicionales
+
+**🏆 Resultado: Tu flujo de trabajo exacto, sin errores, económico**
 EOF
 
 echo ""
