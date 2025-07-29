@@ -1,6 +1,6 @@
 {
-  "name": "Forestech Root Fix",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
+  "name": "Forestech Ubuntu Base",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   
   // 🚀 Puertos básicos
   "forwardPorts": [3000, 5173, 4000],
@@ -9,6 +9,13 @@
     "3000": {"label": "Alimentacion App"},
     "5173": {"label": "Combustibles App"}, 
     "4000": {"label": "Firebase UI"}
+  },
+  
+  // 🔧 Instalar Node.js
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
   },
   
   // 📦 Extensions mínimas
@@ -22,8 +29,8 @@
     }
   },
 
-  // 🔒 SIN especificar usuario - usar default (root)
-  // "remoteUser": "vscode",  ← ESTO CAUSA EL ERROR
+  // 🔒 Usuario vscode (ya existe en base ubuntu)
+  "remoteUser": "vscode",
   
   // 🌍 Variables mínimas
   "containerEnv": {

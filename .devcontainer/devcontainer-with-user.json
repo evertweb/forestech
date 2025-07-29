@@ -1,6 +1,19 @@
 {
-  "name": "Forestech Root Fix",
+  "name": "Forestech with User Creation",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
+  
+  // 🔧 Features para crear usuario vscode
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "configureZshAsDefaultShell": false,
+      "installOhMyZsh": false,
+      "upgradePackages": false,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000"
+    }
+  },
   
   // 🚀 Puertos básicos
   "forwardPorts": [3000, 5173, 4000],
@@ -22,8 +35,8 @@
     }
   },
 
-  // 🔒 SIN especificar usuario - usar default (root)
-  // "remoteUser": "vscode",  ← ESTO CAUSA EL ERROR
+  // 🔒 Usuario vscode (creado por feature)
+  "remoteUser": "vscode",
   
   // 🌍 Variables mínimas
   "containerEnv": {
