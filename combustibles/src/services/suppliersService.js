@@ -203,18 +203,26 @@ export const getSuppliersByFuelType = async (fuelType) => {
  * @returns {Function} - Función para cancelar suscripción
  */
 export const subscribeToSuppliers = (callback) => {
-  const q = query(
-    collection(db, SUPPLIERS_COLLECTION),
-    orderBy("name", "asc")
-  );
-  
-  return onSnapshot(q, (snapshot) => {
-    const suppliers = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    callback(suppliers);
-  });
+  try {
+    const q = query(
+      collection(db, SUPPLIERS_COLLECTION),
+      orderBy("name", "asc")
+    );
+    
+    return onSnapshot(q, (snapshot) => {
+      const suppliers = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(suppliers);
+    }, (error) => {
+      console.error('❌ Error en suscripción de suppliers:', error);
+      callback([]); // Devolver array vacío en caso de error
+    });
+  } catch (error) {
+    console.error('❌ Error configurando suscripción de suppliers:', error);
+    return () => {}; // Devolver función vacía para evitar errores
+  }
 };
 
 /**

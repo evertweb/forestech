@@ -43,7 +43,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
       const num = parseInt(e.key);
       
       if (isEntrada) {
-        const activeSuppliers = suppliers.filter(s => s.status === 'active');
+        const activeSuppliers = Array.isArray(suppliers) ? suppliers.filter(s => s.status === 'active') : [];
         if (num >= 1 && num <= activeSuppliers.length) {
           const selectedSupplier = activeSuppliers[num - 1];
           handleLocationSelection(selectedSupplier.name);
@@ -139,14 +139,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
   // Renderizar opciones para entradas (proveedores)
   if (isEntrada) {
-    const activeSuppliers = suppliers.filter(s => s.status === 'active');
-    
-    // Debug para entender el problema
-    console.log('🔍 [Step3 DEBUG] Suppliers data:', {
-      suppliersLength: suppliers.length,
-      activeSuppliersLength: activeSuppliers.length,
-      suppliers: suppliers
-    });
+    const activeSuppliers = Array.isArray(suppliers) ? suppliers.filter(s => s.status === 'active') : [];
     
     return (
       <div className={`wizard-step step-location ${isActive ? 'active' : ''}`}>
@@ -163,7 +156,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
             </div>
           )}
 
-          {suppliers.length === 0 ? (
+          {(!Array.isArray(suppliers) || suppliers.length === 0) ? (
             <div className="loading-state">
               <div className="loading-spinner"></div>
               <p>🔄 Cargando proveedores...</p>

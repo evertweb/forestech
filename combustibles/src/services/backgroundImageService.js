@@ -30,24 +30,13 @@ const BACKGROUND_CONFIG = {
  */
 export const getBackgroundImageUrl = async () => {
   try {
-    console.log('🔄 Intentando cargar imagen de fondo desde Firebase Storage...');
-    console.log('📍 Ruta:', BACKGROUND_CONFIG.storagePath);
-    
     // Intentar obtener la imagen desde Firebase Storage
     const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
     const url = await getDownloadURL(imageRef);
     
-    console.log('✅ Imagen de fondo cargada desde Firebase Storage');
-    console.log('🔗 URL:', url);
-    
     return url;
     
   } catch (error) {
-    console.warn('⚠️ No se pudo cargar imagen de Firebase Storage:', {
-      code: error.code,
-      message: error.message,
-      path: BACKGROUND_CONFIG.storagePath
-    });
     
     // Usar una imagen predeterminada aleatoria como fallback
     const randomIndex = Math.floor(Math.random() * BACKGROUND_CONFIG.defaultImages.length);
@@ -101,12 +90,8 @@ export const uploadBackgroundImage = async (file) => {
     const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
     const uploadResult = await uploadBytes(imageRef, file);
     
-    console.log('✅ Archivo subido, obteniendo URL...', uploadResult.metadata);
-    
     // Obtener URL de descarga
     const url = await getDownloadURL(imageRef);
-    
-    console.log('✅ Imagen de fondo subida exitosamente:', url);
     
     return {
       success: true,
@@ -142,20 +127,14 @@ export const uploadBackgroundImage = async (file) => {
  * @returns {Promise<boolean>} true si se cargó correctamente
  */
 export const preloadBackgroundImage = (url) => {
-  console.log('🔄 Precargando imagen de fondo:', url);
-  
   return new Promise((resolve) => {
     const img = new Image();
     
     img.onload = () => {
-      console.log('✅ Imagen de fondo precargada exitosamente');
-      console.log('📐 Dimensiones:', `${img.naturalWidth}x${img.naturalHeight}px`);
       resolve(true);
     };
     
     img.onerror = (error) => {
-      console.warn('⚠️ Error precargando imagen de fondo:', error);
-      console.warn('🔗 URL problemática:', url);
       resolve(false);
     };
     

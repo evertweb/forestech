@@ -7,6 +7,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
+import { getAllSuppliers } from '../../services/suppliersService';
 
 // Importar pasos del wizard
 import Step1_MovementType from './WizardSteps/Step1_MovementType';
@@ -23,14 +24,18 @@ import './WizardSteps.css';
 
 const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   // Usar datos en tiempo real del contexto
-  const { inventory, vehicles, suppliers, subscribeToSuppliers } = useCombustibles();
+  const { inventory, vehicles, subscribeToSuppliers } = useCombustibles();
   
-  // Estado del wizard
+  // Estados del wizard
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [confirmChecked, setConfirmChecked] = useState(false); // Estado para el checkbox de confirmación
+  
+  // Estado local para suppliers (fix para el error)
+  const [suppliers, setSuppliers] = useState([]);
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
   
   // Datos del formulario
   const [formData, setFormData] = useState({
@@ -80,58 +85,84 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Cargar datos del sistema y resetear el wizard cuando se abre
   useEffect(() => {
-    const loadSystemData = async () => {
-      if (isOpen) {
-        document.body.style.overflow = 'hidden';
+    let suppliersUnsubscribe = null;
+    
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      
+      // Resetear estado antes de cargar nuevos datos
+      resetWizard();
+      
+      setSystemData(prev => ({ ...prev, loadingData: true }));
+      setSuppliersLoading(true);
+      
+      // Suscribirse a suppliers inmediatamente
+      if (subscribeToSuppliers) {
+        suppliersUnsubscribe = subscribeToSuppliers((suppliersData) => {
+          setSuppliers(suppliersData || []);
+          setSuppliersLoading(false);
+        });
         
-        // Resetear estado antes de cargar nuevos datos
-        resetWizard();
-        
-        setSystemData(prev => ({ ...prev, loadingData: true }));
-        
-        try {
-          console.log('🔄 Cargando productos y sincronizando datos en tiempo real...');
-          
-          // Asegurar que tenemos datos de suppliers
-          if (suppliers.length === 0 && subscribeToSuppliers) {
-            console.log('🔄 Suscribiéndose a suppliers...');
-            subscribeToSuppliers();
+        // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
+        setTimeout(async () => {
+          if (suppliers.length === 0) {
+            try {
+              const result = await getAllSuppliers();
+              if (result.success && result.data.length > 0) {
+                setSuppliers(result.data);
+                setSuppliersLoading(false);
+              }
+            } catch (error) {
+              console.error('❌ Error en fallback de suppliers:', error);
+            }
           }
-          
-          console.log('🔍 [WIZARD DEBUG] Datos disponibles:', {
-            vehicles: vehicles?.length || 0,
-            inventory: inventory?.length || 0,
-            suppliers: suppliers?.length || 0
-          });
-          
+        }, 3000);
+      }
+      
+      // Cargar productos de forma async
+      const loadProducts = async () => {
+        try {
           const productsData = await getActiveProducts();
           
           setSystemData({
             vehicles: vehicles || [],
             inventory: inventory || [],
-            suppliers: suppliers || [],
+            suppliers: suppliers, // Usar el estado local
             products: productsData || [],
             loadingData: false
           });
           
           console.log('✅ Datos sincronizados para wizard - inventario en tiempo real:', inventory?.length || 0, 'items');
-          console.log('✅ Suppliers cargados:', suppliers?.length || 0, 'proveedores');
         } catch (error) {
           console.error('❌ Error al cargar datos del sistema:', error);
           setError('No se pudieron cargar los datos necesarios. Inténtalo de nuevo.');
           setSystemData(prev => ({ ...prev, loadingData: false }));
+          setSuppliersLoading(false);
         }
-      } else {
-        document.body.style.overflow = 'unset';
-      }
-    };
-
-    loadSystemData();
+      };
+      
+      loadProducts();
+    } else {
+      document.body.style.overflow = 'unset';
+    }
     
     return () => {
       document.body.style.overflow = 'unset';
+      if (suppliersUnsubscribe) {
+        suppliersUnsubscribe();
+      }
     };
-  }, [isOpen, inventory, vehicles, suppliers, subscribeToSuppliers]);
+  }, [isOpen, inventory, vehicles, subscribeToSuppliers]);
+
+  // Actualizar systemData cuando los suppliers locales cambien
+  useEffect(() => {
+    if (suppliers.length > 0) {
+      setSystemData(prev => ({
+        ...prev,
+        suppliers: suppliers
+      }));
+    }
+  }, [suppliers]);
 
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {
@@ -158,12 +189,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     }
     
     // 🔍 DEBUG: Log para verificar totalSteps
-    console.log('🔍 [TOTAL STEPS]', {
-      type: formData.type,
-      totalSteps: steps,
-      currentStep: currentStep
-    });
-    
     return steps;
   };
 
@@ -288,14 +313,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
     const isCurrentStepValid = validateCurrentStep();
     
-    // DEBUG: Log del evento de navegación
-    console.log('🔍 [DEBUG nextStep] Intentando navegar:', {
-      currentStep,
-      isValid: isCurrentStepValid,
-      formData: formData,
-      type: formData.type
-    });
-    
     if (isCurrentStepValid) {
       const totalSteps = getTotalSteps();
       
@@ -329,13 +346,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       else if (currentStep === 5 && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA && formData.type !== MOVEMENT_TYPES.SALIDA) {
         nextStepNumber = 7;
       }
-      
-      console.log('🔍 [DEBUG Navigation] Navegando:', {
-        from: currentStep,
-        to: nextStepNumber,
-        totalSteps: totalSteps,
-        movementType: formData.type
-      });
       
       // Mapear pasos lógicos a números para navegación
       const getLogicalStepNumber = (step) => {
@@ -410,9 +420,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     try {
       // Usar directamente el estado 'formData' que ya tiene los comentarios
       const dataToSubmit = { ...formData };
-      
-      // 🔍 DEBUG: Log completo antes de crear movimiento
-      console.log('🔍 [SUBMIT] Datos completos antes de crear movimiento:', dataToSubmit);
       
       const movementData = {
         ...dataToSubmit,
@@ -514,18 +521,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const currentLogicalStep = getLogicalStepNumber(currentStep);
   const progress = (currentLogicalStep / totalSteps) * 100;
   const isLastStep = currentLogicalStep >= totalSteps;
-
-  // 🔍 DEBUG: Logs temporales para navegación
-  console.log('🔍 [WIZARD DEBUG]', {
-    type: formData.type,
-    currentStep,
-    currentLogicalStep,
-    totalSteps,
-    progress,
-    isLastStep: isLastStep,
-    formDataKeys: Object.keys(formData).filter(k => formData[k]),
-    fuelType: formData.fuelType
-  });
 
   return (
     <div className="modal-overlay wizard-overlay" onClick={onClose}>
