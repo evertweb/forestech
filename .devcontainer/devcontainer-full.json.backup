@@ -1,29 +1,40 @@
 {
-  "name": "Forestech Enhanced - Con funcionalidades críticas",
+  "name": "Forestech Development Environment",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
   
-  // 🏗️ Recursos mejorados para funcionalidades avanzadas
+  // 🏗️ Requerimientos de recursos optimizados
   "hostRequirements": {
     "cpus": 4,
-    "memory": "16gb",
-    "storage": "64gb"
+    "memory": "8gb",
+    "storage": "32gb"
   },
   
-  // 🔧 Features con herramientas adicionales
+  // 🔧 Features adicionales
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
       "configureZshAsDefaultShell": true,
       "installOhMyZsh": true,
       "upgradePackages": true,
-      "username": "vscode"
+      "username": "vscode",
+      "userUid": "automatic",
+      "userGid": "automatic"
     }
   },
 
-  // 🚀 Puertos completos
-  "forwardPorts": [3000, 5173, 9005, 8080, 9099, 4000],
+  // 🚀 Configuración de puerto para desarrollo
+  "forwardPorts": [
+    3000,    // React dev server (alimentacion)
+    5173,    // Vite dev server (combustibles)  
+    5174,    // Vite dev server (shared)
+    9005,    // Firebase emulator UI
+    8080,    // Firebase Hosting emulator
+    9099,    // Firebase Auth emulator
+    8081     // Firebase Functions emulator
+  ],
   
   "portsAttributes": {
     "3000": {
@@ -34,55 +45,67 @@
       "label": "Combustibles App", 
       "onAutoForward": "notify"
     },
-    "4000": {
+    "5174": {
+      "label": "Shared Components",
+      "onAutoForward": "silent"
+    },
+    "9005": {
       "label": "Firebase Emulator UI",
-      "onAutoForward": "notify"
+      "onAutoForward": "silent"
     }
   },
-  
-  // 📦 Extensiones completas incluyendo funcionalidades avanzadas
+
+  // 📦 Extensiones de VS Code
   "customizations": {
     "vscode": {
       "extensions": [
         // 🎯 Esenciales
         "ms-vscode.vscode-typescript-next",
-        "esbenp.prettier-vscode", 
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "formulahendry.auto-rename-tag",
-        "ms-vscode.vscode-json",
         
-        // 🤖 IA y Copilot
+        // ⚛️ React & JavaScript
+        "ms-vscode.vscode-json",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-typescript-next",
+        
+        // 🔥 Firebase
+        "toba.vsfire",
+        "firebase.firebase-vscode",
+        
+        // 🐙 Git & GitHub
+        "github.vscode-pull-request-github",
         "github.copilot",
         "github.copilot-chat",
         
-        // 🔥 Firebase
-        "firebase.firebase-vscode",
-        
         // 🎨 UI/UX
-        "bradlc.vscode-tailwindcss",
-        "christian-kohler.path-intellisense",
         "ms-vscode.vscode-icons",
         "pkief.material-icon-theme",
+        "enkia.tokyo-night",
         
-        // 🔧 Herramientas avanzadas
+        // 🔧 Utilidades
+        "ms-vscode.live-server",
+        "ritwickdey.liveserver",
         "humao.rest-client",
         "redhat.vscode-yaml",
         "ms-vscode.hexeditor",
         
-        // 🐙 Git avanzado
-        "github.vscode-pull-request-github",
+        // 📊 Análisis
+        "ms-vscode.vscode-github-issue-notebooks",
         "github.vscode-github-actions",
         
-        // 📊 Análisis
-        "ms-vscode.vscode-github-issue-notebooks"
+        // 🧠 Claude Code (se instalará después)
+        "claude-ai.claude-code"
       ],
       
       "settings": {
         // 🎨 Tema y apariencia
-        "workbench.colorTheme": "Material Theme Darker High Contrast",
+        "workbench.colorTheme": "Tokyo Night",
         "workbench.iconTheme": "material-icon-theme",
         
-        // 📝 Editor avanzado
+        // 📝 Editor
         "editor.fontSize": 14,
         "editor.lineHeight": 1.5,
         "editor.fontFamily": "'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace",
@@ -106,26 +129,24 @@
         "prettier.tabWidth": 2,
         "prettier.trailingComma": "es5",
         
-        // 🧹 ESLint con workspaces
+        // 🧹 ESLint
         "eslint.workingDirectories": [
           "./alimentacion",
           "./combustibles", 
           "./shared"
         ],
         
-        // 📁 Archivos optimizados
+        // 📁 Archivos
         "files.exclude": {
           "**/node_modules": true,
           "**/build": true,
           "**/dist": true,
           "**/.git": false,
           "**/coverage": true,
-          "**/.env.local": true,
-          "**/.mcp-memory": false,
-          "**/.claudehooks": false
+          "**/.env.local": true
         },
         
-        // 🔍 Búsqueda optimizada
+        // 🔍 Búsqueda
         "search.exclude": {
           "**/node_modules": true,
           "**/build": true,
@@ -147,66 +168,57 @@
         "git.enableSmartCommit": true,
         "git.confirmSync": false,
         
+        // 📊 Breadcrumbs
+        "breadcrumbs.enabled": true,
+        
         // 🚀 Terminal
         "terminal.integrated.defaultProfile.linux": "zsh",
         "terminal.integrated.profiles.linux": {
           "zsh": {
             "path": "/usr/bin/zsh"
           }
-        },
-        
-        // 🤖 Copilot avanzado
-        "github.copilot.advanced": {
-          "language": "es",
-          "locale": "es",
-          "debug": false,
-          "inlineSuggestEnable": true
-        },
-        "github.copilot.chat.localeOverride": "es"
+        }
       }
     }
   },
 
-  // 🚀 Setup enhanced
-  "postCreateCommand": "bash .devcontainer/setup-enhanced.sh",
+  // 🚀 Scripts de inicialización
+  "onCreateCommand": "bash .devcontainer/setup.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
 
-  // 🔒 Usuario
+  // 🔒 Configuración de usuario y permisos
   "remoteUser": "vscode",
   "containerUser": "vscode",
   "updateRemoteUserUID": true,
 
-  // 🗂️ Montajes para persistencia
+  // 🗂️ Montajes y volúmenes
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
     "source=${localWorkspaceFolder}/.devcontainer/cache,target=/home/vscode/.cache,type=bind,consistency=cached"
   ],
 
-  // 🌍 Variables de entorno optimizadas
+  // 🌍 Variables de entorno con optimizaciones de memoria
   "containerEnv": {
     "NODE_ENV": "development",
-    "FIREBASE_CONFIG_PATH": "/workspaces/forestech/.firebase/config.json",
-    "CLAUDE_WORKSPACE": "/workspaces/forestech",
-    
-    // Optimizaciones para 16GB RAM
-    "NODE_OPTIONS": "--max-old-space-size=8192 --max-semi-space-size=256",
-    
-    // MCPs y herramientas
-    "MCP_CONFIG_PATH": "/workspaces/forestech/.mcp.json",
-    "CLAUDE_HOOKS_PATH": "/workspaces/forestech/.claudehooks",
-    "MEMORY_PATH": "/workspaces/forestech/.mcp-memory",
-    
+    "FIREBASE_CONFIG_PATH": "/workspace/.firebase/config.json",
+    "CLAUDE_WORKSPACE": "/workspace",
+    // Optimizaciones Node.js para 8GB RAM
+    "NODE_OPTIONS": "--max-old-space-size=6144 --max-semi-space-size=128",
+    // Optimizaciones Vite
+    "VITE_DEFINE": "globalThis",
     // Cache optimizations
-    "npm_config_cache": "/workspaces/forestech/.npm-cache",
-    "yarn_cache_folder": "/workspaces/forestech/.yarn-cache"
+    "npm_config_cache": "/workspace/.npm-cache",
+    "yarn_cache_folder": "/workspace/.yarn-cache"
   },
 
-  // ⚙️ Configuración
+  // ⚙️ Configuración del contenedor
   "shutdownAction": "stopContainer",
   "overrideCommand": false,
   "privileged": false,
   "init": true,
 
-  // 🔧 Capabilities
+  // 🔧 Configuración adicional
   "capAdd": [
     "SYS_PTRACE"
   ]

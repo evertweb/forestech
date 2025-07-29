@@ -3,7 +3,7 @@
 # 🚀 Forestech Enhanced Setup - Funcionalidades críticas de PC local
 # Configuración avanzada que incluye Serena, MCPs, Claude Hooks y más
 
-set -e
+# Remover set -e para permitir continuar con errores no críticos
 
 echo "🚀 Configuración ENHANCED de Forestech iniciando..."
 echo "🎯 Integrando funcionalidades críticas de tu PC local..."
@@ -28,7 +28,7 @@ echo "📦 Instalando dependencias Node.js del proyecto..."
 # Proyecto principal
 if [ -f "package.json" ]; then
     echo "📦 Instalando dependencias raíz..."
-    npm ci --prefer-offline --no-audit --silent || npm install --silent
+    npm ci --prefer-offline --no-audit --silent || npm install --silent || echo "⚠️  Error instalando dependencias raíz - continuando..."
 fi
 
 # Combustibles
@@ -49,20 +49,24 @@ fi
 
 # 🔥 Firebase CLI
 echo "🔥 Instalando Firebase CLI..."
-npm install -g firebase-tools --silent
+npm install -g firebase-tools --silent || echo "⚠️  Error instalando Firebase CLI - se instalará manualmente después"
 
 # 🤖 Instalar Claude Code
 echo "🤖 Instalando Claude Code..."
 if command -v curl &> /dev/null; then
     curl -sSL https://claude.ai/install.sh | bash || {
-        echo "⚠️  Error instalando Claude Code automáticamente"
+        echo "⚠️  Error instalando Claude Code automáticamente - continuando..."
     }
     
     if [ -f "$HOME/.claude/bin/claude" ]; then
         echo 'export PATH="$HOME/.claude/bin:$PATH"' >> ~/.bashrc
         export PATH="$HOME/.claude/bin:$PATH"
         echo "✅ Claude Code instalado y configurado"
+    else
+        echo "⚠️  Claude Code no se instaló automáticamente - se puede instalar manualmente después"
     fi
+else
+    echo "⚠️  curl no disponible - Claude Code se instalará manualmente después"
 fi
 
 # 🧠 Configurar MCPs (adaptados para Codespace)

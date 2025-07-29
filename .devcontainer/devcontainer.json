@@ -163,8 +163,8 @@
     }
   },
 
-  // 🚀 Setup enhanced
-  "postCreateCommand": "bash .devcontainer/setup-enhanced.sh",
+  // 🚀 Setup simple para evitar fallos
+  "postCreateCommand": "bash .devcontainer/setup-simple.sh",
 
   // 🔒 Usuario
   "remoteUser": "vscode",
