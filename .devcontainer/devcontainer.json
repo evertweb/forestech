@@ -22,14 +22,27 @@
     }
   },
 
+  // 🚀 Optimizado para prebuilds
+  "postCreateCommand": "bash .devcontainer/setup-prebuild.sh",
+  "updateContentCommand": "echo 'Prebuild updated - dependencies already installed'",
+  
   // 🔒 SIN especificar usuario - usar default (root)
   // "remoteUser": "vscode",  ← ESTO CAUSA EL ERROR
   
-  // 🌍 Variables mínimas
+  // 🌍 Variables optimizadas para prebuilds
   "containerEnv": {
-    "NODE_ENV": "development"
+    "NODE_ENV": "development",
+    "npm_config_cache": "/workspaces/forestech/.npm-cache",
+    "npm_config_prefer_offline": "true",
+    "npm_config_progress": "false",
+    "npm_config_audit": "false"
   },
 
-  // 🔧 Config mínima
-  "shutdownAction": "stopContainer"
+  // 🔧 Config optimizada
+  "shutdownAction": "stopContainer",
+  
+  // 📦 Montajes para cache persistente
+  "mounts": [
+    "source=forestech-npm-cache,target=/workspaces/forestech/.npm-cache,type=volume"
+  ]
 }
