@@ -214,7 +214,7 @@ jobs:
 
       # ⚡ PARALLEL BUILD: Each app builds simultaneously with optimization
       - name: Build ${{ matrix.app }} with Retry
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 2
