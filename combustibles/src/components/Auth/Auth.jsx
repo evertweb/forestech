@@ -434,13 +434,6 @@ const Auth = () => {
     }
   };
 
-  // Debug: Verificar estado de backgroundImage antes del render
-  console.log('🖼️ Estado backgroundImage antes del render:', {
-    backgroundImage,
-    imageLoading,
-    hasBackgroundImage: !!backgroundImage
-  });
-
   return (
     <div 
       className="auth-container"

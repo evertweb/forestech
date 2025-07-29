@@ -1,0 +1,135 @@
+# 🚀 Forestech Development Environment
+# Docker Compose para servicios adicionales
+
+version: '3.8'
+
+services:
+  # 🏠 Servicio principal de desarrollo
+  forestech-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/workspace:cached
+      - forestech-node-modules:/workspace/node_modules
+      - forestech-combustibles-modules:/workspace/combustibles/node_modules  
+      - forestech-alimentacion-modules:/workspace/alimentacion/node_modules
+      - forestech-shared-modules:/workspace/shared/node_modules
+      - ~/.gitconfig:/home/vscode/.gitconfig:ro
+      - ~/.ssh:/home/vscode/.ssh:ro
+    ports:
+      - "3000:3000"    # Alimentacion
+      - "5173:5173"    # Combustibles
+      - "5174:5174"    # Shared
+      - "8080:8080"    # Firebase Hosting
+      - "8081:8081"    # Firebase Functions
+      - "9005:9005"    # Firebase UI
+      - "9099:9099"    # Firebase Auth
+    environment:
+      - NODE_ENV=development
+      - FIREBASE_CONFIG_PATH=/workspace/.firebase/config.json
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    working_dir: /workspace
+    command: sleep infinity
+    networks:
+      - forestech-network
+
+  # 🗄️ Base de datos local para desarrollo (opcional)
+  forestech-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: forestech_dev
+      POSTGRES_USER: forestech
+      POSTGRES_PASSWORD: forestech123
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - forestech-db-data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    networks:
+      - forestech-network
+    profiles:
+      - database
+
+  # 📊 Redis para cache (opcional)
+  forestech-redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - forestech-redis-data:/data
+    networks:
+      - forestech-network
+    profiles:
+      - cache
+
+  # 📧 MailHog para emails de desarrollo (opcional)
+  forestech-mail:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    networks:
+      - forestech-network
+    profiles:
+      - mail
+
+  # 🔍 Elasticsearch para búsquedas (opcional)
+  forestech-search:
+    image: elasticsearch:8.8.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - forestech-search-data:/usr/share/elasticsearch/data
+    networks:
+      - forestech-network
+    profiles:
+      - search
+
+  # 📈 Grafana para monitoreo (opcional)
+  forestech-grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=forestech123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - forestech-grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - forestech-network
+    profiles:
+      - monitoring
+
+# 🗂️ Volúmenes nombrados para persistencia
+volumes:
+  forestech-node-modules:
+    driver: local
+  forestech-combustibles-modules:  
+    driver: local
+  forestech-alimentacion-modules:
+    driver: local
+  forestech-shared-modules:
+    driver: local
+  forestech-db-data:
+    driver: local
+  forestech-redis-data:
+    driver: local
+  forestech-search-data:
+    driver: local
+  forestech-grafana-data:
+    driver: local
+
+# 🌐 Red personalizada
+networks:
+  forestech-network:
+    driver: bridge
+    name: forestech-dev-network

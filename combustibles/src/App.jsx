@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { CombustiblesProvider, useCombustibles } from './contexts/CombustiblesContext';
 import Dashboard from './components/Dashboard/Dashboard';
-import Auth from './components/Auth/Auth';
+import AuthVisualEnhanced from './components/Auth/AuthVisualEnhanced';
 import './App.css';
 
 // Lazy load de los componentes de ruta
@@ -54,7 +54,7 @@ function AppContent() {
   return (
     <div className="App">
       {!user ? (
-        <Auth />
+        <AuthVisualEnhanced />
       ) : (
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
