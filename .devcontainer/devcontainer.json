@@ -101,9 +101,6 @@
   
   // 🔐 Secrets mapping (requiere configuración en GitHub)
   "secrets": {
-    "GEMINI_API_KEY": {
-      "description": "Gemini API key for AI tools"
-    },
     "FIREBASE_TOKEN": {
       "description": "Firebase deployment token"
     }

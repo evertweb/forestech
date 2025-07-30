@@ -60,9 +60,6 @@ install_global_tools() {
     # Claude Code CLI - CRÍTICO para paridad con local
     npm install -g @anthropic-ai/claude-code@latest --prefer-offline
     
-    # Gemini CLI
-    npm install -g @google/gemini-cli@latest --prefer-offline
-    
     # Herramientas adicionales
     npm install -g serve http-server pm2 --prefer-offline
     
