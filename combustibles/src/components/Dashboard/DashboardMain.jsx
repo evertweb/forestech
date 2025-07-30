@@ -206,6 +206,7 @@ const DashboardMain = () => {
       <p className="dashboard-subtitle">Resumen general del estado de combustibles y maquinaria.</p>
 
       <div className="stats-grid">
+        {/* Primera fila - Métricas operativas principales */}
         <div className="stat-card">
           <div className="stat-icon fuel-icon">🛢️</div>
           <div className="stat-info">
@@ -234,6 +235,8 @@ const DashboardMain = () => {
             <h2>{formatNumber(stats.pendingMovements)}</h2>
           </div>
         </div>
+        
+        {/* Segunda fila - Alertas y mantenimiento */}
         <div className={`stat-card ${stats.lowStockAlerts > 0 ? 'alert' : ''}`}>
           <div className="stat-icon alert-icon">⚠️</div>
           <div className="stat-info">
