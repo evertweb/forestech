@@ -18,17 +18,7 @@ echo "📂 Trabajando en: $WORKSPACE_DIR"
 
 # 📁 Crear estructura completa como en local
 echo "📁 Creando estructura enterprise..."
-mkdir -p {
-    .mcp-memory,
-    .claudehooks,
-    scripts,
-    .npm-cache,
-    .yarn-cache,
-    .firebase,
-    logs,
-    tmp,
-    .vscode/settings
-}
+mkdir -p .mcp-memory .claudehooks scripts .npm-cache .yarn-cache .firebase logs tmp .vscode/settings
 
 # 🔧 Configurar npm como en local
 echo "⚡ Configurando npm enterprise..."

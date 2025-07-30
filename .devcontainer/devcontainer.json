@@ -61,7 +61,6 @@
 
   // 🚀 Enterprise setup optimizado
   "postCreateCommand": "bash .devcontainer/setup-enterprise.sh",
-  "updateContentCommand": "bash .devcontainer/update-enterprise.sh",
   
   // 🌍 Variables enterprise con secrets
   "containerEnv": {
