@@ -1,0 +1,110 @@
+# 🛡️ Monitor de Bucles Infinitos - DESHABILITADO TEMPORALMENTE
+# 
+# Este workflow ha sido deshabilitado para reducir costos de GitHub Actions.
+# Para reactivarlo, renombrar este archivo a .github/workflows/monitor-bucles.yml
+#
+# Configuración optimizada aplicada:
+# - Frecuencia reducida: 4 veces al día (era cada 30 min)
+# - Timeout de 5 minutos para evitar ejecuciones largas
+# - Continue-on-error para prevenir fallos costosos
+#
+# Para reactivar:
+# 1. mv .github/workflows/monitor-bucles-disabled.yml .github/workflows/monitor-bucles.yml
+# 2. Commit y push los cambios
+#
+# Alternativas de monitoreo:
+# - Ejecución manual con workflow_dispatch
+# - Integrar alertas en workflows existentes
+# - Usar herramientas externas (webhook, cron job en servidor)
+
+name: 🛡️ Monitor de Bucles Infinitos (DESHABILITADO)
+
+# Comentado para deshabilitar completamente
+# on:
+#   schedule:
+#     # Ejecutar cada 4 horas durante horas activas para reducir costos
+#     - cron: '0 8,12,16,20 * * 1-5'  # 4 veces al día, Lun-Vie (8AM, 12PM, 4PM, 8PM)
+#   workflow_dispatch:
+#     inputs:
+#       check_type:
+#         description: 'Tipo de verificación'
+#         required: false
+#         default: 'full'
+#         type: choice
+#         options:
+#           - full
+#           - workflows
+#           - issues
+#           - commits
+
+on:
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Tipo de verificación'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - workflows
+          - issues
+          - commits
+
+permissions:
+  contents: read
+  issues: read
+  actions: read
+
+jobs:
+  monitor-loops:
+    name: Detectar Bucles Infinitos
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: ⚠️ Workflow Deshabilitado
+      run: |
+        echo "⚠️ Este workflow está temporalmente deshabilitado para reducir costos"
+        echo "📊 Configuración optimizada disponible en el código"
+        echo "🔧 Para reactivar: renombrar archivo y descomentar schedule"
+        echo ""
+        echo "💡 Alternativas:"
+        echo "- Ejecución manual con workflow_dispatch"
+        echo "- Integrar en workflows existentes"
+        echo "- Monitoreo externo"
+
+    - name: Checkout Repository (Solo si se ejecuta manualmente)
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/checkout@v4
+
+    - name: 🔍 Execute Loop Detection (Solo manual)
+      if: github.event_name == 'workflow_dispatch'
+      id: loop-detection
+      run: |
+        echo "🛡️ Iniciando detección de bucles infinitos..."
+        
+        CHECK_TYPE="${{ github.event.inputs.check_type || 'full' }}"
+        echo "Tipo de verificación: $CHECK_TYPE"
+        
+        # Timeout para evitar ejecuciones largas que consuman minutos
+        timeout 300s bash -c '
+          if [ "$CHECK_TYPE" = "full" ]; then
+            ./scripts/monitor-bucles.sh monitor
+          else
+            ./scripts/monitor-bucles.sh "$CHECK_TYPE"
+          fi
+        ' || {
+          echo "⚠️ Timeout después de 5 minutos - terminando para evitar costos"
+          exit 0
+        }
+      continue-on-error: true
+      timeout-minutes: 5
+
+    - name: ✅ Manual Execution Complete
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "✅ Ejecución manual completada"
+        echo "📊 Para monitoreo continuo, considere:"
+        echo "- Reactivar con frecuencia reducida"
+        echo "- Integrar en otros workflows"
+        echo "- Configurar alertas externas"

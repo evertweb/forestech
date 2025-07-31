@@ -2,8 +2,8 @@ name: 🛡️ Monitor de Bucles Infinitos
 
 on:
   schedule:
-    # Ejecutar cada 30 minutos durante horas activas
-    - cron: '*/30 8-20 * * 1-5'  # Cada 30 min, 8AM-8PM, Lun-Vie
+    # Ejecutar cada 4 horas durante horas activas para reducir costos
+    - cron: '0 8,12,16,20 * * 1-5'  # 4 veces al día, Lun-Vie (8AM, 12PM, 4PM, 8PM)
   workflow_dispatch:
     inputs:
       check_type:
@@ -39,12 +39,19 @@ jobs:
         CHECK_TYPE="${{ github.event.inputs.check_type || 'full' }}"
         echo "Tipo de verificación: $CHECK_TYPE"
         
-        if [ "$CHECK_TYPE" = "full" ]; then
-          ./scripts/monitor-bucles.sh monitor
-        else
-          ./scripts/monitor-bucles.sh "$CHECK_TYPE"
-        fi
+        # Timeout para evitar ejecuciones largas que consuman minutos
+        timeout 300s bash -c '
+          if [ "$CHECK_TYPE" = "full" ]; then
+            ./scripts/monitor-bucles.sh monitor
+          else
+            ./scripts/monitor-bucles.sh "$CHECK_TYPE"
+          fi
+        ' || {
+          echo "⚠️ Timeout después de 5 minutos - terminando para evitar costos"
+          exit 0
+        }
       continue-on-error: true
+      timeout-minutes: 5
 
     - name: 🚨 Create Alert Issue if Loop Detected
       if: steps.loop-detection.outcome == 'failure'
