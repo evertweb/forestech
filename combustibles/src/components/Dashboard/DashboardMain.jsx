@@ -163,16 +163,6 @@ const DashboardMain = () => {
     };
   }, [inventory, vehicles, movements]);
 
-  /**
-   * `useMemo` para obtener y ordenar los 5 movimientos más recientes.
-   * Se recalcula solo si el array `movements` cambia.
-   */
-  const recentMovements = useMemo(() => {
-    return movements
-      .sort((a, b) => safeDateHelper(b.createdAt).getTime() - safeDateHelper(a.createdAt).getTime())
-      .slice(0, 5);
-  }, [movements]);
-
   // ==================================================================================================
   // FUNCIONES AUXILIARES (HELPERS)
   // ==================================================================================================
@@ -185,6 +175,16 @@ const DashboardMain = () => {
     if (date instanceof Date) return date;
     return new Date(date);
   };
+
+  /**
+   * `useMemo` para obtener y ordenar los 5 movimientos más recientes.
+   * Se recalcula solo si el array `movements` cambia.
+   */
+  const recentMovements = useMemo(() => {
+    return movements
+      .sort((a, b) => safeDateHelper(b.createdAt).getTime() - safeDateHelper(a.createdAt).getTime())
+      .slice(0, 5);
+  }, [movements]);
 
   // Genera una descripción legible para cada tipo de movimiento.
   const getMovementDescription = (mov) => {
