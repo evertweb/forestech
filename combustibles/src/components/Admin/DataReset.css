@@ -322,7 +322,7 @@
 .btn-warning,
 .btn-danger {
   padding: 0.75rem 1.5rem;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
@@ -332,11 +332,21 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  /* Glass effect */
+  backdrop-filter: var(--glass-backdrop-blur);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary {
-  background: #007bff;
+  background: linear-gradient(135deg, 
+    rgba(0, 123, 255, 0.8), 
+    rgba(0, 86, 179, 0.8)
+  );
   color: white;
+  border-color: rgba(0, 123, 255, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -362,8 +372,12 @@
 }
 
 .btn-danger {
-  background: #dc3545;
+  background: linear-gradient(135deg, 
+    rgba(220, 53, 69, 0.8), 
+    rgba(200, 35, 51, 0.8)
+  );
   color: white;
+  border-color: rgba(220, 53, 69, 0.3);
 }
 
 .btn-danger:hover:not(:disabled) {
