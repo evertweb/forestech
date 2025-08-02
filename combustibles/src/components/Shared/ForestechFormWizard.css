@@ -204,17 +204,22 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   color: #1a202c;
-  padding: var(--wizard-spacing-xl) var(--wizard-spacing-xl) var(--wizard-spacing-lg);
+  padding: var(--wizard-spacing-xl) var(--wizard-spacing-xl) var(--wizard-spacing-xl);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   position: relative;
   z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  min-height: 140px;
+  overflow: visible;
 }
 
 .wizard-progress-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wizard-spacing-md);
 }
 
 .step-counter {
@@ -257,6 +262,8 @@
   color: #ef4444;
   font-size: 1.25rem;
   margin-left: var(--wizard-spacing-lg);
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .wizard-close-btn:hover {
@@ -267,8 +274,10 @@
 /* Indicadores de pasos */
 .step-indicators {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--wizard-spacing-sm);
-  margin-top: var(--wizard-spacing-md);
+  margin-top: auto;
+  align-items: center;
 }
 
 .step-indicator {
@@ -631,7 +640,14 @@
     font-size: 1rem;
   }
   
-  .forestech-wizard-header,
+  .forestech-wizard-header {
+    padding: var(--wizard-spacing-lg);
+    min-height: 120px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--wizard-spacing-sm);
+  }
+  
   .forestech-wizard-content,
   .forestech-wizard-footer {
     padding-left: var(--wizard-spacing-lg);

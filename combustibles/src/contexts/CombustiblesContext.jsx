@@ -7,6 +7,7 @@ import { useCombustiblesCRUD } from '../hooks/useCombustiblesCRUD';
 import { subscribeToInventory } from '../services/inventoryService';
 import { subscribeToVehicles } from '../services/vehiclesService';
 import { subscribeToSuppliers } from '../services/suppliersService';
+import { subscribeToCategories } from '../services/vehicleCategoriesService';
 import movementsService from '../services/movementsService';
 
 const CombustiblesContext = createContext();
@@ -32,6 +33,7 @@ export const CombustiblesProvider = ({ children }) => {
     movements: [],
     vehicles: [],
     suppliers: [],
+    vehicleCategories: [],
     dataLoading: false,
     dataError: null
   };
@@ -46,6 +48,7 @@ export const CombustiblesProvider = ({ children }) => {
     movements: data.movements,
     vehicles: data.vehicles,
     suppliers: data.suppliers,
+    vehicleCategories: data.vehicleCategories,
     
     // Estado de carga combinado
     dataLoading: data.loading,
@@ -58,6 +61,7 @@ export const CombustiblesProvider = ({ children }) => {
     subscribeToInventory,
     subscribeToVehicles,
     subscribeToSuppliers,
+    subscribeToVehicleCategories: subscribeToCategories,
     subscribeToMovements: movementsService.subscribeToMovements,
   };
 

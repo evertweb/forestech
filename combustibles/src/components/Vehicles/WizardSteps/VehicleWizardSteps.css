@@ -38,7 +38,7 @@
 }
 
 .typeform-question {
-  margin-bottom: 16rem;
+  margin-bottom: 2rem;
   text-align: left;
 }
 
@@ -92,6 +92,7 @@
 
 .typeform-input-group {
   margin-bottom: 2rem;
+  flex: 1;
 }
 
 .input-with-icon {
@@ -1057,7 +1058,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  min-height: 400px;
+  min-height: 600px;
   margin-bottom: 2rem;
 }
 
@@ -1067,7 +1068,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  min-height: 400px;
+  min-height: 600px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
@@ -1075,6 +1076,7 @@
   opacity: 0;
   visibility: hidden;
   transform: translateX(100%);
+  padding: 0 1rem;
 }
 
 .substep-slide.current {
@@ -1105,9 +1107,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 3rem;
+  margin-top: auto;
   padding-top: 2rem;
   border-top: 1px solid #e2e8f0;
+  min-height: 80px;
 }
 
 .substep-btn {
@@ -1216,22 +1219,39 @@
 /* Mejorar la experiencia en móviles */
 @media (max-width: 640px) {
   .substeps-container {
-    min-height: 350px;
+    min-height: 500px;
+  }
+  
+  .substep-slide {
+    min-height: 500px;
+    padding: 0 0.5rem;
   }
   
   .substep-navigation {
     flex-direction: column;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: auto;
     padding-top: 1.5rem;
+    min-height: 100px;
   }
   
   .substep-btn {
     width: 100%;
     justify-content: center;
+    padding: 1rem 1.5rem;
   }
   
   .substep-progress {
+    margin-bottom: 1.5rem;
+  }
+  
+  .typeform-question h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .typeform-question p {
+    font-size: 1rem;
     margin-bottom: 1.5rem;
   }
   

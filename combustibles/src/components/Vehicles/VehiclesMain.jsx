@@ -16,7 +16,7 @@ import {
 import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
-import VehicleWizard from './VehicleWizard';
+import VehicleFormSmart from './VehicleFormSmart';
 import MaintenanceModal from './MaintenanceModal';
 
 // Componentes de la pestaña Categorías
@@ -248,7 +248,7 @@ const VehiclesMain = () => {
 
       {/* Modales que se mantienen globales */}
       {showModal && (
-        <VehicleWizard
+        <VehicleFormSmart
           isOpen={showModal}
           onClose={handleModalClose}
           vehicle={modalMode === 'edit' ? selectedVehicle : null}

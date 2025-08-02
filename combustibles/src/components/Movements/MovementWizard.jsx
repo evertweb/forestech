@@ -86,6 +86,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   // Cargar datos del sistema y resetear el wizard cuando se abre
   useEffect(() => {
     let suppliersUnsubscribe = null;
+    let fallbackTimer = null;
     
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -104,18 +105,21 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         });
         
         // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
-        setTimeout(async () => {
-          if (suppliers.length === 0) {
-            try {
-              const result = await getAllSuppliers();
-              if (result.success && result.data.length > 0) {
-                setSuppliers(result.data);
-                setSuppliersLoading(false);
-              }
-            } catch (error) {
-              console.error('❌ Error en fallback de suppliers:', error);
+        fallbackTimer = setTimeout(async () => {
+          setSuppliers(currentSuppliers => {
+            if (currentSuppliers.length === 0) {
+              // Solo ejecutar fallback si aún no tenemos suppliers
+              getAllSuppliers().then(result => {
+                if (result.success && result.data.length > 0) {
+                  setSuppliers(result.data);
+                  setSuppliersLoading(false);
+                }
+              }).catch(error => {
+                console.error('❌ Error en fallback de suppliers:', error);
+              });
             }
-          }
+            return currentSuppliers;
+          });
         }, 3000);
       }
       
@@ -151,8 +155,11 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       if (suppliersUnsubscribe) {
         suppliersUnsubscribe();
       }
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+      }
     };
-  }, [isOpen, inventory, vehicles, subscribeToSuppliers, suppliers]);
+  }, [isOpen, inventory, vehicles, subscribeToSuppliers]);
 
   // Actualizar systemData cuando los suppliers locales cambien
   useEffect(() => {
