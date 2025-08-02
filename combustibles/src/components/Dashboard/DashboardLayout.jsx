@@ -17,7 +17,7 @@
  * ================================================================================================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
@@ -27,11 +27,33 @@ const DashboardLayout = ({ children }) => {
   // Extrae el perfil de usuario y las funciones de verificación de permisos del contexto.
   const { userProfile, isAdmin, isCounterOrAbove } = useCombustibles();
   
-  // Estado para controlar la visibilidad del sidebar en dispositivos móviles.
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Estado para controlar la visibilidad del sidebar en todos los dispositivos.
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Hook de react-router para obtener la ubicación actual y resaltar el enlace activo.
   const location = useLocation();
+
+  // useEffect para manejar el estado inicial del sidebar basado en el tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      // En móviles (1024px o menos), inicia cerrado por defecto
+      if (window.innerWidth <= 1024) {
+        setSidebarOpen(false);
+      } else {
+        // En desktop, inicia abierto por defecto
+        setSidebarOpen(true);
+      }
+    };
+
+    // Ejecuta al montar el componente
+    handleResize();
+
+    // Escucha cambios de tamaño de ventana
+    window.addEventListener('resize', handleResize);
+
+    // Limpieza del event listener
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   /**
    * @type {Array<Object>}
@@ -89,10 +111,11 @@ const DashboardLayout = ({ children }) => {
       {/* ================= HEADER ================= */}
       <header className="dashboard-header">
         <div className="header-content">
-          {/* Botón para alternar el sidebar en móviles */}
+          {/* Botón para alternar el sidebar - funciona en todas las vistas */}
           <button 
             className="sidebar-toggle"
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            title={sidebarOpen ? "Ocultar menú" : "Mostrar menú"}
           >
             ☰
           </button>
@@ -133,7 +156,7 @@ const DashboardLayout = ({ children }) => {
       {/* ================= CUERPO DEL DASHBOARD ================= */}
       <div className="dashboard-body">
         {/* ================= SIDEBAR ================= */}
-        <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'hidden'}`}>
           <nav className="sidebar-nav">
             {/* Mapea los ítems de navegación visibles y crea los enlaces */}
             {visibleItems.map(item => (
@@ -168,7 +191,7 @@ const DashboardLayout = ({ children }) => {
         </aside>
 
         {/* ================= CONTENIDO PRINCIPAL ================= */}
-        <main className="dashboard-main">
+        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-hidden'}`}>
           <div className="main-content">
             {/* Aquí se renderiza el contenido de la página actual (ej. Home, Reports, etc.) */}
             {children}
@@ -177,7 +200,7 @@ const DashboardLayout = ({ children }) => {
       </div>
 
       {/* Overlay que se muestra en móviles cuando el sidebar está abierto. */}
-      {/* Al hacer clic, cierra el sidebar. */}
+      {/* Al hacer clic, cierra el sidebar. Solo en móviles (max-width: 1024px) */}
       {sidebarOpen && (
         <div 
           className="sidebar-overlay"

@@ -169,6 +169,12 @@
   min-height: calc(100vh - 70px); /* Altura mínima para ocupar el resto de la pantalla. */
 }
 
+/* Cuando sidebar está oculto, el body debe permitir expansión completa */
+.dashboard-body:has(.dashboard-sidebar.hidden) .dashboard-main {
+  margin-left: 0 !important;
+  width: 100vw !important;
+}
+
 /* =================================================================================================
    4. SIDEBAR (MENÚ DE NAVEGACIÓN LATERAL)
    - Menú fijo a la izquierda para la navegación principal de la aplicación.
@@ -192,6 +198,9 @@
 /* Estado oculto del sidebar para desktop */
 .dashboard-sidebar.hidden {
   transform: translateX(-100%);
+  visibility: hidden;
+  opacity: 0;
+  width: 0; /* Elimina completamente el ancho cuando está oculto */
 }
 
 .sidebar-nav {
@@ -295,7 +304,7 @@
 .dashboard-main {
   flex: 1; /* Ocupa el resto del espacio disponible. */
   margin-left: 280px; /* Deja espacio para el sidebar. */
-  padding: 0.75rem; /* Reducido para mejor balance visual */
+  padding: 0; /* Eliminado para evitar doble padding con DashboardTable */
   transition: margin-left 0.3s ease; /* Animación suave cuando el sidebar se oculta. */
   width: calc(100vw - 280px); /* Ancho calculado para evitar desbordamiento. */
   min-height: calc(100vh - 70px);
@@ -303,10 +312,20 @@
   background: #f8fafc;
 }
 
+/* Regla específica para cuando sidebar está oculto - MÁXIMA PRIORIDAD */
+body .dashboard-main.sidebar-hidden {
+  margin-left: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  /* Debug temporal: cambio de fondo para confirmar que la regla se aplica */
+  background: #f0f9ff !important;
+  border-left: 3px solid #0ea5e9 !important;
+}
+
 /* Estado cuando el sidebar está oculto */
 .dashboard-main.sidebar-hidden {
-  margin-left: 0;
-  width: 100vw;
+  margin-left: 0 !important;
+  width: 100vw !important;
 }
 
 .main-content {
@@ -345,14 +364,37 @@
    - Media queries para ajustar el layout en diferentes tamaños de pantalla (móviles, tablets, etc.).
    ================================================================================================= */
 
+/* Desktop responsivo - corrige comportamiento sidebar */
+@media (min-width: 1025px) {
+  /* En desktop, el sidebar hidden debe desaparecer completamente */
+  .dashboard-sidebar.hidden {
+    transform: translateX(-100%);
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  /* El contenido principal debe expandirse cuando sidebar está oculto */
+  .dashboard-main.sidebar-hidden {
+    margin-left: 0 !important;
+    width: 100vw !important;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+  }
+  
+  /* Transición suave para el sidebar en desktop */
+  .dashboard-sidebar {
+    transition: transform 0.3s ease, visibility 0.3s ease, opacity 0.3s ease;
+  }
+}
+
 /* Responsive para dashboard simplificado - solo tabla */
 @media (min-width: 1024px) and (max-width: 1600px) {
-  .dashboard-main { padding: 0.2rem; }
+  .dashboard-main { padding: 0; }
 }
 
 /* Pantallas grandes - optimización para vista tabla */
 @media (min-width: 1400px) {
-  .dashboard-main { padding: 1rem; }
+  .dashboard-main { padding: 0; }
 }
 
 /* Tablets y pantallas medianas (hasta 1024px). */
