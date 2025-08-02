@@ -874,7 +874,7 @@
 /* ========== BUTTONS ========== */
 .btn {
   padding: 0.75rem 1.5rem;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
@@ -884,6 +884,12 @@
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
+  /* Glass effect */
+  backdrop-filter: var(--glass-backdrop-blur);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
 }
 
 .btn:disabled {

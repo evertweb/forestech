@@ -1,0 +1,224 @@
+/**
+ * GlassEffect.css - Efecto cristal glass para botones de Forestech Colombia
+ * Aplicación del efecto glassmorphism manteniendo tema forestal
+ */
+
+/* ============ VARIABLES EFECTO CRISTAL ============ */
+:root {
+  /* Glass effect base */
+  --glass-backdrop-blur: blur(10px);
+  --glass-backdrop-blur-strong: blur(15px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+  
+  /* Glass backgrounds for different button types */
+  --glass-primary-bg: rgba(5, 150, 105, 0.15);
+  --glass-primary-hover-bg: rgba(5, 150, 105, 0.25);
+  --glass-primary-border: rgba(5, 150, 105, 0.3);
+  
+  --glass-secondary-bg: rgba(255, 255, 255, 0.1);
+  --glass-secondary-hover-bg: rgba(255, 255, 255, 0.2);
+  --glass-secondary-border: rgba(255, 255, 255, 0.2);
+  
+  --glass-success-bg: rgba(16, 185, 129, 0.15);
+  --glass-success-hover-bg: rgba(16, 185, 129, 0.25);
+  --glass-success-border: rgba(16, 185, 129, 0.3);
+  
+  --glass-warning-bg: rgba(245, 158, 11, 0.15);
+  --glass-warning-hover-bg: rgba(245, 158, 11, 0.25);
+  --glass-warning-border: rgba(245, 158, 11, 0.3);
+  
+  --glass-danger-bg: rgba(239, 68, 68, 0.15);
+  --glass-danger-hover-bg: rgba(239, 68, 68, 0.25);
+  --glass-danger-border: rgba(239, 68, 68, 0.3);
+  
+  --glass-info-bg: rgba(59, 130, 246, 0.15);
+  --glass-info-hover-bg: rgba(59, 130, 246, 0.25);
+  --glass-info-border: rgba(59, 130, 246, 0.3);
+}
+
+/* ============ MIXIN BASE GLASS EFFECT ============ */
+.glass-effect-base {
+  backdrop-filter: var(--glass-backdrop-blur);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur);
+  background: var(--glass-secondary-bg);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-effect-base::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  opacity: 0.8;
+}
+
+.glass-effect-base:hover {
+  backdrop-filter: var(--glass-backdrop-blur-strong);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur-strong);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* ============ GLASS BUTTON VARIANTS ============ */
+
+/* Primary Glass */
+.glass-primary {
+  background: var(--glass-primary-bg);
+  border: 1px solid var(--glass-primary-border);
+  color: #059669;
+  font-weight: 600;
+}
+
+.glass-primary:hover {
+  background: var(--glass-primary-hover-bg);
+  color: #047857;
+}
+
+/* Primary Solid Glass (para botones más prominentes) */
+.glass-primary-solid {
+  background: linear-gradient(135deg, 
+    rgba(5, 150, 105, 0.8), 
+    rgba(4, 120, 87, 0.8)
+  );
+  border: 1px solid var(--glass-primary-border);
+  color: white;
+  font-weight: 600;
+}
+
+.glass-primary-solid:hover {
+  background: linear-gradient(135deg, 
+    rgba(5, 150, 105, 0.9), 
+    rgba(4, 120, 87, 0.9)
+  );
+}
+
+/* Secondary Glass */
+.glass-secondary {
+  background: var(--glass-secondary-bg);
+  border: var(--glass-border);
+  color: #374151;
+}
+
+.glass-secondary:hover {
+  background: var(--glass-secondary-hover-bg);
+  color: #1f2937;
+}
+
+/* Success Glass */
+.glass-success {
+  background: var(--glass-success-bg);
+  border: 1px solid var(--glass-success-border);
+  color: #047857;
+}
+
+.glass-success:hover {
+  background: var(--glass-success-hover-bg);
+  color: #065f46;
+}
+
+/* Warning Glass */
+.glass-warning {
+  background: var(--glass-warning-bg);
+  border: 1px solid var(--glass-warning-border);
+  color: #d97706;
+}
+
+.glass-warning:hover {
+  background: var(--glass-warning-hover-bg);
+  color: #92400e;
+}
+
+/* Danger Glass */
+.glass-danger {
+  background: var(--glass-danger-bg);
+  border: 1px solid var(--glass-danger-border);
+  color: #dc2626;
+}
+
+.glass-danger:hover {
+  background: var(--glass-danger-hover-bg);
+  color: #991b1b;
+}
+
+/* Info Glass */
+.glass-info {
+  background: var(--glass-info-bg);
+  border: 1px solid var(--glass-info-border);
+  color: #1d4ed8;
+}
+
+.glass-info:hover {
+  background: var(--glass-info-hover-bg);
+  color: #1e40af;
+}
+
+/* ============ STATES AND MODIFIERS ============ */
+.glass-effect-base:disabled {
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  background: rgba(156, 163, 175, 0.1);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.glass-effect-base:disabled:hover {
+  transform: none;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Small glass buttons */
+.glass-small {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+/* Large glass buttons */
+.glass-large {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+}
+
+/* Rounded glass buttons */
+.glass-rounded {
+  border-radius: 50px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .glass-effect-base {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .glass-effect-base:hover {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .glass-effect-base {
+    transition: none;
+  }
+  
+  .glass-effect-base:hover {
+    transform: none;
+  }
+}

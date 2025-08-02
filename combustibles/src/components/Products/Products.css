@@ -701,9 +701,12 @@
 
 /* === BOTONES === */
 .btn-primary {
-  background: var(--primary-color, #3498db);
+  background: linear-gradient(135deg, 
+    rgba(52, 152, 219, 0.8), 
+    rgba(41, 128, 185, 0.8)
+  );
   color: white;
-  border: none;
+  border: 1px solid rgba(52, 152, 219, 0.3);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   cursor: pointer;
@@ -713,11 +716,23 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  /* Glass effect */
+  backdrop-filter: var(--glass-backdrop-blur);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover {
-  background: var(--primary-dark, #2980b9);
+  background: linear-gradient(135deg, 
+    rgba(41, 128, 185, 0.9), 
+    rgba(39, 174, 96, 0.9)
+  );
   transform: translateY(-2px);
+  backdrop-filter: var(--glass-backdrop-blur-strong);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur-strong);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .btn-primary:disabled {

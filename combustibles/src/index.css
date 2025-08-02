@@ -17,6 +17,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Glass Effect import - after base styles */
+@import './components/Shared/GlassEffect.css';
+
 a {
   font-weight: 500;
   color: #646cff;
