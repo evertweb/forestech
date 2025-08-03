@@ -266,7 +266,7 @@ const SuppliersMain = () => {
               className="btn btn-warning sap-theme"
               onClick={upgradeUserPermissions}
               title="Actualizar permisos de usuario (solo desarrollo)"
-              style={{ backgroundColor: '#ff9800', borderColor: '#ff9800' }}
+              style={{ backgroundColor: 'var(--color-warning)', borderColor: 'var(--color-warning)' }}
             >
               <span>🔑</span>
               <span>Obtener Permisos</span>

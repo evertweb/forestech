@@ -72,7 +72,7 @@ const InventoryStats = ({ stats }) => {
                 <div className="fuel-header">
                   <span 
                     className="fuel-icon" 
-                    style={{ color: fuelInfo?.color || '#6b7280' }}
+                    style={{ color: fuelInfo?.color || 'var(--text-muted)' }}
                   >
                     {fuelInfo?.icon || '⛽'}
                   </span>
@@ -118,7 +118,7 @@ const InventoryStats = ({ stats }) => {
                     className="progress-fill"
                     style={{ 
                       width: `${utilizationPercent}%`,
-                      backgroundColor: fuelInfo?.color || '#6b7280'
+                      backgroundColor: fuelInfo?.color || 'var(--text-muted)'
                     }}
                   />
                 </div>

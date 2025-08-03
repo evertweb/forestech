@@ -423,6 +423,62 @@ export const UI_TABS = {
 };
 
 // ===================================================================
+// CONSTANTES ESPECÍFICAS DE MOVIMIENTOS
+// ===================================================================
+export const MOVEMENT_TYPES_UI = {
+  ENTRADA: {
+    title: 'Entrada de Combustible',
+    description: 'Registrar combustible que llega de proveedores',
+    details: 'Para compras, reabastecimientos y recepciones',
+    icon: '📥',
+    color: 'entrada'
+  },
+  SALIDA: {
+    title: 'Salida de Combustible', 
+    description: 'Asignar combustible a vehículos y equipos',
+    details: 'Para tanqueos, abastecimientos y consumos',
+    icon: '⛽',
+    color: 'salida'
+  },
+  TRANSFERENCIA: {
+    title: 'Transferencia',
+    description: 'Mover combustible entre ubicaciones',
+    details: 'Para reorganización y redistribución de stock',
+    icon: '🔄',
+    color: 'transferencia'
+  },
+  AJUSTE: {
+    title: 'Ajuste de Inventario',
+    description: 'Corregir diferencias de stock',
+    details: 'Para ajustes por pérdidas, mermas o correcciones',
+    icon: '⚖️',
+    color: 'ajuste'
+  }
+};
+
+// ===================================================================
+// PREGUNTAS DEL WIZARD DE MOVIMIENTOS
+// ===================================================================
+export const WIZARD_QUESTIONS = {
+  FUEL_TYPE: {
+    title: '⛽ ¿Qué tipo de combustible necesitas?',
+    description: 'Elige el producto que vas a mover'
+  },
+  VEHICLE_SELECTION: {
+    title: '🚗 ¿A qué vehículo le darás combustible?',
+    description: 'Selecciona el vehículo o equipo que recibirá el {fuelType}'
+  },
+  LOCATION_SELECTION: {
+    title: '📍 ¿De dónde viene el combustible?',
+    description: 'Selecciona la ubicación de origen'
+  },
+  QUANTITY_INPUT: {
+    title: '⛽ ¿Cuántos galones necesitas?',
+    description: 'Ingresa la cantidad de combustible'
+  }
+};
+
+// ===================================================================
 // EXPORTACIÓN AGRUPADA
 // ===================================================================
 export const UI_LABELS = {
@@ -433,7 +489,9 @@ export const UI_LABELS = {
   MESSAGES: UI_MESSAGES,
   PLACEHOLDERS: UI_PLACEHOLDERS,
   TOOLTIPS: UI_TOOLTIPS,
-  TABS: UI_TABS
+  TABS: UI_TABS,
+  MOVEMENT_TYPES: MOVEMENT_TYPES_UI,
+  WIZARD_QUESTIONS: WIZARD_QUESTIONS
 };
 
 export default UI_LABELS;

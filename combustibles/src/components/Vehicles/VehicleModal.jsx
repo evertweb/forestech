@@ -12,6 +12,7 @@ import {
   UI_FORM_LABELS, 
   UI_MESSAGES, 
   UI_PLACEHOLDERS, 
+  UI_TITLES,
   MODAL_TEXT, 
   UI_TOOLTIPS 
 } from '../../constants';

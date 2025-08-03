@@ -5,41 +5,26 @@
 
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
+import { MOVEMENT_TYPES_UI } from '../../../constants';
 
 const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) => {
   
   const movementOptions = useMemo(() => [
     {
       type: MOVEMENT_TYPES.ENTRADA,
-      icon: '📥',
-      title: 'Entrada de Combustible',
-      description: 'Registrar combustible que llega de proveedores',
-      color: 'entrada',
-      details: 'Para compras, reabastecimientos y recepciones'
+      ...MOVEMENT_TYPES_UI.ENTRADA
     },
     {
       type: MOVEMENT_TYPES.SALIDA,
-      icon: '⛽', 
-      title: 'Salida de Combustible',
-      description: 'Asignar combustible a vehículos y equipos',
-      color: 'salida',
-      details: 'Para consumo y operaciones de campo'
+      ...MOVEMENT_TYPES_UI.SALIDA
     },
     {
       type: MOVEMENT_TYPES.TRANSFERENCIA,
-      icon: '🔄',
-      title: 'Transferencia', 
-      description: 'Mover combustible entre ubicaciones',
-      color: 'transferencia',
-      details: 'Entre tanques, sitios o almacenes'
+      ...MOVEMENT_TYPES_UI.TRANSFERENCIA
     },
     {
       type: MOVEMENT_TYPES.AJUSTE,
-      icon: '⚖️',
-      title: 'Ajuste de Inventario',
-      description: 'Corregir stock por diferencias o calibraciones',
-      color: 'ajuste', 
-      details: 'Para mermas, pérdidas o correcciones'
+      ...MOVEMENT_TYPES_UI.AJUSTE
     }
   ], []);
 

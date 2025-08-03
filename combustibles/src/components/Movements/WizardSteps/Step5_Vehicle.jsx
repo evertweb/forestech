@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
+import { WIZARD_QUESTIONS } from '../../../constants';
 
 const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
@@ -144,8 +145,8 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
     <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
         <div className="typeform-question">
-          <h2>🚗 ¿A qué vehículo le darás combustible?</h2>
-          <p>Selecciona el vehículo o equipo que recibirá el {formData.fuelType}</p>
+          <h2>{WIZARD_QUESTIONS.VEHICLE_SELECTION.title}</h2>
+          <p>{WIZARD_QUESTIONS.VEHICLE_SELECTION.description.replace('{fuelType}', formData.fuelType || 'combustible')}</p>
         </div>
 
         {loading && (

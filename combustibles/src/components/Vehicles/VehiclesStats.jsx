@@ -6,6 +6,7 @@
 import React from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { formatNumber } from '../../utils/calculations';
+import { CHART_COLORS } from '../../constants';
 
 const VehiclesStats = ({ stats, filters }) => {
   if (!stats) return null;
@@ -32,7 +33,7 @@ const VehiclesStats = ({ stats, filters }) => {
     for (let i = 0; i < type.length; i++) {
       hash = ((hash << 5) - hash + type.charCodeAt(i)) & 0xffffffff;
     }
-    const colors = ['#059669', '#dc2626', '#2563eb', '#7c3aed', '#ea580c', '#16a34a', '#ca8a04', '#9333ea'];
+    const colors = CHART_COLORS.DEFAULT;
     return colors[Math.abs(hash) % colors.length];
   };
 
@@ -54,11 +55,11 @@ const VehiclesStats = ({ stats, filters }) => {
   // Obtener color para estado
   const getStatusColor = (status) => {
     switch (status) {
-      case VEHICLE_STATUS.ACTIVO: return '#10b981';
-      case VEHICLE_STATUS.MANTENIMIENTO: return '#f59e0b';
-      case VEHICLE_STATUS.INACTIVO: return '#6b7280';
-      case VEHICLE_STATUS.REPARACION: return '#ef4444';
-      default: return '#6b7280';
+      case VEHICLE_STATUS.ACTIVO: return 'var(--color-success)';
+      case VEHICLE_STATUS.MANTENIMIENTO: return 'var(--color-warning)';
+      case VEHICLE_STATUS.INACTIVO: return 'var(--text-muted)';
+      case VEHICLE_STATUS.REPARACION: return 'var(--color-error)';
+      default: return 'var(--text-muted)';
     }
   };
 

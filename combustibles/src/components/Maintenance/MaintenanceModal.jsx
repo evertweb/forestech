@@ -18,6 +18,7 @@ import {
   UI_FORM_LABELS, 
   UI_MESSAGES, 
   UI_PLACEHOLDERS, 
+  UI_TITLES,
   MODAL_TEXT 
 } from '../../constants';
 // import { formatCurrency, formatNumber } from '../../utils/calculations';

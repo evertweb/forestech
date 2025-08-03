@@ -13,10 +13,10 @@ const SuppliersCards = ({
 }) => {
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return '#22c55e';
-      case 'inactive': return '#ef4444';
-      case 'suspended': return '#f59e0b';
-      default: return '#6b7280';
+      case 'active': return 'var(--color-success-light)';
+      case 'inactive': return 'var(--color-error)';
+      case 'suspended': return 'var(--color-warning)';
+      default: return 'var(--text-muted)';
     }
   };
 

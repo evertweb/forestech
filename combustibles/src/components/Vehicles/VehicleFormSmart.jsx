@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { isCustomIcon } from '../../services/iconUploadService';
-import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES, UI_PLACEHOLDERS } from '../../constants';
+import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES, UI_PLACEHOLDERS, UI_TITLES } from '../../constants';
 import './VehicleFormSmart.css';
 
 const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
@@ -191,11 +191,11 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
         resetForm();
         onClose();
       } else {
-        setErrors({ submit: result.error || `Error al ${vehicle ? 'actualizar' : 'crear'} el vehículo` });
+        setErrors({ submit: result.error || `${UI_MESSAGES.ERROR.GENERAL} al ${vehicle ? UI_ACTIONS.UPDATE.toLowerCase() : UI_ACTIONS.CREATE.toLowerCase()} el ${UI_FORM_LABELS.VEHICLE.toLowerCase()}` });
       }
     } catch (err) {
       console.error('Error al enviar formulario:', err);
-      setErrors({ submit: `Error inesperado al ${vehicle ? 'actualizar' : 'crear'} el vehículo` });
+      setErrors({ submit: `${UI_MESSAGES.ERROR.GENERAL} inesperado al ${vehicle ? UI_ACTIONS.UPDATE.toLowerCase() : UI_ACTIONS.CREATE.toLowerCase()} el ${UI_FORM_LABELS.VEHICLE.toLowerCase()}` });
     } finally {
       setIsSubmitting(false);
     }
@@ -214,7 +214,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
       <div className={MODAL_PRESETS.VEHICLE_MODAL.content} onClick={e => e.stopPropagation()}>
         {/* Header simplificado */}
         <div className={MODAL_PRESETS.VEHICLE_MODAL.header}>
-          <h2>{vehicle ? `${UI_ACTIONS.EDIT} Vehículo` : `${UI_ACTIONS.ADD} ${UI_FORM_LABELS.VEHICLE}`}</h2>
+          <h2>{vehicle ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.VEHICLE}` : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.VEHICLE}`}</h2>
           <button 
             type="button" 
             className={MODAL_PRESETS.VEHICLE_MODAL.close}
@@ -229,17 +229,17 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
         <div className="progress-indicator">
           <div className={`progress-step ${currentStep !== 'basic' ? 'completed' : 'active'}`}>
             <span className="step-number">1</span>
-            <span className="step-label">Básico</span>
+            <span className="step-label">{UI_TITLES.BASIC_INFO}</span>
           </div>
           <div className={`progress-line ${currentStep === 'advanced' || showAdvanced ? 'completed' : ''}`}></div>
           <div className={`progress-step ${currentStep === 'details' || showAdvanced ? 'completed' : currentStep === 'details' ? 'active' : ''}`}>
             <span className="step-number">2</span>
-            <span className="step-label">Detalles</span>
+            <span className="step-label">{UI_FORM_LABELS.OPERATIONAL_DETAILS}</span>
           </div>
           <div className={`progress-line ${showAdvanced ? 'completed' : ''}`}></div>
           <div className={`progress-step ${showAdvanced ? 'active' : ''}`}>
             <span className="step-number">3</span>
-            <span className="step-label">Adicional</span>
+            <span className="step-label">{UI_FORM_LABELS.ADDITIONAL_INFO}</span>
           </div>
         </div>
 
@@ -287,7 +287,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
               <div className="smart-form-group">
                 <label className="smart-form-label">
-                  {UI_FORM_LABELS.CATEGORY} *
+                  {UI_FORM_LABELS.VEHICLE_CATEGORY} *
                 </label>
                 {categoriesLoading ? (
                   <div className="loading-categories">
@@ -361,7 +361,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       checked={formData.hasHorometer}
                       onChange={(e) => handleFieldChange('hasHorometer', e.target.checked)}
                     />
-                    <span>{UI_FORM_LABELS.HAS_HOROMETER}</span>
+                    <span>{UI_FORM_LABELS.HAS_HOUR_METER}</span>
                   </label>
                 </div>
 
@@ -373,7 +373,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       className="btn-show-advanced"
                       onClick={() => setShowAdvanced(true)}
                     >
-                      ➕ {UI_ACTIONS.ADD} información adicional (opcional)
+                      ➕ {UI_ACTIONS.ADD} {UI_FORM_LABELS.ADDITIONAL_INFO.toLowerCase()} (opcional)
                     </button>
                   </div>
                 )}
@@ -416,7 +416,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                   className="btn-hide-advanced"
                   onClick={() => setShowAdvanced(false)}
                 >
-                  ➖ {UI_ACTIONS.HIDE} información adicional
+                  ➖ {UI_ACTIONS.HIDE} {UI_FORM_LABELS.ADDITIONAL_INFO.toLowerCase()}
                 </button>
               </div>
             )}

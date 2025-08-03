@@ -296,6 +296,177 @@ export const THEME_TOKENS = {
 };
 
 // ===================================================================
+// CSS VARIABLES DINÁMICAS
+// ===================================================================
+export const CSS_VARIABLES = {
+  // Función para generar CSS variables desde tokens
+  generateCSSVariables: (theme = 'default') => {
+    const themeTokens = THEME_TOKENS[theme.toUpperCase()] || THEME_TOKENS.DEFAULT;
+    
+    return {
+      // Colores principales
+      '--forestech-primary': themeTokens.PRIMARY_COLOR,
+      '--forestech-secondary': themeTokens.SECONDARY_COLOR,
+      '--forestech-accent': themeTokens.ACCENT_COLOR,
+      
+      // Colores Forestech
+      '--forestech-green': COLORS.PRIMARY.FORESTECH_GREEN,
+      '--forestech-green-light': COLORS.PRIMARY.FORESTECH_GREEN_LIGHT,
+      '--forestech-green-dark': COLORS.PRIMARY.FORESTECH_GREEN_DARK,
+      
+      // Colores funcionales
+      '--color-success': COLORS.FUNCTIONAL.SUCCESS,
+      '--color-success-light': COLORS.FUNCTIONAL.SUCCESS_LIGHT,
+      '--color-warning': COLORS.FUNCTIONAL.WARNING,
+      '--color-warning-light': COLORS.FUNCTIONAL.WARNING_LIGHT,
+      '--color-error': COLORS.FUNCTIONAL.ERROR,
+      '--color-error-light': COLORS.FUNCTIONAL.ERROR_LIGHT,
+      '--color-info': COLORS.FUNCTIONAL.INFO,
+      '--color-info-light': COLORS.FUNCTIONAL.INFO_LIGHT,
+      
+      // Colores de texto
+      '--text-primary': COLORS.TEXT.PRIMARY,
+      '--text-secondary': COLORS.TEXT.SECONDARY,
+      '--text-tertiary': COLORS.TEXT.TERTIARY,
+      '--text-muted': COLORS.TEXT.MUTED,
+      '--text-white': COLORS.TEXT.WHITE,
+      '--text-black': COLORS.TEXT.BLACK,
+      
+      // Colores de fondo
+      '--bg-white': COLORS.BACKGROUND.WHITE,
+      '--bg-light-gray': COLORS.BACKGROUND.LIGHT_GRAY,
+      '--bg-medium-gray': COLORS.BACKGROUND.MEDIUM_GRAY,
+      '--bg-overlay': COLORS.BACKGROUND.OVERLAY,
+      '--bg-overlay-dark': COLORS.BACKGROUND.OVERLAY_DARK,
+      '--bg-card': COLORS.BACKGROUND.CARD,
+      
+      // Espaciado
+      '--spacing-xs': SPACING.XS,
+      '--spacing-sm': SPACING.SM,
+      '--spacing-md': SPACING.MD,
+      '--spacing-lg': SPACING.LG,
+      '--spacing-xl': SPACING.XL,
+      '--spacing-xxl': SPACING.XXL,
+      
+      // Tipografía
+      '--font-family-primary': themeTokens.FONT_FAMILY,
+      '--font-size-xs': TYPOGRAPHY.FONT_SIZES.XS,
+      '--font-size-sm': TYPOGRAPHY.FONT_SIZES.SM,
+      '--font-size-md': TYPOGRAPHY.FONT_SIZES.MD,
+      '--font-size-lg': TYPOGRAPHY.FONT_SIZES.LG,
+      '--font-size-xl': TYPOGRAPHY.FONT_SIZES.XL,
+      '--font-size-xxl': TYPOGRAPHY.FONT_SIZES.XXL,
+      
+      // Sombras
+      '--shadow-sm': SHADOWS.SM,
+      '--shadow-md': SHADOWS.MD,
+      '--shadow-lg': SHADOWS.LG,
+      '--shadow-card': SHADOWS.CARD,
+      '--shadow-modal': SHADOWS.MODAL,
+      
+      // Bordes
+      '--border-radius-sm': BORDERS.RADIUS.SM,
+      '--border-radius-md': themeTokens.BORDER_RADIUS,
+      '--border-radius-lg': BORDERS.RADIUS.LG,
+      '--border-radius-full': BORDERS.RADIUS.FULL,
+      
+      // Transiciones
+      '--transition-all': ANIMATIONS.TRANSITIONS.ALL,
+      '--transition-fast': `all ${ANIMATIONS.DURATION.FAST} ${ANIMATIONS.TIMING.EASE}`,
+      '--transition-normal': `all ${ANIMATIONS.DURATION.NORMAL} ${ANIMATIONS.TIMING.EASE}`,
+      '--transition-slow': `all ${ANIMATIONS.DURATION.SLOW} ${ANIMATIONS.TIMING.EASE}`,
+      
+      // Z-index
+      '--z-modal': Z_INDEX.MODAL,
+      '--z-dropdown': Z_INDEX.DROPDOWN,
+      '--z-tooltip': Z_INDEX.TOOLTIP,
+      '--z-overlay': Z_INDEX.OVERLAY
+    };
+  },
+  
+  // Aplicar variables CSS al DOM
+  applyThemeVariables: (theme = 'default') => {
+    const variables = CSS_VARIABLES.generateCSSVariables(theme);
+    const root = document.documentElement;
+    
+    Object.entries(variables).forEach(([property, value]) => {
+      root.style.setProperty(property, value);
+    });
+  }
+};
+
+// ===================================================================
+// COLORES ESPECÍFICOS DE PRODUCTOS (migrando hardcodeados)
+// ===================================================================
+export const PRODUCT_COLORS = {
+  // Colores predefinidos para productos
+  DEFAULT_PALETTE: [
+    '#FF6B35', // Naranja Forestech (actual)
+    '#4CAF50', // Verde
+    '#2196F3', // Azul
+    '#FF9800', // Naranja claro
+    '#F44336', // Rojo
+    '#9C27B0', // Púrpura
+    '#E91E63', // Rosa
+    '#795548', // Café
+    '#607D8B', // Azul gris
+    '#3F51B5'  // Índigo
+  ],
+  
+  // Mapeo de categorías a colores sugeridos
+  CATEGORY_COLORS: {
+    COMBUSTIBLE: '#FF6B35', // Naranja Forestech
+    ACEITE: '#795548',      // Café
+    LUBRICANTE: '#9C27B0',  // Púrpura
+    FLUIDO: '#2196F3'       // Azul
+  },
+  
+  // Función para obtener color por categoría
+  getColorByCategory: (category) => {
+    return PRODUCT_COLORS.CATEGORY_COLORS[category] || PRODUCT_COLORS.DEFAULT_PALETTE[0];
+  }
+};
+
+// ===================================================================
+// UTILIDADES PARA RESPONSIVE DESIGN
+// ===================================================================
+export const RESPONSIVE_UTILS = {
+  // Generar media queries
+  mediaQuery: (breakpoint) => {
+    return BREAKPOINTS.MEDIA_QUERIES[breakpoint.toUpperCase()] || BREAKPOINTS.MEDIA_QUERIES.DESKTOP;
+  },
+  
+  // Generar estilos responsive
+  generateResponsiveSpacing: (mobile, tablet, desktop) => {
+    return {
+      padding: mobile,
+      [`@media ${BREAKPOINTS.MEDIA_QUERIES.TABLET}`]: {
+        padding: tablet || mobile
+      },
+      [`@media ${BREAKPOINTS.MEDIA_QUERIES.DESKTOP}`]: {
+        padding: desktop || tablet || mobile
+      }
+    };
+  }
+};
+
+// ===================================================================
+// 📊 CHART COLORS - Arrays unificados para gráficos
+// ===================================================================
+export const CHART_COLORS = {
+  DEFAULT: [
+    'var(--forestech-green)',
+    'var(--color-error)', 
+    'var(--color-info)',
+    'var(--color-warning-dark)',
+    'var(--color-purple)',
+    'var(--color-success)',
+    'var(--color-warning)',
+    'var(--color-primary)'
+  ]
+};
+
+// ===================================================================
 // EXPORTACIÓN PRINCIPAL
 // ===================================================================
 export const DESIGN_TOKENS = {
@@ -308,7 +479,11 @@ export const DESIGN_TOKENS = {
   ANIMATIONS,
   Z_INDEX,
   CACHE_CONFIG,
-  THEME_TOKENS
+  THEME_TOKENS,
+  CSS_VARIABLES,
+  PRODUCT_COLORS,
+  CHART_COLORS,
+  RESPONSIVE_UTILS
 };
 
 export default DESIGN_TOKENS;

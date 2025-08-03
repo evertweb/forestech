@@ -17,24 +17,63 @@ export * from './vehicleTypes.js';
 // IMPORTACIONES DE NUEVAS CONSTANTES
 // ===================================================================
 // Textos de interfaz y etiquetas
+import {
+  UI_ACTIONS,
+  UI_TITLES,
+  UI_STATUS,
+  UI_FORM_LABELS,
+  UI_MESSAGES,
+  UI_PLACEHOLDERS,
+  UI_TOOLTIPS,
+  UI_TABS,
+  MOVEMENT_TYPES_UI,
+  WIZARD_QUESTIONS
+} from './uiLabels.js';
+
+// Design tokens y CSS variables
+import {
+  DESIGN_TOKENS,
+  CSS_VARIABLES,
+  PRODUCT_COLORS,
+  CHART_COLORS,
+  RESPONSIVE_UTILS
+} from './designTokens.js';
+
+// URLs externas y comunicación
+import {
+  COMMUNICATION_URLS
+} from './externalUrls.js';
+
+// Estilos de modales
+import {
+  MODAL_PRESETS
+} from './modalStyles.js';
+
+// Re-exportar todo desde uiLabels
 export * from './uiLabels.js';
 export { default as UI_LABELS } from './uiLabels.js';
 
-// Estilos de modales y componentes
-export * from './modalStyles.js';
-export { default as MODAL_STYLES } from './modalStyles.js';
-
-// Tokens de diseño y valores visuales
+// Re-exportar design tokens
 export * from './designTokens.js';
-export { default as DESIGN_TOKENS } from './designTokens.js';
+export {
+  DESIGN_TOKENS,
+  CSS_VARIABLES,
+  PRODUCT_COLORS,
+  CHART_COLORS,
+  RESPONSIVE_UTILS
+};
 
-// URLs externas y configuraciones de enlaces
+// Re-exportar URLs externas
 export * from './externalUrls.js';
-export { default as EXTERNAL_URLS } from './externalUrls.js';
+export {
+  COMMUNICATION_URLS
+};
 
-// Definiciones de campos y formularios
-export * from './fieldDefinitions.js';
-export { default as FIELD_DEFINITIONS } from './fieldDefinitions.js';
+// Re-exportar estilos de modales
+export * from './modalStyles.js';
+export {
+  MODAL_PRESETS
+};
 
 // ===================================================================
 // IMPORTACIONES DE DATOS ESPECÍFICOS
@@ -46,69 +85,7 @@ export * from '../data/vehicleCategories.js';
 // EXPORTACIONES AGRUPADAS POR CATEGORÍA
 // ===================================================================
 
-// Constantes de interfaz de usuario
-export {
-  UI_ACTIONS,
-  UI_TITLES,
-  UI_STATUS,
-  UI_FORM_LABELS,
-  UI_MESSAGES,
-  UI_PLACEHOLDERS,
-  UI_TOOLTIPS,
-  UI_TABS
-} from './uiLabels.js';
-
-// Constantes de estilos y modales
-export {
-  MODAL_CLASSES,
-  MODAL_TYPES,
-  MODAL_THEMES,
-  MODAL_BUTTONS,
-  MODAL_STATES,
-  MODAL_PRESETS,
-  buildModalClasses,
-  buildButtonClass
-} from './modalStyles.js';
-
-// Tokens de diseño
-export {
-  COLORS,
-  SPACING,
-  TYPOGRAPHY,
-  BREAKPOINTS,
-  SHADOWS,
-  BORDERS,
-  ANIMATIONS,
-  Z_INDEX,
-  CACHE_CONFIG,
-  THEME_TOKENS
-} from './designTokens.js';
-
-// URLs y enlaces
-export {
-  COMMUNICATION_URLS,
-  CDN_URLS,
-  API_URLS,
-  DOCUMENTATION_URLS,
-  INTERNAL_URLS,
-  DEVELOPMENT_URLS,
-  ENVIRONMENT_URLS,
-  buildWhatsAppURL,
-  getEnvironmentUrls,
-  buildApiUrl
-} from './externalUrls.js';
-
-// Definiciones de campos
-export {
-  PRODUCT_FIELD_DEFINITIONS,
-  VEHICLE_FIELD_DEFINITIONS,
-  MOVEMENT_FIELD_DEFINITIONS,
-  SUPPLIER_FIELD_DEFINITIONS,
-  MAINTENANCE_FIELD_DEFINITIONS,
-  COMMON_FIELD_DEFINITIONS,
-  getFieldDefinition,
-  getFieldsByCategory
-} from './fieldDefinitions.js';
+// Las constantes de interfaz de usuario ya están exportadas arriba con export *
 
 // Constantes de combustibles y productos (re-exportadas para claridad)
 export {
@@ -145,31 +122,16 @@ export {
 export const CONSTANTS = {
   // Interfaz de usuario
   UI: {
-    LABELS: UI_LABELS,
-    MODALS: MODAL_STYLES
-  },
-  
-  // Diseño y estilos
-  DESIGN: {
-    TOKENS: DESIGN_TOKENS,
-    COLORS,
-    TYPOGRAPHY,
-    SPACING,
-    BREAKPOINTS
-  },
-  
-  // URLs y configuración
-  URLS: EXTERNAL_URLS,
-  
-  // Definiciones de datos
-  FIELDS: FIELD_DEFINITIONS,
-  
-  // Tipos de negocio
-  BUSINESS: {
-    FUEL_TYPES,
-    PRODUCT_TYPES,
-    LOCATIONS: OPERATIONAL_LOCATIONS,
-    STOCK_LEVELS
+    ACTIONS: UI_ACTIONS,
+    TITLES: UI_TITLES,
+    STATUS: UI_STATUS,
+    FORM_LABELS: UI_FORM_LABELS,
+    MESSAGES: UI_MESSAGES,
+    PLACEHOLDERS: UI_PLACEHOLDERS,
+    TOOLTIPS: UI_TOOLTIPS,
+    TABS: UI_TABS,
+    MOVEMENT_TYPES: MOVEMENT_TYPES_UI,
+    WIZARD_QUESTIONS: WIZARD_QUESTIONS
   }
 };
 

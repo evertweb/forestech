@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { WIZARD_QUESTIONS } from '../../../constants';
 
 const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
@@ -111,8 +112,8 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
     <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
         <div className="typeform-question">
-          <h2>⛽ ¿Qué tipo de combustible necesitas?</h2>
-          <p>Elige el producto que vas a mover</p>
+          <h2>{WIZARD_QUESTIONS.FUEL_TYPE.title}</h2>
+          <p>{WIZARD_QUESTIONS.FUEL_TYPE.description}</p>
         </div>
 
         {loading && (

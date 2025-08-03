@@ -35,7 +35,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const [confirmChecked, setConfirmChecked] = useState(false); // Estado para el checkbox de confirmación
   
   // Estado local para suppliers (fix para el error)
-  const [suppliers, setSuppliers] = useState([]);
+  const [_suppliersData, setSuppliersData] = useState([]);
   const [_suppliersLoading, setSuppliersLoading] = useState(false);
   
   // Datos del formulario
@@ -102,7 +102,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       if (subscribeToSuppliers) {
         suppliersUnsubscribe = subscribeToSuppliers((suppliersData) => {
           const newSuppliers = suppliersData || [];
-          setSuppliers(newSuppliers);
+          setSuppliersData(newSuppliers);
           setSuppliersLoading(false);
           
           // Actualizar systemData directamente para evitar dependencias circulares
@@ -114,13 +114,13 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         
         // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
         fallbackTimer = setTimeout(async () => {
-          setSuppliers(currentSuppliers => {
+          setSuppliersData(currentSuppliers => {
             if (currentSuppliers.length === 0) {
               // Solo ejecutar fallback si aún no tenemos suppliers
               getAllSuppliers().then(result => {
                 if (result.success && result.data.length > 0) {
                   const fallbackSuppliers = result.data;
-                  setSuppliers(fallbackSuppliers);
+                  setSuppliersData(fallbackSuppliers);
                   setSuppliersLoading(false);
                   
                   // Actualizar systemData directamente
@@ -154,7 +154,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           console.log('✅ Datos sincronizados para wizard - inventario en tiempo real:', inventory?.length || 0, 'items');
         } catch (error) {
           console.error('❌ Error al cargar datos del sistema:', error);
-          setError('No se pudieron cargar los datos necesarios. Inténtalo de nuevo.');
+          setError(UI_MESSAGES.ERROR.LOAD_FAILED + '. Inténtalo de nuevo.');
           setSystemData(prev => ({ ...prev, loadingData: false }));
           setSuppliersLoading(false);
         }
@@ -452,7 +452,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       
     } catch (error) {
       console.error('Error al crear movimiento:', error);
-      setError(error.message || 'Error al crear el movimiento');
+      setError(error.message || `${UI_MESSAGES.ERROR.GENERAL} al crear el movimiento`);
     } finally {
       setIsLoading(false);
     }

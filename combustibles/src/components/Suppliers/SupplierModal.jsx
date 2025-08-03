@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
-import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS } from '../../constants';
+import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES, UI_TITLES, UI_STATUS, UI_PLACEHOLDERS } from '../../constants';
 
 const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
   const { userProfile } = useCombustibles();
