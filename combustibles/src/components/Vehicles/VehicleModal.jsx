@@ -7,6 +7,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
+import { 
+  UI_ACTIONS, 
+  UI_FORM_LABELS, 
+  UI_MESSAGES, 
+  UI_PLACEHOLDERS, 
+  MODAL_TEXT, 
+  UI_TOOLTIPS 
+} from '../../constants';
 
 const VehicleModal = ({ 
   isOpen, 
@@ -84,34 +92,34 @@ const VehicleModal = ({
 
     // Validaciones obligatorias
     if (!formData.vehicleId.trim()) {
-      newErrors.vehicleId = 'El ID del vehículo es obligatorio';
+      newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_ID_REQUIRED;
     } else if (formData.vehicleId.length < 3) {
-      newErrors.vehicleId = 'El ID debe tener al menos 3 caracteres';
+      newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_ID_MIN_LENGTH;
     }
 
     if (!formData.name.trim()) {
-      newErrors.name = 'El nombre del vehículo es obligatorio';
+      newErrors.name = UI_MESSAGES.ERROR.VEHICLE_NAME_REQUIRED;
     } else if (formData.name.length < 2) {
-      newErrors.name = 'El nombre debe tener al menos 2 caracteres';
+      newErrors.name = UI_MESSAGES.ERROR.VEHICLE_NAME_MIN_LENGTH;
     }
 
     // Validaciones numéricas
     if (formData.fuelCapacity <= 0) {
-      newErrors.fuelCapacity = 'La capacidad de combustible debe ser mayor a 0';
+      newErrors.fuelCapacity = UI_MESSAGES.ERROR.FUEL_CAPACITY_POSITIVE;
     } else if (formData.fuelCapacity > 1000) {
-      newErrors.fuelCapacity = 'La capacidad no puede ser mayor a 1000 galones';
+      newErrors.fuelCapacity = UI_MESSAGES.ERROR.FUEL_CAPACITY_MAX;
     }
 
     if (formData.enginePower < 0) {
-      newErrors.enginePower = 'La potencia no puede ser negativa';
+      newErrors.enginePower = UI_MESSAGES.ERROR.ENGINE_POWER_POSITIVE;
     } else if (formData.enginePower > 1000) {
-      newErrors.enginePower = 'La potencia no puede ser mayor a 1000 HP';
+      newErrors.enginePower = UI_MESSAGES.ERROR.ENGINE_POWER_MAX;
     }
 
     if (formData.estimatedConsumptionPerHour < 0) {
-      newErrors.estimatedConsumptionPerHour = 'El consumo no puede ser negativo';
+      newErrors.estimatedConsumptionPerHour = UI_MESSAGES.ERROR.CONSUMPTION_POSITIVE;
     } else if (formData.estimatedConsumptionPerHour > 50) {
-      newErrors.estimatedConsumptionPerHour = 'El consumo no puede ser mayor a 50 gal/hr';
+      newErrors.estimatedConsumptionPerHour = UI_MESSAGES.ERROR.CONSUMPTION_MAX;
     }
 
     // Validaciones de fechas
@@ -119,7 +127,7 @@ const VehicleModal = ({
       const lastDate = new Date(formData.lastMaintenanceDate);
       const nextDate = new Date(formData.nextMaintenanceDate);
       if (nextDate <= lastDate) {
-        newErrors.nextMaintenanceDate = 'La próxima fecha debe ser posterior al último mantenimiento';
+        newErrors.nextMaintenanceDate = UI_MESSAGES.ERROR.NEXT_MAINTENANCE_DATE_INVALID;
       }
     }
 
@@ -127,7 +135,7 @@ const VehicleModal = ({
       const purchaseDate = new Date(formData.purchaseDate);
       const today = new Date();
       if (purchaseDate > today) {
-        newErrors.purchaseDate = 'La fecha de compra no puede ser futura';
+        newErrors.purchaseDate = UI_MESSAGES.ERROR.PURCHASE_DATE_FUTURE;
       }
     }
 
@@ -208,14 +216,14 @@ const VehicleModal = ({
             </span>
             <div className="title-text">
               <h3>
-                {mode === 'create' && 'Crear Nuevo Vehículo'}
-                {mode === 'edit' && 'Editar Vehículo'}
-                {mode === 'view' && 'Detalles del Vehículo'}
+                {mode === 'create' && MODAL_TEXT.VEHICLE.CREATE_TITLE}
+                {mode === 'edit' && MODAL_TEXT.VEHICLE.EDIT_TITLE}
+                {mode === 'view' && MODAL_TEXT.VEHICLE.VIEW_TITLE}
               </h3>
               <p>
-                {mode === 'create' && 'Registra un nuevo vehículo en la flota'}
-                {mode === 'edit' && 'Modifica la información del vehículo'}
-                {mode === 'view' && 'Información completa del vehículo'}
+                {mode === 'create' && MODAL_TEXT.VEHICLE.CREATE_SUBTITLE}
+                {mode === 'edit' && MODAL_TEXT.VEHICLE.EDIT_SUBTITLE}
+                {mode === 'view' && MODAL_TEXT.VEHICLE.VIEW_SUBTITLE}
               </p>
             </div>
           </div>
@@ -237,7 +245,7 @@ const VehicleModal = ({
                 <span className="preview-icon">{getVehicleIcon(formData.type)}</span>
                 <div className="preview-info">
                   <span className="preview-id">{formData.vehicleId || 'ID-000'}</span>
-                  <span className="preview-name">{formData.name || 'Nombre del vehículo'}</span>
+                  <span className="preview-name">{formData.name || UI_FORM_LABELS.VEHICLE_NAME}</span>
                 </div>
                 <div className="preview-fuel">
                   <span className="fuel-icon">{getFuelIcon(formData.fuelType)}</span>
@@ -263,17 +271,17 @@ const VehicleModal = ({
 
             {/* Información básica */}
             <div className="form-section">
-              <h4 className="section-title">📋 Información Básica</h4>
+              <h4 className="section-title">📋 {UI_TITLES.BASIC_INFO}</h4>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="vehicleId">ID del Vehículo *</label>
+                  <label htmlFor="vehicleId">{UI_FORM_LABELS.VEHICLE_ID} *</label>
                   <input
                     type="text"
                     id="vehicleId"
                     name="vehicleId"
                     value={formData.vehicleId}
                     onChange={handleInputChange}
-                    placeholder="Ej: EXC-001"
+                    placeholder={UI_PLACEHOLDERS.VEHICLE_ID}
                     className={errors.vehicleId ? 'error' : ''}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={20}
@@ -284,14 +292,14 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="name">Nombre del Vehículo *</label>
+                  <label htmlFor="name">{UI_FORM_LABELS.VEHICLE_NAME} *</label>
                   <input
                     type="text"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="Ej: Excavadora Principal"
+                    placeholder={UI_PLACEHOLDERS.VEHICLE_NAME}
                     className={errors.name ? 'error' : ''}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={100}
@@ -302,7 +310,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="type">Tipo de Vehículo</label>
+                  <label htmlFor="type">{UI_FORM_LABELS.VEHICLE_TYPE}</label>
                   {!showCustomType ? (
                     <div className="select-with-button">
                       <select
@@ -323,7 +331,7 @@ const VehicleModal = ({
                         className="btn-add-custom"
                         onClick={() => setShowCustomType(true)}
                         disabled={isReadOnly || (mode === 'edit' && !canEdit)}
-                        title="Agregar tipo personalizado"
+                        title={UI_TOOLTIPS.ADD_CUSTOM_TYPE}
                       >
                         ➕
                       </button>
@@ -332,7 +340,7 @@ const VehicleModal = ({
                     <div className="custom-type-input">
                       <input
                         type="text"
-                        placeholder="Ej: Montacargas, Grúa Torre, etc."
+                        placeholder={UI_PLACEHOLDERS.CUSTOM_TYPE}
                         value={customType}
                         onChange={(e) => setCustomType(e.target.value)}
                         onKeyDown={(e) => {
@@ -360,7 +368,7 @@ const VehicleModal = ({
                             setCustomType('');
                           }
                         }}
-                        title="Confirmar tipo personalizado"
+                        title={UI_TOOLTIPS.CONFIRM_CUSTOM_TYPE}
                       >
                         ✓
                       </button>
@@ -371,7 +379,7 @@ const VehicleModal = ({
                           setShowCustomType(false);
                           setCustomType('');
                         }}
-                        title="Cancelar"
+                        title={UI_ACTIONS.CANCEL}
                       >
                         ✕
                       </button>
@@ -380,7 +388,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="status">Estado</label>
+                  <label htmlFor="status">{UI_FORM_LABELS.STATUS}</label>
                   <select
                     id="status"
                     name="status"
@@ -400,31 +408,31 @@ const VehicleModal = ({
 
             {/* Especificaciones técnicas */}
             <div className="form-section">
-              <h4 className="section-title">🔧 Especificaciones Técnicas</h4>
+              <h4 className="section-title">🔧 {UI_TITLES.TECHNICAL_SPECS}</h4>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="brand">Marca</label>
+                  <label htmlFor="brand">{UI_FORM_LABELS.BRAND}</label>
                   <input
                     type="text"
                     id="brand"
                     name="brand"
                     value={formData.brand}
                     onChange={handleInputChange}
-                    placeholder="Ej: Caterpillar"
+                    placeholder={UI_PLACEHOLDERS.BRAND}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={50}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="model">Modelo</label>
+                  <label htmlFor="model">{UI_FORM_LABELS.MODEL}</label>
                   <input
                     type="text"
                     id="model"
                     name="model"
                     value={formData.model}
                     onChange={handleInputChange}
-                    placeholder="Ej: 320D"
+                    placeholder={UI_PLACEHOLDERS.MODEL}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={50}
                   />
@@ -432,35 +440,35 @@ const VehicleModal = ({
 
 
                 <div className="form-group">
-                  <label htmlFor="serialNumber">Número de Serie</label>
+                  <label htmlFor="serialNumber">{UI_FORM_LABELS.SERIAL_NUMBER}</label>
                   <input
                     type="text"
                     id="serialNumber"
                     name="serialNumber"
                     value={formData.serialNumber}
                     onChange={handleInputChange}
-                    placeholder="Ej: ABC123456789"
+                    placeholder={UI_PLACEHOLDERS.SERIAL_NUMBER}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={50}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="plateNumber">Placa</label>
+                  <label htmlFor="plateNumber">{UI_FORM_LABELS.PLATE_NUMBER}</label>
                   <input
                     type="text"
                     id="plateNumber"
                     name="plateNumber"
                     value={formData.plateNumber}
                     onChange={handleInputChange}
-                    placeholder="Ej: ABC123"
+                    placeholder={UI_PLACEHOLDERS.PLATE_NUMBER}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={10}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="enginePower">Potencia del Motor (HP)</label>
+                  <label htmlFor="enginePower">{UI_FORM_LABELS.ENGINE_POWER}</label>
                   <input
                     type="number"
                     id="enginePower"
@@ -482,10 +490,10 @@ const VehicleModal = ({
 
             {/* Combustible */}
             <div className="form-section">
-              <h4 className="section-title">⛽ Información de Combustible</h4>
+              <h4 className="section-title">⛽ {UI_TITLES.FUEL_INFO}</h4>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="fuelType">Tipo de Combustible</label>
+                  <label htmlFor="fuelType">{UI_FORM_LABELS.FUEL_TYPE}</label>
                   <select
                     id="fuelType"
                     name="fuelType"
@@ -502,7 +510,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="fuelCapacity">Capacidad de Combustible (gal) *</label>
+                  <label htmlFor="fuelCapacity">{UI_FORM_LABELS.TANK_CAPACITY} *</label>
                   <input
                     type="number"
                     id="fuelCapacity"
@@ -521,7 +529,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="estimatedConsumptionPerHour">Consumo Estimado (gal/hr)</label>
+                  <label htmlFor="estimatedConsumptionPerHour">{UI_FORM_LABELS.ESTIMATED_CONSUMPTION}</label>
                   <input
                     type="number"
                     id="estimatedConsumptionPerHour"
@@ -540,14 +548,14 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="currentLocation">Ubicación Actual</label>
+                  <label htmlFor="currentLocation">{UI_FORM_LABELS.CURRENT_LOCATION}</label>
                   <input
                     type="text"
                     id="currentLocation"
                     name="currentLocation"
                     value={formData.currentLocation}
                     onChange={handleInputChange}
-                    placeholder="Ej: Sector Norte - Lote 15"
+                    placeholder={UI_PLACEHOLDERS.CURRENT_LOCATION}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={100}
                   />
@@ -558,7 +566,7 @@ const VehicleModal = ({
             {/* ✅ NUEVO: Sección Horómetro para tractores */}
             {(formData.type === VEHICLE_TYPES.TRACTOR || formData.hasHourMeter) && (
               <div className="form-section">
-                <h4 className="section-title">⏰ Sistema de Horómetro</h4>
+                <h4 className="section-title">⏰ {UI_TITLES.HOUR_METER_SYSTEM}</h4>
                 <div className="form-grid">
                   <div className="form-group">
                     <label htmlFor="hasHourMeter">
@@ -575,7 +583,7 @@ const VehicleModal = ({
                         }))}
                         disabled={isReadOnly || (mode === 'edit' && !canEdit) || formData.type === VEHICLE_TYPES.TRACTOR}
                       />
-                      {' '}Tiene Sistema de Horómetro
+                      {' '}{UI_FORM_LABELS.HAS_HOUR_METER}
                       {formData.type === VEHICLE_TYPES.TRACTOR && (
                         <span className="auto-enabled"> (Automático para tractores)</span>
                       )}
@@ -588,7 +596,7 @@ const VehicleModal = ({
                   {formData.hasHourMeter && (
                     <>
                       <div className="form-group">
-                        <label htmlFor="currentHours">Lectura Actual del Horómetro (horas)</label>
+                        <label htmlFor="currentHours">{UI_FORM_LABELS.CURRENT_HOURS}</label>
                         <input
                           type="number"
                           id="currentHours"
@@ -598,7 +606,7 @@ const VehicleModal = ({
                           min="0"
                           max="50000"
                           step="0.1"
-                          placeholder="Ej: 1250.5"
+                          placeholder={UI_PLACEHOLDERS.CURRENT_HOURS}
                           disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                         />
                         <small className="field-help">
@@ -609,7 +617,7 @@ const VehicleModal = ({
                       {formData.currentHours > 0 && (
                         <div className="form-group">
                           <div className="hour-meter-info">
-                            <h5>📊 Información del Horómetro</h5>
+                            <h5>📊 {UI_TITLES.HOUR_METER_INFO}</h5>
                             <div className="info-grid">
                               <div className="info-item">
                                 <span className="info-label">Lectura actual:</span>
@@ -640,10 +648,10 @@ const VehicleModal = ({
 
             {/* Fechas importantes */}
             <div className="form-section">
-              <h4 className="section-title">📅 Fechas Importantes</h4>
+              <h4 className="section-title">📅 {UI_TITLES.IMPORTANT_DATES}</h4>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="purchaseDate">Fecha de Compra</label>
+                  <label htmlFor="purchaseDate">{UI_FORM_LABELS.PURCHASE_DATE}</label>
                   <input
                     type="date"
                     id="purchaseDate"
@@ -660,7 +668,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="warrantyExpiration">Vencimiento de Garantía</label>
+                  <label htmlFor="warrantyExpiration">{UI_FORM_LABELS.WARRANTY_EXPIRATION}</label>
                   <input
                     type="date"
                     id="warrantyExpiration"
@@ -672,7 +680,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="lastMaintenanceDate">Último Mantenimiento</label>
+                  <label htmlFor="lastMaintenanceDate">{UI_FORM_LABELS.LAST_MAINTENANCE}</label>
                   <input
                     type="date"
                     id="lastMaintenanceDate"
@@ -684,7 +692,7 @@ const VehicleModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="nextMaintenanceDate">Próximo Mantenimiento</label>
+                  <label htmlFor="nextMaintenanceDate">{UI_FORM_LABELS.NEXT_MAINTENANCE}</label>
                   <input
                     type="date"
                     id="nextMaintenanceDate"
@@ -703,15 +711,15 @@ const VehicleModal = ({
 
             {/* Descripción */}
             <div className="form-section">
-              <h4 className="section-title">📝 Descripción y Notas</h4>
+              <h4 className="section-title">📝 {UI_TITLES.DESCRIPTION_AND_NOTES}</h4>
               <div className="form-group">
-                <label htmlFor="description">Descripción</label>
+                <label htmlFor="description">{UI_FORM_LABELS.DESCRIPTION}</label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  placeholder="Información adicional sobre el vehículo..."
+                  placeholder={UI_PLACEHOLDERS.VEHICLE_DESCRIPTION}
                   rows="3"
                   maxLength="500"
                   disabled={isReadOnly || (mode === 'edit' && !canEdit)}
@@ -731,7 +739,7 @@ const VehicleModal = ({
               onClick={onClose}
               disabled={loading}
             >
-              {mode === 'view' ? 'Cerrar' : 'Cancelar'}
+              {mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL}
             </button>
             
             {!isReadOnly && canEdit && (
@@ -743,11 +751,11 @@ const VehicleModal = ({
                 {loading ? (
                   <>
                     <span className="loading-spinner"></span>
-                    Guardando...
+                    {UI_MESSAGES.LOADING.SAVING}
                   </>
                 ) : (
                   <>
-                    {mode === 'create' ? '➕ Crear Vehículo' : '💾 Guardar Cambios'}
+                    {mode === 'create' ? UI_ACTIONS.CREATE_VEHICLE : UI_ACTIONS.SAVE_CHANGES}
                   </>
                 )}
               </button>
