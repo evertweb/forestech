@@ -2,6 +2,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { isCustomIcon } from '../../services/iconUploadService';
+import { 
+  UI_ACTIONS, 
+  UI_FORM_LABELS, 
+  UI_MESSAGES, 
+  UI_PLACEHOLDERS, 
+  MODAL_TEXT 
+} from '../../constants';
 import './VehicleFormSmart-SAP.css';
 
 const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
@@ -72,9 +79,9 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
     switch (field) {
       case 'name':
         if (!value.trim()) {
-          newErrors.name = 'El nombre es obligatorio';
+          newErrors.name = UI_MESSAGES.ERROR.NAME_REQUIRED;
         } else if (value.length < 2) {
-          newErrors.name = 'Mínimo 2 caracteres';
+          newErrors.name = UI_MESSAGES.ERROR.NAME_MIN_LENGTH;
         } else {
           delete newErrors.name;
         }
@@ -82,7 +89,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
         
       case 'categoryId':
         if (!value) {
-          newErrors.categoryId = 'Selecciona una categoría';
+          newErrors.categoryId = UI_MESSAGES.ERROR.CATEGORY_REQUIRED_VEHICLE;
         } else {
           delete newErrors.categoryId;
         }
@@ -90,7 +97,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
         
       case 'plateCode':
         if (!value.trim()) {
-          newErrors.plateCode = 'La placa/código es obligatorio';
+          newErrors.plateCode = UI_MESSAGES.ERROR.PLATE_CODE_REQUIRED;
         } else {
           delete newErrors.plateCode;
         }
@@ -98,7 +105,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
         
       case 'fuelType':
         if (!value) {
-          newErrors.fuelType = 'Selecciona el tipo de combustible';
+          newErrors.fuelType = UI_MESSAGES.ERROR.FUEL_TYPE_REQUIRED;
         } else {
           delete newErrors.fuelType;
         }
@@ -238,12 +245,12 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
 
         {/* Header SAP */}
         <div className="smart-modal-header sap-theme">
-          <h2>{vehicle ? 'Editar Vehículo' : 'Crear Nuevo Vehículo'}</h2>
+          <h2>{vehicle ? MODAL_TEXT.VEHICLE_FORM.EDIT_TITLE : MODAL_TEXT.VEHICLE_FORM.CREATE_TITLE}</h2>
           <button 
             type="button" 
             className="close-button"
             onClick={handleClose}
-            aria-label="Cerrar modal"
+            aria-label={UI_ACTIONS.CLOSE}
           >
             ✕
           </button>
@@ -252,13 +259,13 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
         {/* Indicador de progreso SAP */}
         <div className="progress-indicator sap-theme">
           <div className={`progress-step sap-theme ${getStepStatus('basic')}`}>
-            Información Básica
+            {MODAL_TEXT.VEHICLE_FORM.BASIC_INFO}
           </div>
           <div className={`progress-step sap-theme ${getStepStatus('details')}`}>
-            Detalles Operativos
+            {MODAL_TEXT.VEHICLE_FORM.OPERATIONAL_DETAILS}
           </div>
           <div className={`progress-step sap-theme ${getStepStatus('advanced')}`}>
-            Información Adicional
+            {MODAL_TEXT.VEHICLE_FORM.ADDITIONAL_INFO}
           </div>
         </div>
 
@@ -274,20 +281,20 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
             {/* PASO 1: INFORMACIÓN BÁSICA */}
             <div className="form-section sap-theme">
               <div className="section-title sap-theme">
-                Información Básica
+                {MODAL_TEXT.VEHICLE_FORM.BASIC_INFO}
               </div>
               
               <div className="form-row sap-theme">
                 <div className="form-group sap-theme">
                   <label className="form-label sap-theme required">
-                    Nombre del Vehículo
+                    {UI_FORM_LABELS.VEHICLE_NAME}
                   </label>
                   <input
                     type="text"
                     className={`form-input sap-theme ${errors.name ? 'error' : ''}`}
                     value={formData.name}
                     onChange={(e) => handleFieldChange('name', e.target.value)}
-                    placeholder="Ingrese el nombre del vehículo"
+                    placeholder={UI_PLACEHOLDERS.VEHICLE_NAME_SAP}
                     autoFocus
                   />
                   {errors.name && <div className="error-message sap-theme">{errors.name}</div>}
@@ -295,14 +302,14 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
 
                 <div className="form-group sap-theme">
                   <label className="form-label sap-theme required">
-                    Placa o Código
+                    {UI_FORM_LABELS.PLATE_CODE}
                   </label>
                   <input
                     type="text"
                     className={`form-input sap-theme ${errors.plateCode ? 'error' : ''}`}
                     value={formData.plateCode}
                     onChange={(e) => handleFieldChange('plateCode', e.target.value.toUpperCase())}
-                    placeholder="ABC123"
+                    placeholder={UI_PLACEHOLDERS.PLATE_CODE_SAP}
                   />
                   {errors.plateCode && <div className="error-message sap-theme">{errors.plateCode}</div>}
                 </div>
@@ -310,7 +317,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
 
               <div className="form-group sap-theme">
                 <label className="form-label sap-theme required">
-                  Categoría del Vehículo
+                  {UI_FORM_LABELS.VEHICLE_CATEGORY}
                 </label>
                 {categoriesLoading ? (
                   <div className="loading-spinner sap-theme" style={{ margin: '1rem 0' }}></div>
@@ -320,7 +327,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
                     value={formData.categoryId}
                     onChange={(e) => handleFieldChange('categoryId', e.target.value)}
                   >
-                    <option value="">Seleccione una categoría</option>
+                    <option value="">{UI_MESSAGES.INFO.SELECT_OPTION}</option>
                     {vehicleCategories?.map(category => (
                       <option key={category.id} value={category.id}>
                         {isCustomIcon(category.icon) ? '🖼️  ' : category.icon + ' '}{category.name}
@@ -336,20 +343,20 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
             {(currentStep === 'details' || showAdvanced) && canProceedToDetails && (
               <div className="form-section sap-theme fade-in sap-theme">
                 <div className="section-title sap-theme">
-                  Detalles Operativos
+                  {MODAL_TEXT.VEHICLE_FORM.OPERATIONAL_DETAILS}
                 </div>
                 
                 <div className="form-row sap-theme">
                   <div className="form-group sap-theme">
                     <label className="form-label sap-theme required">
-                      Tipo de Combustible
+                      {UI_FORM_LABELS.FUEL_TYPE}
                     </label>
                     <select
                       className={`form-select sap-theme ${errors.fuelType ? 'error' : ''}`}
                       value={formData.fuelType}
                       onChange={(e) => handleFieldChange('fuelType', e.target.value)}
                     >
-                      <option value="">Seleccione el tipo de combustible</option>
+                      <option value="">{UI_MESSAGES.INFO.SELECT_OPTION}</option>
                       <option value="diesel">🛢️ Diésel</option>
                       <option value="gasoline">⛽ Gasolina</option>
                       <option value="acpm">🚛 ACPM</option>
@@ -360,14 +367,14 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
 
                   <div className="form-group sap-theme">
                     <label className="form-label sap-theme">
-                      Capacidad del Tanque (Galones)
+                      {UI_FORM_LABELS.TANK_CAPACITY}
                     </label>
                     <input
                       type="number"
                       className="form-input sap-theme"
                       value={formData.tankCapacity}
                       onChange={(e) => handleFieldChange('tankCapacity', e.target.value)}
-                      placeholder="0.0"
+                      placeholder={UI_PLACEHOLDERS.TANK_CAPACITY_SAP}
                       min="0"
                       step="0.1"
                     />
@@ -384,7 +391,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
                       onChange={(e) => handleFieldChange('hasHorometer', e.target.checked)}
                     />
                     <label htmlFor="hasHorometer" className="checkbox-label sap-theme">
-                      Este vehículo tiene horómetro
+                      {UI_FORM_LABELS.HAS_HOROMETER}
                     </label>
                   </div>
                 </div>
@@ -397,7 +404,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
                       className="btn-show-advanced sap-theme"
                       onClick={() => setShowAdvanced(true)}
                     >
-                      + Agregar información adicional
+                      {MODAL_TEXT.VEHICLE_FORM.ADD_INFO}
                     </button>
                   </div>
                 )}
@@ -408,31 +415,31 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
             {showAdvanced && (
               <div className="form-section sap-theme fade-in sap-theme">
                 <div className="section-title sap-theme">
-                  Información Adicional
+                  {MODAL_TEXT.VEHICLE_FORM.ADDITIONAL_INFO}
                 </div>
                 
                 <div className="form-group sap-theme">
                   <label className="form-label sap-theme">
-                    Descripción
+                    {UI_FORM_LABELS.DESCRIPTION}
                   </label>
                   <textarea
                     className="form-textarea sap-theme"
                     value={formData.description}
                     onChange={(e) => handleFieldChange('description', e.target.value)}
-                    placeholder="Ingrese características adicionales del vehículo..."
+                    placeholder={UI_PLACEHOLDERS.VEHICLE_DESCRIPTION}
                     rows="3"
                   />
                 </div>
 
                 <div className="form-group sap-theme">
                   <label className="form-label sap-theme">
-                    Notas Especiales
+                    {UI_FORM_LABELS.SPECIAL_NOTES}
                   </label>
                   <textarea
                     className="form-textarea sap-theme"
                     value={formData.notes}
                     onChange={(e) => handleFieldChange('notes', e.target.value)}
-                    placeholder="Ingrese observaciones, mantenimiento especial, etc..."
+                    placeholder={UI_PLACEHOLDERS.SPECIAL_NOTES}
                     rows="2"
                   />
                 </div>
@@ -443,7 +450,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
                     className="btn-hide-advanced sap-theme"
                     onClick={() => setShowAdvanced(false)}
                   >
-                    - Ocultar información adicional
+                    {MODAL_TEXT.VEHICLE_FORM.HIDE_INFO}
                   </button>
                 </div>
               </div>
@@ -457,7 +464,7 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
-                Cancelar
+                {UI_ACTIONS.CANCEL}
               </button>
               
               <button
@@ -466,9 +473,9 @@ const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => 
                 disabled={!canProceedToAdvanced || isSubmitting}
               >
                 {isSubmitting ? (
-                  'Procesando...'
+                  UI_MESSAGES.LOADING.SAVING
                 ) : (
-                  vehicle ? 'Actualizar Vehículo' : 'Crear Vehículo'
+                  vehicle ? UI_ACTIONS.UPDATE : UI_ACTIONS.CREATE
                 )}
               </button>
             </div>

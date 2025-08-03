@@ -134,6 +134,7 @@ export const UI_FORM_LABELS = {
   PLATE_NUMBER: 'Número de Placa',
   PLATE_CODE: 'Placa/Código',
   VEHICLE_TYPE: 'Tipo de Vehículo',
+  VEHICLE_CATEGORY: 'Categoría del Vehículo',
   BRAND: 'Marca',
   MODEL: 'Modelo',
   YEAR: 'Año',
@@ -253,7 +254,13 @@ export const UI_MESSAGES = {
     STOCK_POSITIVE: 'El stock debe ser mayor o igual a 0',
     MIN_THRESHOLD_POSITIVE: 'El umbral mínimo debe ser mayor o igual a 0',
     MAX_CAPACITY_POSITIVE: 'La capacidad máxima debe ser mayor a 0',
-    MIN_THRESHOLD_LESS_THAN_MAX: 'El umbral mínimo debe ser menor que la capacidad máxima'
+    MIN_THRESHOLD_LESS_THAN_MAX: 'El umbral mínimo debe ser menor que la capacidad máxima',
+
+    // Errores de validación de VehicleFormSmart
+    NAME_MIN_LENGTH: 'Mínimo 2 caracteres',
+    CATEGORY_REQUIRED_VEHICLE: 'Selecciona una categoría',
+    PLATE_CODE_REQUIRED: 'La placa/código es obligatorio',
+    FUEL_TYPE_REQUIRED: 'Selecciona el tipo de combustible'
   },
 
   // Mensajes de confirmación
@@ -330,7 +337,12 @@ export const UI_PLACEHOLDERS = {
   // Placeholders específicos para productos
   INTERNAL_NAME: 'Ej: ACPM, GASOLINA',
   DISPLAY_NAME: 'Ej: ACPM 🚛, Gasolina 🚗',
-  PRODUCT_DESCRIPTION: 'Descripción del producto...'
+  PRODUCT_DESCRIPTION: 'Descripción del producto...',
+
+  // Placeholders específicos para VehicleFormSmart
+  VEHICLE_NAME_SAP: 'Ingrese el nombre del vehículo',
+  PLATE_CODE_SAP: 'ABC123',
+  TANK_CAPACITY_SAP: '0.0'
 };
 
 // ===================================================================
@@ -378,6 +390,15 @@ export const MODAL_TEXT = {
     CREATE_TITLE: 'Crear Producto',
     EDIT_TITLE: 'Editar Producto',
     VIEW_TITLE: 'Ver Producto'
+  },
+  VEHICLE_FORM: {
+    CREATE_TITLE: 'Crear Nuevo Vehículo',
+    EDIT_TITLE: 'Editar Vehículo',
+    BASIC_INFO: 'Información Básica',
+    OPERATIONAL_DETAILS: 'Detalles Operativos',
+    ADDITIONAL_INFO: 'Información Adicional',
+    ADD_INFO: '+ Agregar información adicional',
+    HIDE_INFO: '- Ocultar información adicional'
   }
 };
 
