@@ -158,7 +158,18 @@ export const UI_FORM_LABELS = {
   TOTAL: 'Total',
   STOCK: 'Stock',
   MINIMUM_STOCK: 'Stock Mínimo',
-  
+  INTERNAL_NAME: 'Nombre Interno',
+  DISPLAY_NAME: 'Nombre de Visualización',
+  UNIT_OF_MEASUREMENT: 'Unidad de Medida',
+  DEFAULT_PRICE: 'Precio por Defecto',
+  IS_ACTIVE: 'Producto Activo',
+  CURRENT_STOCK: 'Stock Actual',
+  MIN_THRESHOLD: 'Umbral Mínimo',
+  MAX_CAPACITY: 'Capacidad Máxima',
+  APPEARANCE: 'Apariencia',
+  ICON: 'Icono',
+  COLOR: 'Color',
+
   // Campos de movimientos
   MOVEMENT_TYPE: 'Tipo de Movimiento',
   ORIGIN: 'Origen',
@@ -231,7 +242,18 @@ export const UI_MESSAGES = {
     OIL_QUANTITY_REQUIRED: 'La cantidad de aceite es obligatoria y debe ser mayor a 0',
     HOUR_METER_REQUIRED: 'La lectura del horómetro es obligatoria',
     BATTERY_TYPE_REQUIRED: 'El tipo de batería es obligatorio',
-    BATTERY_COST_REQUIRED: 'El costo de la batería es obligatorio'
+    BATTERY_COST_REQUIRED: 'El costo de la batería es obligatorio',
+
+    // Errores de validación de productos
+    NAME_REQUIRED: 'El nombre es requerido',
+    DISPLAY_NAME_REQUIRED: 'El nombre de visualización es requerido',
+    CATEGORY_REQUIRED: 'La categoría es requerida',
+    UNIT_REQUIRED: 'La unidad es requerida',
+    PRICE_POSITIVE: 'El precio debe ser mayor o igual a 0',
+    STOCK_POSITIVE: 'El stock debe ser mayor o igual a 0',
+    MIN_THRESHOLD_POSITIVE: 'El umbral mínimo debe ser mayor o igual a 0',
+    MAX_CAPACITY_POSITIVE: 'La capacidad máxima debe ser mayor a 0',
+    MIN_THRESHOLD_LESS_THAN_MAX: 'El umbral mínimo debe ser menor que la capacidad máxima'
   },
 
   // Mensajes de confirmación
@@ -303,7 +325,12 @@ export const UI_PLACEHOLDERS = {
   BATTERY_BRAND: 'Ej: Bosch, Exide',
   BATTERY_MODEL: 'Ej: S4 005',
   COST: '0',
-  ADDITIONAL_NOTES: 'Observaciones adicionales...'
+  ADDITIONAL_NOTES: 'Observaciones adicionales...',
+
+  // Placeholders específicos para productos
+  INTERNAL_NAME: 'Ej: ACPM, GASOLINA',
+  DISPLAY_NAME: 'Ej: ACPM 🚛, Gasolina 🚗',
+  PRODUCT_DESCRIPTION: 'Descripción del producto...'
 };
 
 // ===================================================================
@@ -346,6 +373,11 @@ export const MODAL_TEXT = {
     VIEW_TITLE: 'Ver Mantenimiento',
     OIL_CHANGE_INFO: 'Información del Cambio de Aceite',
     BATTERY_CHANGE_INFO: 'Información del Cambio de Batería'
+  },
+  PRODUCT: {
+    CREATE_TITLE: 'Crear Producto',
+    EDIT_TITLE: 'Editar Producto',
+    VIEW_TITLE: 'Ver Producto'
   }
 };
 

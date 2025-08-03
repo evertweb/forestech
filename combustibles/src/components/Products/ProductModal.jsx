@@ -5,6 +5,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
+import { 
+  UI_ACTIONS, 
+  UI_FORM_LABELS, 
+  UI_MESSAGES, 
+  UI_PLACEHOLDERS, 
+  MODAL_TEXT, 
+  UI_TITLES 
+} from '../../constants';
 
 const ProductModal = ({ 
   isOpen, 
@@ -107,39 +115,39 @@ const ProductModal = ({
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'El nombre es requerido';
+      newErrors.name = UI_MESSAGES.ERROR.NAME_REQUIRED;
     }
 
     if (!formData.displayName.trim()) {
-      newErrors.displayName = 'El nombre de visualización es requerido';
+      newErrors.displayName = UI_MESSAGES.ERROR.DISPLAY_NAME_REQUIRED;
     }
 
     if (!formData.category) {
-      newErrors.category = 'La categoría es requerida';
+      newErrors.category = UI_MESSAGES.ERROR.CATEGORY_REQUIRED;
     }
 
     if (!formData.unit) {
-      newErrors.unit = 'La unidad es requerida';
+      newErrors.unit = UI_MESSAGES.ERROR.UNIT_REQUIRED;
     }
 
     if (formData.defaultPrice < 0) {
-      newErrors.defaultPrice = 'El precio debe ser mayor o igual a 0';
+      newErrors.defaultPrice = UI_MESSAGES.ERROR.PRICE_POSITIVE;
     }
 
     if (formData.currentStock < 0) {
-      newErrors.currentStock = 'El stock debe ser mayor o igual a 0';
+      newErrors.currentStock = UI_MESSAGES.ERROR.STOCK_POSITIVE;
     }
 
     if (formData.minThreshold < 0) {
-      newErrors.minThreshold = 'El umbral mínimo debe ser mayor o igual a 0';
+      newErrors.minThreshold = UI_MESSAGES.ERROR.MIN_THRESHOLD_POSITIVE;
     }
 
     if (formData.maxCapacity <= 0) {
-      newErrors.maxCapacity = 'La capacidad máxima debe ser mayor a 0';
+      newErrors.maxCapacity = UI_MESSAGES.ERROR.MAX_CAPACITY_POSITIVE;
     }
 
     if (formData.minThreshold >= formData.maxCapacity) {
-      newErrors.minThreshold = 'El umbral mínimo debe ser menor que la capacidad máxima';
+      newErrors.minThreshold = UI_MESSAGES.ERROR.MIN_THRESHOLD_LESS_THAN_MAX;
     }
 
     setErrors(newErrors);
@@ -180,9 +188,9 @@ const ProductModal = ({
       <div className="modal-content product-modal">
         <div className="modal-header">
           <h2>
-            {mode === 'create' && '➕ Crear Producto'}
-            {mode === 'edit' && '✏️ Editar Producto'}
-            {mode === 'view' && '👁️ Ver Producto'}
+            {mode === 'create' && `➕ ${MODAL_TEXT.PRODUCT.CREATE_TITLE}`}
+            {mode === 'edit' && `✏️ ${MODAL_TEXT.PRODUCT.EDIT_TITLE}`}
+            {mode === 'view' && `👁️ ${MODAL_TEXT.PRODUCT.VIEW_TITLE}`}
           </h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
@@ -195,7 +203,7 @@ const ProductModal = ({
                 {formData.icon}
               </div>
               <div className="preview-info">
-                <h3>{formData.displayName || 'Nombre del producto'}</h3>
+                <h3>{formData.displayName || UI_FORM_LABELS.DISPLAY_NAME}</h3>
                 <p className="preview-category">{formData.category}</p>
                 <p className="preview-description">{formData.description}</p>
                 <div className="preview-price">
@@ -208,36 +216,36 @@ const ProductModal = ({
           <div className="form-grid">
             {/* Información Básica */}
             <div className="form-section">
-              <h3>📝 Información Básica</h3>
+              <h3>📝 {UI_TITLES.BASIC_INFO}</h3>
               
               <div className="form-group">
-                <label>Nombre Interno *</label>
+                <label>{UI_FORM_LABELS.INTERNAL_NAME} *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   disabled={!canEdit}
-                  placeholder="Ej: ACPM, GASOLINA"
+                  placeholder={UI_PLACEHOLDERS.INTERNAL_NAME}
                 />
                 {errors.name && <span className="error">{errors.name}</span>}
               </div>
 
               <div className="form-group">
-                <label>Nombre de Visualización *</label>
+                <label>{UI_FORM_LABELS.DISPLAY_NAME} *</label>
                 <input
                   type="text"
                   name="displayName"
                   value={formData.displayName}
                   onChange={handleInputChange}
                   disabled={!canEdit}
-                  placeholder="Ej: ACPM 🚛, Gasolina 🚗"
+                  placeholder={UI_PLACEHOLDERS.DISPLAY_NAME}
                 />
                 {errors.displayName && <span className="error">{errors.displayName}</span>}
               </div>
 
               <div className="form-group">
-                <label>Categoría *</label>
+                <label>{UI_FORM_LABELS.CATEGORY} *</label>
                 <select
                   name="category"
                   value={formData.category}
@@ -252,13 +260,13 @@ const ProductModal = ({
               </div>
 
               <div className="form-group">
-                <label>Descripción</label>
+                <label>{UI_FORM_LABELS.DESCRIPTION}</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   disabled={!canEdit}
-                  placeholder="Descripción del producto..."
+                  placeholder={UI_PLACEHOLDERS.PRODUCT_DESCRIPTION}
                   rows="3"
                 />
               </div>
@@ -266,10 +274,10 @@ const ProductModal = ({
 
             {/* Configuración */}
             <div className="form-section">
-              <h3>⚙️ Configuración</h3>
+              <h3>⚙️ {UI_TITLES.SETTINGS}</h3>
               
               <div className="form-group">
-                <label>Unidad de Medida *</label>
+                <label>{UI_FORM_LABELS.UNIT_OF_MEASUREMENT} *</label>
                 <select
                   name="unit"
                   value={formData.unit}
@@ -284,7 +292,7 @@ const ProductModal = ({
               </div>
 
               <div className="form-group">
-                <label>Precio por Defecto</label>
+                <label>{UI_FORM_LABELS.DEFAULT_PRICE}</label>
                 <input
                   type="number"
                   name="defaultPrice"
@@ -306,17 +314,17 @@ const ProductModal = ({
                     onChange={handleInputChange}
                     disabled={!canEdit}
                   />
-                  Producto Activo
+                  {UI_FORM_LABELS.IS_ACTIVE}
                 </label>
               </div>
             </div>
 
             {/* Stock y Umbrales */}
             <div className="form-section">
-              <h3>📊 Stock y Umbrales</h3>
+              <h3>📊 {UI_TITLES.STOCK_AND_THRESHOLDS}</h3>
               
               <div className="form-group">
-                <label>Stock Actual</label>
+                <label>{UI_FORM_LABELS.CURRENT_STOCK}</label>
                 <input
                   type="number"
                   name="currentStock"
@@ -330,7 +338,7 @@ const ProductModal = ({
               </div>
 
               <div className="form-group">
-                <label>Umbral Mínimo</label>
+                <label>{UI_FORM_LABELS.MIN_THRESHOLD}</label>
                 <input
                   type="number"
                   name="minThreshold"
@@ -344,7 +352,7 @@ const ProductModal = ({
               </div>
 
               <div className="form-group">
-                <label>Capacidad Máxima</label>
+                <label>{UI_FORM_LABELS.MAX_CAPACITY}</label>
                 <input
                   type="number"
                   name="maxCapacity"
@@ -360,10 +368,10 @@ const ProductModal = ({
 
             {/* Apariencia */}
             <div className="form-section">
-              <h3>🎨 Apariencia</h3>
+              <h3>🎨 {UI_FORM_LABELS.APPEARANCE}</h3>
               
               <div className="form-group">
-                <label>Icono</label>
+                <label>{UI_FORM_LABELS.ICON}</label>
                 <div className="icon-selector">
                   {iconOptions[formData.category]?.map(icon => (
                     <button
@@ -380,7 +388,7 @@ const ProductModal = ({
               </div>
 
               <div className="form-group">
-                <label>Color</label>
+                <label>{UI_FORM_LABELS.COLOR}</label>
                 <div className="color-selector">
                   {colorOptions.map(color => (
                     <button
@@ -411,7 +419,7 @@ const ProductModal = ({
             onClick={onClose}
             disabled={loading}
           >
-            {mode === 'view' ? 'Cerrar' : 'Cancelar'}
+            {mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL}
           </button>
           
           {canEdit && (
@@ -421,7 +429,7 @@ const ProductModal = ({
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? 'Guardando...' : 'Guardar'}
+              {loading ? UI_MESSAGES.LOADING.SAVING : UI_ACTIONS.SAVE}
             </button>
           )}
         </div>
