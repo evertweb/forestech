@@ -177,7 +177,13 @@ export const UI_FORM_LABELS = {
   NEXT_MAINTENANCE: 'Próximo Mantenimiento',
   LAST_MAINTENANCE: 'Último Mantenimiento',
   HOROMETER: 'Horómetro',
-  
+  NEXT_CHANGE_HOURS: 'Próximo Cambio (horas)',
+  FILTERS_EXTRAS: 'Filtros o Extras',
+  BATTERY_TYPE: 'Tipo de Batería',
+  BATTERY_STATUS: 'Estado de la Batería',
+  COST: 'Costo',
+  NOTES: 'Notas Adicionales',
+
   // Campos de autenticación
   USERNAME: 'Usuario',
   PASSWORD: 'Contraseña',
@@ -216,7 +222,16 @@ export const UI_MESSAGES = {
     CONSUMPTION_POSITIVE: 'El consumo no puede ser negativo',
     CONSUMPTION_MAX: 'El consumo no puede ser mayor a 50 gal/hr',
     NEXT_MAINTENANCE_DATE_INVALID: 'La próxima fecha debe ser posterior al último mantenimiento',
-    PURCHASE_DATE_FUTURE: 'La fecha de compra no puede ser futura'
+    PURCHASE_DATE_FUTURE: 'La fecha de compra no puede ser futura',
+
+    // Errores de validación de mantenimiento
+    MAINTENANCE_TYPE_REQUIRED: 'El tipo de mantenimiento es obligatorio',
+    VEHICLE_REQUIRED: 'El vehículo es obligatorio',
+    DATE_REQUIRED: 'La fecha es obligatoria',
+    OIL_QUANTITY_REQUIRED: 'La cantidad de aceite es obligatoria y debe ser mayor a 0',
+    HOUR_METER_REQUIRED: 'La lectura del horómetro es obligatoria',
+    BATTERY_TYPE_REQUIRED: 'El tipo de batería es obligatorio',
+    BATTERY_COST_REQUIRED: 'El costo de la batería es obligatorio'
   },
 
   // Mensajes de confirmación
@@ -280,7 +295,15 @@ export const UI_PLACEHOLDERS = {
   CURRENT_HOURS: 'Ej: 1250.5',
   PLATE_CODE: 'ABC123',
   SELECT_FUEL: 'Selecciona combustible',
-  SPECIAL_NOTES: 'Observaciones, mantenimiento especial, etc...'
+  SPECIAL_NOTES: 'Observaciones, mantenimiento especial, etc...',
+
+  // Placeholders específicos para mantenimiento
+  FILTERS_EXTRAS: 'Especificar filtros cambiados o extras...',
+  BATTERY_TYPE: 'Ej: 12V 60Ah',
+  BATTERY_BRAND: 'Ej: Bosch, Exide',
+  BATTERY_MODEL: 'Ej: S4 005',
+  COST: '0',
+  ADDITIONAL_NOTES: 'Observaciones adicionales...'
 };
 
 // ===================================================================
@@ -316,6 +339,13 @@ export const MODAL_TEXT = {
     CREATE_SUBTITLE: 'Registra un nuevo vehículo en la flota',
     EDIT_SUBTITLE: 'Modifica la información del vehículo',
     VIEW_SUBTITLE: 'Información completa del vehículo'
+  },
+  MAINTENANCE: {
+    CREATE_TITLE: 'Crear Mantenimiento',
+    EDIT_TITLE: 'Editar Mantenimiento',
+    VIEW_TITLE: 'Ver Mantenimiento',
+    OIL_CHANGE_INFO: 'Información del Cambio de Aceite',
+    BATTERY_CHANGE_INFO: 'Información del Cambio de Batería'
   }
 };
 

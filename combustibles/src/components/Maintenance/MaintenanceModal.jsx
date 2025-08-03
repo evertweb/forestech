@@ -13,6 +13,13 @@ import {
   getVehiclesForMaintenance,
   calculateNextOilChange
 } from '../../services/maintenanceService';
+import { 
+  UI_ACTIONS, 
+  UI_FORM_LABELS, 
+  UI_MESSAGES, 
+  UI_PLACEHOLDERS, 
+  MODAL_TEXT 
+} from '../../constants';
 // import { formatCurrency, formatNumber } from '../../utils/calculations';
 
 const MaintenanceModal = ({ 
@@ -139,33 +146,33 @@ const MaintenanceModal = ({
 
     // Validaciones obligatorias
     if (!formData.type) {
-      newErrors.type = 'El tipo de mantenimiento es obligatorio';
+      newErrors.type = UI_MESSAGES.ERROR.MAINTENANCE_TYPE_REQUIRED;
     }
 
     if (!formData.vehicleId) {
-      newErrors.vehicleId = 'El vehículo es obligatorio';
+      newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_REQUIRED;
     }
 
     if (!formData.date) {
-      newErrors.date = 'La fecha es obligatoria';
+      newErrors.date = UI_MESSAGES.ERROR.DATE_REQUIRED;
     }
 
     // Validaciones específicas por tipo
     if (formData.type === MAINTENANCE_TYPES.OIL_CHANGE) {
       if (!formData.quantity || formData.quantity <= 0) {
-        newErrors.quantity = 'La cantidad de aceite es obligatoria y debe ser mayor a 0';
+        newErrors.quantity = UI_MESSAGES.ERROR.OIL_QUANTITY_REQUIRED;
       }
       if (!formData.currentHours || formData.currentHours < 0) {
-        newErrors.currentHours = 'La lectura del horómetro es obligatoria';
+        newErrors.currentHours = UI_MESSAGES.ERROR.HOUR_METER_REQUIRED;
       }
     }
 
     if (formData.type === MAINTENANCE_TYPES.BATTERY_CHANGE) {
       if (!formData.batteryType) {
-        newErrors.batteryType = 'El tipo de batería es obligatorio';
+        newErrors.batteryType = UI_MESSAGES.ERROR.BATTERY_TYPE_REQUIRED;
       }
       if (!formData.cost || formData.cost <= 0) {
-        newErrors.cost = 'El costo de la batería es obligatorio';
+        newErrors.cost = UI_MESSAGES.ERROR.BATTERY_COST_REQUIRED;
       }
     }
 
@@ -211,13 +218,13 @@ const MaintenanceModal = ({
   const getModalTitle = () => {
     switch (mode) {
       case 'create':
-        return 'Crear Mantenimiento';
+        return MODAL_TEXT.MAINTENANCE.CREATE_TITLE;
       case 'edit':
-        return 'Editar Mantenimiento';
+        return MODAL_TEXT.MAINTENANCE.EDIT_TITLE;
       case 'view':
-        return 'Ver Mantenimiento';
+        return MODAL_TEXT.MAINTENANCE.VIEW_TITLE;
       default:
-        return 'Mantenimiento';
+        return UI_TITLES.MAINTENANCE;
     }
   };
 
@@ -269,7 +276,7 @@ const MaintenanceModal = ({
           <form onSubmit={handleSubmit} className="maintenance-form">
             {/* Tipo de mantenimiento */}
             <div className="form-group">
-              <label>Tipo de Mantenimiento *</label>
+              <label>{UI_FORM_LABELS.MAINTENANCE_TYPE} *</label>
               <select
                 value={formData.type}
                 onChange={(e) => handleInputChange('type', e.target.value)}
@@ -293,13 +300,13 @@ const MaintenanceModal = ({
 
             {/* Vehículo */}
             <div className="form-group">
-              <label>Vehículo *</label>
+              <label>{UI_FORM_LABELS.VEHICLE} *</label>
               <select
                 value={formData.vehicleId}
                 onChange={(e) => handleVehicleChange(e.target.value)}
                 disabled={mode === 'view'}
               >
-                <option value="">Seleccionar vehículo</option>
+                <option value="">{UI_MESSAGES.INFO.SELECT_OPTION}</option>
                 {vehicles.map(vehicle => (
                   <option key={vehicle.vehicleId} value={vehicle.vehicleId}>
                     {vehicle.vehicleId} - {vehicle.name} ({vehicle.type})
@@ -311,7 +318,7 @@ const MaintenanceModal = ({
 
             {/* Fecha */}
             <div className="form-group">
-              <label>Fecha *</label>
+              <label>{UI_FORM_LABELS.DATE} *</label>
               <input
                 type="date"
                 value={formData.date}
@@ -324,11 +331,11 @@ const MaintenanceModal = ({
             {/* Sección específica según tipo */}
             {formData.type === MAINTENANCE_TYPES.OIL_CHANGE && (
               <div className="maintenance-section">
-                <h3>🛢️ Información del Cambio de Aceite</h3>
+                <h3>🛢️ {MODAL_TEXT.MAINTENANCE.OIL_CHANGE_INFO}</h3>
                 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Cantidad (galones) *</label>
+                    <label>{UI_FORM_LABELS.QUANTITY} (galones) *</label>
                     <input
                       type="number"
                       step="0.1"
@@ -340,7 +347,7 @@ const MaintenanceModal = ({
                   </div>
 
                   <div className="form-group">
-                    <label>Horómetro Actual *</label>
+                    <label>{UI_FORM_LABELS.HOROMETER} *</label>
                     <input
                       type="number"
                       value={formData.currentHours}
@@ -352,7 +359,7 @@ const MaintenanceModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label>Próximo Cambio (horas)</label>
+                  <label>{UI_FORM_LABELS.NEXT_CHANGE_HOURS}</label>
                   <input
                     type="number"
                     value={formData.nextChangeHours}
@@ -363,12 +370,12 @@ const MaintenanceModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label>Filtros o Extras</label>
+                  <label>{UI_FORM_LABELS.FILTERS_EXTRAS}</label>
                   <textarea
                     value={formData.filters}
                     onChange={(e) => handleInputChange('filters', e.target.value)}
                     disabled={mode === 'view'}
-                    placeholder="Especificar filtros cambiados o extras..."
+                    placeholder={UI_PLACEHOLDERS.FILTERS_EXTRAS}
                   />
                 </div>
               </div>
@@ -376,23 +383,23 @@ const MaintenanceModal = ({
 
             {formData.type === MAINTENANCE_TYPES.BATTERY_CHANGE && (
               <div className="maintenance-section">
-                <h3>🔋 Información del Cambio de Batería</h3>
+                <h3>🔋 {MODAL_TEXT.MAINTENANCE.BATTERY_CHANGE_INFO}</h3>
                 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Tipo de Batería *</label>
+                    <label>{UI_FORM_LABELS.BATTERY_TYPE} *</label>
                     <input
                       type="text"
                       value={formData.batteryType}
                       onChange={(e) => handleInputChange('batteryType', e.target.value)}
                       disabled={mode === 'view'}
-                      placeholder="Ej: 12V 60Ah"
+                      placeholder={UI_PLACEHOLDERS.BATTERY_TYPE}
                     />
                     {errors.batteryType && <span className="error-text">{errors.batteryType}</span>}
                   </div>
 
                   <div className="form-group">
-                    <label>Estado *</label>
+                    <label>{UI_FORM_LABELS.STATUS} *</label>
                     <select
                       value={formData.batteryStatus}
                       onChange={(e) => handleInputChange('batteryStatus', e.target.value)}
@@ -407,37 +414,37 @@ const MaintenanceModal = ({
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Marca</label>
+                    <label>{UI_FORM_LABELS.BRAND}</label>
                     <input
                       type="text"
                       value={formData.brand}
                       onChange={(e) => handleInputChange('brand', e.target.value)}
                       disabled={mode === 'view'}
-                      placeholder="Ej: Bosch, Exide"
+                      placeholder={UI_PLACEHOLDERS.BATTERY_BRAND}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Modelo</label>
+                    <label>{UI_FORM_LABELS.MODEL}</label>
                     <input
                       type="text"
                       value={formData.model}
                       onChange={(e) => handleInputChange('model', e.target.value)}
                       disabled={mode === 'view'}
-                      placeholder="Ej: S4 005"
+                      placeholder={UI_PLACEHOLDERS.BATTERY_MODEL}
                     />
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label>Costo *</label>
+                  <label>{UI_FORM_LABELS.COST} *</label>
                   <input
                     type="number"
                     step="1000"
                     value={formData.cost}
                     onChange={(e) => handleInputChange('cost', e.target.value)}
                     disabled={mode === 'view'}
-                    placeholder="0"
+                    placeholder={UI_PLACEHOLDERS.COST}
                   />
                   {errors.cost && <span className="error-text">{errors.cost}</span>}
                 </div>
@@ -446,19 +453,19 @@ const MaintenanceModal = ({
 
             {/* Notas generales */}
             <div className="form-group">
-              <label>Notas Adicionales</label>
+              <label>{UI_FORM_LABELS.NOTES}</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
                 disabled={mode === 'view'}
-                placeholder="Observaciones adicionales..."
+                placeholder={UI_PLACEHOLDERS.ADDITIONAL_NOTES}
                 rows="3"
               />
             </div>
 
             {/* Estado */}
             <div className="form-group">
-              <label>Estado</label>
+              <label>{UI_FORM_LABELS.STATUS}</label>
               <select
                 value={formData.status}
                 onChange={(e) => handleInputChange('status', e.target.value)}
@@ -480,7 +487,7 @@ const MaintenanceModal = ({
             onClick={onClose}
             disabled={loading}
           >
-            Cancelar
+            {UI_ACTIONS.CANCEL}
           </button>
           
           {mode !== 'view' && (
@@ -490,7 +497,7 @@ const MaintenanceModal = ({
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? 'Guardando...' : (mode === 'create' ? 'Crear' : 'Actualizar')}
+              {loading ? UI_MESSAGES.LOADING.SAVING : (mode === 'create' ? UI_ACTIONS.CREATE : UI_ACTIONS.UPDATE)}
             </button>
           )}
         </div>
