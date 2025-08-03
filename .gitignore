@@ -30,4 +30,7 @@ Thumbs.db
 *.log
 npm-debug.log*
 
+# Build assets (generated files)
+public/combustibles/assets/
+
 fetch-mcp/
