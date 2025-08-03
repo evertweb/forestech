@@ -1,7 +1,7 @@
 // VehicleFormSmart-SAP.jsx - SAP Fiori Corporate Theme
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { renderCategoryIcon, isCustomIcon } from '../../services/iconUploadService';
+import { isCustomIcon } from '../../services/iconUploadService';
 import './VehicleFormSmart-SAP.css';
 
 const VehicleFormSmartSAP = ({ isOpen, onClose, onSuccess, vehicle = null }) => {

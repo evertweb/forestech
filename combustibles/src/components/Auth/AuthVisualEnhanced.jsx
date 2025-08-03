@@ -14,6 +14,7 @@ import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
 import { getBackgroundImageUrl, preloadBackgroundImage } from '../../services/backgroundImageService';
+import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import './AuthVisualEnhanced.css';
 
 // Componente de logo animado con efectos de energía
@@ -647,7 +648,7 @@ const AuthVisualEnhanced = () => {
       {isExpanded && (
         <div className={`scroll-footer ${showScrollFooter ? 'visible' : 'hidden'}`}>
           <a 
-            href="https://wa.me/573124559869?text=Hola,%20necesito%20un%20código%20de%20invitación%20para%20acceder%20al%20sistema%20de%20combustibles"
+            href={COMMUNICATION_URLS.WHATSAPP_SUPPORT}
             target="_blank"
             rel="noopener noreferrer"
             className="whatsapp-float-button"

@@ -1,7 +1,8 @@
 // VehicleFormSmart.jsx - Formulario Progresivo Inteligente
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { renderCategoryIcon, isCustomIcon } from '../../services/iconUploadService';
+import { isCustomIcon } from '../../services/iconUploadService';
+import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES, UI_PLACEHOLDERS } from '../../constants';
 import './VehicleFormSmart.css';
 
 const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
@@ -29,8 +30,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
   const { 
     createVehicle,
     updateVehicle, 
-    subscribeToVehicleCategories,
-    loading 
+    subscribeToVehicleCategories
   } = useCombustibles();
 
   // Suscribirse a categorías al montar
@@ -210,16 +210,16 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="smart-modal-overlay" onClick={handleClose}>
-      <div className="smart-modal-container" onClick={e => e.stopPropagation()}>
+    <div className={MODAL_PRESETS.VEHICLE_MODAL.overlay} onClick={handleClose}>
+      <div className={MODAL_PRESETS.VEHICLE_MODAL.content} onClick={e => e.stopPropagation()}>
         {/* Header simplificado */}
-        <div className="smart-modal-header">
-          <h2>{vehicle ? 'Editar Vehículo' : 'Nuevo Vehículo'}</h2>
+        <div className={MODAL_PRESETS.VEHICLE_MODAL.header}>
+          <h2>{vehicle ? `${UI_ACTIONS.EDIT} Vehículo` : `${UI_ACTIONS.ADD} ${UI_FORM_LABELS.VEHICLE}`}</h2>
           <button 
             type="button" 
-            className="smart-btn-close"
+            className={MODAL_PRESETS.VEHICLE_MODAL.close}
             onClick={handleClose}
-            aria-label="Cerrar"
+            aria-label={UI_ACTIONS.CLOSE}
           >
             ✕
           </button>
@@ -257,14 +257,14 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
               <div className="smart-form-row">
                 <div className="smart-form-group">
                   <label className="smart-form-label">
-                    Nombre del Vehículo *
+                    {UI_FORM_LABELS.VEHICLE_NAME} *
                   </label>
                   <input
                     type="text"
                     className={`smart-form-input ${errors.name ? 'error' : ''}`}
                     value={formData.name}
                     onChange={(e) => handleFieldChange('name', e.target.value)}
-                    placeholder="Ej: Tractor Principal"
+                    placeholder={UI_PLACEHOLDERS.VEHICLE_NAME}
                     autoFocus
                   />
                   {errors.name && <span className="field-error">{errors.name}</span>}
@@ -272,14 +272,14 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
                 <div className="smart-form-group">
                   <label className="smart-form-label">
-                    Placa/Código *
+                    {UI_FORM_LABELS.PLATE_CODE} *
                   </label>
                   <input
                     type="text"
                     className={`smart-form-input ${errors.plateCode ? 'error' : ''}`}
                     value={formData.plateCode}
                     onChange={(e) => handleFieldChange('plateCode', e.target.value.toUpperCase())}
-                    placeholder="ABC123"
+                    placeholder={UI_PLACEHOLDERS.PLATE_CODE}
                   />
                   {errors.plateCode && <span className="field-error">{errors.plateCode}</span>}
                 </div>
@@ -287,12 +287,12 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
               <div className="smart-form-group">
                 <label className="smart-form-label">
-                  Categoría *
+                  {UI_FORM_LABELS.CATEGORY} *
                 </label>
                 {categoriesLoading ? (
                   <div className="loading-categories">
                     <div className="spinner"></div>
-                    <span>Cargando categorías...</span>
+                    <span>{UI_MESSAGES.LOADING.CATEGORIES}</span>
                   </div>
                 ) : (
                   <div className="custom-select-wrapper">
@@ -301,7 +301,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       value={formData.categoryId}
                       onChange={(e) => handleFieldChange('categoryId', e.target.value)}
                     >
-                      <option value="">Selecciona una categoría</option>
+                      <option value="">{UI_PLACEHOLDERS.SELECT_CATEGORY}</option>
                       {vehicleCategories?.map(category => (
                         <option key={category.id} value={category.id}>
                           {isCustomIcon(category.icon) ? '🖼️  ' : category.icon + ' '}{category.name}
@@ -317,19 +317,19 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
             {/* PASO 2: DETALLES OPERATIVOS (aparece cuando se selecciona categoría) */}
             {(currentStep === 'details' || showAdvanced) && canProceedToDetails && (
               <div className="form-section fade-in">
-                <h3>Detalles Operativos</h3>
+                <h3>{UI_FORM_LABELS.OPERATIONAL_DETAILS}</h3>
                 
                 <div className="smart-form-row">
                   <div className="smart-form-group">
                     <label className="smart-form-label">
-                      Tipo de Combustible *
+                      {UI_FORM_LABELS.FUEL_TYPE} *
                     </label>
                     <select
                       className={`smart-form-input ${errors.fuelType ? 'error' : ''}`}
                       value={formData.fuelType}
                       onChange={(e) => handleFieldChange('fuelType', e.target.value)}
                     >
-                      <option value="">Selecciona combustible</option>
+                      <option value="">{UI_PLACEHOLDERS.SELECT_FUEL}</option>
                       <option value="diesel">🛢️ Diésel</option>
                       <option value="gasoline">⛽ Gasolina</option>
                       <option value="acpm">🚛 ACPM</option>
@@ -340,7 +340,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
                   <div className="smart-form-group">
                     <label className="smart-form-label">
-                      Capacidad del Tanque (Galones)
+                      {UI_FORM_LABELS.TANK_CAPACITY}
                     </label>
                     <input
                       type="number"
@@ -361,7 +361,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       checked={formData.hasHorometer}
                       onChange={(e) => handleFieldChange('hasHorometer', e.target.checked)}
                     />
-                    <span>Este vehículo tiene horómetro</span>
+                    <span>{UI_FORM_LABELS.HAS_HOROMETER}</span>
                   </label>
                 </div>
 
@@ -373,7 +373,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       className="btn-show-advanced"
                       onClick={() => setShowAdvanced(true)}
                     >
-                      ➕ Agregar información adicional (opcional)
+                      ➕ {UI_ACTIONS.ADD} información adicional (opcional)
                     </button>
                   </div>
                 )}
@@ -383,30 +383,30 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
             {/* PASO 3: INFORMACIÓN ADICIONAL (opcional) */}
             {showAdvanced && (
               <div className="form-section fade-in">
-                <h3>Información Adicional</h3>
+                <h3>{UI_FORM_LABELS.ADDITIONAL_INFO}</h3>
                 
                 <div className="smart-form-group">
                   <label className="smart-form-label">
-                    Descripción
+                    {UI_FORM_LABELS.DESCRIPTION}
                   </label>
                   <textarea
                     className="smart-form-input"
                     value={formData.description}
                     onChange={(e) => handleFieldChange('description', e.target.value)}
-                    placeholder="Características adicionales del vehículo..."
+                    placeholder={UI_PLACEHOLDERS.VEHICLE_DESCRIPTION}
                     rows="3"
                   />
                 </div>
 
                 <div className="smart-form-group">
                   <label className="smart-form-label">
-                    Notas Especiales
+                    {UI_FORM_LABELS.SPECIAL_NOTES}
                   </label>
                   <textarea
                     className="smart-form-input"
                     value={formData.notes}
                     onChange={(e) => handleFieldChange('notes', e.target.value)}
-                    placeholder="Observaciones, mantenimiento especial, etc..."
+                    placeholder={UI_PLACEHOLDERS.SPECIAL_NOTES}
                     rows="2"
                   />
                 </div>
@@ -416,7 +416,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                   className="btn-hide-advanced"
                   onClick={() => setShowAdvanced(false)}
                 >
-                  ➖ Ocultar información adicional
+                  ➖ {UI_ACTIONS.HIDE} información adicional
                 </button>
               </div>
             )}
@@ -429,7 +429,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
-                Cancelar
+                {UI_ACTIONS.CANCEL}
               </button>
               
               <button
@@ -440,10 +440,10 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                 {isSubmitting ? (
                   <>
                     <div className="spinner small"></div>
-                    {vehicle ? 'Actualizando...' : 'Creando...'}
+                    {vehicle ? UI_MESSAGES.LOADING.UPDATING : UI_MESSAGES.LOADING.CREATING}
                   </>
                 ) : (
-                  vehicle ? 'Actualizar Vehículo' : 'Crear Vehículo'
+                  vehicle ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.VEHICLE}` : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.VEHICLE}`
                 )}
               </button>
             </div>

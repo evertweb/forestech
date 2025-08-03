@@ -67,7 +67,7 @@ const MaintenanceStats = ({ stats }) => {
   };
 
   return (
-    <div className="maintenance-stats">
+    <div className="maintenance-stats sap-theme">
       <div className="stats-grid">
         {/* Total de mantenimientos */}
         <div className="stat-card primary">
@@ -108,7 +108,7 @@ const MaintenanceStats = ({ stats }) => {
 
       {/* Desglose por tipo */}
       {Object.keys(stats.byType).length > 0 && (
-        <div className="stats-breakdown">
+        <div className="stats-breakdown sap-theme">
           <h3>📊 Desglose por Tipo</h3>
           <div className="breakdown-grid">
             {Object.entries(stats.byType).map(([type, count]) => (
@@ -127,7 +127,7 @@ const MaintenanceStats = ({ stats }) => {
                     className="breakdown-fill"
                     style={{ 
                       width: `${(count / stats.total) * 100}%`,
-                      backgroundColor: '#3b82f6'
+                      backgroundColor: 'var(--sap-blue-primary)'
                     }}
                   ></div>
                 </div>
@@ -142,7 +142,7 @@ const MaintenanceStats = ({ stats }) => {
 
       {/* Desglose por estado */}
       {Object.keys(stats.byStatus).length > 0 && (
-        <div className="stats-breakdown">
+        <div className="stats-breakdown sap-theme">
           <h3>📈 Desglose por Estado</h3>
           <div className="breakdown-grid">
             {Object.entries(stats.byStatus).map(([status, count]) => (
@@ -176,7 +176,7 @@ const MaintenanceStats = ({ stats }) => {
       )}
 
       {/* Insights */}
-      <div className="stats-insights">
+      <div className="stats-insights sap-theme">
         <h3>💡 Insights</h3>
         <div className="insights-grid">
           <div className="insight-item">

@@ -33,14 +33,22 @@ const DashboardLayout = ({ children }) => {
   // Hook de react-router para obtener la ubicación actual y resaltar el enlace activo.
   const location = useLocation();
 
-  // useEffect para manejar el estado inicial del sidebar basado en el tamaño de pantalla
+  // Detecta si estamos en el Dashboard principal
+  const isDashboardHome = location.pathname === '/';
+
+  // useEffect para manejar el estado inicial del sidebar basado en el tamaño de pantalla y ruta
   useEffect(() => {
     const handleResize = () => {
-      // En móviles (1024px o menos), inicia cerrado por defecto
+      // Si estamos en Dashboard principal, siempre ocultar sidebar
+      if (isDashboardHome) {
+        setSidebarOpen(false);
+        return;
+      }
+      
+      // En otras rutas: En móviles inicia cerrado, en desktop abierto
       if (window.innerWidth <= 1024) {
         setSidebarOpen(false);
       } else {
-        // En desktop, inicia abierto por defecto
         setSidebarOpen(true);
       }
     };
@@ -53,7 +61,20 @@ const DashboardLayout = ({ children }) => {
 
     // Limpieza del event listener
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isDashboardHome]);
+
+  // useEffect adicional para manejar cambios de ruta
+  useEffect(() => {
+    // Si navegamos al Dashboard principal, ocultar sidebar
+    if (isDashboardHome) {
+      setSidebarOpen(false);
+    } else {
+      // Si navegamos a otra ruta desde Dashboard, mostrar sidebar según tamaño de pantalla
+      if (window.innerWidth > 1024) {
+        setSidebarOpen(true);
+      }
+    }
+  }, [isDashboardHome]);
 
   /**
    * @type {Array<Object>}
@@ -111,14 +132,16 @@ const DashboardLayout = ({ children }) => {
       {/* ================= HEADER ================= */}
       <header className="dashboard-header">
         <div className="header-content">
-          {/* Botón para alternar el sidebar - funciona en todas las vistas */}
-          <button 
-            className="sidebar-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            title={sidebarOpen ? "Ocultar menú" : "Mostrar menú"}
-          >
-            ☰
-          </button>
+          {/* Botón para alternar el sidebar - oculto en Dashboard principal */}
+          {!isDashboardHome && (
+            <button 
+              className="sidebar-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              title={sidebarOpen ? "Ocultar menú" : "Mostrar menú"}
+            >
+              ☰
+            </button>
+          )}
           
           {/* Título de la aplicación */}
           <div className="header-title">
@@ -155,43 +178,45 @@ const DashboardLayout = ({ children }) => {
 
       {/* ================= CUERPO DEL DASHBOARD ================= */}
       <div className="dashboard-body">
-        {/* ================= SIDEBAR ================= */}
-        <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'hidden'}`}>
-          <nav className="sidebar-nav">
-            {/* Mapea los ítems de navegación visibles y crea los enlaces */}
-            {visibleItems.map(item => (
-              <Link
-                key={item.id}
-                to={item.path}
-                // Aplica la clase 'active' si la ruta actual coincide con la del ítem.
-                className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-                onClick={handleLinkClick}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <div className="nav-content">
-                  <span className="nav-name">{item.name}</span>
-                  <span className="nav-description">{item.description}</span>
+        {/* ================= SIDEBAR - Oculto en Dashboard principal ================= */}
+        {!isDashboardHome && (
+          <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'hidden'}`}>
+            <nav className="sidebar-nav">
+              {/* Mapea los ítems de navegación visibles y crea los enlaces */}
+              {visibleItems.map(item => (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  // Aplica la clase 'active' si la ruta actual coincide con la del ítem.
+                  className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                  onClick={handleLinkClick}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <div className="nav-content">
+                    <span className="nav-name">{item.name}</span>
+                    <span className="nav-description">{item.description}</span>
+                  </div>
+                </Link>
+              ))}
+            </nav>
+            
+            {/* Footer del sidebar para mostrar permisos del usuario */}
+            <div className="sidebar-footer">
+              <div className="user-permissions">
+                <h4>Permisos Activos:</h4>
+                <div className="permission-list">
+                  {isAdmin() && <span className="permission admin">👑 Administrador</span>}
+                  {isCounterOrAbove() && <span className="permission counter">📊 Gestión Operativa</span>}
+                  {hasPermission('canManageInventory') && <span className="permission">🛢️ Inventario</span>}
+                  {hasPermission('canManageVehicles') && <span className="permission">🚜 Vehículos</span>}
                 </div>
-              </Link>
-            ))}
-          </nav>
-          
-          {/* Footer del sidebar para mostrar permisos del usuario */}
-          <div className="sidebar-footer">
-            <div className="user-permissions">
-              <h4>Permisos Activos:</h4>
-              <div className="permission-list">
-                {isAdmin() && <span className="permission admin">👑 Administrador</span>}
-                {isCounterOrAbove() && <span className="permission counter">📊 Gestión Operativa</span>}
-                {hasPermission('canManageInventory') && <span className="permission">🛢️ Inventario</span>}
-                {hasPermission('canManageVehicles') && <span className="permission">🚜 Vehículos</span>}
               </div>
             </div>
-          </div>
-        </aside>
+          </aside>
+        )}
 
         {/* ================= CONTENIDO PRINCIPAL ================= */}
-        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-hidden'}`}>
+        <main className={`dashboard-main ${isDashboardHome ? 'dashboard-home' : sidebarOpen ? '' : 'sidebar-hidden'}`}>
           <div className="main-content">
             {/* Aquí se renderiza el contenido de la página actual (ej. Home, Reports, etc.) */}
             {children}
@@ -200,8 +225,8 @@ const DashboardLayout = ({ children }) => {
       </div>
 
       {/* Overlay que se muestra en móviles cuando el sidebar está abierto. */}
-      {/* Al hacer clic, cierra el sidebar. Solo en móviles (max-width: 1024px) */}
-      {sidebarOpen && (
+      {/* Al hacer clic, cierra el sidebar. Solo en móviles (max-width: 1024px) y no en Dashboard */}
+      {!isDashboardHome && sidebarOpen && (
         <div 
           className="sidebar-overlay"
           onClick={() => setSidebarOpen(false)}

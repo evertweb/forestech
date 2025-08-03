@@ -230,14 +230,32 @@ const MaintenanceMain = () => {
 
       {/* Lista de mantenimientos */}
       {!loading && !error && (
-        <MaintenanceList
-          maintenanceRecords={filteredMaintenance}
-          viewMode={viewMode}
-          onEdit={canManageMaintenance ? handleEditMaintenance : null}
-          onView={handleViewMaintenance}
-          onDelete={canManageMaintenance ? handleDeleteMaintenance : null}
-          userRole={userProfile?.role}
-        />
+        <>
+          {filteredMaintenance.length > 0 ? (
+            <MaintenanceList
+              maintenanceRecords={filteredMaintenance}
+              viewMode={viewMode}
+              onEdit={canManageMaintenance ? handleEditMaintenance : null}
+              onView={handleViewMaintenance}
+              onDelete={canManageMaintenance ? handleDeleteMaintenance : null}
+              userRole={userProfile?.role}
+            />
+          ) : (
+            <div className="empty-state sap-theme">
+              <div className="empty-icon">🔧</div>
+              <h3>No hay mantenimientos registrados</h3>
+              <p>Comienza creando el primer mantenimiento para tu flota de vehículos.</p>
+              {canManageMaintenance && (
+                <button 
+                  className="sap-button sap-button-primary sap-mt-lg"
+                  onClick={handleCreateMaintenance}
+                >
+                  ➕ Crear Primer Mantenimiento
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal */}

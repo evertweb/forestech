@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { formatCurrency } from '../../utils/calculations';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
+import { UI_ACTIONS, UI_TOOLTIPS, UI_FORM_LABELS } from '../../constants';
 
 const SuppliersTable = ({ 
   suppliers, 
@@ -128,7 +129,7 @@ const SuppliersTable = ({
                 className={`sortable ${sortField === 'name' ? 'active' : ''}`}
                 onClick={() => handleSort('name')}
               >
-                <span>Proveedor</span>
+                <span>{UI_FORM_LABELS.SUPPLIER}</span>
                 <i className={getSortIcon('name')}></i>
               </th>
               
@@ -136,7 +137,7 @@ const SuppliersTable = ({
                 className={`sortable ${sortField === 'status' ? 'active' : ''}`}
                 onClick={() => handleSort('status')}
               >
-                <span>Estado</span>
+                <span>{UI_FORM_LABELS.STATUS}</span>
                 <i className={getSortIcon('status')}></i>
               </th>
               
@@ -144,7 +145,7 @@ const SuppliersTable = ({
                 className={`sortable ${sortField === 'category' ? 'active' : ''}`}
                 onClick={() => handleSort('category')}
               >
-                <span>Categoría</span>
+                <span>{UI_FORM_LABELS.CATEGORY}</span>
                 <i className={getSortIcon('category')}></i>
               </th>
               
@@ -314,7 +315,7 @@ const SuppliersTable = ({
                       <button
                         className="btn btn-sm btn-secondary"
                         onClick={() => onEdit(supplier)}
-                        title="Editar proveedor"
+                        title={UI_TOOLTIPS.EDIT}
                       >
                         <i className="icon-edit"></i>
                       </button>
@@ -324,7 +325,7 @@ const SuppliersTable = ({
                       <button
                         className="btn btn-sm btn-danger"
                         onClick={() => onDelete(supplier.id, supplier.name)}
-                        title="Desactivar proveedor"
+                        title={UI_TOOLTIPS.DELETE}
                       >
                         <i className="icon-x-circle"></i>
                       </button>

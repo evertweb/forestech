@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
+import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS } from '../../constants';
 
 const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
   const { userProfile } = useCombustibles();
@@ -93,25 +94,25 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
     // Required fields
     if (!formData.name.trim()) {
-      newErrors.name = 'El nombre del proveedor es requerido';
+      newErrors.name = `${UI_FORM_LABELS.SUPPLIER} ${UI_FORM_LABELS.NAME} es requerido`;
     }
 
     if (!formData.category) {
-      newErrors.category = 'La categoría es requerida';
+      newErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
     }
 
     if (!formData.type) {
-      newErrors.type = 'El tipo de proveedor es requerido';
+      newErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
     }
 
     // Email validation
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'El formato del email no es válido';
+      newErrors.email = `El formato del ${UI_FORM_LABELS.EMAIL.toLowerCase()} no es válido`;
     }
 
     // Phone validation (basic)
     if (formData.phone && !/^[\d\s\-+()]+$/.test(formData.phone)) {
-      newErrors.phone = 'El formato del teléfono no es válido';
+      newErrors.phone = `El formato del ${UI_FORM_LABELS.PHONE.toLowerCase()} no es válido`;
     }
 
     // Credit limit validation
@@ -167,11 +168,11 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
       if (result.success) {
         onSuccess();
       } else {
-        onError(result.error || 'Error al guardar proveedor');
+        onError(result.error || `${UI_MESSAGES.ERROR.SAVE_FAILED} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`);
       }
     } catch (error) {
       console.error('Error saving supplier:', error);
-      onError('Error inesperado al guardar proveedor');
+      onError(`Error inesperado al ${UI_ACTIONS.SAVE.toLowerCase()} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`);
     } finally {
       setLoading(false);
     }
@@ -179,20 +180,20 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
   const tabs = [
     { id: 'basic', label: 'Información Básica', icon: 'icon-info' },
-    { id: 'contact', label: 'Contacto', icon: 'icon-phone' },
-    { id: 'products', label: 'Productos', icon: 'icon-package' },
+    { id: 'contact', label: UI_FORM_LABELS.CONTACT, icon: 'icon-phone' },
+    { id: 'products', label: UI_TITLES.PRODUCTS, icon: 'icon-package' },
     { id: 'commercial', label: 'Comercial', icon: 'icon-credit-card' }
   ];
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container large" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className={MODAL_PRESETS.INVENTORY_MODAL.overlay} onClick={onClose}>
+      <div className={`${MODAL_PRESETS.INVENTORY_MODAL.content} large`} onClick={e => e.stopPropagation()}>
+        <div className={MODAL_PRESETS.INVENTORY_MODAL.header}>
           <h2>
             <i className="icon-truck"></i>
-            {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
+            {isEditing ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.SUPPLIER}` : `Nuevo ${UI_FORM_LABELS.SUPPLIER}`}
           </h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className={MODAL_PRESETS.INVENTORY_MODAL.close} onClick={onClose}>
             <i className="icon-x"></i>
           </button>
         </div>
@@ -219,12 +220,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               <div className="tab-content">
                 <div className="form-grid">
                   <div className="form-group">
-                    <label className="required">Nombre del Proveedor</label>
+                    <label className="required">{UI_FORM_LABELS.NAME} del {UI_FORM_LABELS.SUPPLIER}</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Ingresa el nombre del proveedor"
+                      placeholder={`Ingresa el ${UI_FORM_LABELS.NAME.toLowerCase()} del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       className={errors.name ? 'error' : ''}
                     />
                     {errors.name && <span className="error-message">{errors.name}</span>}
@@ -243,13 +244,13 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   </div>
 
                   <div className="form-group">
-                    <label className="required">Tipo de Proveedor</label>
+                    <label className="required">{UI_FORM_LABELS.TYPE} de {UI_FORM_LABELS.SUPPLIER}</label>
                     <select
                       value={formData.type}
                       onChange={(e) => handleInputChange('type', e.target.value)}
                       className={errors.type ? 'error' : ''}
                     >
-                      <option value="proveedor">Proveedor</option>
+                      <option value="proveedor">{UI_FORM_LABELS.SUPPLIER}</option>
                       <option value="distribuidor">Distribuidor</option>
                       <option value="mayorista">Mayorista</option>
                     </select>
@@ -257,7 +258,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   </div>
 
                   <div className="form-group">
-                    <label className="required">Categoría</label>
+                    <label className="required">{UI_FORM_LABELS.CATEGORY}</label>
                     <select
                       value={formData.category}
                       onChange={(e) => handleInputChange('category', e.target.value)}
@@ -271,13 +272,13 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   </div>
 
                   <div className="form-group">
-                    <label>Estado</label>
+                    <label>{UI_FORM_LABELS.STATUS}</label>
                     <select
                       value={formData.status}
                       onChange={(e) => handleInputChange('status', e.target.value)}
                     >
-                      <option value="active">Activo</option>
-                      <option value="inactive">Inactivo</option>
+                      <option value="active">{UI_STATUS.ACTIVE}</option>
+                      <option value="inactive">{UI_STATUS.INACTIVE}</option>
                       <option value="suspended">Suspendido</option>
                     </select>
                   </div>
@@ -290,7 +291,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         onChange={(e) => handleInputChange('isPreferred', e.target.checked)}
                       />
                       <span className="checkbox-mark"></span>
-                      Proveedor Preferido
+                      {UI_STATUS.PREFERRED_SUPPLIER}
                     </label>
                   </div>
                 </div>
@@ -302,7 +303,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               <div className="tab-content">
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Persona de Contacto</label>
+                    <label>Persona de {UI_FORM_LABELS.CONTACT}</label>
                     <input
                       type="text"
                       value={formData.contactPerson}
@@ -312,24 +313,24 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   </div>
 
                   <div className="form-group">
-                    <label>Teléfono</label>
+                    <label>{UI_FORM_LABELS.PHONE}</label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="+57 300 123 4567"
+                      placeholder={UI_PLACEHOLDERS.PHONE_FORMAT}
                       className={errors.phone ? 'error' : ''}
                     />
                     {errors.phone && <span className="error-message">{errors.phone}</span>}
                   </div>
 
                   <div className="form-group">
-                    <label>Email</label>
+                    <label>{UI_FORM_LABELS.EMAIL}</label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="contacto@proveedor.com"
+                      placeholder={UI_PLACEHOLDERS.EMAIL_FORMAT}
                       className={errors.email ? 'error' : ''}
                     />
                     {errors.email && <span className="error-message">{errors.email}</span>}
@@ -356,11 +357,11 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   </div>
 
                   <div className="form-group full-width">
-                    <label>Dirección</label>
+                    <label>{UI_FORM_LABELS.ADDRESS}</label>
                     <textarea
                       value={formData.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Dirección completa del proveedor"
+                      placeholder={`${UI_FORM_LABELS.ADDRESS} completa del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       rows="3"
                     />
                   </div>
@@ -504,7 +505,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               onClick={onClose}
               disabled={loading}
             >
-              Cancelar
+              {UI_ACTIONS.CANCEL}
             </button>
             
             <button
@@ -515,12 +516,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               {loading ? (
                 <>
                   <div className="loading-spinner small"></div>
-                  {isEditing ? 'Actualizando...' : 'Creando...'}
+                  {isEditing ? UI_MESSAGES.LOADING.UPDATING : UI_MESSAGES.LOADING.CREATING}
                 </>
               ) : (
                 <>
                   <i className="icon-save"></i>
-                  {isEditing ? 'Actualizar Proveedor' : 'Crear Proveedor'}
+                  {isEditing ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.SUPPLIER}` : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.SUPPLIER}`}
                 </>
               )}
             </button>

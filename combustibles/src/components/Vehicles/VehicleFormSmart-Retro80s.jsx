@@ -1,7 +1,7 @@
 // VehicleFormSmart-Retro80s.jsx - Synthwave 80s Version
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { renderCategoryIcon, isCustomIcon } from '../../services/iconUploadService';
+import { isCustomIcon } from '../../services/iconUploadService';
 import './VehicleFormSmart-Retro80s.css';
 
 const VehicleFormSmartRetro80s = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
@@ -208,15 +208,15 @@ const VehicleFormSmartRetro80s = ({ isOpen, onClose, onSuccess, vehicle = null }
   }, [resetForm, onClose]);
 
   // Mapeo de iconos de combustible con estilo retro
-  const getFuelIcon = (fuelType) => {
-    const icons = {
-      diesel: '🛢️',
-      gasoline: '⛽',
-      acpm: '🚛',
-      electric: '⚡'
-    };
-    return icons[fuelType] || '🛢️';
-  };
+  // const getFuelIcon = (fuelType) => {
+  //   const icons = {
+  //     diesel: '🛢️',
+  //     gasoline: '⛽',
+  //     acpm: '🚛',
+  //     electric: '⚡'
+  //   };
+  //   return icons[fuelType] || '🛢️';
+  // };
 
   // Mapeo de step status
   const getStepStatus = (step) => {

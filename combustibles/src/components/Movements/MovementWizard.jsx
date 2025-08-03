@@ -8,6 +8,7 @@ import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService'
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
 import { getAllSuppliers } from '../../services/suppliersService';
+import { MODAL_PRESETS, UI_ACTIONS, UI_MESSAGES } from '../../constants';
 
 // Importar pasos del wizard
 import Step1_MovementType from './WizardSteps/Step1_MovementType';
@@ -100,8 +101,15 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       // Suscribirse a suppliers inmediatamente
       if (subscribeToSuppliers) {
         suppliersUnsubscribe = subscribeToSuppliers((suppliersData) => {
-          setSuppliers(suppliersData || []);
+          const newSuppliers = suppliersData || [];
+          setSuppliers(newSuppliers);
           setSuppliersLoading(false);
+          
+          // Actualizar systemData directamente para evitar dependencias circulares
+          setSystemData(prev => ({
+            ...prev,
+            suppliers: newSuppliers
+          }));
         });
         
         // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
@@ -111,8 +119,15 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               // Solo ejecutar fallback si aún no tenemos suppliers
               getAllSuppliers().then(result => {
                 if (result.success && result.data.length > 0) {
-                  setSuppliers(result.data);
+                  const fallbackSuppliers = result.data;
+                  setSuppliers(fallbackSuppliers);
                   setSuppliersLoading(false);
+                  
+                  // Actualizar systemData directamente
+                  setSystemData(prev => ({
+                    ...prev,
+                    suppliers: fallbackSuppliers
+                  }));
                 }
               }).catch(error => {
                 console.error('❌ Error en fallback de suppliers:', error);
@@ -131,7 +146,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           setSystemData({
             vehicles: vehicles || [],
             inventory: inventory || [],
-            suppliers: suppliers, // Usar el estado local
+            suppliers: [], // Inicializar vacío, se actualizará con el callback de suscripción
             products: productsData || [],
             loadingData: false
           });
@@ -159,17 +174,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         clearTimeout(fallbackTimer);
       }
     };
-  }, [isOpen, inventory, vehicles, subscribeToSuppliers]);
+  }, [isOpen, inventory, vehicles, subscribeToSuppliers]); // ✅ FIXED: removido 'suppliers' de dependencias
 
-  // Actualizar systemData cuando los suppliers locales cambien
-  useEffect(() => {
-    if (suppliers.length > 0) {
-      setSystemData(prev => ({
-        ...prev,
-        suppliers: suppliers
-      }));
-    }
-  }, [suppliers]);
+  // NOTA: systemData.suppliers se actualiza directamente en los callbacks de suscripción
+  // para evitar dependencias circulares y bucles infinitos
 
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {
@@ -530,10 +538,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const isLastStep = currentLogicalStep >= totalSteps;
 
   return (
-    <div className="modal-overlay wizard-overlay" onClick={onClose}>
-      <div className={`modal-content wizard-modal typeform-mode ${isLastStep ? 'is-last-step' : ''}`} onClick={e => e.stopPropagation()}>
+    <div className={MODAL_PRESETS.MOVEMENT_WIZARD.overlay} onClick={onClose}>
+      <div className={`${MODAL_PRESETS.MOVEMENT_WIZARD.content} typeform-mode ${isLastStep ? 'is-last-step' : ''}`} onClick={e => e.stopPropagation()}>
         {/* Botón de escape global */}
-        <button className="typeform-escape" onClick={onClose} aria-label="Cerrar wizard">
+        <button className="typeform-escape" onClick={onClose} aria-label={UI_ACTIONS.CLOSE}>
           ✕
         </button>
 

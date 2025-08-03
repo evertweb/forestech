@@ -126,3 +126,25 @@ export const getUserProfile = async (uid) => {
     return { success: false, error: error.message };
   }
 };
+
+/**
+ * Actualiza los permisos de un usuario específico (función temporal para desarrollo)
+ */
+export const updateUserPermissions = async (userId, newRole = 'admin') => {
+  const userRef = doc(db, `artifacts/${import.meta.env.VITE_FIREBASE_APP_ID}/users`, userId);
+  
+  try {
+    const newPermissions = getCombustiblesPermissions(newRole);
+    
+    await setDoc(userRef, {
+      role: newRole,
+      combustiblesPermissions: newPermissions,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+    
+    return { success: true, newRole, newPermissions };
+  } catch (error) {
+    console.error("Error updating user permissions:", error);
+    return { success: false, error: error.message };
+  }
+};

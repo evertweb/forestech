@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
+import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 
 const InventoryModal = ({ item, onClose, onSuccess }) => {
   const { userProfile } = useCombustibles();
@@ -175,21 +176,21 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
   const selectedFuelInfo = FUEL_INFO[formData.fuelType];
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content inventory-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className={MODAL_PRESETS.INVENTORY_MODAL.overlay} onClick={onClose}>
+      <div className={MODAL_PRESETS.INVENTORY_MODAL.content} onClick={(e) => e.stopPropagation()}>
+        <div className={MODAL_PRESETS.INVENTORY_MODAL.header}>
           <h2>
-            {isEditing ? '✏️ Editar Combustible' : '➕ Agregar Nuevo Combustible'}
+            {isEditing ? `✏️ ${UI_ACTIONS.EDIT} Combustible` : `➕ ${UI_ACTIONS.ADD} Nuevo Combustible`}
           </h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className={MODAL_PRESETS.INVENTORY_MODAL.close} onClick={onClose}>✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-form">
+        <form onSubmit={handleSubmit} className={MODAL_PRESETS.INVENTORY_MODAL.form}>
           <div className="form-grid">
             {/* Tipo de Combustible */}
             <div className="form-group">
               <label htmlFor="fuelType">
-                Tipo de Combustible *
+                {UI_FORM_LABELS.FUEL_TYPE} *
                 {selectedFuelInfo && (
                   <span className="fuel-preview">
                     {selectedFuelInfo.icon} {selectedFuelInfo.name}

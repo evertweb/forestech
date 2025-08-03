@@ -7,6 +7,7 @@ import {
   deleteSupplier,
   getSuppliersStats 
 } from '../../services/suppliersService';
+import { updateUserPermissions } from '../../firebase/userService';
 import SuppliersTable from './SuppliersTable';
 import SuppliersCards from './SuppliersCards';
 import SupplierModal from './SupplierModal';
@@ -15,7 +16,8 @@ import SuppliersFilters from './SuppliersFilters';
 import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
-  const { hasPermission, userProfile } = useCombustibles();
+  const { hasPermission, userProfile, user } = useCombustibles();
+  
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersStats, setSuppliersStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -92,6 +94,7 @@ const SuppliersMain = () => {
     }
     setEditingSupplier(null);
     setShowModal(true);
+    setError(null); // Clear any existing errors
   };
 
   const handleEditSupplier = (supplier) => {
@@ -101,6 +104,7 @@ const SuppliersMain = () => {
     }
     setEditingSupplier(supplier);
     setShowModal(true);
+    setError(null); // Clear any existing errors
   };
 
   const handleDeleteSupplier = async (supplierId, supplierName) => {
@@ -114,10 +118,12 @@ const SuppliersMain = () => {
     }
 
     try {
+      setError(null); // Clear any existing errors
       const result = await deleteSupplier(supplierId, userProfile?.email);
       if (result.success) {
+        // Show success message briefly
         setError(null);
-        // La suscripción en tiempo real actualizará la lista automáticamente
+        // The real-time subscription will update the list automatically
       } else {
         setError(result.error || 'Error al desactivar proveedor');
       }
@@ -130,14 +136,14 @@ const SuppliersMain = () => {
   const handleModalClose = () => {
     setShowModal(false);
     setEditingSupplier(null);
-    setError(null);
+    setError(null); // Clear any existing errors
   };
 
   const handleModalSuccess = () => {
     setShowModal(false);
     setEditingSupplier(null);
-    setError(null);
-    // La suscripción en tiempo real actualizará la lista automáticamente
+    setError(null); // Clear any existing errors
+    // The real-time subscription will update the list automatically
   };
 
   const clearFilters = () => {
@@ -145,6 +151,7 @@ const SuppliersMain = () => {
     setFilterCategory('all');
     setFilterFuelType('all');
     setSearchTerm('');
+    setError(null); // Clear any existing errors
   };
 
   const exportSuppliers = () => {
@@ -153,40 +160,80 @@ const SuppliersMain = () => {
       return;
     }
 
+    if (filteredSuppliers.length === 0) {
+      setError('No hay proveedores para exportar');
+      return;
+    }
+
     try {
+      setError(null); // Clear any existing errors
+      
       const dataToExport = filteredSuppliers.map(supplier => ({
-        'Nombre': supplier.name,
-        'NIT/Documento': supplier.taxId,
-        'Tipo': supplier.type,
-        'Categoría': supplier.category,
-        'Persona de Contacto': supplier.contactPerson,
-        'Teléfono': supplier.phone,
-        'Email': supplier.email,
-        'Ciudad': supplier.city,
-        'Combustibles': supplier.fuelTypes?.join(', '),
-        'Rating': supplier.rating,
-        'Estado': supplier.status,
+        'Nombre': supplier.name || '',
+        'NIT/Documento': supplier.taxId || '',
+        'Tipo': supplier.type || '',
+        'Categoría': supplier.category || '',
+        'Persona de Contacto': supplier.contactPerson || '',
+        'Teléfono': supplier.phone || '',
+        'Email': supplier.email || '',
+        'Ciudad': supplier.city || '',
+        'Combustibles': Array.isArray(supplier.fuelTypes) ? supplier.fuelTypes.join(', ') : '',
+        'Rating': supplier.rating || 0,
+        'Estado': supplier.status || '',
         'Preferido': supplier.isPreferred ? 'Sí' : 'No',
-        'Fecha Creación': supplier.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'
+        'Fecha Creación': supplier.createdAt?.toDate?.()?.toLocaleDateString('es-CO') || 'N/A'
       }));
 
-      const csvContent = [
+      // Create CSV content with BOM for proper encoding
+      const BOM = '\uFEFF';
+      const csvContent = BOM + [
         Object.keys(dataToExport[0]).join(','),
-        ...dataToExport.map(row => Object.values(row).map(value => `"${value || ''}"`).join(','))
+        ...dataToExport.map(row => 
+          Object.values(row).map(value => 
+            `"${String(value || '').replace(/"/g, '""')}"`
+          ).join(',')
+        )
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `proveedores_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `proveedores_forestech_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      // Show success message
+      console.log(`✅ Exportados ${filteredSuppliers.length} proveedores exitosamente`);
     } catch (error) {
       console.error('Error exporting suppliers:', error);
-      setError('Error al exportar proveedores');
+      setError('Error al exportar proveedores: ' + error.message);
+    }
+  };
+
+  // Función temporal para actualizar permisos del usuario actual
+  const upgradeUserPermissions = async () => {
+    if (!user?.uid) {
+      setError('No hay usuario logueado');
+      return;
+    }
+
+    try {
+      const result = await updateUserPermissions(user.uid, 'admin');
+      if (result.success) {
+        setError('Permisos actualizados. Recarga la página para ver los cambios.');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        setError('Error actualizando permisos: ' + result.error);
+      }
+    } catch (error) {
+      setError('Error inesperado al actualizar permisos');
+      console.error('Error upgrading permissions:', error);
     }
   };
 
@@ -213,13 +260,27 @@ const SuppliersMain = () => {
         </div>
         
         <div className="header-actions sap-theme">
+          {/* Botón temporal para desarrollo - actualizar permisos */}
+          {(!hasPermission('canManageSuppliers') || !hasPermission('canExportReports')) && (
+            <button 
+              className="btn btn-warning sap-theme"
+              onClick={upgradeUserPermissions}
+              title="Actualizar permisos de usuario (solo desarrollo)"
+              style={{ backgroundColor: '#ff9800', borderColor: '#ff9800' }}
+            >
+              <span>🔑</span>
+              <span>Obtener Permisos</span>
+            </button>
+          )}
+          
           {hasPermission('canManageSuppliers') && (
             <button 
               className="btn btn-primary sap-theme sap-button sap-button-primary"
               onClick={handleAddSupplier}
+              title="Agregar nuevo proveedor"
             >
-              <i className="icon-plus"></i>
-              Agregar Proveedor
+              <span>➕</span>
+              <span>Agregar Proveedor</span>
             </button>
           )}
           
@@ -228,9 +289,10 @@ const SuppliersMain = () => {
               className="btn btn-secondary sap-theme sap-button sap-button-secondary"
               onClick={exportSuppliers}
               disabled={filteredSuppliers.length === 0}
+              title={filteredSuppliers.length === 0 ? 'No hay proveedores para exportar' : 'Exportar proveedores a CSV'}
             >
-              <i className="icon-download"></i>
-              Exportar
+              <span>📊</span>
+              <span>Exportar ({filteredSuppliers.length})</span>
             </button>
           )}
         </div>
@@ -239,10 +301,14 @@ const SuppliersMain = () => {
       {/* Error Alert */}
       {error && (
         <div className="alert alert-error sap-theme sap-message-error">
-          <i className="icon-alert-circle"></i>
+          <span>⚠️</span>
           <span className="sap-text">{error}</span>
-          <button onClick={() => setError(null)} className="alert-close sap-button">
-            <i className="icon-x"></i>
+          <button 
+            onClick={() => setError(null)} 
+            className="alert-close sap-button"
+            title="Cerrar alerta"
+          >
+            ✕
           </button>
         </div>
       )}
@@ -274,33 +340,35 @@ const SuppliersMain = () => {
 
       {/* Content */}
       {filteredSuppliers.length === 0 ? (
-        <div className="empty-state sap-theme sap-message-info">
+        <div className="empty-state sap-theme">
           <div className="empty-icon sap-theme">
-            <i className="icon-truck"></i>
+            🏢
           </div>
-          <h3 className="sap-title">No hay proveedores</h3>
+          <h3 className="sap-title">
+            {suppliers.length === 0 ? 'No hay proveedores registrados' : 'No se encontraron proveedores'}
+          </h3>
           <p className="sap-text">
             {suppliers.length === 0 
-              ? 'Comienza agregando tu primer proveedor de combustibles.'
-              : 'No se encontraron proveedores que coincidan con los filtros aplicados.'
+              ? 'Comienza agregando tu primer proveedor de combustibles para gestionar tu cadena de suministro.'
+              : 'No se encontraron proveedores que coincidan con los filtros aplicados. Intenta ajustar los criterios de búsqueda.'
             }
           </p>
           {suppliers.length === 0 && hasPermission('canManageSuppliers') && (
             <button 
-              className="btn btn-primary sap-theme sap-button sap-button-primary"
+              className="btn btn-primary sap-theme sap-button sap-button-primary sap-mt-lg"
               onClick={handleAddSupplier}
             >
-              <i className="icon-plus"></i>
-              Agregar Primer Proveedor
+              <span>➕</span>
+              <span>Agregar Primer Proveedor</span>
             </button>
           )}
           {suppliers.length > 0 && (
             <button 
-              className="btn btn-secondary sap-theme sap-button sap-button-secondary"
+              className="btn btn-secondary sap-theme sap-button sap-button-secondary sap-mt-lg"
               onClick={clearFilters}
             >
-              <i className="icon-filter-x"></i>
-              Limpiar Filtros
+              <span>🔄</span>
+              <span>Limpiar Filtros</span>
             </button>
           )}
         </div>

@@ -4,8 +4,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getPerformance } from "firebase/performance";
+// import { getAnalytics, isSupported } from "firebase/analytics";
+// import { getPerformance } from "firebase/performance";
 
 // Configuración Firebase
 const firebaseConfig = {
@@ -26,10 +26,12 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Analytics y Performance con verificación de soporte
+// Analytics y Performance deshabilitados temporalmente debido a CORB
 export let analytics = null;
 export let performance = null;
 
+// Comentado temporalmente para evitar errores CORB
+/*
 try {
   // Solo inicializar Analytics si está soportado
   isSupported().then((supported) => {
@@ -47,5 +49,6 @@ try {
 } catch (error) {
   console.warn('Error al inicializar Firebase Analytics/Performance:', error);
 }
+*/
 
 export default app;

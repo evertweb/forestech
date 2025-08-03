@@ -1,6 +1,209 @@
 /* sap-dashboard.css - Dashboard SAP Fiori Theme */
 @import url('../../../shared/styles/sap-theme-base.css');
 
+/* ==== NAVIGATION CARDS GRID ==== */
+.navigation-cards-grid.sap-theme {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--sap-spacing-lg);
+  padding: var(--sap-spacing-lg);
+}
+
+/* ==== NAVIGATION CARD ==== */
+.navigation-card.sap-theme {
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-300);
+  border-radius: var(--sap-border-radius-lg);
+  padding: var(--sap-spacing-lg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--sap-shadow-sm);
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.navigation-card.sap-theme:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sap-shadow-lg);
+  border-color: var(--sap-blue-primary);
+}
+
+.navigation-card.sap-theme:active {
+  transform: translateY(0);
+}
+
+/* ==== NAVIGATION CARD COLORS ==== */
+.navigation-card.sap-theme.blue {
+  border-left: 4px solid var(--sap-blue-primary);
+}
+
+.navigation-card.sap-theme.blue:hover {
+  background: var(--sap-blue-light);
+}
+
+.navigation-card.sap-theme.green {
+  border-left: 4px solid var(--sap-success);
+}
+
+.navigation-card.sap-theme.green:hover {
+  background: var(--sap-success-light);
+}
+
+.navigation-card.sap-theme.orange {
+  border-left: 4px solid var(--sap-warning);
+}
+
+.navigation-card.sap-theme.orange:hover {
+  background: var(--sap-warning-light);
+}
+
+.navigation-card.sap-theme.purple {
+  border-left: 4px solid var(--sap-secondary);
+}
+
+.navigation-card.sap-theme.purple:hover {
+  background: var(--sap-secondary-light);
+}
+
+/* ==== NAVIGATION CARD HEADER ==== */
+.navigation-card-header.sap-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-md);
+  margin-bottom: var(--sap-spacing-md);
+}
+
+.navigation-card-icon.sap-theme {
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--sap-neutral-200);
+  border-radius: var(--sap-border-radius-md);
+}
+
+.navigation-card-title.sap-theme {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--sap-text-primary);
+  margin: 0;
+}
+
+/* ==== NAVIGATION CARD DESCRIPTION ==== */
+.navigation-card-description.sap-theme {
+  color: var(--sap-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-bottom: var(--sap-spacing-lg);
+  flex-grow: 1;
+}
+
+/* ==== NAVIGATION CARD STATS ==== */
+.navigation-card-stats.sap-theme {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sap-spacing-md);
+  margin-bottom: var(--sap-spacing-lg);
+  padding: var(--sap-spacing-md);
+  background: var(--sap-neutral-200);
+  border-radius: var(--sap-border-radius-sm);
+}
+
+.navigation-card-stat-primary.sap-theme,
+.navigation-card-stat-secondary.sap-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.navigation-card-stat-value.sap-theme {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--sap-text-primary);
+  margin-bottom: var(--sap-spacing-xs);
+}
+
+.navigation-card-stat-label.sap-theme {
+  font-size: 0.75rem;
+  color: var(--sap-text-secondary);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ==== NAVIGATION CARD ACTION ==== */
+.navigation-card-action.sap-theme {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--sap-blue-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+.navigation-card.sap-theme:hover .navigation-card-action.sap-theme {
+  color: var(--sap-blue-dark);
+}
+
+/* ==== RESPONSIVE DESIGN ==== */
+@media (max-width: 768px) {
+  .navigation-cards-grid.sap-theme {
+    grid-template-columns: 1fr;
+    gap: var(--sap-spacing-md);
+    padding: var(--sap-spacing-md);
+  }
+  
+  .navigation-card.sap-theme {
+    min-height: 160px;
+    padding: var(--sap-spacing-md);
+  }
+  
+  .navigation-card-header.sap-theme {
+    gap: var(--sap-spacing-sm);
+  }
+  
+  .navigation-card-icon.sap-theme {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  
+  .navigation-card-title.sap-theme {
+    font-size: 1.125rem;
+  }
+  
+  .navigation-card-stats.sap-theme {
+    flex-direction: column;
+    gap: var(--sap-spacing-sm);
+  }
+}
+
+/*
+ * ============================================================================
+ * CORRECCIÓN DE VISIBILIDAD DEL HEADER DEL DASHBOARD
+ * ============================================================================
+ * PROBLEMA DETECTADO: El header del Dashboard (.dashboard-header.sap-theme)
+ * se estaba ocultando parcialmente debido a conflictos de z-index y position 
+ * con el layout base del sistema.
+ *
+ * SOLUCIÓN IMPLEMENTADA:
+ * 1. Z-index aumentado (15) para estar por encima del layout base
+ * 2. Selectores específicos con !important para máxima prioridad
+ * 3. Propiedades de visibilidad explícitas (visibility, opacity)
+ * 4. Posicionamiento relativo forzado para evitar conflictos
+ * 
+ * FECHA: 3 de agosto de 2025
+ * ============================================================================
+ */
+
 /* ==== SIDEBAR COMPATIBILITY FIX ==== */
 .sidebar-toggle {
   display: flex !important;
@@ -12,47 +215,69 @@
 
 /* ==== DASHBOARD CONTAINER SAP ==== */
 .dashboard-container.sap-theme {
-  background: var(--sap-neutral-200);
-  min-height: 100vh;
-  padding: var(--sap-spacing-lg);
-  font-family: '72', 'Open Sans', sans-serif;
-  position: relative;
-  z-index: 1;
+  background: var(--sap-neutral-200) !important;
+  min-height: 100vh !important;
+  padding: var(--sap-spacing-lg) !important;
+  font-family: '72', 'Open Sans', sans-serif !important;
+  position: relative !important;
+  z-index: 10 !important; /* Aumentado z-index para estar por encima del layout base */
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-.dashboard-header.sap-theme {
-  background: var(--sap-neutral-100);
-  border: 1px solid var(--sap-neutral-300);
-  border-radius: var(--sap-border-radius-md);
-  box-shadow: var(--sap-shadow-sm);
-  padding: var(--sap-spacing-lg);
-  margin-bottom: var(--sap-spacing-xl);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ==== HEADER VISIBILITY FIX - MÁXIMA PRIORIDAD ==== */
+.dashboard-container.sap-theme .dashboard-header.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  padding: var(--sap-spacing-lg) !important;
+  margin-bottom: var(--sap-spacing-xl) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: relative !important; /* Asegurar posicionamiento correcto */
+  z-index: 15 !important; /* Z-index alto para estar visible */
+  visibility: visible !important; /* Forzar visibilidad */
+  opacity: 1 !important; /* Forzar opacidad completa */
+  width: 100% !important; /* Asegurar ancho completo */
+  min-height: 80px !important; /* Altura mínima garantizada */
+  transform: none !important; /* Evitar transformaciones que oculten */
+  top: auto !important; /* Evitar posicionamiento que oculte */
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
 }
 
-.dashboard-title.sap-theme {
-  font-family: '72', sans-serif;
-  font-weight: 600;
-  font-size: 1.5rem;
-  color: var(--sap-text-primary);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--sap-spacing-sm);
+.dashboard-container.sap-theme .dashboard-header.sap-theme .dashboard-title.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-sm) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 20 !important;
 }
 
-.dashboard-title.sap-theme::before {
-  content: '📊';
-  font-size: 1.25rem;
+.dashboard-container.sap-theme .dashboard-header.sap-theme .dashboard-title.sap-theme::before {
+  content: '📊' !important;
+  font-size: 1.25rem !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.dashboard-subtitle.sap-theme {
-  font-family: '72', sans-serif;
-  font-size: 0.875rem;
-  color: var(--sap-text-secondary);
-  margin: var(--sap-spacing-xs) 0 0 0;
+.dashboard-container.sap-theme .dashboard-header.sap-theme .dashboard-subtitle.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  color: var(--sap-text-secondary) !important;
+  margin: var(--sap-spacing-xs) 0 0 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 20 !important;
 }
 
 /* ==== STATS CARDS SAP ==== */

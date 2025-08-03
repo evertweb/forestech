@@ -2,45 +2,62 @@
  * ================================================================================================================================
  * ARCHIVO: DashboardMain.jsx
  * MÓDULO: combustibles
- * DESCRIPCIÓN: Componente principal de Dashboard con tema SAP Fiori Corporate implementado.
+ * DESCRIPCIÓN: Dashboard principal con cards de navegación y resúmenes ejecutivos.
  *
  * FUNCIONALIDAD:
- * - Implementa el tema SAP Fiori Corporate completo
- * - Mantiene toda la funcionalidad del dashboard original
- * - Diseño responsive y accesible WCAG 2.1 AA
- * - Estados visuales consistentes con estándares SAP
+ * - Cards de navegación clicables hacia otras secciones
+ * - Resúmenes ejecutivos con estadísticas clave
+ * - Diseño SAP Fiori Corporate
+ * - Funciones de redirección como el sidebar
  * ================================================================================================================================
  */
 
 import React, { useMemo, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/sap-dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
-import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 
+/**
+ * Componente principal del dashboard operativo de combustibles.
+ * Muestra cards de navegación, estadísticas generales y resúmenes ejecutivos.
+ * Utiliza suscripciones manuales a inventario, movimientos y vehículos.
+ */
 const DashboardMain = () => {
   // ==================================================================================================
-  // ESTADO DEL COMPONENTE
+  // ESTADO DEL COMPONENTE Y NAVEGACIÓN
   // ==================================================================================================
-  const [inventory, setInventory] = useState([]);
-  const [movements, setMovements] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [dataError, setDataError] = useState(null);
+  // Hook de navegación de React Router
+  const navigate = useNavigate();
 
+  // Estados locales para almacenar datos en tiempo real
+  const [inventory, setInventory] = useState([]); // Lista de productos en inventario
+  const [movements, setMovements] = useState([]); // Lista de movimientos de combustible
+  const [vehicles, setVehicles] = useState([]);   // Lista de vehículos registrados
+  const [dataLoading, setDataLoading] = useState(true); // Estado de carga de datos
+  const [dataError, setDataError] = useState(null);      // Estado de error de datos
+
+  // Hooks y funciones del contexto CombustiblesContext
   const { 
-    subscribeToInventory,
-    subscribeToMovements,
-    subscribeToVehicles
+    subscribeToInventory,    // Función para suscribirse a cambios en inventario
+    subscribeToMovements,    // Función para suscribirse a cambios en movimientos
+    subscribeToVehicles,     // Función para suscribirse a cambios en vehículos
+    hasPermission            // Función para validar permisos del usuario
   } = useCombustibles();
 
   // ==================================================================================================
   // EFECTOS
   // ==================================================================================================
+  /**
+   * Efecto que realiza la suscripción manual a inventario, movimientos y vehículos.
+   * Cada suscripción actualiza su respectivo estado local y controla el estado de carga.
+   * Se asegura el cleanup de las suscripciones al desmontar el componente.
+   */
   useEffect(() => {
     console.log('🚀 Dashboard SAP iniciando suscripciones a datos...');
-    let loadingCount = 3;
+    let loadingCount = 3; // Controla cuántas suscripciones faltan por cargar
     
+    // Función auxiliar para actualizar el estado de carga
     const updateLoading = () => {
       loadingCount--;
       if (loadingCount === 0) {
@@ -48,6 +65,7 @@ const DashboardMain = () => {
       }
     };
 
+    // Suscripción a inventario
     const unsubInventory = subscribeToInventory((data, error) => {
       if (error) {
         console.error('Error en suscripción de inventario:', error);
@@ -58,6 +76,7 @@ const DashboardMain = () => {
       updateLoading();
     });
 
+    // Suscripción a movimientos
     const unsubMovements = subscribeToMovements((data, error) => {
       if (error) {
         console.error('Error en suscripción de movimientos:', error);
@@ -68,6 +87,7 @@ const DashboardMain = () => {
       updateLoading();
     });
 
+    // Suscripción a vehículos
     const unsubVehicles = subscribeToVehicles((data, error) => {
       if (error) {
         console.error('Error en suscripción de vehículos:', error);
@@ -78,6 +98,7 @@ const DashboardMain = () => {
       updateLoading();
     });
 
+    // Cleanup: cancelar suscripciones al desmontar
     return () => {
       console.log('🔌 Dashboard SAP cancelando suscripciones...');
       if (typeof unsubInventory === 'function') unsubInventory();
@@ -86,25 +107,123 @@ const DashboardMain = () => {
     };
   }, [subscribeToInventory, subscribeToMovements, subscribeToVehicles]);
 
-  useEffect(() => {
-    if (!dataLoading && inventory.length > 0) {
-      console.log('🔍 Ejecutando diagnóstico del inventario...');
-      logInventoryState(inventory);
-
-      const duplicados = findDuplicateItems(inventory);
-      if (duplicados.length > 0) {
-        console.warn(`⚠️ Se detectaron ${duplicados.length} posibles items duplicados:`, duplicados);
+  // ==================================================================================================
+  // NAVIGATION CARDS DATA
+  // ==================================================================================================
+  /**
+   * Definición de las cards de navegación principales del dashboard.
+   * Cada card contiene: título, icono, descripción, ruta, permiso requerido y estadísticas.
+   * Se recalcula solo cuando cambian los datos de inventario, movimientos o vehículos.
+   */
+  const navigationCards = useMemo(() => [
+    {
+      id: 'inventory',
+      title: 'Inventario',
+      icon: '🛢️',
+      description: 'Gestión de stock de combustibles',
+      path: '/inventario',
+      permission: 'canManageInventory',
+      color: 'blue',
+      stats: {
+        primary: `${inventory.filter(item => item.isActive !== false).length}`,
+        primaryLabel: 'Productos activos',
+        secondary: `${inventory.filter(item => {
+          const stock = parseFloat(item.currentStock) || 0;
+          const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
+          return item.isActive !== false && stock <= minStock;
+        }).length}`,
+        secondaryLabel: 'Alertas críticas'
+      }
+    },
+    {
+      id: 'movements',
+      title: 'Movimientos',
+      icon: '📈',
+      description: 'Entradas y salidas de combustible',
+      path: '/movimientos',
+      permission: 'canCreateMovements',
+      color: 'green',
+      stats: {
+        primary: `${movements.length}`,
+        primaryLabel: 'Movimientos totales',
+        secondary: `${movements.filter(m => m.status === 'pendiente').length}`,
+        secondaryLabel: 'Pendientes'
+      }
+    },
+    {
+      id: 'vehicles',
+      title: 'Vehículos',
+      icon: '🚜',
+      description: 'Gestión de maquinaria forestal',
+      path: '/vehiculos',
+      permission: null, // Visible para todos los usuarios
+      color: 'orange',
+      stats: {
+        primary: `${vehicles.filter(v => v.status === 'activo').length}`,
+        primaryLabel: 'Vehículos activos',
+        secondary: `${vehicles.length}`,
+        secondaryLabel: 'Total registrados'
+      }
+    },
+    {
+      id: 'reports',
+      title: 'Reportes',
+      icon: '📋',
+      description: 'Análisis y reportes operativos',
+      path: '/reportes',
+      permission: 'canViewReports',
+      color: 'purple',
+      stats: {
+        primary: formatCurrency(inventory
+          .filter(item => item.isActive !== false)
+          .reduce((sum, item) => {
+            const stock = parseFloat(item.currentStock) || 0;
+            const price = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
+            return sum + (stock * price);
+          }, 0)),
+        primaryLabel: 'Valor total inventario',
+        secondary: `${formatNumber(inventory
+          .filter(item => item.status === 'active')
+          .reduce((sum, item) => sum + (parseFloat(item.currentStock) || 0), 0))} gal`,
+        secondaryLabel: 'Combustible total'
       }
     }
-  }, [dataLoading, inventory]);
+  ], [inventory, movements, vehicles]);
 
   // ==================================================================================================
-  // CÁLCULOS MEMOIZADOS
+  // FUNCIONES DE NAVEGACIÓN
   // ==================================================================================================
-  const stats = useMemo(() => {
-    const activeVehicles = vehicles.filter(v => v.status === 'activo').length;
-    const pendingMovements = movements.filter(m => m.status === 'pendiente').length;
-    
+  /**
+   * Maneja el clic en una card de navegación.
+   * Si el usuario no tiene el permiso requerido, muestra alerta.
+   * Si tiene permiso, navega a la ruta correspondiente.
+   */
+  const handleCardClick = (card) => {
+    if (card.permission && !hasPermission(card.permission)) {
+      alert(`No tienes permisos para acceder a ${card.title}`);
+      return;
+    }
+    navigate(card.path);
+  };
+
+  // Filtra las cards según los permisos del usuario
+  const visibleCards = navigationCards.filter(card => 
+    !card.permission || hasPermission(card.permission)
+  );
+
+  // ==================================================================================================
+  // ESTADÍSTICAS GENERALES
+  // ==================================================================================================
+  /**
+   * Calcula estadísticas generales del sistema:
+   * - Combustible total disponible
+   * - Valor total del inventario
+   * - Número de alertas de bajo stock
+   * - Total de productos activos
+   * - Vehículos activos
+   * - Movimientos pendientes
+   */
+  const generalStats = useMemo(() => {
     const totalFuel = inventory
       .filter(item => item.status === 'active')
       .reduce((sum, item) => sum + (parseFloat(item.currentStock) || 0), 0);
@@ -128,55 +247,16 @@ const DashboardMain = () => {
       totalFuel,
       totalValue,
       lowStockAlerts,
-      activeInventoryItems: inventory.filter(item => item.isActive !== false).length,
-      activeVehicles,
-      pendingMovements,
+      totalItems: inventory.filter(item => item.isActive !== false).length,
+      activeVehicles: vehicles.filter(v => v.status === 'activo').length,
+      pendingMovements: movements.filter(m => m.status === 'pendiente').length,
     };
   }, [inventory, vehicles, movements]);
-
-  // Helper para fechas
-  const safeDateHelper = (date) => {
-    if (!date) return new Date();
-    if (date.toDate && typeof date.toDate === 'function') return date.toDate();
-    if (date.seconds) return new Date(date.seconds * 1000);
-    if (date instanceof Date) return date;
-    return new Date(date);
-  };
-
-  const recentMovements = useMemo(() => {
-    return movements
-      .sort((a, b) => safeDateHelper(b.createdAt).getTime() - safeDateHelper(a.createdAt).getTime())
-      .slice(0, 10);
-  }, [movements]);
-
-  const inventoryTableData = useMemo(() => {
-    return inventory
-      .filter(item => item.isActive !== false)
-      .slice(0, 15)
-      .map(item => {
-        const currentStock = parseFloat(item.currentStock) || 0;
-        const maxCapacity = parseFloat(item.maxCapacity) || 0;
-        const pricePerUnit = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
-        const percentage = maxCapacity > 0 ? (currentStock / maxCapacity) * 100 : 0;
-        const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
-        
-        return {
-          id: item.id,
-          name: item.fuelType || item.name,
-          location: item.location || 'N/A',
-          currentStock,
-          maxCapacity,
-          percentage: Math.round(percentage),
-          value: currentStock * pricePerUnit,
-          status: currentStock <= minStock ? 'Crítico' : percentage > 80 ? 'Alto' : 'Normal',
-          statusClass: currentStock <= minStock ? 'error' : percentage > 80 ? 'warning' : 'success'
-        };
-      });
-  }, [inventory]);
 
   // ==================================================================================================
   // RENDERIZADO CONDICIONAL
   // ==================================================================================================
+  // Si los datos están cargando, muestra spinner de carga
   if (dataLoading) {
     return (
       <div className="dashboard-container sap-theme">
@@ -194,6 +274,7 @@ const DashboardMain = () => {
     );
   }
 
+  // Si ocurre un error al cargar datos, muestra banner de error y botón de reintento
   if (dataError) {
     return (
       <div className="dashboard-container sap-theme">
@@ -220,6 +301,13 @@ const DashboardMain = () => {
   // ==================================================================================================
   // RENDERIZADO PRINCIPAL
   // ==================================================================================================
+  /**
+   * Render principal del dashboard:
+   * - Header con título y acciones
+   * - Grid de estadísticas generales
+   * - Cards de navegación a módulos principales
+   * - Footer con resumen de totales y timestamp de actualización
+   */
   return (
     <div className="dashboard-container sap-theme">
       {/* Header del Dashboard */}
@@ -227,221 +315,122 @@ const DashboardMain = () => {
         <div>
           <h1 className="dashboard-title sap-theme">Dashboard Operativo</h1>
           <p className="dashboard-subtitle sap-theme">
-            Gestión integral de combustibles y maquinaria - SAP Fiori
+            Centro de control - Gestión integral de combustibles y maquinaria
           </p>
         </div>
         <div className="dashboard-table-actions sap-theme">
           <button className="btn btn-secondary sap-theme">
             📊 Exportar
           </button>
-          <button className="btn btn-primary sap-theme">
+          <button className="btn btn-primary sap-theme" onClick={() => window.location.reload()}>
             🔄 Actualizar
           </button>
         </div>
       </div>
 
-      {/* Cards de Estadísticas */}
+      {/* Estadísticas Generales */}
       <div className="stats-grid sap-theme">
+        {/* Card: Combustible Total */}
         <div className="stat-card sap-theme">
           <div className="stat-card-header sap-theme">
             <h3 className="stat-card-title sap-theme">Combustible Total</h3>
             <div className="stat-card-icon sap-theme">🛢️</div>
           </div>
-          <div className="stat-card-value sap-theme">{formatNumber(stats.totalFuel)}</div>
-          <div className={`stat-card-change sap-theme ${stats.totalFuel > 1000 ? 'positive' : 'negative'}`}>
-            {stats.totalFuel > 1000 ? 'Suficiente' : 'Revisar stock'} galones
+          <div className="stat-card-value sap-theme">{formatNumber(generalStats.totalFuel)}</div>
+          <div className={`stat-card-change sap-theme ${generalStats.totalFuel > 1000 ? 'positive' : 'negative'}`}>
+            {generalStats.totalFuel > 1000 ? 'Suficiente' : 'Revisar stock'} galones
           </div>
         </div>
 
+        {/* Card: Valor Inventario */}
         <div className="stat-card sap-theme success">
           <div className="stat-card-header sap-theme">
             <h3 className="stat-card-title sap-theme">Valor Inventario</h3>
             <div className="stat-card-icon sap-theme">💰</div>
           </div>
-          <div className="stat-card-value sap-theme">{formatCurrency(stats.totalValue)}</div>
+          <div className="stat-card-value sap-theme">{formatCurrency(generalStats.totalValue)}</div>
           <div className="stat-card-change sap-theme positive">
-            Activo - {stats.activeInventoryItems} productos
+            Activo - {generalStats.totalItems} productos
           </div>
         </div>
 
+        {/* Card: Vehículos Activos */}
         <div className="stat-card sap-theme">
           <div className="stat-card-header sap-theme">
             <h3 className="stat-card-title sap-theme">Vehículos Activos</h3>
             <div className="stat-card-icon sap-theme">🚜</div>
           </div>
-          <div className="stat-card-value sap-theme">{stats.activeVehicles}</div>
-          <div className={`stat-card-change sap-theme ${stats.activeVehicles > 0 ? 'positive' : 'negative'}`}>
-            {stats.activeVehicles > 0 ? 'Operativos' : 'Sin actividad'}
+          <div className="stat-card-value sap-theme">{generalStats.activeVehicles}</div>
+          <div className={`stat-card-change sap-theme ${generalStats.activeVehicles > 0 ? 'positive' : 'negative'}`}>
+            {generalStats.activeVehicles > 0 ? 'Operativos' : 'Sin actividad'}
           </div>
         </div>
 
-        <div className={`stat-card sap-theme ${stats.lowStockAlerts > 0 ? 'error' : 'success'}`}>
+        {/* Card: Alertas de Stock */}
+        <div className={`stat-card sap-theme ${generalStats.lowStockAlerts > 0 ? 'error' : 'success'}`}>
           <div className="stat-card-header sap-theme">
             <h3 className="stat-card-title sap-theme">Alertas de Stock</h3>
             <div className="stat-card-icon sap-theme">⚠️</div>
           </div>
-          <div className="stat-card-value sap-theme">{stats.lowStockAlerts}</div>
-          <div className={`stat-card-change sap-theme ${stats.lowStockAlerts === 0 ? 'positive' : 'negative'}`}>
-            {stats.lowStockAlerts === 0 ? 'Todo normal' : 'Requiere atención'}
+          <div className="stat-card-value sap-theme">{generalStats.lowStockAlerts}</div>
+          <div className={`stat-card-change sap-theme ${generalStats.lowStockAlerts === 0 ? 'positive' : 'negative'}`}>
+            {generalStats.lowStockAlerts === 0 ? 'Todo normal' : 'Requiere atención'}
           </div>
         </div>
       </div>
 
-      {/* Tabla de Inventario */}
+      {/* Cards de Navegación Principal */}
       <div className="dashboard-table-container sap-theme">
         <div className="dashboard-table-header sap-theme">
-          <h2 className="dashboard-table-title sap-theme">Inventario Principal</h2>
-          <div className="dashboard-table-actions sap-theme">
-            <button className="btn btn-tertiary sap-theme">
-              🔍 Filtrar
-            </button>
-            <button className="btn btn-secondary sap-theme">
-              📋 Ver Todo
-            </button>
-          </div>
+          <h2 className="dashboard-table-title sap-theme">Módulos del Sistema</h2>
+          <p style={{ 
+            color: 'var(--sap-text-secondary)', 
+            margin: 'var(--sap-spacing-xs) 0 0 0',
+            fontSize: '0.875rem'
+          }}>
+            Haz clic en cualquier módulo para acceder a su gestión completa
+          </p>
         </div>
         
-        <table className="table sap-theme">
-          <thead>
-            <tr>
-              <th role="columnheader">Producto</th>
-              <th role="columnheader">Ubicación</th>
-              <th role="columnheader">Stock Actual</th>
-              <th role="columnheader">Capacidad</th>
-              <th role="columnheader">Nivel</th>
-              <th role="columnheader">Valor</th>
-              <th role="columnheader">Estado</th>
-              <th role="columnheader">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inventoryTableData.length > 0 ? (
-              inventoryTableData.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.name}</strong>
-                  </td>
-                  <td>{item.location}</td>
-                  <td>{formatNumber(item.currentStock)} gal</td>
-                  <td>{formatNumber(item.maxCapacity)} gal</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>{item.percentage}%</span>
-                      <div style={{ 
-                        width: '60px', 
-                        height: '8px', 
-                        background: 'var(--sap-neutral-300)', 
-                        borderRadius: '4px',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{ 
-                          width: `${item.percentage}%`, 
-                          height: '100%',
-                          background: item.statusClass === 'error' ? 'var(--sap-error)' : 
-                                     item.statusClass === 'warning' ? 'var(--sap-warning)' : 
-                                     'var(--sap-success)',
-                          transition: 'width 0.3s ease'
-                        }} />
-                      </div>
-                    </div>
-                  </td>
-                  <td>{formatCurrency(item.value)}</td>
-                  <td>
-                    <span className={`status-badge sap-theme ${item.statusClass}`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="inventory-actions sap-theme">
-                      <button className="action-button sap-theme view" title="Ver detalles">
-                        👁️
-                      </button>
-                      <button className="action-button sap-theme edit" title="Editar">
-                        ✏️
-                      </button>
-                      <button className="action-button sap-theme restock" title="Reabastecer">
-                        📦
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--sap-text-muted)' }}>
-                  No hay datos de inventario disponibles
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Tabla de Actividad Reciente */}
-      <div className="dashboard-table-container sap-theme">
-        <div className="dashboard-table-header sap-theme">
-          <h2 className="dashboard-table-title sap-theme">Actividad Reciente</h2>
-          <div className="dashboard-table-actions sap-theme">
-            <button className="btn btn-tertiary sap-theme">
-              📋 Ver Histórico
-            </button>
-          </div>
+        <div className="navigation-cards-grid sap-theme">
+          {visibleCards.map((card) => (
+            <div
+              key={card.id}
+              className={`navigation-card sap-theme ${card.color}`}
+              onClick={() => handleCardClick(card)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleCardClick(card)}
+            >
+              <div className="navigation-card-header sap-theme">
+                <div className="navigation-card-icon sap-theme">{card.icon}</div>
+                <div className="navigation-card-title sap-theme">{card.title}</div>
+              </div>
+              
+              <div className="navigation-card-description sap-theme">
+                {card.description}
+              </div>
+              
+              <div className="navigation-card-stats sap-theme">
+                <div className="navigation-card-stat-primary sap-theme">
+                  <span className="navigation-card-stat-value sap-theme">{card.stats.primary}</span>
+                  <span className="navigation-card-stat-label sap-theme">{card.stats.primaryLabel}</span>
+                </div>
+                <div className="navigation-card-stat-secondary sap-theme">
+                  <span className="navigation-card-stat-value sap-theme">{card.stats.secondary}</span>
+                  <span className="navigation-card-stat-label sap-theme">{card.stats.secondaryLabel}</span>
+                </div>
+              </div>
+              
+              <div className="navigation-card-action sap-theme">
+                <span>Ir a {card.title} →</span>
+              </div>
+            </div>
+          ))}
         </div>
-        
-        <table className="table sap-theme">
-          <thead>
-            <tr>
-              <th role="columnheader">Tipo</th>
-              <th role="columnheader">Descripción</th>
-              <th role="columnheader">Fecha</th>
-              <th role="columnheader">Estado</th>
-              <th role="columnheader">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentMovements.length > 0 ? (
-              recentMovements.map((mov) => (
-                <tr key={mov.id}>
-                  <td>
-                    <span className={`status-badge sap-theme ${mov.type === 'entrada' ? 'success' : mov.type === 'salida' ? 'warning' : ''}`}>
-                      {mov.type === 'entrada' ? '📥' : 
-                       mov.type === 'salida' ? '📤' : 
-                       mov.type === 'transferencia' ? '🔄' : '🔧'} {mov.type}
-                    </span>
-                  </td>
-                  <td>
-                    {mov.type === 'entrada' ? `Entrada de ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}` :
-                     mov.type === 'salida' ? `Salida de ${mov.quantity || 0} gal para vehículo ${mov.vehicleId || 'N/A'}` :
-                     mov.type === 'transferencia' ? `Transferencia de ${mov.quantity || 0} gal` :
-                     `Ajuste de inventario: ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`}
-                  </td>
-                  <td>{safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}</td>
-                  <td>
-                    <span className={`status-badge sap-theme ${mov.status === 'completado' ? 'active' : 'warning'}`}>
-                      {mov.status === 'completado' ? 'Completado' : 'Pendiente'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="inventory-actions sap-theme">
-                      <button className="action-button sap-theme view" title="Ver detalles">
-                        👁️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: 'var(--sap-text-muted)' }}>
-                  No hay movimientos recientes
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
       </div>
 
-      {/* Footer con estadísticas */}
+      {/* Footer con estadísticas y timestamp de actualización */}
       <div style={{ 
         marginTop: 'var(--sap-spacing-xl)', 
         padding: 'var(--sap-spacing-lg)',

@@ -1,10 +1,16 @@
 // combustibles/src/components/Suppliers/SuppliersStats.jsx
 // Componente de estadísticas de proveedores
-import React from 'react';
+import React, { useState } from 'react';
 import { formatNumber, formatPercentage } from '../../utils/calculations';
 
 const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
   if (!stats) return null;
+
+  const toggleAccordion = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -34,63 +40,62 @@ const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
   };
 
   return (
-    <div className="suppliers-stats">
+    <div className="suppliers-stats sap-theme">
       {/* Main Stats */}
-      <div className="stats-grid">
-        <div className="stat-card primary">
-          <div className="stat-icon">
-            <i className="icon-truck"></i>
+      <div className="stats-grid sap-theme">
+        <div className="stat-card primary sap-theme">
+          <div className="stat-icon sap-theme">
+            🏢
           </div>
-          <div className="stat-content">
-            <div className="stat-value">{formatNumber(stats.total)}</div>
-            <div className="stat-label">Total Proveedores</div>
+          <div className="stat-content sap-theme">
+            <div className="stat-value sap-theme">{formatNumber(stats.total)}</div>
+            <div className="stat-label sap-theme">Total Proveedores</div>
             {totalSuppliers !== suppliersCount && (
-              <div className="stat-sublabel">
+              <div className="stat-sublabel sap-theme">
                 {formatNumber(suppliersCount)} mostrados
               </div>
             )}
           </div>
         </div>
 
-        <div className="stat-card success">
-          <div className="stat-icon">
-            <i className="icon-check-circle"></i>
+        <div className="stat-card success sap-theme">
+          <div className="stat-icon sap-theme">
+            ✅
           </div>
-          <div className="stat-content">
-            <div className="stat-value">{formatNumber(stats.active)}</div>
-            <div className="stat-label">Activos</div>
-            <div className="stat-sublabel">
+          <div className="stat-content sap-theme">
+            <div className="stat-value sap-theme">{formatNumber(stats.active)}</div>
+            <div className="stat-label sap-theme">Activos</div>
+            <div className="stat-sublabel sap-theme">
               {formatPercentage(stats.total > 0 ? stats.active / stats.total : 0)}
             </div>
           </div>
         </div>
 
-        <div className="stat-card warning">
-          <div className="stat-icon">
-            <i className="icon-star"></i>
+        <div className="stat-card warning sap-theme">
+          <div className="stat-icon sap-theme">
+            ⭐
           </div>
-          <div className="stat-content">
-            <div className="stat-value">{formatNumber(stats.preferred)}</div>
-            <div className="stat-label">Preferidos</div>
-            <div className="stat-sublabel">
+          <div className="stat-content sap-theme">
+            <div className="stat-value sap-theme">{formatNumber(stats.preferred)}</div>
+            <div className="stat-label sap-theme">Preferidos</div>
+            <div className="stat-sublabel sap-theme">
               {formatPercentage(stats.active > 0 ? stats.preferred / stats.active : 0)}
             </div>
           </div>
         </div>
 
-        <div className="stat-card info">
-          <div className="stat-icon">
-            <i className="icon-award"></i>
+        <div className="stat-card info sap-theme">
+          <div className="stat-icon sap-theme">
+            🏆
           </div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.averageRating.toFixed(1)}</div>
-            <div className="stat-label">Rating Promedio</div>
-            <div className="stat-sublabel">
-              <div className="rating-stars">
-                {[1, 2, 3, 4, 5].map(star => (
+          <div className="stat-content sap-theme">
+            <div className="stat-value sap-theme">{stats.averageRating.toFixed(1)}</div>
+            <div className="stat-label sap-theme">Rating Promedio</div>
+            <div className="stat-sublabel sap-theme">
+              <div className="rating-stars sap-theme">{[1, 2, 3, 4, 5].map(star => (
                   <span 
                     key={star} 
-                    className={`star ${star <= Math.round(stats.averageRating) ? 'filled' : ''}`}
+                    className={`star sap-theme ${star <= Math.round(stats.averageRating) ? 'filled' : ''}`}
                   >
                     ★
                   </span>
@@ -101,53 +106,76 @@ const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
         </div>
       </div>
 
-      {/* Detailed Stats */}
-      <div className="stats-details">
+      {/* Accordion Toggle Button */}
+      <div className="stats-accordion-header sap-theme">
+        <button 
+          className="accordion-toggle-btn sap-theme"
+          onClick={toggleAccordion}
+          aria-expanded={isExpanded}
+          aria-controls="detailed-stats"
+        >
+          <span className="accordion-title sap-theme">Estadísticas Detalladas</span>
+          <span className={`accordion-icon sap-theme ${isExpanded ? 'expanded' : ''}`}>
+            📊
+          </span>
+          <span className={`accordion-chevron sap-theme ${isExpanded ? 'expanded' : ''}`}>
+            ▼
+          </span>
+        </button>
+      </div>
+
+      {/* Detailed Stats - Accordion Content */}
+      <div 
+        id="detailed-stats"
+        className={`stats-accordion-content sap-theme ${isExpanded ? 'expanded' : 'collapsed'}`}
+        aria-hidden={!isExpanded}
+      >
+      <div className="stats-details sap-theme">
         {/* Status Distribution */}
-        <div className="stats-section">
-          <h3>Estado de Proveedores</h3>
-          <div className="stats-breakdown">
-            <div className="breakdown-item">
-              <div className="breakdown-label">
+        <div className="stats-section sap-theme">
+          <h3 className="sap-theme">Estado de Proveedores</h3>
+          <div className="stats-breakdown sap-theme">
+            <div className="breakdown-item sap-theme">
+              <div className="breakdown-label sap-theme">
                 <span 
-                  className="status-dot" 
+                  className="status-dot sap-theme" 
                   style={{ backgroundColor: getStatusColor('active') }}
                 ></span>
                 Activos
               </div>
-              <div className="breakdown-value">{stats.active}</div>
-              <div className="breakdown-percentage">
+              <div className="breakdown-value sap-theme">{stats.active}</div>
+              <div className="breakdown-percentage sap-theme">
                 {formatPercentage(stats.total > 0 ? stats.active / stats.total : 0)}
               </div>
             </div>
 
             {stats.inactive > 0 && (
-              <div className="breakdown-item">
-                <div className="breakdown-label">
+              <div className="breakdown-item sap-theme">
+                <div className="breakdown-label sap-theme">
                   <span 
-                    className="status-dot" 
+                    className="status-dot sap-theme" 
                     style={{ backgroundColor: getStatusColor('inactive') }}
                   ></span>
                   Inactivos
                 </div>
-                <div className="breakdown-value">{stats.inactive}</div>
-                <div className="breakdown-percentage">
+                <div className="breakdown-value sap-theme">{stats.inactive}</div>
+                <div className="breakdown-percentage sap-theme">
                   {formatPercentage(stats.total > 0 ? stats.inactive / stats.total : 0)}
                 </div>
               </div>
             )}
 
             {stats.suspended > 0 && (
-              <div className="breakdown-item">
-                <div className="breakdown-label">
+              <div className="breakdown-item sap-theme">
+                <div className="breakdown-label sap-theme">
                   <span 
-                    className="status-dot" 
+                    className="status-dot sap-theme" 
                     style={{ backgroundColor: getStatusColor('suspended') }}
                   ></span>
                   Suspendidos
                 </div>
-                <div className="breakdown-value">{stats.suspended}</div>
-                <div className="breakdown-percentage">
+                <div className="breakdown-value sap-theme">{stats.suspended}</div>
+                <div className="breakdown-percentage sap-theme">
                   {formatPercentage(stats.total > 0 ? stats.suspended / stats.total : 0)}
                 </div>
               </div>
@@ -157,21 +185,21 @@ const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
 
         {/* Category Distribution */}
         {Object.keys(stats.byCategory).length > 0 && (
-          <div className="stats-section">
-            <h3>Por Categoría</h3>
-            <div className="stats-breakdown">
+          <div className="stats-section sap-theme">
+            <h3 className="sap-theme">Por Categoría</h3>
+            <div className="stats-breakdown sap-theme">
               {Object.entries(stats.byCategory)
                 .sort(([,a], [,b]) => b - a)
                 .map(([category, count]) => (
-                <div key={category} className="breakdown-item">
-                  <div className="breakdown-label">
-                    <span className="category-icon">
+                <div key={category} className="breakdown-item sap-theme">
+                  <div className="breakdown-label sap-theme">
+                    <span className="category-icon sap-theme">
                       {getCategoryIcon(category)}
                     </span>
                     {category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ')}
                   </div>
-                  <div className="breakdown-value">{count}</div>
-                  <div className="breakdown-percentage">
+                  <div className="breakdown-value sap-theme">{count}</div>
+                  <div className="breakdown-percentage sap-theme">
                     {formatPercentage(stats.total > 0 ? count / stats.total : 0)}
                   </div>
                 </div>
@@ -182,21 +210,21 @@ const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
 
         {/* Type Distribution */}
         {Object.keys(stats.byType).length > 0 && (
-          <div className="stats-section">
-            <h3>Por Tipo</h3>
-            <div className="stats-breakdown">
+          <div className="stats-section sap-theme">
+            <h3 className="sap-theme">Por Tipo</h3>
+            <div className="stats-breakdown sap-theme">
               {Object.entries(stats.byType)
                 .sort(([,a], [,b]) => b - a)
                 .map(([type, count]) => (
-                <div key={type} className="breakdown-item">
-                  <div className="breakdown-label">
-                    <span className="type-icon">
+                <div key={type} className="breakdown-item sap-theme">
+                  <div className="breakdown-label sap-theme">
+                    <span className="type-icon sap-theme">
                       {getTypeIcon(type)}
                     </span>
                     {type.charAt(0).toUpperCase() + type.slice(1)}
                   </div>
-                  <div className="breakdown-value">{count}</div>
-                  <div className="breakdown-percentage">
+                  <div className="breakdown-value sap-theme">{count}</div>
+                  <div className="breakdown-percentage sap-theme">
                     {formatPercentage(stats.total > 0 ? count / stats.total : 0)}
                   </div>
                 </div>
@@ -246,6 +274,7 @@ const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
