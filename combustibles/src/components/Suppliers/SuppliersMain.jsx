@@ -12,7 +12,7 @@ import SuppliersCards from './SuppliersCards';
 import SupplierModal from './SupplierModal';
 import SuppliersStats from './SuppliersStats';
 import SuppliersFilters from './SuppliersFilters';
-import './Suppliers.css';
+import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
   const { hasPermission, userProfile } = useCombustibles();
@@ -192,30 +192,30 @@ const SuppliersMain = () => {
 
   if (loading) {
     return (
-      <div className="suppliers-main">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Cargando proveedores...</p>
+      <div className="suppliers-main sap-theme">
+        <div className="loading-container sap-theme">
+          <div className="loading-spinner sap-theme"></div>
+          <p className="sap-text">Cargando proveedores...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="suppliers-main">
+    <div className="suppliers-main sap-theme">
       {/* Header */}
-      <div className="suppliers-header">
-        <div className="header-content">
-          <h1>Gestión de Proveedores</h1>
-          <p className="header-subtitle">
+      <div className="suppliers-header sap-theme">
+        <div className="header-content sap-theme">
+          <h1 className="sap-title">Gestión de Proveedores</h1>
+          <p className="header-subtitle sap-theme sap-subtitle">
             Administra los proveedores de combustibles y materiales
           </p>
         </div>
         
-        <div className="header-actions">
+        <div className="header-actions sap-theme">
           {hasPermission('canManageSuppliers') && (
             <button 
-              className="btn btn-primary"
+              className="btn btn-primary sap-theme sap-button sap-button-primary"
               onClick={handleAddSupplier}
             >
               <i className="icon-plus"></i>
@@ -225,7 +225,7 @@ const SuppliersMain = () => {
           
           {hasPermission('canExportReports') && (
             <button 
-              className="btn btn-secondary"
+              className="btn btn-secondary sap-theme sap-button sap-button-secondary"
               onClick={exportSuppliers}
               disabled={filteredSuppliers.length === 0}
             >
@@ -238,10 +238,10 @@ const SuppliersMain = () => {
 
       {/* Error Alert */}
       {error && (
-        <div className="alert alert-error">
+        <div className="alert alert-error sap-theme sap-message-error">
           <i className="icon-alert-circle"></i>
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="alert-close">
+          <span className="sap-text">{error}</span>
+          <button onClick={() => setError(null)} className="alert-close sap-button">
             <i className="icon-x"></i>
           </button>
         </div>
@@ -274,12 +274,12 @@ const SuppliersMain = () => {
 
       {/* Content */}
       {filteredSuppliers.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">
+        <div className="empty-state sap-theme sap-message-info">
+          <div className="empty-icon sap-theme">
             <i className="icon-truck"></i>
           </div>
-          <h3>No hay proveedores</h3>
-          <p>
+          <h3 className="sap-title">No hay proveedores</h3>
+          <p className="sap-text">
             {suppliers.length === 0 
               ? 'Comienza agregando tu primer proveedor de combustibles.'
               : 'No se encontraron proveedores que coincidan con los filtros aplicados.'
@@ -287,7 +287,7 @@ const SuppliersMain = () => {
           </p>
           {suppliers.length === 0 && hasPermission('canManageSuppliers') && (
             <button 
-              className="btn btn-primary"
+              className="btn btn-primary sap-theme sap-button sap-button-primary"
               onClick={handleAddSupplier}
             >
               <i className="icon-plus"></i>
@@ -296,7 +296,7 @@ const SuppliersMain = () => {
           )}
           {suppliers.length > 0 && (
             <button 
-              className="btn btn-secondary"
+              className="btn btn-secondary sap-theme sap-button sap-button-secondary"
               onClick={clearFilters}
             >
               <i className="icon-filter-x"></i>
@@ -305,7 +305,7 @@ const SuppliersMain = () => {
           )}
         </div>
       ) : (
-        <div className="suppliers-content">
+        <div className="suppliers-content sap-theme">
           {viewMode === 'cards' ? (
             <SuppliersCards
               suppliers={filteredSuppliers}

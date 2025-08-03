@@ -1,0 +1,142 @@
+/* 🎨 SAP Fiori Corporate - Optimizaciones Desktop para Tauri */
+/* Archivo: src/styles/sap-desktop-optimizations.css */
+
+/* Optimizaciones SAP para Tauri Desktop */
+@media (min-width: 1200px) {
+  .sap-theme {
+    /* Aumentar densidad de información en desktop */
+    --sap-spacing-multiplier: 0.9;
+    --sap-content-density: compact;
+  }
+  
+  /* Optimizar tablas para pantallas grandes */
+  .movements-table.sap-theme {
+    font-size: 0.8125rem;
+  }
+  
+  /* Mejor uso del espacio en dashboard */
+  .stats-grid.sap-theme {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  /* Optimizar sidebar SAP para desktop */
+  .sap-sidebar {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  /* Mejorar density de formularios SAP */
+  .sap-form-group {
+    margin-bottom: 1rem;
+  }
+
+  .sap-input, .sap-select {
+    height: 2.25rem; /* Más compacto en desktop */
+  }
+}
+
+/* Eliminar efectos hover excesivos en desktop */
+@media (hover: hover) {
+  .sap-theme .btn-create-movement:hover {
+    transform: translateY(-1px); /* Reducir efecto */
+  }
+
+  .sap-theme .inventory-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 94, 153, 0.15);
+  }
+
+  .sap-theme .nav-item:hover {
+    background-color: rgba(0, 94, 153, 0.08);
+  }
+}
+
+/* Optimizaciones específicas para ventana Tauri */
+.desktop-app {
+  /* Eliminar márgenes para usar todo el espacio */
+  --app-margin: 0;
+  
+  /* Ajustar chrome window para SAP */
+  --sap-window-chrome: 0px;
+  
+  /* Optimizar scrollbars para SAP */
+  --sap-scrollbar-width: 12px;
+}
+
+.desktop-app .sap-theme {
+  /* Fuentes optimizadas para desktop */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mejoras específicas para componentes SAP en desktop */
+.desktop-app .sap-table {
+  /* Mejorar performance de tablas grandes */
+  contain: layout style paint;
+  will-change: scroll-position;
+}
+
+.desktop-app .sap-modal {
+  /* Centrar modales perfectamente en desktop */
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+}
+
+/* Debug mode para desarrollo (solo en dev) */
+.desktop-app.debug-sap {
+  border: 2px solid var(--sap-blue-primary);
+}
+
+.desktop-app.debug-sap::before {
+  content: "🎨 SAP Desktop Mode Active";
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: var(--sap-blue-primary);
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Optimizaciones de memory y performance */
+.sap-theme * {
+  /* Reducir repaints en desktop */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Responsive breakpoints específicos para Tauri window */
+@media (min-width: 1400px) {
+  .sap-theme .container-fluid {
+    max-width: none;
+    padding: 0 2rem;
+  }
+
+  .sap-theme .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}
+
+@media (min-width: 1600px) {
+  .sap-theme .movements-table {
+    font-size: 0.875rem;
+  }
+  
+  .sap-theme .stats-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Dark theme optimizations para desktop (futuro) */
+@media (prefers-color-scheme: dark) {
+  .desktop-app .sap-theme {
+    --sap-background-base: #1a1a1a;
+    --sap-background-level-1: #2a2a2a;
+    --sap-text-primary: #ffffff;
+  }
+}

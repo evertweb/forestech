@@ -1,6 +1,6 @@
 /**
  * ================================================================================================================================
- * ARCHIVO: DashboardMain.jsx
+ * ARCHIVO: DashboardMain-SAP.jsx
  * MÓDULO: combustibles
  * DESCRIPCIÓN: Componente principal de Dashboard con tema SAP Fiori Corporate implementado.
  *
@@ -18,7 +18,7 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 
-const DashboardMain = () => {
+const DashboardMainSAP = () => {
   // ==================================================================================================
   // ESTADO DEL COMPONENTE
   // ==================================================================================================
@@ -467,4 +467,4 @@ const DashboardMain = () => {
   );
 };
 
-export default DashboardMain;
+export default DashboardMainSAP;

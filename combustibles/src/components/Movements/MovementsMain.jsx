@@ -18,6 +18,7 @@ import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
 import MovementWizard from './MovementWizard';
 import './Movements.css';
+import './MovementsMain-SAP.css';
 
 const MovementsMain = () => {
   // Context y estado
@@ -174,9 +175,9 @@ const MovementsMain = () => {
 
   if (loading) {
     return (
-      <div className="movements-main">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
+      <div className="movements-main sap-theme">
+        <div className="loading-container sap-theme">
+          <div className="loading-spinner sap-theme"></div>
           <p>Cargando movimientos...</p>
         </div>
       </div>
@@ -185,13 +186,13 @@ const MovementsMain = () => {
 
   if (error) {
     return (
-      <div className="movements-main">
-        <div className="error-container">
-          <div className="error-icon">⚠️</div>
+      <div className="movements-main sap-theme">
+        <div className="error-container sap-theme">
+          <div className="error-icon sap-theme">⚠️</div>
           <h3>Error al cargar movimientos</h3>
           <p>{error}</p>
           <button 
-            className="btn-retry"
+            className="btn-retry sap-theme"
             onClick={() => window.location.reload()}
           >
             Reintentar
@@ -202,18 +203,18 @@ const MovementsMain = () => {
   }
 
   return (
-    <div className="movements-main">
+    <div className="movements-main sap-theme">
       {/* Header */}
-      <div className="movements-header">
-        <div className="header-title">
+      <div className="movements-header sap-theme">
+        <div className="header-title sap-theme">
           <h2>📊 Movimientos de Combustibles</h2>
           <p>Gestiona entradas, salidas, transferencias y ajustes de inventario</p>
         </div>
         
         {canCreateMovement && (
-          <div className="create-movement-options">
+          <div className="create-movement-options sap-theme">
             <button 
-              className="btn-create-movement primary"
+              className="btn-create-movement sap-theme primary"
               onClick={handleCreateMovement}
             >
               ➕ Nuevo Movimiento
@@ -242,8 +243,8 @@ const MovementsMain = () => {
 
       {/* Lista de movimientos */}
       {filteredMovements.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">📋</div>
+        <div className="empty-state sap-theme">
+          <div className="empty-icon sap-theme">📋</div>
           <h3>
             {movements.length === 0 
               ? 'No hay movimientos registrados'
@@ -257,9 +258,9 @@ const MovementsMain = () => {
             }
           </p>
           {movements.length === 0 && canCreateMovement && (
-            <div className="create-first-options">
+            <div className="create-first-options sap-theme">
               <button 
-                className="btn-create-first primary"
+                className="btn-create-first sap-theme primary"
                 onClick={handleCreateMovement}
               >
                 ➕ Crear Primer Movimiento

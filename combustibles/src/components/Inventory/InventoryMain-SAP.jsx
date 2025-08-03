@@ -1,6 +1,6 @@
 /**
  * ================================================================================================================================
- * ARCHIVO: InventoryMain.jsx
+ * ARCHIVO: InventoryMain-SAP.jsx
  * MÓDULO: combustibles
  * DESCRIPCIÓN: Componente principal de Inventario con tema SAP Fiori Corporate implementado.
  *
@@ -25,7 +25,7 @@ import InventoryModal from './InventoryModal';
 import InventoryStats from './InventoryStats';
 import '../../styles/sap-inventory.css';
 
-const InventoryMain = () => {
+const InventoryMainSAP = () => {
   const { hasPermission } = useCombustibles();
   const [inventoryItems, setInventoryItems] = useState([]);
   const [inventoryStats, setInventoryStats] = useState(null);
@@ -78,7 +78,7 @@ const InventoryMain = () => {
     };
 
     loadStats();
-  }, [inventoryItems]); // Recalcular cuando cambien los items
+  }, [inventoryItems]);
 
   // Filter items based on current filters
   const filteredItems = inventoryItems.filter(item => {
@@ -143,16 +143,7 @@ const InventoryMain = () => {
     };
   }, [inventoryItems, inventoryStats]);
 
-  // Handlers - Función deshabilitada pero mantenida para evitar errores de referencia
-  // const handleCreateNew = () => {
-  //   if (!hasPermission('canManageInventory')) {
-  //     alert('No tienes permisos para crear items de inventario');
-  //     return;
-  //   }
-  //   setEditingItem(null);
-  //   setShowModal(true);
-  // };
-
+  // Event handlers
   const handleEdit = (item) => {
     if (!hasPermission('canManageInventory')) {
       alert('No tienes permisos para editar items de inventario');
@@ -178,7 +169,6 @@ const InventoryMain = () => {
     const result = await deleteInventoryItem(item.id);
     
     if (result.success) {
-      // El item se actualizará automáticamente vía subscription
       alert('Item eliminado exitosamente');
     } else {
       setError(result.error);
@@ -578,4 +568,4 @@ const InventoryMain = () => {
   );
 };
 
-export default InventoryMain;
+export default InventoryMainSAP;

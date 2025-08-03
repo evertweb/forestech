@@ -122,37 +122,37 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
   };
 
   return (
-    <div className="movements-table-container">
+    <div className="movements-table-container sap-theme">
       <div className="table-wrapper">
-        <table className="movements-table">
+        <table className="movements-table sap-theme">
           <thead>
             <tr>
               <th 
-                className="sortable"
+                className="sortable sap-theme"
                 onClick={() => handleSort('type')}
               >
                 Tipo {getSortIcon('type')}
               </th>
               <th 
-                className="sortable"
+                className="sortable sap-theme"
                 onClick={() => handleSort('fuelType')}
               >
                 Combustible {getSortIcon('fuelType')}
               </th>
               <th 
-                className="sortable text-right"
+                className="sortable sap-theme text-right"
                 onClick={() => handleSort('quantity')}
               >
                 Cantidad {getSortIcon('quantity')}
               </th>
               <th 
-                className="sortable text-right"
+                className="sortable sap-theme text-right"
                 onClick={() => handleSort('unitPrice')}
               >
                 Precio/Gal {getSortIcon('unitPrice')}
               </th>
               <th 
-                className="sortable text-right"
+                className="sortable sap-theme text-right"
                 onClick={() => handleSort('totalValue')}
               >
                 Valor Total {getSortIcon('totalValue')}
@@ -160,13 +160,13 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
               <th>Vehículo</th>
               <th>Ubicación</th>
               <th 
-                className="sortable"
+                className="sortable sap-theme"
                 onClick={() => handleSort('status')}
               >
                 Estado {getSortIcon('status')}
               </th>
               <th 
-                className="sortable"
+                className="sortable sap-theme"
                 onClick={() => handleSort('createdAt')}
               >
                 Fecha {getSortIcon('createdAt')}
@@ -178,11 +178,11 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
             {sortedMovements.map((movement) => (
               <tr 
                 key={movement.id}
-                className={`movement-row ${movement.status === MOVEMENT_STATUS.PENDIENTE ? 'pending-row' : ''}`}
+                className={`movement-row sap-theme ${movement.status === MOVEMENT_STATUS.PENDIENTE ? 'pending-row' : ''}`}
               >
                 <td className="type-cell">
-                  <div className="type-content">
-                    <span className="type-icon">{getMovementIcon(movement.type)}</span>
+                  <div className="movement-type sap-theme">
+                    <span className="movement-type-icon sap-theme">{getMovementIcon(movement.type)}</span>
                     <span className="type-text">
                       {movement.type ?
                         (movement.type.charAt(0).toUpperCase() + movement.type.slice(1)) :
@@ -193,13 +193,13 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                 </td>
 
                 <td className="fuel-cell">
-                  <div className="fuel-content">
-                    <span className="fuel-icon">{getFuelIcon(movement.fuelType)}</span>
-                    <span className="fuel-text">{movement.fuelType}</span>
+                  <div className="fuel-info sap-theme">
+                    <span className="fuel-icon sap-theme">{getFuelIcon(movement.fuelType)}</span>
+                    <span className="fuel-type sap-theme">{movement.fuelType}</span>
                   </div>
                 </td>
 
-                <td className="quantity-cell text-right">
+                <td className="quantity-cell sap-theme text-right">
                   <span className="quantity-value">{movement.quantity}</span>
                   <span className="quantity-unit">gal</span>
                 </td>
@@ -208,7 +208,7 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                   {formatCurrency(movement.unitPrice)}
                 </td>
 
-                <td className="value-cell text-right">
+                <td className="value-cell sap-theme text-right">
                   <strong>{formatCurrency(movement.totalValue)}</strong>
                 </td>
 
@@ -232,8 +232,8 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                 </td>
 
                 <td className="status-cell">
-                  <div className={`status-badge ${getStatusClass(movement.status)}`}>
-                    <span className="status-icon">{getStatusIcon(movement.status)}</span>
+                  <div className={`status-badge sap-theme ${getStatusClass(movement.status)}`}>
+                    <span className="status-icon sap-theme">{getStatusIcon(movement.status)}</span>
                     <span className="status-text">
                       {movement.status ? 
                         (movement.status.charAt(0).toUpperCase() + movement.status.slice(1)) : 
@@ -243,7 +243,7 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                   </div>
                 </td>
 
-                <td className="date-cell">
+                <td className="date-cell sap-theme">
                   <div className="date-content">
                     <span className="date-value">{formatDate(movement.createdAt)}</span>
                     {movement.reference && (
@@ -252,10 +252,10 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                   </div>
                 </td>
 
-                <td className="actions-cell">
-                  <div className="action-buttons">
+                <td className="actions-cell sap-theme">
+                  <div className="actions-buttons sap-theme">
                     <button
-                      className="btn-action btn-view"
+                      className="action-btn sap-theme view"
                       onClick={() => onView(movement)}
                       title="Ver detalles"
                     >
@@ -265,14 +265,14 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
                     {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
                       <>
                         <button
-                          className="btn-action btn-approve"
+                          className="action-btn sap-theme approve"
                           onClick={() => onApprove(movement.id)}
                           title="Aprobar movimiento"
                         >
                           ✓
                         </button>
                         <button
-                          className="btn-action btn-reject"
+                          className="action-btn sap-theme reject"
                           onClick={() => onReject(movement.id)}
                           title="Rechazar movimiento"
                         >
@@ -283,7 +283,7 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
 
                     {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
                       <button
-                        className="btn-action btn-edit"
+                        className="action-btn sap-theme edit"
                         onClick={() => onEdit(movement)}
                         title="Editar movimiento"
                       >
@@ -293,7 +293,7 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
 
                     {userRole === 'admin' && (
                       <button
-                        className="btn-action btn-delete"
+                        className="action-btn sap-theme delete"
                         onClick={() => {
                           if (window.confirm('¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.')) {
                             onDelete(movement.id);

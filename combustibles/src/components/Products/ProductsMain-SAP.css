@@ -1,0 +1,512 @@
+/* ================================================================
+ * ProductsMain-SAP.css
+ * Tema SAP Fiori Corporate para el módulo Productos
+ * ================================================================ */
+
+/* Import base SAP variables desde VehicleFormSmart-SAP.css */
+@import url('../Vehicles/VehicleFormSmart-SAP.css');
+
+/* === LAYOUT DEL COMPONENTE === */
+.products-main.sap-theme {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sap-spacing-lg);
+  background: var(--sap-neutral-100);
+  min-height: 100vh;
+  font-family: '72', 'Open Sans', sans-serif;
+}
+
+/* === HEADER === */
+.products-header.sap-theme {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--sap-spacing-xl);
+  padding-bottom: var(--sap-spacing-lg);
+  border-bottom: 1px solid var(--sap-neutral-300);
+}
+
+.header-title.sap-theme h1.sap-title {
+  color: var(--sap-text-primary);
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 var(--sap-spacing-sm) 0;
+  font-family: '72', 'Open Sans', sans-serif;
+}
+
+.header-title.sap-theme .sap-subtitle {
+  color: var(--sap-text-secondary);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+.header-actions.sap-theme {
+  display: flex;
+  gap: var(--sap-spacing-sm);
+}
+
+/* === BOTONES SAP === */
+.btn-primary.sap-theme,
+.sap-button.sap-button-primary {
+  background: var(--sap-blue-primary);
+  color: var(--sap-neutral-100);
+  border: 1px solid var(--sap-blue-primary);
+  padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
+  border-radius: var(--sap-border-radius-sm);
+  font-family: '72', 'Open Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--sap-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sap-spacing-sm);
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.btn-primary.sap-theme:hover:not(:disabled),
+.sap-button.sap-button-primary:hover:not(:disabled) {
+  background: var(--sap-blue-secondary);
+  border-color: var(--sap-blue-secondary);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.btn-secondary.sap-theme,
+.sap-button.sap-button-secondary {
+  background: var(--sap-neutral-100);
+  color: var(--sap-blue-primary);
+  border: 1px solid var(--sap-blue-primary);
+  padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
+  border-radius: var(--sap-border-radius-sm);
+  font-family: '72', 'Open Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--sap-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sap-spacing-sm);
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.btn-secondary.sap-theme:hover:not(:disabled),
+.sap-button.sap-button-secondary:hover:not(:disabled) {
+  background: var(--sap-blue-light);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.btn-danger.sap-theme,
+.sap-button.sap-button-danger {
+  background: var(--sap-error);
+  color: var(--sap-neutral-100);
+  border: 1px solid var(--sap-error);
+  padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
+  border-radius: var(--sap-border-radius-sm);
+  font-family: '72', 'Open Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--sap-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sap-spacing-sm);
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.btn-danger.sap-theme:hover:not(:disabled),
+.sap-button.sap-button-danger:hover:not(:disabled) {
+  background: #b80c0d;
+  border-color: #b80c0d;
+  box-shadow: var(--sap-shadow-sm);
+}
+
+/* === FILTROS === */
+.products-filters.sap-theme {
+  display: flex;
+  gap: var(--sap-spacing-md);
+  margin-bottom: var(--sap-spacing-lg);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group.sap-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sap-spacing-xs);
+}
+
+.search-input.sap-theme,
+.sap-input {
+  width: 280px;
+  padding: var(--sap-spacing-sm) var(--sap-spacing-md);
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-400);
+  border-radius: var(--sap-border-radius-sm);
+  color: var(--sap-text-primary);
+  font-family: '72', 'Open Sans', sans-serif;
+  font-size: 0.875rem;
+  transition: all var(--sap-transition-fast);
+  box-sizing: border-box;
+}
+
+.search-input.sap-theme:focus,
+.sap-input:focus {
+  outline: none;
+  border-color: var(--sap-blue-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2);
+}
+
+.filter-select.sap-theme,
+.sap-select {
+  width: 200px;
+  padding: var(--sap-spacing-sm) var(--sap-spacing-md);
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-400);
+  border-radius: var(--sap-border-radius-sm);
+  color: var(--sap-text-primary);
+  font-family: '72', 'Open Sans', sans-serif;
+  font-size: 0.875rem;
+  transition: all var(--sap-transition-fast);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.filter-select.sap-theme:focus,
+.sap-select:focus {
+  outline: none;
+  border-color: var(--sap-blue-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2);
+}
+
+.toggle-btn.sap-theme {
+  padding: var(--sap-spacing-sm) var(--sap-spacing-md);
+  border-radius: var(--sap-border-radius-sm);
+  font-family: '72', 'Open Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--sap-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sap-spacing-sm);
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.toggle-btn.sap-theme.active {
+  background: var(--sap-blue-primary);
+  color: var(--sap-neutral-100);
+  border: 1px solid var(--sap-blue-primary);
+}
+
+/* === GRID DE PRODUCTOS === */
+.products-grid.sap-theme {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--sap-spacing-lg);
+  margin-bottom: var(--sap-spacing-xxl);
+}
+
+/* === CARD DE PRODUCTO === */
+.product-card.sap-theme,
+.sap-card {
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-300);
+  border-radius: var(--sap-border-radius-md);
+  box-shadow: var(--sap-shadow-sm);
+  padding: var(--sap-spacing-lg);
+  transition: all var(--sap-transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sap-spacing-md);
+  position: relative;
+}
+
+.product-card.sap-theme:hover,
+.sap-card:hover {
+  box-shadow: var(--sap-shadow-md);
+  border-color: var(--sap-neutral-400);
+  transform: translateY(-2px);
+}
+
+.product-icon.sap-theme {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: var(--sap-spacing-sm);
+}
+
+.product-info.sap-theme h3.sap-title {
+  color: var(--sap-text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 var(--sap-spacing-xs) 0;
+  font-family: '72', 'Open Sans', sans-serif;
+}
+
+.product-category.sap-theme,
+.sap-text-secondary {
+  color: var(--sap-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 0 var(--sap-spacing-sm) 0;
+}
+
+.product-description.sap-theme,
+.sap-text {
+  color: var(--sap-text-primary);
+  font-size: 0.875rem;
+  margin: 0 0 var(--sap-spacing-md) 0;
+  line-height: 1.4;
+}
+
+/* === ESTADÍSTICAS DEL PRODUCTO === */
+.product-stats.sap-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sap-spacing-sm);
+  margin-bottom: var(--sap-spacing-md);
+}
+
+.stat.sap-theme {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label.sap-theme {
+  color: var(--sap-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.stat-value.sap-theme,
+.sap-text-primary {
+  color: var(--sap-text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* === STATUS BADGES === */
+.product-status.sap-theme,
+.sap-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
+  border-radius: var(--sap-border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  gap: var(--sap-spacing-xs);
+  margin-bottom: var(--sap-spacing-md);
+}
+
+.sap-badge.sap-badge-success,
+.product-status.sap-theme.active {
+  background: rgba(48, 145, 79, 0.1);
+  color: var(--sap-success);
+  border: 1px solid rgba(48, 145, 79, 0.3);
+}
+
+.sap-badge.sap-badge-error,
+.product-status.sap-theme.inactive {
+  background: rgba(220, 13, 14, 0.1);
+  color: var(--sap-error);
+  border: 1px solid rgba(220, 13, 14, 0.3);
+}
+
+.sap-badge.sap-badge-warning {
+  background: rgba(223, 110, 0, 0.1);
+  color: var(--sap-warning);
+  border: 1px solid rgba(223, 110, 0, 0.3);
+}
+
+.sap-badge.sap-badge-info {
+  background: rgba(0, 112, 242, 0.1);
+  color: var(--sap-information);
+  border: 1px solid rgba(0, 112, 242, 0.3);
+}
+
+/* === ACCIONES DEL PRODUCTO === */
+.product-actions.sap-theme {
+  display: flex;
+  gap: var(--sap-spacing-sm);
+  margin-top: auto;
+}
+
+.product-actions.sap-theme .btn-secondary.sap-theme,
+.product-actions.sap-theme .btn-primary.sap-theme,
+.product-actions.sap-theme .btn-danger.sap-theme {
+  flex: 1;
+  font-size: 0.75rem;
+  padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
+  min-height: 32px;
+}
+
+/* === LOADING STATES === */
+.loading-container.sap-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: var(--sap-spacing-md);
+}
+
+.loading-spinner.sap-theme {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--sap-neutral-300);
+  border-top: 3px solid var(--sap-blue-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* === ERROR STATES === */
+.error-container.sap-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: var(--sap-spacing-md);
+  text-align: center;
+}
+
+.sap-message-error {
+  background: rgba(220, 13, 14, 0.1);
+  color: var(--sap-error);
+  border: 1px solid rgba(220, 13, 14, 0.3);
+  border-radius: var(--sap-border-radius-md);
+  padding: var(--sap-spacing-lg);
+}
+
+.sap-message-info {
+  background: rgba(0, 112, 242, 0.1);
+  color: var(--sap-information);
+  border: 1px solid rgba(0, 112, 242, 0.3);
+  border-radius: var(--sap-border-radius-md);
+  padding: var(--sap-spacing-lg);
+}
+
+/* === EMPTY STATE === */
+.empty-state.sap-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: var(--sap-spacing-md);
+  text-align: center;
+}
+
+.empty-icon.sap-theme {
+  font-size: 4rem;
+  color: var(--sap-text-muted);
+  margin-bottom: var(--sap-spacing-md);
+}
+
+.empty-state.sap-theme h3.sap-title {
+  color: var(--sap-text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  font-family: '72', 'Open Sans', sans-serif;
+}
+
+.empty-state.sap-theme .sap-text {
+  color: var(--sap-text-secondary);
+  font-size: 1rem;
+  margin: 0 0 var(--sap-spacing-lg) 0;
+  max-width: 400px;
+}
+
+/* === FOCUS ACCESSIBILITY === */
+.focusable.sap-theme:focus {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: 2px;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+  .products-main.sap-theme {
+    padding: var(--sap-spacing-md);
+  }
+  
+  .products-header.sap-theme {
+    flex-direction: column;
+    gap: var(--sap-spacing-md);
+    align-items: stretch;
+  }
+  
+  .header-actions.sap-theme {
+    flex-direction: column;
+    gap: var(--sap-spacing-sm);
+  }
+  
+  .header-actions.sap-theme .btn-primary.sap-theme,
+  .header-actions.sap-theme .btn-secondary.sap-theme {
+    width: 100%;
+    min-height: 44px;
+  }
+  
+  .products-filters.sap-theme {
+    flex-direction: column;
+    gap: var(--sap-spacing-sm);
+  }
+  
+  .search-input.sap-theme,
+  .filter-select.sap-theme {
+    width: 100%;
+  }
+  
+  .products-grid.sap-theme {
+    grid-template-columns: 1fr;
+    gap: var(--sap-spacing-md);
+  }
+  
+  .product-actions.sap-theme {
+    flex-direction: column;
+    gap: var(--sap-spacing-xs);
+  }
+  
+  .product-actions.sap-theme .btn-secondary.sap-theme,
+  .product-actions.sap-theme .btn-primary.sap-theme,
+  .product-actions.sap-theme .btn-danger.sap-theme {
+    flex: none;
+    width: 100%;
+    min-height: 40px;
+  }
+}
+
+/* === TABLET === */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .products-main.sap-theme {
+    padding: var(--sap-spacing-lg);
+  }
+  
+  .products-grid.sap-theme {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* === DESKTOP === */
+@media (min-width: 1025px) {
+  .products-main.sap-theme {
+    padding: var(--sap-spacing-xl);
+  }
+  
+  .products-grid.sap-theme {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}

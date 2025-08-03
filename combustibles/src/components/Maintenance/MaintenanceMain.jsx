@@ -17,7 +17,7 @@ import MaintenanceStats from './MaintenanceStats';
 import MaintenanceFilters from './MaintenanceFilters';
 import MaintenanceList from './MaintenanceList';
 import MaintenanceModal from './MaintenanceModal';
-import './Maintenance.css';
+import './MaintenanceMain-SAP.css';
 
 const MaintenanceMain = () => {
   // Context y estado
@@ -168,27 +168,27 @@ const MaintenanceMain = () => {
   // Renderizado condicional
   if (!user) {
     return (
-      <div className="maintenance-main">
-        <div className="auth-required">
-          <h2>🔐 Autenticación Requerida</h2>
-          <p>Debes iniciar sesión para acceder al módulo de mantenimiento.</p>
+      <div className="maintenance-main sap-theme">
+        <div className="auth-required sap-theme sap-message-info">
+          <h2 className="sap-title">🔐 Autenticación Requerida</h2>
+          <p className="sap-text">Debes iniciar sesión para acceder al módulo de mantenimiento.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="maintenance-main">
+    <div className="maintenance-main sap-theme">
       {/* Header */}
-      <div className="maintenance-header">
-        <div className="header-title">
-          <h2>🔧 Mantenimiento de Vehículos</h2>
-          <p>Gestión de cambios de aceite, filtros y baterías</p>
+      <div className="maintenance-header sap-theme">
+        <div className="header-title sap-theme">
+          <h2 className="sap-title">🔧 Mantenimiento de Vehículos</h2>
+          <p className="sap-subtitle">Gestión de cambios de aceite, filtros y baterías</p>
         </div>
-        <div className="header-actions">
+        <div className="header-actions sap-theme">
           {canManageMaintenance && (
             <button 
-              className="btn-create-maintenance"
+              className="btn-create-maintenance sap-theme sap-button sap-button-primary"
               onClick={handleCreateMaintenance}
             >
               ➕ Crear Mantenimiento
@@ -199,17 +199,17 @@ const MaintenanceMain = () => {
 
       {/* Loading */}
       {loading && (
-        <div className="maintenance-loading">
-          <div className="loading-spinner"></div>
-          <p>Cargando mantenimientos...</p>
+        <div className="maintenance-loading sap-theme">
+          <div className="loading-spinner sap-theme"></div>
+          <p className="sap-text">Cargando mantenimientos...</p>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="error-banner">
+        <div className="error-banner sap-theme sap-message-error">
           <span>❌ {error}</span>
-          <button onClick={() => window.location.reload()}>Reintentar</button>
+          <button className="sap-button sap-button-secondary" onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       )}
 

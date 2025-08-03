@@ -1,0 +1,667 @@
+/* ================================================================
+ * SuppliersMain-SAP.css
+ * Tema SAP Fiori Corporate para el módulo de Proveedores
+ * Forestech - Sistema de Gestión de Combustibles
+ * ================================================================ */
+
+/* Import base SAP variables desde VehicleFormSmart-SAP.css */
+@import url('../Vehicles/VehicleFormSmart-SAP.css');
+
+/* ================================================================
+ * LAYOUT PRINCIPAL DEL COMPONENTE PROVEEDORES
+ * ================================================================ */
+
+.suppliers-main.sap-theme {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sap-spacing-lg);
+  background: var(--sap-neutral-100);
+  min-height: 100vh;
+  font-family: '72', 'Open Sans', sans-serif;
+  color: var(--sap-text-primary);
+}
+
+/* ================================================================
+ * HEADER DEL MÓDULO PROVEEDORES
+ * ================================================================ */
+
+.suppliers-header.sap-theme {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--sap-spacing-xl);
+  padding-bottom: var(--sap-spacing-lg);
+  border-bottom: 1px solid var(--sap-neutral-300);
+  background: var(--sap-neutral-100);
+}
+
+.header-content.sap-theme .sap-title {
+  font-family: '72', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--sap-text-primary);
+  margin: 0 0 var(--sap-spacing-sm) 0;
+  line-height: 1.2;
+}
+
+.header-subtitle.sap-theme {
+  font-family: '72', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--sap-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.header-actions.sap-theme {
+  display: flex;
+  gap: var(--sap-spacing-md);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ================================================================
+ * BOTONES SAP CORPORATIVOS
+ * ================================================================ */
+
+.btn.sap-theme {
+  font-family: '72', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
+  border-radius: var(--sap-border-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--sap-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sap-spacing-sm);
+  text-decoration: none;
+  min-height: 36px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.btn.sap-theme:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary.sap-theme {
+  background: var(--sap-blue-primary);
+  color: var(--sap-text-white);
+  border-color: var(--sap-blue-primary);
+}
+
+.btn-primary.sap-theme:hover:not(:disabled) {
+  background: var(--sap-blue-secondary);
+  border-color: var(--sap-blue-secondary);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.btn-secondary.sap-theme {
+  background: var(--sap-neutral-100);
+  color: var(--sap-blue-primary);
+  border-color: var(--sap-blue-primary);
+}
+
+.btn-secondary.sap-theme:hover:not(:disabled) {
+  background: var(--sap-blue-light);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+/* ================================================================
+ * ALERTAS Y MENSAJES SAP
+ * ================================================================ */
+
+.alert.sap-theme {
+  padding: var(--sap-spacing-md);
+  border-radius: var(--sap-border-radius-sm);
+  margin-bottom: var(--sap-spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-sm);
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.alert-error.sap-theme {
+  background: rgba(220, 13, 14, 0.1);
+  color: var(--sap-error);
+  border: 1px solid rgba(220, 13, 14, 0.3);
+}
+
+.alert-close.sap-theme {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: var(--sap-spacing-xs);
+  border-radius: var(--sap-border-radius-sm);
+  margin-left: auto;
+  transition: all var(--sap-transition-fast);
+}
+
+.alert-close.sap-theme:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ================================================================
+ * ESTADOS VACÍOS Y INFORMATIVOS
+ * ================================================================ */
+
+.empty-state.sap-theme {
+  text-align: center;
+  padding: var(--sap-spacing-xxl);
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-300);
+  border-radius: var(--sap-border-radius-md);
+  margin: var(--sap-spacing-lg) 0;
+}
+
+.empty-icon.sap-theme {
+  font-size: 3rem;
+  color: var(--sap-neutral-500);
+  margin-bottom: var(--sap-spacing-lg);
+}
+
+.empty-state.sap-theme .sap-title {
+  font-family: '72', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--sap-text-primary);
+  margin: 0 0 var(--sap-spacing-md) 0;
+}
+
+.empty-state.sap-theme .sap-text {
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  color: var(--sap-text-secondary);
+  margin: 0 0 var(--sap-spacing-lg) 0;
+  line-height: 1.5;
+}
+
+/* ================================================================
+ * LOADING STATES SAP
+ * ================================================================ */
+
+.loading-container.sap-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sap-spacing-xxl);
+  background: var(--sap-neutral-100);
+  min-height: 400px;
+}
+
+.loading-spinner.sap-theme {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--sap-neutral-300);
+  border-top: 3px solid var(--sap-blue-primary);
+  border-radius: 50%;
+  animation: sapSpin 1s linear infinite;
+  margin-bottom: var(--sap-spacing-md);
+}
+
+@keyframes sapSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-container.sap-theme .sap-text {
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  color: var(--sap-text-secondary);
+  margin: 0;
+}
+
+/* ================================================================
+ * CONTENT AREA PROVEEDORES
+ * ================================================================ */
+
+.suppliers-content.sap-theme {
+  background: var(--sap-neutral-100);
+  border-radius: var(--sap-border-radius-md);
+  overflow: hidden;
+}
+
+/* ================================================================
+ * CARDS DE PROVEEDORES SAP
+ * ================================================================ */
+
+.card.sap-theme {
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-300);
+  border-radius: var(--sap-border-radius-md);
+  box-shadow: var(--sap-shadow-sm);
+  padding: var(--sap-spacing-lg);
+  transition: all var(--sap-transition-fast);
+  margin-bottom: var(--sap-spacing-md);
+}
+
+.card.sap-theme:hover {
+  box-shadow: var(--sap-shadow-md);
+  border-color: var(--sap-neutral-400);
+  transform: translateY(-1px);
+}
+
+.card.sap-theme .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--sap-spacing-md);
+  padding-bottom: var(--sap-spacing-sm);
+  border-bottom: 1px solid var(--sap-neutral-300);
+}
+
+.card.sap-theme .card-title {
+  font-family: '72', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--sap-text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card.sap-theme .card-subtitle {
+  font-family: '72', sans-serif;
+  font-size: 0.75rem;
+  color: var(--sap-text-secondary);
+  margin: var(--sap-spacing-xs) 0 0 0;
+}
+
+.card.sap-theme .card-body {
+  margin-bottom: var(--sap-spacing-md);
+}
+
+.card.sap-theme .card-body p {
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  color: var(--sap-text-primary);
+  margin: 0 0 var(--sap-spacing-sm) 0;
+  line-height: 1.4;
+}
+
+.card.sap-theme .card-actions {
+  display: flex;
+  gap: var(--sap-spacing-sm);
+  justify-content: flex-end;
+  margin-top: var(--sap-spacing-md);
+  padding-top: var(--sap-spacing-sm);
+  border-top: 1px solid var(--sap-neutral-300);
+}
+
+/* ================================================================
+ * TABLAS SAP CORPORATIVAS
+ * ================================================================ */
+
+.table.sap-theme {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-300);
+  border-radius: var(--sap-border-radius-md);
+  overflow: hidden;
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.table.sap-theme th {
+  background: var(--sap-neutral-200);
+  color: var(--sap-text-primary);
+  font-family: '72', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: var(--sap-spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--sap-neutral-300);
+  white-space: nowrap;
+}
+
+.table.sap-theme td {
+  padding: var(--sap-spacing-md);
+  border-bottom: 1px solid var(--sap-neutral-300);
+  color: var(--sap-text-primary);
+  font-size: 0.875rem;
+  font-family: '72', sans-serif;
+  vertical-align: middle;
+}
+
+.table.sap-theme tr:hover {
+  background: var(--sap-blue-light);
+}
+
+.table.sap-theme tr:last-child td {
+  border-bottom: none;
+}
+
+/* ================================================================
+ * BADGES Y ESTADOS SAP
+ * ================================================================ */
+
+.status-badge.sap-theme {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
+  border-radius: var(--sap-border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: '72', sans-serif;
+  gap: var(--sap-spacing-xs);
+  white-space: nowrap;
+}
+
+.status-badge.sap-theme.success {
+  background: rgba(48, 145, 79, 0.1);
+  color: var(--sap-success);
+  border: 1px solid rgba(48, 145, 79, 0.3);
+}
+
+.status-badge.sap-theme.warning {
+  background: rgba(223, 110, 0, 0.1);
+  color: var(--sap-warning);
+  border: 1px solid rgba(223, 110, 0, 0.3);
+}
+
+.status-badge.sap-theme.error {
+  background: rgba(220, 13, 14, 0.1);
+  color: var(--sap-error);
+  border: 1px solid rgba(220, 13, 14, 0.3);
+}
+
+.status-badge.sap-theme.info {
+  background: rgba(0, 112, 242, 0.1);
+  color: var(--sap-information);
+  border: 1px solid rgba(0, 112, 242, 0.3);
+}
+
+/* ================================================================
+ * FORMULARIOS Y INPUTS SAP
+ * ================================================================ */
+
+.form-input.sap-theme,
+.form-select.sap-theme,
+.form-textarea.sap-theme {
+  width: 100%;
+  padding: var(--sap-spacing-sm) var(--sap-spacing-md);
+  background: var(--sap-neutral-100);
+  border: 1px solid var(--sap-neutral-400);
+  border-radius: var(--sap-border-radius-sm);
+  color: var(--sap-text-primary);
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  transition: all var(--sap-transition-fast);
+  box-sizing: border-box;
+}
+
+.form-input.sap-theme:hover,
+.form-select.sap-theme:hover,
+.form-textarea.sap-theme:hover {
+  border-color: var(--sap-neutral-600);
+}
+
+.form-input.sap-theme:focus,
+.form-select.sap-theme:focus,
+.form-textarea.sap-theme:focus {
+  outline: none;
+  border-color: var(--sap-blue-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2);
+}
+
+.form-input.sap-theme::placeholder {
+  color: var(--sap-text-muted);
+  font-style: normal;
+}
+
+/* ================================================================
+ * MENSAJES INFORMATIVOS SAP
+ * ================================================================ */
+
+.sap-message-info {
+  background: rgba(0, 112, 242, 0.1);
+  color: var(--sap-information);
+  border: 1px solid rgba(0, 112, 242, 0.3);
+}
+
+.sap-message-error {
+  background: rgba(220, 13, 14, 0.1);
+  color: var(--sap-error);
+  border: 1px solid rgba(220, 13, 14, 0.3);
+}
+
+/* ================================================================
+ * ACCESIBILIDAD SAP WCAG 2.1 AA
+ * ================================================================ */
+
+.focusable.sap-theme:focus,
+.btn.sap-theme:focus,
+.form-input.sap-theme:focus,
+.form-select.sap-theme:focus {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: 2px;
+}
+
+/* Estados de alto contraste */
+@media (prefers-contrast: high) {
+  .card.sap-theme {
+    border-width: 2px;
+  }
+  
+  .btn.sap-theme {
+    border-width: 2px;
+  }
+  
+  .status-badge.sap-theme {
+    border-width: 2px;
+  }
+}
+
+/* ================================================================
+ * RESPONSIVE DESIGN MOBILE-FIRST SAP
+ * ================================================================ */
+
+/* Mobile (hasta 768px) */
+@media (max-width: 768px) {
+  .suppliers-main.sap-theme {
+    padding: var(--sap-spacing-md);
+  }
+  
+  .suppliers-header.sap-theme {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sap-spacing-lg);
+  }
+  
+  .header-content.sap-theme .sap-title {
+    font-size: 1.5rem;
+  }
+  
+  .header-actions.sap-theme {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+  
+  .btn.sap-theme {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+  
+  .card.sap-theme {
+    margin-bottom: var(--sap-spacing-sm);
+    padding: var(--sap-spacing-md);
+  }
+  
+  .card.sap-theme .card-header {
+    flex-direction: column;
+    gap: var(--sap-spacing-sm);
+  }
+  
+  .card.sap-theme .card-actions {
+    flex-direction: column;
+    gap: var(--sap-spacing-sm);
+  }
+  
+  .table.sap-theme {
+    font-size: 0.75rem;
+  }
+  
+  .table.sap-theme th,
+  .table.sap-theme td {
+    padding: var(--sap-spacing-sm);
+  }
+  
+  /* Scroll horizontal para tablas en móvil */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Tablet (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .suppliers-main.sap-theme {
+    padding: var(--sap-spacing-lg);
+  }
+  
+  .header-content.sap-theme .sap-title {
+    font-size: 1.75rem;
+  }
+  
+  .btn.sap-theme {
+    min-width: 120px;
+  }
+}
+
+/* Desktop (1025px+) */
+@media (min-width: 1025px) {
+  .suppliers-main.sap-theme {
+    padding: var(--sap-spacing-xl);
+  }
+  
+  .card.sap-theme {
+    transition: all var(--sap-transition-base);
+  }
+  
+  .card.sap-theme:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sap-shadow-lg);
+  }
+}
+
+/* ================================================================
+ * ESTADOS DE HOVER Y INTERACCIÓN SAP
+ * ================================================================ */
+
+.card.sap-theme:hover .card-title {
+  color: var(--sap-blue-primary);
+}
+
+.table.sap-theme tbody tr:hover .status-badge.sap-theme {
+  transform: scale(1.05);
+}
+
+/* ================================================================
+ * ANIMACIONES SAP CORPORATIVAS
+ * ================================================================ */
+
+.fade-in.sap-theme {
+  animation: sapFadeIn var(--sap-transition-base) ease-out;
+}
+
+@keyframes sapFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in.sap-theme {
+  animation: sapSlideIn var(--sap-transition-slow) ease-out;
+}
+
+@keyframes sapSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ================================================================
+ * UTILIDADES SAP ESPECÍFICAS
+ * ================================================================ */
+
+.sap-text {
+  font-family: '72', sans-serif;
+  color: var(--sap-text-primary);
+}
+
+.sap-text-secondary {
+  color: var(--sap-text-secondary);
+}
+
+.sap-text-muted {
+  color: var(--sap-text-muted);
+}
+
+.sap-bg-light {
+  background: var(--sap-neutral-200);
+}
+
+.sap-border {
+  border: 1px solid var(--sap-neutral-300);
+}
+
+.sap-shadow {
+  box-shadow: var(--sap-shadow-sm);
+}
+
+/* ================================================================
+ * PRINT STYLES SAP
+ * ================================================================ */
+
+@media print {
+  .suppliers-main.sap-theme {
+    background: white;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .btn.sap-theme,
+  .header-actions.sap-theme {
+    display: none;
+  }
+  
+  .card.sap-theme {
+    border: 1px solid #000;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  
+  .table.sap-theme {
+    border: 1px solid #000;
+  }
+  
+  .table.sap-theme th,
+  .table.sap-theme td {
+    border: 1px solid #000;
+  }
+}
+
+/* ================================================================
+ * FIN DEL ARCHIVO - SuppliersMain-SAP.css
+ * Forestech 2025 - SAP Fiori Corporate Theme
+ * ================================================================ */
