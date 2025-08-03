@@ -1,9 +1,11 @@
 /**
  * Tipos de combustibles y constantes para la gestión de inventario forestal
- * Específico para operaciones forestales en Colombia
+ * Incluye información detallada para cada tipo de combustible usado en operaciones forestales en Colombia.
  */
 
-// Tipos principales de combustibles
+// -------------------------------------------------------------------
+// Tipos principales de combustibles utilizados en la app
+// -------------------------------------------------------------------
 export const FUEL_TYPES = {
   DIESEL: 'diesel',
   GASOLINE: 'gasoline', 
@@ -12,7 +14,10 @@ export const FUEL_TYPES = {
   MIXED: 'mixed'  // Agregado desde vehicleTypes.js para compatibilidad
 };
 
+// -------------------------------------------------------------------
 // Información detallada por tipo de combustible
+// Incluye nombre, descripción, unidad, categoría, color, ícono, densidad y unidad de precio
+// -------------------------------------------------------------------
 export const FUEL_INFO = {
   [FUEL_TYPES.DIESEL]: {
     name: 'Diésel',

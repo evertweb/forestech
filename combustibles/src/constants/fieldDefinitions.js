@@ -1,10 +1,13 @@
 /**
  * Definiciones de campos centralizadas para la app combustibles
- * Unifica la configuración de campos de formularios, validaciones y tipos de datos
+ * Unifica la configuración de campos de formularios, validaciones y tipos de datos.
+ * Cada bloque está documentado para facilitar el mantenimiento y la extensión.
  */
 
 // ===================================================================
 // CAMPOS DE PRODUCTOS Y COMBUSTIBLES
+// -------------------------------------------------------------------
+// Definiciones técnicas de campos de productos y combustibles, incluyendo validaciones y metadatos.
 // ===================================================================
 export const PRODUCT_FIELD_DEFINITIONS = {
   // Campos técnicos de productos

@@ -6,12 +6,17 @@
 export const PRODUCT_TYPES = {
   DIESEL: 'DIESEL',
   GASOLINA: 'GASOLINA', 
+/**
+ * Constantes para tipos de productos/combustibles
+ * Sistema dinámico expandido con 9 productos predefinidos.
+ * Cada bloque está documentado para facilitar el mantenimiento y la extensión.
+ */
   ACEITE_HIDRAULICO: 'ACEITE_HIDRAULICO',
   ACEITE_MOTOR_20W50: 'ACEITE_MOTOR_20W50',
-  GRASA_ROJA: 'GRASA_ROJA',
+// Tipos de productos principales utilizados en la app
   VALVULINA: 'VALVULINA',
   LIQUIDO_FRENOS: 'LIQUIDO_FRENOS',
-  MISTURA_LIGA: 'MISTURA_LIGA',
+// Información detallada de cada producto, incluyendo nombre, categoría, unidad, color, ícono y descripción
   ACEITE_TRACTORES_15W40: 'ACEITE_TRACTORES_15W40'
 };
 

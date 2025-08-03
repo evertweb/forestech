@@ -35,45 +35,35 @@ import {
   DESIGN_TOKENS,
   CSS_VARIABLES,
   PRODUCT_COLORS,
-  CHART_COLORS,
-  RESPONSIVE_UTILS
-} from './designTokens.js';
 
+/**
+ * Archivo de exportación centralizada para todas las constantes de la app combustibles
+ * Punto único de acceso a todas las constantes del sistema
+ *
+ * Cada exportación/importación está documentada para facilitar el mantenimiento.
+ */
 // URLs externas y comunicación
-import {
-  COMMUNICATION_URLS
-} from './externalUrls.js';
+// ===================================================================
+// IMPORTACIONES DE CONSTANTES EXISTENTES
+// -------------------------------------------------------------------
+// Exporta tipos de combustibles, productos, ubicaciones, roles y tipos de vehículos
+// para que puedan ser accedidos desde un solo punto en la app.
+// ===================================================================
 
 // Estilos de modales
-import {
-  MODAL_PRESETS
-} from './modalStyles.js';
+import { MODAL_PRESETS } from './modalStyles.js';
 
-// Re-exportar todo desde uiLabels
-export * from './uiLabels.js';
-export { default as UI_LABELS } from './uiLabels.js';
-
+// ===================================================================
+// IMPORTACIONES DE NUEVAS CONSTANTES
+// -------------------------------------------------------------------
+// Importa textos de interfaz, etiquetas, tokens de diseño, colores y utilidades responsivas
+// para ser usados y reexportados desde este archivo central.
+// ===================================================================
 // Re-exportar design tokens
 export * from './designTokens.js';
-export {
-  DESIGN_TOKENS,
-  CSS_VARIABLES,
-  PRODUCT_COLORS,
-  CHART_COLORS,
-  RESPONSIVE_UTILS
-};
-
-// Re-exportar URLs externas
 export * from './externalUrls.js';
-export {
-  COMMUNICATION_URLS
-};
-
-// Re-exportar estilos de modales
 export * from './modalStyles.js';
-export {
-  MODAL_PRESETS
-};
+export { MODAL_PRESETS };
 
 // ===================================================================
 // IMPORTACIONES DE DATOS ESPECÍFICOS
@@ -88,28 +78,9 @@ export * from '../data/vehicleCategories.js';
 // Las constantes de interfaz de usuario ya están exportadas arriba con export *
 
 // Constantes de combustibles y productos (re-exportadas para claridad)
-export {
-  FUEL_TYPES,
-  FUEL_INFO,
-  STOCK_LEVELS,
-  STOCK_ALERTS,
-  getStockLevel
-} from './combustibleTypes.js';
-
-export {
-  PRODUCT_TYPES,
-  PRODUCT_INFO,
-  PRODUCT_CATEGORIES,
-  getProductsByCategory,
-  getAllProducts,
-  getProductInfo
-} from './productTypes.js';
-
-export {
-  OPERATIONAL_LOCATIONS,
-  STORAGE_LOCATIONS,
-  formatLocationName
-} from './locations.js';
+export { FUEL_TYPES, FUEL_INFO, STOCK_LEVELS, STOCK_ALERTS, getStockLevel } from './combustibleTypes.js';
+export { PRODUCT_TYPES, PRODUCT_INFO, PRODUCT_CATEGORIES, getProductsByCategory, getAllProducts, getProductInfo } from './productTypes.js';
+export { OPERATIONAL_LOCATIONS, STORAGE_LOCATIONS, formatLocationName } from './locations.js';
 
 // ===================================================================
 // CONSTANTES GLOBALES COMBINADAS

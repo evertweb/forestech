@@ -20,11 +20,11 @@ const MovementsStats = ({ stats, filters }) => {
   // Obtener color para tipo de movimiento
   const getMovementTypeColor = (type) => {
     switch (type) {
-      case MOVEMENT_TYPES.ENTRADA: return '#10b981'; // Verde
-      case MOVEMENT_TYPES.SALIDA: return '#ef4444';  // Rojo
-      case MOVEMENT_TYPES.TRANSFERENCIA: return '#3b82f6'; // Azul
-      case MOVEMENT_TYPES.AJUSTE: return '#f59e0b'; // Amarillo
-      default: return '#6b7280'; // Gris
+      case MOVEMENT_TYPES.ENTRADA: return 'var(--color-success)'; // Verde
+      case MOVEMENT_TYPES.SALIDA: return 'var(--color-error)';  // Rojo
+      case MOVEMENT_TYPES.TRANSFERENCIA: return 'var(--color-info)'; // Azul
+      case MOVEMENT_TYPES.AJUSTE: return 'var(--color-warning)'; // Amarillo
+      default: return 'var(--text-muted)'; // Gris
     }
   };
 
@@ -134,10 +134,10 @@ const MovementsStats = ({ stats, filters }) => {
               const percentage = ((count / stats.totalMovements) * 100).toFixed(1);
               const getStatusColor = (status) => {
                 switch (status) {
-                  case MOVEMENT_STATUS.COMPLETADO: return '#10b981';
-                  case MOVEMENT_STATUS.PENDIENTE: return '#f59e0b';
-                  case MOVEMENT_STATUS.CANCELADO: return '#ef4444';
-                  default: return '#6b7280';
+                  case MOVEMENT_STATUS.COMPLETADO: return 'var(--color-success)';
+                  case MOVEMENT_STATUS.PENDIENTE: return 'var(--color-warning)';
+                  case MOVEMENT_STATUS.CANCELADO: return 'var(--color-error)';
+                  default: return 'var(--text-muted)';
                 }
               };
               const getStatusIcon = (status) => {
@@ -206,7 +206,7 @@ const MovementsStats = ({ stats, filters }) => {
                       className="breakdown-fill sap-theme"
                       style={{ 
                         width: `${percentage}%`,
-                        backgroundColor: '#059669'
+                        backgroundColor: 'var(--forestech-green)'
                       }}
                     />
                   </div>

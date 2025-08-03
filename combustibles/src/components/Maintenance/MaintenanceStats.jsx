@@ -43,13 +43,13 @@ const MaintenanceStats = ({ stats }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case MAINTENANCE_STATUS.COMPLETED:
-        return '#10b981';
+        return 'var(--color-success)';
       case MAINTENANCE_STATUS.PENDING:
-        return '#f59e0b';
+        return 'var(--color-warning)';
       case MAINTENANCE_STATUS.CANCELLED:
-        return '#ef4444';
+        return 'var(--color-error)';
       default:
-        return '#6b7280';
+        return 'var(--text-muted)';
     }
   };
 

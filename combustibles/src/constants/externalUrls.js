@@ -1,10 +1,13 @@
 /**
  * URLs externas y enlaces centralizados para la app combustibles
- * Centraliza URLs de APIs, servicios externos, CDNs y recursos web
+ * Centraliza URLs de APIs, servicios externos, CDNs y recursos web.
+ * Cada bloque está documentado para facilitar el mantenimiento y la extensión.
  */
 
 // ===================================================================
 // URLS DE COMUNICACIÓN Y SOPORTE
+// -------------------------------------------------------------------
+// URLs para WhatsApp, email y teléfono de soporte técnico y atención al usuario
 // ===================================================================
 export const COMMUNICATION_URLS = {
   // WhatsApp de soporte
@@ -21,7 +24,7 @@ export const COMMUNICATION_URLS = {
 };
 
 // ===================================================================
-// URLS DE RECURSOS EXTERNOS (CDNs, FUENTES, ICONOS)
+// URLs de recursos externos (CDNs, fuentes, iconos, gráficos)
 // ===================================================================
 export const CDN_URLS = {
   // Google Fonts

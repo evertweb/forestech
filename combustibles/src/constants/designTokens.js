@@ -1,10 +1,13 @@
 /**
  * Design Tokens y valores de diseño centralizados para la app combustibles
- * Centraliza colores, espaciado, tipografía, breakpoints y otros valores de diseño
+ * Centraliza colores, espaciado, tipografía, breakpoints y otros valores de diseño.
+ * Cada bloque está documentado para facilitar el mantenimiento y la extensión.
  */
 
 // ===================================================================
 // COLORES CORPORATIVOS FORESTECH
+// -------------------------------------------------------------------
+// Paleta de colores principal, gradientes y colores funcionales para la marca
 // ===================================================================
 export const COLORS = {
   // Colores principales de marca
@@ -15,14 +18,14 @@ export const COLORS = {
     FORESTECH_SECONDARY: '#2d5016'
   },
   
-  // Gradientes
+// Gradientes de la marca y fondos
   GRADIENTS: {
     PRIMARY: 'linear-gradient(135deg, #2c5530 0%, #3d7c47 100%)',
     BACKGROUND: 'linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%)',
     CARD_BACKGROUND: 'linear-gradient(135deg, #2c5530 0%, #3d7c47 100%)'
   },
   
-  // Colores funcionales
+// Colores funcionales para estados de la UI (éxito, advertencia, error, info)
   FUNCTIONAL: {
     SUCCESS: '#16a34a',      // green-600
     SUCCESS_LIGHT: '#22c55e', // green-500
@@ -34,7 +37,7 @@ export const COLORS = {
     INFO_LIGHT: '#3b82f6'    // blue-500
   },
   
-  // Colores de texto
+// Colores de texto principales y secundarios
   TEXT: {
     PRIMARY: '#2c5530',
     SECONDARY: '#666',

@@ -1,3 +1,7 @@
+/* Importar variables de temas globales */
+@import './styles/theme-variables.css';
+@import './styles/css-variables.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,7 +15,7 @@ html {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
+  background-color: var(--bg-white);
 }
 
 :root {
@@ -20,8 +24,8 @@ html {
   font-weight: 400;
 
   color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  color: var(--text-primary);
+  background-color: var(--bg-white);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -34,7 +38,7 @@ html {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
+  background-color: var(--bg-white);
 }
 
 a {
@@ -51,7 +55,7 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--bg-white);
   overflow-x: hidden;
 }
 
@@ -81,13 +85,13 @@ button:focus-visible {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: var(--text-primary);
+    background-color: var(--bg-white);
   }
   a:hover {
-    color: #747bff;
+    color: var(--color-info-light);
   }
   button {
-    background-color: #f9f9f9;
+    background-color: var(--bg-light-gray);
   }
 }

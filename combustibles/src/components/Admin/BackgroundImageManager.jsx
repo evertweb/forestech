@@ -78,7 +78,7 @@ const BackgroundImageManager = () => {
                 height: '200px',
                 objectFit: 'cover',
                 borderRadius: '8px',
-                border: '2px solid #e5e7eb'
+                border: '2px solid var(--text-muted)'
               }}
             />
           ) : (
@@ -182,7 +182,7 @@ const BackgroundImageManager = () => {
         .upload-button {
           display: inline-block;
           padding: 12px 24px;
-          background: linear-gradient(135deg, #2d5016, #1b4332);
+          background: var(--gradient-background);
           color: white;
           border-radius: 8px;
           cursor: pointer;
@@ -204,9 +204,9 @@ const BackgroundImageManager = () => {
         .upload-info {
           margin-top: 15px;
           padding: 12px;
-          background: #f0f9f4;
+          background: var(--bg-light-gray);
           border-radius: 6px;
-          border-left: 4px solid #16a34a;
+          border-left: 4px solid var(--color-success);
         }
 
         .upload-info small {
@@ -222,15 +222,15 @@ const BackgroundImageManager = () => {
         }
 
         .message.success {
-          background: #f0f9f4;
+          background: var(--bg-light-gray);
           color: #166534;
-          border-left: 4px solid #16a34a;
+          border-left: 4px solid var(--color-success);
         }
 
         .message.error {
-          background: #fef2f2;
+          background: var(--bg-light-gray);
           color: #dc2626;
-          border-left: 4px solid #dc2626;
+          border-left: 4px solid var(--color-error);
         }
 
         .instructions {

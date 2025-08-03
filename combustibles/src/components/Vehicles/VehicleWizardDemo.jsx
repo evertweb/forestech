@@ -23,7 +23,7 @@ const VehicleWizardDemo = () => {
       <button 
         onClick={() => setShowWizard(true)}
         style={{
-          background: '#3b82f6',
+          background: 'var(--color-info)',
           color: 'white',
           border: 'none',
           padding: '1rem 2rem',

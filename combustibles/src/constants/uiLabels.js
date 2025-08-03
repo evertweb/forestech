@@ -1,10 +1,13 @@
 /**
  * UI Labels y textos de interfaz centralizados para la app combustibles
- * Centralizar todos los textos facilita mantenimiento, localización y consistencia
+ * Facilita el mantenimiento, localización y consistencia de la interfaz.
+ * Cada bloque de etiquetas está documentado para su fácil identificación y extensión.
  */
 
 // ===================================================================
 // ACCIONES COMUNES DE INTERFAZ
+// -------------------------------------------------------------------
+// Acciones principales y secundarias que se muestran en botones y menús de la UI.
 // ===================================================================
 export const UI_ACTIONS = {
   // Acciones principales

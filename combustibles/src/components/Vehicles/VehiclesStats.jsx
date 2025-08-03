@@ -234,7 +234,7 @@ const VehiclesStats = ({ stats, filters }) => {
                       className="breakdown-fill"
                       style={{ 
                         width: `${percentage}%`,
-                        backgroundColor: '#059669'
+                        backgroundColor: 'var(--color-success)'
                       }}
                     />
                   </div>

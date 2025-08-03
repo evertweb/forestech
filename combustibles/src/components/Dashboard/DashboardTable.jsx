@@ -366,8 +366,8 @@ const DashboardTable = () => {
                               className="percentage-fill"
                               style={{ 
                                 width: `${item.percentage}%`,
-                                backgroundColor: item.percentage < 25 ? '#ef4444' : 
-                                               item.percentage < 50 ? '#f59e0b' : '#10b981'
+                                backgroundColor: item.percentage < 25 ? 'var(--color-error)' : 
+                                               item.percentage < 50 ? 'var(--color-warning)' : 'var(--color-success)'
                               }}
                             />
                           </div>

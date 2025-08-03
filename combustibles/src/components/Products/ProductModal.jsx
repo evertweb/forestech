@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
+import { PRODUCT_COLORS } from '../../constants/designTokens';
 import { 
   UI_ACTIONS, 
   UI_FORM_LABELS, 
@@ -56,11 +57,8 @@ const ProductModal = ({
     [PRODUCT_CATEGORIES.FLUIDO]: ['🛑', '💧', '🔴', '🟢', '🔵']
   };
 
-  // Colores predefinidos
-  const colorOptions = [
-    '#FF6B35', '#4CAF50', '#2196F3', '#FF9800', '#F44336',
-    '#9C27B0', '#E91E63', '#795548', '#607D8B', '#3F51B5'
-  ];
+  // Colores predefinidos usando design tokens
+  const colorOptions = PRODUCT_COLORS.DEFAULT_PALETTE;
 
   useEffect(() => {
     if (product && (mode === 'edit' || mode === 'view')) {
@@ -70,7 +68,7 @@ const ProductModal = ({
         category: product.category || PRODUCT_CATEGORIES.COMBUSTIBLE,
         unit: product.unit || 'gal',
         defaultPrice: product.defaultPrice || 0,
-        color: product.color || '#FF6B35',
+        color: product.color || PRODUCT_COLORS.getColorByCategory(product.category || PRODUCT_CATEGORIES.COMBUSTIBLE),
         icon: product.icon || '🛢️',
         description: product.description || '',
         isActive: product.isActive !== undefined ? product.isActive : true,
@@ -86,7 +84,7 @@ const ProductModal = ({
         category: PRODUCT_CATEGORIES.COMBUSTIBLE,
         unit: 'gal',
         defaultPrice: 0,
-        color: '#FF6B35',
+        color: PRODUCT_COLORS.getColorByCategory(PRODUCT_CATEGORIES.COMBUSTIBLE),
         icon: '🛢️',
         description: '',
         isActive: true,

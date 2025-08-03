@@ -1,17 +1,18 @@
 /**
  * Tipos de vehículos y maquinaria forestal
- * Específico para operaciones forestales en Colombia
+ * Específico para operaciones forestales en Colombia.
+ * Cada bloque está documentado para facilitar el mantenimiento y la extensión.
  */
 
-// Categorías principales de vehículos
+// Categorías principales de vehículos utilizados en la app
 export const VEHICLE_CATEGORIES = {
   HARVESTING: 'harvesting',      // Cosecha
   TRANSPORT: 'transport',        // Transporte
   MAINTENANCE: 'maintenance',    // Mantenimiento
-  SUPPORT: 'support'            // Apoyo
+  SUPPORT: 'support'             // Apoyo
 };
 
-// Tipos específicos de vehículos/maquinaria
+// Tipos específicos de vehículos/maquinaria, agrupados por función
 export const VEHICLE_TYPES = {
   // Maquinaria de cosecha
   CHAINSAW: 'chainsaw',

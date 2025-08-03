@@ -35,7 +35,7 @@ const Step4_Summary = ({
   };
 
   const getSummaryColor = () => {
-    return formData.color || '#4A90E2';
+    return formData.color || 'var(--color-info)';
   };
 
   const getFuelTypeNames = () => {
