@@ -1,0 +1,107 @@
+/* SAP Fiori Corporate Theme - Base Variables and Styles
+ * Forestech Colombia - Sistema base para todos los componentes
+ * Basado en: VehicleFormSmart-SAP.css (implementación de referencia)
+ */
+
+/* ==== FONTS SAP FIORI ==== */
+@import url('https://fonts.googleapis.com/css2?family=72:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ==== CSS VARIABLES - SAP FIORI PALETTE ==== */
+:root {
+  /* SAP Brand Colors */
+  --sap-blue-primary: #0070f2;
+  --sap-blue-secondary: #0054b9;
+  --sap-blue-light: #e6f3ff;
+  --sap-blue-dark: #003d82;
+  
+  /* SAP Semantic Colors */
+  --sap-success: #30914f;
+  --sap-warning: #df6e00;
+  --sap-error: #dc0d0e;
+  --sap-information: #0070f2;
+  
+  /* SAP Neutral Colors */
+  --sap-neutral-100: #ffffff;
+  --sap-neutral-200: #f7f7f7;
+  --sap-neutral-300: #ededed;
+  --sap-neutral-400: #d9d9d9;
+  --sap-neutral-500: #cccccc;
+  --sap-neutral-600: #999999;
+  --sap-neutral-700: #666666;
+  --sap-neutral-800: #333333;
+  --sap-neutral-900: #000000;
+  
+  /* SAP Text Colors */
+  --sap-text-primary: #32363a;
+  --sap-text-secondary: #6a6d70;
+  --sap-text-muted: #89919a;
+  --sap-text-white: #ffffff;
+  
+  /* SAP Shadows */
+  --sap-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --sap-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --sap-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --sap-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
+  
+  /* SAP Border Radius */
+  --sap-border-radius-sm: 4px;
+  --sap-border-radius-md: 8px;
+  --sap-border-radius-lg: 12px;
+  
+  /* SAP Spacing */
+  --sap-spacing-xs: 4px;
+  --sap-spacing-sm: 8px;
+  --sap-spacing-md: 16px;
+  --sap-spacing-lg: 24px;
+  --sap-spacing-xl: 32px;
+  --sap-spacing-xxl: 48px;
+  
+  /* SAP Animation */
+  --sap-transition-fast: 0.1s ease-out;
+  --sap-transition-base: 0.2s ease-out;
+  --sap-transition-slow: 0.3s ease-out;
+}
+
+/* ==== GLOBAL SAP STYLING ==== */
+.sap-theme {
+  font-family: '72', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--sap-text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==== FORESTECH SPECIFIC BRANDING ==== */
+.forestech-brand.sap-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-sm);
+}
+
+.forestech-logo.sap-theme {
+  height: 32px;
+  width: auto;
+}
+
+.forestech-title.sap-theme {
+  font-family: '72', sans-serif;
+  font-weight: 600;
+  color: var(--sap-text-primary);
+}
+
+/* Vehicle & Fuel specific iconography */
+.vehicle-icon.sap-theme {
+  font-size: 1.5rem;
+  color: var(--sap-blue-primary);
+  margin-right: var(--sap-spacing-sm);
+}
+
+.fuel-indicator.sap-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sap-spacing-xs);
+  padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
+  background: var(--sap-blue-light);
+  border-radius: var(--sap-border-radius-sm);
+  font-size: 0.75rem;
+}

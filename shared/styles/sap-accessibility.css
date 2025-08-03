@@ -1,0 +1,376 @@
+/* SAP Fiori Accessibility - WCAG 2.1 AA Compliant
+ * Forestech Colombia - Accesibilidad empresarial
+ */
+
+/* ==== FOCUS MANAGEMENT ==== */
+.focusable.sap-theme:focus {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: 2px;
+  border-radius: var(--sap-border-radius-sm);
+}
+
+.focusable.sap-theme:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.focusable.sap-theme:focus-visible {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: 2px;
+}
+
+/* ==== SKIP LINKS ==== */
+.skip-link.sap-theme {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--sap-blue-primary);
+  color: var(--sap-text-white);
+  padding: var(--sap-spacing-sm) var(--sap-spacing-md);
+  text-decoration: none;
+  font-family: '72', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: var(--sap-border-radius-sm);
+  z-index: 1000;
+  transition: top var(--sap-transition-fast);
+}
+
+.skip-link.sap-theme:focus {
+  top: 6px;
+}
+
+/* ==== HIGH CONTRAST SUPPORT ==== */
+@media (prefers-contrast: high) {
+  :root {
+    --sap-neutral-400: #808080;
+    --sap-neutral-500: #666666;
+    --sap-text-muted: #555555;
+    --sap-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --sap-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .btn.sap-theme {
+    border-width: 2px;
+  }
+  
+  .form-input.sap-theme,
+  .form-select.sap-theme,
+  .form-textarea.sap-theme {
+    border-width: 2px;
+  }
+  
+  .card.sap-theme {
+    border-width: 2px;
+  }
+}
+
+/* ==== REDUCED MOTION SUPPORT ==== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .loading-spinner.sap-theme {
+    animation: none;
+    border-top-color: var(--sap-blue-primary);
+  }
+}
+
+/* ==== SCREEN READER UTILITIES ==== */
+.sr-only.sap-theme {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable.sap-theme:active,
+.sr-only-focusable.sap-theme:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: inherit;
+}
+
+/* ==== ARIA STATES ==== */
+[aria-expanded="false"] .icon-expanded.sap-theme,
+[aria-expanded="true"] .icon-collapsed.sap-theme {
+  display: none;
+}
+
+[aria-expanded="true"] .icon-expanded.sap-theme,
+[aria-expanded="false"] .icon-collapsed.sap-theme {
+  display: inline-block;
+}
+
+/* ==== KEYBOARD NAVIGATION ==== */
+.keyboard-nav.sap-theme {
+  outline: none;
+}
+
+.keyboard-nav.sap-theme:focus {
+  box-shadow: 0 0 0 3px rgba(0, 112, 242, 0.5);
+}
+
+/* ==== TAB ORDER MANAGEMENT ==== */
+.tab-container.sap-theme {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-list.sap-theme {
+  display: flex;
+  border-bottom: 1px solid var(--sap-neutral-300);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tab-item.sap-theme {
+  margin: 0;
+  padding: 0;
+}
+
+.tab-button.sap-theme {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--sap-text-secondary);
+  cursor: pointer;
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--sap-spacing-md) var(--sap-spacing-lg);
+  transition: all var(--sap-transition-fast);
+}
+
+.tab-button.sap-theme:hover {
+  color: var(--sap-text-primary);
+  background: var(--sap-neutral-200);
+}
+
+.tab-button.sap-theme:focus {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: -2px;
+}
+
+.tab-button.sap-theme[aria-selected="true"] {
+  color: var(--sap-blue-primary);
+  border-bottom-color: var(--sap-blue-primary);
+  font-weight: 600;
+}
+
+.tab-panel.sap-theme {
+  padding: var(--sap-spacing-lg);
+}
+
+.tab-panel.sap-theme:focus {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: 2px;
+}
+
+/* ==== FORM ACCESSIBILITY ==== */
+.form-group.sap-theme {
+  position: relative;
+}
+
+.required-indicator.sap-theme::after {
+  content: " *";
+  color: var(--sap-error);
+  font-weight: 600;
+}
+
+.error-message.sap-theme {
+  color: var(--sap-error);
+  font-size: 0.75rem;
+  margin-top: var(--sap-spacing-xs);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sap-spacing-xs);
+}
+
+.error-message.sap-theme::before {
+  content: '⚠';
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ==== BUTTON ACCESSIBILITY ==== */
+.btn.sap-theme[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn.sap-theme[aria-pressed="true"] {
+  background: var(--sap-blue-dark);
+  color: var(--sap-text-white);
+}
+
+/* ==== MODAL ACCESSIBILITY ==== */
+.modal-overlay.sap-theme[aria-hidden="true"] {
+  display: none;
+}
+
+.modal-container.sap-theme {
+  position: relative;
+}
+
+.modal-container.sap-theme:focus {
+  outline: none;
+}
+
+/* ==== TABLE ACCESSIBILITY ==== */
+.table.sap-theme th {
+  position: relative;
+}
+
+.sortable-header.sap-theme {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-header.sap-theme:hover {
+  background: var(--sap-neutral-300);
+}
+
+.sortable-header.sap-theme:focus {
+  outline: 2px solid var(--sap-blue-primary);
+  outline-offset: -2px;
+}
+
+.sort-indicator.sap-theme {
+  margin-left: var(--sap-spacing-xs);
+  font-size: 0.75rem;
+  color: var(--sap-text-muted);
+}
+
+.sortable-header.sap-theme[aria-sort="ascending"] .sort-indicator.sap-theme::after {
+  content: '▲';
+  color: var(--sap-blue-primary);
+}
+
+.sortable-header.sap-theme[aria-sort="descending"] .sort-indicator.sap-theme::after {
+  content: '▼';
+  color: var(--sap-blue-primary);
+}
+
+/* ==== NOTIFICATION ACCESSIBILITY ==== */
+.notification.sap-theme {
+  position: relative;
+  padding: var(--sap-spacing-md);
+  margin-bottom: var(--sap-spacing-md);
+  border-radius: var(--sap-border-radius-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sap-spacing-sm);
+}
+
+.notification.sap-theme[role="alert"] {
+  background: #fef7f7;
+  border: 1px solid #f5c6cb;
+  color: var(--sap-error);
+}
+
+.notification.sap-theme[role="status"] {
+  background: #f0f9f0;
+  border: 1px solid #b3e5b3;
+  color: var(--sap-success);
+}
+
+.notification-icon.sap-theme {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  margin-top: 1px;
+}
+
+.notification-content.sap-theme {
+  flex: 1;
+  font-family: '72', sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notification-close.sap-theme {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: var(--sap-spacing-xs);
+  border-radius: var(--sap-border-radius-sm);
+  flex-shrink: 0;
+}
+
+.notification-close.sap-theme:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.notification-close.sap-theme:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* ==== TOOLTIP ACCESSIBILITY ==== */
+.tooltip-trigger.sap-theme {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip.sap-theme {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--sap-neutral-800);
+  color: var(--sap-text-white);
+  padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
+  border-radius: var(--sap-border-radius-sm);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--sap-transition-fast);
+  margin-bottom: var(--sap-spacing-xs);
+}
+
+.tooltip.sap-theme::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--sap-neutral-800);
+}
+
+.tooltip-trigger.sap-theme:hover .tooltip.sap-theme,
+.tooltip-trigger.sap-theme:focus .tooltip.sap-theme {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ==== COLOR CONTRAST INDICATORS ==== */
+.contrast-aa.sap-theme {
+  /* Indicador visual de que cumple WCAG AA */
+  position: relative;
+}
+
+.contrast-aaa.sap-theme {
+  /* Indicador visual de que cumple WCAG AAA */
+  position: relative;
+}
