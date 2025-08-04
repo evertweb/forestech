@@ -893,6 +893,42 @@
   letter-spacing: 0.3px;
 }
 
+/* =================== LOADER DE PUNTOS SALTANDO =================== */
+.dots-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 48px;
+  gap: 8px;
+  margin: 32px 0 24px 0;
+}
+
+.dots-loader .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4caf50;
+  opacity: 0.8;
+  animation: dot-bounce 1s infinite cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+.dots-loader .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dots-loader .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  40% {
+    transform: translateY(-16px);
+    opacity: 1;
+  }
+}
 
 /* =================== RESPONSIVE =================== */
 @media (max-width: 768px) {

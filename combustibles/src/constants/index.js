@@ -34,21 +34,8 @@ import {
 import {
   DESIGN_TOKENS,
   CSS_VARIABLES,
-  PRODUCT_COLORS,
-
-/**
- * Archivo de exportación centralizada para todas las constantes de la app combustibles
- * Punto único de acceso a todas las constantes del sistema
- *
- * Cada exportación/importación está documentada para facilitar el mantenimiento.
- */
-// URLs externas y comunicación
-// ===================================================================
-// IMPORTACIONES DE CONSTANTES EXISTENTES
-// -------------------------------------------------------------------
-// Exporta tipos de combustibles, productos, ubicaciones, roles y tipos de vehículos
-// para que puedan ser accedidos desde un solo punto en la app.
-// ===================================================================
+  PRODUCT_COLORS
+} from './designTokens.js';
 
 // Estilos de modales
 import { MODAL_PRESETS } from './modalStyles.js';

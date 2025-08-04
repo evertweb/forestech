@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import useFormData from '../../hooks/useFormData';
 import { 
   MAINTENANCE_TYPES, 
   MAINTENANCE_STATUS, 
@@ -56,10 +57,38 @@ const MaintenanceModal = ({
     cost: maintenance?.cost || 0
   }), [maintenance]);
 
-  const [formData, setFormData] = useState(getInitialFormData());
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState([]);
+
+  // Validación centralizada
+  const validate = (values) => {
+    const newErrors = {};
+    if (!values.type) newErrors.type = 'Tipo de mantenimiento es requerido';
+    if (!values.vehicleId) newErrors.vehicleId = 'Vehículo es requerido';
+    if (!values.date) newErrors.date = 'Fecha es requerida';
+    if (!values.status) newErrors.status = 'Estado es requerido';
+    if (values.type === MAINTENANCE_TYPES.OIL_CHANGE) {
+      if (!values.quantity || values.quantity <= 0) newErrors.quantity = 'Cantidad de aceite es requerida y debe ser mayor a 0';
+      if (values.currentHours < 0) newErrors.currentHours = 'Horas actuales inválidas';
+      if (values.nextChangeHours < 0) newErrors.nextChangeHours = 'Próximo cambio inválido';
+    }
+    if (values.type === MAINTENANCE_TYPES.BATTERY_CHANGE) {
+      if (!values.batteryType) newErrors.batteryType = 'Tipo de batería es requerido';
+      if (!values.brand) newErrors.brand = 'Marca es requerida';
+      if (!values.model) newErrors.model = 'Modelo es requerido';
+    }
+    if (values.cost && (isNaN(values.cost) || values.cost < 0)) newErrors.cost = 'Costo inválido';
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  };
+
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange,
+    validateForm
+  } = useFormData(getInitialFormData(), validate);
   // const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   // Cargar vehículos disponibles
@@ -72,7 +101,6 @@ const MaintenanceModal = ({
         console.error('Error al cargar vehículos:', error);
       }
     };
-
     if (isOpen) {
       loadVehicles();
     }
@@ -90,7 +118,7 @@ const MaintenanceModal = ({
       //   setSelectedVehicle(vehicle);
       // }
     }
-  }, [isOpen, maintenance, vehicles, getInitialFormData]);
+  }, [isOpen, maintenance, vehicles, getInitialFormData, setFormData, setErrors]);
 
   // Calcular próximo cambio automáticamente
   useEffect(() => {
@@ -101,25 +129,9 @@ const MaintenanceModal = ({
         nextChangeHours: nextChange
       }));
     }
-  }, [formData.currentHours, formData.type]);
+  }, [formData.currentHours, formData.type, setFormData]);
 
-  // Manejar cambios en inputs
-  const handleInputChange = (field, value) => {
-    const newValue = typeof value === 'number' ? parseFloat(value) || 0 : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [field]: newValue
-    }));
 
-    // Limpiar error del campo si existe
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: null
-      }));
-    }
-  };
 
   // Manejar cambio de vehículo
   const handleVehicleChange = (vehicleId) => {
@@ -142,44 +154,7 @@ const MaintenanceModal = ({
   };
 
   // Validaciones del formulario
-  const validateForm = () => {
-    const newErrors = {};
 
-    // Validaciones obligatorias
-    if (!formData.type) {
-      newErrors.type = UI_MESSAGES.ERROR.MAINTENANCE_TYPE_REQUIRED;
-    }
-
-    if (!formData.vehicleId) {
-      newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_REQUIRED;
-    }
-
-    if (!formData.date) {
-      newErrors.date = UI_MESSAGES.ERROR.DATE_REQUIRED;
-    }
-
-    // Validaciones específicas por tipo
-    if (formData.type === MAINTENANCE_TYPES.OIL_CHANGE) {
-      if (!formData.quantity || formData.quantity <= 0) {
-        newErrors.quantity = UI_MESSAGES.ERROR.OIL_QUANTITY_REQUIRED;
-      }
-      if (!formData.currentHours || formData.currentHours < 0) {
-        newErrors.currentHours = UI_MESSAGES.ERROR.HOUR_METER_REQUIRED;
-      }
-    }
-
-    if (formData.type === MAINTENANCE_TYPES.BATTERY_CHANGE) {
-      if (!formData.batteryType) {
-        newErrors.batteryType = UI_MESSAGES.ERROR.BATTERY_TYPE_REQUIRED;
-      }
-      if (!formData.cost || formData.cost <= 0) {
-        newErrors.cost = UI_MESSAGES.ERROR.BATTERY_COST_REQUIRED;
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   // Manejar envío del formulario
   const handleSubmit = async (e) => {

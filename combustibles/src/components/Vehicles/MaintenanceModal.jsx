@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFormData } from '../../hooks/useFormData';
 import { VEHICLE_STATUS } from '../../services/vehiclesService';
 
 // Tipos de mantenimiento
@@ -68,37 +69,81 @@ const MaintenanceModal = ({
       new Date(maintenance.nextMaintenanceDate).toISOString().split('T')[0] : ''
   }), [maintenance, vehicle]);
 
-  const [formData, setFormData] = useState(getInitialFormData());
-  const [errors, setErrors] = useState({});
+  // Función de validación para useFormData
+  const validate = (values) => {
+    const newErrors = {};
+    
+    // Validaciones obligatorias
+    if (!values.title?.trim()) {
+      newErrors.title = 'El título del mantenimiento es obligatorio';
+    }
+    if (!values.description?.trim()) {
+      newErrors.description = 'La descripción es obligatoria';
+    }
+    if (!values.type) {
+      newErrors.type = 'El tipo de mantenimiento es requerido';
+    }
+    if (!values.vehicleId) {
+      newErrors.vehicleId = 'El vehículo es requerido';
+    }
+    if (!values.scheduledDate) {
+      newErrors.scheduledDate = 'La fecha programada es obligatoria';
+    }
+
+    // Validaciones de fechas
+    if (values.startDate && values.completedDate) {
+      const startDate = new Date(values.startDate);
+      const completedDate = new Date(values.completedDate);
+      if (completedDate < startDate) {
+        newErrors.completedDate = 'La fecha de finalización debe ser posterior al inicio';
+      }
+    }
+
+    // Validaciones numéricas
+    if (values.estimatedCost < 0) {
+      newErrors.estimatedCost = 'El costo estimado no puede ser negativo';
+    }
+    if (values.actualCost < 0) {
+      newErrors.actualCost = 'El costo real no puede ser negativo';
+    }
+    if (values.estimatedHours < 0) {
+      newErrors.estimatedHours = 'Las horas estimadas no pueden ser negativas';
+    }
+    if (values.actualHours < 0) {
+      newErrors.actualHours = 'Las horas reales no pueden ser negativas';
+    }
+
+    // Validación de estado vs fechas
+    if (values.status === MAINTENANCE_STATUS.COMPLETADO && !values.completedDate) {
+      newErrors.completedDate = 'La fecha de finalización es obligatoria para mantenimientos completados';
+    }
+    if (values.status === MAINTENANCE_STATUS.EN_PROCESO && !values.startDate) {
+      newErrors.startDate = 'La fecha de inicio es obligatoria para mantenimientos en proceso';
+    }
+
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  };
+
+  // Usar el hook useFormData
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange,
+    resetForm,
+    validateForm
+  } = useFormData(getInitialFormData(), validate);
+
   const [loading, setLoading] = useState(false);
   const [newPart, setNewPart] = useState({ name: '', quantity: 1, cost: 0 });
 
   // Reinicializar formulario cuando cambie el mantenimiento
   useEffect(() => {
     if (isOpen) {
-      setFormData(getInitialFormData());
-      setErrors({});
+      resetForm();
     }
-  }, [isOpen, maintenance, vehicle, getInitialFormData]);
-
-  // Manejar cambios en inputs
-  const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    const newValue = type === 'number' ? parseFloat(value) || 0 : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
-
-    // Limpiar error del campo si existe
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
+  }, [isOpen, resetForm]);
 
   // Manejar cambios en partes
   const handlePartChange = (e) => {
@@ -137,70 +182,6 @@ const MaintenanceModal = ({
       ...prev,
       parts: prev.parts.filter(part => part.id !== partId)
     }));
-  };
-
-  // Validaciones del formulario
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Validaciones obligatorias
-    if (!formData.title.trim()) {
-      newErrors.title = 'El título del mantenimiento es obligatorio';
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = 'La descripción es obligatoria';
-    }
-
-    if (!formData.scheduledDate) {
-      newErrors.scheduledDate = 'La fecha programada es obligatoria';
-    }
-
-    // Validaciones de fechas
-    if (formData.startDate && formData.completedDate) {
-      const startDate = new Date(formData.startDate);
-      const completedDate = new Date(formData.completedDate);
-      if (completedDate < startDate) {
-        newErrors.completedDate = 'La fecha de finalización debe ser posterior al inicio';
-      }
-    }
-
-    if (formData.scheduledDate && formData.startDate) {
-      const scheduledDate = new Date(formData.scheduledDate);
-      const startDate = new Date(formData.startDate);
-      if (startDate < scheduledDate) {
-        // Permitir pero avisar
-      }
-    }
-
-    // Validaciones numéricas
-    if (formData.estimatedHours < 0) {
-      newErrors.estimatedHours = 'Las horas estimadas no pueden ser negativas';
-    }
-
-    if (formData.actualHours < 0) {
-      newErrors.actualHours = 'Las horas reales no pueden ser negativas';
-    }
-
-    if (formData.estimatedCost < 0) {
-      newErrors.estimatedCost = 'El costo estimado no puede ser negativo';
-    }
-
-    if (formData.actualCost < 0) {
-      newErrors.actualCost = 'El costo real no puede ser negativo';
-    }
-
-    // Validación de estado vs fechas
-    if (formData.status === MAINTENANCE_STATUS.COMPLETADO && !formData.completedDate) {
-      newErrors.completedDate = 'La fecha de finalización es obligatoria para mantenimientos completados';
-    }
-
-    if (formData.status === MAINTENANCE_STATUS.EN_PROCESO && !formData.startDate) {
-      newErrors.startDate = 'La fecha de inicio es obligatoria para mantenimientos en proceso';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   // Manejar envío del formulario

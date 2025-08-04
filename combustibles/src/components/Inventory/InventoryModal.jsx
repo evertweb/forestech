@@ -1,17 +1,20 @@
 // combustibles/src/components/Inventory/InventoryModal.jsx
 // Modal para crear y editar items de inventario
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
 import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
+import useFormData from '../../hooks/useFormData';
 
 const InventoryModal = ({ item, onClose, onSuccess }) => {
-  const { userProfile } = useCombustibles();
+  // Estado y loading solo con hooks centralizados
+  const [loading, setLoading] = useState(false);
   const isEditing = !!item;
+  const { userProfile } = useCombustibles();
 
-  // Form state
-  const [formData, setFormData] = useState({
+  // Estado inicial y validación con useFormData
+  const getInitialFormData = useCallback(() => ({
     fuelType: '',
     location: '',
     currentStock: '',
@@ -21,12 +24,49 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
     supplier: '',
     description: '',
     status: 'active'
-  });
+  }), []);
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const validate = (values) => {
+    const newErrors = {};
+    if (!values.fuelType) newErrors.fuelType = 'Tipo de combustible es requerido';
+    if (!values.location) newErrors.location = 'Ubicación es requerida';
+    if (!values.maxCapacity) newErrors.maxCapacity = 'Capacidad máxima es requerida';
 
-  // Initialize form data
+    const currentStock = Number(values.currentStock);
+    const maxCapacity = Number(values.maxCapacity);
+    const minThreshold = Number(values.minThreshold);
+    const pricePerUnit = Number(values.pricePerUnit);
+
+    if (values.currentStock && (isNaN(currentStock) || currentStock < 0)) {
+      newErrors.currentStock = 'Stock actual debe ser un número válido mayor o igual a 0';
+    }
+    if (values.maxCapacity && (isNaN(maxCapacity) || maxCapacity <= 0)) {
+      newErrors.maxCapacity = 'Capacidad máxima debe ser un número válido mayor a 0';
+    }
+    if (values.minThreshold && (isNaN(minThreshold) || minThreshold < 0)) {
+      newErrors.minThreshold = 'Umbral mínimo debe ser un número válido mayor o igual a 0';
+    }
+    if (values.pricePerUnit && (isNaN(pricePerUnit) || pricePerUnit < 0)) {
+      newErrors.pricePerUnit = 'Precio debe ser un número válido mayor o igual a 0';
+    }
+    if (currentStock > maxCapacity) {
+      newErrors.currentStock = 'Stock actual no puede ser mayor a la capacidad máxima';
+    }
+    if (minThreshold > maxCapacity) {
+      newErrors.minThreshold = 'Umbral mínimo no puede ser mayor a la capacidad máxima';
+    }
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  };
+
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    handleInputChange,
+    validateForm
+  } = useFormData(getInitialFormData(), validate);
+
+  // Reinicializar formulario cuando cambie el item a editar
   useEffect(() => {
     if (isEditing && item) {
       setFormData({
@@ -41,77 +81,9 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
         status: item.status || 'active'
       });
     }
-  }, [isEditing, item]);
+  }, [isEditing, item, setFormData]);
 
-  // Auto-calculate min threshold when max capacity changes
-  useEffect(() => {
-    if (formData.maxCapacity && !formData.minThreshold) {
-      const autoThreshold = Math.round(Number(formData.maxCapacity) * 0.15);
-      setFormData(prev => ({
-        ...prev,
-        minThreshold: autoThreshold
-      }));
-    }
-  }, [formData.maxCapacity, formData.minThreshold]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Required fields
-    if (!formData.fuelType) newErrors.fuelType = 'Tipo de combustible es requerido';
-    if (!formData.location) newErrors.location = 'Ubicación es requerida';
-    if (!formData.maxCapacity) newErrors.maxCapacity = 'Capacidad máxima es requerida';
-
-    // Numeric validations
-    const currentStock = Number(formData.currentStock);
-    const maxCapacity = Number(formData.maxCapacity);
-    const minThreshold = Number(formData.minThreshold);
-    const pricePerUnit = Number(formData.pricePerUnit);
-
-    if (formData.currentStock && (isNaN(currentStock) || currentStock < 0)) {
-      newErrors.currentStock = 'Stock actual debe ser un número válido mayor o igual a 0';
-    }
-
-    if (formData.maxCapacity && (isNaN(maxCapacity) || maxCapacity <= 0)) {
-      newErrors.maxCapacity = 'Capacidad máxima debe ser un número válido mayor a 0';
-    }
-
-    if (formData.minThreshold && (isNaN(minThreshold) || minThreshold < 0)) {
-      newErrors.minThreshold = 'Umbral mínimo debe ser un número válido mayor o igual a 0';
-    }
-
-    if (formData.pricePerUnit && (isNaN(pricePerUnit) || pricePerUnit < 0)) {
-      newErrors.pricePerUnit = 'Precio debe ser un número válido mayor o igual a 0';
-    }
-
-    // Business logic validations
-    if (currentStock > maxCapacity) {
-      newErrors.currentStock = 'Stock actual no puede ser mayor a la capacidad máxima';
-    }
-
-    if (minThreshold > maxCapacity) {
-      newErrors.minThreshold = 'Umbral mínimo no puede ser mayor a la capacidad máxima';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

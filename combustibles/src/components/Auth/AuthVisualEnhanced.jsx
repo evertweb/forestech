@@ -62,7 +62,17 @@ const FloatingParticles = ({ count = 15 }) => {
   );
 };
 
-// Componente de loading líquido
+// Loader moderno: puntos saltando
+const DotsLoader = () => (
+  <div className="dots-loader">
+    <span className="dot" />
+    <span className="dot" />
+    <span className="dot" />
+  </div>
+);
+
+// Loader líquido clásico (comentado, puedes volver a activarlo si prefieres)
+/*
 const LiquidLoader = () => {
   return (
     <div className="liquid-loader">
@@ -73,6 +83,7 @@ const LiquidLoader = () => {
     </div>
   );
 };
+*/
 
 const AuthVisualEnhanced = () => {
   const [view, setView] = useState('login');
@@ -624,8 +635,10 @@ const AuthVisualEnhanced = () => {
     >
       <FloatingParticles count={20} />
       
-      {imageLoading && <LiquidLoader />}
-      
+      {/* Loader de carga: usa DotsLoader, puedes cambiar a LiquidLoader si prefieres */}
+      {imageLoading && <DotsLoader />}
+      {/* {imageLoading && <LiquidLoader />} */}
+
       <div ref={cardRef} className={`auth-card-enhanced ${isExpanded ? 'expanded' : 'minimal'}`}>
         {error && (
           <div className="error-message enhanced">

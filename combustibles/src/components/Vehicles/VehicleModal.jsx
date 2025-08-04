@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import useFormData from '../../hooks/useFormData';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
@@ -25,7 +26,8 @@ const VehicleModal = ({
   mode = 'create', 
   userRole 
 }) => {
-  // Estado inicial del formulario
+
+  // Estado y validación centralizados con useFormData
   const getInitialFormData = useCallback(() => ({
     vehicleId: vehicle?.vehicleId || '',
     name: vehicle?.name || '',
@@ -41,7 +43,6 @@ const VehicleModal = ({
     estimatedConsumptionPerHour: vehicle?.estimatedConsumptionPerHour || 0,
     serialNumber: vehicle?.serialNumber || '',
     plateNumber: vehicle?.plateNumber || '',
-    // ✅ NUEVO: Campos para horómetro de tractores
     hasHourMeter: vehicle?.hasHourMeter || false,
     currentHours: vehicle?.currentHours || 0,
     lastMaintenanceDate: vehicle?.lastMaintenanceDate ? 
@@ -54,95 +55,73 @@ const VehicleModal = ({
       new Date(vehicle.warrantyExpiration).toISOString().split('T')[0] : ''
   }), [vehicle]);
 
-  const [formData, setFormData] = useState(getInitialFormData());
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [customType, setCustomType] = useState('');
   const [showCustomType, setShowCustomType] = useState(false);
 
-  // Reinicializar formulario cuando cambie el vehículo
-  useEffect(() => {
-    if (isOpen) {
-      setFormData(getInitialFormData());
-      setErrors({});
-    }
-  }, [isOpen, vehicle, getInitialFormData]);
-
-  // Manejar cambios en inputs
-  const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    const newValue = type === 'number' ? parseFloat(value) || 0 : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
-
-    // Limpiar error del campo si existe
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
-
-  // Validaciones del formulario
-  const validateForm = () => {
+  // Validación personalizada
+  const validate = (values) => {
     const newErrors = {};
-
-    // Validaciones obligatorias
-    if (!formData.vehicleId.trim()) {
+    if (!values.vehicleId.trim()) {
       newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_ID_REQUIRED;
-    } else if (formData.vehicleId.length < 3) {
+    } else if (values.vehicleId.length < 3) {
       newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_ID_MIN_LENGTH;
     }
-
-    if (!formData.name.trim()) {
+    if (!values.name.trim()) {
       newErrors.name = UI_MESSAGES.ERROR.VEHICLE_NAME_REQUIRED;
-    } else if (formData.name.length < 2) {
+    } else if (values.name.length < 2) {
       newErrors.name = UI_MESSAGES.ERROR.VEHICLE_NAME_MIN_LENGTH;
     }
-
-    // Validaciones numéricas
-    if (formData.fuelCapacity <= 0) {
+    if (values.fuelCapacity <= 0) {
       newErrors.fuelCapacity = UI_MESSAGES.ERROR.FUEL_CAPACITY_POSITIVE;
-    } else if (formData.fuelCapacity > 1000) {
+    } else if (values.fuelCapacity > 1000) {
       newErrors.fuelCapacity = UI_MESSAGES.ERROR.FUEL_CAPACITY_MAX;
     }
-
-    if (formData.enginePower < 0) {
+    if (values.enginePower < 0) {
       newErrors.enginePower = UI_MESSAGES.ERROR.ENGINE_POWER_POSITIVE;
-    } else if (formData.enginePower > 1000) {
+    } else if (values.enginePower > 1000) {
       newErrors.enginePower = UI_MESSAGES.ERROR.ENGINE_POWER_MAX;
     }
-
-    if (formData.estimatedConsumptionPerHour < 0) {
+    if (values.estimatedConsumptionPerHour < 0) {
       newErrors.estimatedConsumptionPerHour = UI_MESSAGES.ERROR.CONSUMPTION_POSITIVE;
-    } else if (formData.estimatedConsumptionPerHour > 50) {
+    } else if (values.estimatedConsumptionPerHour > 50) {
       newErrors.estimatedConsumptionPerHour = UI_MESSAGES.ERROR.CONSUMPTION_MAX;
     }
-
-    // Validaciones de fechas
-    if (formData.lastMaintenanceDate && formData.nextMaintenanceDate) {
-      const lastDate = new Date(formData.lastMaintenanceDate);
-      const nextDate = new Date(formData.nextMaintenanceDate);
+    if (values.lastMaintenanceDate && values.nextMaintenanceDate) {
+      const lastDate = new Date(values.lastMaintenanceDate);
+      const nextDate = new Date(values.nextMaintenanceDate);
       if (nextDate <= lastDate) {
         newErrors.nextMaintenanceDate = UI_MESSAGES.ERROR.NEXT_MAINTENANCE_DATE_INVALID;
       }
     }
-
-    if (formData.purchaseDate) {
-      const purchaseDate = new Date(formData.purchaseDate);
+    if (values.purchaseDate) {
+      const purchaseDate = new Date(values.purchaseDate);
       const today = new Date();
       if (purchaseDate > today) {
         newErrors.purchaseDate = UI_MESSAGES.ERROR.PURCHASE_DATE_FUTURE;
       }
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
   };
+
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange,
+    resetForm,
+    validateForm
+  } = useFormData(getInitialFormData(), validate);
+
+  // Reinicializar formulario cuando cambie el vehículo
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen, vehicle, getInitialFormData, resetForm]);
+
+
 
   // Manejar envío del formulario
   const handleSubmit = async (e) => {
@@ -576,12 +555,7 @@ const VehicleModal = ({
                         id="hasHourMeter"
                         name="hasHourMeter"
                         checked={formData.hasHourMeter}
-                        onChange={(e) => setFormData(prev => ({ 
-                          ...prev, 
-                          hasHourMeter: e.target.checked,
-                          // Auto-habilitar para tractores
-                          ...(formData.type === VEHICLE_TYPES.TRACTOR ? { hasHourMeter: true } : {})
-                        }))}
+                        onChange={handleInputChange}
                         disabled={isReadOnly || (mode === 'edit' && !canEdit) || formData.type === VEHICLE_TYPES.TRACTOR}
                       />
                       {' '}{UI_FORM_LABELS.HAS_HOUR_METER}

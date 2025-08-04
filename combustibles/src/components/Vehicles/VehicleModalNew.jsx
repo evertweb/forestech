@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFormData } from '../../hooks/useFormData';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
 import { 
@@ -27,7 +28,6 @@ const VehicleModalNew = ({
   const [showCategoriesManager, setShowCategoriesManager] = useState(false);
   const [showCategoryDetails, setShowCategoryDetails] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
 
   // Estado inicial del formulario
   const getInitialFormData = useCallback(() => ({
@@ -62,7 +62,33 @@ const VehicleModalNew = ({
       new Date(vehicle.purchaseDate).toISOString().split('T')[0] : ''
   }), [vehicle]);
 
-  const [formData, setFormData] = useState(getInitialFormData());
+  // Función de validación para useFormData
+  const validate = (values) => {
+    const newErrors = {};
+    if (!values.name?.trim()) {
+      newErrors.name = 'El nombre del vehículo es requerido';
+    }
+    if (!values.category) {
+      newErrors.category = 'La categoría es requerida';
+    }
+    if (!values.brand?.trim()) {
+      newErrors.brand = 'La marca es requerida';
+    }
+    if (!values.fuelType) {
+      newErrors.fuelType = 'El tipo de combustible es requerido';
+    }
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  };
+
+  // Usar el hook useFormData
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange: baseHandleInputChange,
+    validateForm
+  } = useFormData(getInitialFormData(), validate);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -81,7 +107,7 @@ const VehicleModalNew = ({
     } finally {
       setLoading(false);
     }
-  }, [mode]); // Removed loadCategories from dependencies as it's stable
+  }, [mode, setFormData]); // Added setFormData dependency
 
   useEffect(() => {
     if (isOpen) {
@@ -105,7 +131,7 @@ const VehicleModalNew = ({
       setSelectedCategory(category);
       setFormData(getInitialFormData());
     }
-  }, [vehicle, categories, getInitialFormData]);
+  }, [vehicle, categories, getInitialFormData, setFormData]);
 
   const handleCategoryChange = (categoryId) => {
     const category = getCategoryById(categoryId, categories);
@@ -130,18 +156,17 @@ const VehicleModalNew = ({
     setErrors({});
   };
 
+  // Función wrapper para manejar la lógica especial de campos
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Limpiar error del campo
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }));
-    }
+    // Usar baseHandleInputChange del hook para la funcionalidad básica
+    const fakeEvent = { target: { name: field, value, type: 'text' } };
+    baseHandleInputChange(fakeEvent);
 
     // Auto-generar ID del vehículo cuando se cambia el nombre
     if (field === 'name' && mode === 'create') {
       const autoId = generateVehicleId(value, selectedCategory);
-      setFormData(prev => ({ ...prev, vehicleId: autoId }));
+      const idEvent = { target: { name: 'vehicleId', value: autoId, type: 'text' } };
+      baseHandleInputChange(idEvent);
     }
     
     // Regenerar ID cuando se cambia la categoría
@@ -149,7 +174,8 @@ const VehicleModalNew = ({
       const newCategory = selectedCategory;
       if (newCategory) {
         const autoId = generateVehicleId(formData.name, newCategory);
-        setFormData(prev => ({ ...prev, vehicleId: autoId }));
+        const idEvent = { target: { name: 'vehicleId', value: autoId, type: 'text' } };
+        baseHandleInputChange(idEvent);
       }
     }
   };
@@ -175,53 +201,6 @@ const VehicleModalNew = ({
     const sequential = timestamp.slice(-3); // Últimos 3 dígitos
     
     return `${categoryPrefix}${nameSuffix}${sequential}`;
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Campos obligatorios
-    if (!formData.vehicleId?.trim()) {
-      newErrors.vehicleId = 'Código del vehículo es requerido';
-    }
-
-    if (!formData.name?.trim()) {
-      newErrors.name = 'Nombre del vehículo es requerido';
-    }
-
-    if (!formData.category) {
-      newErrors.category = 'Categoría es requerida';
-    }
-
-    if (!formData.fuelType) {
-      newErrors.fuelType = 'Tipo de combustible es requerido';
-    }
-
-    // Validar compatibilidad de combustible con categoría
-    if (selectedCategory && formData.fuelType) {
-      if (!selectedCategory.fuelTypes?.includes(formData.fuelType)) {
-        newErrors.fuelType = `Este combustible no es compatible con la categoría ${selectedCategory.name}`;
-      }
-    }
-
-    // Validar campos numéricos
-    const numericFields = ['enginePower', 'fuelCapacity', 'operatingWeight', 'loadCapacity', 'bucketCapacity', 'flow', 'pressure', 'weight'];
-    numericFields.forEach(field => {
-      if (formData[field] && (isNaN(formData[field]) || Number(formData[field]) < 0)) {
-        newErrors[field] = 'Debe ser un número válido mayor o igual a 0';
-      }
-    });
-
-
-    // Validar horómetro para tractores
-    if (formData.hasHourMeter && formData.currentHours) {
-      if (isNaN(formData.currentHours) || Number(formData.currentHours) < 0) {
-        newErrors.currentHours = 'Horas actuales debe ser un número válido mayor o igual a 0';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {

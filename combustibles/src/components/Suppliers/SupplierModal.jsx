@@ -1,6 +1,7 @@
 // combustibles/src/components/Suppliers/SupplierModal.jsx
 // Modal para crear/editar proveedores
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import useFormData from '../../hooks/useFormData';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
@@ -10,8 +11,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
   const { userProfile } = useCombustibles();
   const isEditing = !!supplier;
 
-  // Form state
-  const [formData, setFormData] = useState({
+
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('basic'); // 'basic', 'contact', 'products', 'commercial'
+
+  // Estado inicial y validación con useFormData
+  const getInitialFormData = useCallback(() => ({
     name: '',
     taxId: '',
     type: 'proveedor',
@@ -30,13 +35,49 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     evaluationNotes: '',
     status: 'active',
     isPreferred: false
-  });
+  }), []);
 
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [activeTab, setActiveTab] = useState('basic'); // 'basic', 'contact', 'products', 'commercial'
+  const validate = (values) => {
+    const newErrors = {};
+    if (!values.name.trim()) {
+      newErrors.name = `${UI_FORM_LABELS.SUPPLIER} ${UI_FORM_LABELS.NAME} es requerido`;
+    }
+    if (!values.category) {
+      newErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
+    }
+    if (!values.type) {
+      newErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
+    }
+    if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+      newErrors.email = `El formato del ${UI_FORM_LABELS.EMAIL.toLowerCase()} no es válido`;
+    }
+    if (values.phone && !/^[\d\s\-+()]+$/.test(values.phone)) {
+      newErrors.phone = `El formato del ${UI_FORM_LABELS.PHONE.toLowerCase()} no es válido`;
+    }
+    if (values.creditLimit && (isNaN(values.creditLimit) || parseFloat(values.creditLimit) < 0)) {
+      newErrors.creditLimit = 'El límite de crédito debe ser un número positivo';
+    }
+    if (values.rating < 1 || values.rating > 5) {
+      newErrors.rating = 'El rating debe estar entre 1 y 5';
+    }
+    (values.fuelTypes || []).forEach(fuelType => {
+      if (values.priceList && values.priceList[fuelType] && (isNaN(values.priceList[fuelType]) || parseFloat(values.priceList[fuelType]) < 0)) {
+        newErrors[`price_${fuelType}`] = `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`;
+      }
+    });
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  };
 
-  // Initialize form data when editing
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    handleInputChange,
+    resetForm,
+    validateForm
+  } = useFormData(getInitialFormData(), validate);
+
+  // Inicializar datos al editar
   useEffect(() => {
     if (isEditing && supplier) {
       setFormData({
@@ -59,16 +100,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
         status: supplier.status || 'active',
         isPreferred: supplier.isPreferred || false
       });
+    } else if (!isEditing) {
+      resetForm();
     }
-  }, [isEditing, supplier]);
+  }, [isEditing, supplier, setFormData, resetForm]);
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }));
-    }
-  };
+
 
   const handleFuelTypeToggle = (fuelType) => {
     setFormData(prev => ({
@@ -89,82 +126,29 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
 
-    // Required fields
-    if (!formData.name.trim()) {
-      newErrors.name = `${UI_FORM_LABELS.SUPPLIER} ${UI_FORM_LABELS.NAME} es requerido`;
-    }
-
-    if (!formData.category) {
-      newErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
-    }
-
-    if (!formData.type) {
-      newErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
-    }
-
-    // Email validation
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = `El formato del ${UI_FORM_LABELS.EMAIL.toLowerCase()} no es válido`;
-    }
-
-    // Phone validation (basic)
-    if (formData.phone && !/^[\d\s\-+()]+$/.test(formData.phone)) {
-      newErrors.phone = `El formato del ${UI_FORM_LABELS.PHONE.toLowerCase()} no es válido`;
-    }
-
-    // Credit limit validation
-    if (formData.creditLimit && (isNaN(formData.creditLimit) || parseFloat(formData.creditLimit) < 0)) {
-      newErrors.creditLimit = 'El límite de crédito debe ser un número positivo';
-    }
-
-    // Rating validation
-    if (formData.rating < 1 || formData.rating > 5) {
-      newErrors.rating = 'El rating debe estar entre 1 y 5';
-    }
-
-    // Fuel types validation for prices
-    formData.fuelTypes.forEach(fuelType => {
-      if (formData.priceList[fuelType] && (isNaN(formData.priceList[fuelType]) || parseFloat(formData.priceList[fuelType]) < 0)) {
-        newErrors[`price_${fuelType}`] = `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`;
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setLoading(true);
-
     try {
       const supplierData = {
         ...formData,
         creditLimit: parseFloat(formData.creditLimit) || 0,
         rating: parseFloat(formData.rating) || 5,
-        // Clean up price list - only include prices for selected fuel types
         priceList: Object.fromEntries(
           Object.entries(formData.priceList).filter(([fuelType, price]) => 
             formData.fuelTypes.includes(fuelType) && price > 0
           )
         )
       };
-
       let result;
       if (isEditing) {
         result = await updateSupplier(supplier.id, supplierData, userProfile?.email);
       } else {
         result = await createSupplier(supplierData, userProfile?.email);
       }
-
       if (result.success) {
         onSuccess();
       } else {
@@ -224,7 +208,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      name="name"
+                      onChange={handleInputChange}
                       placeholder={`Ingresa el ${UI_FORM_LABELS.NAME.toLowerCase()} del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       className={errors.name ? 'error' : ''}
                     />
@@ -236,7 +221,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="text"
                       value={formData.taxId}
-                      onChange={(e) => handleInputChange('taxId', e.target.value)}
+                      name="taxId"
+                      onChange={handleInputChange}
                       placeholder="123456789-0"
                       className={errors.taxId ? 'error' : ''}
                     />
@@ -247,7 +233,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <label className="required">{UI_FORM_LABELS.TYPE} de {UI_FORM_LABELS.SUPPLIER}</label>
                     <select
                       value={formData.type}
-                      onChange={(e) => handleInputChange('type', e.target.value)}
+                      name="type"
+                      onChange={handleInputChange}
                       className={errors.type ? 'error' : ''}
                     >
                       <option value="proveedor">{UI_FORM_LABELS.SUPPLIER}</option>
@@ -261,7 +248,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <label className="required">{UI_FORM_LABELS.CATEGORY}</label>
                     <select
                       value={formData.category}
-                      onChange={(e) => handleInputChange('category', e.target.value)}
+                      name="category"
+                      onChange={handleInputChange}
                       className={errors.category ? 'error' : ''}
                     >
                       <option value="combustibles">Combustibles</option>
@@ -275,7 +263,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <label>{UI_FORM_LABELS.STATUS}</label>
                     <select
                       value={formData.status}
-                      onChange={(e) => handleInputChange('status', e.target.value)}
+                      name="status"
+                      onChange={handleInputChange}
                     >
                       <option value="active">{UI_STATUS.ACTIVE}</option>
                       <option value="inactive">{UI_STATUS.INACTIVE}</option>
@@ -287,8 +276,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <label className="checkbox-label">
                       <input
                         type="checkbox"
+                        name="isPreferred"
                         checked={formData.isPreferred}
-                        onChange={(e) => handleInputChange('isPreferred', e.target.checked)}
+                        onChange={handleInputChange}
                       />
                       <span className="checkbox-mark"></span>
                       {UI_STATUS.PREFERRED_SUPPLIER}
@@ -307,7 +297,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="text"
                       value={formData.contactPerson}
-                      onChange={(e) => handleInputChange('contactPerson', e.target.value)}
+                      name="contactPerson"
+                      onChange={handleInputChange}
                       placeholder="Nombre del contacto principal"
                     />
                   </div>
@@ -317,7 +308,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      name="phone"
+                      onChange={handleInputChange}
                       placeholder={UI_PLACEHOLDERS.PHONE_FORMAT}
                       className={errors.phone ? 'error' : ''}
                     />
@@ -329,7 +321,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      name="email"
+                      onChange={handleInputChange}
                       placeholder={UI_PLACEHOLDERS.EMAIL_FORMAT}
                       className={errors.email ? 'error' : ''}
                     />
@@ -341,7 +334,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="text"
                       value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      name="city"
+                      onChange={handleInputChange}
                       placeholder="Bogotá"
                     />
                   </div>
@@ -351,7 +345,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <input
                       type="text"
                       value={formData.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
+                      name="state"
+                      onChange={handleInputChange}
                       placeholder="Colombia"
                     />
                   </div>
@@ -360,7 +355,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <label>{UI_FORM_LABELS.ADDRESS}</label>
                     <textarea
                       value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
+                      name="address"
+                      onChange={handleInputChange}
                       placeholder={`${UI_FORM_LABELS.ADDRESS} completa del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       rows="3"
                     />
@@ -429,7 +425,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     <label>Términos de Pago</label>
                     <select
                       value={formData.paymentTerms}
-                      onChange={(e) => handleInputChange('paymentTerms', e.target.value)}
+                      name="paymentTerms"
+                      onChange={handleInputChange}
                     >
                       <option value="contado">Contado</option>
                       <option value="30dias">30 días</option>
@@ -446,8 +443,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         type="number"
                         step="0.01"
                         min="0"
+                        name="creditLimit"
                         value={formData.creditLimit}
-                        onChange={(e) => handleInputChange('creditLimit', e.target.value)}
+                        onChange={handleInputChange}
                         placeholder="0.00"
                         className={errors.creditLimit ? 'error' : ''}
                       />
@@ -463,8 +461,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         min="1"
                         max="5"
                         step="0.1"
+                        name="rating"
                         value={formData.rating}
-                        onChange={(e) => handleInputChange('rating', parseFloat(e.target.value))}
+                        onChange={handleInputChange}
                         className={errors.rating ? 'error' : ''}
                       />
                       <div className="rating-display">
@@ -487,8 +486,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   <div className="form-group full-width">
                     <label>Notas de Evaluación</label>
                     <textarea
+                      name="evaluationNotes"
                       value={formData.evaluationNotes}
-                      onChange={(e) => handleInputChange('evaluationNotes', e.target.value)}
+                      onChange={handleInputChange}
                       placeholder="Comentarios sobre el desempeño del proveedor..."
                       rows="4"
                     />

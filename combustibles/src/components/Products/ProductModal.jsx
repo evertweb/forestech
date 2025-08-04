@@ -15,6 +15,7 @@ import {
   UI_TITLES 
 } from '../../constants';
 
+import { useFormData } from '../../hooks/useFormData';
 const ProductModal = ({ 
   isOpen, 
   onClose, 
@@ -23,7 +24,7 @@ const ProductModal = ({
   onSave,
   userRole 
 }) => {
-  const [formData, setFormData] = useState({
+  const initialValues = {
     name: '',
     displayName: '',
     category: PRODUCT_CATEGORIES.COMBUSTIBLE,
@@ -36,29 +37,54 @@ const ProductModal = ({
     currentStock: 0,
     minThreshold: 10,
     maxCapacity: 1000
-  });
+  };
+  const [loading] = useState(false);
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-
-  // Opciones de unidades
-  const unitOptions = [
-    { value: 'gal', label: 'Galones (gal)' },
-    { value: 'L', label: 'Litros (L)' },
-    { value: 'kg', label: 'Kilogramos (kg)' },
-    { value: 'und', label: 'Unidades (und)' }
-  ];
-
-  // Opciones de iconos por categoría
-  const iconOptions = {
-    [PRODUCT_CATEGORIES.COMBUSTIBLE]: ['🛢️', '🚛', '🚗', '⛽', '🌿'],
-    [PRODUCT_CATEGORIES.ACEITE]: ['🛢️', '⚙️', '🔧', '🚜', '🏭'],
-    [PRODUCT_CATEGORIES.LUBRICANTE]: ['🟥', '🟡', '🔵', '⚫', '🟤'],
-    [PRODUCT_CATEGORIES.FLUIDO]: ['🛑', '💧', '🔴', '🟢', '🔵']
+  const validate = (values) => {
+    const newErrors = {};
+    if (!values.name.trim()) {
+      newErrors.name = UI_MESSAGES.ERROR.NAME_REQUIRED;
+    }
+    if (!values.displayName.trim()) {
+      newErrors.displayName = UI_MESSAGES.ERROR.DISPLAY_NAME_REQUIRED;
+    }
+    if (!values.category) {
+      newErrors.category = UI_MESSAGES.ERROR.CATEGORY_REQUIRED;
+    }
+    if (!values.unit) {
+      newErrors.unit = UI_MESSAGES.ERROR.UNIT_REQUIRED;
+    }
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
   };
 
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange,
+    resetForm,
+    validateForm
+  } = useFormData(initialValues, validate);
   // Colores predefinidos usando design tokens
   const colorOptions = PRODUCT_COLORS.DEFAULT_PALETTE;
+  
+  // Opciones de unidades
+  const unitOptions = [
+    { value: 'gal', label: 'Galones' },
+    { value: 'L', label: 'Litros' },
+    { value: 'bbl', label: 'Barriles' },
+    { value: 'kg', label: 'Kilogramos' },
+    { value: 'ton', label: 'Toneladas' }
+  ];
+  
+  // Iconos por categoría
+  const iconOptions = {
+    combustible: ['⛽', '🛢️', '🚗', '⚡'],
+    lubricante: ['🛠️', '⚙️', '🔧', '🛡️'],
+    aditivo: ['🧪', '⚗️', '💊', '🔬'],
+    otros: ['📦', '🏷️', '🔧', '⚡']
+  };
 
   useEffect(() => {
     if (product && (mode === 'edit' || mode === 'view')) {
@@ -78,102 +104,18 @@ const ProductModal = ({
       });
     } else {
       // Reset form for create mode
-      setFormData({
-        name: '',
-        displayName: '',
-        category: PRODUCT_CATEGORIES.COMBUSTIBLE,
-        unit: 'gal',
-        defaultPrice: 0,
-        color: PRODUCT_COLORS.getColorByCategory(PRODUCT_CATEGORIES.COMBUSTIBLE),
-        icon: '🛢️',
-        description: '',
-        isActive: true,
-        currentStock: 0,
-        minThreshold: 10,
-        maxCapacity: 1000
-      });
+      resetForm();
     }
-    setErrors({});
-  }, [product, mode, isOpen]);
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = UI_MESSAGES.ERROR.NAME_REQUIRED;
-    }
-
-    if (!formData.displayName.trim()) {
-      newErrors.displayName = UI_MESSAGES.ERROR.DISPLAY_NAME_REQUIRED;
-    }
-
-    if (!formData.category) {
-      newErrors.category = UI_MESSAGES.ERROR.CATEGORY_REQUIRED;
-    }
-
-    if (!formData.unit) {
-      newErrors.unit = UI_MESSAGES.ERROR.UNIT_REQUIRED;
-    }
-
-    if (formData.defaultPrice < 0) {
-      newErrors.defaultPrice = UI_MESSAGES.ERROR.PRICE_POSITIVE;
-    }
-
-    if (formData.currentStock < 0) {
-      newErrors.currentStock = UI_MESSAGES.ERROR.STOCK_POSITIVE;
-    }
-
-    if (formData.minThreshold < 0) {
-      newErrors.minThreshold = UI_MESSAGES.ERROR.MIN_THRESHOLD_POSITIVE;
-    }
-
-    if (formData.maxCapacity <= 0) {
-      newErrors.maxCapacity = UI_MESSAGES.ERROR.MAX_CAPACITY_POSITIVE;
-    }
-
-    if (formData.minThreshold >= formData.maxCapacity) {
-      newErrors.minThreshold = UI_MESSAGES.ERROR.MIN_THRESHOLD_LESS_THAN_MAX;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  }, [product, mode, setFormData, resetForm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm() || !canEdit) return;
     
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
     try {
-      await onSave({
-        ...formData,
-        defaultPrice: parseFloat(formData.defaultPrice),
-        currentStock: parseFloat(formData.currentStock),
-        minThreshold: parseFloat(formData.minThreshold),
-        maxCapacity: parseFloat(formData.maxCapacity)
-      });
-      onClose();
-    } catch (error) {
-      console.error('Error saving product:', error);
+      await onSave(formData);
+    } catch {
       setErrors({ submit: 'Error al guardar el producto' });
-    } finally {
-      setLoading(false);
     }
   };
 
