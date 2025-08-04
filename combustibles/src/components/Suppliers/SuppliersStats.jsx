@@ -2,23 +2,16 @@
 // Componente de estadísticas de proveedores
 import React, { useState } from 'react';
 import { formatNumber, formatPercentage } from '../../utils/calculations';
+import { useSupplierStatusColors } from '../../hooks/useStatusColors';
 
 const SuppliersStats = ({ stats, suppliersCount, totalSuppliers }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { getStatusColor } = useSupplierStatusColors();
   
   if (!stats) return null;
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'active': return 'var(--color-success-light)';
-      case 'inactive': return 'var(--color-error)';
-      case 'suspended': return 'var(--color-warning)';
-      default: return 'var(--text-muted)';
-    }
   };
 
   const getCategoryIcon = (category) => {

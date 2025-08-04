@@ -6,8 +6,11 @@
 import React from 'react';
 import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/maintenanceService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
+import { useMaintenanceStatusColors } from '../../hooks/useStatusColors';
 
 const MaintenanceStats = ({ stats }) => {
+  const { getStatusColor } = useMaintenanceStatusColors();
+  
   if (!stats) return null;
 
   const getMaintenanceTypeIcon = (type) => {
@@ -37,19 +40,6 @@ const MaintenanceStats = ({ stats }) => {
         return 'Mantenimientos Generales';
       default:
         return type;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case MAINTENANCE_STATUS.COMPLETED:
-        return 'var(--color-success)';
-      case MAINTENANCE_STATUS.PENDING:
-        return 'var(--color-warning)';
-      case MAINTENANCE_STATUS.CANCELLED:
-        return 'var(--color-error)';
-      default:
-        return 'var(--text-muted)';
     }
   };
 

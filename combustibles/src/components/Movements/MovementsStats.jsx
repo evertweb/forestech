@@ -6,9 +6,12 @@
 import React from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
+import { useMovementStatusColors } from '../../hooks/useStatusColors';
 import './MovementsStats-SAP.css';
 
 const MovementsStats = ({ stats, filters }) => {
+  const { getStatusColor } = useMovementStatusColors();
+  
   if (!stats) return null;
 
   // Calcular porcentaje de crecimiento
@@ -132,14 +135,7 @@ const MovementsStats = ({ stats, filters }) => {
           <div className="breakdown-grid sap-theme">
             {Object.entries(stats.byStatus).map(([status, count]) => {
               const percentage = ((count / stats.totalMovements) * 100).toFixed(1);
-              const getStatusColor = (status) => {
-                switch (status) {
-                  case MOVEMENT_STATUS.COMPLETADO: return 'var(--color-success)';
-                  case MOVEMENT_STATUS.PENDIENTE: return 'var(--color-warning)';
-                  case MOVEMENT_STATUS.CANCELADO: return 'var(--color-error)';
-                  default: return 'var(--text-muted)';
-                }
-              };
+              
               const getStatusIcon = (status) => {
                 switch (status) {
                   case MOVEMENT_STATUS.COMPLETADO: return '✅';
