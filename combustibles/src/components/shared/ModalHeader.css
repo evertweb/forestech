@@ -1,0 +1,96 @@
+/**
+ * ModalHeader.css - Estilos para el header de modales
+ */
+
+.modal-header-base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 12px 12px 0 0;
+  min-height: 60px;
+}
+
+.modal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0; /* Permite que el texto se corte si es muy largo */
+}
+
+.modal-header-title {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.modal-header-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.modal-header-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+  transform: scale(1.05);
+}
+
+.modal-header-close:active {
+  transform: scale(0.95);
+}
+
+.modal-header-close:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .modal-header-base {
+    padding: 1rem;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .modal-header-title {
+    font-size: 1.25rem;
+  }
+  
+  .modal-header-close {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-header-base {
+    padding: 0.75rem;
+    border-radius: 0;
+  }
+  
+  .modal-header-content {
+    gap: 0.5rem;
+  }
+  
+  .modal-header-title {
+    font-size: 1.125rem;
+  }
+}
