@@ -7,8 +7,11 @@ import React from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { formatNumber } from '../../utils/calculations';
 import { CHART_COLORS } from '../../constants';
+import { useVehicleStatusColors } from '../../hooks/useStatusColors';
 
 const VehiclesStats = ({ stats, filters }) => {
+  const { getStatusColor } = useVehicleStatusColors();
+  
   if (!stats) return null;
 
   // Formatear galones
@@ -50,17 +53,6 @@ const VehiclesStats = ({ stats, filters }) => {
     if (lowerType.includes('tractor')) return '🚜';
     if (lowerType.includes('volqueta')) return '🚛';
     return '🚗';
-  };
-
-  // Obtener color para estado
-  const getStatusColor = (status) => {
-    switch (status) {
-      case VEHICLE_STATUS.ACTIVO: return 'var(--color-success)';
-      case VEHICLE_STATUS.MANTENIMIENTO: return 'var(--color-warning)';
-      case VEHICLE_STATUS.INACTIVO: return 'var(--text-muted)';
-      case VEHICLE_STATUS.REPARACION: return 'var(--color-error)';
-      default: return 'var(--text-muted)';
-    }
   };
 
   // Obtener icono para estado
