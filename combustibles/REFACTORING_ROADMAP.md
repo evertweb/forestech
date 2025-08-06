@@ -1,19 +1,99 @@
-# 🚀 REFACTORING ROADMAP - COMBUSTIBLES APP
+# 🚀 REFACTORING R### 🎯 **WORKFLOW DE VALIDACIÓN**
+```bash
+# Después de cada subtarea:
+1. npm run lint           # Verificar estilo de código
+2. npm run typecheck      # Verificar tipos TypeScript
+3. npm run test           # Ejecutar tests (si existen)
+4. git status             # Verificar cambios
+5. Marcar checkbox [x]    # Solo si todo pasa
+```
+
+---
+
+## 🚨 **REGLAS ANTI-DUPLICACIÓN - LECCIONES APRENDIDAS**
+
+### **❌ PATRONES PROHIBIDOS (Generan duplicados)**
+```bash
+# ❌ NUNCA HACER ESTO:
+Component.jsx + ComponentNew.jsx
+Service.js + ServiceRefactored.js  
+Modal.jsx + ModalV2.jsx
+Main.jsx + Main-SAP.jsx + Main_clean.jsx + Main_backup.jsx
+
+# ❌ SUFIJOS PROHIBIDOS:
+-new, -refactored, -v2, -copy, -backup, -clean, -old, -legacy
+_new, _refactored, _v2, _copy, _backup, _clean, _old, _legacy
+```
+
+### **✅ METODOLOGÍA CORRECTA**
+```bash
+# ✅ MÉTODO APROBADO:
+1. git checkout -b feature/refactor-component-name
+2. Modificar DIRECTAMENTE el archivo original
+3. git commit -m "refactor: component improvements"
+4. Validar funcionamiento 
+5. git push + PR
+6. NO dejar archivos duplicados
+```
+
+### **🔧 PROCESO DE REFACTORING SIN DUPLICADOS**
+```javascript
+// ✅ CORRECTO - Refactoring in-situ:
+// 1. Abrir Component.jsx
+// 2. Refactorizar directamente el contenido
+// 3. Guardar cambios
+// 4. Validar con npm run lint
+// 5. Commit y push
+
+// ❌ INCORRECTO - Crear duplicados:
+// 1. Copiar Component.jsx → ComponentNew.jsx  ❌
+// 2. Trabajar en ComponentNew.jsx              ❌  
+// 3. Dejar ambos archivos en el repo          ❌
+```
+
+### **📚 HERRAMIENTAS RECOMENDADAS**
+```bash
+# ✅ Para experimentación segura:
+git stash                 # Guardar cambios temporales
+git checkout -b experiment # Rama experimental
+git revert <commit>       # Revertir cambios
+git diff HEAD~1           # Ver cambios realizados
+
+# ❌ NO usar:
+cp file.js file-new.js    # Crear copias manuales
+mv file.js file-backup.js # Crear backups manuales
+```
+
+### **🎯 CASOS DE EXCEPCIÓN (Únicos permitidos)**
+```bash
+# ✅ ÚNICAS EXCEPCIONES PERMITIDAS:
+- Migraciones de arquitectura (temporal, máximo 1 semana)
+- A/B testing específico (documentado en issue)
+- Refactoring de servicios base (BaseService pattern)
+  
+# Ejemplo válido de excepción:
+serviceOld.js → Mantener hasta que BaseService esté 100% probado
+serviceNew.js → Versión con BaseService
+# Al completar: eliminar serviceOld.js, renombrar serviceNew.js → service.js
+```
+
+---MBUSTIBLES APP
 
 ## 📋 **REGLAS FUNDAMENTALES PARA AGENTES IA**
 
 ### ⚡ **PRINCIPIOS OBLIGATORIOS**
 1. **🔄 VALIDACIÓN FRECUENTE**: Después de cada subtarea, ejecutar `npm run lint` y `npm run typecheck`
 2. **✅ MARCADO AUTOMÁTICO**: Al completar exitosamente una tarea, marcar checkbox como `[x]`
-3. **🛑 STOP ON ERROR**: Si hay errores, NO continuar hasta - [x] `src/services/inventoryService.js` → `inventoryServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/maintenanceService.js` → `maintenanceServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/movementsService.js` → `movementsServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/productCategoriesService.js` → `productCategoriesServiceNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/vehicleCategoriesService.js` → `vehicleCategoriesServiceNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/aliasService.js` → `aliasServiceNew.js` ✅ **COMPLETADO 2025-08-04**erlos
+3. **🛑 STOP ON ERROR**: Si hay errores, NO continuar hasta resolverlos
 4. **📝 DOCUMENTAR CAMBIOS**: Actualizar sección "Cambios Realizados" al completar cada tarea
 5. **🧪 TESTING FIRST**: Crear/actualizar tests antes de refactorizar código crítico
 6. **📊 MÉTRICAS**: Registrar líneas de código eliminadas/optimizadas
+7. **🚨 REGLA INFALIBLE - NO DUPLICADOS**: **NUNCA crear archivos nuevos al refactorizar**
+   - ✅ **TRABAJAR DIRECTAMENTE** sobre el archivo/componente original
+   - ❌ **PROHIBIDO** crear archivos con sufijos: `-new`, `-refactored`, `-v2`, `-copy`, `-backup`
+   - ❌ **PROHIBIDO** crear versiones paralelas: `Component.jsx` + `ComponentNew.jsx`
+   - ✅ **MÉTODO CORRECTO**: Refactorizar in-situ con respaldo en git
+   - 🔄 **SI ES NECESARIO**: Usar git branches para experimentación, NO archivos duplicados
 
 ### 🎯 **WORKFLOW DE VALIDACIÓN**
 ```bash
@@ -75,22 +155,24 @@
 - [x] `src/services/base/CRUDService.js` - Operaciones CRUD genéricas ✅ **COMPLETADO**
 - [x] `src/services/base/__tests__/BaseService.test.js` - Tests ✅ **COMPLETADO**
 
-**🔧 Archivos a refactorizar (12 servicios restantes):**
-- [x] `src/services/suppliersService.js` → `suppliersServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/vehiclesService.js` → `vehiclesServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/productsService.js` → `productsServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/inventoryService.js` → `inventoryServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/maintenanceService.js` → `maintenanceServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/movementsService.js` → `movementsServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/productCategoriesService.js` → `productCategoriesServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/vehicleCategoriesService.js` → `vehicleCategoriesServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/aliasService.js` → `aliasServiceNew.js` ✅ **COMPLETADO**
-- [x] `src/services/migrationService.js` → `migrationServiceNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/fileParsingService.js` → `fileParsingServiceNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/realDataMigrationService.js` → `realDataMigrationServiceNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/migrationManager.js` → `migrationManagerNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/backgroundImageService.js` → `backgroundImageServiceNew.js` ✅ **COMPLETADO 2025-08-04**
-- [x] `src/services/dataResetService.js` → `dataResetServiceNew.js` ✅ **COMPLETADO 2025-08-04**
+**🔧 Servicios ya migrados a BaseService (15/15 = 100%):**
+- [x] `src/services/suppliersService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/vehiclesService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/productsService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/inventoryService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/maintenanceService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/movementsService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/productCategoriesService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/vehicleCategoriesService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/aliasService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/migrationService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/fileParsingService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/realDataMigrationService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/migrationManager.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/backgroundImageService.js` ✅ **MIGRADO A BaseService**
+- [x] `src/services/dataResetService.js` ✅ **MIGRADO A BaseService**
+
+**🚨 NOTA IMPORTANTE**: Los archivos *ServiceNew.js fueron una **EXCEPCIÓN TEMPORAL** para testing de BaseService. Una vez validado el patrón, todos fueron migrados de vuelta a los archivos originales y los duplicados eliminados siguiendo la **REGLA INFALIBLE ANTI-DUPLICADOS**.
 
 **✅ Validaciones obligatorias:**
 - [x] Cada servicio hereda de BaseService correctamente ✅ **COMPLETADO**
@@ -293,6 +375,21 @@
   - ✅ `VehicleFormSmart-SAP.css` (CSS obsoleto)
   - ✅ `VehicleFormSmart-Retro80s.css` (CSS experimental)
   - ✅ `SuppliersMain.jsx.backup` (backup innecesario)
+
+#### **📜 REGLA INFALIBLE AGREGADA**:
+- **🚨 NUEVA REGLA**: **NUNCA crear archivos duplicados al refactorizar**
+- **📚 Metodología**: Trabajar directamente sobre archivos originales
+- **🔧 Herramientas**: Usar git branches para experimentación, NO archivos duplicados
+- **✅ Checklist**: Agregado checklist anti-duplicados obligatorio
+- **📖 Documentación**: Ejemplos de qué hacer y qué NO hacer
+- **🎯 Excepciones**: Solo para migraciones temporales documentadas
+
+#### **🎯 BENEFICIOS DE LA NUEVA REGLA**:
+- **🗂️ Organización**: Sin confusión de múltiples versiones
+- **📦 Bundle size**: Archivos innecesarios eliminados automáticamente  
+- **🧭 Claridad**: Un solo archivo = una sola fuente de verdad
+- **⚡ Performance**: Menos archivos para procesar
+- **🔧 Mantenibilidad**: Desarrollo más directo y limpio
 
 #### **📊 PROGRESO TASK 1.2 ESTA SESIÓN**:
 - **Servicios refactorizados**: +3 (de 6 → 9 servicios)
@@ -497,6 +594,42 @@ Si se prefiere completar Fase 1 completa antes de continuar servicios:
 ---
 
 ## � **INSTRUCCIONES PARA PRÓXIMA SESIÓN**
+
+### **📋 CHECKLIST DE INICIO - ANTI-DUPLICADOS**
+
+**1. Verificar estado actual:**
+```bash
+cd /home/evert/Documentos/appwebforestech/forestech/combustibles
+npm run lint                    # Debe pasar sin errores
+```
+
+**2. ✅ CHECKLIST ANTI-DUPLICADOS (OBLIGATORIO):**
+```bash
+# ANTES de empezar cualquier refactoring:
+□ ¿Voy a crear un archivo nuevo? → ❌ PROHIBIDO
+□ ¿Voy a trabajar directamente sobre el original? → ✅ CORRECTO  
+□ ¿Tengo backup en git? → ✅ git status verificado
+□ ¿Estoy en la rama correcta? → git branch verificado
+□ ¿El archivo que voy a modificar no tiene duplicados existentes? → Verificar
+```
+
+**3. Durante desarrollo:**
+```bash
+# DURANTE el refactoring:
+□ ¿Estoy modificando SOLO el archivo original? → ✅ CORRECTO
+□ ¿Aparecieron archivos duplicados accidentalmente? → ❌ Eliminar inmediatamente  
+□ ¿Funciona el lint? → npm run lint cada 15 minutos
+□ ¿Funciona la aplicación? → Probar funcionalidad
+```
+
+**4. Al finalizar:**
+```bash
+# AL COMPLETAR refactoring:
+□ ¿Existe UN SOLO archivo por funcionalidad? → ✅ CORRECTO
+□ ¿No hay archivos con sufijos -new, -old, -backup? → ✅ Verificado
+□ ¿Lint pasa sin errores? → npm run lint 
+□ ¿Commit realizado? → git commit con mensaje descriptivo
+```
 
 ### **📋 CHECKLIST DE INICIO - TASK 1.2 CONTINUACIÓN**
 
