@@ -7,7 +7,7 @@ import AuthVisualEnhanced from './components/Auth/AuthVisualEnhanced';
 import './App.css';
 
 // Lazy load de los componentes de ruta
-const DashboardMain = lazy(() => import('./components/Dashboard/DashboardMain'));
+const DashboardMain = lazy(() => import('./components/Dashboard/DashboardMain-SAP'));
 const InventoryMain = lazy(() => import('./components/Inventory/InventoryMain'));
 const MovementsMain = lazy(() => import('./components/Movements/MovementsMain'));
 const VehiclesMain = lazy(() => import('./components/Vehicles/VehiclesMain'));

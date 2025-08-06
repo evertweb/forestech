@@ -16,7 +16,7 @@ import {
 import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
-import VehicleFormSmart from './VehicleFormSmart-SAP'; // 💼 SAP FIORI CORPORATE VERSION
+import VehicleFormSmart from './VehicleFormSmart'; // ✅ VERSIÓN MÁS RECIENTE (6 Aug)
 import MaintenanceModal from './MaintenanceModal';
 
 // Componentes de la pestaña Categorías
