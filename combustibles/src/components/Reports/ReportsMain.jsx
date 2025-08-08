@@ -21,6 +21,7 @@ import InventoryReports from './InventoryReports';
 import VehicleReports from './VehicleReports';
 import FinancialReports from './FinancialReports';
 import MovementReports from './MovementReports';
+import { PageLayout } from '../shared';
 
 import './ReportsMain-SAP.css';
 
@@ -265,6 +266,142 @@ const ReportsMain = () => {
     );
   };
 
+  // Componentes para PageLayout
+  const headerActions = null; // No hay acciones específicas en el header para reportes
+
+  const statsComponent = activeTab === 'dashboard' ? (
+    <div className="kpis-grid sap-theme">
+      {/* Inventario */}
+      <div className="kpi-card sap-theme sap-card">
+        <div className="kpi-icon inventory sap-theme">🛢️</div>
+        <div className="kpi-value sap-theme sap-text-primary">{formatCurrency(inventoryStats.totalValue)}</div>
+        <div className="kpi-label sap-theme sap-text-secondary">Valor Total Inventario</div>
+        <div className="kpi-trend neutral sap-theme">
+          <span className="trend-icon sap-theme">📦</span>
+          <span className="sap-text">{inventoryStats.totalItems} productos activos</span>
+        </div>
+      </div>
+
+      {/* Vehículos */}
+      <div className="kpi-card sap-theme sap-card">
+        <div className="kpi-icon vehicles sap-theme">🚜</div>
+        <div className="kpi-value sap-theme sap-text-primary">{vehiclesStats.activeVehicles}</div>
+        <div className="kpi-label sap-theme sap-text-secondary">Vehículos Activos</div>
+        <div className="kpi-trend positive sap-theme">
+          <span className="trend-icon sap-theme">⏱️</span>
+          <span className="sap-text">{formatNumber(vehiclesStats.totalHours)} horas trabajadas</span>
+        </div>
+      </div>
+
+      {/* Movimientos */}
+      <div className="kpi-card sap-theme sap-card">
+        <div className="kpi-icon movements sap-theme">📈</div>
+        <div className="kpi-value sap-theme sap-text-primary">{movementsStats.totalMovements}</div>
+        <div className="kpi-label sap-theme sap-text-secondary">Movimientos del Mes</div>
+        <div className="kpi-trend positive sap-theme">
+          <span className="trend-icon sap-theme">✅</span>
+          <span className="sap-text">{movementsStats.completedMovements} completados</span>
+        </div>
+      </div>
+
+      {/* Eficiencia */}
+      <div className="kpi-card sap-theme sap-card">
+        <div className="kpi-icon financial sap-theme">💰</div>
+        <div className="kpi-value sap-theme sap-text-primary">{formatNumber(vehiclesStats.averageEfficiency, 1)}</div>
+        <div className="kpi-label sap-theme sap-text-secondary">Consumo Promedio (L/h)</div>
+        <div className="kpi-trend neutral sap-theme">
+          <span className="trend-icon sap-theme">📊</span>
+          <span className="sap-text">{formatNumber(vehiclesStats.totalConsumption)} L total</span>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const filtersComponent = (
+    <>
+      {/* Filtros globales */}
+      <div className="reports-filters sap-theme">
+        <div className="filters-grid sap-theme">
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme sap-text-secondary">Fecha Inicio</label>
+            <input
+              type="date"
+              className="filter-input sap-theme sap-input"
+              value={dateRange.start}
+              onChange={(e) => handleDateRangeChange('start', e.target.value)}
+            />
+          </div>
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme sap-text-secondary">Fecha Fin</label>
+            <input
+              type="date"
+              className="filter-input sap-theme sap-input"
+              value={dateRange.end}
+              onChange={(e) => handleDateRangeChange('end', e.target.value)}
+            />
+          </div>
+          <div className="filter-actions sap-theme">
+            <button 
+              className="filter-btn secondary sap-theme sap-button sap-button-secondary"
+              onClick={() => {
+                const today = new Date();
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+                setDateRange({
+                  start: lastMonth.toISOString().slice(0, 10),
+                  end: today.toISOString().slice(0, 10)
+                });
+              }}
+            >
+              📅 Último Mes
+            </button>
+            <button 
+              className="filter-btn primary sap-theme sap-button sap-button-primary"
+              onClick={() => window.location.reload()}
+            >
+              🔄 Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navegación de reportes */}
+      <div className="reports-navigation sap-theme">
+        {reportTabs.map(tab => (
+          <button
+            key={tab.id}
+            className={`nav-tab sap-theme sap-button ${activeTab === tab.id ? 'active sap-button-primary' : 'sap-button-secondary'}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span className="nav-tab-icon sap-theme">{tab.icon}</span>
+            <div className="nav-tab-text sap-theme">
+              <span className="nav-tab-title sap-theme sap-text-primary">{tab.title}</span>
+              <span className="nav-tab-subtitle sap-theme sap-text-secondary">{tab.subtitle}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </>
+  );
+
+  const mainContent = renderActiveContent();
+
+  return (
+    <PageLayout
+      title="Reportes y Análisis"
+      subtitle="Dashboard ejecutivo con análisis en tiempo real del sistema de combustibles"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      showStats={activeTab === 'dashboard'}
+      showFilters={true}
+      className="reports-main"
+    >
+      {mainContent}
+    </PageLayout>
+  );
+
+  // CÓDIGO ANTERIOR COMENTADO PARA REFERENCIA
+  /*
   return (
     <div className="reports-main sap-theme">
       {/* Header */}

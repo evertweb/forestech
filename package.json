@@ -23,7 +23,9 @@
     "test": "echo 'Tests delegated to GitHub Actions' && exit 0",
     "test:ci": "npm run test --workspace=alimentacion --if-present && npm run test --workspace=combustibles --if-present",
     "deploy": "npm run build:all && firebase deploy",
-    "install:all": "npm ci"
+  "install:all": "npm ci",
+  "prepare": "husky",
+  "lint-staged": "lint-staged"
   },
   "private": true,
   "dependencies": {
@@ -36,6 +38,12 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.10",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
@@ -44,5 +52,14 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "vite": "^6.3.5"
+  }
+  ,
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,md,json}": [
+      "prettier --write"
+    ],
+    "{alimentacion,combustibles}/src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ]
   }
 }

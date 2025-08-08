@@ -1,5 +1,66 @@
 Forestech Colombia - AI Coding Instructions
 
+Versión: 1.1.0 · Fecha: 2025-08-08 · Owner: @evertweb
+
+Cambios desde 1.0.0
+- Se añade contrato resumido del agente (10 reglas operativas).
+- Se formaliza gobernanza: convenciones de ramas, commits y PRs.
+- Se declaran quality gates obligatorios (lint, tests, cobertura, Lighthouse).
+- Se estandariza formato con .editorconfig y Prettier/Tailwind plugin.
+- Se integra pre-commit/pre-push con Husky + lint-staged.
+- Se agrega CODEOWNERS para revisión responsable.
+
+## 🧭 Contrato del Agente (resumen)
+- Responder siempre en español colombiano y mantener respuestas concisas y accionables.
+- Tomar acción autónoma cuando sea posible; preguntar solo si es imprescindible.
+- Mantener una checklist visible de requisitos y actualizar progreso en tareas complejas.
+- Respetar patrones de arquitectura, seguridad y validación definidos en este documento.
+- No introducir dependencias pesadas sin justificar y fijar versiones en package.json.
+- Toda operación Firebase: validar inputs en cliente y cumplir reglas en servidor.
+- Después de cambios sustanciales: correr lint, build rápido y tests relevantes.
+- Evitar suscripciones automáticas masivas; preferir patrón de suscripción manual.
+- Registrar errores con logger estructurado y proveer feedback al usuario.
+- No exponer secretos; usar variables de entorno validadas y .env.example por app.
+
+## 🧩 Gobernanza, Calidad y Estándares Operativos
+
+### Convenciones de ramas y commits
+- Ramas: feature/*, fix/*, chore/*, docs/*, release/*.
+- Commits: Conventional Commits (ej: feat(combustibles): agrega modal de movimientos).
+- PRs: títulos siguiendo convención; usar plantilla con Checklist de TAREAS PENDIENTES.
+
+### Quality gates obligatorios (CI)
+- Lint sin errores en ambas apps.
+- Tests unitarios y de integración (emuladores Firebase) pasando.
+- Cobertura mínima global 80% y 90% en servicios críticos (ya configurado en Vitest).
+- Lighthouse: Performance/Best Practices ≥ 85, Accessibility ≥ 90 para rutas críticas.
+
+### Formato y consistencia
+- .editorconfig en la raíz para normalizar fin de línea e indentación.
+- Prettier + prettier-plugin-tailwindcss para ordenar clases y estilo consistente.
+- ESLint compartido entre apps; reglas React Hooks activas.
+
+### Hooks de Git (Husky)
+- pre-commit: lint-staged (eslint --fix + prettier --write en archivos cambiados).
+- pre-push: lint:all y test:ci a nivel monorepo.
+- commit-msg: commitlint validando Conventional Commits.
+
+### Code Owners y revisiones
+- .github/CODEOWNERS con responsables por carpeta. Mínimo: @evertweb como owner global.
+- Requerir al menos 1 aprobación y checks verdes antes de hacer merge a main.
+
+### Variables de entorno
+- Mantener .env.example por app y shared. Validar en runtime con esquema (p. ej., zod).
+- Nunca loggear valores de secretos; registrar solo presencia/ausencia.
+
+### Seguridad
+- Escaneo de dependencias (Dependabot) y secretos (gitleaks) en CI.
+- Reglas Firestore testeadas con emulador antes de deploy; índices validados.
+
+### Observabilidad
+- Logger unificado + Error Boundaries enviando errores críticos a servicio (Sentry/Logs).
+- Correlación con requestId/operationId en logs de cliente y servidor.
+
 ## �🇸 IDIOMA Y COMUNICACIÓN
 **IMPORTANTE**: Todas las respuestas, comentarios, issues, PRs y comunicaciones deben ser EN ESPAÑOL.
 - ✅ Usar español colombiano para todas las interacciones
@@ -117,6 +178,16 @@ forestech/
 ```
 
 ## 🔧 Development Patterns
+
+### Quality Gates rápidos (local)
+- Lint de monorepo: npm run lint:all
+- Tests mínimos CI: npm run test:ci
+- Formato: npx lint-staged (ejecutado en pre-commit)
+
+### Hooks de Git (Husky)
+- pre-commit: ejecuta lint-staged (eslint/prettier en archivos cambiados)
+- pre-push: corre lint:all y test:ci
+- commit-msg: valida Conventional Commits con commitlint
 
 ### Monorepo Scripts
 ```bash

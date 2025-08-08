@@ -17,6 +17,7 @@ import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
 import MovementWizard from './MovementWizard';
+import { PageLayout } from '../shared';
 import './Movements.css';
 import './MovementsMain-SAP.css';
 
@@ -173,20 +174,39 @@ const MovementsMain = () => {
   // Permisos del usuario
   const canCreateMovement = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
 
-  if (loading) {
-    return (
-      <div className="movements-main sap-theme">
-        <div className="loading-container sap-theme">
-          <div className="loading-spinner sap-theme"></div>
-          <p>Cargando movimientos...</p>
-        </div>
-      </div>
-    );
-  }
+  // Componentes para PageLayout
+  const headerActions = canCreateMovement && (
+    <div className="create-movement-options sap-theme">
+      <button 
+        className="btn-create-movement sap-theme primary"
+        onClick={handleCreateMovement}
+      >
+        ➕ Nuevo Movimiento
+      </button>
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="movements-main sap-theme">
+  const statsComponent = stats && (
+    <MovementsStats 
+      stats={stats}
+      filters={filters}
+    />
+  );
+
+  const filtersComponent = (
+    <MovementsFilters
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onClearFilters={handleClearFilters}
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      totalResults={filteredMovements.length}
+    />
+  );
+
+  const mainContent = (
+    <>
+      {error && (
         <div className="error-container sap-theme">
           <div className="error-icon sap-theme">⚠️</div>
           <h3>Error al cargar movimientos</h3>
@@ -198,51 +218,10 @@ const MovementsMain = () => {
             Reintentar
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="movements-main sap-theme">
-      {/* Header */}
-      <div className="movements-header sap-theme">
-        <div className="header-title sap-theme">
-          <h2>📊 Movimientos de Combustibles</h2>
-          <p>Gestiona entradas, salidas, transferencias y ajustes de inventario</p>
-        </div>
-        
-        {canCreateMovement && (
-          <div className="create-movement-options sap-theme">
-            <button 
-              className="btn-create-movement sap-theme primary"
-              onClick={handleCreateMovement}
-            >
-              ➕ Nuevo Movimiento
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Estadísticas */}
-      {stats && (
-        <MovementsStats 
-          stats={stats}
-          filters={filters}
-        />
       )}
 
-      {/* Filtros y búsqueda */}
-      <MovementsFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        totalResults={filteredMovements.length}
-      />
-
       {/* Lista de movimientos */}
-      {filteredMovements.length === 0 ? (
+      {!error && (filteredMovements.length === 0 ? (
         <div className="empty-state sap-theme">
           <div className="empty-icon sap-theme">📋</div>
           <h3>
@@ -278,7 +257,7 @@ const MovementsMain = () => {
           onDelete={handleDeleteMovement}
           userRole={userProfile?.role}
         />
-      )}
+      ))}
 
       {/* Wizard - Única Opción */}
       {showWizard && (
@@ -290,7 +269,20 @@ const MovementsMain = () => {
           }}
         />
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="📊 Movimientos de Combustibles"
+      subtitle="Gestiona entradas, salidas, transferencias y ajustes de inventario"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 

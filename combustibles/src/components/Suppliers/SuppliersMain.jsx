@@ -13,6 +13,7 @@ import SuppliersCards from './SuppliersCards';
 import SupplierModal from './SupplierModal';
 import SuppliersStats from './SuppliersStats';
 import SuppliersFilters from './SuppliersFilters';
+import { PageLayout } from '../shared';
 import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
@@ -237,67 +238,74 @@ const SuppliersMain = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="suppliers-main sap-theme">
-        <div className="loading-container sap-theme">
-          <div className="loading-spinner sap-theme"></div>
-          <p className="sap-text">Cargando proveedores...</p>
-        </div>
-      </div>
-    );
-  }
+  // Componentes para PageLayout
+  const headerActions = (
+    <div className="header-actions sap-theme">
+      {/* Botón temporal para desarrollo - actualizar permisos */}
+      {(!hasPermission('canManageSuppliers') || !hasPermission('canExportReports')) && (
+        <button 
+          className="btn btn-warning sap-theme"
+          onClick={upgradeUserPermissions}
+          title="Actualizar permisos de usuario (solo desarrollo)"
+          style={{ backgroundColor: 'var(--color-warning)', borderColor: 'var(--color-warning)' }}
+        >
+          <span>🔑</span>
+          <span>Obtener Permisos</span>
+        </button>
+      )}
+      
+      {hasPermission('canManageSuppliers') && (
+        <button 
+          className="btn btn-primary sap-theme sap-button sap-button-primary"
+          onClick={handleAddSupplier}
+          title="Agregar nuevo proveedor"
+        >
+          <span>➕</span>
+          <span>Agregar Proveedor</span>
+        </button>
+      )}
+      
+      {hasPermission('canExportReports') && (
+        <button 
+          className="btn btn-secondary sap-theme sap-button sap-button-secondary"
+          onClick={exportSuppliers}
+          disabled={filteredSuppliers.length === 0}
+          title={filteredSuppliers.length === 0 ? 'No hay proveedores para exportar' : 'Exportar proveedores a CSV'}
+        >
+          <span>📊</span>
+          <span>Exportar ({filteredSuppliers.length})</span>
+        </button>
+      )}
+    </div>
+  );
 
-  return (
-    <div className="suppliers-main sap-theme">
-      {/* Header */}
-      <div className="suppliers-header sap-theme">
-        <div className="header-content sap-theme">
-          <h1 className="sap-title">Gestión de Proveedores</h1>
-          <p className="header-subtitle sap-theme sap-subtitle">
-            Administra los proveedores de combustibles y materiales
-          </p>
-        </div>
-        
-        <div className="header-actions sap-theme">
-          {/* Botón temporal para desarrollo - actualizar permisos */}
-          {(!hasPermission('canManageSuppliers') || !hasPermission('canExportReports')) && (
-            <button 
-              className="btn btn-warning sap-theme"
-              onClick={upgradeUserPermissions}
-              title="Actualizar permisos de usuario (solo desarrollo)"
-              style={{ backgroundColor: 'var(--color-warning)', borderColor: 'var(--color-warning)' }}
-            >
-              <span>🔑</span>
-              <span>Obtener Permisos</span>
-            </button>
-          )}
-          
-          {hasPermission('canManageSuppliers') && (
-            <button 
-              className="btn btn-primary sap-theme sap-button sap-button-primary"
-              onClick={handleAddSupplier}
-              title="Agregar nuevo proveedor"
-            >
-              <span>➕</span>
-              <span>Agregar Proveedor</span>
-            </button>
-          )}
-          
-          {hasPermission('canExportReports') && (
-            <button 
-              className="btn btn-secondary sap-theme sap-button sap-button-secondary"
-              onClick={exportSuppliers}
-              disabled={filteredSuppliers.length === 0}
-              title={filteredSuppliers.length === 0 ? 'No hay proveedores para exportar' : 'Exportar proveedores a CSV'}
-            >
-              <span>📊</span>
-              <span>Exportar ({filteredSuppliers.length})</span>
-            </button>
-          )}
-        </div>
-      </div>
+  const statsComponent = suppliersStats && (
+    <SuppliersStats 
+      stats={suppliersStats}
+      suppliersCount={filteredSuppliers.length}
+      totalSuppliers={suppliers.length}
+    />
+  );
 
+  const filtersComponent = (
+    <SuppliersFilters
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      filterStatus={filterStatus}
+      setFilterStatus={setFilterStatus}
+      filterCategory={filterCategory}
+      setFilterCategory={setFilterCategory}
+      filterFuelType={filterFuelType}
+      setFilterFuelType={setFilterFuelType}
+      viewMode={viewMode}
+      setViewMode={setViewMode}
+      onClearFilters={clearFilters}
+      resultsCount={filteredSuppliers.length}
+    />
+  );
+
+  const mainContent = (
+    <>
       {/* Error Alert */}
       {error && (
         <div className="alert alert-error sap-theme sap-message-error">
@@ -312,31 +320,6 @@ const SuppliersMain = () => {
           </button>
         </div>
       )}
-
-      {/* Stats */}
-      {suppliersStats && (
-        <SuppliersStats 
-          stats={suppliersStats}
-          suppliersCount={filteredSuppliers.length}
-          totalSuppliers={suppliers.length}
-        />
-      )}
-
-      {/* Filters */}
-      <SuppliersFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        filterStatus={filterStatus}
-        setFilterStatus={setFilterStatus}
-        filterCategory={filterCategory}
-        setFilterCategory={setFilterCategory}
-        filterFuelType={filterFuelType}
-        setFilterFuelType={setFilterFuelType}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        onClearFilters={clearFilters}
-        resultsCount={filteredSuppliers.length}
-      />
 
       {/* Content */}
       {filteredSuppliers.length === 0 ? (
@@ -403,7 +386,20 @@ const SuppliersMain = () => {
           onError={setError}
         />
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="Gestión de Proveedores"
+      subtitle="Administra los proveedores de combustibles y materiales"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 

@@ -6,6 +6,7 @@ import { createInvitation, getInvitations, cancelInvitation } from '../../fireba
 import { ROLES } from '../../constants/roles';
 import DataReset from './DataReset';
 import BackgroundImageManager from './BackgroundImageManager';
+import { PageLayout } from '../shared';
 import './Admin.css';
 
 const AdminMain = () => {
@@ -134,149 +135,162 @@ const AdminMain = () => {
     );
   }
 
+  const headerActions = (
+    <div className="admin-tabs">
+      <button 
+        className={`tab-button ${activeTab === 'invitations' ? 'active' : ''}`}
+        onClick={() => setActiveTab('invitations')}
+      >
+        🎫 Invitaciones
+      </button>
+      <button 
+        className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+        onClick={() => setActiveTab('users')}
+      >
+        👥 Usuarios
+      </button>
+      <button 
+        className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
+        onClick={() => setActiveTab('settings')}
+      >
+        ⚙️ Configuración
+      </button>
+      <button 
+        className={`tab-button ${activeTab === 'background' ? 'active' : ''}`}
+        onClick={() => setActiveTab('background')}
+      >
+        🖼️ Imagen Login
+      </button>
+      <button 
+        className={`tab-button ${activeTab === 'reset' ? 'active' : ''}`}
+        onClick={() => setActiveTab('reset')}
+      >
+        🔥 Reset de Datos
+      </button>
+    </div>
+  );
+
+  const statsComponent = null;
+
+  const filtersComponent = null;
+
+  const mainContent = (
+      {activeTab === 'invitations' && (
+        <div className="invitations-section">
+          <div className="section-header">
+            <h2>Gestión de Invitaciones</h2>
+            <button 
+              className="create-button"
+              onClick={() => setShowCreateModal(true)}
+            >
+              + Crear Invitación
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="loading">Cargando invitaciones...</div>
+          ) : (
+            <div className="invitations-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Creada</th>
+                    <th>Expira</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invitations.map(invitation => {
+                    const status = getStatusBadge(invitation.status);
+                    return (
+                      <tr key={invitation.id}>
+                        <td>
+                          <code className="invitation-code">{invitation.code}</code>
+                        </td>
+                        <td>{invitation.targetEmail}</td>
+                        <td>{invitation.targetName || '-'}</td>
+                        <td>{getRoleName(invitation.targetRole)}</td>
+                        <td>
+                          <span className={`status-badge ${status.class}`}>
+                            {status.text}
+                          </span>
+                        </td>
+                        <td>{formatDate(invitation.createdAt)}</td>
+                        <td>{formatDate(invitation.expiresAt)}</td>
+                        <td>
+                          {invitation.status === 'pending' && (
+                            <button
+                              className="cancel-button"
+                              onClick={() => handleCancelInvitation(invitation.id)}
+                            >
+                              Cancelar
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {invitations.length === 0 && (
+                <div className="empty-state">
+                  <p>No hay invitaciones creadas</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'users' && (
+        <div className="users-section">
+          <h2>👥 Usuarios del Sistema</h2>
+          <div className="coming-soon">
+            <span>🚧 En desarrollo</span>
+            <p>Próximamente: Lista de usuarios registrados, edición de permisos, y estadísticas.</p>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className="settings-section">
+          <h2>⚙️ Configuración del Sistema</h2>
+          <div className="coming-soon">
+            <span>🚧 En desarrollo</span>
+            <p>Próximamente: Configuraciones generales, notificaciones, y parámetros del sistema.</p>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'background' && (
+        <BackgroundImageManager />
+      )}
+
+      {activeTab === 'reset' && (
+        <DataReset />
+      )}
+
+  );
+
   return (
-    <div className="admin-main">
-      <div className="admin-header">
-        <h1>⚙️ Administración del Sistema</h1>
-        <p>Gestión de usuarios y configuraciones</p>
-      </div>
-
-      <div className="admin-tabs">
-        <button 
-          className={`tab-button ${activeTab === 'invitations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('invitations')}
-        >
-          🎫 Invitaciones
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          👥 Usuarios
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          ⚙️ Configuración
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'background' ? 'active' : ''}`}
-          onClick={() => setActiveTab('background')}
-        >
-          🖼️ Imagen Login
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'reset' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reset')}
-        >
-          🔥 Reset de Datos
-        </button>
-      </div>
-
-      <div className="admin-content">
-        {activeTab === 'invitations' && (
-          <div className="invitations-section">
-            <div className="section-header">
-              <h2>Gestión de Invitaciones</h2>
-              <button 
-                className="create-button"
-                onClick={() => setShowCreateModal(true)}
-              >
-                + Crear Invitación
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="loading">Cargando invitaciones...</div>
-            ) : (
-              <div className="invitations-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Código</th>
-                      <th>Email</th>
-                      <th>Nombre</th>
-                      <th>Rol</th>
-                      <th>Estado</th>
-                      <th>Creada</th>
-                      <th>Expira</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invitations.map(invitation => {
-                      const status = getStatusBadge(invitation.status);
-                      return (
-                        <tr key={invitation.id}>
-                          <td>
-                            <code className="invitation-code">{invitation.code}</code>
-                          </td>
-                          <td>{invitation.targetEmail}</td>
-                          <td>{invitation.targetName || '-'}</td>
-                          <td>{getRoleName(invitation.targetRole)}</td>
-                          <td>
-                            <span className={`status-badge ${status.class}`}>
-                              {status.text}
-                            </span>
-                          </td>
-                          <td>{formatDate(invitation.createdAt)}</td>
-                          <td>{formatDate(invitation.expiresAt)}</td>
-                          <td>
-                            {invitation.status === 'pending' && (
-                              <button
-                                className="cancel-button"
-                                onClick={() => handleCancelInvitation(invitation.id)}
-                              >
-                                Cancelar
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-
-                {invitations.length === 0 && (
-                  <div className="empty-state">
-                    <p>No hay invitaciones creadas</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'users' && (
-          <div className="users-section">
-            <h2>👥 Usuarios del Sistema</h2>
-            <div className="coming-soon">
-              <span>🚧 En desarrollo</span>
-              <p>Próximamente: Lista de usuarios registrados, edición de permisos, y estadísticas.</p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'settings' && (
-          <div className="settings-section">
-            <h2>⚙️ Configuración del Sistema</h2>
-            <div className="coming-soon">
-              <span>🚧 En desarrollo</span>
-              <p>Próximamente: Configuraciones generales, notificaciones, y parámetros del sistema.</p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'background' && (
-          <BackgroundImageManager />
-        )}
-
-        {activeTab === 'reset' && (
-          <DataReset />
-        )}
-      </div>
-
+    <PageLayout
+      title="⚙️ Administración del Sistema"
+      subtitle="Gestión de usuarios y configuraciones"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+      showStats={false}
+      showFilters={false}
+    >
+      {mainContent}
+      
       {/* Modal para crear invitación */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
@@ -348,7 +362,7 @@ const AdminMain = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 };
 

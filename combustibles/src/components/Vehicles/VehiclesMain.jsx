@@ -22,6 +22,9 @@ import MaintenanceModal from './MaintenanceModal';
 // Componentes de la pestaña Categorías
 import VehicleCategoriesManager from './VehicleCategoriesManager';
 
+// PageLayout
+import { PageLayout } from '../shared';
+
 import './Vehicles.css';
 
 const VehiclesMain = () => {
@@ -161,89 +164,129 @@ const VehiclesMain = () => {
   const canEditVehicle = userProfile?.role === 'admin';
   const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador';
 
-  if (loading) {
-    return (
-      <div className="vehicles-main">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Cargando vehículos...</p>
-        </div>
+  // Componentes para PageLayout
+  const headerActions = (
+    <div className="header-actions">
+      {/* Navegación por pestañas */}
+      <div className="tabs-navigation" style={{ marginRight: '20px' }}>
+        <button 
+          className={`tab-btn ${activeTab === 'vehicles' ? 'active' : ''}`}
+          onClick={() => setActiveTab('vehicles')}
+        >
+          🚜 Vehículos
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+          onClick={() => setActiveTab('categories')}
+        >
+          🏷️ Categorías
+        </button>
       </div>
-    );
-  }
+      
+      {/* Botón crear vehículo solo para tab vehículos */}
+      {activeTab === 'vehicles' && canCreateVehicle && (
+        <button 
+          className="btn-create-vehicle"
+          onClick={handleCreateVehicle}
+        >
+          ➕ Nuevo Vehículo
+        </button>
+      )}
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="vehicles-main">
-        <div className="error-container">
-          <div className="error-icon">⚠️</div>
-          <h3>Error al cargar vehículos</h3>
-          <p>{error}</p>
-          <button 
-            className="btn-retry"
-            onClick={() => window.location.reload()}
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const statsComponent = activeTab === 'vehicles' && stats ? (
+    <VehiclesStats 
+      stats={stats}
+      filters={filters}
+    />
+  ) : null;
 
-  return (
-    <div className="vehicles-main">
-      {/* Header con pestañas */}
-      <div className="vehicles-header">
-        <div className="header-title">
-          <h2>🚜 Gestión de Vehículos</h2>
-          <p>Administra la maquinaria y vehículos forestales</p>
-        </div>
-        
-        {/* Navegación por pestañas */}
-        <div className="tabs-navigation">
-          <button 
-            className={`tab-btn ${activeTab === 'vehicles' ? 'active' : ''}`}
-            onClick={() => setActiveTab('vehicles')}
-          >
-            🚜 Vehículos
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-            onClick={() => setActiveTab('categories')}
-          >
-            🏷️ Categorías
-          </button>
-        </div>
-      </div>
+  const filtersComponent = activeTab === 'vehicles' ? (
+    <VehiclesFilters
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onClearFilters={handleClearFilters}
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      viewMode={viewMode}
+      onViewModeChange={setViewMode}
+      totalResults={filteredVehicles.length}
+    />
+  ) : null;
 
+  const mainContent = (
+    <>
       {/* Contenido según pestaña activa */}
       {activeTab === 'vehicles' && (
-        <VehiclesTabContent 
-          vehicles={vehicles}
-          stats={stats}
-          filters={filters}
-          searchTerm={searchTerm}
-          viewMode={viewMode}
-          filteredVehicles={filteredVehicles}
-          loading={loading}
-          error={error}
-          canCreateVehicle={canCreateVehicle}
-          canEditVehicle={canEditVehicle}
-          canManageVehicle={canManageVehicle}
-          user={user}
-          onFilterChange={handleFilterChange}
-          onClearFilters={handleClearFilters}
-          onSearchChange={setSearchTerm}
-          onViewModeChange={setViewMode}
-          onCreateVehicle={handleCreateVehicle}
-          onEditVehicle={handleEditVehicle}
-          onViewVehicle={handleViewVehicle}
-          onMaintenanceVehicle={handleMaintenanceVehicle}
-        />
+        <>
+          {error && (
+            <div className="error-state">
+              <div className="error-icon">⚠️</div>
+              <h3>Error al cargar vehículos</h3>
+              <p>{error}</p>
+              <button 
+                className="btn-retry"
+                onClick={() => window.location.reload()}
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+
+          {/* Lista de vehículos */}
+          {!error && (filteredVehicles.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🚜</div>
+              <h3>
+                {vehicles.length === 0 
+                  ? 'No hay vehículos registrados'
+                  : 'No se encontraron vehículos'
+                }
+              </h3>
+              <p>
+                {vehicles.length === 0 
+                  ? 'Comienza registrando tu primer vehículo o maquinaria forestal'
+                  : 'Intenta ajustar los filtros de búsqueda'
+                }
+              </p>
+              {vehicles.length === 0 && canCreateVehicle && (
+                <button 
+                  className="btn-create-first"
+                  onClick={handleCreateVehicle}
+                >
+                  ➕ Registrar Primer Vehículo
+                </button>
+              )}
+            </div>
+          ) : (
+            <VehiclesList
+              vehicles={filteredVehicles}
+              viewMode={viewMode}
+              onEdit={canEditVehicle ? handleEditVehicle : null}
+              onView={handleViewVehicle}
+              onMaintenance={canManageVehicle ? handleMaintenanceVehicle : null}
+              userRole={user?.role}
+            />
+          ))}
+        </>
       )}
 
       {activeTab === 'categories' && (
-        <CategoriesTabContent />
+        <div className="categories-tab-content">
+          <div className="tab-description">
+            <h3>🏷️ Gestión de Categorías de Vehículos</h3>
+            <p>Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal</p>
+          </div>
+          
+          <VehicleCategoriesManager
+            embedded={true} // Indicar que está embebido, no es modal
+            onClose={null} // No necesita close cuando está embebido
+            onCategoryCreated={() => {
+              // Refrescar datos si es necesario
+            }}
+          />
+        </div>
       )}
 
       {/* Modales que se mantienen globales */}
@@ -270,149 +313,22 @@ const VehiclesMain = () => {
           }}
         />
       )}
-    </div>
-  );
-};
-
-// Componente para el contenido de la pestaña Vehículos
-const VehiclesTabContent = ({ 
-  vehicles, 
-  stats, 
-  filters, 
-  searchTerm, 
-  viewMode,
-  filteredVehicles,
-  loading,
-  error,
-  canCreateVehicle,
-  canEditVehicle,
-  canManageVehicle,
-  user,
-  onFilterChange,
-  onClearFilters,
-  onSearchChange,
-  onViewModeChange,
-  onCreateVehicle,
-  onEditVehicle,
-  onViewVehicle,
-  onMaintenanceVehicle
-}) => {
-
-  if (loading) {
-    return (
-      <div className="loading-state">
-        <div className="loading-spinner"></div>
-        <p>Cargando vehículos...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="error-state">
-        <div className="error-icon">⚠️</div>
-        <h3>Error al cargar vehículos</h3>
-        <p>{error}</p>
-        <button 
-          className="btn-retry"
-          onClick={() => window.location.reload()}
-        >
-          Reintentar
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {/* Botón crear vehículo */}
-      {canCreateVehicle && (
-        <div className="tab-actions">
-          <button 
-            className="btn-create-vehicle"
-            onClick={onCreateVehicle}
-          >
-            ➕ Nuevo Vehículo
-          </button>
-        </div>
-      )}
-
-      {/* Estadísticas */}
-      {stats && (
-        <VehiclesStats 
-          stats={stats}
-          filters={filters}
-        />
-      )}
-
-      {/* Filtros y búsqueda */}
-      <VehiclesFilters
-        filters={filters}
-        onFilterChange={onFilterChange}
-        onClearFilters={onClearFilters}
-        searchTerm={searchTerm}
-        onSearchChange={onSearchChange}
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-        totalResults={filteredVehicles.length}
-      />
-
-      {/* Lista de vehículos */}
-      {filteredVehicles.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">🚜</div>
-          <h3>
-            {vehicles.length === 0 
-              ? 'No hay vehículos registrados'
-              : 'No se encontraron vehículos'
-            }
-          </h3>
-          <p>
-            {vehicles.length === 0 
-              ? 'Comienza registrando tu primer vehículo o maquinaria forestal'
-              : 'Intenta ajustar los filtros de búsqueda'
-            }
-          </p>
-          {vehicles.length === 0 && canCreateVehicle && (
-            <button 
-              className="btn-create-first"
-              onClick={onCreateVehicle}
-            >
-              ➕ Registrar Primer Vehículo
-            </button>
-          )}
-        </div>
-      ) : (
-        <VehiclesList
-          vehicles={filteredVehicles}
-          viewMode={viewMode}
-          onEdit={canEditVehicle ? onEditVehicle : null}
-          onView={onViewVehicle}
-          onMaintenance={canManageVehicle ? onMaintenanceVehicle : null}
-          userRole={user?.role}
-        />
-      )}
     </>
   );
-};
 
-// Componente para el contenido de la pestaña Categorías
-const CategoriesTabContent = () => {
   return (
-    <div className="categories-tab-content">
-      <div className="tab-description">
-        <h3>🏷️ Gestión de Categorías de Vehículos</h3>
-        <p>Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal</p>
-      </div>
-      
-      <VehicleCategoriesManager
-        embedded={true} // Indicar que está embebido, no es modal
-        onClose={null} // No necesita close cuando está embebido
-        onCategoryCreated={() => {
-          // Refrescar datos si es necesario
-        }}
-      />
-    </div>
+    <PageLayout
+      title="🚜 Gestión de Vehículos"
+      subtitle="Administra la maquinaria y vehículos forestales"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+      showStats={activeTab === 'vehicles' && !!stats}
+      showFilters={activeTab === 'vehicles'}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 

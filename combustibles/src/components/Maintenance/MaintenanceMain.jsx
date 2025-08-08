@@ -17,6 +17,7 @@ import MaintenanceStats from './MaintenanceStats';
 import MaintenanceFilters from './MaintenanceFilters';
 import MaintenanceList from './MaintenanceList';
 import MaintenanceModal from './MaintenanceModal';
+import { PageLayout } from '../shared';
 import './MaintenanceMain-SAP.css';
 
 const MaintenanceMain = () => {
@@ -177,34 +178,35 @@ const MaintenanceMain = () => {
     );
   }
 
-  return (
-    <div className="maintenance-main sap-theme">
-      {/* Header */}
-      <div className="maintenance-header sap-theme">
-        <div className="header-title sap-theme">
-          <h2 className="sap-title">🔧 Mantenimiento de Vehículos</h2>
-          <p className="sap-subtitle">Gestión de cambios de aceite, filtros y baterías</p>
-        </div>
-        <div className="header-actions sap-theme">
-          {canManageMaintenance && (
-            <button 
-              className="btn-create-maintenance sap-theme sap-button sap-button-primary"
-              onClick={handleCreateMaintenance}
-            >
-              ➕ Crear Mantenimiento
-            </button>
-          )}
-        </div>
-      </div>
+  // Componentes para PageLayout
+  const headerActions = canManageMaintenance ? (
+    <div className="header-actions sap-theme">
+      <button 
+        className="btn-create-maintenance sap-theme sap-button sap-button-primary"
+        onClick={handleCreateMaintenance}
+      >
+        ➕ Crear Mantenimiento
+      </button>
+    </div>
+  ) : null;
 
-      {/* Loading */}
-      {loading && (
-        <div className="maintenance-loading sap-theme">
-          <div className="loading-spinner sap-theme"></div>
-          <p className="sap-text">Cargando mantenimientos...</p>
-        </div>
-      )}
+  const statsComponent = stats ? <MaintenanceStats stats={stats} /> : null;
 
+  const filtersComponent = (
+    <MaintenanceFilters
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onClearFilters={handleClearFilters}
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      viewMode={viewMode}
+      onViewModeChange={setViewMode}
+      totalResults={filteredMaintenance.length}
+    />
+  );
+
+  const mainContent = (
+    <>
       {/* Error */}
       {error && (
         <div className="error-banner sap-theme sap-message-error">
@@ -212,21 +214,6 @@ const MaintenanceMain = () => {
           <button className="sap-button sap-button-secondary" onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       )}
-
-      {/* Estadísticas */}
-      {stats && <MaintenanceStats stats={stats} />}
-
-      {/* Filtros */}
-      <MaintenanceFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        totalResults={filteredMaintenance.length}
-      />
 
       {/* Lista de mantenimientos */}
       {!loading && !error && (
@@ -269,7 +256,20 @@ const MaintenanceMain = () => {
           userRole={userProfile?.role}
         />
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="🔧 Mantenimiento de Vehículos"
+      subtitle="Gestión de cambios de aceite, filtros y baterías"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 
