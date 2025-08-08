@@ -10,13 +10,13 @@ FILE_PATH="${FILE_PATH:-unknown}"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Log de la operación
-echo "[$TIMESTAMP] PostToolUse Hook - Tool: $TOOL_NAME, File: $FILE_PATH" >> /home/evert/Documentos/appwebforestech/forestech/logs/hooks.log
+echo "[$TIMESTAMP] PostToolUse Hook - Tool: $TOOL_NAME, File: $FILE_PATH" >> /home/hp/Documents/forestech/logs/hooks.log
 
 # Solo proceder si fue una edición de archivo
 if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "MultiEdit" ]] || [[ "$TOOL_NAME" == "Write" ]]; then
     
     # Cambiar al directorio del proyecto
-    cd /home/evert/Documentos/appwebforestech/forestech
+    cd /home/hp/Documents/forestech
     
     # Linting automático para archivos de combustibles
     if [[ "$FILE_PATH" == *"combustibles"* ]] && [[ "$FILE_PATH" == *".jsx"* ]]; then

@@ -5,7 +5,7 @@
 set -e  # Salir si hay errores
 
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-PROJECT_DIR="/home/evert/Documentos/appwebforestech/forestech"
+PROJECT_DIR="/home/hp/Documents/forestech"
 
 # Variables del hook
 TASK_DESCRIPTION="${TASK_DESCRIPTION:-unknown}"
