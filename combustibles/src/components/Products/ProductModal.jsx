@@ -20,6 +20,7 @@ import {
 } from '../../constants';
 
 import { useFormData } from '../../hooks/useFormData';
+import { validators, validateForm as runValidation } from '../../utils/validators';
 const ProductModal = ({ 
   isOpen, 
   onClose, 
@@ -44,22 +45,19 @@ const ProductModal = ({
   };
   const [loading] = useState(false);
 
-  const validate = (values) => {
-    const newErrors = {};
-    if (!values.name.trim()) {
-      newErrors.name = UI_MESSAGES.ERROR.NAME_REQUIRED;
-    }
-    if (!values.displayName.trim()) {
-      newErrors.displayName = UI_MESSAGES.ERROR.DISPLAY_NAME_REQUIRED;
-    }
-    if (!values.category) {
-      newErrors.category = UI_MESSAGES.ERROR.CATEGORY_REQUIRED;
-    }
-    if (!values.unit) {
-      newErrors.unit = UI_MESSAGES.ERROR.UNIT_REQUIRED;
-    }
-    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  // Validación centralizada: requeridos básicos y reglas numéricas comunes
+  const validationSchema = {
+    name: [validators.required],
+    displayName: [validators.required],
+    category: [validators.required],
+    unit: [validators.required],
+    defaultPrice: [validators.nonNegative],
+    currentStock: [validators.nonNegative],
+    minThreshold: [validators.nonNegative],
+    maxCapacity: [validators.fuelCapacity]
   };
+
+  const validate = (values) => runValidation(values, validationSchema);
 
   const {
     values: formData,

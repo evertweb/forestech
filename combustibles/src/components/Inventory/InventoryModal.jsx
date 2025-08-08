@@ -11,6 +11,7 @@ import { createInventoryItem, updateInventoryItem } from '../../services/invento
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
 import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import useFormData from '../../hooks/useFormData';
+import { validationSchemas, crossFieldValidators } from '../../utils/validators';
 
 const InventoryModal = ({ item, onClose, onSuccess }) => {
   // Estado y loading solo con hooks centralizados
@@ -31,36 +32,13 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
     status: 'active'
   }), []);
 
-  const validate = (values) => {
-    const newErrors = {};
-    if (!values.fuelType) newErrors.fuelType = 'Tipo de combustible es requerido';
-    if (!values.location) newErrors.location = 'Ubicación es requerida';
-    if (!values.maxCapacity) newErrors.maxCapacity = 'Capacidad máxima es requerida';
-
-    const currentStock = Number(values.currentStock);
-    const maxCapacity = Number(values.maxCapacity);
-    const minThreshold = Number(values.minThreshold);
-    const pricePerUnit = Number(values.pricePerUnit);
-
-    if (values.currentStock && (isNaN(currentStock) || currentStock < 0)) {
-      newErrors.currentStock = 'Stock actual debe ser un número válido mayor o igual a 0';
-    }
-    if (values.maxCapacity && (isNaN(maxCapacity) || maxCapacity <= 0)) {
-      newErrors.maxCapacity = 'Capacidad máxima debe ser un número válido mayor a 0';
-    }
-    if (values.minThreshold && (isNaN(minThreshold) || minThreshold < 0)) {
-      newErrors.minThreshold = 'Umbral mínimo debe ser un número válido mayor o igual a 0';
-    }
-    if (values.pricePerUnit && (isNaN(pricePerUnit) || pricePerUnit < 0)) {
-      newErrors.pricePerUnit = 'Precio debe ser un número válido mayor o igual a 0';
-    }
-    if (currentStock > maxCapacity) {
-      newErrors.currentStock = 'Stock actual no puede ser mayor a la capacidad máxima';
-    }
-    if (minThreshold > maxCapacity) {
-      newErrors.minThreshold = 'Umbral mínimo no puede ser mayor a la capacidad máxima';
-    }
-    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  // Validación centralizada por schema + reglas cruzadas
+  const modalValidationOptions = {
+    validationSchema: validationSchemas.inventory,
+    crossValidators: [
+      crossFieldValidators.stockVsCapacity,
+      crossFieldValidators.thresholdVsCapacity
+    ]
   };
 
   const {
@@ -69,7 +47,7 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
     errors,
     handleInputChange,
     validateForm
-  } = useFormData(getInitialFormData(), validate);
+  } = useFormData(getInitialFormData(), undefined, modalValidationOptions);
 
   // Reinicializar formulario cuando cambie el item a editar
   useEffect(() => {

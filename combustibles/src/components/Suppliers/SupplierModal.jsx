@@ -7,6 +7,7 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
+import { validationSchemas, validators, validateForm as runValidation } from '../../utils/validators';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
@@ -42,35 +43,25 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     isPreferred: false
   }), []);
 
+  // Validación centralizada: schema + reglas extra dinámicas (priceList por fuelType)
   const validate = (values) => {
-    const newErrors = {};
-    if (!values.name.trim()) {
-      newErrors.name = `${UI_FORM_LABELS.SUPPLIER} ${UI_FORM_LABELS.NAME} es requerido`;
-    }
-    if (!values.category) {
-      newErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
-    }
-    if (!values.type) {
-      newErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
-    }
-    if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-      newErrors.email = `El formato del ${UI_FORM_LABELS.EMAIL.toLowerCase()} no es válido`;
-    }
-    if (values.phone && !/^[\d\s\-+()]+$/.test(values.phone)) {
-      newErrors.phone = `El formato del ${UI_FORM_LABELS.PHONE.toLowerCase()} no es válido`;
-    }
-    if (values.creditLimit && (isNaN(values.creditLimit) || parseFloat(values.creditLimit) < 0)) {
-      newErrors.creditLimit = 'El límite de crédito debe ser un número positivo';
-    }
-    if (values.rating < 1 || values.rating > 5) {
-      newErrors.rating = 'El rating debe estar entre 1 y 5';
-    }
+    // Ejecutar schema base de suppliers
+    const base = validationSchemas.supplier ?
+      runValidation(values, validationSchemas.supplier) : { isValid: true, errors: {} };
+
+    // Reglas adicionales: category y type requeridos
+    const extraErrors = { ...base.errors };
+    if (!values.category) extraErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
+    if (!values.type) extraErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
+
+    // Validar priceList por cada fuelType marcado
     (values.fuelTypes || []).forEach(fuelType => {
-      if (values.priceList && values.priceList[fuelType] && (isNaN(values.priceList[fuelType]) || parseFloat(values.priceList[fuelType]) < 0)) {
-        newErrors[`price_${fuelType}`] = `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`;
-      }
+      const price = values.priceList?.[fuelType];
+      const err = validators.nonNegative(price, `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`);
+      if (err) extraErrors[`price_${fuelType}`] = err;
     });
-    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+
+    return { isValid: Object.keys(extraErrors).length === 0, errors: extraErrors };
   };
 
   const {

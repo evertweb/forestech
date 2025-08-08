@@ -9,6 +9,7 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
+import { validationSchemas, validateForm as runValidation, validators } from '../../utils/validators';
 import { 
   MAINTENANCE_TYPES, 
   MAINTENANCE_STATUS, 
@@ -66,23 +67,27 @@ const MaintenanceModal = ({
 
   // Validación centralizada
   const validate = (values) => {
-    const newErrors = {};
-    if (!values.type) newErrors.type = 'Tipo de mantenimiento es requerido';
-    if (!values.vehicleId) newErrors.vehicleId = 'Vehículo es requerido';
-    if (!values.date) newErrors.date = 'Fecha es requerida';
-    if (!values.status) newErrors.status = 'Estado es requerido';
+    // Base por schema
+    const base = runValidation(values, validationSchemas.maintenance);
+    const errors = { ...base.errors };
+
+    // Reglas condicionales por tipo
     if (values.type === MAINTENANCE_TYPES.OIL_CHANGE) {
-      if (!values.quantity || values.quantity <= 0) newErrors.quantity = 'Cantidad de aceite es requerida y debe ser mayor a 0';
-      if (values.currentHours < 0) newErrors.currentHours = 'Horas actuales inválidas';
-      if (values.nextChangeHours < 0) newErrors.nextChangeHours = 'Próximo cambio inválido';
+      const qErr = validators.positive(values.quantity, 'Cantidad de aceite es requerida y debe ser mayor a 0');
+      if (qErr) errors.quantity = qErr;
+      const chErr = validators.nonNegative(values.currentHours, 'Horas actuales inválidas');
+      if (chErr) errors.currentHours = chErr;
+      const nxErr = validators.nonNegative(values.nextChangeHours, 'Próximo cambio inválido');
+      if (nxErr) errors.nextChangeHours = nxErr;
     }
+
     if (values.type === MAINTENANCE_TYPES.BATTERY_CHANGE) {
-      if (!values.batteryType) newErrors.batteryType = 'Tipo de batería es requerido';
-      if (!values.brand) newErrors.brand = 'Marca es requerida';
-      if (!values.model) newErrors.model = 'Modelo es requerido';
+      if (!values.batteryType) errors.batteryType = 'Tipo de batería es requerido';
+      if (!values.brand) errors.brand = 'Marca es requerida';
+      if (!values.model) errors.model = 'Modelo es requerido';
     }
-    if (values.cost && (isNaN(values.cost) || values.cost < 0)) newErrors.cost = 'Costo inválido';
-    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+
+    return { isValid: Object.keys(errors).length === 0, errors };
   };
 
   const {

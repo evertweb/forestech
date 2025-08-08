@@ -9,6 +9,7 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
+import { validationSchemas, validateForm as runValidation, crossFieldValidators } from '../../utils/validators';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
@@ -63,49 +64,28 @@ const VehicleModal = ({
   const [customType, setCustomType] = useState('');
   const [showCustomType, setShowCustomType] = useState(false);
 
-  // Validación personalizada
+  // Validación centralizada por schema + reglas adicionales
   const validate = (values) => {
-    const newErrors = {};
-    if (!values.vehicleId.trim()) {
-      newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_ID_REQUIRED;
-    } else if (values.vehicleId.length < 3) {
-      newErrors.vehicleId = UI_MESSAGES.ERROR.VEHICLE_ID_MIN_LENGTH;
-    }
-    if (!values.name.trim()) {
-      newErrors.name = UI_MESSAGES.ERROR.VEHICLE_NAME_REQUIRED;
-    } else if (values.name.length < 2) {
-      newErrors.name = UI_MESSAGES.ERROR.VEHICLE_NAME_MIN_LENGTH;
-    }
-    if (values.fuelCapacity <= 0) {
-      newErrors.fuelCapacity = UI_MESSAGES.ERROR.FUEL_CAPACITY_POSITIVE;
-    } else if (values.fuelCapacity > 1000) {
-      newErrors.fuelCapacity = UI_MESSAGES.ERROR.FUEL_CAPACITY_MAX;
-    }
-    if (values.enginePower < 0) {
-      newErrors.enginePower = UI_MESSAGES.ERROR.ENGINE_POWER_POSITIVE;
-    } else if (values.enginePower > 1000) {
-      newErrors.enginePower = UI_MESSAGES.ERROR.ENGINE_POWER_MAX;
-    }
-    if (values.estimatedConsumptionPerHour < 0) {
-      newErrors.estimatedConsumptionPerHour = UI_MESSAGES.ERROR.CONSUMPTION_POSITIVE;
-    } else if (values.estimatedConsumptionPerHour > 50) {
-      newErrors.estimatedConsumptionPerHour = UI_MESSAGES.ERROR.CONSUMPTION_MAX;
-    }
-    if (values.lastMaintenanceDate && values.nextMaintenanceDate) {
-      const lastDate = new Date(values.lastMaintenanceDate);
-      const nextDate = new Date(values.nextMaintenanceDate);
-      if (nextDate <= lastDate) {
-        newErrors.nextMaintenanceDate = UI_MESSAGES.ERROR.NEXT_MAINTENANCE_DATE_INVALID;
-      }
-    }
+  const base = runValidation(values, validationSchemas.vehicle);
+  const errors = { ...base.errors };
+
+    // Fechas: próxima mantenimiento posterior a última
+    const cross = crossFieldValidators.maintenanceDates({
+      lastMaintenanceDate: values.lastMaintenanceDate,
+      nextMaintenanceDate: values.nextMaintenanceDate
+    });
+    Object.assign(errors, cross);
+
+    // Purchase date no futura
     if (values.purchaseDate) {
-      const purchaseDate = new Date(values.purchaseDate);
+      const purchase = new Date(values.purchaseDate);
       const today = new Date();
-      if (purchaseDate > today) {
-        newErrors.purchaseDate = UI_MESSAGES.ERROR.PURCHASE_DATE_FUTURE;
+      if (purchase > today) {
+        errors.purchaseDate = UI_MESSAGES.ERROR.PURCHASE_DATE_FUTURE;
       }
     }
-    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+
+    return { isValid: Object.keys(errors).length === 0, errors };
   };
 
   const {
