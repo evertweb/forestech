@@ -9,6 +9,7 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
 import { getAllSuppliers } from '../../services/suppliersService';
 import { MODAL_PRESETS, UI_ACTIONS, UI_MESSAGES } from '../../constants';
+import { validators, validateForm as runValidation, validationSchemas } from '../../utils/validators';
 
 // Importar pasos del wizard
 import Step1_MovementType from './WizardSteps/Step1_MovementType';
@@ -218,101 +219,111 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Validar paso actual
   const validateCurrentStep = useCallback(() => {
-    let isValid = false;
-    
+    let result = { isValid: false };
+
+    const schema = validationSchemas?.movement || {};
+    const pick = (fields) => {
+      const s = {};
+      fields.forEach((f) => {
+        if (schema[f]) s[f] = schema[f];
+      });
+      return s;
+    };
+
     switch (currentStep) {
-      case 1:
-        isValid = !!formData.type;
+      case 1: {
+        result = runValidation(formData, pick(['type']));
         break;
-      case 2:
-        // Para SALIDA: validar fecha (paso 2)
+      }
+      case 2: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          isValid = !!formData.effectiveDate;
+          result = runValidation(formData, pick(['effectiveDate']));
         } else {
-          // Para otros tipos: validar fuelType (paso 2 original)
-          isValid = !!formData.fuelType;
+          result = runValidation(formData, pick(['fuelType']));
         }
         break;
-      case 3:
-        // Para SALIDA: validar producto/fuelType (paso 3)
+      }
+      case 3: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          isValid = !!formData.fuelType;
+          result = runValidation(formData, pick(['fuelType']));
         } else if (formData.type === MOVEMENT_TYPES.ENTRADA) {
-          isValid = !!formData.supplierName; // Proveedor para entradas
+          // proveedor requerido
+          result = runValidation(formData, { supplierName: [validators.required] });
         } else {
-          isValid = !!formData.location; // Ubicación origen para transferencias/ajustes
+          // ubicación origen requerida
+          result = runValidation(formData, { location: [validators.required] });
         }
         break;
-      case '3b': // Paso adicional para destino en entradas
-        isValid = !!formData.destinationLocation;
+      }
+      case '3b': {
+        // destino requerido en entradas
+        result = runValidation(formData, { destinationLocation: [validators.required] });
         break;
-      case 4:
-        // Para SALIDA: validar vehículo (paso 4)
+      }
+      case 4: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          isValid = !!formData.vehicleId;
-          
-          // Si hay vehículo seleccionado, verificar si requiere horómetro
-          if (isValid && formData.vehicleId) {
+          // vehículo obligatorio; si requiere horómetro, validar horas requeridas y no negativas
+          const base = runValidation(formData, { vehicleId: [validators.required] });
+          if (!base.isValid) { result = base; break; }
+
+          let requiresHourMeter = false;
+          if (formData.vehicleId && Array.isArray(vehicles)) {
             const selectedVehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
             if (selectedVehicle) {
-              const requiresHourMeter = selectedVehicle.fuelType === 'diesel' || selectedVehicle.fuelType === 'Diesel';
-              if (requiresHourMeter) {
-                isValid = !!formData.currentHours && parseFloat(formData.currentHours) >= 0;
-              }
+              const fuel = (selectedVehicle.fuelType || '').toLowerCase();
+              requiresHourMeter = fuel === 'diesel';
             }
           }
-        } else {
-          // Para otros tipos: validar cantidad (paso 4 original)
-          isValid = formData.quantity && parseFloat(formData.quantity) > 0;
-        }
-        break;
-      case 5:
-        // Para SALIDA: validar cantidad (paso 5)
-        if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          isValid = formData.quantity && parseFloat(formData.quantity) > 0;
-        } else {
-          // Para otros tipos: validar vehículo si es necesario
-          if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
-            isValid = true; // Skip vehículo para transferencias
+
+          if (requiresHourMeter) {
+            result = runValidation(formData, { currentHours: [validators.required, validators.nonNegative] });
           } else {
-            isValid = true; // Skip para otros tipos
+            result = { isValid: true, errors: {} };
           }
+        } else {
+          // cantidad positiva
+          result = runValidation(formData, pick(['quantity']));
         }
         break;
-      case 6:
-        // Para SALIDA: validar precio (paso 6)
+      }
+      case 5: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          isValid = !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+          result = runValidation(formData, pick(['quantity']));
+        } else {
+          // otros tipos: sin validación en este paso
+          result = { isValid: true, errors: {} };
+        }
+        break;
+      }
+      case 6: {
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          result = runValidation(formData, pick(['unitPrice']));
         } else if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
-          isValid = !!formData.destinationLocation;
+          result = runValidation(formData, { destinationLocation: [validators.required] });
         } else {
-          isValid = true; // Skip para otros tipos
+          result = { isValid: true, errors: {} };
         }
         break;
-      case 7:
-        // Para SALIDA: resumen (paso 7)
+      }
+      case 7: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          isValid = true; // Resumen siempre válido si llegamos aquí
+          // Resumen
+          result = { isValid: true, errors: {} };
         } else {
-          // Para otros tipos: validar precio (paso 7 original)
-          isValid = !!formData.unitPrice && parseFloat(formData.unitPrice) >= 0;
+          result = runValidation(formData, pick(['unitPrice']));
         }
         break;
-      case 8:
-        isValid = true; // Resumen siempre válido si llegamos aquí
+      }
+      case 8: {
+        result = { isValid: true, errors: {} };
         break;
+      }
       default:
-        isValid = false;
+        result = { isValid: false, errors: {} };
     }
-    
-    // DEBUG: Log general de validación
-    console.log('🔍 [DEBUG General] validateCurrentStep:', {
-      currentStep,
-      isValid,
-      formDataKeys: Object.keys(formData),
-      formData
-    });
-    
+
+    const { isValid } = result;
+    console.log('🔍 [DEBUG General] validateCurrentStep (centralizado):', { currentStep, isValid });
     return isValid;
   }, [currentStep, formData, vehicles]);
 
@@ -433,6 +444,42 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     setError('');
 
     try {
+      // Validación final: tipo, producto, cantidad, precio, fecha
+      const baseValidation = runValidation(formData, validationSchemas.movement);
+      if (!baseValidation.isValid) {
+        setIsLoading(false);
+        setError('Revisa los campos requeridos: tipo, combustible, cantidad, precio y fecha.');
+        return;
+      }
+
+      // Reglas adicionales según tipo de movimiento
+      // - SALIDA: vehículo requerido; si es diesel, currentHours requerido
+      if (formData.type === MOVEMENT_TYPES.SALIDA) {
+        const v1 = runValidation(formData, { vehicleId: [validators.required] });
+        if (!v1.isValid) {
+          setIsLoading(false);
+          setError('Selecciona un vehículo válido.');
+          return;
+        }
+
+        let requiresHourMeter = false;
+        if (formData.vehicleId && Array.isArray(vehicles)) {
+          const selectedVehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
+          if (selectedVehicle) {
+            const fuel = (selectedVehicle.fuelType || '').toLowerCase();
+            requiresHourMeter = fuel === 'diesel';
+          }
+        }
+        if (requiresHourMeter) {
+          const v2 = runValidation(formData, { currentHours: [validators.required, validators.nonNegative] });
+          if (!v2.isValid) {
+            setIsLoading(false);
+            setError('Ingresa las horas actuales del horómetro.');
+            return;
+          }
+        }
+      }
+
       // Usar directamente el estado 'formData' que ya tiene los comentarios
       const dataToSubmit = { ...formData };
       

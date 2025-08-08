@@ -293,15 +293,16 @@ serviceNew.js → Versión con BaseService
 - [ ] `src/utils/__tests__/validators.test.js` - Tests completos
 
 **🔧 Archivos a actualizar:**
-- [ ] Integrar validadores en useFormData hook
-- [ ] Actualizar todos los modales con validación centralizada
-- [ ] Remover validaciones dispersas
+- [x] Integrar validadores en useFormData hook ✅ COMPLETADO
+- [x] Actualizar modales clave con validación centralizada (Inventario, Proveedores, Productos, Mantenimiento, Vehículos) ✅ COMPLETADO
+- [x] Agregar schema movement y validar MovementWizard por pasos ✅ COMPLETADO
+- [ ] Remover validaciones dispersas restantes en módulos menores
 
 **✅ Validaciones obligatorias:**
-- [ ] Validaciones consistentes en toda la app
-- [ ] Mensajes de error unificados
-- [ ] Tests cubren todos los casos edge
-- [ ] Performance sin regresiones
+- [x] Validaciones consistentes en modales y wizard principales
+- [ ] Mensajes de error unificados (pendiente armonizar textos en pasos secundarios)
+- [ ] Tests cubren todos los casos edge (añadir tests de MovementWizard)
+- [x] Performance sin regresiones (lint/build OK)
 
 ---
 

@@ -330,6 +330,15 @@ export const validationSchemas = {
     quantity: [validators.positive],
     currentHours: [validators.hours],
     nextChangeHours: [validators.hours]
+  },
+
+  // Schema general para movimientos (wizard puede aplicar reglas por paso)
+  movement: {
+    type: [validators.required],
+    fuelType: [validators.required],
+    quantity: [validators.positive],
+    unitPrice: [validators.nonNegative],
+    effectiveDate: [validators.required, validators.date]
   }
 };
 
