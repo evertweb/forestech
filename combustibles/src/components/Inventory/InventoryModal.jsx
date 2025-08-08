@@ -1,6 +1,11 @@
-// combustibles/src/components/Inventory/InventoryModal.jsx
-// Modal para crear y editar items de inventario
+/**
+ * InventoryModal - Modal para crear y editar items de inventario
+ * Refactorizado para usar BaseModal
+ */
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseModal from '../shared/BaseModal';
+import ModalHeader from '../shared/ModalHeader';
+import ModalFooter from '../shared/ModalFooter';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
@@ -147,17 +152,29 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
 
   const selectedFuelInfo = FUEL_INFO[formData.fuelType];
 
-  return (
-    <div className={MODAL_PRESETS.INVENTORY_MODAL.overlay} onClick={onClose}>
-      <div className={MODAL_PRESETS.INVENTORY_MODAL.content} onClick={(e) => e.stopPropagation()}>
-        <div className={MODAL_PRESETS.INVENTORY_MODAL.header}>
-          <h2>
-            {isEditing ? `✏️ ${UI_ACTIONS.EDIT} Combustible` : `➕ ${UI_ACTIONS.ADD} Nuevo Combustible`}
-          </h2>
-          <button className={MODAL_PRESETS.INVENTORY_MODAL.close} onClick={onClose}>✕</button>
-        </div>
+  const getModalTitle = () => {
+    return isEditing ? `${UI_ACTIONS.EDIT} Combustible` : `${UI_ACTIONS.ADD} Nuevo Combustible`;
+  };
 
-        <form onSubmit={handleSubmit} className={MODAL_PRESETS.INVENTORY_MODAL.form}>
+  const getModalIcon = () => {
+    return isEditing ? '✏️' : '➕';
+  };
+
+  return (
+    <BaseModal 
+      isOpen={true} 
+      onClose={onClose}
+      size="lg"
+      className="inventory-modal"
+    >
+      <ModalHeader 
+        title={getModalTitle()}
+        icon={getModalIcon()}
+        onClose={onClose}
+      />
+
+      <div className="modal-body">
+        <form onSubmit={handleSubmit}>
           <div className="form-grid">
             {/* Tipo de Combustible */}
             <div className="form-group">
@@ -364,22 +381,23 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="modal-actions">
-            <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancelar
-            </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear')}
-            </button>
-          </div>
         </form>
       </div>
-    </div>
+
+      <ModalFooter 
+        primaryAction={{
+          label: loading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear'),
+          onClick: handleSubmit,
+          disabled: loading,
+          type: 'submit'
+        }}
+        secondaryAction={{
+          label: 'Cancelar',
+          onClick: onClose
+        }}
+        isLoading={loading}
+      />
+    </BaseModal>
   );
 };
 

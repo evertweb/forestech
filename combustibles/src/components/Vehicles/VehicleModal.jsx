@@ -1,9 +1,13 @@
 /**
  * VehicleModal - Modal para crear, editar y ver detalles de vehículos
  * Incluye validaciones business logic y preview en tiempo real
+ * Refactorizado para usar BaseModal
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseModal from '../shared/BaseModal';
+import ModalHeader from '../shared/ModalHeader';
+import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
@@ -179,43 +183,43 @@ const VehicleModal = ({
     }
   };
 
-  // Determinar si el campo está deshabilitado
-  const isReadOnly = mode === 'view';
-  const canEdit = userRole === 'admin' || userRole === 'supervisor';
+  // Determinar permisos de edición
+  const canEdit = ['admin', 'supervisor'].includes(userRole) && mode !== 'view';
+  const isReadOnly = mode === 'view' || !canEdit;
+  
+  const getModalTitle = () => {
+    if (mode === 'create') return MODAL_TEXT.VEHICLE.CREATE_TITLE;
+    if (mode === 'edit') return MODAL_TEXT.VEHICLE.EDIT_TITLE;
+    return MODAL_TEXT.VEHICLE.VIEW_TITLE;
+  };
 
-  if (!isOpen) return null;
+  const getModalSubtitle = () => {
+    if (mode === 'create') return MODAL_TEXT.VEHICLE.CREATE_SUBTITLE;
+    if (mode === 'edit') return MODAL_TEXT.VEHICLE.EDIT_SUBTITLE;
+    return MODAL_TEXT.VEHICLE.VIEW_SUBTITLE;
+  };
+
+  const getModalIcon = () => {
+    if (mode === 'create') return '➕';
+    if (mode === 'edit') return '✏️';
+    return '👁️';
+  };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content vehicle-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header del modal */}
-        <div className="modal-header">
-          <div className="modal-title">
-            <span className="title-icon">
-              {mode === 'create' ? '➕' : mode === 'edit' ? '✏️' : '👁️'}
-            </span>
-            <div className="title-text">
-              <h3>
-                {mode === 'create' && MODAL_TEXT.VEHICLE.CREATE_TITLE}
-                {mode === 'edit' && MODAL_TEXT.VEHICLE.EDIT_TITLE}
-                {mode === 'view' && MODAL_TEXT.VEHICLE.VIEW_TITLE}
-              </h3>
-              <p>
-                {mode === 'create' && MODAL_TEXT.VEHICLE.CREATE_SUBTITLE}
-                {mode === 'edit' && MODAL_TEXT.VEHICLE.EDIT_SUBTITLE}
-                {mode === 'view' && MODAL_TEXT.VEHICLE.VIEW_SUBTITLE}
-              </p>
-            </div>
-          </div>
-          <button 
-            className="btn-close" 
-            onClick={onClose}
-            type="button"
-          >
-            ✕
-          </button>
-        </div>
+    <BaseModal 
+      isOpen={isOpen} 
+      onClose={onClose}
+      size="xl"
+      className="vehicle-modal"
+    >
+      <ModalHeader 
+        title={getModalTitle()}
+        subtitle={getModalSubtitle()}
+        icon={getModalIcon()}
+        onClose={onClose}
+      />
 
+      <div className="modal-body">
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-content">
@@ -706,39 +710,23 @@ const VehicleModal = ({
             </div>
           </div>
 
-          {/* Footer del modal */}
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onClose}
-              disabled={loading}
-            >
-              {mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL}
-            </button>
-            
-            {!isReadOnly && canEdit && (
-              <button
-                type="submit"
-                className="btn-primary"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <span className="loading-spinner"></span>
-                    {UI_MESSAGES.LOADING.SAVING}
-                  </>
-                ) : (
-                  <>
-                    {mode === 'create' ? UI_ACTIONS.CREATE_VEHICLE : UI_ACTIONS.SAVE_CHANGES}
-                  </>
-                )}
-              </button>
-            )}
-          </div>
         </form>
       </div>
-    </div>
+
+      <ModalFooter 
+        primaryAction={!isReadOnly && canEdit ? {
+          label: loading ? UI_MESSAGES.LOADING.SAVING : (mode === 'create' ? UI_ACTIONS.CREATE_VEHICLE : UI_ACTIONS.SAVE_CHANGES),
+          onClick: handleSubmit,
+          disabled: loading,
+          type: 'submit'
+        } : null}
+        secondaryAction={{
+          label: mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL,
+          onClick: onClose
+        }}
+        isLoading={loading}
+      />
+    </BaseModal>
   );
 };
 

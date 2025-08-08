@@ -1,9 +1,13 @@
 /**
  * MaintenanceModal - Modal para crear, editar y ver mantenimientos
  * Incluye secciones para cambios de aceite y baterías con integración horómetro
+ * Refactorizado para usar BaseModal
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseModal from '../shared/BaseModal';
+import ModalHeader from '../shared/ModalHeader';
+import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
 import { 
   MAINTENANCE_TYPES, 
@@ -236,20 +240,30 @@ const MaintenanceModal = ({
   //   }
   // };
 
-  if (!isOpen) return null;
+  const getModalIcon = () => {
+    switch (mode) {
+      case 'create': return '➕';
+      case 'edit': return '✏️';
+      case 'view': return '👁️';
+      default: return '🔧';
+    }
+  };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content maintenance-modal">
-        {/* Header */}
-        <div className="modal-header">
-          <h2>{getModalTitle()}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
+    <BaseModal 
+      isOpen={isOpen} 
+      onClose={onClose}
+      size="xl"
+      className="maintenance-modal"
+    >
+      <ModalHeader 
+        title={getModalTitle()}
+        icon={getModalIcon()}
+        onClose={onClose}
+      />
 
-        {/* Body */}
-        <div className="modal-body">
-          <form onSubmit={handleSubmit} className="maintenance-form">
+      <div className="modal-body">
+        <form onSubmit={handleSubmit} className="maintenance-form">
             {/* Tipo de mantenimiento */}
             <div className="form-group">
               <label>{UI_FORM_LABELS.MAINTENANCE_TYPE} *</label>
@@ -453,32 +467,22 @@ const MaintenanceModal = ({
               </select>
             </div>
           </form>
-        </div>
-
-        {/* Footer */}
-        <div className="modal-footer">
-          <button 
-            type="button" 
-            className="btn btn-secondary" 
-            onClick={onClose}
-            disabled={loading}
-          >
-            {UI_ACTIONS.CANCEL}
-          </button>
-          
-          {mode !== 'view' && (
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? UI_MESSAGES.LOADING.SAVING : (mode === 'create' ? UI_ACTIONS.CREATE : UI_ACTIONS.UPDATE)}
-            </button>
-          )}
-        </div>
       </div>
-    </div>
+
+      <ModalFooter 
+        primaryAction={mode !== 'view' ? {
+          label: loading ? UI_MESSAGES.LOADING.SAVING : (mode === 'create' ? UI_ACTIONS.CREATE : UI_ACTIONS.UPDATE),
+          onClick: handleSubmit,
+          disabled: loading,
+          type: 'submit'
+        } : null}
+        secondaryAction={{
+          label: mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL,
+          onClick: onClose
+        }}
+        isLoading={loading}
+      />
+    </BaseModal>
   );
 };
 

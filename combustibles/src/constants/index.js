@@ -27,7 +27,8 @@ import {
   UI_TOOLTIPS,
   UI_TABS,
   MOVEMENT_TYPES_UI,
-  WIZARD_QUESTIONS
+  WIZARD_QUESTIONS,
+  MODAL_TEXT
 } from './uiLabels.js';
 
 // Design tokens y CSS variables
@@ -51,6 +52,21 @@ export * from './designTokens.js';
 export * from './externalUrls.js';
 export * from './modalStyles.js';
 export { MODAL_PRESETS };
+
+// Re-exportar constantes de interfaz de usuario
+export {
+  UI_ACTIONS,
+  UI_TITLES,
+  UI_STATUS,
+  UI_FORM_LABELS,
+  UI_MESSAGES,
+  UI_PLACEHOLDERS,
+  UI_TOOLTIPS,
+  UI_TABS,
+  MOVEMENT_TYPES_UI,
+  WIZARD_QUESTIONS,
+  MODAL_TEXT
+};
 
 // ===================================================================
 // IMPORTACIONES DE DATOS ESPECÍFICOS

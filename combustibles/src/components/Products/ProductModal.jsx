@@ -1,9 +1,13 @@
 /**
  * ProductModal - Modal para crear, editar y ver productos
  * Formulario completo con validaciones y preview
+ * Refactorizado para usar BaseModal
  */
 
 import React, { useState, useEffect } from 'react';
+import BaseModal from '../shared/BaseModal';
+import ModalHeader from '../shared/ModalHeader';
+import ModalFooter from '../shared/ModalFooter';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { PRODUCT_COLORS } from '../../constants/designTokens';
 import { 
@@ -119,23 +123,28 @@ const ProductModal = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const canEdit = ['admin', 'supervisor'].includes(userRole) && mode !== 'view';
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content product-modal">
-        <div className="modal-header">
-          <h2>
-            {mode === 'create' && `➕ ${MODAL_TEXT.PRODUCT.CREATE_TITLE}`}
-            {mode === 'edit' && `✏️ ${MODAL_TEXT.PRODUCT.EDIT_TITLE}`}
-            {mode === 'view' && `👁️ ${MODAL_TEXT.PRODUCT.VIEW_TITLE}`}
-          </h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
-        </div>
+  const getModalTitle = () => {
+    if (mode === 'create') return `➕ ${MODAL_TEXT.PRODUCT.CREATE_TITLE}`;
+    if (mode === 'edit') return `✏️ ${MODAL_TEXT.PRODUCT.EDIT_TITLE}`;
+    return `👁️ ${MODAL_TEXT.PRODUCT.VIEW_TITLE}`;
+  };
 
-        <form onSubmit={handleSubmit} className="modal-body">
+  return (
+    <BaseModal 
+      isOpen={isOpen} 
+      onClose={onClose}
+      size="lg"
+      className="product-modal"
+    >
+      <ModalHeader 
+        title={getModalTitle()}
+        onClose={onClose}
+        icon="🛢️"
+      />
+
+      <div className="modal-body">
           {/* Preview Card */}
           <div className="product-preview">
             <div className="preview-card">
@@ -350,31 +359,22 @@ const ProductModal = ({
               {errors.submit}
             </div>
           )}
-        </form>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={onClose}
-            disabled={loading}
-          >
-            {mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL}
-          </button>
-          
-          {canEdit && (
-            <button
-              type="submit"
-              className="btn-primary"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? UI_MESSAGES.LOADING.SAVING : UI_ACTIONS.SAVE}
-            </button>
-          )}
         </div>
-      </div>
-    </div>
+
+        <ModalFooter 
+          primaryAction={canEdit ? {
+            label: loading ? UI_MESSAGES.LOADING.SAVING : UI_ACTIONS.SAVE,
+            onClick: handleSubmit,
+            disabled: loading,
+            type: 'submit'
+          } : null}
+          secondaryAction={{
+            label: mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL,
+            onClick: onClose
+          }}
+          isLoading={loading}
+        />
+    </BaseModal>
   );
 };
 

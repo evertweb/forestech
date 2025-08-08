@@ -4,7 +4,7 @@
  * ================================================================ */
 
 /* Import base SAP variables desde VehicleFormSmart-SAP.css */
-@import url('../Vehicles/VehicleFormSmart-SAP.css');
+/* NOTA: Archivo VehicleFormSmart-SAP.css eliminado durante limpieza de duplicados */
 
 /* === LAYOUT DEL COMPONENTE === */
 .reports-main.sap-theme {

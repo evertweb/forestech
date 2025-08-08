@@ -1,6 +1,11 @@
-// combustibles/src/components/Suppliers/SupplierModal.jsx
-// Modal para crear/editar proveedores
+/**
+ * SupplierModal - Modal para crear/editar proveedores
+ * Refactorizado para usar BaseModal
+ */
 import React, { useState, useEffect, useCallback } from 'react';
+import BaseModal from '../shared/BaseModal';
+import ModalHeader from '../shared/ModalHeader';
+import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
@@ -169,19 +174,24 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     { id: 'commercial', label: 'Comercial', icon: 'icon-credit-card' }
   ];
 
-  return (
-    <div className={MODAL_PRESETS.INVENTORY_MODAL.overlay} onClick={onClose}>
-      <div className={`${MODAL_PRESETS.INVENTORY_MODAL.content} large`} onClick={e => e.stopPropagation()}>
-        <div className={MODAL_PRESETS.INVENTORY_MODAL.header}>
-          <h2>
-            <i className="icon-truck"></i>
-            {isEditing ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.SUPPLIER}` : `Nuevo ${UI_FORM_LABELS.SUPPLIER}`}
-          </h2>
-          <button className={MODAL_PRESETS.INVENTORY_MODAL.close} onClick={onClose}>
-            <i className="icon-x"></i>
-          </button>
-        </div>
+  const getModalTitle = () => {
+    return isEditing ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.SUPPLIER}` : `Nuevo ${UI_FORM_LABELS.SUPPLIER}`;
+  };
 
+  return (
+    <BaseModal 
+      isOpen={true} 
+      onClose={onClose}
+      size="lg"
+      className="supplier-modal"
+    >
+      <ModalHeader 
+        title={getModalTitle()}
+        icon="🚚"
+        onClose={onClose}
+      />
+
+      <div className="modal-body">
         <form onSubmit={handleSubmit}>
           {/* Tabs */}
           <div className="modal-tabs">
@@ -498,37 +508,25 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
             )}
           </div>
 
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={loading}
-            >
-              {UI_ACTIONS.CANCEL}
-            </button>
-            
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <div className="loading-spinner small"></div>
-                  {isEditing ? UI_MESSAGES.LOADING.UPDATING : UI_MESSAGES.LOADING.CREATING}
-                </>
-              ) : (
-                <>
-                  <i className="icon-save"></i>
-                  {isEditing ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.SUPPLIER}` : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.SUPPLIER}`}
-                </>
-              )}
-            </button>
-          </div>
         </form>
       </div>
-    </div>
+
+      <ModalFooter 
+        primaryAction={{
+          label: loading ? 
+            (isEditing ? UI_MESSAGES.LOADING.UPDATING : UI_MESSAGES.LOADING.CREATING) :
+            (isEditing ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.SUPPLIER}` : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.SUPPLIER}`),
+          onClick: handleSubmit,
+          disabled: loading,
+          type: 'submit'
+        }}
+        secondaryAction={{
+          label: UI_ACTIONS.CANCEL,
+          onClick: onClose
+        }}
+        isLoading={loading}
+      />
+    </BaseModal>
   );
 };
 
