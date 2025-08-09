@@ -34,3 +34,9 @@ npm-debug.log*
 public/combustibles/assets/
 
 fetch-mcp/
+
+# Test artifacts
+combustibles/test-results/
+combustibles/playwright-report/
+combustibles/coverage/
+**/coverage/

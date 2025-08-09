@@ -14,6 +14,19 @@ export default defineConfig({
     }),
   ],
   base: '/combustibles/',
+  // Configuración de pruebas con Vitest (integración/UI)
+  test: {
+  environment: 'jsdom',
+  setupFiles: './src/test/setupTests.jsx',
+    globals: true,
+    css: true,
+  exclude: ['tests-e2e/**', 'node_modules/**', 'dist/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage'
+    }
+  },
   build: {
     outDir: '../public/combustibles',
     emptyOutDir: true,

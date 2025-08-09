@@ -2,7 +2,7 @@
 // Context optimizado para combustibles - NIVEL 2 REFACTORING COMPLETADO
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './AuthContextLazy';
 import { useCombustiblesCRUD } from '../hooks/useCombustiblesCRUD';
 import { subscribeToInventory } from '../services/inventoryService';
 import { subscribeToVehicles } from '../services/vehiclesService';

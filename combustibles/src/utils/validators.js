@@ -7,7 +7,14 @@
 export const validators = {
   // Validación requerida
   required: (value, message = 'Campo requerido') => {
-    return !value || (typeof value === 'string' && value.trim() === '') ? message : null;
+  // 0 es un valor válido para campos numéricos
+  if (value === 0) return null;
+  // strings vacíos o solo espacios no son válidos
+  if (typeof value === 'string') return value.trim() === '' ? message : null;
+  // null o undefined no son válidos
+  if (value === null || value === undefined) return message;
+  // Cualquier otro tipo (boolean, object, etc.) se considera presente
+  return null;
   },
 
   // Validación de email
