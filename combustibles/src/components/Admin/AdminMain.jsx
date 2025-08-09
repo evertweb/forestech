@@ -175,6 +175,7 @@ const AdminMain = () => {
   const filtersComponent = null;
 
   const mainContent = (
+    <>
       {activeTab === 'invitations' && (
         <div className="invitations-section">
           <div className="section-header">
@@ -275,7 +276,7 @@ const AdminMain = () => {
       {activeTab === 'reset' && (
         <DataReset />
       )}
-
+    </>
   );
 
   return (

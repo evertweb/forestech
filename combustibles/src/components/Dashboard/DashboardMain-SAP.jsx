@@ -17,6 +17,7 @@ import '../../styles/sap-dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
+import { PageLayout } from '../shared';
 
 const DashboardMainSAP = () => {
   // ==================================================================================================
@@ -174,34 +175,72 @@ const DashboardMainSAP = () => {
       });
   }, [inventory]);
 
-  // ==================================================================================================
-  // RENDERIZADO CONDICIONAL
-  // ==================================================================================================
-  if (dataLoading) {
-    return (
-      <div className="dashboard-container sap-theme">
-        <div className="dashboard-header sap-theme">
-          <div>
-            <h1 className="dashboard-title sap-theme">Dashboard Operativo</h1>
-            <p className="dashboard-subtitle sap-theme">Cargando datos en tiempo real...</p>
-          </div>
+  // Componentes para PageLayout
+  const headerActions = (
+    <div className="dashboard-table-actions sap-theme">
+      <button className="btn btn-secondary sap-theme">
+        📊 Exportar
+      </button>
+      <button className="btn btn-primary sap-theme">
+        🔄 Actualizar
+      </button>
+    </div>
+  );
+
+  const statsComponent = (
+    <div className="stats-grid sap-theme">
+      <div className="stat-card sap-theme">
+        <div className="stat-card-header sap-theme">
+          <h3 className="stat-card-title sap-theme">Combustible Total</h3>
+          <div className="stat-card-icon sap-theme">🛢️</div>
         </div>
-        <div className="dashboard-loading sap-theme">
-          <div className="loading-spinner sap-theme"></div>
-          <span>Cargando información...</span>
+        <div className="stat-card-value sap-theme">{formatNumber(stats.totalFuel)}</div>
+        <div className={`stat-card-change sap-theme ${stats.totalFuel > 1000 ? 'positive' : 'negative'}`}>
+          {stats.totalFuel > 1000 ? 'Suficiente' : 'Revisar stock'} galones
         </div>
       </div>
-    );
-  }
 
-  if (dataError) {
-    return (
-      <div className="dashboard-container sap-theme">
-        <div className="dashboard-header sap-theme">
-          <div>
-            <h1 className="dashboard-title sap-theme">Dashboard Operativo</h1>
-          </div>
+      <div className="stat-card sap-theme success">
+        <div className="stat-card-header sap-theme">
+          <h3 className="stat-card-title sap-theme">Valor Inventario</h3>
+          <div className="stat-card-icon sap-theme">💰</div>
         </div>
+        <div className="stat-card-value sap-theme">{formatCurrency(stats.totalValue)}</div>
+        <div className="stat-card-change sap-theme positive">
+          Activo - {stats.activeInventoryItems} productos
+        </div>
+      </div>
+
+      <div className="stat-card sap-theme">
+        <div className="stat-card-header sap-theme">
+          <h3 className="stat-card-title sap-theme">Vehículos Activos</h3>
+          <div className="stat-card-icon sap-theme">🚜</div>
+        </div>
+        <div className="stat-card-value sap-theme">{stats.activeVehicles}</div>
+        <div className={`stat-card-change sap-theme ${stats.activeVehicles > 0 ? 'positive' : 'negative'}`}>
+          {stats.activeVehicles > 0 ? 'Operativos' : 'Sin actividad'}
+        </div>
+      </div>
+
+      <div className={`stat-card sap-theme ${stats.lowStockAlerts > 0 ? 'error' : 'success'}`}>
+        <div className="stat-card-header sap-theme">
+          <h3 className="stat-card-title sap-theme">Alertas de Stock</h3>
+          <div className="stat-card-icon sap-theme">⚠️</div>
+        </div>
+        <div className="stat-card-value sap-theme">{stats.lowStockAlerts}</div>
+        <div className={`stat-card-change sap-theme ${stats.lowStockAlerts === 0 ? 'positive' : 'negative'}`}>
+          {stats.lowStockAlerts === 0 ? 'Todo normal' : 'Requiere atención'}
+        </div>
+      </div>
+    </div>
+  );
+
+  const filtersComponent = null; // Dashboard no necesita filtros complejos
+
+  const mainContent = (
+    <>
+      {/* Error Display */}
+      {dataError && (
         <div className="error-banner sap-theme">
           <div>
             <strong>Error al cargar datos:</strong> {dataError}
@@ -213,79 +252,7 @@ const DashboardMainSAP = () => {
             Reintentar
           </button>
         </div>
-      </div>
-    );
-  }
-
-  // ==================================================================================================
-  // RENDERIZADO PRINCIPAL
-  // ==================================================================================================
-  return (
-    <div className="dashboard-container sap-theme">
-      {/* Header del Dashboard */}
-      <div className="dashboard-header sap-theme">
-        <div>
-          <h1 className="dashboard-title sap-theme">Dashboard Operativo</h1>
-          <p className="dashboard-subtitle sap-theme">
-            Gestión integral de combustibles y maquinaria - SAP Fiori
-          </p>
-        </div>
-        <div className="dashboard-table-actions sap-theme">
-          <button className="btn btn-secondary sap-theme">
-            📊 Exportar
-          </button>
-          <button className="btn btn-primary sap-theme">
-            🔄 Actualizar
-          </button>
-        </div>
-      </div>
-
-      {/* Cards de Estadísticas */}
-      <div className="stats-grid sap-theme">
-        <div className="stat-card sap-theme">
-          <div className="stat-card-header sap-theme">
-            <h3 className="stat-card-title sap-theme">Combustible Total</h3>
-            <div className="stat-card-icon sap-theme">🛢️</div>
-          </div>
-          <div className="stat-card-value sap-theme">{formatNumber(stats.totalFuel)}</div>
-          <div className={`stat-card-change sap-theme ${stats.totalFuel > 1000 ? 'positive' : 'negative'}`}>
-            {stats.totalFuel > 1000 ? 'Suficiente' : 'Revisar stock'} galones
-          </div>
-        </div>
-
-        <div className="stat-card sap-theme success">
-          <div className="stat-card-header sap-theme">
-            <h3 className="stat-card-title sap-theme">Valor Inventario</h3>
-            <div className="stat-card-icon sap-theme">💰</div>
-          </div>
-          <div className="stat-card-value sap-theme">{formatCurrency(stats.totalValue)}</div>
-          <div className="stat-card-change sap-theme positive">
-            Activo - {stats.activeInventoryItems} productos
-          </div>
-        </div>
-
-        <div className="stat-card sap-theme">
-          <div className="stat-card-header sap-theme">
-            <h3 className="stat-card-title sap-theme">Vehículos Activos</h3>
-            <div className="stat-card-icon sap-theme">🚜</div>
-          </div>
-          <div className="stat-card-value sap-theme">{stats.activeVehicles}</div>
-          <div className={`stat-card-change sap-theme ${stats.activeVehicles > 0 ? 'positive' : 'negative'}`}>
-            {stats.activeVehicles > 0 ? 'Operativos' : 'Sin actividad'}
-          </div>
-        </div>
-
-        <div className={`stat-card sap-theme ${stats.lowStockAlerts > 0 ? 'error' : 'success'}`}>
-          <div className="stat-card-header sap-theme">
-            <h3 className="stat-card-title sap-theme">Alertas de Stock</h3>
-            <div className="stat-card-icon sap-theme">⚠️</div>
-          </div>
-          <div className="stat-card-value sap-theme">{stats.lowStockAlerts}</div>
-          <div className={`stat-card-change sap-theme ${stats.lowStockAlerts === 0 ? 'positive' : 'negative'}`}>
-            {stats.lowStockAlerts === 0 ? 'Todo normal' : 'Requiere atención'}
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Tabla de Inventario */}
       <div className="dashboard-table-container sap-theme">
@@ -463,7 +430,21 @@ const DashboardMainSAP = () => {
           Última actualización: {new Date().toLocaleString('es-CO')}
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="Dashboard Operativo"
+      subtitle="Gestión integral de combustibles y maquinaria - SAP Fiori"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={dataLoading}
+      showFilters={false}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 
