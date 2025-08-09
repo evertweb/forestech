@@ -20,10 +20,19 @@ Aplicación de gestión de combustibles construida con React + Vite para el mono
 - **Usuario**: cardenasever072@gmail.com
 
 ### Variables de Entorno
-Archivo: `.env.local`
+- Copia `./.env.example` a `./.env.local` y coloca los valores reales del proyecto.
+- Requeridas: `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`
+- Opcionales (con defaults): `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_MEASUREMENT_ID`
+
+Ejemplo (`.env.example`):
 ```
-VITE_FIREBASE_API_KEY=AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4
+VITE_FIREBASE_API_KEY=tu_api_key
+VITE_FIREBASE_AUTH_DOMAIN=liquidacionapp-62962.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=liquidacionapp-62962
+VITE_FIREBASE_STORAGE_BUCKET=liquidacionapp-62962.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=851382130132
+VITE_FIREBASE_APP_ID=tu_app_id
+VITE_FIREBASE_MEASUREMENT_ID=
 ```
 
 ## Desarrollo

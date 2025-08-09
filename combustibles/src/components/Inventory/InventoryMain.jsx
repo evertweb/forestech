@@ -12,7 +12,7 @@
  * ================================================================================================================================
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToInventory, 
@@ -21,7 +21,8 @@ import {
 } from '../../services/inventoryService';
 import InventoryTable from './InventoryTable';
 import InventoryCards from './InventoryCards';
-import InventoryModal from './InventoryModal';
+// Lazy load del modal pesado para dividir el bundle
+const InventoryModal = lazy(() => import('./InventoryModal'));
 import InventoryStats from './InventoryStats';
 import { PageLayout } from '../shared';
 import '../../styles/sap-inventory.css';
@@ -418,13 +419,24 @@ const InventoryMain = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal (lazy) */}
       {showModal && (
-        <InventoryModal
-          item={editingItem}
-          onClose={handleModalClose}
-          onSuccess={handleModalSuccess}
-        />
+        <Suspense
+          fallback={
+            <div className="loading-container">
+              <div className="loader">
+                <div className="spinner"></div>
+                <p>Cargando formulario...</p>
+              </div>
+            </div>
+          }
+        >
+          <InventoryModal
+            item={editingItem}
+            onClose={handleModalClose}
+            onSuccess={handleModalSuccess}
+          />
+        </Suspense>
       )}
     </>
   );

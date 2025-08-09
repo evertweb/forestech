@@ -3,7 +3,7 @@
  * Gestiona la visualización y filtrado de movimientos de combustibles
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToMovements, 
@@ -16,7 +16,8 @@ import {
 import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
-import MovementWizard from './MovementWizard';
+// Lazy load del wizard para reducir el bundle inicial
+const MovementWizard = lazy(() => import('./MovementWizard'));
 import { PageLayout } from '../shared';
 import './Movements.css';
 import './MovementsMain-SAP.css';
@@ -259,15 +260,24 @@ const MovementsMain = () => {
         />
       ))}
 
-      {/* Wizard - Única Opción */}
+      {/* Wizard - Única Opción (lazy) */}
       {showWizard && (
-        <MovementWizard
-          isOpen={showWizard}
-          onClose={handleWizardClose}
-          onSuccess={() => {
-            handleWizardClose();
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="loading-container sap-theme">
+              <div className="loading-spinner sap-theme"></div>
+              <p>Cargando asistente...</p>
+            </div>
+          }
+        >
+          <MovementWizard
+            isOpen={showWizard}
+            onClose={handleWizardClose}
+            onSuccess={() => {
+              handleWizardClose();
+            }}
+          />
+        </Suspense>
       )}
     </>
   );

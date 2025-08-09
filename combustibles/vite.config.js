@@ -17,8 +17,9 @@ export default defineConfig({
   build: {
     outDir: '../public/combustibles',
     emptyOutDir: true,
-    // 🚀 Build optimization for GitHub Actions
+    // 🚀 Build optimization for GitHub Actions + LCP crítico
     rollupOptions: {
+      treeshake: 'recommended', // Tree-shaking agresivo para LCP
       output: {
         manualChunks: {
           // Vendor libraries (React ecosystem)  
@@ -27,8 +28,10 @@ export default defineConfig({
           ui: ['react-aria-components', 'lucide-react', '@untitledui/icons'],
           // Charts and data visualization
           charts: ['chart.js', 'react-chartjs-2'],
-          // Firebase and utilities
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          // Firebase core (crítico para LCP - separar auth/firestore)
+          'firebase-core': ['firebase/app'],
+          'firebase-auth': ['firebase/auth'],
+          'firebase-db': ['firebase/firestore', 'firebase/storage'],
           // Utils and smaller libraries (only installed ones)
           utils: ['clsx', 'tailwind-merge', 'xlsx']
         }

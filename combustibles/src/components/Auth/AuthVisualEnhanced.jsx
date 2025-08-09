@@ -348,7 +348,9 @@ const AuthVisualEnhanced = () => {
                 <button 
                   onClick={handleExpandLogin}
                   className="hero-cta-button"
-                  disabled={loading || imageLoading}
+                  disabled={loading}
+                  aria-busy={imageLoading ? 'true' : 'false'}
+                  aria-describedby={imageLoading ? 'bg-loading-hint' : undefined}
                 >
                   <span className="button-content">
                     <span className="button-icon">🚀</span>
@@ -356,6 +358,11 @@ const AuthVisualEnhanced = () => {
                   </span>
                   <div className="button-shine"></div>
                 </button>
+                {imageLoading && (
+                  <div id="bg-loading-hint" className="loading-hint">
+                    Cargando fondo... puedes continuar sin esperar
+                  </div>
+                )}
               </div>
             </div>
           );

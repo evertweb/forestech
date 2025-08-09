@@ -246,6 +246,10 @@ export const renderCategoryIcon = (icon, props = {}) => {
           verticalAlign: 'middle',
           ...props.style
         }}
+        width={16}
+        height={16}
+        loading="lazy"
+        decoding="async"
         onError={(e) => {
           // Fallback a emoji por defecto si falla la carga
           e.target.style.display = 'none';

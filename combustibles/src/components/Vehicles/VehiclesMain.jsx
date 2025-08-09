@@ -3,7 +3,7 @@
  * Ahora incluye pestañas para gestionar vehículos y categorías por separado
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToVehicles, 
@@ -16,11 +16,12 @@ import {
 import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
-import VehicleFormSmart from './VehicleFormSmart'; // ✅ VERSIÓN MÁS RECIENTE (6 Aug)
-import MaintenanceModal from './MaintenanceModal';
+// Lazy load de modales pesados para dividir bundle
+const VehicleFormSmart = lazy(() => import('./VehicleFormSmart')); // ✅ VERSIÓN MÁS RECIENTE (6 Aug)
+const MaintenanceModal = lazy(() => import('./MaintenanceModal'));
 
 // Componentes de la pestaña Categorías
-import VehicleCategoriesManager from './VehicleCategoriesManager';
+const VehicleCategoriesManager = lazy(() => import('./VehicleCategoriesManager'));
 
 // PageLayout
 import { PageLayout } from '../shared';
@@ -279,39 +280,72 @@ const VehiclesMain = () => {
             <p>Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal</p>
           </div>
           
-          <VehicleCategoriesManager
-            embedded={true} // Indicar que está embebido, no es modal
-            onClose={null} // No necesita close cuando está embebido
-            onCategoryCreated={() => {
-              // Refrescar datos si es necesario
-            }}
-          />
+          <Suspense
+            fallback={
+              <div className="loading-container">
+                <div className="loader">
+                  <div className="spinner"></div>
+                  <p>Cargando categorías...</p>
+                </div>
+              </div>
+            }
+          >
+            <VehicleCategoriesManager
+              embedded={true} // Indicar que está embebido, no es modal
+              onClose={null} // No necesita close cuando está embebido
+              onCategoryCreated={() => {
+                // Refrescar datos si es necesario
+              }}
+            />
+          </Suspense>
         </div>
       )}
 
       {/* Modales que se mantienen globales */}
       {showModal && (
-        <VehicleFormSmart
-          isOpen={showModal}
-          onClose={handleModalClose}
-          vehicle={modalMode === 'edit' ? selectedVehicle : null}
-          onSuccess={(vehicleData) => {
-            console.log('✅ Vehículo guardado:', vehicleData);
-            handleModalClose();
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="loading-container">
+              <div className="loader">
+                <div className="spinner"></div>
+                <p>Cargando formulario...</p>
+              </div>
+            </div>
+          }
+        >
+          <VehicleFormSmart
+            isOpen={showModal}
+            onClose={handleModalClose}
+            vehicle={modalMode === 'edit' ? selectedVehicle : null}
+            onSuccess={(vehicleData) => {
+              console.log('✅ Vehículo guardado:', vehicleData);
+              handleModalClose();
+            }}
+          />
+        </Suspense>
       )}
 
       {showMaintenanceModal && (
-        <MaintenanceModal
-          isOpen={showMaintenanceModal}
-          onClose={handleModalClose}
-          vehicle={selectedVehicle}
-          onSuccess={() => {
-            handleModalClose();
-            // Los datos se actualizan automáticamente por la suscripción
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="loading-container">
+              <div className="loader">
+                <div className="spinner"></div>
+                <p>Cargando mantenimiento...</p>
+              </div>
+            </div>
+          }
+        >
+          <MaintenanceModal
+            isOpen={showMaintenanceModal}
+            onClose={handleModalClose}
+            vehicle={selectedVehicle}
+            onSuccess={() => {
+              handleModalClose();
+              // Los datos se actualizan automáticamente por la suscripción
+            }}
+          />
+        </Suspense>
       )}
     </>
   );

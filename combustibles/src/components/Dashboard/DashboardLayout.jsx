@@ -98,6 +98,28 @@ const DashboardLayout = ({ children }) => {
     { id: 'admin', path: '/admin', name: 'Administración', icon: '⚙️', description: 'Gestión de usuarios', requiredPermission: 'admin' }
   ];
 
+  // Prefetch de rutas al pasar el mouse sobre los enlaces del sidebar
+  const routePrefetchers = {
+    dashboard: () => import('../../components/Dashboard/DashboardMain-SAP'),
+    inventory: () => import('../../components/Inventory/InventoryMain'),
+    movements: () => import('../../components/Movements/MovementsMain'),
+    vehicles: () => import('../../components/Vehicles/VehiclesMain'),
+    maintenance: () => import('../../components/Maintenance/MaintenanceMain'),
+    products: () => import('../../components/Products/ProductsMain'),
+    suppliers: () => import('../../components/Suppliers/SuppliersMain'),
+    reports: () => import('../../components/Reports/ReportsMain'),
+    admin: () => import('../../components/Admin/AdminMain')
+  };
+
+  const handlePrefetch = (id) => {
+    try {
+      const loader = routePrefetchers[id];
+      if (loader) loader();
+    } catch {
+      // Ignorar errores de prefetch
+    }
+  };
+
   // Cierra el sidebar al hacer clic en un enlace en la navegación móvil.
   const handleLinkClick = () => {
     setSidebarOpen(false);
@@ -157,7 +179,15 @@ const DashboardLayout = ({ children }) => {
             </div>
             <div className="user-avatar">
               {userProfile?.photoURL ? (
-                <img src={userProfile.photoURL} alt="Avatar" />
+                <img 
+                  src={userProfile.photoURL} 
+                  alt="Avatar" 
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  decoding="async"
+                  style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '50%' }}
+                />
               ) : (
                 // Si no hay foto de perfil, muestra la inicial del nombre o email.
                 <div className="avatar-placeholder">
@@ -190,6 +220,7 @@ const DashboardLayout = ({ children }) => {
                   // Aplica la clase 'active' si la ruta actual coincide con la del ítem.
                   className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
                   onClick={handleLinkClick}
+                  onMouseEnter={() => handlePrefetch(item.id)}
                 >
                   <span className="nav-icon">{item.icon}</span>
                   <div className="nav-content">

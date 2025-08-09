@@ -30,13 +30,36 @@ const BACKGROUND_CONFIG = {
  */
 export const getBackgroundImageUrl = async () => {
   try {
-    // Intentar obtener la imagen desde Firebase Storage
+    // Intentar obtener la imagen desde Firebase Storage con timeout seguro
     const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
-    const url = await getDownloadURL(imageRef);
+
+    const TIMEOUT_MS = Number(import.meta.env.VITE_BG_DOWNLOAD_TIMEOUT_MS) || 2000;
+
+    const withTimeout = (promise, ms) => {
+      return new Promise((resolve, reject) => {
+        const id = setTimeout(() => reject(new Error('timeout')), ms);
+        promise
+          .then((value) => {
+            clearTimeout(id);
+            resolve(value);
+          })
+          .catch((error) => {
+            clearTimeout(id);
+            reject(error);
+          });
+      });
+    };
+
+    const url = await withTimeout(getDownloadURL(imageRef), TIMEOUT_MS);
     
     return url;
     
-  } catch {
+  } catch (error) {
+    // Log específico para diagnóstico sin interrumpir UI
+    console.warn('⚠️ No se pudo obtener imagen de fondo desde Storage, usando fallback.', {
+      message: error?.message,
+      code: error?.code
+    });
     
     // Usar una imagen predeterminada aleatoria como fallback
     const randomIndex = Math.floor(Math.random() * BACKGROUND_CONFIG.defaultImages.length);

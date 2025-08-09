@@ -228,10 +228,17 @@ const Auth = () => {
               <button 
                 onClick={handleExpandLogin}
                 className="auth-button minimal-login-btn"
-                disabled={loading || imageLoading}
+                disabled={loading}
+                aria-busy={imageLoading ? 'true' : 'false'}
+                aria-describedby={imageLoading ? 'bg-loading-hint' : undefined}
               >
                 ⛽ Ingresar al Sistema
               </button>
+              {imageLoading && (
+                <div id="bg-loading-hint" className="loading-hint">
+                  Cargando fondo... puedes continuar sin esperar
+                </div>
+              )}
             </div>
           );
         }

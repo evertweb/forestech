@@ -572,6 +572,10 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                             src={iconPreview} 
                             alt="Preview del icono" 
                             className="icon-preview-img"
+                            width={32}
+                            height={32}
+                            loading="lazy"
+                            decoding="async"
                           />
                           <button 
                             type="button"
@@ -618,6 +622,10 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                             src={iconPreview} 
                             alt="Preview del icono" 
                             className="preview-custom-icon"
+                            width={24}
+                            height={24}
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           formData.icon

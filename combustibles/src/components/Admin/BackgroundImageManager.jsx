@@ -73,6 +73,10 @@ const BackgroundImageManager = () => {
             <img 
               src={currentImageUrl} 
               alt="Imagen de fondo actual" 
+              loading="lazy"
+              decoding="async"
+              width={600}
+              height={200}
               style={{
                 width: '100%',
                 height: '200px',
