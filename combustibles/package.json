@@ -13,7 +13,10 @@
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
     "e2e:headed": "playwright test --headed --project=chromium",
-    "e2e:install": "playwright install chromium"
+    "e2e:install": "playwright install chromium",
+    "e2e:smoke": "playwright test smoke.spec.ts --project=chromium",
+    "e2e:movement-flow": "playwright test movement-flow.spec.ts --project=chromium",
+    "e2e:ci": "playwright test --project=chromium --reporter=github-actions"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",
@@ -42,6 +45,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
+    "@vitest/coverage-v8": "^2.1.9",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
