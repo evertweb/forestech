@@ -3,7 +3,7 @@
  * Incluye título y botón de cerrar opcional
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 const ModalHeader = ({ 
@@ -51,4 +51,5 @@ ModalHeader.propTypes = {
   className: PropTypes.string
 };
 
-export default ModalHeader;
+ModalHeader.displayName = 'ModalHeader';
+export default memo(ModalHeader);

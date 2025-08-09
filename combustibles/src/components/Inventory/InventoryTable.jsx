@@ -1,7 +1,7 @@
 // combustibles/src/components/Inventory/InventoryTable.jsx
 // Vista de tabla para el inventario
 // ✨ OPTIMIZADO: React.memo aplicado para reducir re-renders - FASE 3
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
 // withOptimization eliminado
 
@@ -10,19 +10,19 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  const formatNumber = (num) => {
+  const formatNumber = useCallback((num) => {
     return new Intl.NumberFormat('es-CO').format(num);
-  };
+  }, []);
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = useCallback((amount) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
       minimumFractionDigits: 0
     }).format(amount);
-  };
+  }, []);
 
-  const getTimeAgo = (date) => {
+  const getTimeAgo = useCallback((date) => {
     if (!date) return 'N/A';
     
     const now = new Date();
@@ -55,7 +55,7 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
     if (days > 0) return `${days}d`;
     if (hours > 0) return `${hours}h`;
     return 'ahora';
-  };
+  }, []);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -66,7 +66,9 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
     }
   };
 
-  const sortedItems = [...items].sort((a, b) => {
+  const sortedItems = useMemo(() => {
+    const arr = [...items];
+    return arr.sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
 
@@ -87,14 +89,15 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
       bValue = parseDate(bValue);
     }
 
-    if (aValue < bValue) {
-      return sortDirection === 'asc' ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortDirection === 'asc' ? 1 : -1;
-    }
-    return 0;
-  });
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [items, sortField, sortDirection]);
 
   const getSortIcon = (field) => {
     if (sortField !== field) return '↕️';
@@ -154,136 +157,18 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
             </tr>
           </thead>
           <tbody>
-            {sortedItems.map((item) => {
-              const fuelInfo = FUEL_INFO[item.fuelType];
-              const stockAlert = STOCK_ALERTS[item.stockLevel];
-              
-              // Validar valores numéricos para evitar NaN
-              const currentStock = parseFloat(item.currentStock) || 0;
-              const pricePerUnit = parseFloat(item.pricePerUnit) || 0;
-              const maxCapacity = parseFloat(item.maxCapacity) || 0;
-              const stockPercentage = parseFloat(item.stockPercentage) || 0;
-              
-              const totalValue = currentStock * pricePerUnit;
-
-              return (
-                <tr key={item.id} className={item.needsRestock ? 'needs-restock' : ''}>
-                  {/* Combustible */}
-                  <td className="fuel-cell">
-                    <div className="fuel-info">
-                      <span 
-                        className="fuel-icon"
-                        style={{ color: fuelInfo?.color }}
-                      >
-                        {fuelInfo?.icon}
-                      </span>
-                      <div>
-                        <div className="fuel-name">{fuelInfo?.name}</div>
-                        <div className="fuel-type">{item.fuelType}</div>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Ubicación */}
-                  <td>{item.location}</td>
-
-                  {/* Stock Actual */}
-                  <td className="stock-cell">
-                    <div className="stock-info">
-                      <span className="stock-amount">
-                        {formatNumber(currentStock)}
-                      </span>
-                      <span className="stock-unit">/ {formatNumber(maxCapacity)} {item.unit || 'gal'}</span>
-                    </div>
-                    {item.needsRestock && (
-                      <div className="restock-indicator">
-                        ⚠️ Bajo mínimo
-                      </div>
-                    )}
-                  </td>
-
-                  {/* Nivel */}
-                  <td className="level-cell">
-                    <div className="level-info">
-                      <div 
-                        className="level-badge"
-                        style={{ 
-                          backgroundColor: stockAlert?.color,
-                          color: 'white'
-                        }}
-                      >
-                        {stockPercentage}%
-                      </div>
-                      <div className="level-bar">
-                        <div 
-                          className="level-fill"
-                          style={{ 
-                            width: `${stockPercentage}%`,
-                            backgroundColor: stockAlert?.color
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Precio */}
-                  <td className="price-cell">
-                    <div className="price-info">
-                      <span className="price-amount">
-                        {formatCurrency(pricePerUnit)}
-                      </span>
-                      <span className="price-unit">/ {item.unit || 'gal'}</span>
-                    </div>
-                  </td>
-
-                  {/* Valor Total */}
-                  <td className="value-cell">
-                    <span className="total-value">
-                      {formatCurrency(totalValue)}
-                    </span>
-                  </td>
-
-                  {/* Estado */}
-                  <td className="status-cell">
-                    <span className={`status-badge ${item.status}`}>
-                      <span className="status-dot"></span>
-                      {item.status === 'active' ? 'Activo' : 
-                       item.status === 'inactive' ? 'Inactivo' : 
-                       item.status === 'maintenance' ? 'Mantenimiento' : item.status}
-                    </span>
-                  </td>
-
-                  {/* Actualizado */}
-                  <td className="updated-cell">
-                    <span className="time-ago">
-                      {getTimeAgo(item.lastUpdated)}
-                    </span>
-                  </td>
-
-                  {/* Acciones */}
-                  {canManage && (
-                    <td className="actions-cell">
-                      <div className="action-buttons">
-                        <button 
-                          className="btn btn-sm btn-secondary"
-                          onClick={() => onEdit(item)}
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-danger"
-                          onClick={() => onDelete(item)}
-                          title="Eliminar"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
+            {sortedItems.map((item) => (
+              <InventoryRow
+                key={item.id}
+                item={item}
+                canManage={canManage}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                getTimeAgo={getTimeAgo}
+                formatNumber={formatNumber}
+                formatCurrency={formatCurrency}
+              />
+            ))}
           </tbody>
         </table>
       </div>
@@ -319,3 +204,78 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
 };
 
 export default InventoryTable;
+
+// Fila memoizada para evitar re-renders innecesarios
+const InventoryRow = memo(function InventoryRow({ item, canManage, onEdit, onDelete, getTimeAgo, formatNumber, formatCurrency }) {
+  const fuelInfo = FUEL_INFO[item.fuelType];
+  const stockAlert = STOCK_ALERTS[item.stockLevel];
+
+  const currentStock = parseFloat(item.currentStock) || 0;
+  const pricePerUnit = parseFloat(item.pricePerUnit) || 0;
+  const maxCapacity = parseFloat(item.maxCapacity) || 0;
+  const stockPercentage = parseFloat(item.stockPercentage) || 0;
+  const totalValue = currentStock * pricePerUnit;
+
+  const handleEdit = useCallback(() => onEdit(item), [onEdit, item]);
+  const handleDelete = useCallback(() => onDelete(item), [onDelete, item]);
+
+  return (
+    <tr className={item.needsRestock ? 'needs-restock' : ''}>
+      <td className="fuel-cell">
+        <div className="fuel-info">
+          <span className="fuel-icon" style={{ color: fuelInfo?.color }}>
+            {fuelInfo?.icon}
+          </span>
+          <div>
+            <div className="fuel-name">{fuelInfo?.name}</div>
+            <div className="fuel-type">{item.fuelType}</div>
+          </div>
+        </div>
+      </td>
+      <td>{item.location}</td>
+      <td className="stock-cell">
+        <div className="stock-info">
+          <span className="stock-amount">{formatNumber(currentStock)}</span>
+          <span className="stock-unit">/ {formatNumber(maxCapacity)} {item.unit || 'gal'}</span>
+        </div>
+        {item.needsRestock && <div className="restock-indicator">⚠️ Bajo mínimo</div>}
+      </td>
+      <td className="level-cell">
+        <div className="level-info">
+          <div className="level-badge" style={{ backgroundColor: stockAlert?.color, color: 'white' }}>
+            {stockPercentage}%
+          </div>
+          <div className="level-bar">
+            <div className="level-fill" style={{ width: `${stockPercentage}%`, backgroundColor: stockAlert?.color }} />
+          </div>
+        </div>
+      </td>
+      <td className="price-cell">
+        <div className="price-info">
+          <span className="price-amount">{formatCurrency(pricePerUnit)}</span>
+          <span className="price-unit">/ {item.unit || 'gal'}</span>
+        </div>
+      </td>
+      <td className="value-cell">
+        <span className="total-value">{formatCurrency(totalValue)}</span>
+      </td>
+      <td className="status-cell">
+        <span className={`status-badge ${item.status}`}>
+          <span className="status-dot"></span>
+          {item.status === 'active' ? 'Activo' : item.status === 'inactive' ? 'Inactivo' : item.status === 'maintenance' ? 'Mantenimiento' : item.status}
+        </span>
+      </td>
+      <td className="updated-cell">
+        <span className="time-ago">{getTimeAgo(item.lastUpdated)}</span>
+      </td>
+      {canManage && (
+        <td className="actions-cell">
+          <div className="action-buttons">
+            <button className="btn btn-sm btn-secondary" onClick={handleEdit} title="Editar">✏️</button>
+            <button className="btn btn-sm btn-danger" onClick={handleDelete} title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      )}
+    </tr>
+  );
+});

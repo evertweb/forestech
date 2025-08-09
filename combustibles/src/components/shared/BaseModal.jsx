@@ -3,7 +3,7 @@
  * Incluye overlay, animaciones, gestión de escape key y responsive design
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 
 const BaseModal = ({
@@ -124,4 +124,5 @@ BaseModal.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-export default BaseModal;
+BaseModal.displayName = 'BaseModal';
+export default memo(BaseModal);

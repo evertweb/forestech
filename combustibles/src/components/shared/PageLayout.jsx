@@ -3,7 +3,7 @@
  * Estructura consistente: Header + Stats + Filters + Table
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import PageHeader from './PageHeader';
 import StatsSection from './StatsSection';
@@ -62,4 +62,5 @@ PageLayout.propTypes = {
   showFilters: PropTypes.bool
 };
 
-export default PageLayout;
+PageLayout.displayName = 'PageLayout';
+export default memo(PageLayout);

@@ -3,7 +3,7 @@
  * Incluye loading states y manejo de contenido
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 const TableSection = ({ children, loading = false, className = "" }) => {
@@ -27,4 +27,5 @@ TableSection.propTypes = {
   className: PropTypes.string
 };
 
-export default TableSection;
+TableSection.displayName = 'TableSection';
+export default memo(TableSection);

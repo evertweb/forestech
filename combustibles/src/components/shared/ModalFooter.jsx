@@ -3,7 +3,7 @@
  * Incluye botones de acción primaria y secundaria
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 const ModalFooter = ({ 
@@ -69,4 +69,5 @@ ModalFooter.propTypes = {
   children: PropTypes.node
 };
 
-export default ModalFooter;
+ModalFooter.displayName = 'ModalFooter';
+export default memo(ModalFooter);

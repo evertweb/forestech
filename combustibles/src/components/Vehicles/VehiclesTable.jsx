@@ -3,7 +3,7 @@
  * Muestra los vehículos en formato de tabla compacta para desktop
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 
 const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
@@ -94,7 +94,9 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
   };
 
   // Ordenar vehículos
-  const sortedVehicles = [...vehicles].sort((a, b) => {
+  const sortedVehicles = useMemo(() => {
+    const arr = [...vehicles];
+    return arr.sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
 
@@ -126,8 +128,9 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
     if (!aValue) return sortDirection === 'asc' ? 1 : -1;
     if (!bValue) return sortDirection === 'asc' ? -1 : 1;
 
-    return 0;
-  });
+      return 0;
+    });
+  }, [vehicles, sortField, sortDirection]);
 
   // Obtener icono de ordenamiento
   const getSortIcon = (field) => {
@@ -135,22 +138,7 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
     return sortDirection === 'asc' ? '↑' : '↓';
   };
 
-  // Calcular consumo por hora
-  const getConsumptionPerHour = (vehicle) => {
-    if (!vehicle.totalHoursWorked || vehicle.totalHoursWorked === 0) {
-      return vehicle.estimatedConsumptionPerHour || 0;
-    }
-    return vehicle.totalFuelConsumed / vehicle.totalHoursWorked;
-  };
-
-  // Determinar si necesita mantenimiento
-  const needsMaintenance = (vehicle) => {
-    if (!vehicle.lastMaintenanceDate) return true;
-    const daysSinceLastMaintenance = Math.floor(
-      (new Date() - new Date(vehicle.lastMaintenanceDate)) / (1000 * 60 * 60 * 24)
-    );
-    return daysSinceLastMaintenance > 90; // Más de 90 días
-  };
+  // (helpers de fila movidos a VehiclesRow para memoización)
 
   return (
     <div className="vehicles-table-container">
@@ -214,118 +202,20 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
           </thead>
           <tbody>
             {sortedVehicles.map((vehicle) => (
-              <tr 
+              <VehiclesRow
                 key={vehicle.id}
-                className={`vehicle-row ${vehicle.status === VEHICLE_STATUS.MANTENIMIENTO ? 'maintenance-row' : ''} ${needsMaintenance(vehicle) ? 'needs-maintenance' : ''}`}
-              >
-                <td className="vehicle-id-cell">
-                  <div className="id-content">
-                    <span className="vehicle-icon">{getVehicleIcon(vehicle.type)}</span>
-                    <span className="vehicle-id">{vehicle.vehicleId}</span>
-                  </div>
-                </td>
-
-                <td className="name-cell">
-                  <span className="vehicle-name">{vehicle.name}</span>
-                </td>
-
-                <td className="type-cell">
-                  <span className="type-text">
-                    {vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)}
-                  </span>
-                </td>
-
-                <td className="brand-model-cell">
-                  {vehicle.brand && vehicle.model ? (
-                    <span className="brand-model">{vehicle.brand} {vehicle.model}</span>
-                  ) : (
-                    <span className="no-data">-</span>
-                  )}
-                </td>
-
-                <td className="fuel-cell">
-                  <div className="fuel-content">
-                    <span className="fuel-icon">{getFuelIcon(vehicle.fuelType)}</span>
-                    <span className="fuel-text">{vehicle.fuelType}</span>
-                  </div>
-                </td>
-
-                <td className="consumption-cell text-right">
-                  <span className="consumption-value">
-                    {formatGallons(vehicle.totalFuelConsumed || 0)}
-                  </span>
-                </td>
-
-                <td className="hours-cell text-right">
-                  <span className="hours-value">
-                    {formatHours(vehicle.totalHoursWorked || 0)}
-                  </span>
-                </td>
-
-                <td className="rate-cell text-right">
-                  <span className="rate-value">
-                    {getConsumptionPerHour(vehicle).toFixed(1)} gal/hr
-                  </span>
-                </td>
-
-                <td className="location-cell">
-                  <span className="location-text">
-                    📍 {vehicle.currentLocation || 'Sin ubicación'}
-                  </span>
-                </td>
-
-                <td className="status-cell">
-                  <div className={`status-badge ${getStatusClass(vehicle.status)}`}>
-                    <span className="status-icon">{getStatusIcon(vehicle.status)}</span>
-                    <span className="status-text">
-                      {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
-                    </span>
-                  </div>
-                </td>
-
-                <td className="date-cell">
-                  <div className="date-content">
-                    <span className="date-value">
-                      {formatDate(vehicle.lastMovementDate)}
-                    </span>
-                    {needsMaintenance(vehicle) && (
-                      <span className="maintenance-warning">⚠️</span>
-                    )}
-                  </div>
-                </td>
-
-                <td className="actions-cell">
-                  <div className="action-buttons">
-                    <button
-                      className="btn-action btn-view"
-                      onClick={() => onView(vehicle)}
-                      title="Ver detalles"
-                    >
-                      👁️
-                    </button>
-                    
-                    {onEdit && vehicle.status !== VEHICLE_STATUS.REPARACION && (
-                      <button
-                        className="btn-action btn-edit"
-                        onClick={() => onEdit(vehicle)}
-                        title="Editar vehículo"
-                      >
-                        ✏️
-                      </button>
-                    )}
-
-                    {onMaintenance && (
-                      <button
-                        className="btn-action btn-maintenance"
-                        onClick={() => onMaintenance(vehicle)}
-                        title="Registrar mantenimiento"
-                      >
-                        🔧
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
+                vehicle={vehicle}
+                onView={onView}
+                onEdit={onEdit}
+                onMaintenance={onMaintenance}
+                getVehicleIcon={getVehicleIcon}
+                getFuelIcon={getFuelIcon}
+                getStatusIcon={getStatusIcon}
+                getStatusClass={getStatusClass}
+                formatGallons={formatGallons}
+                formatHours={formatHours}
+                formatDate={formatDate}
+              />
             ))}
           </tbody>
         </table>
@@ -367,3 +257,95 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
 };
 
 export default VehiclesTable;
+
+// Fila memoizada
+const VehiclesRow = memo(function VehiclesRow({
+  vehicle,
+  onView,
+  onEdit,
+  onMaintenance,
+  getVehicleIcon,
+  getFuelIcon,
+  getStatusIcon,
+  getStatusClass,
+  formatGallons,
+  formatHours,
+  formatDate
+}) {
+  const needsMaintenance = useCallback(() => {
+    if (!vehicle.lastMaintenanceDate) return true;
+    const daysSinceLastMaintenance = Math.floor(
+      (new Date() - new Date(vehicle.lastMaintenanceDate)) / (1000 * 60 * 60 * 24)
+    );
+    return daysSinceLastMaintenance > 90;
+  }, [vehicle.lastMaintenanceDate]);
+
+  const handleView = useCallback(() => onView(vehicle), [onView, vehicle]);
+  const handleEdit = useCallback(() => onEdit && onEdit(vehicle), [onEdit, vehicle]);
+  const handleMaintenance = useCallback(() => onMaintenance && onMaintenance(vehicle), [onMaintenance, vehicle]);
+
+  return (
+    <tr className={`vehicle-row ${vehicle.status === VEHICLE_STATUS.MANTENIMIENTO ? 'maintenance-row' : ''} ${needsMaintenance() ? 'needs-maintenance' : ''}`}>
+      <td className="vehicle-id-cell">
+        <div className="id-content">
+          <span className="vehicle-icon">{getVehicleIcon(vehicle.type)}</span>
+          <span className="vehicle-id">{vehicle.vehicleId}</span>
+        </div>
+      </td>
+      <td className="name-cell">
+        <span className="vehicle-name">{vehicle.name}</span>
+      </td>
+      <td className="type-cell">
+        <span className="type-text">{vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)}</span>
+      </td>
+      <td className="brand-model-cell">
+        {vehicle.brand && vehicle.model ? (
+          <span className="brand-model">{vehicle.brand} {vehicle.model}</span>
+        ) : (
+          <span className="no-data">-</span>
+        )}
+      </td>
+      <td className="fuel-cell">
+        <div className="fuel-content">
+          <span className="fuel-icon">{getFuelIcon(vehicle.fuelType)}</span>
+          <span className="fuel-text">{vehicle.fuelType}</span>
+        </div>
+      </td>
+      <td className="consumption-cell text-right">
+        <span className="consumption-value">{formatGallons(vehicle.totalFuelConsumed || 0)}</span>
+      </td>
+      <td className="hours-cell text-right">
+        <span className="hours-value">{formatHours(vehicle.totalHoursWorked || 0)}</span>
+      </td>
+      <td className="rate-cell text-right">
+        <span className="rate-value">{(vehicle.totalHoursWorked ? (vehicle.totalFuelConsumed / vehicle.totalHoursWorked) : (vehicle.estimatedConsumptionPerHour || 0)).toFixed(1)} gal/hr</span>
+      </td>
+      <td className="location-cell">
+        <span className="location-text">📍 {vehicle.currentLocation || 'Sin ubicación'}</span>
+      </td>
+      <td className="status-cell">
+        <div className={`status-badge ${getStatusClass(vehicle.status)}`}>
+          <span className="status-icon">{getStatusIcon(vehicle.status)}</span>
+          <span className="status-text">{vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}</span>
+        </div>
+      </td>
+      <td className="date-cell">
+        <div className="date-content">
+          <span className="date-value">{formatDate(vehicle.lastMovementDate)}</span>
+          {needsMaintenance() && <span className="maintenance-warning">⚠️</span>}
+        </div>
+      </td>
+      <td className="actions-cell">
+        <div className="action-buttons">
+          <button className="btn-action btn-view" onClick={handleView} title="Ver detalles">👁️</button>
+          {onEdit && vehicle.status !== VEHICLE_STATUS.REPARACION && (
+            <button className="btn-action btn-edit" onClick={handleEdit} title="Editar vehículo">✏️</button>
+          )}
+          {onMaintenance && (
+            <button className="btn-action btn-maintenance" onClick={handleMaintenance} title="Registrar mantenimiento">🔧</button>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+});

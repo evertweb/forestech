@@ -3,7 +3,7 @@
  * Muestra los movimientos en formato de tabla compacta para desktop
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 
 const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
@@ -85,7 +85,9 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
   };
 
   // Ordenar movimientos
-  const sortedMovements = [...movements].sort((a, b) => {
+  const sortedMovements = useMemo(() => {
+    const arr = [...movements];
+    return arr.sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
 
@@ -112,8 +114,9 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     }
 
-    return 0;
-  });
+      return 0;
+    });
+  }, [movements, sortField, sortDirection]);
 
   // Obtener icono de ordenamiento
   const getSortIcon = (field) => {
@@ -176,137 +179,22 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
           </thead>
           <tbody>
             {sortedMovements.map((movement) => (
-              <tr 
+              <MovementRow
                 key={movement.id}
-                className={`movement-row sap-theme ${movement.status === MOVEMENT_STATUS.PENDIENTE ? 'pending-row' : ''}`}
-              >
-                <td className="type-cell">
-                  <div className="movement-type sap-theme">
-                    <span className="movement-type-icon sap-theme">{getMovementIcon(movement.type)}</span>
-                    <span className="type-text">
-                      {movement.type ?
-                        (movement.type.charAt(0).toUpperCase() + movement.type.slice(1)) :
-                        'Sin tipo'
-                      }
-                    </span>
-                  </div>
-                </td>
-
-                <td className="fuel-cell">
-                  <div className="fuel-info sap-theme">
-                    <span className="fuel-icon sap-theme">{getFuelIcon(movement.fuelType)}</span>
-                    <span className="fuel-type sap-theme">{movement.fuelType}</span>
-                  </div>
-                </td>
-
-                <td className="quantity-cell sap-theme text-right">
-                  <span className="quantity-value">{movement.quantity}</span>
-                  <span className="quantity-unit">gal</span>
-                </td>
-
-                <td className="price-cell text-right">
-                  {formatCurrency(movement.unitPrice)}
-                </td>
-
-                <td className="value-cell sap-theme text-right">
-                  <strong>{formatCurrency(movement.totalValue)}</strong>
-                </td>
-
-                <td className="vehicle-cell">
-                  {movement.vehicleId ? (
-                    <span className="vehicle-id">
-                      🚜 {movement.vehicleId}
-                    </span>
-                  ) : (
-                    <span className="no-vehicle">-</span>
-                  )}
-                </td>
-
-                <td className="location-cell">
-                  <span className="location-text">
-                    📍 {movement.type === MOVEMENT_TYPES.ENTRADA 
-                      ? (movement.destinationLocation || 'Sin ubicación') 
-                      : (movement.location || 'Principal')
-                    }
-                  </span>
-                </td>
-
-                <td className="status-cell">
-                  <div className={`status-badge sap-theme ${getStatusClass(movement.status)}`}>
-                    <span className="status-icon sap-theme">{getStatusIcon(movement.status)}</span>
-                    <span className="status-text">
-                      {movement.status ? 
-                        (movement.status.charAt(0).toUpperCase() + movement.status.slice(1)) : 
-                        'Sin estado'
-                      }
-                    </span>
-                  </div>
-                </td>
-
-                <td className="date-cell sap-theme">
-                  <div className="date-content">
-                    <span className="date-value">{formatDate(movement.createdAt)}</span>
-                    {movement.reference && (
-                      <span className="reference-small">#{movement.reference}</span>
-                    )}
-                  </div>
-                </td>
-
-                <td className="actions-cell sap-theme">
-                  <div className="actions-buttons sap-theme">
-                    <button
-                      className="action-btn sap-theme view"
-                      onClick={() => onView(movement)}
-                      title="Ver detalles"
-                    >
-                      👁️
-                    </button>
-                    
-                    {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
-                      <>
-                        <button
-                          className="action-btn sap-theme approve"
-                          onClick={() => onApprove(movement.id)}
-                          title="Aprobar movimiento"
-                        >
-                          ✓
-                        </button>
-                        <button
-                          className="action-btn sap-theme reject"
-                          onClick={() => onReject(movement.id)}
-                          title="Rechazar movimiento"
-                        >
-                          ✗
-                        </button>
-                      </>
-                    )}
-
-                    {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
-                      <button
-                        className="action-btn sap-theme edit"
-                        onClick={() => onEdit(movement)}
-                        title="Editar movimiento"
-                      >
-                        ✏️
-                      </button>
-                    )}
-
-                    {userRole === 'admin' && (
-                      <button
-                        className="action-btn sap-theme delete"
-                        onClick={() => {
-                          if (window.confirm('¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.')) {
-                            onDelete(movement.id);
-                          }
-                        }}
-                        title="Eliminar movimiento"
-                      >
-                        🗑️
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
+                movement={movement}
+                userRole={userRole}
+                onView={onView}
+                onApprove={onApprove}
+                onReject={onReject}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                getMovementIcon={getMovementIcon}
+                getFuelIcon={getFuelIcon}
+                getStatusIcon={getStatusIcon}
+                getStatusClass={getStatusClass}
+                formatCurrency={formatCurrency}
+                formatDate={formatDate}
+              />
             ))}
           </tbody>
         </table>
@@ -342,3 +230,89 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
 };
 
 export default MovementsTable;
+
+// Fila memoizada
+const MovementRow = memo(function MovementRow({
+  movement,
+  userRole,
+  onView,
+  onApprove,
+  onReject,
+  onEdit,
+  onDelete,
+  getMovementIcon,
+  getFuelIcon,
+  getStatusIcon,
+  getStatusClass,
+  formatCurrency,
+  formatDate
+}) {
+  const handleView = useCallback(() => onView(movement), [onView, movement]);
+  const handleApprove = useCallback(() => onApprove && onApprove(movement.id), [onApprove, movement.id]);
+  const handleReject = useCallback(() => onReject && onReject(movement.id), [onReject, movement.id]);
+  const handleEdit = useCallback(() => onEdit && onEdit(movement), [onEdit, movement]);
+  const handleDelete = useCallback(() => {
+    if (!onDelete) return;
+    if (window.confirm('¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.')) {
+      onDelete(movement.id);
+    }
+  }, [onDelete, movement.id]);
+
+  return (
+    <tr className={`movement-row sap-theme ${movement.status === MOVEMENT_STATUS.PENDIENTE ? 'pending-row' : ''}`}>
+      <td className="type-cell">
+        <div className="movement-type sap-theme">
+          <span className="movement-type-icon sap-theme">{getMovementIcon(movement.type)}</span>
+          <span className="type-text">{movement.type ? (movement.type.charAt(0).toUpperCase() + movement.type.slice(1)) : 'Sin tipo'}</span>
+        </div>
+      </td>
+      <td className="fuel-cell">
+        <div className="fuel-info sap-theme">
+          <span className="fuel-icon sap-theme">{getFuelIcon(movement.fuelType)}</span>
+          <span className="fuel-type sap-theme">{movement.fuelType}</span>
+        </div>
+      </td>
+      <td className="quantity-cell sap-theme text-right">
+        <span className="quantity-value">{movement.quantity}</span>
+        <span className="quantity-unit">gal</span>
+      </td>
+      <td className="price-cell text-right">{formatCurrency(movement.unitPrice)}</td>
+      <td className="value-cell sap-theme text-right"><strong>{formatCurrency(movement.totalValue)}</strong></td>
+      <td className="vehicle-cell">{movement.vehicleId ? (<span className="vehicle-id">🚜 {movement.vehicleId}</span>) : (<span className="no-vehicle">-</span>)}</td>
+      <td className="location-cell">
+        <span className="location-text">
+          📍 {movement.type === MOVEMENT_TYPES.ENTRADA ? (movement.destinationLocation || 'Sin ubicación') : (movement.location || 'Principal')}
+        </span>
+      </td>
+      <td className="status-cell">
+        <div className={`status-badge sap-theme ${getStatusClass(movement.status)}`}>
+          <span className="status-icon sap-theme">{getStatusIcon(movement.status)}</span>
+          <span className="status-text">{movement.status ? (movement.status.charAt(0).toUpperCase() + movement.status.slice(1)) : 'Sin estado'}</span>
+        </div>
+      </td>
+      <td className="date-cell sap-theme">
+        <div className="date-content">
+          <span className="date-value">{formatDate(movement.createdAt)}</span>
+          {movement.reference && <span className="reference-small">#{movement.reference}</span>}
+        </div>
+      </td>
+      <td className="actions-cell sap-theme">
+        <div className="actions-buttons sap-theme">
+          <button className="action-btn sap-theme view" onClick={handleView} title="Ver detalles">👁️</button>
+          {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+            <>
+              <button className="action-btn sap-theme approve" onClick={handleApprove} title="Aprobar movimiento">✓</button>
+              <button className="action-btn sap-theme reject" onClick={handleReject} title="Rechazar movimiento">✗</button>
+            </>
+          )}
+          {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+            <button className="action-btn sap-theme edit" onClick={handleEdit} title="Editar movimiento">✏️</button>
+          )}
+          {userRole === 'admin' && (
+            <button className="action-btn sap-theme delete" onClick={handleDelete} title="Eliminar movimiento">🗑️</button>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+});

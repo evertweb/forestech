@@ -3,7 +3,7 @@
  * Compatible con theme SAP Fiori Corporate
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 const PageHeader = ({ title, subtitle, actions }) => {
@@ -30,4 +30,5 @@ PageHeader.propTypes = {
   actions: PropTypes.node
 };
 
-export default PageHeader;
+PageHeader.displayName = 'PageHeader';
+export default memo(PageHeader);

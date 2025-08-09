@@ -3,7 +3,7 @@
  * Ahora incluye pestañas para gestionar vehículos y categorías por separado
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { 
   subscribeToVehicles, 
@@ -99,7 +99,7 @@ const VehiclesMain = () => {
   }, [user, vehicles, loadVehiclesStats]);
 
   // Filtrar vehículos por búsqueda
-  const filteredVehicles = vehicles.filter(vehicle => {
+  const filteredVehicles = useMemo(() => vehicles.filter(vehicle => {
     if (!searchTerm) return true;
     
     const searchLower = searchTerm.toLowerCase();
@@ -112,43 +112,43 @@ const VehiclesMain = () => {
       vehicle.currentLocation?.toLowerCase().includes(searchLower) ||
       vehicle.description?.toLowerCase().includes(searchLower)
     );
-  });
+  }), [vehicles, searchTerm]);
 
   // Manejadores de eventos
-  const handleCreateVehicle = () => {
+  const handleCreateVehicle = useCallback(() => {
     setSelectedVehicle(null);
     setModalMode('create');
     setShowModal(true);
-  };
+  }, []);
 
-  const handleEditVehicle = (vehicle) => {
+  const handleEditVehicle = useCallback((vehicle) => {
     setSelectedVehicle(vehicle);
     setModalMode('edit');
     setShowModal(true);
-  };
+  }, []);
 
-  const handleViewVehicle = (vehicle) => {
+  const handleViewVehicle = useCallback((vehicle) => {
     setSelectedVehicle(vehicle);
     setModalMode('view');
     setShowModal(true);
-  };
+  }, []);
 
-  const handleMaintenanceVehicle = (vehicle) => {
+  const handleMaintenanceVehicle = useCallback((vehicle) => {
     setSelectedVehicle(vehicle);
     setShowMaintenanceModal(true);
-  };
+  }, []);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setShowModal(false);
     setShowMaintenanceModal(false);
     setSelectedVehicle(null);
-  };
+  }, []);
 
-  const handleFilterChange = (newFilters) => {
+  const handleFilterChange = useCallback((newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
-  };
+  }, []);
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setFilters({
       type: '',
       status: '',
@@ -157,7 +157,7 @@ const VehiclesMain = () => {
       maintenance: 'all'
     });
     setSearchTerm('');
-  };
+  }, []);
 
   // Permisos del usuario
   const canCreateVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
@@ -165,7 +165,7 @@ const VehiclesMain = () => {
   const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador';
 
   // Componentes para PageLayout
-  const headerActions = (
+  const headerActions = useMemo(() => (
     <div className="header-actions">
       {/* Navegación por pestañas */}
       <div className="tabs-navigation" style={{ marginRight: '20px' }}>
@@ -193,16 +193,16 @@ const VehiclesMain = () => {
         </button>
       )}
     </div>
-  );
+  ), [activeTab, canCreateVehicle, handleCreateVehicle]);
 
-  const statsComponent = activeTab === 'vehicles' && stats ? (
+  const statsComponent = useMemo(() => activeTab === 'vehicles' && stats ? (
     <VehiclesStats 
       stats={stats}
       filters={filters}
     />
-  ) : null;
+  ) : null, [activeTab, stats, filters]);
 
-  const filtersComponent = activeTab === 'vehicles' ? (
+  const filtersComponent = useMemo(() => activeTab === 'vehicles' ? (
     <VehiclesFilters
       filters={filters}
       onFilterChange={handleFilterChange}
@@ -213,7 +213,7 @@ const VehiclesMain = () => {
       onViewModeChange={setViewMode}
       totalResults={filteredVehicles.length}
     />
-  ) : null;
+  ) : null, [activeTab, filters, handleFilterChange, handleClearFilters, searchTerm, viewMode, filteredVehicles.length]);
 
   const mainContent = (
     <>

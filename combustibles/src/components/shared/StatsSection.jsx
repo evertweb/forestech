@@ -3,7 +3,7 @@
  * Compatible con componentes Stats existentes
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 const StatsSection = ({ children, className = "" }) => {
@@ -21,4 +21,5 @@ StatsSection.propTypes = {
   className: PropTypes.string
 };
 
-export default StatsSection;
+StatsSection.displayName = 'StatsSection';
+export default memo(StatsSection);

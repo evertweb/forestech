@@ -59,12 +59,16 @@
 
 ---
 
-### 🌊 **FASE 3: OPTIMIZACIÓN** - **PENDIENTE**
-**Estado**: Lista para iniciar
+### 🌊 **FASE 3: OPTIMIZACIÓN** - **EN PROGRESO**
+**Estado**: En ejecución; avances parciales aplicados
 
 #### **📝 TASK 3.1: Performance Optimization**
-- [ ] React.memo en componentes base
-- [ ] useMemo/useCallback para optimizaciones
+- [x] React.memo en componentes base
+  - Aplicado a: BaseModal, ModalHeader, ModalFooter, PageLayout, PageHeader, StatsSection, FiltersSection, TableSection
+- [x] useMemo/useCallback para optimizaciones
+  - Tablas críticas: InventoryTable, VehiclesTable, MovementsTable con subfilas memoizadas y callbacks/cálculos estabilizados
+  - Containers: VehiclesMain con handlers y secciones (header/stats/filters) memoizadas
+  - Pendiente: InventoryMain y MovementsMain (estabilización completa de handlers/props)
 - [ ] Code splitting y lazy loading
 - [ ] Core Web Vitals optimization
 
@@ -112,5 +116,5 @@
 ---
 
 **📌 Última actualización**: 2025-08-09
-**📌 Estado actual**: Fase 2 completada 100% - Lista para Fase 3
+**📌 Estado actual**: Fase 3 en progreso — Task 3.1 parcialmente completada (memo/callbacks en bases, tablas y VehiclesMain)
 **📌 Responsable**: Claude Code

@@ -3,7 +3,7 @@
  * Compatible con componentes de filtros existentes
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 const FiltersSection = ({ children, className = "" }) => {
@@ -21,4 +21,5 @@ FiltersSection.propTypes = {
   className: PropTypes.string
 };
 
-export default FiltersSection;
+FiltersSection.displayName = 'FiltersSection';
+export default memo(FiltersSection);
