@@ -30,11 +30,7 @@ const DashboardTable = () => {
   const [dataLoading, setDataLoading] = useState(true);
   const [dataError, setDataError] = useState(null);
 
-  const { 
-    subscribeToInventory,
-    subscribeToMovements,
-    subscribeToVehicles
-  } = useCombustibles();
+  const { subscribeToInventory, subscribeToMovements, subscribeToVehicles } = useCombustibles();
 
   // ==================================================================================================
   // EFECTOS (Misma lógica del componente original)
@@ -42,7 +38,7 @@ const DashboardTable = () => {
   useEffect(() => {
     console.log('🚀 Dashboard Table iniciando suscripciones a datos...');
     let loadingCount = 3;
-    
+
     const updateLoading = () => {
       loadingCount--;
       if (loadingCount === 0) {
@@ -95,7 +91,10 @@ const DashboardTable = () => {
 
       const duplicados = findDuplicateItems(inventory);
       if (duplicados.length > 0) {
-        console.warn(`⚠️ Se detectaron ${duplicados.length} posibles items duplicados:`, duplicados);
+        console.warn(
+          `⚠️ Se detectaron ${duplicados.length} posibles items duplicados:`,
+          duplicados
+        );
       }
     }
   }, [dataLoading, inventory]);
@@ -104,33 +103,32 @@ const DashboardTable = () => {
   // CÁLCULOS MEMOIZADOS (Misma lógica del componente original)
   // ==================================================================================================
   const stats = useMemo(() => {
-    const activeVehicles = vehicles.filter(v => v.status === 'activo').length;
-    const pendingMovements = movements.filter(m => m.status === 'pendiente').length;
-    
+    const activeVehicles = vehicles.filter((v) => v.status === 'activo').length;
+    const pendingMovements = movements.filter((m) => m.status === 'pendiente').length;
+
     const totalFuel = inventory
-      .filter(item => item.status === 'active')
+      .filter((item) => item.status === 'active')
       .reduce((sum, item) => sum + (parseFloat(item.currentStock) || 0), 0);
 
     const totalValue = inventory
-      .filter(item => item.isActive !== false)
+      .filter((item) => item.isActive !== false)
       .reduce((sum, item) => {
         const stock = parseFloat(item.currentStock) || 0;
         const price = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
-        return sum + (stock * price);
+        return sum + stock * price;
       }, 0);
-    
-    const lowStockAlerts = inventory
-      .filter(item => {
-        const stock = parseFloat(item.currentStock) || 0;
-        const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
-        return item.isActive !== false && stock <= minStock;
-      }).length;
+
+    const lowStockAlerts = inventory.filter((item) => {
+      const stock = parseFloat(item.currentStock) || 0;
+      const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
+      return item.isActive !== false && stock <= minStock;
+    }).length;
 
     return {
       totalFuel,
       totalValue,
       lowStockAlerts,
-      activeInventoryItems: inventory.filter(item => item.isActive !== false).length,
+      activeInventoryItems: inventory.filter((item) => item.isActive !== false).length,
       activeVehicles,
       pendingMovements,
       totalMaintenance: 0,
@@ -156,27 +154,32 @@ const DashboardTable = () => {
   const getMovementDescription = (mov) => {
     const quantity = mov.quantity || 0;
     const fuelType = mov.fuelType || 'N/A';
-    switch(mov.type) {
-      case 'entrada': return `Entrada de ${quantity} gal de ${fuelType}`;
-      case 'salida': return `Salida de ${quantity} gal para vehículo ${mov.vehicleId || 'N/A'}`;
-      case 'transferencia': return `Transferencia de ${quantity} gal`;
-      case 'ajuste': return `Ajuste de inventario: ${quantity} gal de ${fuelType}`;
-      default: return 'Movimiento registrado';
+    switch (mov.type) {
+      case 'entrada':
+        return `Entrada de ${quantity} gal de ${fuelType}`;
+      case 'salida':
+        return `Salida de ${quantity} gal para vehículo ${mov.vehicleId || 'N/A'}`;
+      case 'transferencia':
+        return `Transferencia de ${quantity} gal`;
+      case 'ajuste':
+        return `Ajuste de inventario: ${quantity} gal de ${fuelType}`;
+      default:
+        return 'Movimiento registrado';
     }
   };
 
   // Datos adicionales para las tablas
   const inventoryTableData = useMemo(() => {
     return inventory
-      .filter(item => item.isActive !== false)
+      .filter((item) => item.isActive !== false)
       .slice(0, 10) // Limitamos a 10 items principales
-      .map(item => {
+      .map((item) => {
         const currentStock = parseFloat(item.currentStock) || 0;
         const maxCapacity = parseFloat(item.maxCapacity) || 0;
         const pricePerUnit = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
         const percentage = maxCapacity > 0 ? (currentStock / maxCapacity) * 100 : 0;
         const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
-        
+
         return {
           id: item.id,
           name: item.fuelType || item.name,
@@ -186,16 +189,21 @@ const DashboardTable = () => {
           percentage: Math.round(percentage),
           value: currentStock * pricePerUnit,
           status: currentStock <= minStock ? 'Bajo' : percentage > 80 ? 'Alto' : 'Normal',
-          statusClass: currentStock <= minStock ? 'status-low' : percentage > 80 ? 'status-high' : 'status-normal'
+          statusClass:
+            currentStock <= minStock
+              ? 'status-low'
+              : percentage > 80
+                ? 'status-high'
+                : 'status-normal',
         };
       });
   }, [inventory]);
 
   const vehiclesTableData = useMemo(() => {
     return vehicles
-      .filter(v => v.status === 'activo')
+      .filter((v) => v.status === 'activo')
       .slice(0, 8) // Limitamos a 8 vehículos activos
-      .map(vehicle => ({
+      .map((vehicle) => ({
         id: vehicle.id,
         vehicleId: vehicle.vehicleId || 'N/A',
         name: vehicle.name || 'N/A',
@@ -205,7 +213,7 @@ const DashboardTable = () => {
         hours: vehicle.totalHoursWorked || 0,
         location: vehicle.currentLocation || 'N/A',
         status: vehicle.status || 'N/A',
-        statusClass: `status-${vehicle.status}`
+        statusClass: `status-${vehicle.status}`,
       }));
   }, [vehicles]);
 
@@ -214,11 +222,11 @@ const DashboardTable = () => {
   // ==================================================================================================
   if (dataLoading) {
     return (
-      <div className="dashboard-main">
-        <h1 className="dashboard-title">Dashboard Operativo - Vista Tabla</h1>
-        <p className="dashboard-subtitle">Cargando datos en tiempo real...</p>
-        <div className="loading-spinner-container">
-          <div className="loading-spinner"></div>
+      <div className="dashboard-main sap-theme">
+        <h1 className="dashboard-title sap-theme">Dashboard Operativo - Vista Tabla</h1>
+        <p className="dashboard-subtitle sap-theme">Cargando datos en tiempo real...</p>
+        <div className="loading-spinner-container sap-theme">
+          <div className="loading-spinner sap-theme"></div>
         </div>
       </div>
     );
@@ -226,9 +234,9 @@ const DashboardTable = () => {
 
   if (dataError) {
     return (
-      <div className="dashboard-main">
-        <h1 className="dashboard-title">Dashboard Operativo - Vista Tabla</h1>
-        <div className="error-message">
+      <div className="dashboard-main sap-theme">
+        <h1 className="dashboard-title sap-theme">Dashboard Operativo - Vista Tabla</h1>
+        <div className="error-message sap-theme">
           <p>⚠️ {dataError}</p>
           <button onClick={() => window.location.reload()}>Reintentar</button>
         </div>
@@ -240,18 +248,20 @@ const DashboardTable = () => {
   // RENDERIZADO PRINCIPAL EN FORMATO TABLA
   // ==================================================================================================
   return (
-    <div className="dashboard-main dashboard-table-view">
-      <div className="dashboard-table-header">
-        <h1 className="dashboard-title">📊 Dashboard Operativo - Vista Tabla</h1>
-        <p className="dashboard-subtitle">Resumen completo del estado de combustibles y maquinaria en formato organizado.</p>
+    <div className="dashboard-main dashboard-table-view sap-theme">
+      <div className="dashboard-table-header sap-theme">
+        <h1 className="dashboard-title sap-theme">📊 Dashboard Operativo - Vista Tabla</h1>
+        <p className="dashboard-subtitle sap-theme">
+          Resumen completo del estado de combustibles y maquinaria en formato organizado.
+        </p>
       </div>
 
       {/* Tabla de Estadísticas Generales */}
-      <div className="dashboard-table-section">
-        <h2 className="table-section-title">📈 Estadísticas Generales</h2>
-        <div className="dashboard-table-container">
-          <div className="table-wrapper">
-            <table className="dashboard-table">
+      <div className="dashboard-table-section sap-theme">
+        <h2 className="table-section-title sap-theme">📈 Estadísticas Generales</h2>
+        <div className="dashboard-table-container sap-theme">
+          <div className="table-wrapper sap-theme">
+            <table className="dashboard-table sap-theme">
               <thead>
                 <tr>
                   <th>Métrica</th>
@@ -262,67 +272,85 @@ const DashboardTable = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td className="metric-name">
-                    <span className="metric-icon">🛢️</span>
+                  <td className="metric-name sap-theme">
+                    <span className="metric-icon sap-theme">🛢️</span>
                     Combustible Total
                   </td>
-                  <td className="metric-value">{formatNumber(stats.totalFuel)} gal</td>
+                  <td className="metric-value sap-theme">{formatNumber(stats.totalFuel)} gal</td>
                   <td>
-                    <span className={`status-badge ${stats.totalFuel > 1000 ? 'status-normal' : 'status-low'}`}>
+                    <span
+                      className={`status-badge ${stats.totalFuel > 1000 ? 'status-normal' : 'status-low'}`}
+                    >
                       {stats.totalFuel > 1000 ? '🟢 Suficiente' : '🟡 Revisar'}
                     </span>
                   </td>
-                  <td className="metric-description">Total de combustible disponible en inventario</td>
+                  <td className="metric-description sap-theme">
+                    Total de combustible disponible en inventario
+                  </td>
                 </tr>
                 <tr>
-                  <td className="metric-name">
-                    <span className="metric-icon">💰</span>
+                  <td className="metric-name sap-theme">
+                    <span className="metric-icon sap-theme">💰</span>
                     Valor Inventario
                   </td>
-                  <td className="metric-value">{formatCurrency(stats.totalValue)}</td>
+                  <td className="metric-value sap-theme">{formatCurrency(stats.totalValue)}</td>
                   <td>
-                    <span className="status-badge status-normal">🟢 Activo</span>
+                    <span className="status-badge status-normal sap-theme">🟢 Activo</span>
                   </td>
-                  <td className="metric-description">Valor monetario total del inventario</td>
+                  <td className="metric-description sap-theme">
+                    Valor monetario total del inventario
+                  </td>
                 </tr>
                 <tr>
-                  <td className="metric-name">
-                    <span className="metric-icon">🚜</span>
+                  <td className="metric-name sap-theme">
+                    <span className="metric-icon sap-theme">🚜</span>
                     Vehículos Activos
                   </td>
-                  <td className="metric-value">{formatNumber(stats.activeVehicles)}</td>
+                  <td className="metric-value sap-theme">{formatNumber(stats.activeVehicles)}</td>
                   <td>
-                    <span className={`status-badge ${stats.activeVehicles > 0 ? 'status-normal' : 'status-low'}`}>
+                    <span
+                      className={`status-badge ${stats.activeVehicles > 0 ? 'status-normal' : 'status-low'}`}
+                    >
                       {stats.activeVehicles > 0 ? '🟢 Operativos' : '🔴 Sin actividad'}
                     </span>
                   </td>
-                  <td className="metric-description">Número de vehículos en estado activo</td>
+                  <td className="metric-description sap-theme">
+                    Número de vehículos en estado activo
+                  </td>
                 </tr>
                 <tr>
-                  <td className="metric-name">
-                    <span className="metric-icon">🔄</span>
+                  <td className="metric-name sap-theme">
+                    <span className="metric-icon sap-theme">🔄</span>
                     Movimientos Pendientes
                   </td>
-                  <td className="metric-value">{formatNumber(stats.pendingMovements)}</td>
+                  <td className="metric-value sap-theme">{formatNumber(stats.pendingMovements)}</td>
                   <td>
-                    <span className={`status-badge ${stats.pendingMovements === 0 ? 'status-normal' : 'status-warning'}`}>
+                    <span
+                      className={`status-badge ${stats.pendingMovements === 0 ? 'status-normal' : 'status-warning'}`}
+                    >
                       {stats.pendingMovements === 0 ? '🟢 Al día' : '🟡 Pendientes'}
                     </span>
                   </td>
-                  <td className="metric-description">Movimientos que requieren procesamiento</td>
+                  <td className="metric-description sap-theme">
+                    Movimientos que requieren procesamiento
+                  </td>
                 </tr>
                 <tr className={stats.lowStockAlerts > 0 ? 'alert-row' : ''}>
-                  <td className="metric-name">
-                    <span className="metric-icon">⚠️</span>
+                  <td className="metric-name sap-theme">
+                    <span className="metric-icon sap-theme">⚠️</span>
                     Alertas de Stock
                   </td>
-                  <td className="metric-value">{formatNumber(stats.lowStockAlerts)}</td>
+                  <td className="metric-value sap-theme">{formatNumber(stats.lowStockAlerts)}</td>
                   <td>
-                    <span className={`status-badge ${stats.lowStockAlerts === 0 ? 'status-normal' : 'status-critical'}`}>
+                    <span
+                      className={`status-badge ${stats.lowStockAlerts === 0 ? 'status-normal' : 'status-critical'}`}
+                    >
                       {stats.lowStockAlerts === 0 ? '🟢 Normal' : '🔴 Crítico'}
                     </span>
                   </td>
-                  <td className="metric-description">Productos con stock por debajo del mínimo</td>
+                  <td className="metric-description sap-theme">
+                    Productos con stock por debajo del mínimo
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -331,11 +359,11 @@ const DashboardTable = () => {
       </div>
 
       {/* Tabla de Inventario Principal */}
-      <div className="dashboard-table-section">
-        <h2 className="table-section-title">📦 Inventario Principal</h2>
-        <div className="dashboard-table-container">
-          <div className="table-wrapper">
-            <table className="dashboard-table">
+      <div className="dashboard-table-section sap-theme">
+        <h2 className="table-section-title sap-theme">📦 Inventario Principal</h2>
+        <div className="dashboard-table-container sap-theme">
+          <div className="table-wrapper sap-theme">
+            <table className="dashboard-table sap-theme">
               <thead>
                 <tr>
                   <th>Producto</th>
@@ -350,40 +378,52 @@ const DashboardTable = () => {
               <tbody>
                 {inventoryTableData.length > 0 ? (
                   inventoryTableData.map((item) => (
-                    <tr key={item.id} className={item.statusClass === 'status-low' ? 'alert-row' : ''}>
-                      <td className="product-name">
-                        <span className="product-icon">⛽</span>
+                    <tr
+                      key={item.id}
+                      className={item.statusClass === 'status-low' ? 'alert-row' : ''}
+                    >
+                      <td className="product-name sap-theme">
+                        <span className="product-icon sap-theme">⛽</span>
                         {item.name}
                       </td>
                       <td>{item.location}</td>
-                      <td className="stock-value">{formatNumber(item.currentStock)} gal</td>
+                      <td className="stock-value sap-theme">
+                        {formatNumber(item.currentStock)} gal
+                      </td>
                       <td>{formatNumber(item.maxCapacity)} gal</td>
                       <td>
-                        <div className="percentage-display">
-                          <span className="percentage-value">{item.percentage}%</span>
-                          <div className="percentage-bar">
-                            <div 
-                              className="percentage-fill"
-                              style={{ 
+                        <div className="percentage-display sap-theme">
+                          <span className="percentage-value sap-theme">{item.percentage}%</span>
+                          <div className="percentage-bar sap-theme">
+                            <div
+                              className="percentage-fill sap-theme"
+                              style={{
                                 width: `${item.percentage}%`,
-                                backgroundColor: item.percentage < 25 ? 'var(--color-error)' : 
-                                               item.percentage < 50 ? 'var(--color-warning)' : 'var(--color-success)'
+                                backgroundColor:
+                                  item.percentage < 25
+                                    ? 'var(--color-error)'
+                                    : item.percentage < 50
+                                      ? 'var(--color-warning)'
+                                      : 'var(--color-success)',
                               }}
                             />
                           </div>
                         </div>
                       </td>
-                      <td className="value-cell">{formatCurrency(item.value)}</td>
+                      <td className="value-cell sap-theme">{formatCurrency(item.value)}</td>
                       <td>
                         <span className={`status-badge ${item.statusClass}`}>
-                          {item.status === 'Bajo' ? '🔴' : item.status === 'Alto' ? '🔵' : '🟢'} {item.status}
+                          {item.status === 'Bajo' ? '🔴' : item.status === 'Alto' ? '🔵' : '🟢'}{' '}
+                          {item.status}
                         </span>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="no-data">No hay datos de inventario disponibles</td>
+                    <td colSpan="7" className="no-data sap-theme">
+                      No hay datos de inventario disponibles
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -393,11 +433,11 @@ const DashboardTable = () => {
       </div>
 
       {/* Tabla de Vehículos Activos */}
-      <div className="dashboard-table-section">
-        <h2 className="table-section-title">🚜 Vehículos Activos</h2>
-        <div className="dashboard-table-container">
-          <div className="table-wrapper">
-            <table className="dashboard-table">
+      <div className="dashboard-table-section sap-theme">
+        <h2 className="table-section-title sap-theme">🚜 Vehículos Activos</h2>
+        <div className="dashboard-table-container sap-theme">
+          <div className="table-wrapper sap-theme">
+            <table className="dashboard-table sap-theme">
               <thead>
                 <tr>
                   <th>ID Vehículo</th>
@@ -414,15 +454,17 @@ const DashboardTable = () => {
                 {vehiclesTableData.length > 0 ? (
                   vehiclesTableData.map((vehicle) => (
                     <tr key={vehicle.id}>
-                      <td className="vehicle-id">{vehicle.vehicleId}</td>
+                      <td className="vehicle-id sap-theme">{vehicle.vehicleId}</td>
                       <td>{vehicle.name}</td>
-                      <td className="vehicle-type">{vehicle.type}</td>
+                      <td className="vehicle-type sap-theme">{vehicle.type}</td>
                       <td>
-                        <span className="fuel-type">
+                        <span className="fuel-type sap-theme">
                           {vehicle.fuelType === 'diesel' ? '🚛' : '🚗'} {vehicle.fuelType}
                         </span>
                       </td>
-                      <td className="consumption-value">{formatNumber(vehicle.consumption)} gal</td>
+                      <td className="consumption-value sap-theme">
+                        {formatNumber(vehicle.consumption)} gal
+                      </td>
                       <td>{formatNumber(vehicle.hours)} hrs</td>
                       <td>📍 {vehicle.location}</td>
                       <td>
@@ -434,7 +476,9 @@ const DashboardTable = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="no-data">No hay vehículos activos registrados</td>
+                    <td colSpan="8" className="no-data sap-theme">
+                      No hay vehículos activos registrados
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -444,11 +488,11 @@ const DashboardTable = () => {
       </div>
 
       {/* Tabla de Actividad Reciente */}
-      <div className="dashboard-table-section">
-        <h2 className="table-section-title">📋 Actividad Reciente</h2>
-        <div className="dashboard-table-container">
-          <div className="table-wrapper">
-            <table className="dashboard-table">
+      <div className="dashboard-table-section sap-theme">
+        <h2 className="table-section-title sap-theme">📋 Actividad Reciente</h2>
+        <div className="dashboard-table-container sap-theme">
+          <div className="table-wrapper sap-theme">
+            <table className="dashboard-table sap-theme">
               <thead>
                 <tr>
                   <th>Tipo</th>
@@ -463,17 +507,26 @@ const DashboardTable = () => {
                     <tr key={mov.id}>
                       <td>
                         <span className={`movement-type-badge ${mov.type}`}>
-                          {mov.type === 'entrada' ? '📥' : 
-                           mov.type === 'salida' ? '📤' : 
-                           mov.type === 'transferencia' ? '🔄' : '🔧'} {mov.type}
+                          {mov.type === 'entrada'
+                            ? '📥'
+                            : mov.type === 'salida'
+                              ? '📤'
+                              : mov.type === 'transferencia'
+                                ? '🔄'
+                                : '🔧'}{' '}
+                          {mov.type}
                         </span>
                       </td>
-                      <td className="movement-description">{getMovementDescription(mov)}</td>
-                      <td className="movement-date">
+                      <td className="movement-description sap-theme">
+                        {getMovementDescription(mov)}
+                      </td>
+                      <td className="movement-date sap-theme">
                         {safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}
                       </td>
                       <td>
-                        <span className={`status-badge ${mov.status === 'completado' ? 'status-normal' : 'status-warning'}`}>
+                        <span
+                          className={`status-badge ${mov.status === 'completado' ? 'status-normal' : 'status-warning'}`}
+                        >
                           {mov.status === 'completado' ? '✅ Completado' : '⏳ Pendiente'}
                         </span>
                       </td>
@@ -481,7 +534,9 @@ const DashboardTable = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="no-data">No hay movimientos recientes</td>
+                    <td colSpan="4" className="no-data sap-theme">
+                      No hay movimientos recientes
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -491,19 +546,19 @@ const DashboardTable = () => {
       </div>
 
       {/* Footer con información del dashboard */}
-      <div className="dashboard-table-footer">
-        <div className="footer-stats">
-          <span className="footer-stat">
+      <div className="dashboard-table-footer sap-theme">
+        <div className="footer-stats sap-theme">
+          <span className="footer-stat sap-theme">
             <strong>{inventory.length}</strong> productos en inventario
           </span>
-          <span className="footer-stat">
+          <span className="footer-stat sap-theme">
             <strong>{vehicles.length}</strong> vehículos registrados
           </span>
-          <span className="footer-stat">
+          <span className="footer-stat sap-theme">
             <strong>{movements.length}</strong> movimientos totales
           </span>
         </div>
-        <div className="footer-timestamp">
+        <div className="footer-timestamp sap-theme">
           Última actualización: {new Date().toLocaleString('es-CO')}
         </div>
       </div>

@@ -5,7 +5,18 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-white);
+  background: var(--bg-white);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(238, 238, 238, 0.04) 0%, transparent 30%),
+    radial-gradient(circle at 40% 40%, rgba(224, 224, 224, 0.02) 0%, transparent 40%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(189, 189, 189, 0.01) 2deg,
+      transparent 4deg
+    );
+  background-attachment: fixed;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -108,7 +119,7 @@
 }
 
 .feature-card li::before {
-  content: "✓";
+  content: '✓';
   color: #3d7c47;
   font-weight: bold;
   position: absolute;
@@ -144,7 +155,7 @@
 }
 
 .timeline-item.current::after {
-  content: "📍";
+  content: '📍';
   position: absolute;
   right: 1rem;
   top: 50%;
@@ -189,8 +200,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loader p {
@@ -204,20 +219,20 @@
   .app-header {
     padding: 1.5rem 1rem;
   }
-  
+
   .app-header h1 {
     font-size: 2rem;
   }
-  
+
   .app-main {
     padding: 0 1rem;
   }
-  
+
   .features-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .development-status {
     padding: 1.5rem 1rem;
   }

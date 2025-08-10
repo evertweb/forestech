@@ -8,12 +8,12 @@
     --sap-spacing-multiplier: 0.9;
     --sap-content-density: compact;
   }
-  
+
   /* Optimizar tablas para pantallas grandes */
   .movements-table.sap-theme {
     font-size: 0.8125rem;
   }
-  
+
   /* Mejor uso del espacio en dashboard */
   .stats-grid.sap-theme {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -31,7 +31,8 @@
     margin-bottom: 1rem;
   }
 
-  .sap-input, .sap-select {
+  .sap-input,
+  .sap-select {
     height: 2.25rem; /* Más compacto en desktop */
   }
 }
@@ -56,10 +57,10 @@
 .desktop-app {
   /* Eliminar márgenes para usar todo el espacio */
   --app-margin: 0;
-  
+
   /* Ajustar chrome window para SAP */
   --sap-window-chrome: 0px;
-  
+
   /* Optimizar scrollbars para SAP */
   --sap-scrollbar-width: 12px;
 }
@@ -91,7 +92,7 @@
 }
 
 .desktop-app.debug-sap::before {
-  content: "🎨 SAP Desktop Mode Active";
+  content: '🎨 SAP Desktop Mode Active';
   position: fixed;
   top: 0;
   right: 0;
@@ -126,17 +127,15 @@
   .sap-theme .movements-table {
     font-size: 0.875rem;
   }
-  
+
   .sap-theme .stats-card {
     padding: 1.5rem;
   }
 }
 
-/* Dark theme optimizations para desktop (futuro) */
-@media (prefers-color-scheme: dark) {
-  .desktop-app .sap-theme {
-    --sap-background-base: #1a1a1a;
-    --sap-background-level-1: #2a2a2a;
-    --sap-text-primary: #ffffff;
-  }
+/* Dark theme optimizations para desktop (opt-in) */
+html[data-color-scheme='dark'] .desktop-app .sap-theme {
+  --sap-background-base: #1a1a1a;
+  --sap-background-level-1: #2a2a2a;
+  --sap-text-primary: #ffffff;
 }

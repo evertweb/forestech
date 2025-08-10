@@ -17,19 +17,22 @@
  * ================================================================================================================================
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
+import useColorScheme from '../../hooks/useColorScheme';
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = React.memo(({ children }) => {
   // Extrae el perfil de usuario y las funciones de verificación de permisos del contexto.
   const { userProfile, isAdmin, isCounterOrAbove } = useCombustibles();
-  
+  // Esquema de color (light/dark)
+  const { scheme, toggleScheme } = useColorScheme();
+
   // Estado para controlar la visibilidad del sidebar en todos los dispositivos.
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  
+
   // Hook de react-router para obtener la ubicación actual y resaltar el enlace activo.
   const location = useLocation();
 
@@ -44,7 +47,7 @@ const DashboardLayout = ({ children }) => {
         setSidebarOpen(false);
         return;
       }
-      
+
       // En otras rutas: En móviles inicia cerrado, en desktop abierto
       if (window.innerWidth <= 1024) {
         setSidebarOpen(false);
@@ -86,39 +89,115 @@ const DashboardLayout = ({ children }) => {
    * - description: Texto secundario que describe la sección.
    * - requiredPermission: Permiso necesario para que el ítem sea visible. `null` significa que es visible para todos.
    */
-  const navigationItems = [
-    { id: 'dashboard', path: '/', name: 'Dashboard', icon: '📊', description: 'Vista general', requiredPermission: null },
-    { id: 'inventory', path: '/inventario', name: 'Inventario', icon: '🛢️', description: 'Gestión de stock', requiredPermission: 'canManageInventory' },
-    { id: 'movements', path: '/movimientos', name: 'Movimientos', icon: '📈', description: 'Entradas y salidas', requiredPermission: 'canCreateMovements' },
-    { id: 'vehicles', path: '/vehiculos', name: 'Vehículos', icon: '🚜', description: 'Maquinaria forestal', requiredPermission: null },
-    { id: 'maintenance', path: '/mantenimiento', name: 'Mantenimiento', icon: '🔧', description: 'Cambios de aceite y baterías', requiredPermission: null },
-    { id: 'products', path: '/productos', name: 'Productos', icon: '🛢️', description: 'Tipos de combustibles', requiredPermission: null },
-    { id: 'suppliers', path: '/proveedores', name: 'Proveedores', icon: '🏪', description: 'Gestión de proveedores', requiredPermission: 'canManageSuppliers' },
-    { id: 'reports', path: '/reportes', name: 'Reportes', icon: '📋', description: 'Análisis y reportes', requiredPermission: 'canViewReports' },
-    { id: 'admin', path: '/admin', name: 'Administración', icon: '⚙️', description: 'Gestión de usuarios', requiredPermission: 'admin' }
-  ];
+  const navigationItems = useMemo(
+    () => [
+      {
+        id: 'dashboard',
+        path: '/',
+        name: 'Dashboard',
+        icon: '📊',
+        description: 'Vista general',
+        requiredPermission: null,
+      },
+      {
+        id: 'inventory',
+        path: '/inventario',
+        name: 'Inventario',
+        icon: '🛢️',
+        description: 'Gestión de stock',
+        requiredPermission: 'canManageInventory',
+      },
+      {
+        id: 'movements',
+        path: '/movimientos',
+        name: 'Movimientos',
+        icon: '📈',
+        description: 'Entradas y salidas',
+        requiredPermission: 'canCreateMovements',
+      },
+      {
+        id: 'vehicles',
+        path: '/vehiculos',
+        name: 'Vehículos',
+        icon: '🚜',
+        description: 'Maquinaria forestal',
+        requiredPermission: null,
+      },
+      {
+        id: 'maintenance',
+        path: '/mantenimiento',
+        name: 'Mantenimiento',
+        icon: '🔧',
+        description: 'Cambios de aceite y baterías',
+        requiredPermission: null,
+      },
+      {
+        id: 'products',
+        path: '/productos',
+        name: 'Productos',
+        icon: '🛢️',
+        description: 'Tipos de combustibles',
+        requiredPermission: null,
+      },
+      {
+        id: 'suppliers',
+        path: '/proveedores',
+        name: 'Proveedores',
+        icon: '🏪',
+        description: 'Gestión de proveedores',
+        requiredPermission: 'canManageSuppliers',
+      },
+      {
+        id: 'reports',
+        path: '/reportes',
+        name: 'Reportes',
+        icon: '📋',
+        description: 'Análisis y reportes',
+        requiredPermission: 'canViewReports',
+      },
+      {
+        id: 'admin',
+        path: '/admin',
+        name: 'Administración',
+        icon: '⚙️',
+        description: 'Gestión de usuarios',
+        requiredPermission: 'admin',
+      },
+    ],
+    []
+  );
 
   // Prefetch de rutas al pasar el mouse sobre los enlaces del sidebar
-  const routePrefetchers = {
-    dashboard: () => import('../../components/Dashboard/DashboardMain-SAP'),
-    inventory: () => import('../../components/Inventory/InventoryMain'),
-    movements: () => import('../../components/Movements/MovementsMain'),
-    vehicles: () => import('../../components/Vehicles/VehiclesMain'),
-    maintenance: () => import('../../components/Maintenance/MaintenanceMain'),
-    products: () => import('../../components/Products/ProductsMain'),
-    suppliers: () => import('../../components/Suppliers/SuppliersMain'),
-    reports: () => import('../../components/Reports/ReportsMain'),
-    admin: () => import('../../components/Admin/AdminMain')
-  };
+  const routePrefetchers = useMemo(
+    () => ({
+      dashboard: () => import('../../components/Dashboard/DashboardMain-SAP'),
+      inventory: () => import('../../components/Inventory/InventoryMain'),
+      movements: () => import('../../components/Movements/MovementsMain'),
+      vehicles: () => import('../../components/Vehicles/VehiclesMain'),
+      maintenance: () => import('../../components/Maintenance/MaintenanceMain'),
+      products: () => import('../../components/Products/ProductsMain'),
+      suppliers: () => import('../../components/Suppliers/SuppliersMain'),
+      reports: () => import('../../components/Reports/ReportsMain'),
+      admin: () => import('../../components/Admin/AdminMain'),
+    }),
+    []
+  );
 
-  const handlePrefetch = (id) => {
-    try {
-      const loader = routePrefetchers[id];
-      if (loader) loader();
-    } catch {
-      // Ignorar errores de prefetch
-    }
-  };
+  const handlePrefetch = useCallback(
+    (id) => {
+      try {
+        const loader = routePrefetchers[id];
+        if (loader) {
+          loader().then(() => {
+            console.log(`✅ Prefetch completado: ${id}`);
+          });
+        }
+      } catch (error) {
+        console.warn(`⚠️ Error en prefetch: ${id}`, error);
+      }
+    },
+    [routePrefetchers]
+  );
 
   // Cierra el sidebar al hacer clic en un enlace en la navegación móvil.
   const handleLinkClick = () => {
@@ -130,14 +209,40 @@ const DashboardLayout = ({ children }) => {
    * @param {string|null} permission - El permiso requerido para una acción o vista.
    * @returns {boolean} - `true` si el usuario tiene el permiso, `false` en caso contrario.
    */
-  const hasPermission = (permission) => {
-    if (!permission) return true; // Si no se requiere permiso, siempre es visible.
-    if (permission === 'admin') return isAdmin(); // Caso especial para el permiso de administrador.
-    return userProfile?.combustiblesPermissions?.[permission] || false; // Verifica el permiso en el perfil del usuario.
-  };
+  const hasPermission = useCallback(
+    (permission) => {
+      // Admin ve todas las secciones por defecto
+      if (isAdmin()) return true;
+      if (!permission) return true; // Si no se requiere permiso, siempre es visible.
+      if (permission === 'admin') return isAdmin(); // Caso especial para el permiso de administrador.
+      return userProfile?.combustiblesPermissions?.[permission] || false; // Verifica el permiso en el perfil del usuario.
+    },
+    [isAdmin, userProfile?.combustiblesPermissions]
+  );
+
+  // Prefetch proactivo de rutas comunes al montar el componente
+  useEffect(() => {
+    const prefetchCommonRoutes = () => {
+      // Prefetch de las rutas más utilizadas después de un pequeño delay
+      setTimeout(() => {
+        ['inventory', 'movements', 'vehicles'].forEach((route) => {
+          if (
+            hasPermission(navigationItems.find((item) => item.id === route)?.requiredPermission)
+          ) {
+            handlePrefetch(route);
+          }
+        });
+      }, 1000);
+    };
+
+    prefetchCommonRoutes();
+  }, [handlePrefetch, hasPermission, navigationItems]);
 
   // Filtra los ítems de navegación para mostrar solo aquellos para los que el usuario tiene permiso.
-  const visibleItems = navigationItems.filter(item => hasPermission(item.requiredPermission));
+  const visibleItems = useMemo(
+    () => navigationItems.filter((item) => hasPermission(item.requiredPermission)),
+    [hasPermission, navigationItems]
+  );
 
   // Maneja el cierre de sesión del usuario.
   const handleLogout = async () => {
@@ -154,34 +259,42 @@ const DashboardLayout = ({ children }) => {
       {/* ================= HEADER ================= */}
       <header className="dashboard-header">
         <div className="header-content">
-          {/* Botón para alternar el sidebar - oculto en Dashboard principal */}
-          {!isDashboardHome && (
-            <button 
-              className="sidebar-toggle"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              title={sidebarOpen ? "Ocultar menú" : "Mostrar menú"}
-            >
-              ☰
-            </button>
-          )}
-          
+          {/* Botón para alternar el sidebar - disponible también en Dashboard */}
+          <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            title={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
+          >
+            ☰
+          </button>
+
           {/* Título de la aplicación */}
           <div className="header-title">
             <h1>⛽ Gestión de Combustibles</h1>
             <span className="subtitle">Forestech Colombia</span>
           </div>
-          
+
           {/* Sección del usuario */}
           <div className="header-user">
+            {/* Toggle tema claro/oscuro */}
+            <button
+              className="theme-toggle"
+              onClick={toggleScheme}
+              title={scheme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+              aria-label="Cambiar tema"
+              data-testid="theme-toggle"
+            >
+              {scheme === 'dark' ? '🌙' : '☀️'}
+            </button>
             <div className="user-info">
               <span className="user-name">{userProfile?.displayName || userProfile?.email}</span>
               <span className="user-role">{userProfile?.role}</span>
             </div>
             <div className="user-avatar">
               {userProfile?.photoURL ? (
-                <img 
-                  src={userProfile.photoURL} 
-                  alt="Avatar" 
+                <img
+                  src={userProfile.photoURL}
+                  alt="Avatar"
                   width={40}
                   height={40}
                   loading="lazy"
@@ -195,11 +308,7 @@ const DashboardLayout = ({ children }) => {
                 </div>
               )}
             </div>
-            <button 
-              className="logout-button"
-              onClick={handleLogout}
-              title="Cerrar sesión"
-            >
+            <button className="logout-button" onClick={handleLogout} title="Cerrar sesión">
               🚪
             </button>
           </div>
@@ -208,46 +317,52 @@ const DashboardLayout = ({ children }) => {
 
       {/* ================= CUERPO DEL DASHBOARD ================= */}
       <div className="dashboard-body">
-        {/* ================= SIDEBAR - Oculto en Dashboard principal ================= */}
-        {!isDashboardHome && (
-          <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'hidden'}`}>
-            <nav className="sidebar-nav">
-              {/* Mapea los ítems de navegación visibles y crea los enlaces */}
-              {visibleItems.map(item => (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  // Aplica la clase 'active' si la ruta actual coincide con la del ítem.
-                  className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-                  onClick={handleLinkClick}
-                  onMouseEnter={() => handlePrefetch(item.id)}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <div className="nav-content">
-                    <span className="nav-name">{item.name}</span>
-                    <span className="nav-description">{item.description}</span>
-                  </div>
-                </Link>
-              ))}
-            </nav>
-            
-            {/* Footer del sidebar para mostrar permisos del usuario */}
-            <div className="sidebar-footer">
-              <div className="user-permissions">
-                <h4>Permisos Activos:</h4>
-                <div className="permission-list">
-                  {isAdmin() && <span className="permission admin">👑 Administrador</span>}
-                  {isCounterOrAbove() && <span className="permission counter">📊 Gestión Operativa</span>}
-                  {hasPermission('canManageInventory') && <span className="permission">🛢️ Inventario</span>}
-                  {hasPermission('canManageVehicles') && <span className="permission">🚜 Vehículos</span>}
+        {/* ================= SIDEBAR ================= */}
+        <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'hidden'}`}>
+          <nav className="sidebar-nav">
+            {/* Mapea los ítems de navegación visibles y crea los enlaces */}
+            {visibleItems.map((item) => (
+              <Link
+                key={item.id}
+                to={item.path}
+                // Aplica la clase 'active' si la ruta actual coincide con la del ítem.
+                className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                onClick={handleLinkClick}
+                onMouseEnter={() => handlePrefetch(item.id)}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                <div className="nav-content">
+                  <span className="nav-name">{item.name}</span>
+                  <span className="nav-description">{item.description}</span>
                 </div>
+              </Link>
+            ))}
+          </nav>
+
+          {/* Footer del sidebar para mostrar permisos del usuario */}
+          <div className="sidebar-footer">
+            <div className="user-permissions">
+              <h4>Permisos Activos:</h4>
+              <div className="permission-list">
+                {isAdmin() && <span className="permission admin">👑 Administrador</span>}
+                {isCounterOrAbove() && (
+                  <span className="permission counter">📊 Gestión Operativa</span>
+                )}
+                {hasPermission('canManageInventory') && (
+                  <span className="permission">🛢️ Inventario</span>
+                )}
+                {hasPermission('canManageVehicles') && (
+                  <span className="permission">🚜 Vehículos</span>
+                )}
               </div>
             </div>
-          </aside>
-        )}
+          </div>
+        </aside>
 
         {/* ================= CONTENIDO PRINCIPAL ================= */}
-        <main className={`dashboard-main ${isDashboardHome ? 'dashboard-home' : sidebarOpen ? '' : 'sidebar-hidden'}`}>
+        <main
+          className={`dashboard-main ${isDashboardHome ? 'dashboard-home' : sidebarOpen ? '' : 'sidebar-hidden'}`}
+        >
           <div className="main-content">
             {/* Aquí se renderiza el contenido de la página actual (ej. Home, Reports, etc.) */}
             {children}
@@ -256,15 +371,12 @@ const DashboardLayout = ({ children }) => {
       </div>
 
       {/* Overlay que se muestra en móviles cuando el sidebar está abierto. */}
-      {/* Al hacer clic, cierra el sidebar. Solo en móviles (max-width: 1024px) y no en Dashboard */}
-      {!isDashboardHome && sidebarOpen && (
-        <div 
-          className="sidebar-overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      {/* Al hacer clic, cierra el sidebar. Solo en móviles (max-width: 1024px) */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
     </div>
   );
-};
+});
+
+DashboardLayout.displayName = 'DashboardLayout';
 
 export default DashboardLayout;

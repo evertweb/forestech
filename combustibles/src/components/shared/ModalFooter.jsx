@@ -6,12 +6,12 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
-const ModalFooter = ({ 
+const ModalFooter = ({
   primaryAction,
   secondaryAction,
   isLoading = false,
   className = '',
-  children 
+  children,
 }) => {
   return (
     <div className={`modal-footer ${className}`}>
@@ -20,7 +20,7 @@ const ModalFooter = ({
 
       {/* Botones de acción estándar */}
       {(primaryAction || secondaryAction) && (
-        <div className="modal-actions">
+        <div className="modal-actions sap-theme">
           {/* Botón secundario (normalmente Cancelar) */}
           {secondaryAction && (
             <button
@@ -41,7 +41,7 @@ const ModalFooter = ({
               onClick={primaryAction.onClick}
               disabled={isLoading || primaryAction.disabled}
             >
-              {isLoading ? 'Guardando...' : (primaryAction.label || 'Guardar')}
+              {isLoading ? 'Guardando...' : primaryAction.label || 'Guardar'}
             </button>
           )}
         </div>
@@ -56,17 +56,17 @@ ModalFooter.propTypes = {
     onClick: PropTypes.func,
     disabled: PropTypes.bool,
     type: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
   }),
   secondaryAction: PropTypes.shape({
     label: PropTypes.string,
     onClick: PropTypes.func,
     disabled: PropTypes.bool,
-    className: PropTypes.string
+    className: PropTypes.string,
   }),
   isLoading: PropTypes.bool,
   className: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 ModalFooter.displayName = 'ModalFooter';

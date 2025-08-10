@@ -9,56 +9,59 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
-import { validationSchemas, validateForm as runValidation, crossFieldValidators } from '../../utils/validators';
+import {
+  validationSchemas,
+  validateForm as runValidation,
+  crossFieldValidators,
+} from '../../utils/validators';
 import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
-import { 
-  UI_ACTIONS, 
-  UI_FORM_LABELS, 
-  UI_MESSAGES, 
-  UI_PLACEHOLDERS, 
+import {
+  UI_ACTIONS,
+  UI_FORM_LABELS,
+  UI_MESSAGES,
+  UI_PLACEHOLDERS,
   UI_TITLES,
-  MODAL_TEXT, 
-  UI_TOOLTIPS 
+  MODAL_TEXT,
+  UI_TOOLTIPS,
 } from '../../constants';
 
-const VehicleModal = ({ 
-  isOpen, 
-  onClose, 
-  vehicle, 
-  onSave, 
-  mode = 'create', 
-  userRole 
-}) => {
-
+const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userRole }) => {
   // Estado y validación centralizados con useFormData
-  const getInitialFormData = useCallback(() => ({
-    vehicleId: vehicle?.vehicleId || '',
-    name: vehicle?.name || '',
-    type: vehicle?.type || VEHICLE_TYPES.EXCAVADORA,
-    brand: vehicle?.brand || '',
-    model: vehicle?.model || '',
-    fuelType: vehicle?.fuelType || FUEL_COMPATIBILITY.DIESEL,
-    fuelCapacity: vehicle?.fuelCapacity || 0,
-    enginePower: vehicle?.enginePower || 0,
-    status: vehicle?.status || VEHICLE_STATUS.ACTIVO,
-    currentLocation: vehicle?.currentLocation || '',
-    description: vehicle?.description || '',
-    estimatedConsumptionPerHour: vehicle?.estimatedConsumptionPerHour || 0,
-    serialNumber: vehicle?.serialNumber || '',
-    plateNumber: vehicle?.plateNumber || '',
-    hasHourMeter: vehicle?.hasHourMeter || false,
-    currentHours: vehicle?.currentHours || 0,
-    lastMaintenanceDate: vehicle?.lastMaintenanceDate ? 
-      new Date(vehicle.lastMaintenanceDate).toISOString().split('T')[0] : '',
-    nextMaintenanceDate: vehicle?.nextMaintenanceDate ? 
-      new Date(vehicle.nextMaintenanceDate).toISOString().split('T')[0] : '',
-    purchaseDate: vehicle?.purchaseDate ? 
-      new Date(vehicle.purchaseDate).toISOString().split('T')[0] : '',
-    warrantyExpiration: vehicle?.warrantyExpiration ? 
-      new Date(vehicle.warrantyExpiration).toISOString().split('T')[0] : ''
-  }), [vehicle]);
+  const getInitialFormData = useCallback(
+    () => ({
+      vehicleId: vehicle?.vehicleId || '',
+      name: vehicle?.name || '',
+      type: vehicle?.type || VEHICLE_TYPES.EXCAVADORA,
+      brand: vehicle?.brand || '',
+      model: vehicle?.model || '',
+      fuelType: vehicle?.fuelType || FUEL_COMPATIBILITY.DIESEL,
+      fuelCapacity: vehicle?.fuelCapacity || 0,
+      enginePower: vehicle?.enginePower || 0,
+      status: vehicle?.status || VEHICLE_STATUS.ACTIVO,
+      currentLocation: vehicle?.currentLocation || '',
+      description: vehicle?.description || '',
+      estimatedConsumptionPerHour: vehicle?.estimatedConsumptionPerHour || 0,
+      serialNumber: vehicle?.serialNumber || '',
+      plateNumber: vehicle?.plateNumber || '',
+      hasHourMeter: vehicle?.hasHourMeter || false,
+      currentHours: vehicle?.currentHours || 0,
+      lastMaintenanceDate: vehicle?.lastMaintenanceDate
+        ? new Date(vehicle.lastMaintenanceDate).toISOString().split('T')[0]
+        : '',
+      nextMaintenanceDate: vehicle?.nextMaintenanceDate
+        ? new Date(vehicle.nextMaintenanceDate).toISOString().split('T')[0]
+        : '',
+      purchaseDate: vehicle?.purchaseDate
+        ? new Date(vehicle.purchaseDate).toISOString().split('T')[0]
+        : '',
+      warrantyExpiration: vehicle?.warrantyExpiration
+        ? new Date(vehicle.warrantyExpiration).toISOString().split('T')[0]
+        : '',
+    }),
+    [vehicle]
+  );
 
   const [loading, setLoading] = useState(false);
   const [customType, setCustomType] = useState('');
@@ -66,13 +69,13 @@ const VehicleModal = ({
 
   // Validación centralizada por schema + reglas adicionales
   const validate = (values) => {
-  const base = runValidation(values, validationSchemas.vehicle);
-  const errors = { ...base.errors };
+    const base = runValidation(values, validationSchemas.vehicle);
+    const errors = { ...base.errors };
 
     // Fechas: próxima mantenimiento posterior a última
     const cross = crossFieldValidators.maintenanceDates({
       lastMaintenanceDate: values.lastMaintenanceDate,
-      nextMaintenanceDate: values.nextMaintenanceDate
+      nextMaintenanceDate: values.nextMaintenanceDate,
     });
     Object.assign(errors, cross);
 
@@ -95,7 +98,7 @@ const VehicleModal = ({
     setErrors,
     handleInputChange,
     resetForm,
-    validateForm
+    validateForm,
   } = useFormData(getInitialFormData(), validate);
 
   // Reinicializar formulario cuando cambie el vehículo
@@ -105,12 +108,10 @@ const VehicleModal = ({
     }
   }, [isOpen, vehicle, getInitialFormData, resetForm]);
 
-
-
   // Manejar envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -125,7 +126,7 @@ const VehicleModal = ({
         lastMaintenanceDate: formData.lastMaintenanceDate || null,
         nextMaintenanceDate: formData.nextMaintenanceDate || null,
         purchaseDate: formData.purchaseDate || null,
-        warrantyExpiration: formData.warrantyExpiration || null
+        warrantyExpiration: formData.warrantyExpiration || null,
       };
 
       await onSave(submitData);
@@ -141,32 +142,45 @@ const VehicleModal = ({
   // Obtener icono para tipo de vehículo
   const getVehicleIcon = (type) => {
     switch (type) {
-      case VEHICLE_TYPES.EXCAVADORA: return '🚚';
-      case VEHICLE_TYPES.BULLDOZER: return '🚜';
-      case VEHICLE_TYPES.CARGADOR: return '🏗️';
-      case VEHICLE_TYPES.CAMION: return '🚛';
-      case VEHICLE_TYPES.GRUA: return '🏗️';
-      case VEHICLE_TYPES.MOTOSIERRA: return '🪚';
-      case VEHICLE_TYPES.TRACTOR: return '🚜';
-      case VEHICLE_TYPES.VOLQUETA: return '🚛';
-      default: return '🚗';
+      case VEHICLE_TYPES.EXCAVADORA:
+        return '🚚';
+      case VEHICLE_TYPES.BULLDOZER:
+        return '🚜';
+      case VEHICLE_TYPES.CARGADOR:
+        return '🏗️';
+      case VEHICLE_TYPES.CAMION:
+        return '🚛';
+      case VEHICLE_TYPES.GRUA:
+        return '🏗️';
+      case VEHICLE_TYPES.MOTOSIERRA:
+        return '🪚';
+      case VEHICLE_TYPES.TRACTOR:
+        return '🚜';
+      case VEHICLE_TYPES.VOLQUETA:
+        return '🚛';
+      default:
+        return '🚗';
     }
   };
 
   // Obtener icono para combustible
   const getFuelIcon = (fuelType) => {
     switch (fuelType) {
-      case FUEL_COMPATIBILITY.DIESEL: return '🚛';
-      case FUEL_COMPATIBILITY.GASOLINA: return '🚗';
-      case FUEL_COMPATIBILITY.MIXTO: return '⛽';
-      default: return '⛽';
+      case FUEL_COMPATIBILITY.DIESEL:
+        return '🚛';
+      case FUEL_COMPATIBILITY.GASOLINA:
+        return '🚗';
+      case FUEL_COMPATIBILITY.MIXTO:
+        return '⛽';
+      default:
+        return '⛽';
     }
   };
 
   // Determinar permisos de edición
   const canEdit = ['admin', 'supervisor'].includes(userRole) && mode !== 'view';
   const isReadOnly = mode === 'view' || !canEdit;
-  
+
   const getModalTitle = () => {
     if (mode === 'create') return MODAL_TEXT.VEHICLE.CREATE_TITLE;
     if (mode === 'edit') return MODAL_TEXT.VEHICLE.EDIT_TITLE;
@@ -186,58 +200,53 @@ const VehicleModal = ({
   };
 
   return (
-    <BaseModal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      size="xl"
-      className="vehicle-modal"
-    >
-      <ModalHeader 
+    <BaseModal isOpen={isOpen} onClose={onClose} size="xl" className="vehicle-modal sap-theme">
+      <ModalHeader
         title={getModalTitle()}
         subtitle={getModalSubtitle()}
         icon={getModalIcon()}
         onClose={onClose}
       />
 
-      <div className="modal-body">
+      <div className="modal-body sap-theme">
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="modal-form">
-          <div className="form-content">
+        <form onSubmit={handleSubmit} className="modal-form sap-theme">
+          <div className="form-content sap-theme">
             {/* Preview Card */}
-            <div className="vehicle-preview">
-              <div className="preview-header">
-                <span className="preview-icon">{getVehicleIcon(formData.type)}</span>
-                <div className="preview-info">
-                  <span className="preview-id">{formData.vehicleId || 'ID-000'}</span>
-                  <span className="preview-name">{formData.name || UI_FORM_LABELS.VEHICLE_NAME}</span>
+            <div className="vehicle-preview sap-theme">
+              <div className="preview-header sap-theme">
+                <span className="preview-icon sap-theme">{getVehicleIcon(formData.type)}</span>
+                <div className="preview-info sap-theme">
+                  <span className="preview-id sap-theme">{formData.vehicleId || 'ID-000'}</span>
+                  <span className="preview-name sap-theme">
+                    {formData.name || UI_FORM_LABELS.VEHICLE_NAME}
+                  </span>
                 </div>
-                <div className="preview-fuel">
-                  <span className="fuel-icon">{getFuelIcon(formData.fuelType)}</span>
-                  <span className="fuel-text">{formData.fuelType}</span>
+                <div className="preview-fuel sap-theme">
+                  <span className="fuel-icon sap-theme">{getFuelIcon(formData.fuelType)}</span>
+                  <span className="fuel-text sap-theme">{formData.fuelType}</span>
                 </div>
               </div>
-              <div className="preview-specs">
+              <div className="preview-specs sap-theme">
                 {formData.enginePower > 0 && (
-                  <span className="spec">⚡ {formData.enginePower} HP</span>
+                  <span className="spec sap-theme">⚡ {formData.enginePower} HP</span>
                 )}
                 {formData.fuelCapacity > 0 && (
-                  <span className="spec">🛢️ {formData.fuelCapacity} gal</span>
+                  <span className="spec sap-theme">🛢️ {formData.fuelCapacity} gal</span>
                 )}
               </div>
             </div>
 
             {/* Error general */}
             {errors.general && (
-              <div className="error-message general-error">
-                ⚠️ {errors.general}
-              </div>
+              <div className="error-message general-error sap-theme">⚠️ {errors.general}</div>
             )}
 
             {/* Información básica */}
-            <div className="form-section">
-              <h4 className="section-title">📋 {UI_TITLES.BASIC_INFO}</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">📋 {UI_TITLES.BASIC_INFO}</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="vehicleId">{UI_FORM_LABELS.VEHICLE_ID} *</label>
                   <input
                     type="text"
@@ -251,11 +260,11 @@ const VehicleModal = ({
                     maxLength={20}
                   />
                   {errors.vehicleId && (
-                    <span className="error-text">{errors.vehicleId}</span>
+                    <span className="error-text sap-theme">{errors.vehicleId}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="name">{UI_FORM_LABELS.VEHICLE_NAME} *</label>
                   <input
                     type="text"
@@ -268,15 +277,13 @@ const VehicleModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={100}
                   />
-                  {errors.name && (
-                    <span className="error-text">{errors.name}</span>
-                  )}
+                  {errors.name && <span className="error-text sap-theme">{errors.name}</span>}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="type">{UI_FORM_LABELS.VEHICLE_TYPE}</label>
                   {!showCustomType ? (
-                    <div className="select-with-button">
+                    <div className="select-with-button sap-theme">
                       <select
                         id="type"
                         name="type"
@@ -292,7 +299,7 @@ const VehicleModal = ({
                       </select>
                       <button
                         type="button"
-                        className="btn-add-custom"
+                        className="btn-add-custom sap-theme"
                         onClick={() => setShowCustomType(true)}
                         disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                         title={UI_TOOLTIPS.ADD_CUSTOM_TYPE}
@@ -301,7 +308,7 @@ const VehicleModal = ({
                       </button>
                     </div>
                   ) : (
-                    <div className="custom-type-input">
+                    <div className="custom-type-input sap-theme">
                       <input
                         type="text"
                         placeholder={UI_PLACEHOLDERS.CUSTOM_TYPE}
@@ -311,7 +318,7 @@ const VehicleModal = ({
                           if (e.key === 'Enter') {
                             e.preventDefault();
                             if (customType.trim()) {
-                              setFormData(prev => ({ ...prev, type: customType.trim() }));
+                              setFormData((prev) => ({ ...prev, type: customType.trim() }));
                               setShowCustomType(false);
                               setCustomType('');
                             }
@@ -324,10 +331,10 @@ const VehicleModal = ({
                       />
                       <button
                         type="button"
-                        className="btn-confirm-custom"
+                        className="btn-confirm-custom sap-theme"
                         onClick={() => {
                           if (customType.trim()) {
-                            setFormData(prev => ({ ...prev, type: customType.trim() }));
+                            setFormData((prev) => ({ ...prev, type: customType.trim() }));
                             setShowCustomType(false);
                             setCustomType('');
                           }
@@ -338,7 +345,7 @@ const VehicleModal = ({
                       </button>
                       <button
                         type="button"
-                        className="btn-cancel-custom"
+                        className="btn-cancel-custom sap-theme"
                         onClick={() => {
                           setShowCustomType(false);
                           setCustomType('');
@@ -351,7 +358,7 @@ const VehicleModal = ({
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="status">{UI_FORM_LABELS.STATUS}</label>
                   <select
                     id="status"
@@ -360,7 +367,7 @@ const VehicleModal = ({
                     onChange={handleInputChange}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
-                    {Object.values(VEHICLE_STATUS).map(status => (
+                    {Object.values(VEHICLE_STATUS).map((status) => (
                       <option key={status} value={status}>
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                       </option>
@@ -371,10 +378,10 @@ const VehicleModal = ({
             </div>
 
             {/* Especificaciones técnicas */}
-            <div className="form-section">
-              <h4 className="section-title">🔧 {UI_TITLES.TECHNICAL_SPECS}</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">🔧 {UI_TITLES.TECHNICAL_SPECS}</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="brand">{UI_FORM_LABELS.BRAND}</label>
                   <input
                     type="text"
@@ -388,7 +395,7 @@ const VehicleModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="model">{UI_FORM_LABELS.MODEL}</label>
                   <input
                     type="text"
@@ -402,8 +409,7 @@ const VehicleModal = ({
                   />
                 </div>
 
-
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="serialNumber">{UI_FORM_LABELS.SERIAL_NUMBER}</label>
                   <input
                     type="text"
@@ -417,7 +423,7 @@ const VehicleModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="plateNumber">{UI_FORM_LABELS.PLATE_NUMBER}</label>
                   <input
                     type="text"
@@ -431,7 +437,7 @@ const VehicleModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="enginePower">{UI_FORM_LABELS.ENGINE_POWER}</label>
                   <input
                     type="number"
@@ -446,17 +452,17 @@ const VehicleModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.enginePower && (
-                    <span className="error-text">{errors.enginePower}</span>
+                    <span className="error-text sap-theme">{errors.enginePower}</span>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Combustible */}
-            <div className="form-section">
-              <h4 className="section-title">⛽ {UI_TITLES.FUEL_INFO}</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">⛽ {UI_TITLES.FUEL_INFO}</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="fuelType">{UI_FORM_LABELS.FUEL_TYPE}</label>
                   <select
                     id="fuelType"
@@ -465,7 +471,7 @@ const VehicleModal = ({
                     onChange={handleInputChange}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
-                    {Object.values(FUEL_COMPATIBILITY).map(fuel => (
+                    {Object.values(FUEL_COMPATIBILITY).map((fuel) => (
                       <option key={fuel} value={fuel}>
                         {getFuelIcon(fuel)} {fuel.charAt(0).toUpperCase() + fuel.slice(1)}
                       </option>
@@ -473,7 +479,7 @@ const VehicleModal = ({
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="fuelCapacity">{UI_FORM_LABELS.TANK_CAPACITY} *</label>
                   <input
                     type="number"
@@ -488,12 +494,14 @@ const VehicleModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.fuelCapacity && (
-                    <span className="error-text">{errors.fuelCapacity}</span>
+                    <span className="error-text sap-theme">{errors.fuelCapacity}</span>
                   )}
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="estimatedConsumptionPerHour">{UI_FORM_LABELS.ESTIMATED_CONSUMPTION}</label>
+                <div className="form-group sap-theme">
+                  <label htmlFor="estimatedConsumptionPerHour">
+                    {UI_FORM_LABELS.ESTIMATED_CONSUMPTION}
+                  </label>
                   <input
                     type="number"
                     id="estimatedConsumptionPerHour"
@@ -507,11 +515,13 @@ const VehicleModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.estimatedConsumptionPerHour && (
-                    <span className="error-text">{errors.estimatedConsumptionPerHour}</span>
+                    <span className="error-text sap-theme">
+                      {errors.estimatedConsumptionPerHour}
+                    </span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="currentLocation">{UI_FORM_LABELS.CURRENT_LOCATION}</label>
                   <input
                     type="text"
@@ -529,10 +539,10 @@ const VehicleModal = ({
 
             {/* ✅ NUEVO: Sección Horómetro para tractores */}
             {(formData.type === VEHICLE_TYPES.TRACTOR || formData.hasHourMeter) && (
-              <div className="form-section">
-                <h4 className="section-title">⏰ {UI_TITLES.HOUR_METER_SYSTEM}</h4>
-                <div className="form-grid">
-                  <div className="form-group">
+              <div className="form-section sap-theme">
+                <h4 className="section-title sap-theme">⏰ {UI_TITLES.HOUR_METER_SYSTEM}</h4>
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
                     <label htmlFor="hasHourMeter">
                       <input
                         type="checkbox"
@@ -540,21 +550,26 @@ const VehicleModal = ({
                         name="hasHourMeter"
                         checked={formData.hasHourMeter}
                         onChange={handleInputChange}
-                        disabled={isReadOnly || (mode === 'edit' && !canEdit) || formData.type === VEHICLE_TYPES.TRACTOR}
-                      />
-                      {' '}{UI_FORM_LABELS.HAS_HOUR_METER}
+                        disabled={
+                          isReadOnly ||
+                          (mode === 'edit' && !canEdit) ||
+                          formData.type === VEHICLE_TYPES.TRACTOR
+                        }
+                      />{' '}
+                      {UI_FORM_LABELS.HAS_HOUR_METER}
                       {formData.type === VEHICLE_TYPES.TRACTOR && (
-                        <span className="auto-enabled"> (Automático para tractores)</span>
+                        <span className="auto-enabled sap-theme"> (Automático para tractores)</span>
                       )}
                     </label>
-                    <small className="field-help">
-                      Los tractores TR1, TR2, TR3 requieren control de horómetro para reportes de consumo
+                    <small className="field-help sap-theme">
+                      Los tractores TR1, TR2, TR3 requieren control de horómetro para reportes de
+                      consumo
                     </small>
                   </div>
 
                   {formData.hasHourMeter && (
                     <>
-                      <div className="form-group">
+                      <div className="form-group sap-theme">
                         <label htmlFor="currentHours">{UI_FORM_LABELS.CURRENT_HOURS}</label>
                         <input
                           type="number"
@@ -568,31 +583,41 @@ const VehicleModal = ({
                           placeholder={UI_PLACEHOLDERS.CURRENT_HOURS}
                           disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                         />
-                        <small className="field-help">
+                        <small className="field-help sap-theme">
                           Ingrese la lectura actual mostrada en el horómetro del vehículo
                         </small>
                       </div>
 
                       {formData.currentHours > 0 && (
-                        <div className="form-group">
-                          <div className="hour-meter-info">
+                        <div className="form-group sap-theme">
+                          <div className="hour-meter-info sap-theme">
                             <h5>📊 {UI_TITLES.HOUR_METER_INFO}</h5>
-                            <div className="info-grid">
-                              <div className="info-item">
-                                <span className="info-label">Lectura actual:</span>
-                                <span className="info-value">{formData.currentHours} horas</span>
+                            <div className="info-grid sap-theme">
+                              <div className="info-item sap-theme">
+                                <span className="info-label sap-theme">Lectura actual:</span>
+                                <span className="info-value sap-theme">
+                                  {formData.currentHours} horas
+                                </span>
                               </div>
                               {mode === 'edit' && vehicle?.totalHoursWorked && (
-                                <div className="info-item">
-                                  <span className="info-label">Horas trabajadas totales:</span>
-                                  <span className="info-value">{vehicle.totalHoursWorked} horas</span>
+                                <div className="info-item sap-theme">
+                                  <span className="info-label sap-theme">
+                                    Horas trabajadas totales:
+                                  </span>
+                                  <span className="info-value sap-theme">
+                                    {vehicle.totalHoursWorked} horas
+                                  </span>
                                 </div>
                               )}
-                              <div className="info-item">
-                                <span className="info-label">Próximo mantenimiento:</span>
-                                <span className="info-value">
-                                  {250 - (formData.currentHours % 250)} horas
-                                  ({(formData.currentHours + (250 - (formData.currentHours % 250))).toFixed(1)}h)
+                              <div className="info-item sap-theme">
+                                <span className="info-label sap-theme">Próximo mantenimiento:</span>
+                                <span className="info-value sap-theme">
+                                  {250 - (formData.currentHours % 250)} horas (
+                                  {(
+                                    formData.currentHours +
+                                    (250 - (formData.currentHours % 250))
+                                  ).toFixed(1)}
+                                  h)
                                 </span>
                               </div>
                             </div>
@@ -606,10 +631,10 @@ const VehicleModal = ({
             )}
 
             {/* Fechas importantes */}
-            <div className="form-section">
-              <h4 className="section-title">📅 {UI_TITLES.IMPORTANT_DATES}</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">📅 {UI_TITLES.IMPORTANT_DATES}</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="purchaseDate">{UI_FORM_LABELS.PURCHASE_DATE}</label>
                   <input
                     type="date"
@@ -622,11 +647,11 @@ const VehicleModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.purchaseDate && (
-                    <span className="error-text">{errors.purchaseDate}</span>
+                    <span className="error-text sap-theme">{errors.purchaseDate}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="warrantyExpiration">{UI_FORM_LABELS.WARRANTY_EXPIRATION}</label>
                   <input
                     type="date"
@@ -638,7 +663,7 @@ const VehicleModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="lastMaintenanceDate">{UI_FORM_LABELS.LAST_MAINTENANCE}</label>
                   <input
                     type="date"
@@ -650,7 +675,7 @@ const VehicleModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="nextMaintenanceDate">{UI_FORM_LABELS.NEXT_MAINTENANCE}</label>
                   <input
                     type="date"
@@ -662,16 +687,16 @@ const VehicleModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.nextMaintenanceDate && (
-                    <span className="error-text">{errors.nextMaintenanceDate}</span>
+                    <span className="error-text sap-theme">{errors.nextMaintenanceDate}</span>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Descripción */}
-            <div className="form-section">
-              <h4 className="section-title">📝 {UI_TITLES.DESCRIPTION_AND_NOTES}</h4>
-              <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">📝 {UI_TITLES.DESCRIPTION_AND_NOTES}</h4>
+              <div className="form-group sap-theme">
                 <label htmlFor="description">{UI_FORM_LABELS.DESCRIPTION}</label>
                 <textarea
                   id="description"
@@ -683,26 +708,33 @@ const VehicleModal = ({
                   maxLength="500"
                   disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                 />
-                <span className="char-count">
+                <span className="char-count sap-theme">
                   {formData.description.length}/500 caracteres
                 </span>
               </div>
             </div>
           </div>
-
         </form>
       </div>
 
-      <ModalFooter 
-        primaryAction={!isReadOnly && canEdit ? {
-          label: loading ? UI_MESSAGES.LOADING.SAVING : (mode === 'create' ? UI_ACTIONS.CREATE_VEHICLE : UI_ACTIONS.SAVE_CHANGES),
-          onClick: handleSubmit,
-          disabled: loading,
-          type: 'submit'
-        } : null}
+      <ModalFooter
+        primaryAction={
+          !isReadOnly && canEdit
+            ? {
+                label: loading
+                  ? UI_MESSAGES.LOADING.SAVING
+                  : mode === 'create'
+                    ? UI_ACTIONS.CREATE_VEHICLE
+                    : UI_ACTIONS.SAVE_CHANGES,
+                onClick: handleSubmit,
+                disabled: loading,
+                type: 'submit',
+              }
+            : null
+        }
         secondaryAction={{
           label: mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL,
-          onClick: onClose
+          onClick: onClose,
         }}
         isLoading={loading}
       />

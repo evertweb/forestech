@@ -7,57 +7,76 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
-import { validationSchemas, validators, validateForm as runValidation } from '../../utils/validators';
+import {
+  validationSchemas,
+  validators,
+  validateForm as runValidation,
+} from '../../utils/validators';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
-import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES, UI_TITLES, UI_STATUS, UI_PLACEHOLDERS } from '../../constants';
+import {
+  MODAL_PRESETS,
+  UI_ACTIONS,
+  UI_FORM_LABELS,
+  UI_MESSAGES,
+  UI_TITLES,
+  UI_STATUS,
+  UI_PLACEHOLDERS,
+} from '../../constants';
 
 const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
   const { userProfile } = useCombustibles();
   const isEditing = !!supplier;
 
-
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('basic'); // 'basic', 'contact', 'products', 'commercial'
 
   // Estado inicial y validación con useFormData
-  const getInitialFormData = useCallback(() => ({
-    name: '',
-    taxId: '',
-    type: 'proveedor',
-    category: 'combustibles',
-    contactPerson: '',
-    phone: '',
-    email: '',
-    address: '',
-    city: '',
-    state: 'Colombia',
-    fuelTypes: [],
-    paymentTerms: 'contado',
-    creditLimit: '',
-    priceList: {},
-    rating: 5,
-    evaluationNotes: '',
-    status: 'active',
-    isPreferred: false
-  }), []);
+  const getInitialFormData = useCallback(
+    () => ({
+      name: '',
+      taxId: '',
+      type: 'proveedor',
+      category: 'combustibles',
+      contactPerson: '',
+      phone: '',
+      email: '',
+      address: '',
+      city: '',
+      state: 'Colombia',
+      fuelTypes: [],
+      paymentTerms: 'contado',
+      creditLimit: '',
+      priceList: {},
+      rating: 5,
+      evaluationNotes: '',
+      status: 'active',
+      isPreferred: false,
+    }),
+    []
+  );
 
   // Validación centralizada: schema + reglas extra dinámicas (priceList por fuelType)
   const validate = (values) => {
     // Ejecutar schema base de suppliers
-    const base = validationSchemas.supplier ?
-      runValidation(values, validationSchemas.supplier) : { isValid: true, errors: {} };
+    const base = validationSchemas.supplier
+      ? runValidation(values, validationSchemas.supplier)
+      : { isValid: true, errors: {} };
 
     // Reglas adicionales: category y type requeridos
     const extraErrors = { ...base.errors };
     if (!values.category) extraErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
-    if (!values.type) extraErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
+    if (!values.type)
+      extraErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
 
     // Validar priceList por cada fuelType marcado
-    (values.fuelTypes || []).forEach(fuelType => {
+    (values.fuelTypes || []).forEach((fuelType) => {
       const price = values.priceList?.[fuelType];
-      const err = validators.nonNegative(price, `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`);
+      const err = validators.nonNegative(
+        price,
+        `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`
+      );
       if (err) extraErrors[`price_${fuelType}`] = err;
     });
 
@@ -70,7 +89,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     errors,
     handleInputChange,
     resetForm,
-    validateForm
+    validateForm,
   } = useFormData(getInitialFormData(), validate);
 
   // Inicializar datos al editar
@@ -94,35 +113,31 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
         rating: supplier.rating || 5,
         evaluationNotes: supplier.evaluationNotes || '',
         status: supplier.status || 'active',
-        isPreferred: supplier.isPreferred || false
+        isPreferred: supplier.isPreferred || false,
       });
     } else if (!isEditing) {
       resetForm();
     }
   }, [isEditing, supplier, setFormData, resetForm]);
 
-
-
   const handleFuelTypeToggle = (fuelType) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       fuelTypes: prev.fuelTypes.includes(fuelType)
-        ? prev.fuelTypes.filter(ft => ft !== fuelType)
-        : [...prev.fuelTypes, fuelType]
+        ? prev.fuelTypes.filter((ft) => ft !== fuelType)
+        : [...prev.fuelTypes, fuelType],
     }));
   };
 
   const handlePriceChange = (fuelType, price) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       priceList: {
         ...prev.priceList,
-        [fuelType]: parseFloat(price) || 0
-      }
+        [fuelType]: parseFloat(price) || 0,
+      },
     }));
   };
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -134,10 +149,10 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
         creditLimit: parseFloat(formData.creditLimit) || 0,
         rating: parseFloat(formData.rating) || 5,
         priceList: Object.fromEntries(
-          Object.entries(formData.priceList).filter(([fuelType, price]) => 
-            formData.fuelTypes.includes(fuelType) && price > 0
+          Object.entries(formData.priceList).filter(
+            ([fuelType, price]) => formData.fuelTypes.includes(fuelType) && price > 0
           )
-        )
+        ),
       };
       let result;
       if (isEditing) {
@@ -148,11 +163,16 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
       if (result.success) {
         onSuccess();
       } else {
-        onError(result.error || `${UI_MESSAGES.ERROR.SAVE_FAILED} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`);
+        onError(
+          result.error ||
+            `${UI_MESSAGES.ERROR.SAVE_FAILED} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
+        );
       }
     } catch (error) {
       console.error('Error saving supplier:', error);
-      onError(`Error inesperado al ${UI_ACTIONS.SAVE.toLowerCase()} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`);
+      onError(
+        `Error inesperado al ${UI_ACTIONS.SAVE.toLowerCase()} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
+      );
     } finally {
       setLoading(false);
     }
@@ -162,31 +182,24 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     { id: 'basic', label: 'Información Básica', icon: 'icon-info' },
     { id: 'contact', label: UI_FORM_LABELS.CONTACT, icon: 'icon-phone' },
     { id: 'products', label: UI_TITLES.PRODUCTS, icon: 'icon-package' },
-    { id: 'commercial', label: 'Comercial', icon: 'icon-credit-card' }
+    { id: 'commercial', label: 'Comercial', icon: 'icon-credit-card' },
   ];
 
   const getModalTitle = () => {
-    return isEditing ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.SUPPLIER}` : `Nuevo ${UI_FORM_LABELS.SUPPLIER}`;
+    return isEditing
+      ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.SUPPLIER}`
+      : `Nuevo ${UI_FORM_LABELS.SUPPLIER}`;
   };
 
   return (
-    <BaseModal 
-      isOpen={true} 
-      onClose={onClose}
-      size="lg"
-      className="supplier-modal"
-    >
-      <ModalHeader 
-        title={getModalTitle()}
-        icon="🚚"
-        onClose={onClose}
-      />
+    <BaseModal isOpen={true} onClose={onClose} size="lg" className="supplier-modal sap-theme">
+      <ModalHeader title={getModalTitle()} icon="🚚" onClose={onClose} />
 
-      <div className="modal-body">
+      <div className="modal-body sap-theme">
         <form onSubmit={handleSubmit}>
           {/* Tabs */}
-          <div className="modal-tabs">
-            {tabs.map(tab => (
+          <div className="modal-tabs sap-theme">
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
@@ -199,13 +212,15 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
             ))}
           </div>
 
-          <div className="modal-body">
+          <div className="modal-body sap-theme">
             {/* Basic Information Tab */}
             {activeTab === 'basic' && (
-              <div className="tab-content">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="required">{UI_FORM_LABELS.NAME} del {UI_FORM_LABELS.SUPPLIER}</label>
+              <div className="tab-content sap-theme">
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
+                    <label className="required sap-theme">
+                      {UI_FORM_LABELS.NAME} del {UI_FORM_LABELS.SUPPLIER}
+                    </label>
                     <input
                       type="text"
                       value={formData.name}
@@ -214,10 +229,10 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                       placeholder={`Ingresa el ${UI_FORM_LABELS.NAME.toLowerCase()} del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       className={errors.name ? 'error' : ''}
                     />
-                    {errors.name && <span className="error-message">{errors.name}</span>}
+                    {errors.name && <span className="error-message sap-theme">{errors.name}</span>}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>NIT / Documento</label>
                     <input
                       type="text"
@@ -227,11 +242,15 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                       placeholder="123456789-0"
                       className={errors.taxId ? 'error' : ''}
                     />
-                    {errors.taxId && <span className="error-message">{errors.taxId}</span>}
+                    {errors.taxId && (
+                      <span className="error-message sap-theme">{errors.taxId}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
-                    <label className="required">{UI_FORM_LABELS.TYPE} de {UI_FORM_LABELS.SUPPLIER}</label>
+                  <div className="form-group sap-theme">
+                    <label className="required sap-theme">
+                      {UI_FORM_LABELS.TYPE} de {UI_FORM_LABELS.SUPPLIER}
+                    </label>
                     <select
                       value={formData.type}
                       name="type"
@@ -242,11 +261,11 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                       <option value="distribuidor">Distribuidor</option>
                       <option value="mayorista">Mayorista</option>
                     </select>
-                    {errors.type && <span className="error-message">{errors.type}</span>}
+                    {errors.type && <span className="error-message sap-theme">{errors.type}</span>}
                   </div>
 
-                  <div className="form-group">
-                    <label className="required">{UI_FORM_LABELS.CATEGORY}</label>
+                  <div className="form-group sap-theme">
+                    <label className="required sap-theme">{UI_FORM_LABELS.CATEGORY}</label>
                     <select
                       value={formData.category}
                       name="category"
@@ -257,31 +276,29 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                       <option value="lubricantes">Lubricantes</option>
                       <option value="aditivos">Aditivos</option>
                     </select>
-                    {errors.category && <span className="error-message">{errors.category}</span>}
+                    {errors.category && (
+                      <span className="error-message sap-theme">{errors.category}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>{UI_FORM_LABELS.STATUS}</label>
-                    <select
-                      value={formData.status}
-                      name="status"
-                      onChange={handleInputChange}
-                    >
+                    <select value={formData.status} name="status" onChange={handleInputChange}>
                       <option value="active">{UI_STATUS.ACTIVE}</option>
                       <option value="inactive">{UI_STATUS.INACTIVE}</option>
                       <option value="suspended">Suspendido</option>
                     </select>
                   </div>
 
-                  <div className="form-group checkbox">
-                    <label className="checkbox-label">
+                  <div className="form-group checkbox sap-theme">
+                    <label className="checkbox-label sap-theme">
                       <input
                         type="checkbox"
                         name="isPreferred"
                         checked={formData.isPreferred}
                         onChange={handleInputChange}
                       />
-                      <span className="checkbox-mark"></span>
+                      <span className="checkbox-mark sap-theme"></span>
                       {UI_STATUS.PREFERRED_SUPPLIER}
                     </label>
                   </div>
@@ -291,9 +308,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
             {/* Contact Information Tab */}
             {activeTab === 'contact' && (
-              <div className="tab-content">
-                <div className="form-grid">
-                  <div className="form-group">
+              <div className="tab-content sap-theme">
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
                     <label>Persona de {UI_FORM_LABELS.CONTACT}</label>
                     <input
                       type="text"
@@ -304,7 +321,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>{UI_FORM_LABELS.PHONE}</label>
                     <input
                       type="tel"
@@ -314,10 +331,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                       placeholder={UI_PLACEHOLDERS.PHONE_FORMAT}
                       className={errors.phone ? 'error' : ''}
                     />
-                    {errors.phone && <span className="error-message">{errors.phone}</span>}
+                    {errors.phone && (
+                      <span className="error-message sap-theme">{errors.phone}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>{UI_FORM_LABELS.EMAIL}</label>
                     <input
                       type="email"
@@ -327,10 +346,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                       placeholder={UI_PLACEHOLDERS.EMAIL_FORMAT}
                       className={errors.email ? 'error' : ''}
                     />
-                    {errors.email && <span className="error-message">{errors.email}</span>}
+                    {errors.email && (
+                      <span className="error-message sap-theme">{errors.email}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Ciudad</label>
                     <input
                       type="text"
@@ -341,7 +362,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Estado/País</label>
                     <input
                       type="text"
@@ -352,7 +373,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     />
                   </div>
 
-                  <div className="form-group full-width">
+                  <div className="form-group full-width sap-theme">
                     <label>{UI_FORM_LABELS.ADDRESS}</label>
                     <textarea
                       value={formData.address}
@@ -368,19 +389,19 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
             {/* Products Tab */}
             {activeTab === 'products' && (
-              <div className="tab-content">
-                <div className="section">
+              <div className="tab-content sap-theme">
+                <div className="section sap-theme">
                   <h3>Tipos de Combustible que Suministra</h3>
-                  <div className="fuel-types-grid">
+                  <div className="fuel-types-grid sap-theme">
                     {Object.entries(FUEL_TYPES).map(([key, label]) => (
-                      <div key={key} className="fuel-type-item">
-                        <label className="checkbox-label">
+                      <div key={key} className="fuel-type-item sap-theme">
+                        <label className="checkbox-label sap-theme">
                           <input
                             type="checkbox"
                             checked={formData.fuelTypes.includes(key)}
                             onChange={() => handleFuelTypeToggle(key)}
                           />
-                          <span className="checkbox-mark"></span>
+                          <span className="checkbox-mark sap-theme"></span>
                           {label}
                         </label>
                       </div>
@@ -389,14 +410,14 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                 </div>
 
                 {formData.fuelTypes.length > 0 && (
-                  <div className="section">
+                  <div className="section sap-theme">
                     <h3>Precios por Litro (Opcional)</h3>
-                    <div className="prices-grid">
-                      {formData.fuelTypes.map(fuelType => (
-                        <div key={fuelType} className="form-group">
+                    <div className="prices-grid sap-theme">
+                      {formData.fuelTypes.map((fuelType) => (
+                        <div key={fuelType} className="form-group sap-theme">
                           <label>{FUEL_TYPES[fuelType]}</label>
-                          <div className="input-with-currency">
-                            <span className="currency-symbol">$</span>
+                          <div className="input-with-currency sap-theme">
+                            <span className="currency-symbol sap-theme">$</span>
                             <input
                               type="number"
                               step="0.01"
@@ -408,7 +429,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                             />
                           </div>
                           {errors[`price_${fuelType}`] && (
-                            <span className="error-message">{errors[`price_${fuelType}`]}</span>
+                            <span className="error-message sap-theme">
+                              {errors[`price_${fuelType}`]}
+                            </span>
                           )}
                         </div>
                       ))}
@@ -420,9 +443,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
             {/* Commercial Tab */}
             {activeTab === 'commercial' && (
-              <div className="tab-content">
-                <div className="form-grid">
-                  <div className="form-group">
+              <div className="tab-content sap-theme">
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
                     <label>Términos de Pago</label>
                     <select
                       value={formData.paymentTerms}
@@ -436,10 +459,10 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     </select>
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Límite de Crédito</label>
-                    <div className="input-with-currency">
-                      <span className="currency-symbol">$</span>
+                    <div className="input-with-currency sap-theme">
+                      <span className="currency-symbol sap-theme">$</span>
                       <input
                         type="number"
                         step="0.01"
@@ -451,12 +474,14 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         className={errors.creditLimit ? 'error' : ''}
                       />
                     </div>
-                    {errors.creditLimit && <span className="error-message">{errors.creditLimit}</span>}
+                    {errors.creditLimit && (
+                      <span className="error-message sap-theme">{errors.creditLimit}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Rating</label>
-                    <div className="rating-input">
+                    <div className="rating-input sap-theme">
                       <input
                         type="range"
                         min="1"
@@ -467,12 +492,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         onChange={handleInputChange}
                         className={errors.rating ? 'error' : ''}
                       />
-                      <div className="rating-display">
-                        <span className="rating-value">{formData.rating.toFixed(1)}</span>
-                        <div className="rating-stars">
-                          {[1, 2, 3, 4, 5].map(star => (
-                            <span 
-                              key={star} 
+                      <div className="rating-display sap-theme">
+                        <span className="rating-value sap-theme">{formData.rating.toFixed(1)}</span>
+                        <div className="rating-stars sap-theme">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
                               className={`star ${star <= Math.round(formData.rating) ? 'filled' : ''}`}
                             >
                               ★
@@ -481,10 +506,12 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         </div>
                       </div>
                     </div>
-                    {errors.rating && <span className="error-message">{errors.rating}</span>}
+                    {errors.rating && (
+                      <span className="error-message sap-theme">{errors.rating}</span>
+                    )}
                   </div>
 
-                  <div className="form-group full-width">
+                  <div className="form-group full-width sap-theme">
                     <label>Notas de Evaluación</label>
                     <textarea
                       name="evaluationNotes"
@@ -498,22 +525,25 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               </div>
             )}
           </div>
-
         </form>
       </div>
 
-      <ModalFooter 
+      <ModalFooter
         primaryAction={{
-          label: loading ? 
-            (isEditing ? UI_MESSAGES.LOADING.UPDATING : UI_MESSAGES.LOADING.CREATING) :
-            (isEditing ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.SUPPLIER}` : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.SUPPLIER}`),
+          label: loading
+            ? isEditing
+              ? UI_MESSAGES.LOADING.UPDATING
+              : UI_MESSAGES.LOADING.CREATING
+            : isEditing
+              ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.SUPPLIER}`
+              : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.SUPPLIER}`,
           onClick: handleSubmit,
           disabled: loading,
-          type: 'submit'
+          type: 'submit',
         }}
         secondaryAction={{
           label: UI_ACTIONS.CANCEL,
-          onClick: onClose
+          onClick: onClose,
         }}
         isLoading={loading}
       />

@@ -14,10 +14,10 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { 
-  subscribeToInventory, 
+import {
+  subscribeToInventory,
   deleteInventoryItem,
-  getInventoryStats 
+  getInventoryStats,
 } from '../../services/inventoryService';
 import InventoryTable from './InventoryTable';
 import InventoryCards from './InventoryCards';
@@ -34,11 +34,11 @@ const InventoryMain = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // Defaultear a tabla en SAP
-  
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  
+
   // Filter states
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -90,7 +90,7 @@ const InventoryMain = () => {
   }, [inventoryItems]);
 
   // Filter items
-  const filteredItems = inventoryItems.filter(item => {
+  const filteredItems = inventoryItems.filter((item) => {
     // Filter by status
     if (filterStatus === 'active' && item.isActive === false) return false;
     if (filterStatus === 'low-stock') {
@@ -104,7 +104,11 @@ const InventoryMain = () => {
     }
 
     // Filter by category
-    if (filterCategory !== 'all' && item.category !== filterCategory && item.fuelType !== filterCategory) {
+    if (
+      filterCategory !== 'all' &&
+      item.category !== filterCategory &&
+      item.fuelType !== filterCategory
+    ) {
       return false;
     }
 
@@ -118,30 +122,30 @@ const InventoryMain = () => {
         (item.category || '').toLowerCase().includes(searchLower)
       );
     }
-    
+
     return true;
   });
 
   // Enhanced stats calculation
   const enhancedStats = React.useMemo(() => {
-    const totalItems = inventoryItems.filter(item => item.isActive !== false).length;
-    const lowStockItems = inventoryItems.filter(item => {
+    const totalItems = inventoryItems.filter((item) => item.isActive !== false).length;
+    const lowStockItems = inventoryItems.filter((item) => {
       const stock = parseFloat(item.currentStock) || 0;
       const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
       return item.isActive !== false && stock <= minStock;
     }).length;
-    
-    const outOfStockItems = inventoryItems.filter(item => {
+
+    const outOfStockItems = inventoryItems.filter((item) => {
       const stock = parseFloat(item.currentStock) || 0;
       return item.isActive !== false && stock === 0;
     }).length;
 
     const totalValue = inventoryItems
-      .filter(item => item.isActive !== false)
+      .filter((item) => item.isActive !== false)
       .reduce((sum, item) => {
         const stock = parseFloat(item.currentStock) || 0;
         const price = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
-        return sum + (stock * price);
+        return sum + stock * price;
       }, 0);
 
     return {
@@ -150,7 +154,7 @@ const InventoryMain = () => {
       outOfStockItems,
       inStockItems: totalItems - lowStockItems,
       totalValue,
-      ...inventoryStats
+      ...inventoryStats,
     };
   }, [inventoryItems, inventoryStats]);
 
@@ -172,12 +176,12 @@ const InventoryMain = () => {
     const confirmed = window.confirm(
       `¿Estás seguro de eliminar ${item.name} de ${item.location}?\n\nEsta acción no se puede deshacer.`
     );
-    
+
     if (!confirmed) return;
 
     setLoading(true);
     const result = await deleteInventoryItem(item.id);
-    
+
     if (result.success) {
       // El item se actualizará automáticamente vía subscription
       alert('Item eliminado exitosamente');
@@ -205,13 +209,15 @@ const InventoryMain = () => {
 
   // Componentes para PageLayout
   const headerActions = (
-    <div style={{ 
-      background: 'var(--sap-blue-light)', 
-      padding: 'var(--sap-spacing-md)', 
-      borderRadius: 'var(--sap-border-radius-sm)',
-      border: '1px solid var(--sap-blue-primary)',
-      fontSize: '0.875rem'
-    }}>
+    <div
+      style={{
+        background: 'var(--sap-blue-light)',
+        padding: 'var(--sap-spacing-md)',
+        borderRadius: 'var(--sap-border-radius-sm)',
+        border: '1px solid var(--sap-blue-primary)',
+        fontSize: '0.875rem',
+      }}
+    >
       💡 Los combustibles se agregan automáticamente desde la pestaña <strong>Movimientos</strong>
     </div>
   );
@@ -222,17 +228,17 @@ const InventoryMain = () => {
         <div className="inventory-stat-value sap-theme">{enhancedStats.inStockItems}</div>
         <div className="inventory-stat-label sap-theme">En Stock</div>
       </div>
-      
+
       <div className="inventory-stat-card sap-theme low-stock">
         <div className="inventory-stat-value sap-theme">{enhancedStats.lowStockItems}</div>
         <div className="inventory-stat-label sap-theme">Stock Bajo</div>
       </div>
-      
+
       <div className="inventory-stat-card sap-theme out-of-stock">
         <div className="inventory-stat-value sap-theme">{enhancedStats.outOfStockItems}</div>
         <div className="inventory-stat-label sap-theme">Sin Stock</div>
       </div>
-      
+
       <div className="inventory-stat-card sap-theme">
         <div className="inventory-stat-value sap-theme">
           ${enhancedStats.totalValue.toLocaleString('es-CO')}
@@ -254,7 +260,7 @@ const InventoryMain = () => {
           className="filter-input sap-theme"
         />
       </div>
-      
+
       <div className="filter-group sap-theme">
         <label className="filter-label sap-theme">Estado</label>
         <select
@@ -268,7 +274,7 @@ const InventoryMain = () => {
           <option value="critical">Crítico</option>
         </select>
       </div>
-      
+
       <div className="filter-group sap-theme">
         <label className="filter-label sap-theme">Categoría</label>
         <select
@@ -303,17 +309,12 @@ const InventoryMain = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="filter-actions sap-theme">
-        <button
-          className="btn btn-tertiary sap-theme"
-          onClick={clearFilters}
-        >
+        <button className="btn btn-tertiary sap-theme" onClick={clearFilters}>
           🔄 Limpiar
         </button>
-        <button className="btn btn-primary sap-theme">
-          📊 Exportar
-        </button>
+        <button className="btn btn-primary sap-theme">📊 Exportar</button>
       </div>
     </div>
   );
@@ -326,7 +327,7 @@ const InventoryMain = () => {
           <div>
             <strong>Error:</strong> {error}
           </div>
-          <button 
+          <button
             className="btn btn-tertiary sap-theme"
             onClick={() => setError(null)}
             style={{ minHeight: 'auto', padding: 'var(--sap-spacing-xs)' }}
@@ -339,11 +340,13 @@ const InventoryMain = () => {
       {/* Content */}
       {filteredItems.length === 0 ? (
         <div className="inventory-table-container sap-theme">
-          <div style={{ 
-            textAlign: 'center', 
-            padding: 'var(--sap-spacing-xxl)',
-            color: 'var(--sap-text-muted)'
-          }}>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: 'var(--sap-spacing-xxl)',
+              color: 'var(--sap-text-muted)',
+            }}
+          >
             <div style={{ fontSize: '3rem', marginBottom: 'var(--sap-spacing-lg)' }}>📦</div>
             <h3 style={{ margin: '0 0 var(--sap-spacing-md) 0', color: 'var(--sap-text-primary)' }}>
               No hay items de inventario
@@ -351,11 +354,10 @@ const InventoryMain = () => {
             <p style={{ margin: 0 }}>
               {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
                 ? 'No se encontraron items con los filtros aplicados'
-                : 'Ve a la pestaña Movimientos para crear una ENTRADA de combustible'
-              }
+                : 'Ve a la pestaña Movimientos para crear una ENTRADA de combustible'}
             </p>
             {(searchTerm || filterStatus !== 'all' || filterCategory !== 'all') && (
-              <button 
+              <button
                 className="btn btn-primary sap-theme"
                 onClick={clearFilters}
                 style={{ marginTop: 'var(--sap-spacing-lg)' }}
@@ -367,51 +369,122 @@ const InventoryMain = () => {
         </div>
       ) : (
         <div className="inventory-table-container sap-theme">
-          <div className="inventory-table-header sap-theme">
-            <h2 className="inventory-table-title sap-theme">
-              Inventario ({filteredItems.length} items)
-            </h2>
-            <div className="inventory-table-actions sap-theme">
-              <button className="btn btn-tertiary sap-theme">
-                🔍 Filtros Avanzados
-              </button>
-              <button className="btn btn-secondary sap-theme">
-                📋 Reporte
-              </button>
+          {/* SAP Fiori Header Section */}
+          <div className="sap-table-toolbar">
+            <div className="sap-table-toolbar-row">
+              <div className="sap-table-title-section">
+                <h2 className="sap-table-title">
+                  <span className="sap-table-icon">📦</span>
+                  Inventario de Combustibles
+                </h2>
+                <div className="sap-table-subtitle">
+                  {filteredItems.length} elementos encontrados
+                </div>
+              </div>
+              <div className="sap-table-actions-section">
+                <button className="sap-btn sap-btn-transparent">
+                  <span className="sap-btn-icon">🔍</span>
+                  Filtros Avanzados
+                </button>
+                <button className="sap-btn sap-btn-emphasized">
+                  <span className="sap-btn-icon">📊</span>
+                  Generar Reporte
+                </button>
+              </div>
+            </div>
+
+            {/* SAP Fiori Secondary Toolbar */}
+            <div className="sap-table-toolbar-row sap-secondary">
+              <div className="sap-table-info-section">
+                <div className="sap-info-tile">
+                  <span className="sap-info-label">Total Items:</span>
+                  <span className="sap-info-value">{filteredItems.length}</span>
+                </div>
+                <div className="sap-info-tile sap-warning">
+                  <span className="sap-info-label">Stock Bajo:</span>
+                  <span className="sap-info-value">{enhancedStats.lowStockItems}</span>
+                </div>
+                <div className="sap-info-tile sap-error">
+                  <span className="sap-info-label">Sin Stock:</span>
+                  <span className="sap-info-value">{enhancedStats.outOfStockItems}</span>
+                </div>
+              </div>
+              <div className="sap-table-view-switcher">
+                <button
+                  className={`sap-view-btn ${viewMode === 'table' ? 'sap-active' : ''}`}
+                  onClick={() => setViewMode('table')}
+                  title="Vista de Tabla"
+                >
+                  <span className="sap-btn-icon">📊</span>
+                </button>
+                <button
+                  className={`sap-view-btn ${viewMode === 'cards' ? 'sap-active' : ''}`}
+                  onClick={() => setViewMode('cards')}
+                  title="Vista de Tarjetas"
+                >
+                  <span className="sap-btn-icon">📱</span>
+                </button>
+              </div>
             </div>
           </div>
-          
-          {viewMode === 'table' ? (
-            <InventoryTable
-              items={filteredItems}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              canManage={hasPermission('canManageInventory')}
-            />
-          ) : (
-            <div style={{ padding: 'var(--sap-spacing-lg)' }}>
-              <InventoryCards
-                items={filteredItems}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                canManage={hasPermission('canManageInventory')}
-              />
+
+          {/* SAP Fiori Content Section */}
+          <div className="sap-table-content">
+            {viewMode === 'table' ? (
+              <div className="sap-table-wrapper">
+                <InventoryTable
+                  items={filteredItems}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  canManage={hasPermission('canManageInventory')}
+                />
+              </div>
+            ) : (
+              <div className="sap-cards-container">
+                <InventoryCards
+                  items={filteredItems}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  canManage={hasPermission('canManageInventory')}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* SAP Fiori Footer Section */}
+          <div className="sap-table-footer">
+            <div className="sap-table-footer-row">
+              <div className="sap-table-pagination-info">
+                Mostrando {filteredItems.length} de {inventoryItems.length} elementos
+              </div>
+              <div className="sap-table-footer-actions">
+                <button className="sap-btn sap-btn-transparent sap-btn-compact">
+                  <span className="sap-btn-icon">📤</span>
+                  Exportar
+                </button>
+                <button className="sap-btn sap-btn-transparent sap-btn-compact">
+                  <span className="sap-btn-icon">🔄</span>
+                  Actualizar
+                </button>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       )}
 
       {/* Results Footer */}
       {filteredItems.length > 0 && (
-        <div style={{ 
-          marginTop: 'var(--sap-spacing-lg)',
-          padding: 'var(--sap-spacing-md)',
-          background: 'var(--sap-neutral-200)',
-          borderRadius: 'var(--sap-border-radius-sm)',
-          fontSize: '0.875rem',
-          color: 'var(--sap-text-secondary)',
-          textAlign: 'center'
-        }}>
+        <div
+          style={{
+            marginTop: 'var(--sap-spacing-lg)',
+            padding: 'var(--sap-spacing-md)',
+            background: 'var(--sap-neutral-200)',
+            borderRadius: 'var(--sap-border-radius-sm)',
+            fontSize: '0.875rem',
+            color: 'var(--sap-text-secondary)',
+            textAlign: 'center',
+          }}
+        >
           Mostrando {filteredItems.length} de {inventoryItems.length} items
           {searchTerm && ` · Filtro: "${searchTerm}"`}
           {filterStatus !== 'all' && ` · Estado: ${filterStatus}`}

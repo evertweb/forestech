@@ -14,7 +14,9 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
   // Auto-completar precio si no está establecido
   useEffect(() => {
     if (formData.fuelType && !formData.unitPrice && products.length > 0) {
-      const product = products.find(p => p.name === formData.fuelType || p.displayName === formData.fuelType);
+      const product = products.find(
+        (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+      );
       if (product && product.defaultPrice) {
         updateFormData('unitPrice', product.defaultPrice.toString());
         setPriceValidated(true);
@@ -24,13 +26,13 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
 
   const handlePriceChange = async (value) => {
     const numValue = parseFloat(value);
-    
+
     if (value === '' || (!isNaN(numValue) && numValue >= 0)) {
       setCalculating(true);
-      
+
       // Simular validación de precio
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
       updateFormData('unitPrice', value);
       setPriceValidated(value !== '');
       setError('');
@@ -58,24 +60,26 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
       style: 'currency',
       currency: 'COP',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const getCurrentProduct = () => {
-    return products.find(p => p.name === formData.fuelType || p.displayName === formData.fuelType);
+    return products.find(
+      (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+    );
   };
 
   return (
     <div className={`wizard-step step-details ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout">
-        <div className="typeform-question">
+      <div className="typeform-layout sap-theme">
+        <div className="typeform-question sap-theme">
           <h3>📋 Información adicional del movimiento</h3>
           <p>Completa los detalles restantes:</p>
         </div>
 
         {/* Precio unitario */}
-        <div className="typeform-input-section">
+        <div className="typeform-input-section sap-theme">
           <label htmlFor="unitPrice">💰 Precio por galón (COP) *</label>
           <input
             id="unitPrice"
@@ -87,70 +91,71 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
             placeholder="0"
             className={`typeform-input ${error ? 'error' : ''}`}
           />
-          <span className="typeform-unit">COP</span>
-          
+          <span className="typeform-unit sap-theme">COP</span>
+
           {calculating && (
-            <div className="calculating-price">
-              <div className="loading-spinner small"></div>
+            <div className="calculating-price sap-theme">
+              <div className="loading-spinner small sap-theme"></div>
               <span>💰 Validando precio...</span>
             </div>
           )}
-          
+
           {getCurrentProduct()?.defaultPrice && (
-            <small className="price-suggestion">
+            <small className="price-suggestion sap-theme">
               💡 Precio sugerido: ${getCurrentProduct().defaultPrice.toLocaleString('es-CO')} COP
             </small>
           )}
         </div>
 
         {/* Valor total calculado */}
-        {formData.quantity && formData.unitPrice && priceValidated && ( // Solo mostrar si hay cantidad y precio
-          <div className="total-value-section">
-            <div className="total-value-card">
-              <div className="total-icon">📊</div>
-              <div className="total-content">
-                <h4>Valor Total Calculado</h4>
-                <div className="total-calculation">
-                  <span className="calculation-details">
-                    {parseFloat(formData.quantity).toFixed(2)} gal × ${parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP
-                  </span>
-                  <div className="total-amount">
-                    {formatCurrency(totalValue)}
+        {formData.quantity &&
+          formData.unitPrice &&
+          priceValidated && ( // Solo mostrar si hay cantidad y precio
+            <div className="total-value-section sap-theme">
+              <div className="total-value-card sap-theme">
+                <div className="total-icon sap-theme">📊</div>
+                <div className="total-content sap-theme">
+                  <h4>Valor Total Calculado</h4>
+                  <div className="total-calculation sap-theme">
+                    <span className="calculation-details sap-theme">
+                      {parseFloat(formData.quantity).toFixed(2)} gal × $
+                      {parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP
+                    </span>
+                    <div className="total-amount sap-theme">{formatCurrency(totalValue)}</div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Fecha efectiva */}
-        <div className="typeform-input-section">
+        <div className="typeform-input-section sap-theme">
           <label htmlFor="effectiveDate">📅 ¿Cuándo ocurrió este movimiento?</label>
           <input
             id="effectiveDate"
             type="datetime-local"
             value={formData.effectiveDate}
             onChange={(e) => handleDateChange(e.target.value)}
-            className="typeform-input"
+            className="typeform-input sap-theme"
           />
-          <small className="typeform-unit">
+          <small className="typeform-unit sap-theme">
             💡 Por defecto se usa la fecha y hora actual
           </small>
         </div>
 
         {/* Descripción */}
-        <div className="typeform-input-section">
+        <div className="typeform-input-section sap-theme">
           <label htmlFor="description">📝 Detalles adicionales del movimiento (opcional)</label>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => handleDescriptionChange(e.target.value)}
             placeholder="Ej: Combustible para operación en sector norte, mantenimiento programado, etc."
-            className="typeform-input"
+            className="typeform-input sap-theme"
             rows="3"
             maxLength="500"
           />
-          <div className="description-counter">
+          <div className="description-counter sap-theme">
             {formData.description.length}/500 caracteres
           </div>
         </div>

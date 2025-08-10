@@ -11,47 +11,56 @@ import {
   calculateConsumptionProjections,
   formatCurrency,
   formatNumber,
-  formatPercentage
+  formatPercentage,
 } from '../../utils/calculations';
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
-const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
+const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [sortBy, setSortBy] = useState('stock_level');
 
   // Filtrar inventario por ubicación si se selecciona
   const filteredInventory = useMemo(() => {
     if (selectedLocation === 'all') return inventory;
-    return inventory.filter(item => item.location === selectedLocation);
+    return inventory.filter((item) => item.location === selectedLocation);
   }, [inventory, selectedLocation]);
 
   // Obtener ubicaciones únicas
   const locations = useMemo(() => {
-    const uniqueLocations = [...new Set(inventory.map(item => item.location))];
+    const uniqueLocations = [...new Set(inventory.map((item) => item.location))];
     return uniqueLocations.filter(Boolean);
   }, [inventory]);
 
   // Calcular estadísticas
-  const inventoryStats = useMemo(() => calculateInventoryStats(filteredInventory), [filteredInventory]);
-  const lowStockAlerts = useMemo(() => calculateLowStockAlerts(filteredInventory), [filteredInventory]);
-  const stockByType = useMemo(() => calculateAvailableStock(filteredInventory), [filteredInventory]);
+  const inventoryStats = useMemo(
+    () => calculateInventoryStats(filteredInventory),
+    [filteredInventory]
+  );
+  const lowStockAlerts = useMemo(
+    () => calculateLowStockAlerts(filteredInventory),
+    [filteredInventory]
+  );
+  const stockByType = useMemo(
+    () => calculateAvailableStock(filteredInventory),
+    [filteredInventory]
+  );
   const projections = useMemo(() => calculateConsumptionProjections(movements), [movements]);
 
   // Datos para tabla de inventario detallado
   const detailedInventory = useMemo(() => {
-    const enrichedInventory = filteredInventory.map(item => {
+    const enrichedInventory = filteredInventory.map((item) => {
       const fuelInfo = FUEL_INFO[item.fuelType] || {};
       const currentStock = parseFloat(item.currentStock) || 0;
       const maxCapacity = parseFloat(item.maxCapacity) || 0;
       const percentage = maxCapacity > 0 ? (currentStock / maxCapacity) * 100 : 0;
       const value = currentStock * (parseFloat(item.pricePerUnit) || 0);
-      
+
       return {
         ...item,
         fuelInfo,
         percentage,
         value,
-        stockLevel: percentage < 15 ? 'critical' : percentage < 30 ? 'low' : 'good'
+        stockLevel: percentage < 15 ? 'critical' : percentage < 30 ? 'low' : 'good',
       };
     });
 
@@ -74,18 +83,26 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
 
   // Función para exportar datos
   const exportToCSV = () => {
-    const headers = ['Producto', 'Ubicación', 'Stock Actual', 'Capacidad', '% Capacidad', 'Valor', 'Estado'];
-    const csvData = detailedInventory.map(item => [
+    const headers = [
+      'Producto',
+      'Ubicación',
+      'Stock Actual',
+      'Capacidad',
+      '% Capacidad',
+      'Valor',
+      'Estado',
+    ];
+    const csvData = detailedInventory.map((item) => [
       item.productName,
       item.location,
       formatNumber(item.currentStock),
       formatNumber(item.maxCapacity),
       formatPercentage(item.percentage / 100),
       formatCurrency(item.value),
-      item.stockLevel === 'critical' ? 'Crítico' : item.stockLevel === 'low' ? 'Bajo' : 'Bueno'
+      item.stockLevel === 'critical' ? 'Crítico' : item.stockLevel === 'low' ? 'Bajo' : 'Bueno',
     ]);
 
-    const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
+    const csvContent = [headers, ...csvData].map((row) => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -96,72 +113,82 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
   };
 
   return (
-    <div className="inventory-reports">
+    <div className="inventory-reports sap-theme">
       {/* Resumen de inventario */}
-      <div className="kpis-grid">
-        <div className="kpi-card">
-          <div className="kpi-icon inventory">💰</div>
-          <div className="kpi-value">{formatCurrency(inventoryStats.totalValue)}</div>
-          <div className="kpi-label">Valor Total</div>
-          <div className="kpi-trend neutral">
-            <span className="trend-icon">📦</span>
+      <div className="kpis-grid sap-theme">
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon inventory sap-theme">💰</div>
+          <div className="kpi-value sap-theme">{formatCurrency(inventoryStats.totalValue)}</div>
+          <div className="kpi-label sap-theme">Valor Total</div>
+          <div className="kpi-trend neutral sap-theme">
+            <span className="trend-icon sap-theme">📦</span>
             {inventoryStats.totalItems} productos
           </div>
         </div>
 
-        <div className="kpi-card">
-          <div className="kpi-icon inventory">📊</div>
-          <div className="kpi-value">{formatPercentage(inventoryStats.averageStockLevel / 100)}</div>
-          <div className="kpi-label">Nivel Promedio</div>
-          <div className={`kpi-trend ${inventoryStats.averageStockLevel > 60 ? 'positive' : inventoryStats.averageStockLevel > 30 ? 'neutral' : 'negative'}`}>
-            <span className="trend-icon">
-              {inventoryStats.averageStockLevel > 60 ? '📈' : inventoryStats.averageStockLevel > 30 ? '➡️' : '📉'}
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon inventory sap-theme">📊</div>
+          <div className="kpi-value sap-theme">
+            {formatPercentage(inventoryStats.averageStockLevel / 100)}
+          </div>
+          <div className="kpi-label sap-theme">Nivel Promedio</div>
+          <div
+            className={`kpi-trend ${inventoryStats.averageStockLevel > 60 ? 'positive' : inventoryStats.averageStockLevel > 30 ? 'neutral' : 'negative'}`}
+          >
+            <span className="trend-icon sap-theme">
+              {inventoryStats.averageStockLevel > 60
+                ? '📈'
+                : inventoryStats.averageStockLevel > 30
+                  ? '➡️'
+                  : '📉'}
             </span>
             {inventoryStats.activeItems} activos
           </div>
         </div>
 
-        <div className="kpi-card">
-          <div className="kpi-icon inventory">⚠️</div>
-          <div className="kpi-value">{inventoryStats.lowStockItems}</div>
-          <div className="kpi-label">Alertas de Stock</div>
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon inventory sap-theme">⚠️</div>
+          <div className="kpi-value sap-theme">{inventoryStats.lowStockItems}</div>
+          <div className="kpi-label sap-theme">Alertas de Stock</div>
           <div className={`kpi-trend ${inventoryStats.criticalItems > 0 ? 'negative' : 'neutral'}`}>
-            <span className="trend-icon">🚨</span>
+            <span className="trend-icon sap-theme">🚨</span>
             {inventoryStats.criticalItems} críticos
           </div>
         </div>
 
-        <div className="kpi-card">
-          <div className="kpi-icon inventory">🎯</div>
-          <div className="kpi-value">{formatNumber(projections.confidence)}%</div>
-          <div className="kpi-label">Precisión Proyección</div>
-          <div className="kpi-trend positive">
-            <span className="trend-icon">📊</span>
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon inventory sap-theme">🎯</div>
+          <div className="kpi-value sap-theme">{formatNumber(projections.confidence)}%</div>
+          <div className="kpi-label sap-theme">Precisión Proyección</div>
+          <div className="kpi-trend positive sap-theme">
+            <span className="trend-icon sap-theme">📊</span>
             {projections.dataPoints} datos
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="reports-filters">
-        <div className="filters-grid">
-          <div className="filter-group">
-            <label className="filter-label">Ubicación</label>
-            <select 
-              className="filter-select"
+      <div className="reports-filters sap-theme">
+        <div className="filters-grid sap-theme">
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme">Ubicación</label>
+            <select
+              className="filter-select sap-theme"
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
             >
               <option value="all">Todas las ubicaciones</option>
-              {locations.map(location => (
-                <option key={location} value={location}>{location}</option>
+              {locations.map((location) => (
+                <option key={location} value={location}>
+                  {location}
+                </option>
               ))}
             </select>
           </div>
-          <div className="filter-group">
-            <label className="filter-label">Ordenar por</label>
-            <select 
-              className="filter-select"
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme">Ordenar por</label>
+            <select
+              className="filter-select sap-theme"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -171,8 +198,8 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
               <option value="location">Ubicación</option>
             </select>
           </div>
-          <div className="filter-actions">
-            <button className="filter-btn secondary" onClick={exportToCSV}>
+          <div className="filter-actions sap-theme">
+            <button className="filter-btn secondary sap-theme" onClick={exportToCSV}>
               📊 Exportar CSV
             </button>
           </div>
@@ -180,30 +207,30 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
       </div>
 
       {/* Stock por tipo de combustible */}
-      <div className="chart-container">
-        <div className="chart-header">
-          <h3 className="chart-title">🛢️ Stock por Tipo de Combustible</h3>
+      <div className="chart-container sap-theme">
+        <div className="chart-header sap-theme">
+          <h3 className="chart-title sap-theme">🛢️ Stock por Tipo de Combustible</h3>
         </div>
-        <div className="chart-content">
-          <div className="stock-grid">
+        <div className="chart-content sap-theme">
+          <div className="stock-grid sap-theme">
             {Object.entries(stockByType).map(([fuelType, stock]) => {
               const fuelInfo = FUEL_INFO[fuelType] || {};
               return (
-                <div key={fuelType} className="stock-item">
-                  <div className="stock-header">
-                    <span className="stock-icon">{fuelInfo.icon || '⛽'}</span>
+                <div key={fuelType} className="stock-item sap-theme">
+                  <div className="stock-header sap-theme">
+                    <span className="stock-icon sap-theme">{fuelInfo.icon || '⛽'}</span>
                     <h4>{fuelInfo.name || fuelType.toUpperCase()}</h4>
                   </div>
-                  <div className="stock-value">
+                  <div className="stock-value sap-theme">
                     {formatNumber(stock)} {fuelInfo.unit || 'L'}
                   </div>
-                  <div className="stock-status">
+                  <div className="stock-status sap-theme">
                     {stock > 1000 ? (
-                      <span className="badge success">Stock Bueno</span>
+                      <span className="badge success sap-theme">Stock Bueno</span>
                     ) : stock > 500 ? (
-                      <span className="badge warning">Stock Bajo</span>
+                      <span className="badge warning sap-theme">Stock Bajo</span>
                     ) : (
-                      <span className="badge danger">Stock Crítico</span>
+                      <span className="badge danger sap-theme">Stock Crítico</span>
                     )}
                   </div>
                 </div>
@@ -215,27 +242,30 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
 
       {/* Alertas de stock bajo */}
       {lowStockAlerts.length > 0 && (
-        <div className="chart-container">
-          <div className="chart-header">
-            <h3 className="chart-title">⚠️ Alertas de Stock Bajo</h3>
-            <div className="chart-actions">
-              <span className="badge danger">{lowStockAlerts.length} alertas</span>
+        <div className="chart-container sap-theme">
+          <div className="chart-header sap-theme">
+            <h3 className="chart-title sap-theme">⚠️ Alertas de Stock Bajo</h3>
+            <div className="chart-actions sap-theme">
+              <span className="badge danger sap-theme">{lowStockAlerts.length} alertas</span>
             </div>
           </div>
-          <div className="chart-content">
-            <div className="alerts-list">
+          <div className="chart-content sap-theme">
+            <div className="alerts-list sap-theme">
               {lowStockAlerts.map((alert, index) => (
-                <div key={index} className={`alert ${alert.stockLevel === 'critical' ? 'critical' : 'warning'}`}>
-                  <span className="alert-icon">
+                <div
+                  key={index}
+                  className={`alert ${alert.stockLevel === 'critical' ? 'critical' : 'warning'}`}
+                >
+                  <span className="alert-icon sap-theme">
                     {alert.stockLevel === 'critical' ? '🚨' : '⚠️'}
                   </span>
-                  <div className="alert-content">
-                    <div className="alert-title">
+                  <div className="alert-content sap-theme">
+                    <div className="alert-title sap-theme">
                       {alert.productName} - {alert.location}
                     </div>
-                    <div className="alert-message">
-                      Stock: {formatNumber(alert.currentStock)} {alert.unit} 
-                      ({formatPercentage(alert.percentage / 100)} de capacidad máxima)
+                    <div className="alert-message sap-theme">
+                      Stock: {formatNumber(alert.currentStock)} {alert.unit}(
+                      {formatPercentage(alert.percentage / 100)} de capacidad máxima)
                     </div>
                   </div>
                 </div>
@@ -247,52 +277,56 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
 
       {/* Proyecciones de compra */}
       {Object.keys(projections.recommendedPurchases).length > 0 && (
-        <div className="chart-container">
-          <div className="chart-header">
-            <h3 className="chart-title">📈 Proyecciones de Compra (30 días)</h3>
-            <div className="chart-actions">
-              <span className="badge info">
+        <div className="chart-container sap-theme">
+          <div className="chart-header sap-theme">
+            <h3 className="chart-title sap-theme">📈 Proyecciones de Compra (30 días)</h3>
+            <div className="chart-actions sap-theme">
+              <span className="badge info sap-theme">
                 Confianza: {formatNumber(projections.confidence)}%
               </span>
             </div>
           </div>
-          <div className="chart-content">
-            <div className="projections-grid">
-              {Object.entries(projections.recommendedPurchases).map(([fuelType, recommendation]) => {
-                const fuelInfo = FUEL_INFO[fuelType] || {};
-                const projection = projections.projectedConsumption[fuelType];
-                return (
-                  <div key={fuelType} className="projection-item">
-                    <div className="projection-header">
-                      <span>{fuelInfo.icon || '⛽'}</span>
-                      <h4>{fuelInfo.name || fuelType.toUpperCase()}</h4>
+          <div className="chart-content sap-theme">
+            <div className="projections-grid sap-theme">
+              {Object.entries(projections.recommendedPurchases).map(
+                ([fuelType, recommendation]) => {
+                  const fuelInfo = FUEL_INFO[fuelType] || {};
+                  const projection = projections.projectedConsumption[fuelType];
+                  return (
+                    <div key={fuelType} className="projection-item sap-theme">
+                      <div className="projection-header sap-theme">
+                        <span>{fuelInfo.icon || '⛽'}</span>
+                        <h4>{fuelInfo.name || fuelType.toUpperCase()}</h4>
+                      </div>
+                      <div className="projection-value sap-theme">
+                        {formatNumber(recommendation)} {fuelInfo.unit || 'L'}
+                      </div>
+                      <div className="projection-details sap-theme">
+                        <small>
+                          Consumo proyectado: {formatNumber(projection?.projectedTotal)}{' '}
+                          {fuelInfo.unit || 'L'}
+                        </small>
+                        <small>
+                          Promedio diario: {formatNumber(projection?.dailyAverage)}{' '}
+                          {fuelInfo.unit || 'L'}
+                        </small>
+                      </div>
                     </div>
-                    <div className="projection-value">
-                      {formatNumber(recommendation)} {fuelInfo.unit || 'L'}
-                    </div>
-                    <div className="projection-details">
-                      <small>
-                        Consumo proyectado: {formatNumber(projection?.projectedTotal)} {fuelInfo.unit || 'L'}
-                      </small>
-                      <small>
-                        Promedio diario: {formatNumber(projection?.dailyAverage)} {fuelInfo.unit || 'L'}
-                      </small>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
           </div>
         </div>
       )}
 
       {/* Tabla detallada de inventario */}
-      <div className="report-table-container">
-        <div className="report-table-header">
-          <h3 className="report-table-title">📋 Inventario Detallado</h3>
+      <div className="report-table-container sap-theme">
+        <div className="report-table-header sap-theme">
+          <h3 className="report-table-title sap-theme">📋 Inventario Detallado</h3>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table className="report-table">
+          <table className="report-table sap-theme">
             <thead>
               <tr>
                 <th>Producto</th>
@@ -312,23 +346,33 @@ const InventoryReports = ({ inventory, movements, /* _dateRange */ }) => {
                   <td>{item.productName}</td>
                   <td>{item.location}</td>
                   <td>
-                    <span style={{ marginRight: '0.5rem' }}>
-                      {item.fuelInfo.icon || '⛽'}
-                    </span>
+                    <span style={{ marginRight: '0.5rem' }}>{item.fuelInfo.icon || '⛽'}</span>
                     {item.fuelInfo.name || item.fuelType}
                   </td>
-                  <td>{formatNumber(item.currentStock)} {item.unit}</td>
-                  <td>{formatNumber(item.maxCapacity)} {item.unit}</td>
                   <td>
-                    <span className={`text-${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}>
+                    {formatNumber(item.currentStock)} {item.unit}
+                  </td>
+                  <td>
+                    {formatNumber(item.maxCapacity)} {item.unit}
+                  </td>
+                  <td>
+                    <span
+                      className={`text-${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}
+                    >
                       {formatPercentage(item.percentage / 100)}
                     </span>
                   </td>
                   <td>{formatCurrency(item.pricePerUnit)}</td>
                   <td>{formatCurrency(item.value)}</td>
                   <td>
-                    <span className={`badge ${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}>
-                      {item.stockLevel === 'critical' ? 'Crítico' : item.stockLevel === 'low' ? 'Bajo' : 'Bueno'}
+                    <span
+                      className={`badge ${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}
+                    >
+                      {item.stockLevel === 'critical'
+                        ? 'Crítico'
+                        : item.stockLevel === 'low'
+                          ? 'Bajo'
+                          : 'Bueno'}
                     </span>
                   </td>
                 </tr>

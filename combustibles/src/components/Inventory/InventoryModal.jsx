@@ -20,25 +20,28 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
   const { userProfile } = useCombustibles();
 
   // Estado inicial y validación con useFormData
-  const getInitialFormData = useCallback(() => ({
-    fuelType: '',
-    location: '',
-    currentStock: '',
-    maxCapacity: '',
-    minThreshold: '',
-    pricePerUnit: '',
-    supplier: '',
-    description: '',
-    status: 'active'
-  }), []);
+  const getInitialFormData = useCallback(
+    () => ({
+      fuelType: '',
+      location: '',
+      currentStock: '',
+      maxCapacity: '',
+      minThreshold: '',
+      pricePerUnit: '',
+      supplier: '',
+      description: '',
+      status: 'active',
+    }),
+    []
+  );
 
   // Validación centralizada por schema + reglas cruzadas
   const modalValidationOptions = {
     validationSchema: validationSchemas.inventory,
     crossValidators: [
       crossFieldValidators.stockVsCapacity,
-      crossFieldValidators.thresholdVsCapacity
-    ]
+      crossFieldValidators.thresholdVsCapacity,
+    ],
   };
 
   const {
@@ -46,7 +49,7 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
     setValues: setFormData,
     errors,
     handleInputChange,
-    validateForm
+    validateForm,
   } = useFormData(getInitialFormData(), undefined, modalValidationOptions);
 
   // Reinicializar formulario cuando cambie el item a editar
@@ -61,16 +64,14 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
         pricePerUnit: item.pricePerUnit || '',
         supplier: item.supplier || '',
         description: item.description || '',
-        status: item.status || 'active'
+        status: item.status || 'active',
       });
     }
   }, [isEditing, item, setFormData]);
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -79,7 +80,7 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
 
     try {
       let result;
-      
+
       if (isEditing) {
         // Update existing item
         result = await updateInventoryItem(
@@ -88,11 +89,11 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
             location: formData.location,
             currentStock: Number(formData.currentStock) || 0,
             maxCapacity: Number(formData.maxCapacity),
-            minThreshold: Number(formData.minThreshold) || (Number(formData.maxCapacity) * 0.15),
+            minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
             pricePerUnit: Number(formData.pricePerUnit) || 0,
             supplier: formData.supplier,
             description: formData.description,
-            status: formData.status
+            status: formData.status,
           },
           userProfile.uid
         );
@@ -104,11 +105,11 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
             location: formData.location,
             currentStock: Number(formData.currentStock) || 0,
             maxCapacity: Number(formData.maxCapacity),
-            minThreshold: Number(formData.minThreshold) || (Number(formData.maxCapacity) * 0.15),
+            minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
             pricePerUnit: Number(formData.pricePerUnit) || 0,
             supplier: formData.supplier,
             description: formData.description,
-            status: formData.status
+            status: formData.status,
           },
           userProfile.uid
         );
@@ -139,27 +140,18 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
   };
 
   return (
-    <BaseModal 
-      isOpen={true} 
-      onClose={onClose}
-      size="lg"
-      className="inventory-modal"
-    >
-      <ModalHeader 
-        title={getModalTitle()}
-        icon={getModalIcon()}
-        onClose={onClose}
-      />
+    <BaseModal isOpen={true} onClose={onClose} size="lg" className="inventory-modal sap-theme">
+      <ModalHeader title={getModalTitle()} icon={getModalIcon()} onClose={onClose} />
 
-      <div className="modal-body">
+      <div className="modal-body sap-theme">
         <form onSubmit={handleSubmit}>
-          <div className="form-grid">
+          <div className="form-grid sap-theme">
             {/* Tipo de Combustible */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="fuelType">
                 {UI_FORM_LABELS.FUEL_TYPE} *
                 {selectedFuelInfo && (
-                  <span className="fuel-preview">
+                  <span className="fuel-preview sap-theme">
                     {selectedFuelInfo.icon} {selectedFuelInfo.name}
                   </span>
                 )}
@@ -183,11 +175,11 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                   );
                 })}
               </select>
-              {errors.fuelType && <span className="error-text">{errors.fuelType}</span>}
+              {errors.fuelType && <span className="error-text sap-theme">{errors.fuelType}</span>}
             </div>
 
             {/* Ubicación */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="location">Ubicación / Tanque *</label>
               <input
                 type="text"
@@ -199,11 +191,11 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                 className={errors.location ? 'error' : ''}
                 required
               />
-              {errors.location && <span className="error-text">{errors.location}</span>}
+              {errors.location && <span className="error-text sap-theme">{errors.location}</span>}
             </div>
 
             {/* Stock Actual */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="currentStock">
                 Stock Actual {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
               </label>
@@ -218,11 +210,13 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                 step="0.01"
                 className={errors.currentStock ? 'error' : ''}
               />
-              {errors.currentStock && <span className="error-text">{errors.currentStock}</span>}
+              {errors.currentStock && (
+                <span className="error-text sap-theme">{errors.currentStock}</span>
+              )}
             </div>
 
             {/* Capacidad Máxima */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="maxCapacity">
                 Capacidad Máxima * {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
               </label>
@@ -238,14 +232,16 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                 className={errors.maxCapacity ? 'error' : ''}
                 required
               />
-              {errors.maxCapacity && <span className="error-text">{errors.maxCapacity}</span>}
+              {errors.maxCapacity && (
+                <span className="error-text sap-theme">{errors.maxCapacity}</span>
+              )}
             </div>
 
             {/* Umbral Mínimo */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="minThreshold">
                 Umbral Mínimo {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
-                <span className="field-hint">Para alertas de stock bajo</span>
+                <span className="field-hint sap-theme">Para alertas de stock bajo</span>
               </label>
               <input
                 type="number"
@@ -258,19 +254,20 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                 step="0.01"
                 className={errors.minThreshold ? 'error' : ''}
               />
-              {errors.minThreshold && <span className="error-text">{errors.minThreshold}</span>}
+              {errors.minThreshold && (
+                <span className="error-text sap-theme">{errors.minThreshold}</span>
+              )}
               {formData.maxCapacity && (
-                <span className="field-hint">
-                  Sugerido: {Math.round(Number(formData.maxCapacity) * 0.15)} {selectedFuelInfo?.unit || 'unidades'}
+                <span className="field-hint sap-theme">
+                  Sugerido: {Math.round(Number(formData.maxCapacity) * 0.15)}{' '}
+                  {selectedFuelInfo?.unit || 'unidades'}
                 </span>
               )}
             </div>
 
             {/* Precio por Unidad */}
-            <div className="form-group">
-              <label htmlFor="pricePerUnit">
-                Precio por {selectedFuelInfo?.unit || 'Unidad'}
-              </label>
+            <div className="form-group sap-theme">
+              <label htmlFor="pricePerUnit">Precio por {selectedFuelInfo?.unit || 'Unidad'}</label>
               <input
                 type="number"
                 id="pricePerUnit"
@@ -282,11 +279,13 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                 step="0.01"
                 className={errors.pricePerUnit ? 'error' : ''}
               />
-              {errors.pricePerUnit && <span className="error-text">{errors.pricePerUnit}</span>}
+              {errors.pricePerUnit && (
+                <span className="error-text sap-theme">{errors.pricePerUnit}</span>
+              )}
             </div>
 
             {/* Proveedor */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="supplier">Proveedor Principal</label>
               <input
                 type="text"
@@ -299,7 +298,7 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
             </div>
 
             {/* Estado */}
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label htmlFor="status">Estado</label>
               <select
                 id="status"
@@ -342,36 +341,40 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                   {formData.currentStock || 0} / {formData.maxCapacity} {selectedFuelInfo.unit}
                   {formData.currentStock && formData.maxCapacity && (
                     <span className="preview-percentage">
-                      ({Math.round((Number(formData.currentStock) / Number(formData.maxCapacity)) * 100)}%)
+                      (
+                      {Math.round(
+                        (Number(formData.currentStock) / Number(formData.maxCapacity)) * 100
+                      )}
+                      %)
                     </span>
                   )}
                 </div>
                 {formData.pricePerUnit && (
                   <div className="preview-value">
-                    Valor total: {new Intl.NumberFormat('es-CO', {
+                    Valor total:{' '}
+                    {new Intl.NumberFormat('es-CO', {
                       style: 'currency',
                       currency: 'COP',
-                      minimumFractionDigits: 0
+                      minimumFractionDigits: 0,
                     }).format((Number(formData.currentStock) || 0) * Number(formData.pricePerUnit))}
                   </div>
                 )}
               </div>
             </div>
           )}
-
         </form>
       </div>
 
-      <ModalFooter 
+      <ModalFooter
         primaryAction={{
-          label: loading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear'),
+          label: loading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear',
           onClick: handleSubmit,
           disabled: loading,
-          type: 'submit'
+          type: 'submit',
         }}
         secondaryAction={{
           label: 'Cancelar',
-          onClick: onClose
+          onClick: onClose,
         }}
         isLoading={loading}
       />

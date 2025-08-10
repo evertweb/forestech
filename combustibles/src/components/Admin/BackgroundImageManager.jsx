@@ -4,7 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { getBackgroundImageUrl, uploadBackgroundImage } from '../../services/backgroundImageService';
+import {
+  getBackgroundImageUrl,
+  uploadBackgroundImage,
+} from '../../services/backgroundImageService';
 
 const BackgroundImageManager = () => {
   const [currentImageUrl, setCurrentImageUrl] = useState('');
@@ -36,7 +39,7 @@ const BackgroundImageManager = () => {
 
     try {
       const result = await uploadBackgroundImage(file);
-      
+
       if (result.success) {
         setMessage({ type: 'success', text: '✅ Imagen subida exitosamente' });
         setCurrentImageUrl(result.url);
@@ -54,25 +57,25 @@ const BackgroundImageManager = () => {
 
   if (loading) {
     return (
-      <div className="background-manager">
+      <div className="background-manager sap-theme">
         <h3>🖼️ Imagen de Fondo del Login</h3>
-        <div className="loading">Cargando...</div>
+        <div className="loading sap-theme">Cargando...</div>
       </div>
     );
   }
 
   return (
-    <div className="background-manager">
+    <div className="background-manager sap-theme">
       <h3>🖼️ Imagen de Fondo del Login</h3>
-      
+
       {/* Vista previa actual */}
-      <div className="current-image-section">
+      <div className="current-image-section sap-theme">
         <h4>Imagen Actual:</h4>
-        <div className="image-preview">
+        <div className="image-preview sap-theme">
           {currentImageUrl ? (
-            <img 
-              src={currentImageUrl} 
-              alt="Imagen de fondo actual" 
+            <img
+              src={currentImageUrl}
+              alt="Imagen de fondo actual"
               loading="lazy"
               decoding="async"
               width={600}
@@ -82,19 +85,19 @@ const BackgroundImageManager = () => {
                 height: '200px',
                 objectFit: 'cover',
                 borderRadius: '8px',
-                border: '2px solid var(--text-muted)'
+                border: '2px solid var(--text-muted)',
               }}
             />
           ) : (
-            <div className="no-image">Sin imagen configurada</div>
+            <div className="no-image sap-theme">Sin imagen configurada</div>
           )}
         </div>
       </div>
 
       {/* Subida de nueva imagen */}
-      <div className="upload-section">
+      <div className="upload-section sap-theme">
         <h4>Subir Nueva Imagen:</h4>
-        <div className="upload-form">
+        <div className="upload-form sap-theme">
           <input
             type="file"
             accept="image/*"
@@ -103,7 +106,7 @@ const BackgroundImageManager = () => {
             id="background-upload"
             style={{ display: 'none' }}
           />
-          <label 
+          <label
             htmlFor="background-upload"
             className={`upload-button ${uploading ? 'disabled' : ''}`}
           >
@@ -111,24 +114,21 @@ const BackgroundImageManager = () => {
           </label>
         </div>
 
-        <div className="upload-info">
+        <div className="upload-info sap-theme">
           <small>
-            • Formato: JPG, PNG, WebP<br/>
-            • Tamaño máximo: 5MB<br/>
-            • Resolución recomendada: 1920x1080 o superior
+            • Formato: JPG, PNG, WebP
+            <br />
+            • Tamaño máximo: 5MB
+            <br />• Resolución recomendada: 1920x1080 o superior
           </small>
         </div>
       </div>
 
       {/* Mensajes */}
-      {message.text && (
-        <div className={`message ${message.type}`}>
-          {message.text}
-        </div>
-      )}
+      {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
 
       {/* Instrucciones */}
-      <div className="instructions">
+      <div className="instructions sap-theme">
         <h4>📋 Instrucciones:</h4>
         <ul>
           <li>La imagen se mostrará como fondo en la pantalla de login</li>

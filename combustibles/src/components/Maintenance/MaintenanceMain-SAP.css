@@ -13,13 +13,13 @@
   --sap-blue-secondary: #0054b9;
   --sap-blue-light: #e6f3ff;
   --sap-blue-dark: #003d82;
-  
+
   /* SAP Semantic Colors */
   --sap-success: #30914f;
   --sap-warning: #df6e00;
   --sap-error: #dc0d0e;
   --sap-information: #0070f2;
-  
+
   /* SAP Neutral Colors */
   --sap-neutral-100: #ffffff;
   --sap-neutral-200: #f7f7f7;
@@ -30,13 +30,13 @@
   --sap-neutral-700: #666666;
   --sap-neutral-800: #333333;
   --sap-neutral-900: #000000;
-  
+
   /* SAP Text Colors */
   --sap-text-primary: #32363a;
   --sap-text-secondary: #6a6d70;
   --sap-text-disabled: #b3b5b7;
   --sap-text-inverted: #ffffff;
-  
+
   /* SAP Spacing System */
   --sap-spacing-xs: 4px;
   --sap-spacing-sm: 8px;
@@ -44,26 +44,26 @@
   --sap-spacing-lg: 24px;
   --sap-spacing-xl: 32px;
   --sap-spacing-xxl: 48px;
-  
-  /* SAP Typography */
-  --sap-font-family: '72', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --sap-font-size-xs: 0.75rem;
-  --sap-font-size-sm: 0.875rem;
-  --sap-font-size-md: 1rem;
-  --sap-font-size-lg: 1.125rem;
-  --sap-font-size-xl: 1.25rem;
-  --sap-font-size-xxl: 1.5rem;
-  
+
+  /* SAP Typography - Updated with SF Pro */
+  --sap-font-family: var(--font-family-primary);
+  --sap-font-size-xs: var(--font-size-xs);
+  --sap-font-size-sm: var(--font-size-sm);
+  --sap-font-size-md: var(--font-size-base);
+  --sap-font-size-lg: var(--font-size-lg);
+  --sap-font-size-xl: var(--font-size-xl);
+  --sap-font-size-xxl: var(--font-size-2xl);
+
   /* SAP Shadows */
   --sap-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
   --sap-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
   --sap-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
-  
+
   /* SAP Border Radius */
   --sap-border-radius-sm: 4px;
   --sap-border-radius-md: 8px;
   --sap-border-radius-lg: 12px;
-  
+
   /* SAP Transitions */
   --sap-transition-fast: 0.15s ease;
   --sap-transition-medium: 0.3s ease;
@@ -195,8 +195,12 @@
 }
 
 @keyframes sap-spinner-rotation {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .maintenance-loading.sap-theme .sap-text {
@@ -910,9 +914,10 @@
   border: 1px solid var(--sap-neutral-300);
   border-radius: var(--sap-border-radius-md);
   box-shadow: var(--sap-shadow-sm);
-  padding: var(--sap-spacing-lg);
+  padding: 0;
   transition: all var(--sap-transition-fast);
-  cursor: pointer;
+  cursor: auto;
+  overflow: hidden;
 }
 
 .maintenance-card.sap-theme:hover {
@@ -925,24 +930,105 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--sap-spacing-md);
+  padding: var(--sap-spacing-lg);
+  border-bottom: 1px solid var(--sap-neutral-300);
+  background: var(--sap-neutral-200);
 }
 
-.maintenance-card.sap-theme .card-title {
-  font-size: var(--sap-font-size-lg);
+.maintenance-card.sap-theme .maintenance-type {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-sm);
+}
+
+.maintenance-card.sap-theme .type-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sap-blue-light);
+  border-radius: var(--sap-border-radius-md);
+  color: var(--sap-blue-primary);
+  font-size: 1.5rem;
+}
+
+.maintenance-card.sap-theme .type-label {
+  font-family: var(--sap-font-family);
   font-weight: 600;
+  font-size: var(--sap-font-size-lg);
   color: var(--sap-text-primary);
-  margin: 0;
 }
 
 .maintenance-card.sap-theme .card-content {
-  margin-bottom: var(--sap-spacing-md);
+  padding: var(--sap-spacing-lg);
+  flex-grow: 1;
+}
+
+.maintenance-card.sap-theme .card-footer {
+  padding: var(--sap-spacing-lg);
+  border-top: 1px solid var(--sap-neutral-300);
+  background: var(--sap-neutral-200);
 }
 
 .maintenance-card.sap-theme .card-actions {
   display: flex;
   gap: var(--sap-spacing-sm);
   justify-content: flex-end;
+}
+
+/* === BOTONES DE ACCIÓN MANTENIMIENTO SAP === */
+.maintenance-card .btn-view.sap-theme,
+.maintenance-card .btn-edit.sap-theme,
+.maintenance-card .btn-delete.sap-theme {
+  background: transparent;
+  border: 1px solid var(--sap-neutral-400);
+  border-radius: var(--sap-border-radius-sm);
+  color: var(--sap-text-secondary);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--sap-transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.maintenance-card .btn-view.sap-theme:hover {
+  background: var(--sap-blue-light);
+  border-color: var(--sap-blue-primary);
+  color: var(--sap-blue-primary);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.maintenance-card .btn-edit.sap-theme:hover {
+  background: rgba(223, 110, 0, 0.1);
+  border-color: var(--sap-warning);
+  color: var(--sap-warning);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.maintenance-card .btn-delete.sap-theme:hover {
+  background: rgba(220, 13, 14, 0.1);
+  border-color: var(--sap-error);
+  color: var(--sap-error);
+  box-shadow: var(--sap-shadow-sm);
+}
+
+.maintenance-card .btn-view.sap-theme svg,
+.maintenance-card .btn-edit.sap-theme svg,
+.maintenance-card .btn-delete.sap-theme svg {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--sap-transition-fast);
+}
+
+.maintenance-card .btn-view.sap-theme:hover svg,
+.maintenance-card .btn-edit.sap-theme:hover svg,
+.maintenance-card .btn-delete.sap-theme:hover svg {
+  transform: scale(1.1);
 }
 
 /* === FORMULARIOS SAP === */
@@ -1022,32 +1108,32 @@
   .maintenance-main.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .maintenance-header.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-lg);
     align-items: stretch;
   }
-  
+
   .header-actions.sap-theme {
     justify-content: stretch;
   }
-  
+
   .btn-create-maintenance.sap-theme,
   .sap-button {
     width: 100%;
     min-height: 44px;
     font-size: var(--sap-font-size-md);
   }
-  
+
   .header-title.sap-theme .sap-title {
     font-size: var(--sap-font-size-xl);
   }
-  
+
   .maintenance-card.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .table.sap-theme {
     display: block;
     overflow-x: auto;
@@ -1098,7 +1184,7 @@
   .maintenance-main.sap-theme {
     padding: var(--sap-spacing-lg);
   }
-  
+
   .maintenance-header.sap-theme {
     gap: var(--sap-spacing-lg);
   }
@@ -1256,18 +1342,17 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   animation: loading-shimmer 1.5s infinite;
 }
 
 @keyframes loading-shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 /* === UTILIDADES ADICIONALES SAP === */
@@ -1340,42 +1425,71 @@
 }
 
 /* === UTILIDADES SAP === */
-.sap-text-center { text-align: center; }
-.sap-text-right { text-align: right; }
-.sap-text-left { text-align: left; }
+.sap-text-center {
+  text-align: center;
+}
+.sap-text-right {
+  text-align: right;
+}
+.sap-text-left {
+  text-align: left;
+}
 
-.sap-mt-xs { margin-top: var(--sap-spacing-xs); }
-.sap-mt-sm { margin-top: var(--sap-spacing-sm); }
-.sap-mt-md { margin-top: var(--sap-spacing-md); }
-.sap-mt-lg { margin-top: var(--sap-spacing-lg); }
+.sap-mt-xs {
+  margin-top: var(--sap-spacing-xs);
+}
+.sap-mt-sm {
+  margin-top: var(--sap-spacing-sm);
+}
+.sap-mt-md {
+  margin-top: var(--sap-spacing-md);
+}
+.sap-mt-lg {
+  margin-top: var(--sap-spacing-lg);
+}
 
-.sap-mb-xs { margin-bottom: var(--sap-spacing-xs); }
-.sap-mb-sm { margin-bottom: var(--sap-spacing-sm); }
-.sap-mb-md { margin-bottom: var(--sap-spacing-md); }
-.sap-mb-lg { margin-bottom: var(--sap-spacing-lg); }
+.sap-mb-xs {
+  margin-bottom: var(--sap-spacing-xs);
+}
+.sap-mb-sm {
+  margin-bottom: var(--sap-spacing-sm);
+}
+.sap-mb-md {
+  margin-bottom: var(--sap-spacing-md);
+}
+.sap-mb-lg {
+  margin-bottom: var(--sap-spacing-lg);
+}
 
-.sap-p-xs { padding: var(--sap-spacing-xs); }
-.sap-p-sm { padding: var(--sap-spacing-sm); }
-.sap-p-md { padding: var(--sap-spacing-md); }
-.sap-p-lg { padding: var(--sap-spacing-lg); }
+.sap-p-xs {
+  padding: var(--sap-spacing-xs);
+}
+.sap-p-sm {
+  padding: var(--sap-spacing-sm);
+}
+.sap-p-md {
+  padding: var(--sap-spacing-md);
+}
+.sap-p-lg {
+  padding: var(--sap-spacing-lg);
+}
 
-/* === TEMA OSCURO (opcional) === */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --sap-neutral-100: #1d2125;
-    --sap-neutral-200: #282d33;
-    --sap-neutral-300: #3c4349;
-    --sap-text-primary: #ffffff;
-    --sap-text-secondary: #b3b5b7;
-  }
-  
-  .maintenance-main.sap-theme {
-    background: var(--sap-neutral-100);
-  }
-  
-  .maintenance-card.sap-theme,
-  .table.sap-theme {
-    background: var(--sap-neutral-200);
-    border-color: var(--sap-neutral-300);
-  }
+/* === TEMA OSCURO (opt-in con atributo) === */
+/* Importante: No usar prefers-color-scheme para evitar cambios no deseados por el SO */
+html[data-color-scheme='dark'] {
+  --sap-neutral-100: #1d2125;
+  --sap-neutral-200: #282d33;
+  --sap-neutral-300: #3c4349;
+  --sap-text-primary: #ffffff;
+  --sap-text-secondary: #b3b5b7;
+}
+
+html[data-color-scheme='dark'] .maintenance-main.sap-theme {
+  background: var(--sap-neutral-100);
+}
+
+html[data-color-scheme='dark'] .maintenance-card.sap-theme,
+html[data-color-scheme='dark'] .table.sap-theme {
+  background: var(--sap-neutral-200);
+  border-color: var(--sap-neutral-300);
 }

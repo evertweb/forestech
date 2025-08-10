@@ -6,12 +6,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 // maintenanceService se importa estáticamente aquí (eliminar dynamic import)
-import { 
-  subscribeToMaintenance, 
+import {
+  subscribeToMaintenance,
   getMaintenanceStats,
   deleteMaintenanceRecord,
   MAINTENANCE_TYPES,
-  MAINTENANCE_STATUS
+  MAINTENANCE_STATUS,
 } from '../../services/maintenanceService';
 import MaintenanceStats from './MaintenanceStats';
 import MaintenanceFilters from './MaintenanceFilters';
@@ -30,11 +30,11 @@ const MaintenanceMain = () => {
 
   // Estado de filtros
   const [filters, setFilters] = useState({
-    type: '',           // Tipo de mantenimiento
-    status: '',         // Estado
-    vehicleId: '',      // Vehículo específico
-    dateFrom: '',       // Fecha desde
-    dateTo: ''          // Fecha hasta
+    type: '', // Tipo de mantenimiento
+    status: '', // Estado
+    vehicleId: '', // Vehículo específico
+    dateFrom: '', // Fecha desde
+    dateTo: '', // Fecha hasta
   });
 
   // Estado de vista
@@ -45,9 +45,12 @@ const MaintenanceMain = () => {
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
   // Función estabilizada para manejar la suscripción con filtros
-  const handleMaintenanceSubscription = useCallback((callback) => {
-    return subscribeToMaintenance(callback, filters);
-  }, [filters]);
+  const handleMaintenanceSubscription = useCallback(
+    (callback) => {
+      return subscribeToMaintenance(callback, filters);
+    },
+    [filters]
+  );
 
   // Función estabilizada para cargar estadísticas
   const loadMaintenanceStats = useCallback(async () => {
@@ -64,7 +67,7 @@ const MaintenanceMain = () => {
     if (!user) return;
 
     setLoading(true);
-    
+
     const unsubscribe = handleMaintenanceSubscription((maintenanceData, error) => {
       if (error) {
         console.error('Error en suscripción de mantenimientos:', error);
@@ -89,9 +92,9 @@ const MaintenanceMain = () => {
   }, [user, maintenanceRecords, loadMaintenanceStats]);
 
   // Filtrar mantenimientos por búsqueda
-  const filteredMaintenance = maintenanceRecords.filter(record => {
+  const filteredMaintenance = maintenanceRecords.filter((record) => {
     if (!searchTerm) return true;
-    
+
     const searchLower = searchTerm.toLowerCase();
     return (
       record.vehicleName?.toLowerCase().includes(searchLower) ||
@@ -134,7 +137,7 @@ const MaintenanceMain = () => {
   };
 
   const handleFilterChange = (newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const handleClearFilters = () => {
@@ -143,7 +146,7 @@ const MaintenanceMain = () => {
       status: '',
       vehicleId: '',
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
     });
     setSearchTerm('');
   };
@@ -181,7 +184,7 @@ const MaintenanceMain = () => {
   // Componentes para PageLayout
   const headerActions = canManageMaintenance ? (
     <div className="header-actions sap-theme">
-      <button 
+      <button
         className="btn-create-maintenance sap-theme sap-button sap-button-primary"
         onClick={handleCreateMaintenance}
       >
@@ -211,7 +214,12 @@ const MaintenanceMain = () => {
       {error && (
         <div className="error-banner sap-theme sap-message-error">
           <span>❌ {error}</span>
-          <button className="sap-button sap-button-secondary" onClick={() => window.location.reload()}>Reintentar</button>
+          <button
+            className="sap-button sap-button-secondary"
+            onClick={() => window.location.reload()}
+          >
+            Reintentar
+          </button>
         </div>
       )}
 
@@ -229,11 +237,11 @@ const MaintenanceMain = () => {
             />
           ) : (
             <div className="empty-state sap-theme">
-              <div className="empty-icon">🔧</div>
+              <div className="empty-icon sap-theme">🔧</div>
               <h3>No hay mantenimientos registrados</h3>
               <p>Comienza creando el primer mantenimiento para tu flota de vehículos.</p>
               {canManageMaintenance && (
-                <button 
+                <button
                   className="sap-button sap-button-primary sap-mt-lg"
                   onClick={handleCreateMaintenance}
                 >

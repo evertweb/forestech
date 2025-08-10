@@ -4,13 +4,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  getDataStatistics, 
-  deleteSpecificCollections, 
-  resetAllData, 
+import {
+  getDataStatistics,
+  deleteSpecificCollections,
+  resetAllData,
   createBackup,
   canPerformReset,
-  getAvailableBackups 
+  getAvailableBackups,
 } from '../../services/dataResetService';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import './DataReset.css';
@@ -58,18 +58,16 @@ const DataReset = () => {
   };
 
   const handleCollectionToggle = (collectionKey) => {
-    setSelectedCollections(prev => 
+    setSelectedCollections((prev) =>
       prev.includes(collectionKey)
-        ? prev.filter(key => key !== collectionKey)
+        ? prev.filter((key) => key !== collectionKey)
         : [...prev, collectionKey]
     );
   };
 
   const handleSelectAll = () => {
-    const allKeys = Object.keys(stats).filter(key => stats[key].count > 0);
-    setSelectedCollections(prev => 
-      prev.length === allKeys.length ? [] : allKeys
-    );
+    const allKeys = Object.keys(stats).filter((key) => stats[key].count > 0);
+    setSelectedCollections((prev) => (prev.length === allKeys.length ? [] : allKeys));
   };
 
   const startReset = (type) => {
@@ -108,33 +106,34 @@ const DataReset = () => {
       // Crear backup si está habilitado
       if (backupBeforeReset) {
         setProgress('Creando backup de seguridad...');
-        const collectionsToBackup = resetType === 'complete' 
-          ? null 
-          : selectedCollections.map(key => stats[key].name);
-        
+        const collectionsToBackup =
+          resetType === 'complete' ? null : selectedCollections.map((key) => stats[key].name);
+
         await createBackup(collectionsToBackup);
         setProgress('Backup creado exitosamente');
       }
 
       let results;
-      
+
       if (resetType === 'complete') {
         results = await resetAllData((message) => {
           setProgress(message);
         });
       } else {
-        const collectionsToDelete = selectedCollections.map(key => stats[key].name);
+        const collectionsToDelete = selectedCollections.map((key) => stats[key].name);
         results = await deleteSpecificCollections(collectionsToDelete, (collection, count) => {
           setProgress(`${collection}: ${count} elementos eliminados`);
         });
       }
 
       // Mostrar resultados
-      const successful = results.filter(r => r.success).length;
-      const failed = results.filter(r => !r.success).length;
+      const successful = results.filter((r) => r.success).length;
+      const failed = results.filter((r) => !r.success).length;
       const totalDeleted = results.reduce((sum, r) => sum + (r.deletedCount || 0), 0);
 
-      setProgress(`✅ Proceso completado: ${successful} exitosos, ${failed} fallidos. Total eliminados: ${totalDeleted}`);
+      setProgress(
+        `✅ Proceso completado: ${successful} exitosos, ${failed} fallidos. Total eliminados: ${totalDeleted}`
+      );
 
       // Recargar estadísticas
       setTimeout(() => {
@@ -143,7 +142,6 @@ const DataReset = () => {
         setSelectedCollections([]);
         setProgress('');
       }, 3000);
-
     } catch (error) {
       console.error('Error during reset:', error);
       setProgress(`❌ Error: ${error.message}`);
@@ -169,8 +167,8 @@ const DataReset = () => {
 
   if (!hasPermission) {
     return (
-      <div className="data-reset">
-        <div className="permission-denied">
+      <div className="data-reset sap-theme">
+        <div className="permission-denied sap-theme">
           <h2>🚫 Acceso Denegado</h2>
           <p>Solo los administradores pueden acceder a la función de reset de datos.</p>
         </div>
@@ -180,9 +178,9 @@ const DataReset = () => {
 
   if (loading) {
     return (
-      <div className="data-reset">
-        <div className="loading">
-          <div className="spinner"></div>
+      <div className="data-reset sap-theme">
+        <div className="loading sap-theme">
+          <div className="spinner sap-theme"></div>
           <p>Cargando estadísticas de datos...</p>
         </div>
       </div>
@@ -190,46 +188,48 @@ const DataReset = () => {
   }
 
   return (
-    <div className="data-reset">
-      <div className="reset-header">
+    <div className="data-reset sap-theme">
+      <div className="reset-header sap-theme">
         <h2>🔥 Reset de Datos</h2>
-        <p>Administra y elimina datos de la aplicación. <strong>¡Usa con precaución!</strong></p>
+        <p>
+          Administra y elimina datos de la aplicación. <strong>¡Usa con precaución!</strong>
+        </p>
       </div>
 
       {/* Progreso */}
       {(resetting || progress) && (
-        <div className="progress-section">
-          <div className="progress-bar">
-            {resetting && <div className="progress-spinner"></div>}
+        <div className="progress-section sap-theme">
+          <div className="progress-bar sap-theme">
+            {resetting && <div className="progress-spinner sap-theme"></div>}
             <span>{progress}</span>
           </div>
         </div>
       )}
 
       {/* Estadísticas generales */}
-      <div className="stats-summary">
-        <div className="summary-card">
+      <div className="stats-summary sap-theme">
+        <div className="summary-card sap-theme">
           <h3>📊 Resumen de Datos</h3>
-          <div className="summary-stats">
-            <div className="stat">
-              <span className="stat-number">{Object.keys(stats).length}</span>
-              <span className="stat-label">Colecciones</span>
+          <div className="summary-stats sap-theme">
+            <div className="stat sap-theme">
+              <span className="stat-number sap-theme">{Object.keys(stats).length}</span>
+              <span className="stat-label sap-theme">Colecciones</span>
             </div>
-            <div className="stat">
-              <span className="stat-number">{getTotalDocuments()}</span>
-              <span className="stat-label">Documentos Totales</span>
+            <div className="stat sap-theme">
+              <span className="stat-number sap-theme">{getTotalDocuments()}</span>
+              <span className="stat-label sap-theme">Documentos Totales</span>
             </div>
-            <div className="stat">
-              <span className="stat-number">{selectedCollections.length}</span>
-              <span className="stat-label">Seleccionadas</span>
+            <div className="stat sap-theme">
+              <span className="stat-number sap-theme">{selectedCollections.length}</span>
+              <span className="stat-label sap-theme">Seleccionadas</span>
             </div>
           </div>
         </div>
 
-        <div className="summary-card">
+        <div className="summary-card sap-theme">
           <h3>💾 Opciones de Backup</h3>
-          <div className="backup-options">
-            <label className="backup-toggle">
+          <div className="backup-options sap-theme">
+            <label className="backup-toggle sap-theme">
               <input
                 type="checkbox"
                 checked={backupBeforeReset}
@@ -237,8 +237,8 @@ const DataReset = () => {
               />
               <span>Crear backup antes del reset</span>
             </label>
-            <button 
-              className="btn-secondary"
+            <button
+              className="btn-secondary sap-theme"
               onClick={() => setShowBackups(!showBackups)}
             >
               📋 Ver Backups ({backups.length})
@@ -249,24 +249,24 @@ const DataReset = () => {
 
       {/* Lista de backups */}
       {showBackups && (
-        <div className="backups-section">
+        <div className="backups-section sap-theme">
           <h3>💾 Backups Disponibles</h3>
           {backups.length === 0 ? (
             <p>No hay backups disponibles</p>
           ) : (
-            <div className="backups-list">
-              {backups.map(backup => (
-                <div key={backup.key} className="backup-item">
-                  <div className="backup-info">
-                    <span className="backup-date">
+            <div className="backups-list sap-theme">
+              {backups.map((backup) => (
+                <div key={backup.key} className="backup-item sap-theme">
+                  <div className="backup-info sap-theme">
+                    <span className="backup-date sap-theme">
                       {new Date(backup.timestamp).toLocaleString()}
                     </span>
-                    <span className="backup-collections">
+                    <span className="backup-collections sap-theme">
                       {backup.collections} colecciones
                     </span>
                   </div>
-                  <button 
-                    className="btn-danger btn-small"
+                  <button
+                    className="btn-danger btn-small sap-theme"
                     onClick={() => {
                       if (window.confirm('¿Eliminar este backup?')) {
                         localStorage.removeItem(backup.key);
@@ -284,32 +284,36 @@ const DataReset = () => {
       )}
 
       {/* Colecciones */}
-      <div className="collections-section">
-        <div className="collections-header">
+      <div className="collections-section sap-theme">
+        <div className="collections-header sap-theme">
           <h3>📋 Colecciones de Datos</h3>
-          <div className="collection-actions">
-            <button 
-              className="btn-secondary"
+          <div className="collection-actions sap-theme">
+            <button
+              className="btn-secondary sap-theme"
               onClick={handleSelectAll}
               disabled={resetting}
             >
-              {selectedCollections.length === Object.keys(stats).filter(key => stats[key].count > 0).length 
-                ? 'Deseleccionar Todo' 
+              {selectedCollections.length ===
+              Object.keys(stats).filter((key) => stats[key].count > 0).length
+                ? 'Deseleccionar Todo'
                 : 'Seleccionar Todo'}
             </button>
           </div>
         </div>
 
-        <div className="collections-grid">
+        <div className="collections-grid sap-theme">
           {Object.entries(stats).map(([key, stat]) => (
-            <div key={key} className={`collection-card ${selectedCollections.includes(key) ? 'selected' : ''}`}>
-              <div className="collection-header">
-                <div className="collection-icon">{stat.icon}</div>
-                <div className="collection-info">
+            <div
+              key={key}
+              className={`collection-card ${selectedCollections.includes(key) ? 'selected' : ''}`}
+            >
+              <div className="collection-header sap-theme">
+                <div className="collection-icon sap-theme">{stat.icon}</div>
+                <div className="collection-info sap-theme">
                   <h4>{stat.displayName}</h4>
-                  <p className="collection-name">{stat.name}</p>
+                  <p className="collection-name sap-theme">{stat.name}</p>
                 </div>
-                <label className="collection-checkbox">
+                <label className="collection-checkbox sap-theme">
                   <input
                     type="checkbox"
                     checked={selectedCollections.includes(key)}
@@ -319,16 +323,12 @@ const DataReset = () => {
                 </label>
               </div>
 
-              <div className="collection-stats">
-                <div className="stat-item">
-                  <span className="stat-number">{stat.count}</span>
-                  <span className="stat-label">Documentos</span>
+              <div className="collection-stats sap-theme">
+                <div className="stat-item sap-theme">
+                  <span className="stat-number sap-theme">{stat.count}</span>
+                  <span className="stat-label sap-theme">Documentos</span>
                 </div>
-                {stat.error && (
-                  <div className="stat-error">
-                    ⚠️ {stat.error}
-                  </div>
-                )}
+                {stat.error && <div className="stat-error sap-theme">⚠️ {stat.error}</div>}
               </div>
             </div>
           ))}
@@ -336,17 +336,17 @@ const DataReset = () => {
       </div>
 
       {/* Acciones principales */}
-      <div className="reset-actions">
-        <button 
-          className="btn-warning"
+      <div className="reset-actions sap-theme">
+        <button
+          className="btn-warning sap-theme"
           onClick={() => startReset('selected')}
           disabled={resetting || selectedCollections.length === 0}
         >
           🗑️ Eliminar Seleccionadas ({getSelectedDocuments()} docs)
         </button>
 
-        <button 
-          className="btn-danger"
+        <button
+          className="btn-danger sap-theme"
           onClick={() => startReset('complete')}
           disabled={resetting || getTotalDocuments() === 0}
         >
@@ -356,9 +356,9 @@ const DataReset = () => {
 
       {/* Modal de confirmación */}
       {showConfirmation && (
-        <div className="confirmation-modal">
-          <div className="modal-content">
-            <div className="modal-header">
+        <div className="confirmation-modal sap-theme">
+          <div className="modal-content sap-theme">
+            <div className="modal-header sap-theme">
               <h3>
                 {confirmationStep === 0 && '⚠️ Confirmación Requerida'}
                 {confirmationStep === 1 && '✍️ Confirmación por Texto'}
@@ -366,19 +366,28 @@ const DataReset = () => {
               </h3>
             </div>
 
-            <div className="modal-body">
+            <div className="modal-body sap-theme">
               {confirmationStep === 0 && (
-                <div className="confirmation-step">
+                <div className="confirmation-step sap-theme">
                   <p>
-                    <strong>ADVERTENCIA:</strong> Esta acción {resetType === 'complete' ? 'eliminará TODOS los datos' : 'eliminará las colecciones seleccionadas'} de la aplicación.
+                    <strong>ADVERTENCIA:</strong> Esta acción{' '}
+                    {resetType === 'complete'
+                      ? 'eliminará TODOS los datos'
+                      : 'eliminará las colecciones seleccionadas'}{' '}
+                    de la aplicación.
                   </p>
                   <ul>
                     {resetType === 'complete' ? (
-                      <li>Se eliminarán {getTotalDocuments()} documentos de todas las colecciones</li>
+                      <li>
+                        Se eliminarán {getTotalDocuments()} documentos de todas las colecciones
+                      </li>
                     ) : (
                       <>
                         <li>Se eliminarán {getSelectedDocuments()} documentos</li>
-                        <li>Colecciones afectadas: {selectedCollections.map(key => stats[key].displayName).join(', ')}</li>
+                        <li>
+                          Colecciones afectadas:{' '}
+                          {selectedCollections.map((key) => stats[key].displayName).join(', ')}
+                        </li>
                       </>
                     )}
                     <li>Esta acción NO se puede deshacer</li>
@@ -388,9 +397,9 @@ const DataReset = () => {
               )}
 
               {confirmationStep === 1 && (
-                <div className="confirmation-step">
+                <div className="confirmation-step sap-theme">
                   <p>Para continuar, escribe exactamente el siguiente texto:</p>
-                  <div className="confirmation-text-required">
+                  <div className="confirmation-text-required sap-theme">
                     {resetType === 'complete' ? 'RESET COMPLETO' : 'ELIMINAR SELECCIONADOS'}
                   </div>
                   <input
@@ -398,30 +407,28 @@ const DataReset = () => {
                     value={confirmationText}
                     onChange={(e) => setConfirmationText(e.target.value)}
                     placeholder="Escribe el texto aquí"
-                    className="confirmation-input"
+                    className="confirmation-input sap-theme"
                   />
                 </div>
               )}
 
               {confirmationStep === 2 && (
-                <div className="confirmation-step">
-                  <p className="final-warning">
-                    <strong>ÚLTIMA CONFIRMACIÓN:</strong> ¿Estás completamente seguro de que quieres proceder?
+                <div className="confirmation-step sap-theme">
+                  <p className="final-warning sap-theme">
+                    <strong>ÚLTIMA CONFIRMACIÓN:</strong> ¿Estás completamente seguro de que quieres
+                    proceder?
                   </p>
                   <p>Esta es tu última oportunidad para cancelar.</p>
                 </div>
               )}
             </div>
 
-            <div className="modal-actions">
-              <button 
-                className="btn-secondary"
-                onClick={cancelReset}
-              >
+            <div className="modal-actions sap-theme">
+              <button className="btn-secondary sap-theme" onClick={cancelReset}>
                 Cancelar
               </button>
-              <button 
-                className="btn-danger"
+              <button
+                className="btn-danger sap-theme"
                 onClick={handleConfirmationNext}
                 disabled={confirmationStep === 1 && !confirmationText}
               >

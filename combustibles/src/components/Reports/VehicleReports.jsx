@@ -10,7 +10,7 @@ import {
   calculateOperationalCosts,
   calculateVehiclesStats,
   formatCurrency,
-  formatNumber
+  formatNumber,
 } from '../../utils/calculations';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 
@@ -21,66 +21,68 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
 
   // Filtrar vehículos
   const filteredVehicles = useMemo(() => {
-    let filtered = vehicles.filter(vehicle => vehicle.status === 'activo');
-    
+    let filtered = vehicles.filter((vehicle) => vehicle.status === 'activo');
+
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(vehicle => vehicle.category === selectedCategory);
+      filtered = filtered.filter((vehicle) => vehicle.category === selectedCategory);
     }
-    
+
     if (selectedFuelType !== 'all') {
-      filtered = filtered.filter(vehicle => vehicle.fuelType === selectedFuelType);
+      filtered = filtered.filter((vehicle) => vehicle.fuelType === selectedFuelType);
     }
-    
+
     return filtered;
   }, [vehicles, selectedCategory, selectedFuelType]);
 
   // Filtrar movimientos por rango de fechas
   const filteredMovements = useMemo(() => {
     if (!dateRange.start && !dateRange.end) return movements;
-    
-    return movements.filter(movement => {
+
+    return movements.filter((movement) => {
       const movementDate = new Date(movement.createdAt || movement.date);
       const startDate = dateRange.start ? new Date(dateRange.start) : new Date(0);
       const endDate = dateRange.end ? new Date(dateRange.end) : new Date();
-      
+
       return movementDate >= startDate && movementDate <= endDate;
     });
   }, [movements, dateRange]);
 
   // Obtener categorías y tipos de combustible únicos
   const categories = useMemo(() => {
-    return [...new Set(vehicles.map(v => v.category).filter(Boolean))];
+    return [...new Set(vehicles.map((v) => v.category).filter(Boolean))];
   }, [vehicles]);
 
   const fuelTypes = useMemo(() => {
-    return [...new Set(vehicles.map(v => v.fuelType).filter(Boolean))];
+    return [...new Set(vehicles.map((v) => v.fuelType).filter(Boolean))];
   }, [vehicles]);
 
   // Calcular estadísticas generales
-  const vehiclesStats = useMemo(() => 
-    calculateVehiclesStats(filteredVehicles, filteredMovements), 
+  const vehiclesStats = useMemo(
+    () => calculateVehiclesStats(filteredVehicles, filteredMovements),
     [filteredVehicles, filteredMovements]
   );
 
   // Análisis detallado por vehículo
   const vehicleAnalysis = useMemo(() => {
-    const analysis = filteredVehicles.map(vehicle => {
+    const analysis = filteredVehicles.map((vehicle) => {
       const consumption = calculateVehicleConsumption(vehicle, filteredMovements);
       const efficiency = calculateFuelEfficiency(vehicle, filteredMovements);
       const costs = calculateOperationalCosts(vehicle, filteredMovements);
       const vehicleInfo = VEHICLE_INFO[vehicle.type] || {};
-      
+
       // Análisis de horómetro para vehículos diesel
       const hasHourMeter = vehicle.fuelType === 'diesel' || vehicle.fuelType === 'Diesel';
       const currentHours = parseFloat(vehicle.currentHours) || 0;
       const totalHoursWorked = parseFloat(vehicle.totalHoursWorked) || 0;
-      
+
       // Calcular consumo por hora real vs estimado
-      const actualConsumptionPerHour = totalHoursWorked > 0 ? consumption.totalConsumption / totalHoursWorked : 0;
+      const actualConsumptionPerHour =
+        totalHoursWorked > 0 ? consumption.totalConsumption / totalHoursWorked : 0;
       const estimatedConsumption = vehicleInfo.avgConsumption || 0;
-      const efficiencyRating = estimatedConsumption > 0 && actualConsumptionPerHour > 0 
-        ? ((estimatedConsumption - actualConsumptionPerHour) / estimatedConsumption) * 100 
-        : 0;
+      const efficiencyRating =
+        estimatedConsumption > 0 && actualConsumptionPerHour > 0
+          ? ((estimatedConsumption - actualConsumptionPerHour) / estimatedConsumption) * 100
+          : 0;
 
       return {
         ...vehicle,
@@ -96,7 +98,9 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
         efficiencyRating,
         // Proyección próximo mantenimiento (cada 250 horas para diesel)
         nextMaintenanceHours: hasHourMeter ? Math.ceil(currentHours / 250) * 250 : null,
-        hoursToMaintenance: hasHourMeter ? Math.ceil(currentHours / 250) * 250 - currentHours : null
+        hoursToMaintenance: hasHourMeter
+          ? Math.ceil(currentHours / 250) * 250 - currentHours
+          : null,
       };
     });
 
@@ -125,28 +129,35 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
     return {
       mostEfficient: sorted[0],
       leastEfficient: sorted[sorted.length - 1],
-      highestConsumption: [...vehicleAnalysis].sort((a, b) => b.consumption.totalConsumption - a.consumption.totalConsumption)[0],
-      nearMaintenance: vehicleAnalysis.filter(v => v.hasHourMeter && v.hoursToMaintenance <= 50)
+      highestConsumption: [...vehicleAnalysis].sort(
+        (a, b) => b.consumption.totalConsumption - a.consumption.totalConsumption
+      )[0],
+      nearMaintenance: vehicleAnalysis.filter((v) => v.hasHourMeter && v.hoursToMaintenance <= 50),
     };
   }, [vehicleAnalysis]);
 
   // Análisis por tipo de combustible
   const fuelAnalysis = useMemo(() => {
     const analysis = {};
-    fuelTypes.forEach(fuelType => {
-      const vehiclesOfType = vehicleAnalysis.filter(v => v.fuelType === fuelType);
-      const totalConsumption = vehiclesOfType.reduce((sum, v) => sum + v.consumption.totalConsumption, 0);
+    fuelTypes.forEach((fuelType) => {
+      const vehiclesOfType = vehicleAnalysis.filter((v) => v.fuelType === fuelType);
+      const totalConsumption = vehiclesOfType.reduce(
+        (sum, v) => sum + v.consumption.totalConsumption,
+        0
+      );
       const totalCost = vehiclesOfType.reduce((sum, v) => sum + v.costs.totalCost, 0);
-      const avgEfficiency = vehiclesOfType.length > 0 
-        ? vehiclesOfType.reduce((sum, v) => sum + v.efficiencyRating, 0) / vehiclesOfType.length 
-        : 0;
+      const avgEfficiency =
+        vehiclesOfType.length > 0
+          ? vehiclesOfType.reduce((sum, v) => sum + v.efficiencyRating, 0) / vehiclesOfType.length
+          : 0;
 
       analysis[fuelType] = {
         vehicleCount: vehiclesOfType.length,
         totalConsumption,
         totalCost,
         avgEfficiency,
-        avgConsumptionPerVehicle: vehiclesOfType.length > 0 ? totalConsumption / vehiclesOfType.length : 0
+        avgConsumptionPerVehicle:
+          vehiclesOfType.length > 0 ? totalConsumption / vehiclesOfType.length : 0,
       };
     });
     return analysis;
@@ -155,11 +166,18 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
   // Función para exportar
   const exportToCSV = () => {
     const headers = [
-      'Vehículo', 'Tipo', 'Combustible', 'Horas Actuales', 'Consumo Total (L)', 
-      'Consumo/Hora', 'Eficiencia (%)', 'Costo Total', 'Próximo Mantenimiento'
+      'Vehículo',
+      'Tipo',
+      'Combustible',
+      'Horas Actuales',
+      'Consumo Total (L)',
+      'Consumo/Hora',
+      'Eficiencia (%)',
+      'Costo Total',
+      'Próximo Mantenimiento',
     ];
-    
-    const csvData = vehicleAnalysis.map(vehicle => [
+
+    const csvData = vehicleAnalysis.map((vehicle) => [
       vehicle.vehicleId,
       vehicle.type,
       vehicle.fuelType,
@@ -168,10 +186,10 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       formatNumber(vehicle.actualConsumptionPerHour, 2),
       formatNumber(vehicle.efficiencyRating, 1) + '%',
       formatCurrency(vehicle.costs.totalCost),
-      vehicle.hasHourMeter ? `${vehicle.nextMaintenanceHours}h` : 'N/A'
+      vehicle.hasHourMeter ? `${vehicle.nextMaintenanceHours}h` : 'N/A',
     ]);
 
-    const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
+    const csvContent = [headers, ...csvData].map((row) => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -182,83 +200,90 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
   };
 
   return (
-    <div className="vehicle-reports">
+    <div className="vehicle-reports sap-theme">
       {/* KPIs de vehículos */}
-      <div className="kpis-grid">
-        <div className="kpi-card">
-          <div className="kpi-icon vehicles">🚜</div>
-          <div className="kpi-value">{vehiclesStats.activeVehicles}</div>
-          <div className="kpi-label">Vehículos Activos</div>
-          <div className="kpi-trend positive">
-            <span className="trend-icon">📊</span>
+      <div className="kpis-grid sap-theme">
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon vehicles sap-theme">🚜</div>
+          <div className="kpi-value sap-theme">{vehiclesStats.activeVehicles}</div>
+          <div className="kpi-label sap-theme">Vehículos Activos</div>
+          <div className="kpi-trend positive sap-theme">
+            <span className="trend-icon sap-theme">📊</span>
             {formatNumber(vehiclesStats.totalHours)} horas total
           </div>
         </div>
 
-        <div className="kpi-card">
-          <div className="kpi-icon vehicles">⛽</div>
-          <div className="kpi-value">{formatNumber(vehiclesStats.totalConsumption)}</div>
-          <div className="kpi-label">Consumo Total (L)</div>
-          <div className="kpi-trend neutral">
-            <span className="trend-icon">📈</span>
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon vehicles sap-theme">⛽</div>
+          <div className="kpi-value sap-theme">{formatNumber(vehiclesStats.totalConsumption)}</div>
+          <div className="kpi-label sap-theme">Consumo Total (L)</div>
+          <div className="kpi-trend neutral sap-theme">
+            <span className="trend-icon sap-theme">📈</span>
             {formatNumber(vehiclesStats.averageEfficiency, 1)} L/h promedio
           </div>
         </div>
 
-        <div className="kpi-card">
-          <div className="kpi-icon vehicles">⚡</div>
-          <div className="kpi-value">{formatNumber(topPerformers.mostEfficient?.efficiencyRating || 0, 1)}%</div>
-          <div className="kpi-label">Mejor Eficiencia</div>
-          <div className="kpi-trend positive">
-            <span className="trend-icon">🏆</span>
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon vehicles sap-theme">⚡</div>
+          <div className="kpi-value sap-theme">
+            {formatNumber(topPerformers.mostEfficient?.efficiencyRating || 0, 1)}%
+          </div>
+          <div className="kpi-label sap-theme">Mejor Eficiencia</div>
+          <div className="kpi-trend positive sap-theme">
+            <span className="trend-icon sap-theme">🏆</span>
             {topPerformers.mostEfficient?.vehicleId || 'N/A'}
           </div>
         </div>
 
-        <div className="kpi-card">
-          <div className="kpi-icon vehicles">🔧</div>
-          <div className="kpi-value">{topPerformers.nearMaintenance.length}</div>
-          <div className="kpi-label">Próximo Mantenimiento</div>
-          <div className={`kpi-trend ${topPerformers.nearMaintenance.length > 0 ? 'negative' : 'positive'}`}>
-            <span className="trend-icon">⚠️</span>
-            ≤ 50 horas
+        <div className="kpi-card sap-theme">
+          <div className="kpi-icon vehicles sap-theme">🔧</div>
+          <div className="kpi-value sap-theme">{topPerformers.nearMaintenance.length}</div>
+          <div className="kpi-label sap-theme">Próximo Mantenimiento</div>
+          <div
+            className={`kpi-trend ${topPerformers.nearMaintenance.length > 0 ? 'negative' : 'positive'}`}
+          >
+            <span className="trend-icon sap-theme">⚠️</span>≤ 50 horas
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="reports-filters">
-        <div className="filters-grid">
-          <div className="filter-group">
-            <label className="filter-label">Categoría</label>
-            <select 
-              className="filter-select"
+      <div className="reports-filters sap-theme">
+        <div className="filters-grid sap-theme">
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme">Categoría</label>
+            <select
+              className="filter-select sap-theme"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <option value="all">Todas las categorías</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
               ))}
             </select>
           </div>
-          <div className="filter-group">
-            <label className="filter-label">Tipo de Combustible</label>
-            <select 
-              className="filter-select"
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme">Tipo de Combustible</label>
+            <select
+              className="filter-select sap-theme"
               value={selectedFuelType}
               onChange={(e) => setSelectedFuelType(e.target.value)}
             >
               <option value="all">Todos los combustibles</option>
-              {fuelTypes.map(fuelType => (
-                <option key={fuelType} value={fuelType}>{fuelType}</option>
+              {fuelTypes.map((fuelType) => (
+                <option key={fuelType} value={fuelType}>
+                  {fuelType}
+                </option>
               ))}
             </select>
           </div>
-          <div className="filter-group">
-            <label className="filter-label">Ordenar por</label>
-            <select 
-              className="filter-select"
+          <div className="filter-group sap-theme">
+            <label className="filter-label sap-theme">Ordenar por</label>
+            <select
+              className="filter-select sap-theme"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -269,8 +294,8 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
               <option value="name">Nombre</option>
             </select>
           </div>
-          <div className="filter-actions">
-            <button className="filter-btn secondary" onClick={exportToCSV}>
+          <div className="filter-actions sap-theme">
+            <button className="filter-btn secondary sap-theme" onClick={exportToCSV}>
               📊 Exportar CSV
             </button>
           </div>
@@ -279,18 +304,18 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
 
       {/* Alertas de mantenimiento */}
       {topPerformers.nearMaintenance.length > 0 && (
-        <div className="alerts-container">
+        <div className="alerts-container sap-theme">
           {topPerformers.nearMaintenance.map((vehicle, index) => (
-            <div key={index} className="alert warning">
-              <span className="alert-icon">🔧</span>
-              <div className="alert-content">
-                <div className="alert-title">
+            <div key={index} className="alert warning sap-theme">
+              <span className="alert-icon sap-theme">🔧</span>
+              <div className="alert-content sap-theme">
+                <div className="alert-title sap-theme">
                   Mantenimiento Próximo: {vehicle.vehicleId}
                 </div>
-                <div className="alert-message">
-                  Horas actuales: {formatNumber(vehicle.currentHours)}h | 
-                  Próximo mantenimiento: {vehicle.nextMaintenanceHours}h | 
-                  Faltan: {formatNumber(vehicle.hoursToMaintenance)}h
+                <div className="alert-message sap-theme">
+                  Horas actuales: {formatNumber(vehicle.currentHours)}h | Próximo mantenimiento:{' '}
+                  {vehicle.nextMaintenanceHours}h | Faltan:{' '}
+                  {formatNumber(vehicle.hoursToMaintenance)}h
                 </div>
               </div>
             </div>
@@ -299,31 +324,37 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       )}
 
       {/* Análisis por tipo de combustible */}
-      <div className="chart-container">
-        <div className="chart-header">
-          <h3 className="chart-title">⛽ Análisis por Tipo de Combustible</h3>
+      <div className="chart-container sap-theme">
+        <div className="chart-header sap-theme">
+          <h3 className="chart-title sap-theme">⛽ Análisis por Tipo de Combustible</h3>
         </div>
-        <div className="chart-content">
-          <div className="fuel-analysis-grid">
+        <div className="chart-content sap-theme">
+          <div className="fuel-analysis-grid sap-theme">
             {Object.entries(fuelAnalysis).map(([fuelType, analysis]) => (
-              <div key={fuelType} className="fuel-analysis-item">
+              <div key={fuelType} className="fuel-analysis-item sap-theme">
                 <h4>{fuelType.toUpperCase()}</h4>
-                <div className="analysis-metrics">
-                  <div className="metric">
-                    <span className="metric-label">Vehículos:</span>
-                    <span className="metric-value">{analysis.vehicleCount}</span>
+                <div className="analysis-metrics sap-theme">
+                  <div className="metric sap-theme">
+                    <span className="metric-label sap-theme">Vehículos:</span>
+                    <span className="metric-value sap-theme">{analysis.vehicleCount}</span>
                   </div>
-                  <div className="metric">
-                    <span className="metric-label">Consumo Total:</span>
-                    <span className="metric-value">{formatNumber(analysis.totalConsumption)} L</span>
+                  <div className="metric sap-theme">
+                    <span className="metric-label sap-theme">Consumo Total:</span>
+                    <span className="metric-value sap-theme">
+                      {formatNumber(analysis.totalConsumption)} L
+                    </span>
                   </div>
-                  <div className="metric">
-                    <span className="metric-label">Costo Total:</span>
-                    <span className="metric-value">{formatCurrency(analysis.totalCost)}</span>
+                  <div className="metric sap-theme">
+                    <span className="metric-label sap-theme">Costo Total:</span>
+                    <span className="metric-value sap-theme">
+                      {formatCurrency(analysis.totalCost)}
+                    </span>
                   </div>
-                  <div className="metric">
-                    <span className="metric-label">Eficiencia Promedio:</span>
-                    <span className={`metric-value ${analysis.avgEfficiency > 10 ? 'text-success' : analysis.avgEfficiency > 0 ? 'text-warning' : 'text-danger'}`}>
+                  <div className="metric sap-theme">
+                    <span className="metric-label sap-theme">Eficiencia Promedio:</span>
+                    <span
+                      className={`metric-value ${analysis.avgEfficiency > 10 ? 'text-success' : analysis.avgEfficiency > 0 ? 'text-warning' : 'text-danger'}`}
+                    >
                       {formatNumber(analysis.avgEfficiency, 1)}%
                     </span>
                   </div>
@@ -335,41 +366,49 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       </div>
 
       {/* Top performers */}
-      <div className="chart-container">
-        <div className="chart-header">
-          <h3 className="chart-title">🏆 Análisis de Rendimiento</h3>
+      <div className="chart-container sap-theme">
+        <div className="chart-header sap-theme">
+          <h3 className="chart-title sap-theme">🏆 Análisis de Rendimiento</h3>
         </div>
-        <div className="chart-content">
-          <div className="performers-grid">
-            <div className="performer-item success">
+        <div className="chart-content sap-theme">
+          <div className="performers-grid sap-theme">
+            <div className="performer-item success sap-theme">
               <h4>🥇 Más Eficiente</h4>
-              <div className="performer-name">{topPerformers.mostEfficient?.vehicleId || 'N/A'}</div>
-              <div className="performer-metric">
+              <div className="performer-name sap-theme">
+                {topPerformers.mostEfficient?.vehicleId || 'N/A'}
+              </div>
+              <div className="performer-metric sap-theme">
                 {formatNumber(topPerformers.mostEfficient?.efficiencyRating || 0, 1)}% eficiencia
               </div>
-              <div className="performer-details">
+              <div className="performer-details sap-theme">
                 {formatNumber(topPerformers.mostEfficient?.actualConsumptionPerHour || 0, 2)} L/h
               </div>
             </div>
 
-            <div className="performer-item warning">
+            <div className="performer-item warning sap-theme">
               <h4>⚠️ Mayor Consumo</h4>
-              <div className="performer-name">{topPerformers.highestConsumption?.vehicleId || 'N/A'}</div>
-              <div className="performer-metric">
-                {formatNumber(topPerformers.highestConsumption?.consumption.totalConsumption || 0)} L total
+              <div className="performer-name sap-theme">
+                {topPerformers.highestConsumption?.vehicleId || 'N/A'}
               </div>
-              <div className="performer-details">
-                {formatNumber(topPerformers.highestConsumption?.actualConsumptionPerHour || 0, 2)} L/h
+              <div className="performer-metric sap-theme">
+                {formatNumber(topPerformers.highestConsumption?.consumption.totalConsumption || 0)}{' '}
+                L total
+              </div>
+              <div className="performer-details sap-theme">
+                {formatNumber(topPerformers.highestConsumption?.actualConsumptionPerHour || 0, 2)}{' '}
+                L/h
               </div>
             </div>
 
-            <div className="performer-item danger">
+            <div className="performer-item danger sap-theme">
               <h4>📉 Menos Eficiente</h4>
-              <div className="performer-name">{topPerformers.leastEfficient?.vehicleId || 'N/A'}</div>
-              <div className="performer-metric">
+              <div className="performer-name sap-theme">
+                {topPerformers.leastEfficient?.vehicleId || 'N/A'}
+              </div>
+              <div className="performer-metric sap-theme">
                 {formatNumber(topPerformers.leastEfficient?.efficiencyRating || 0, 1)}% eficiencia
               </div>
-              <div className="performer-details">
+              <div className="performer-details sap-theme">
                 {formatNumber(topPerformers.leastEfficient?.actualConsumptionPerHour || 0, 2)} L/h
               </div>
             </div>
@@ -378,12 +417,12 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       </div>
 
       {/* Tabla detallada */}
-      <div className="report-table-container">
-        <div className="report-table-header">
-          <h3 className="report-table-title">🚜 Análisis Detallado de Vehículos</h3>
+      <div className="report-table-container sap-theme">
+        <div className="report-table-header sap-theme">
+          <h3 className="report-table-title sap-theme">🚜 Análisis Detallado de Vehículos</h3>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table className="report-table">
+          <table className="report-table sap-theme">
             <thead>
               <tr>
                 <th>Vehículo</th>
@@ -409,7 +448,9 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                   </td>
                   <td>{vehicle.type}</td>
                   <td>
-                    <span className={`badge ${vehicle.fuelType === 'diesel' ? 'info' : 'secondary'}`}>
+                    <span
+                      className={`badge ${vehicle.fuelType === 'diesel' ? 'info' : 'secondary'}`}
+                    >
                       {vehicle.fuelType}
                     </span>
                   </td>
@@ -417,7 +458,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                     {vehicle.hasHourMeter ? (
                       <span>{formatNumber(vehicle.currentHours)}h</span>
                     ) : (
-                      <span className="text-muted">N/A</span>
+                      <span className="text-muted sap-theme">N/A</span>
                     )}
                   </td>
                   <td>{formatNumber(vehicle.totalHoursWorked)}h</td>
@@ -425,20 +466,26 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                   <td>{formatNumber(vehicle.actualConsumptionPerHour, 2)}</td>
                   <td>{formatNumber(vehicle.estimatedConsumption, 2)}</td>
                   <td>
-                    <span className={`badge ${vehicle.efficiencyRating > 10 ? 'success' : vehicle.efficiencyRating > 0 ? 'warning' : 'danger'}`}>
+                    <span
+                      className={`badge ${vehicle.efficiencyRating > 10 ? 'success' : vehicle.efficiencyRating > 0 ? 'warning' : 'danger'}`}
+                    >
                       {formatNumber(vehicle.efficiencyRating, 1)}%
                     </span>
                   </td>
                   <td>{formatCurrency(vehicle.costs.totalCost)}</td>
                   <td>
                     {vehicle.hasHourMeter ? (
-                      <span className={vehicle.hoursToMaintenance <= 50 ? 'text-warning' : 'text-success'}>
+                      <span
+                        className={
+                          vehicle.hoursToMaintenance <= 50 ? 'text-warning' : 'text-success'
+                        }
+                      >
                         {vehicle.nextMaintenanceHours}h
                         <br />
                         <small>({formatNumber(vehicle.hoursToMaintenance)}h restantes)</small>
                       </span>
                     ) : (
-                      <span className="text-muted">N/A</span>
+                      <span className="text-muted sap-theme">N/A</span>
                     )}
                   </td>
                 </tr>

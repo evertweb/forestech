@@ -23,7 +23,7 @@
   max-width: 600px; /* Más compacto que el original */
   max-height: 90vh;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
@@ -280,7 +280,7 @@ textarea.smart-form-input {
   background: #f8f9fa;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   width: 18px;
   height: 18px;
   margin: 0;
@@ -300,7 +300,8 @@ textarea.smart-form-input {
   margin-top: 1rem;
 }
 
-.btn-show-advanced, .btn-hide-advanced {
+.btn-show-advanced,
+.btn-hide-advanced {
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
   border: 1px solid #d1d5db;
   color: #374151;
@@ -315,7 +316,8 @@ textarea.smart-form-input {
   gap: 0.5rem;
 }
 
-.btn-show-advanced:hover, .btn-hide-advanced:hover {
+.btn-show-advanced:hover,
+.btn-hide-advanced:hover {
   background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -331,7 +333,8 @@ textarea.smart-form-input {
   margin-top: 1rem;
 }
 
-.smart-btn-secondary, .smart-btn-primary {
+.smart-btn-secondary,
+.smart-btn-primary {
   padding: 0.875rem 2rem;
   border-radius: 8px;
   font-weight: 600;
@@ -367,7 +370,8 @@ textarea.smart-form-input {
   box-shadow: 0 8px 25px rgba(61, 124, 71, 0.4);
 }
 
-.smart-btn-primary:disabled, .smart-btn-secondary:disabled {
+.smart-btn-primary:disabled,
+.smart-btn-secondary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -401,8 +405,12 @@ textarea.smart-form-input {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==== ERRORES ==== */
@@ -428,67 +436,68 @@ textarea.smart-form-input {
   .smart-modal-overlay {
     padding: 0.5rem;
   }
-  
+
   .smart-modal-container {
     max-height: 95vh;
     max-width: none;
     margin: 0;
   }
-  
+
   .smart-modal-header {
     padding: 1rem 1.5rem;
   }
-  
+
   .smart-modal-header h2 {
     font-size: 1.25rem;
   }
-  
+
   .progress-indicator {
     padding: 1rem;
   }
-  
+
   .step-number {
     width: 28px;
     height: 28px;
     font-size: 0.75rem;
   }
-  
+
   .step-label {
     font-size: 0.625rem;
   }
-  
+
   .progress-line {
     width: 40px;
   }
-  
+
   .smart-modal-body {
     padding: 1.5rem;
     max-height: calc(95vh - 180px);
   }
-  
+
   .smart-form {
     gap: 1.5rem;
   }
-  
+
   .form-section {
     gap: 1rem;
   }
-  
+
   .form-section h3 {
     font-size: 1.125rem;
   }
-  
+
   .smart-form-row {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .smart-form-actions {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
-  .smart-btn-secondary, .smart-btn-primary {
+
+  .smart-btn-secondary,
+  .smart-btn-primary {
     width: 100%;
     padding: 1rem;
   }
@@ -498,36 +507,36 @@ textarea.smart-form-input {
   .smart-modal-header {
     padding: 1rem;
   }
-  
+
   .smart-modal-header h2 {
     font-size: 1.125rem;
   }
-  
+
   .progress-indicator {
     padding: 0.75rem;
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   .progress-step {
     flex: 1;
     min-width: 80px;
   }
-  
+
   .progress-line {
     display: none;
   }
-  
+
   .smart-modal-body {
     padding: 1rem;
   }
-  
+
   .category-summary {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
   }
-  
+
   .checkbox-label {
     padding: 0.75rem;
   }
@@ -540,31 +549,30 @@ textarea.smart-form-input {
   .spinner {
     animation: none;
   }
-  
+
   .smart-btn-primary:hover:not(:disabled) {
     transform: none;
   }
 }
 
-/* ==== MODO OSCURO (FUTURO) ==== */
-@media (prefers-color-scheme: dark) {
-  .smart-modal-container {
-    background: #1f2937;
-    color: #f9fafb;
-  }
-  
-  .progress-indicator {
-    background: #374151;
-    border-color: #4b5563;
-  }
-  
-  .smart-form-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  
-  .smart-form-input::placeholder {
-    color: #9ca3af;
-  }
+/* ==== MODO OSCURO (opt-in con atributo) ==== */
+/* Nota: Evitamos prefers-color-scheme para no forzar cambios por preferencia del SO. */
+html[data-color-scheme='dark'] .smart-modal-container {
+  background: #1f2937;
+  color: #f9fafb;
+}
+
+html[data-color-scheme='dark'] .progress-indicator {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+html[data-color-scheme='dark'] .smart-form-input {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+html[data-color-scheme='dark'] .smart-form-input::placeholder {
+  color: #9ca3af;
 }

@@ -1,0 +1,282 @@
+/* ===================================================================
+   OPCIONES DE FONDO - DEGRADADOS GRIS ARENA
+   =================================================================== */
+
+/* OPCIÓN 1: Degradado suave gris perla con textura sutil */
+.bg-option-1 {
+  --bg-white: radial-gradient(ellipse at top, #f8f9fa 0%, #e9ecef 30%, #dee2e6 70%, #ced4da 100%);
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.02) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* OPCIÓN 2: Degradado diagonal arena cálida */
+.bg-option-2 {
+  --bg-white: linear-gradient(
+    135deg,
+    #f1f3f4 0%,
+    #e8eaed 25%,
+    #dadce0 50%,
+    #bdc1c6 75%,
+    #9aa0a6 100%
+  );
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.03) 2px,
+      rgba(255, 255, 255, 0.03) 4px
+    ),
+    radial-gradient(circle at 25% 25%, rgba(158, 158, 158, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(189, 193, 198, 0.02) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* OPCIÓN 3: Degradado radial arena fina */
+.bg-option-3 {
+  --bg-white: radial-gradient(
+    circle at center,
+    #fafafa 0%,
+    #f5f5f5 20%,
+    #eeeeee 40%,
+    #e0e0e0 60%,
+    #bdbdbd 80%,
+    #9e9e9e 100%
+  );
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(238, 238, 238, 0.04) 0%, transparent 30%),
+    radial-gradient(circle at 40% 40%, rgba(224, 224, 224, 0.02) 0%, transparent 40%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(189, 189, 189, 0.01) 2deg,
+      transparent 4deg
+    );
+  background-attachment: fixed;
+}
+
+/* OPCIÓN 4: Degradado vertical arena gruesa */
+.bg-option-4 {
+  --bg-white: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f8f9fa 15%,
+    #f1f3f4 30%,
+    #e8eaed 45%,
+    #dadce0 60%,
+    #bdc1c6 75%,
+    #9aa0a6 90%,
+    #80868b 100%
+  );
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 2px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      rgba(248, 249, 250, 0.02) 1px,
+      transparent 2px
+    ),
+    radial-gradient(ellipse at 30% 70%, rgba(154, 160, 166, 0.03) 0%, transparent 70%);
+  background-size:
+    20px 20px,
+    30px 30px,
+    100% 100%;
+  background-attachment: fixed;
+}
+
+/* OPCIÓN 5: Degradado complejo arena texturizada */
+.bg-option-5 {
+  --bg-white:
+    radial-gradient(ellipse 1000px 600px at 50% 0%, #fafafa 0%, transparent 40%),
+    radial-gradient(ellipse 1000px 600px at 50% 100%, #e0e0e0 0%, transparent 40%),
+    linear-gradient(135deg, #f5f5f5 0%, #eeeeee 25%, #e8e8e8 50%, #d4d4d4 75%, #a8a8a8 100%);
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at 80% 50%, rgba(238, 238, 238, 0.05) 0%, transparent 25%),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 3px,
+      rgba(212, 212, 212, 0.01) 3px,
+      rgba(212, 212, 212, 0.01) 6px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 5px,
+      rgba(168, 168, 168, 0.005) 5px,
+      rgba(168, 168, 168, 0.005) 10px
+    );
+  background-size:
+    100% 100%,
+    100% 100%,
+    40px 40px,
+    60px 60px;
+  background-attachment: fixed;
+}
+
+/* ===================================================================
+   APLICACIÓN DE OPCIONES
+   =================================================================== */
+
+/* Aplicar a elementos principales */
+html.bg-option-1,
+html.bg-option-2,
+html.bg-option-3,
+html.bg-option-4,
+html.bg-option-5 {
+  min-height: 100vh;
+}
+
+body.bg-option-1,
+body.bg-option-2,
+body.bg-option-3,
+body.bg-option-4,
+body.bg-option-5 {
+  background: var(--bg-white);
+  min-height: 100vh;
+}
+
+#root.bg-option-1,
+#root.bg-option-2,
+#root.bg-option-3,
+#root.bg-option-4,
+#root.bg-option-5 {
+  background: var(--bg-white);
+  min-height: 100vh;
+}
+
+.App.bg-option-1,
+.App.bg-option-2,
+.App.bg-option-3,
+.App.bg-option-4,
+.App.bg-option-5 {
+  background: var(--bg-white);
+  min-height: 100vh;
+}
+
+/* ===================================================================
+   PREVIEW CARDS - Para mostrar las opciones
+   =================================================================== */
+.background-preview {
+  width: 200px;
+  height: 120px;
+  border-radius: 8px;
+  border: 2px solid #dee2e6;
+  margin: 10px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.background-preview:hover {
+  border-color: #0070f2;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 112, 242, 0.2);
+}
+
+.background-preview.active {
+  border-color: #0070f2;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2);
+}
+
+.preview-label {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  text-align: center;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Previews específicos */
+.preview-1 {
+  background: radial-gradient(ellipse at top, #f8f9fa 0%, #e9ecef 30%, #dee2e6 70%, #ced4da 100%);
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+}
+
+.preview-2 {
+  background: linear-gradient(
+    135deg,
+    #f1f3f4 0%,
+    #e8eaed 25%,
+    #dadce0 50%,
+    #bdc1c6 75%,
+    #9aa0a6 100%
+  );
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.1) 2px,
+    rgba(255, 255, 255, 0.1) 4px
+  );
+}
+
+.preview-3 {
+  background: radial-gradient(
+    circle at center,
+    #fafafa 0%,
+    #f5f5f5 20%,
+    #eeeeee 40%,
+    #e0e0e0 60%,
+    #bdbdbd 80%,
+    #9e9e9e 100%
+  );
+  background-image: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 40%
+  );
+}
+
+.preview-4 {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f8f9fa 15%,
+    #f1f3f4 30%,
+    #e8eaed 45%,
+    #dadce0 60%,
+    #bdc1c6 75%,
+    #9aa0a6 90%,
+    #80868b 100%
+  );
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 2px
+  );
+}
+
+.preview-5 {
+  background:
+    radial-gradient(ellipse 200px 100px at 50% 0%, #fafafa 0%, transparent 40%),
+    linear-gradient(135deg, #f5f5f5 0%, #eeeeee 25%, #e8e8e8 50%, #d4d4d4 75%, #a8a8a8 100%);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(212, 212, 212, 0.03) 2px,
+    rgba(212, 212, 212, 0.03) 4px
+  );
+}

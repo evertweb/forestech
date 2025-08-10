@@ -13,7 +13,7 @@
   padding: var(--sap-spacing-lg);
   background: var(--sap-neutral-100);
   min-height: 100vh;
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 /* === HEADER === */
@@ -31,7 +31,7 @@
   font-size: 2rem;
   font-weight: 600;
   margin: 0 0 var(--sap-spacing-sm) 0;
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 .header-title.sap-theme .sap-subtitle {
@@ -54,7 +54,7 @@
   border: 1px solid var(--sap-blue-primary);
   padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -81,7 +81,7 @@
   border: 1px solid var(--sap-blue-primary);
   padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -107,7 +107,7 @@
   border: 1px solid var(--sap-error);
   padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -150,7 +150,7 @@
   border: 1px solid var(--sap-neutral-400);
   border-radius: var(--sap-border-radius-sm);
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   transition: all var(--sap-transition-fast);
   box-sizing: border-box;
@@ -171,7 +171,7 @@
   border: 1px solid var(--sap-neutral-400);
   border-radius: var(--sap-border-radius-sm);
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   transition: all var(--sap-transition-fast);
   box-sizing: border-box;
@@ -188,7 +188,7 @@
 .toggle-btn.sap-theme {
   padding: var(--sap-spacing-sm) var(--sap-spacing-md);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -247,7 +247,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 var(--sap-spacing-xs) 0;
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 .product-category.sap-theme,
@@ -368,8 +368,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* === ERROR STATES === */
@@ -421,7 +425,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 .empty-state.sap-theme .sap-text {
@@ -442,44 +446,44 @@
   .products-main.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .products-header.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-md);
     align-items: stretch;
   }
-  
+
   .header-actions.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-sm);
   }
-  
+
   .header-actions.sap-theme .btn-primary.sap-theme,
   .header-actions.sap-theme .btn-secondary.sap-theme {
     width: 100%;
     min-height: 44px;
   }
-  
+
   .products-filters.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-sm);
   }
-  
+
   .search-input.sap-theme,
   .filter-select.sap-theme {
     width: 100%;
   }
-  
+
   .products-grid.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .product-actions.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-xs);
   }
-  
+
   .product-actions.sap-theme .btn-secondary.sap-theme,
   .product-actions.sap-theme .btn-primary.sap-theme,
   .product-actions.sap-theme .btn-danger.sap-theme {
@@ -494,7 +498,7 @@
   .products-main.sap-theme {
     padding: var(--sap-spacing-lg);
   }
-  
+
   .products-grid.sap-theme {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
@@ -505,7 +509,7 @@
   .products-main.sap-theme {
     padding: var(--sap-spacing-xl);
   }
-  
+
   .products-grid.sap-theme {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }

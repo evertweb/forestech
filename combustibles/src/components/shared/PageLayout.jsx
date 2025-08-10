@@ -17,34 +17,23 @@ const PageLayout = ({
   stats,
   filters,
   table,
+  children,
   loading = false,
-  className = "",
+  className = '',
   showStats = true,
-  showFilters = true
+  showFilters = true,
 }) => {
+  // Contenido principal: priorizar 'table' si está definido; de lo contrario, usar 'children'.
+  const content = table !== undefined ? table : children;
   return (
-    <div className={`min-h-screen bg-gray-50 sap-theme ${className}`}>
-      <PageHeader
-        title={title}
-        subtitle={subtitle}
-        actions={actions}
-      />
+    <div className={`sap-theme min-h-screen bg-gray-50 ${className}`}>
+      <PageHeader title={title} subtitle={subtitle} actions={actions} />
 
-      {stats && showStats && (
-        <StatsSection>
-          {stats}
-        </StatsSection>
-      )}
+      {stats && showStats && <StatsSection>{stats}</StatsSection>}
 
-      {filters && showFilters && (
-        <FiltersSection>
-          {filters}
-        </FiltersSection>
-      )}
+      {filters && showFilters && <FiltersSection>{filters}</FiltersSection>}
 
-      <TableSection loading={loading}>
-        {table}
-      </TableSection>
+      <TableSection loading={loading}>{content}</TableSection>
     </div>
   );
 };
@@ -56,10 +45,11 @@ PageLayout.propTypes = {
   stats: PropTypes.node,
   filters: PropTypes.node,
   table: PropTypes.node,
+  children: PropTypes.node,
   loading: PropTypes.bool,
   className: PropTypes.string,
   showStats: PropTypes.bool,
-  showFilters: PropTypes.bool
+  showFilters: PropTypes.bool,
 };
 
 PageLayout.displayName = 'PageLayout';

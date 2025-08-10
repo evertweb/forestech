@@ -6,13 +6,13 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
-const TableSection = ({ children, loading = false, className = "" }) => {
+const TableSection = ({ children, loading = false, className = '' }) => {
   return (
     <div className={`table-section sap-theme ${className}`}>
       {loading ? (
-        <div className="loading-container sap-theme">
-          <div className="loading-spinner sap-theme"></div>
-          <p className="sap-text">Cargando datos...</p>
+        <div className="loading-container sap-theme sap-theme">
+          <div className="loading-spinner sap-theme sap-theme"></div>
+          <p className="sap-text sap-theme">Cargando datos...</p>
         </div>
       ) : (
         children
@@ -24,7 +24,7 @@ const TableSection = ({ children, loading = false, className = "" }) => {
 TableSection.propTypes = {
   children: PropTypes.node,
   loading: PropTypes.bool,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 TableSection.displayName = 'TableSection';

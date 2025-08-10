@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Forzar esquema de color por defecto a claro para evitar flip inicial -->
+  <meta name="color-scheme" content="light" />
     <title>forestech de Colombia</title>
     <!-- Preconnects para reducir TTFB/LCP en fuentes y Firebase -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -15,8 +17,8 @@
   <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
     
-    <!-- Preload imagen de fondo crítica para LCP -->
-    <link rel="preload" as="image" href="https://firebasestorage.googleapis.com/v0/b/liquidacionapp-62962.appspot.com/o/backgrounds%2Fdefault%2Flogin-bg.jpg?alt=media" fetchpriority="high">
+  <!-- Prefetch imagen de fondo (evita warning si no se usa en los primeros segundos) -->
+  <link rel="prefetch" as="image" href="https://firebasestorage.googleapis.com/v0/b/liquidacionapp-62962.appspot.com/o/backgrounds%2Fdefault%2Flogin-bg.jpg?alt=media" />
     
     <!-- DNS prefetch adicional para optimizar Firebase y auth -->
     <link rel="dns-prefetch" href="//firebaseapp.com">
@@ -63,7 +65,7 @@
 
       /* Page headers (Movements/Inventory/Vehicles hero sections) */
       .products-header { min-height: 76px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
-      .products-header .header-title { display: flex; flex-direction: column; gap: 4px; }
+      .products-header .header-title { display: flex; flex-direction: column; gap: 0.5px; align-items: center; }
       .products-header .sap-title { font-size: 22px; line-height: 1.25; margin: 0; }
       .products-header .sap-subtitle { font-size: 14px; color: #64748b; margin: 0; }
       .movements-header.sap-theme { background: var(--sap-neutral-100); border: 1px solid var(--sap-neutral-300); border-radius: 12px; padding: var(--sap-spacing-lg); margin-bottom: 32px; }

@@ -60,10 +60,14 @@
    2.1 DASHBOARD CONTENT HEADER - Simplificado sin controles de vista
    ================================================================================================= */
 .dashboard-header {
-  background: linear-gradient(135deg, #2d5a27 0%, #1e3a1a 100%); /* Gradiente corporativo oscuro para el header. */
+  background: linear-gradient(
+    135deg,
+    #2d5a27 0%,
+    #1e3a1a 100%
+  ); /* Gradiente corporativo oscuro para el header. */
   color: white; /* Texto blanco para contraste. */
   padding: 0; /* Se elimina el padding para un control más preciso del contenido interno. */
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Sombra sutil para dar profundidad y separar del contenido. */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para dar profundidad y separar del contenido. */
   position: fixed; /* Fija el header en la parte superior de la pantalla. */
   top: 0;
   left: 0;
@@ -96,7 +100,7 @@
 }
 
 .sidebar-toggle:hover {
-  background-color: rgba(255,255,255,0.1); /* Resaltado sutil al pasar el mouse. */
+  background-color: rgba(255, 255, 255, 0.1); /* Resaltado sutil al pasar el mouse. */
 }
 
 .header-title h1 {
@@ -115,6 +119,32 @@
   display: flex;
   align-items: center;
   gap: 0.75rem; /* Espacio entre el avatar y la información del usuario. */
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 9999px;
+  transition:
+    background-color 0.2s,
+    transform 0.2s,
+    border-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
 }
 
 .user-info {
@@ -177,7 +207,7 @@
 }
 
 .logout-button:hover {
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255, 255, 255, 0.1);
   transform: scale(1.05); /* Efecto de crecimiento sutil. */
 }
 
@@ -211,7 +241,7 @@
 .dashboard-sidebar {
   width: 280px; /* Ancho fijo para el sidebar. */
   background: white;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease; /* Animación suave para mostrar/ocultar. */
   position: fixed; /* Fijo para que no se desplace con el contenido. */
   left: 0;
@@ -388,10 +418,22 @@ body .dashboard-main.sidebar-hidden {
   white-space: nowrap;
 }
 
-.movement-type-badge.entrada { background: #dcfce7; color: #059669; }
-.movement-type-badge.salida { background: #fef2f2; color: #dc2626; }
-.movement-type-badge.transferencia { background: #dbeafe; color: #2563eb; }
-.movement-type-badge.ajuste { background: #fef3c7; color: #d97706; }
+.movement-type-badge.entrada {
+  background: #dcfce7;
+  color: #059669;
+}
+.movement-type-badge.salida {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.movement-type-badge.transferencia {
+  background: #dbeafe;
+  color: #2563eb;
+}
+.movement-type-badge.ajuste {
+  background: #fef3c7;
+  color: #d97706;
+}
 
 /* =================================================================================================
    8. RESPONSIVE DESIGN (DISEÑO ADAPTABLE)
@@ -407,48 +449,63 @@ body .dashboard-main.sidebar-hidden {
     opacity: 0;
     pointer-events: none;
   }
-  
+
   /* El contenido principal debe expandirse cuando sidebar está oculto */
   .dashboard-main.sidebar-hidden {
     margin-left: 0 !important;
     width: 100vw !important;
-    transition: margin-left 0.3s ease, width 0.3s ease;
+    transition:
+      margin-left 0.3s ease,
+      width 0.3s ease;
   }
-  
+
   /* Transición suave para el sidebar en desktop */
   .dashboard-sidebar {
-    transition: transform 0.3s ease, visibility 0.3s ease, opacity 0.3s ease;
+    transition:
+      transform 0.3s ease,
+      visibility 0.3s ease,
+      opacity 0.3s ease;
   }
 }
 
 /* Responsive para dashboard simplificado - solo tabla */
 @media (min-width: 1024px) and (max-width: 1600px) {
-  .dashboard-main { padding: 0; }
+  .dashboard-main {
+    padding: 0;
+  }
 }
 
 /* Pantallas grandes - optimización para vista tabla */
 @media (min-width: 1400px) {
-  .dashboard-main { padding: 0; }
+  .dashboard-main {
+    padding: 0;
+  }
 }
 
 /* Tablets y pantallas medianas (hasta 1024px). */
 @media (max-width: 1024px) {
   /* En móviles, el sidebar inicia oculto y se muestra con la clase .open. */
-  .dashboard-sidebar { transform: translateX(-100%); }
-  .dashboard-sidebar.open { transform: translateX(0); }
-  .dashboard-sidebar.hidden { transform: translateX(-100%); }
-  
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+  }
+  .dashboard-sidebar.open {
+    transform: translateX(0);
+  }
+  .dashboard-sidebar.hidden {
+    transform: translateX(-100%);
+  }
+
   .dashboard-main {
     margin-left: 0; /* El contenido principal ocupa todo el ancho. */
     width: 100vw;
   }
-  
+
   /* En móviles, el contenido siempre ocupa todo el ancho */
   .dashboard-main.sidebar-hidden {
     margin-left: 0;
     width: 100vw;
   }
-  
+
   /* Overlay oscuro para el fondo cuando el sidebar está abierto. Solo en móviles */
   .sidebar-overlay {
     position: fixed;
@@ -456,7 +513,7 @@ body .dashboard-main.sidebar-hidden {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 850;
     display: block;
   }
@@ -469,16 +526,28 @@ body .dashboard-main.sidebar-hidden {
 
 /* Móviles (hasta 768px). */
 @media (max-width: 768px) {
-  .header-content { padding: 0 0.75rem; }
-  .header-title h1 { font-size: 1.25rem; }
-  .user-info { display: none; } /* Oculta la info de usuario para ahorrar espacio. */
-  .dashboard-main { padding: 1rem; }
+  .header-content {
+    padding: 0 0.75rem;
+  }
+  .header-title h1 {
+    font-size: 1.25rem;
+  }
+  .user-info {
+    display: none;
+  } /* Oculta la info de usuario para ahorrar espacio. */
+  .dashboard-main {
+    padding: 1rem;
+  }
 }
 
 /* Pantallas muy pequeñas (hasta 480px). */
 @media (max-width: 480px) {
-  .header-title h1 { font-size: 1.1rem; }
-  .dashboard-main { padding: 0.75rem; }
+  .header-title h1 {
+    font-size: 1.1rem;
+  }
+  .dashboard-main {
+    padding: 0.75rem;
+  }
 }
 
 /* =================================================================================================
@@ -505,8 +574,12 @@ body .dashboard-main.sidebar-hidden {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Mensaje de error. */

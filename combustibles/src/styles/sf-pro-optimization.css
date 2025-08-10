@@ -1,0 +1,305 @@
+/* ===================================================================
+   SF Pro Font Optimization - Cross-platform compatibility
+   =================================================================== */
+
+/* Font loading optimization for SF Pro */
+@font-face {
+  font-family: 'SF Pro Display';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap; /* Mejora la velocidad de carga */
+  src:
+    local('SF Pro Display'), local('San Francisco Display'), local('.SFNSDisplay-Ultralight'),
+    local('.SFNSDisplay-Thin'), local('.SFNSDisplay-Light'), local('.SFNSDisplay-Regular'),
+    local('.SFNSDisplay-Medium'), local('.SFNSDisplay-Semibold'), local('.SFNSDisplay-Bold'),
+    local('.SFNSDisplay-Heavy'), local('.SFNSDisplay-Black');
+}
+
+@font-face {
+  font-family: 'SF Pro Text';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap; /* Mejora la velocidad de carga */
+  src:
+    local('SF Pro Text'), local('San Francisco Text'), local('.SFNSText-Light'),
+    local('.SFNSText-Regular'), local('.SFNSText-Medium'), local('.SFNSText-Semibold'),
+    local('.SFNSText-Bold'), local('.SFNSText-Heavy');
+}
+
+/* ===================================================================
+   SF Pro Typography System - Optimizations
+   =================================================================== */
+
+/* Optimizaciones globales para SF Pro */
+* {
+  /* Mejorar renderizado de SF Pro en diferentes navegadores */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'calt' 1;
+  font-variant-ligatures: common-ligatures;
+  text-rendering: optimizeLegibility;
+}
+
+/* Optimizaciones específicas para SF Pro en diferentes elementos */
+body,
+.sap-theme,
+[class*='sap-'],
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-family-primary);
+
+  /* Optimizaciones para SF Pro */
+  font-feature-settings:
+    'kern' 1,
+    /* Kerning mejorado */ 'liga' 1,
+    /* Ligaduras comunes */ 'calt' 1,
+    /* Alternativas contextuales */ 'ss01' 1,
+    /* Set estilístico 1 (números tabulares en SF Pro) */ 'tnum' 1; /* Números tabulares para tablas */
+
+  font-variant-numeric: tabular-nums; /* Números de ancho fijo para tablas */
+  font-optical-sizing: auto; /* Optimización óptica automática */
+}
+
+/* Títulos con SF Pro Display optimizado */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.sap-title,
+.header-title,
+.card-title,
+.modal-title {
+  font-family: 'SF Pro Display', var(--font-family-primary);
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'calt' 1,
+    'ss02' 1; /* Set estilístico 2 para títulos */
+}
+
+/* Texto de cuerpo con SF Pro Text optimizado */
+p,
+span,
+div,
+label,
+small,
+.sap-text,
+.card-content,
+.form-text {
+  font-family: 'SF Pro Text', var(--font-family-primary);
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'calt' 1;
+}
+
+/* Botones con SF Pro optimizado */
+button,
+.btn,
+.sap-button,
+[class*='btn-'] {
+  font-family: 'SF Pro Text', var(--font-family-primary);
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'calt' 1,
+    'case' 1; /* Mayúsculas mejoradas */
+  letter-spacing: 0.005em; /* Espaciado sutil para botones */
+}
+
+/* Formularios con SF Pro optimizado */
+input,
+select,
+textarea,
+.form-input,
+.form-select,
+.form-textarea {
+  font-family: 'SF Pro Text', var(--font-family-primary);
+  font-feature-settings:
+    'kern' 1,
+    'tnum' 1; /* Números tabulares para inputs numéricos */
+}
+
+/* Tablas con SF Pro optimizado para datos */
+table,
+.table,
+.sap-table,
+[class*='table-'] {
+  font-family: 'SF Pro Text', var(--font-family-primary);
+  font-feature-settings:
+    'kern' 1,
+    'tnum' 1,
+    /* Números tabulares */ 'lnum' 1; /* Números alineados */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ===================================================================
+   Cross-platform Compatibility
+   =================================================================== */
+
+/* Fallbacks para sistemas que no tienen SF Pro */
+@supports not (font-family: 'SF Pro Display') {
+  :root {
+    --font-family-primary:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  }
+}
+
+/* Optimizaciones específicas por SO */
+
+/* macOS - SF Pro nativo */
+@supports (-webkit-appearance: none) and (color: -webkit-system-control-background) {
+  * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Windows - Optimizaciones para ClearType */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  * {
+    font-smoothing: antialiased;
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+/* Linux - Optimizaciones para FreeType */
+@supports (font-feature-settings: normal) {
+  @media screen and (min-resolution: 96dpi) {
+    * {
+      font-feature-settings:
+        'kern' 1,
+        'liga' 1;
+    }
+  }
+}
+
+/* ===================================================================
+   High DPI / Retina Display Optimizations
+   =================================================================== */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi), (min-resolution: 2dppx) {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ===================================================================
+   Dark Mode Compatibility
+   =================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* ===================================================================
+   Accessibility Optimizations
+   =================================================================== */
+
+/* Respetar preferencias de reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    font-feature-settings: 'kern' 1; /* Solo kerning básico */
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+  * {
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: optimizeSpeed;
+  }
+}
+
+/* ===================================================================
+   Performance Optimizations
+   =================================================================== */
+
+/* Contendrá capas para mejorar performance */
+.sap-theme,
+[class*='sap-'] {
+  will-change: auto;
+  transform: translateZ(0); /* Crear capa de composición */
+}
+
+/* Critical font loading */
+.font-loading {
+  font-family: system-ui, sans-serif; /* Fallback temporal */
+  visibility: hidden;
+}
+
+.font-loaded {
+  font-family: var(--font-family-primary);
+  visibility: visible;
+  animation: fontFadeIn 0.3s ease-in-out;
+}
+
+@keyframes fontFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===================================================================
+   Print Styles
+   =================================================================== */
+
+@media print {
+  * {
+    font-family: 'SF Pro Text', 'Times New Roman', serif !important;
+    -webkit-font-smoothing: auto !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'SF Pro Display', 'Times New Roman', serif !important;
+    font-weight: bold !important;
+  }
+}
+
+/* ===================================================================
+   Mobile Optimizations
+   =================================================================== */
+
+@media screen and (max-width: 768px) {
+  * {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Optimizar espaciado en móvil */
+  body {
+    font-size: 16px; /* Evitar zoom en iOS */
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* Evitar zoom en iOS */
+  }
+}

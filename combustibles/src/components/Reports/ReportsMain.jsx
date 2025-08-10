@@ -13,7 +13,7 @@ import {
   calculateConsumptionProjections,
   formatCurrency,
   formatNumber,
-  formatPercentage
+  formatPercentage,
 } from '../../utils/calculations';
 
 // Importar componentes de reportes específicos
@@ -30,18 +30,22 @@ const ReportsMain = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), // Últimos 30 días
-    end: new Date().toISOString().slice(0, 10)
+    end: new Date().toISOString().slice(0, 10),
   });
 
   // Calcular estadísticas principales (hooks antes del return condicional)
   const inventoryStats = useMemo(() => calculateInventoryStats(inventory), [inventory]);
   const movementsStats = useMemo(() => calculateMovementsStats(movements), [movements]);
-  const vehiclesStats = useMemo(() => calculateVehiclesStats(vehicles, movements), [vehicles, movements]);
+  const vehiclesStats = useMemo(
+    () => calculateVehiclesStats(vehicles, movements),
+    [vehicles, movements]
+  );
   const lowStockAlerts = useMemo(() => calculateLowStockAlerts(inventory), [inventory]);
   const projections = useMemo(() => calculateConsumptionProjections(movements), [movements]);
 
   // Verificar permisos
-  const canViewReports = userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
+  const canViewReports =
+    userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
 
   if (!canViewReports) {
     return (
@@ -64,62 +68,65 @@ const ReportsMain = () => {
       title: 'Dashboard',
       subtitle: 'Vista ejecutiva',
       icon: '📊',
-      component: null // Se renderiza aquí mismo
+      component: null, // Se renderiza aquí mismo
     },
     {
       id: 'inventory',
       title: 'Inventario',
       subtitle: 'Stock y alertas',
       icon: '🛢️',
-      component: InventoryReports
+      component: InventoryReports,
     },
     {
       id: 'vehicles',
       title: 'Vehículos',
       subtitle: 'Consumo y eficiencia',
       icon: '🚜',
-      component: VehicleReports
+      component: VehicleReports,
     },
     {
       id: 'movements',
       title: 'Movimientos',
       subtitle: 'Entradas y salidas',
       icon: '📈',
-      component: MovementReports
+      component: MovementReports,
     },
     {
       id: 'financial',
       title: 'Financiero',
       subtitle: 'Costos y ROI',
       icon: '💰',
-      component: FinancialReports
-    }
+      component: FinancialReports,
+    },
   ];
 
   // Función para cambiar rango de fechas
   const handleDateRangeChange = (field, value) => {
-    setDateRange(prev => ({
+    setDateRange((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   // Renderizar dashboard ejecutivo
   const renderDashboard = () => (
-    <div className="dashboard-content">
+    <div className="dashboard-content sap-theme">
       {/* Alertas críticas */}
       {lowStockAlerts.length > 0 && (
         <div className="alerts-container sap-theme">
           {lowStockAlerts.slice(0, 3).map((alert, index) => (
-            <div key={index} className={`alert sap-theme sap-message-${alert.stockLevel === 'critical' ? 'error' : 'warning'}`}>
+            <div
+              key={index}
+              className={`alert sap-theme sap-message-${alert.stockLevel === 'critical' ? 'error' : 'warning'}`}
+            >
               <span className="alert-icon sap-theme">⚠️</span>
               <div className="alert-content sap-theme">
                 <div className="alert-title sap-theme sap-text-primary">
                   Stock {alert.stockLevel === 'critical' ? 'Crítico' : 'Bajo'}: {alert.productName}
                 </div>
                 <div className="alert-message sap-theme sap-text-secondary">
-                  {alert.location} - {formatNumber(alert.currentStock)} {alert.unit} 
-                  ({formatPercentage(alert.percentage / 100)} de capacidad)
+                  {alert.location} - {formatNumber(alert.currentStock)} {alert.unit}(
+                  {formatPercentage(alert.percentage / 100)} de capacidad)
                 </div>
               </div>
             </div>
@@ -132,7 +139,9 @@ const ReportsMain = () => {
         {/* Inventario */}
         <div className="kpi-card sap-theme sap-card">
           <div className="kpi-icon inventory sap-theme">🛢️</div>
-          <div className="kpi-value sap-theme sap-text-primary">{formatCurrency(inventoryStats.totalValue)}</div>
+          <div className="kpi-value sap-theme sap-text-primary">
+            {formatCurrency(inventoryStats.totalValue)}
+          </div>
           <div className="kpi-label sap-theme sap-text-secondary">Valor Total Inventario</div>
           <div className="kpi-trend neutral sap-theme">
             <span className="trend-icon sap-theme">📦</span>
@@ -147,14 +156,18 @@ const ReportsMain = () => {
           <div className="kpi-label sap-theme sap-text-secondary">Vehículos Activos</div>
           <div className="kpi-trend positive sap-theme">
             <span className="trend-icon sap-theme">⏱️</span>
-            <span className="sap-text">{formatNumber(vehiclesStats.totalHours)} horas trabajadas</span>
+            <span className="sap-text">
+              {formatNumber(vehiclesStats.totalHours)} horas trabajadas
+            </span>
           </div>
         </div>
 
         {/* Movimientos */}
         <div className="kpi-card sap-theme sap-card">
           <div className="kpi-icon movements sap-theme">📈</div>
-          <div className="kpi-value sap-theme sap-text-primary">{movementsStats.totalMovements}</div>
+          <div className="kpi-value sap-theme sap-text-primary">
+            {movementsStats.totalMovements}
+          </div>
           <div className="kpi-label sap-theme sap-text-secondary">Movimientos del Mes</div>
           <div className="kpi-trend positive sap-theme">
             <span className="trend-icon sap-theme">✅</span>
@@ -165,7 +178,9 @@ const ReportsMain = () => {
         {/* Eficiencia */}
         <div className="kpi-card sap-theme sap-card">
           <div className="kpi-icon financial sap-theme">💰</div>
-          <div className="kpi-value sap-theme sap-text-primary">{formatNumber(vehiclesStats.averageEfficiency, 1)}</div>
+          <div className="kpi-value sap-theme sap-text-primary">
+            {formatNumber(vehiclesStats.averageEfficiency, 1)}
+          </div>
           <div className="kpi-label sap-theme sap-text-secondary">Consumo Promedio (L/h)</div>
           <div className="kpi-trend neutral sap-theme">
             <span className="trend-icon sap-theme">📊</span>
@@ -180,9 +195,7 @@ const ReportsMain = () => {
           <div className="chart-header">
             <h3 className="chart-title">📈 Proyecciones de Consumo (30 días)</h3>
             <div className="chart-actions">
-              <span className="badge info">
-                Confianza: {formatNumber(projections.confidence)}%
-              </span>
+              <span className="badge info">Confianza: {formatNumber(projections.confidence)}%</span>
             </div>
           </div>
           <div className="chart-content">
@@ -213,9 +226,7 @@ const ReportsMain = () => {
             {Object.entries(inventoryStats.stockByType).map(([fuelType, stock]) => (
               <div key={fuelType} className="stock-item">
                 <h4>{fuelType.toUpperCase()}</h4>
-                <div className="stock-value">
-                  {formatNumber(stock)} L
-                </div>
+                <div className="stock-value">{formatNumber(stock)} L</div>
                 <div className="stock-status">
                   {stock > 1000 ? (
                     <span className="badge success">Stock Bueno</span>
@@ -235,16 +246,16 @@ const ReportsMain = () => {
 
   // Renderizar contenido activo
   const renderActiveContent = () => {
-    const activeTabConfig = reportTabs.find(tab => tab.id === activeTab);
-    
+    const activeTabConfig = reportTabs.find((tab) => tab.id === activeTab);
+
     if (activeTab === 'dashboard') {
       return renderDashboard();
     }
-    
+
     if (activeTabConfig?.component) {
       const Component = activeTabConfig.component;
       return (
-        <Component 
+        <Component
           inventory={inventory}
           movements={movements}
           vehicles={vehicles}
@@ -254,7 +265,7 @@ const ReportsMain = () => {
         />
       );
     }
-    
+
     return (
       <div className="empty-state sap-theme sap-message-info">
         <div className="empty-icon sap-theme">🚧</div>
@@ -269,53 +280,62 @@ const ReportsMain = () => {
   // Componentes para PageLayout
   const headerActions = null; // No hay acciones específicas en el header para reportes
 
-  const statsComponent = activeTab === 'dashboard' ? (
-    <div className="kpis-grid sap-theme">
-      {/* Inventario */}
-      <div className="kpi-card sap-theme sap-card">
-        <div className="kpi-icon inventory sap-theme">🛢️</div>
-        <div className="kpi-value sap-theme sap-text-primary">{formatCurrency(inventoryStats.totalValue)}</div>
-        <div className="kpi-label sap-theme sap-text-secondary">Valor Total Inventario</div>
-        <div className="kpi-trend neutral sap-theme">
-          <span className="trend-icon sap-theme">📦</span>
-          <span className="sap-text">{inventoryStats.totalItems} productos activos</span>
+  const statsComponent =
+    activeTab === 'dashboard' ? (
+      <div className="kpis-grid sap-theme">
+        {/* Inventario */}
+        <div className="kpi-card sap-theme sap-card">
+          <div className="kpi-icon inventory sap-theme">🛢️</div>
+          <div className="kpi-value sap-theme sap-text-primary">
+            {formatCurrency(inventoryStats.totalValue)}
+          </div>
+          <div className="kpi-label sap-theme sap-text-secondary">Valor Total Inventario</div>
+          <div className="kpi-trend neutral sap-theme">
+            <span className="trend-icon sap-theme">📦</span>
+            <span className="sap-text">{inventoryStats.totalItems} productos activos</span>
+          </div>
         </div>
-      </div>
 
-      {/* Vehículos */}
-      <div className="kpi-card sap-theme sap-card">
-        <div className="kpi-icon vehicles sap-theme">🚜</div>
-        <div className="kpi-value sap-theme sap-text-primary">{vehiclesStats.activeVehicles}</div>
-        <div className="kpi-label sap-theme sap-text-secondary">Vehículos Activos</div>
-        <div className="kpi-trend positive sap-theme">
-          <span className="trend-icon sap-theme">⏱️</span>
-          <span className="sap-text">{formatNumber(vehiclesStats.totalHours)} horas trabajadas</span>
+        {/* Vehículos */}
+        <div className="kpi-card sap-theme sap-card">
+          <div className="kpi-icon vehicles sap-theme">🚜</div>
+          <div className="kpi-value sap-theme sap-text-primary">{vehiclesStats.activeVehicles}</div>
+          <div className="kpi-label sap-theme sap-text-secondary">Vehículos Activos</div>
+          <div className="kpi-trend positive sap-theme">
+            <span className="trend-icon sap-theme">⏱️</span>
+            <span className="sap-text">
+              {formatNumber(vehiclesStats.totalHours)} horas trabajadas
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Movimientos */}
-      <div className="kpi-card sap-theme sap-card">
-        <div className="kpi-icon movements sap-theme">📈</div>
-        <div className="kpi-value sap-theme sap-text-primary">{movementsStats.totalMovements}</div>
-        <div className="kpi-label sap-theme sap-text-secondary">Movimientos del Mes</div>
-        <div className="kpi-trend positive sap-theme">
-          <span className="trend-icon sap-theme">✅</span>
-          <span className="sap-text">{movementsStats.completedMovements} completados</span>
+        {/* Movimientos */}
+        <div className="kpi-card sap-theme sap-card">
+          <div className="kpi-icon movements sap-theme">📈</div>
+          <div className="kpi-value sap-theme sap-text-primary">
+            {movementsStats.totalMovements}
+          </div>
+          <div className="kpi-label sap-theme sap-text-secondary">Movimientos del Mes</div>
+          <div className="kpi-trend positive sap-theme">
+            <span className="trend-icon sap-theme">✅</span>
+            <span className="sap-text">{movementsStats.completedMovements} completados</span>
+          </div>
         </div>
-      </div>
 
-      {/* Eficiencia */}
-      <div className="kpi-card sap-theme sap-card">
-        <div className="kpi-icon financial sap-theme">💰</div>
-        <div className="kpi-value sap-theme sap-text-primary">{formatNumber(vehiclesStats.averageEfficiency, 1)}</div>
-        <div className="kpi-label sap-theme sap-text-secondary">Consumo Promedio (L/h)</div>
-        <div className="kpi-trend neutral sap-theme">
-          <span className="trend-icon sap-theme">📊</span>
-          <span className="sap-text">{formatNumber(vehiclesStats.totalConsumption)} L total</span>
+        {/* Eficiencia */}
+        <div className="kpi-card sap-theme sap-card">
+          <div className="kpi-icon financial sap-theme">💰</div>
+          <div className="kpi-value sap-theme sap-text-primary">
+            {formatNumber(vehiclesStats.averageEfficiency, 1)}
+          </div>
+          <div className="kpi-label sap-theme sap-text-secondary">Consumo Promedio (L/h)</div>
+          <div className="kpi-trend neutral sap-theme">
+            <span className="trend-icon sap-theme">📊</span>
+            <span className="sap-text">{formatNumber(vehiclesStats.totalConsumption)} L total</span>
+          </div>
         </div>
       </div>
-    </div>
-  ) : null;
+    ) : null;
 
   const filtersComponent = (
     <>
@@ -341,20 +361,24 @@ const ReportsMain = () => {
             />
           </div>
           <div className="filter-actions sap-theme">
-            <button 
+            <button
               className="filter-btn secondary sap-theme sap-button sap-button-secondary"
               onClick={() => {
                 const today = new Date();
-                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+                const lastMonth = new Date(
+                  today.getFullYear(),
+                  today.getMonth() - 1,
+                  today.getDate()
+                );
                 setDateRange({
                   start: lastMonth.toISOString().slice(0, 10),
-                  end: today.toISOString().slice(0, 10)
+                  end: today.toISOString().slice(0, 10),
                 });
               }}
             >
               📅 Último Mes
             </button>
-            <button 
+            <button
               className="filter-btn primary sap-theme sap-button sap-button-primary"
               onClick={() => window.location.reload()}
             >
@@ -366,7 +390,7 @@ const ReportsMain = () => {
 
       {/* Navegación de reportes */}
       <div className="reports-navigation sap-theme">
-        {reportTabs.map(tab => (
+        {reportTabs.map((tab) => (
           <button
             key={tab.id}
             className={`nav-tab sap-theme sap-button ${activeTab === tab.id ? 'active sap-button-primary' : 'sap-button-secondary'}`}
@@ -399,7 +423,6 @@ const ReportsMain = () => {
       {mainContent}
     </PageLayout>
   );
-
 };
 
 export default ReportsMain;

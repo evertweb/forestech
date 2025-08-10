@@ -12,38 +12,47 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
 
   const { products } = systemData;
 
-  const handleFuelSelection = useCallback(async (fuelType, product) => {
-    setLoading(true);
-    setError('');
-    
-    try {
-      // Simular carga de precios actualizados
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      updateFormData('fuelType', fuelType);
-      setSelectedProduct(product);
-      
-      // Auto-completar precio
-      if (product.defaultPrice) {
-        updateFormData('unitPrice', product.defaultPrice.toString());
+  const handleFuelSelection = useCallback(
+    async (fuelType, product) => {
+      setLoading(true);
+      setError('');
+
+      try {
+        // Simular carga de precios actualizados
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        updateFormData('fuelType', fuelType);
+        setSelectedProduct(product);
+
+        // Auto-completar precio
+        if (product.defaultPrice) {
+          updateFormData('unitPrice', product.defaultPrice.toString());
+        }
+
+        console.log(
+          '🔄 [Step2] Combustible seleccionado:',
+          fuelType,
+          'Precio:',
+          product.defaultPrice
+        );
+      } catch (err) {
+        console.error('Error al cargar combustible:', err);
+        setError('Error al cargar información del combustible');
+      } finally {
+        setLoading(false);
       }
-      
-      console.log('🔄 [Step2] Combustible seleccionado:', fuelType, 'Precio:', product.defaultPrice);
-      
-    } catch (err) {
-      console.error('Error al cargar combustible:', err);
-      setError('Error al cargar información del combustible');
-    } finally {
-      setLoading(false);
-    }
-  }, [updateFormData, setError]);
+    },
+    [updateFormData, setError]
+  );
 
   // Actualizar producto seleccionado cuando cambia el combustible
   useEffect(() => {
     if (formData.fuelType && products.length > 0) {
-      const product = products.find(p => p.name === formData.fuelType || p.displayName === formData.fuelType);
+      const product = products.find(
+        (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+      );
       setSelectedProduct(product);
-      
+
       // Auto-completar precio si existe
       if (product && product.defaultPrice && !formData.unitPrice) {
         updateFormData('unitPrice', product.defaultPrice.toString());
@@ -70,36 +79,33 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
 
   if (products.length === 0) {
     return (
-      <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
-        <div className="typeform-layout">
-          <div className="typeform-question">
-            <h2>⛽ Crear producto diesel manualmente</h2>
-            <p>No hay productos disponibles. Creemos uno temporalmente.</p>
-          </div>
-          
-          <div className="typeform-options">
-            <div
-              className="typeform-option"
-              onClick={() => handleFuelSelection('DIESEL', {
+      <div className={`wizard-step step-fuel-type sap-theme ${isActive ? 'active' : ''}`}>
+        <div className="step-question sap-theme sap-theme">
+          <h3>⛽ Crear producto diesel manualmente</h3>
+          <p>No hay productos disponibles. Creemos uno temporalmente.</p>
+        </div>
+
+        <div className="fuel-options sap-theme sap-theme">
+          <div
+            className="fuel-option sap-theme sap-theme"
+            onClick={() =>
+              handleFuelSelection('DIESEL', {
                 name: 'DIESEL',
                 displayName: 'Diesel 🚛',
                 icon: '🚛',
                 description: 'Combustible diesel para vehículos pesados',
-                defaultPrice: 12500
-              })}
-            >
-              <div className="typeform-option-icon">🚛</div>
-              <div className="typeform-option-content">
-                <h4>Diesel 🚛</h4>
-                <p>Combustible diesel para vehículos pesados</p>
-                <div className="fuel-price">
-                  <span className="price-value">$12,500 COP/galón</span>
-                </div>
-              </div>
-              <div className="typeform-option-selector">
-                <div className="typeform-check">
-                  <span className="typeform-check-icon">✓</span>
-                </div>
+                defaultPrice: 12500,
+              })
+            }
+          >
+            <div className="option-icon sap-theme sap-theme">🚛</div>
+            <div className="option-content sap-theme sap-theme">
+              <h4 className="option-title sap-theme sap-theme">Diesel 🚛</h4>
+              <p className="option-description sap-theme sap-theme">
+                Combustible diesel para vehículos pesados
+              </p>
+              <div className="fuel-price sap-theme sap-theme">
+                <span className="price-value sap-theme sap-theme">$12,500 COP/galón</span>
               </div>
             </div>
           </div>
@@ -109,82 +115,79 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
   }
 
   return (
-    <div className={`wizard-step step-fuel-type ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout">
-        <div className="typeform-question">
-          <h2>{WIZARD_QUESTIONS.FUEL_TYPE.title}</h2>
-          <p>{WIZARD_QUESTIONS.FUEL_TYPE.description}</p>
+    <div className={`wizard-step step-fuel-type sap-theme ${isActive ? 'active' : ''}`}>
+      <div className="step-question sap-theme sap-theme">
+        <h3>{WIZARD_QUESTIONS.FUEL_TYPE.title}</h3>
+        <p>{WIZARD_QUESTIONS.FUEL_TYPE.description}</p>
+      </div>
+
+      {loading && (
+        <div className="wizard-loading sap-theme sap-theme">
+          <div className="loading-spinner sap-theme sap-theme"></div>
+          <p>📡 Actualizando precios...</p>
         </div>
+      )}
 
-        {loading && (
-          <div className="loading-overlay">
-            <div className="loading-spinner"></div>
-            <p>📡 Actualizando precios...</p>
-          </div>
-        )}
+      <div className="fuel-options sap-theme sap-theme">
+        {products.map((product) => (
+          <div
+            key={product.id}
+            className={`fuel-option sap-theme ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+            onClick={() => !loading && handleFuelSelection(product.name, product)}
+          >
+            <div className="option-icon sap-theme sap-theme">{product.icon || '🛢️'}</div>
+            <div className="option-content sap-theme sap-theme">
+              <h4 className="option-title sap-theme sap-theme">
+                {product.displayName || product.name}
+              </h4>
+              <p className="option-description sap-theme sap-theme">
+                {product.description || 'Combustible premium'}
+              </p>
 
-        <div className="typeform-options">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className={`typeform-option ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
-              onClick={() => !loading && handleFuelSelection(product.name, product)}
-            >
-              <div className="typeform-option-icon">
-                {product.icon || '🛢️'}
-              </div>
-              <div className="typeform-option-content">
-                <h4>{product.displayName || product.name}</h4>
-                <p>{product.description || 'Combustible premium'}</p>
-                
-                {product.defaultPrice && (
-                  <div className="fuel-price">
-                    <span className="price-value">
-                      ${product.defaultPrice.toLocaleString('es-CO')} COP/galón
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="typeform-option-selector">
-                <div className="typeform-check">
-                  <span className="typeform-check-icon">✓</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {selectedProduct && formData.fuelType && (
-          <div className="selection-confirmation">
-            <div className="confirmation-card fuel-confirmation">
-              <div className="confirmation-header">
-                <span className="confirmation-icon">
-                  {selectedProduct.icon || '🛢️'}
-                </span>
-                <div className="confirmation-text">
-                  <strong>Excelente! Has elegido {selectedProduct.displayName || selectedProduct.name}</strong>
-                  <br />
-                  <small>{selectedProduct.description || 'Combustible de calidad premium'}</small>
-                </div>
-              </div>
-              
-              {selectedProduct.defaultPrice && (
-                <div className="price-confirmation">
-                  <div className="price-info">
-                    <span className="price-label">💰 Precio actual:</span>
-                    <span className="price-amount">
-                      ${selectedProduct.defaultPrice.toLocaleString('es-CO')} COP/galón
-                    </span>
-                  </div>
-                  <small className="price-note">
-                    ✨ Aplicamos el precio automáticamente (lo puedes ajustar después)
-                  </small>
+              {product.defaultPrice && (
+                <div className="fuel-price sap-theme sap-theme">
+                  <span className="price-value sap-theme sap-theme">
+                    ${product.defaultPrice.toLocaleString('es-CO')} COP/galón
+                  </span>
                 </div>
               )}
             </div>
           </div>
-        )}
+        ))}
       </div>
+
+      {selectedProduct && formData.fuelType && (
+        <div className="selection-confirmation sap-theme sap-theme">
+          <div className="confirmation-card sap-theme sap-theme">
+            <div className="confirmation-header sap-theme sap-theme">
+              <span className="confirmation-icon sap-theme sap-theme">
+                {selectedProduct.icon || '🛢️'}
+              </span>
+              <div className="confirmation-text sap-theme sap-theme">
+                <strong>
+                  Excelente! Has elegido {selectedProduct.displayName || selectedProduct.name}
+                </strong>
+                <br />
+                <small>{selectedProduct.description || 'Combustible de calidad premium'}</small>
+              </div>
+            </div>
+
+            {selectedProduct.defaultPrice && (
+              <div className="price-confirmation sap-theme sap-theme">
+                <div className="price-info sap-theme sap-theme">
+                  <span className="price-label sap-theme sap-theme">💰 Precio actual:</span>
+                  <span className="price-amount sap-theme sap-theme">
+                    ${selectedProduct.defaultPrice.toLocaleString('es-CO')} COP/galón
+                  </span>
+                </div>
+                <small className="price-note sap-theme sap-theme">
+                  ✨ Aplicamos el precio automáticamente (lo puedes ajustar después)
+                </small>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

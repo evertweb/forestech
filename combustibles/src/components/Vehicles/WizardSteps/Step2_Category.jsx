@@ -6,13 +6,7 @@
 import React, { useEffect, useCallback } from 'react';
 import './VehicleWizardSteps.css';
 
-const Step2_Category = ({ 
-  formData, 
-  updateFormData, 
-  errors, 
-  isActive,
-  extraData 
-}) => {
+const Step2_Category = ({ formData, updateFormData, errors, isActive, extraData }) => {
   const { categories = [], onRequestCategoryCreation } = extraData || {};
 
   // Navegación por teclado
@@ -32,9 +26,12 @@ const Step2_Category = ({
     return () => window.removeEventListener('keypress', handleKeyPress);
   }, [isActive, categories, updateFormData]);
 
-  const handleCategorySelect = useCallback((categoryId) => {
-    updateFormData('category', categoryId);
-  }, [updateFormData]);
+  const handleCategorySelect = useCallback(
+    (categoryId) => {
+      updateFormData('category', categoryId);
+    },
+    [updateFormData]
+  );
 
   // Manejar apertura del wizard de categorías
   const handleManageCategories = useCallback(() => {
@@ -62,8 +59,14 @@ const Step2_Category = ({
   const getCategoryColor = (category) => {
     const name = category.name?.toLowerCase() || '';
     if (name.includes('tractor')) return 'category-agriculture';
-    if (name.includes('camión') || name.includes('camion') || name.includes('volqueta')) return 'category-transport';
-    if (name.includes('excavadora') || name.includes('bulldozer') || name.includes('retroexcavadora')) return 'category-construction';
+    if (name.includes('camión') || name.includes('camion') || name.includes('volqueta'))
+      return 'category-transport';
+    if (
+      name.includes('excavadora') ||
+      name.includes('bulldozer') ||
+      name.includes('retroexcavadora')
+    )
+      return 'category-construction';
     if (name.includes('motoniveladora')) return 'category-road';
     if (name.includes('compresor') || name.includes('generador')) return 'category-equipment';
     return 'category-general';
@@ -71,16 +74,18 @@ const Step2_Category = ({
 
   return (
     <div className={`wizard-step step-category ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout">
-        
+      <div className="typeform-layout sap-theme">
         {/* Pregunta principal */}
-        <div className="typeform-question">
-          <h2>🏷️ ¿Qué tipo de vehículo es <span className="highlight">{formData.name || formData.vehicleId}</span>?</h2>
+        <div className="typeform-question sap-theme">
+          <h2>
+            🏷️ ¿Qué tipo de vehículo es{' '}
+            <span className="highlight sap-theme">{formData.name || formData.vehicleId}</span>?
+          </h2>
           <p>Selecciona la categoría que mejor describa este vehículo</p>
         </div>
 
         {/* Grid de categorías */}
-        <div className="typeform-options category-grid">
+        <div className="typeform-options category-grid sap-theme">
           {categories.map((category, index) => (
             <div
               key={category.id}
@@ -89,38 +94,40 @@ const Step2_Category = ({
               }`}
               onClick={() => handleCategorySelect(category.id)}
             >
-              <div className="category-header">
-                <span className="category-icon">{getCategoryIcon(category)}</span>
-                <span className="category-number">{index + 1}</span>
+              <div className="category-header sap-theme">
+                <span className="category-icon sap-theme">{getCategoryIcon(category)}</span>
+                <span className="category-number sap-theme">{index + 1}</span>
               </div>
-              
-              <div className="category-content">
-                <h3 className="category-title">{category.name}</h3>
-                <p className="category-description">
+
+              <div className="category-content sap-theme">
+                <h3 className="category-title sap-theme">{category.name}</h3>
+                <p className="category-description sap-theme">
                   {category.description || 'Categoría personalizada'}
                 </p>
-                
+
                 {/* Mostrar campos específicos de la categoría */}
                 {category.fields && category.fields.length > 0 && (
-                  <div className="category-fields">
-                    <span className="fields-label">Incluye:</span>
-                    <div className="fields-list">
-                      {category.fields.slice(0, 3).map(field => (
-                        <span key={field.key} className="field-tag">
+                  <div className="category-fields sap-theme">
+                    <span className="fields-label sap-theme">Incluye:</span>
+                    <div className="fields-list sap-theme">
+                      {category.fields.slice(0, 3).map((field) => (
+                        <span key={field.key} className="field-tag sap-theme">
                           {field.icon} {field.label}
                         </span>
                       ))}
                       {category.fields.length > 3 && (
-                        <span className="field-tag more">+{category.fields.length - 3} más</span>
+                        <span className="field-tag more sap-theme">
+                          +{category.fields.length - 3} más
+                        </span>
                       )}
                     </div>
                   </div>
                 )}
               </div>
-              
+
               {formData.category === category.id && (
-                <div className="selection-indicator">
-                  <span className="checkmark">✓</span>
+                <div className="selection-indicator sap-theme">
+                  <span className="checkmark sap-theme">✓</span>
                 </div>
               )}
             </div>
@@ -129,20 +136,20 @@ const Step2_Category = ({
 
         {/* Error */}
         {errors.category && (
-          <div className="input-error-centered">
-            <span className="error-icon">⚠️</span>
+          <div className="input-error-centered sap-theme">
+            <span className="error-icon sap-theme">⚠️</span>
             {errors.category}
           </div>
         )}
 
         {/* Información adicional */}
         {categories.length === 0 && (
-          <div className="empty-state">
-            <div className="empty-icon">📝</div>
+          <div className="empty-state sap-theme">
+            <div className="empty-icon sap-theme">📝</div>
             <h3>No hay categorías disponibles</h3>
             <p>Necesitas crear al menos una categoría de vehículo antes de continuar.</p>
-            <button 
-              className="wizard-btn wizard-btn-secondary"
+            <button
+              className="wizard-btn wizard-btn-secondary sap-theme"
               onClick={handleManageCategories}
             >
               🏷️ Ir a Gestión de Categorías
@@ -152,31 +159,35 @@ const Step2_Category = ({
 
         {/* Botón para gestionar categorías cuando hay categorías disponibles */}
         {categories.length > 0 && (
-          <div className="manage-categories-section">
-            <button 
-              className="wizard-btn wizard-btn-outline"
+          <div className="manage-categories-section sap-theme">
+            <button
+              className="wizard-btn wizard-btn-outline sap-theme"
               onClick={handleManageCategories}
             >
               🏷️ Ir a Gestión de Categorías
             </button>
-            <p className="manage-hint">¿Necesitas crear una nueva categoría? Ve a la pestaña Categorías</p>
+            <p className="manage-hint sap-theme">
+              ¿Necesitas crear una nueva categoría? Ve a la pestaña Categorías
+            </p>
           </div>
         )}
 
         {/* Preview de la selección */}
         {formData.category && (
-          <div className="step-preview">
-            <div className="preview-card">
+          <div className="step-preview sap-theme">
+            <div className="preview-card sap-theme">
               <h4>📋 Categoría seleccionada</h4>
               {(() => {
-                const selectedCategory = categories.find(c => c.id === formData.category);
+                const selectedCategory = categories.find((c) => c.id === formData.category);
                 return selectedCategory ? (
-                  <div className="selected-category-preview">
-                    <div className="preview-header">
-                      <span className="preview-icon">{getCategoryIcon(selectedCategory)}</span>
-                      <span className="preview-name">{selectedCategory.name}</span>
+                  <div className="selected-category-preview sap-theme">
+                    <div className="preview-header sap-theme">
+                      <span className="preview-icon sap-theme">
+                        {getCategoryIcon(selectedCategory)}
+                      </span>
+                      <span className="preview-name sap-theme">{selectedCategory.name}</span>
                     </div>
-                    <p className="preview-description">
+                    <p className="preview-description sap-theme">
                       {selectedCategory.description || 'Categoría personalizada'}
                     </p>
                   </div>
@@ -187,10 +198,10 @@ const Step2_Category = ({
         )}
 
         {/* Hint para navegación */}
-        <div className="navigation-hint">
-          💡 Tip: Puedes usar las teclas 1-{Math.min(9, categories.length)} para seleccionar rápidamente
+        <div className="navigation-hint sap-theme">
+          💡 Tip: Puedes usar las teclas 1-{Math.min(9, categories.length)} para seleccionar
+          rápidamente
         </div>
-
       </div>
     </div>
   );

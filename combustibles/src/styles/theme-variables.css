@@ -16,12 +16,12 @@
   --forestech-primary: #2c5530;
   --forestech-secondary: #3d7c47;
   --forestech-accent: #16a34a;
-  
+
   /* Colores Forestech */
   --forestech-green: #2c5530;
   --forestech-green-light: #3d7c47;
   --forestech-green-dark: #1b4332;
-  
+
   /* Colores funcionales */
   --color-success: #16a34a;
   --color-success-light: #22c55e;
@@ -31,7 +31,7 @@
   --color-error-light: #ef4444;
   --color-info: #2563eb;
   --color-info-light: #3b82f6;
-  
+
   /* Colores de texto */
   --text-primary: #2c5530;
   --text-secondary: #666;
@@ -39,7 +39,7 @@
   --text-muted: #999;
   --text-white: #ffffff;
   --text-black: #000000;
-  
+
   /* Colores de fondo */
   --bg-white: #ffffff;
   --bg-light-gray: #f8f9fa;
@@ -47,33 +47,33 @@
   --bg-overlay: rgba(255, 255, 255, 0.1);
   --bg-overlay-dark: rgba(0, 0, 0, 0.5);
   --bg-card: rgba(255, 255, 255, 0.1);
-  
+
   /* Gradientes */
   --gradient-primary: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
   --gradient-background: linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%);
   --gradient-card: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
-  
+
   /* Colores de bordes */
   --border-light: #e0e7e3;
   --border-medium: #d1d5db;
   --border-dark: #6b7280;
-  
+
   /* Sombras específicas de Forestech */
   --shadow-light: 0 2px 8px rgba(44, 85, 48, 0.1);
   --shadow-forestech: 0 4px 16px rgba(44, 85, 48, 0.15);
-  
+
   /* Colores de productos */
-  --product-color-primary: #FF6B35;
-  --product-color-success: #4CAF50;
-  --product-color-info: #2196F3;
-  --product-color-warning: #FF9800;
-  --product-color-error: #F44336;
-  --product-color-purple: #9C27B0;
-  --product-color-pink: #E91E63;
+  --product-color-primary: #ff6b35;
+  --product-color-success: #4caf50;
+  --product-color-info: #2196f3;
+  --product-color-warning: #ff9800;
+  --product-color-error: #f44336;
+  --product-color-purple: #9c27b0;
+  --product-color-pink: #e91e63;
   --product-color-brown: #795548;
-  --product-color-blue-gray: #607D8B;
-  --product-color-indigo: #3F51B5;
-  
+  --product-color-blue-gray: #607d8b;
+  --product-color-indigo: #3f51b5;
+
   /* Espaciado */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -81,15 +81,17 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-xxl: 3rem;
-  
+
   /* Espaciado específico de componentes */
   --card-padding: 1.5rem;
   --modal-padding: 2rem;
   --button-padding: 0.75rem 1.5rem;
   --input-padding: 0.75rem 1rem;
-  
+
   /* Tipografía */
-  --font-family-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-primary:
+    'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -97,14 +99,14 @@
   --font-size-xl: 1.25rem;
   --font-size-xxl: 1.5rem;
   --font-size-xxxl: 2rem;
-  
+
   /* Pesos de fuente */
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -112,20 +114,20 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  
+
   /* Bordes */
   --border-radius-sm: 0.25rem;
   --border-radius-md: 0.5rem;
   --border-radius-lg: 0.75rem;
   --border-radius-xl: 1rem;
   --border-radius-full: 9999px;
-  
+
   /* Transiciones */
   --transition-fast: all 150ms ease;
   --transition-normal: all 300ms ease;
   --transition-slow: all 500ms ease;
   --transition-all: all 300ms ease;
-  
+
   /* Z-index */
   --z-background: -1;
   --z-base: 0;
@@ -142,30 +144,32 @@
 /* ===================================================================
    TEMA SAP FIORI
    ================================================================ */
-[data-theme="sap"] {
+[data-theme='sap'] {
   /* Colores principales SAP */
   --forestech-primary: #0070f2;
   --forestech-secondary: #f4f5f6;
   --forestech-accent: #df6e00;
-  
+
   /* SAP Brand Colors */
   --sap-blue-primary: #0070f2;
   --sap-blue-secondary: #0054b9;
   --sap-blue-light: #e6f3ff;
   --sap-blue-dark: #003d82;
-  
+
   /* SAP Semantic Colors */
   --color-success: #30914f;
   --color-warning: #df6e00;
   --color-error: #dc0d0e;
   --color-info: #0070f2;
-  
+
   /* SAP Typography */
-  --font-family-primary: '72', 'Open Sans', sans-serif;
-  
+  --font-family-primary:
+    'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+
   /* SAP Borders */
   --border-radius-md: 4px;
-  
+
   /* SAP Shadows */
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12);
   --shadow-modal: 0 8px 16px rgba(0, 0, 0, 0.15);
@@ -174,12 +178,12 @@
 /* ===================================================================
    TEMA RETRO 80S
    ================================================================ */
-[data-theme="retro"] {
+[data-theme='retro'] {
   /* Colores principales Retro */
   --forestech-primary: #ff00ff;
   --forestech-secondary: #00ffff;
   --forestech-accent: #ffff00;
-  
+
   /* Retro Colors */
   --retro-bg-primary: #0a0a0f;
   --retro-bg-secondary: #1a1a2e;
@@ -188,17 +192,21 @@
   --retro-neon-orange: #ff6b35;
   --retro-neon-purple: #8a2be2;
   --retro-neon-green: #39ff14;
-  
+
   /* Retro Typography */
   --font-family-primary: 'Orbitron', 'Rajdhani', monospace;
-  
+
   /* Retro Effects */
-  --retro-glow-pink: 0 0 10px var(--retro-neon-pink), 0 0 20px var(--retro-neon-pink), 0 0 30px var(--retro-neon-pink);
-  --retro-glow-cyan: 0 0 10px var(--retro-neon-cyan), 0 0 20px var(--retro-neon-cyan), 0 0 30px var(--retro-neon-cyan);
-  
+  --retro-glow-pink:
+    0 0 10px var(--retro-neon-pink), 0 0 20px var(--retro-neon-pink),
+    0 0 30px var(--retro-neon-pink);
+  --retro-glow-cyan:
+    0 0 10px var(--retro-neon-cyan), 0 0 20px var(--retro-neon-cyan),
+    0 0 30px var(--retro-neon-cyan);
+
   /* Retro Borders */
   --border-radius-md: 0;
-  
+
   /* Retro Shadows */
   --shadow-card: var(--retro-glow-pink);
   --shadow-modal: var(--retro-glow-cyan);
@@ -228,24 +236,64 @@
 /* ===================================================================
    UTILIDADES CSS PARA PRODUCTOS
    ================================================================ */
-.product-color-primary { color: var(--product-color-primary); }
-.product-color-success { color: var(--product-color-success); }
-.product-color-info { color: var(--product-color-info); }
-.product-color-warning { color: var(--product-color-warning); }
-.product-color-error { color: var(--product-color-error); }
-.product-color-purple { color: var(--product-color-purple); }
-.product-color-pink { color: var(--product-color-pink); }
-.product-color-brown { color: var(--product-color-brown); }
-.product-color-blue-gray { color: var(--product-color-blue-gray); }
-.product-color-indigo { color: var(--product-color-indigo); }
+.product-color-primary {
+  color: var(--product-color-primary);
+}
+.product-color-success {
+  color: var(--product-color-success);
+}
+.product-color-info {
+  color: var(--product-color-info);
+}
+.product-color-warning {
+  color: var(--product-color-warning);
+}
+.product-color-error {
+  color: var(--product-color-error);
+}
+.product-color-purple {
+  color: var(--product-color-purple);
+}
+.product-color-pink {
+  color: var(--product-color-pink);
+}
+.product-color-brown {
+  color: var(--product-color-brown);
+}
+.product-color-blue-gray {
+  color: var(--product-color-blue-gray);
+}
+.product-color-indigo {
+  color: var(--product-color-indigo);
+}
 
-.bg-product-color-primary { background-color: var(--product-color-primary); }
-.bg-product-color-success { background-color: var(--product-color-success); }
-.bg-product-color-info { background-color: var(--product-color-info); }
-.bg-product-color-warning { background-color: var(--product-color-warning); }
-.bg-product-color-error { background-color: var(--product-color-error); }
-.bg-product-color-purple { background-color: var(--product-color-purple); }
-.bg-product-color-pink { background-color: var(--product-color-pink); }
-.bg-product-color-brown { background-color: var(--product-color-brown); }
-.bg-product-color-blue-gray { background-color: var(--product-color-blue-gray); }
-.bg-product-color-indigo { background-color: var(--product-color-indigo); }
+.bg-product-color-primary {
+  background-color: var(--product-color-primary);
+}
+.bg-product-color-success {
+  background-color: var(--product-color-success);
+}
+.bg-product-color-info {
+  background-color: var(--product-color-info);
+}
+.bg-product-color-warning {
+  background-color: var(--product-color-warning);
+}
+.bg-product-color-error {
+  background-color: var(--product-color-error);
+}
+.bg-product-color-purple {
+  background-color: var(--product-color-purple);
+}
+.bg-product-color-pink {
+  background-color: var(--product-color-pink);
+}
+.bg-product-color-brown {
+  background-color: var(--product-color-brown);
+}
+.bg-product-color-blue-gray {
+  background-color: var(--product-color-blue-gray);
+}
+.bg-product-color-indigo {
+  background-color: var(--product-color-indigo);
+}

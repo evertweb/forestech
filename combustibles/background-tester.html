@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probador de Fondos - Combustibles</title>
+    <link rel="stylesheet" href="src/styles/background-options.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.5s ease;
+            min-height: 100vh;
+        }
+        
+        .tester-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #2c5530;
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+        
+        .header p {
+            color: #666;
+            margin: 0;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .option-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .option-title {
+            font-weight: 600;
+            color: #2c5530;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+        
+        .option-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .apply-button {
+            background: #0070f2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .apply-button:hover {
+            background: #0054b9;
+            transform: translateY(-2px);
+        }
+        
+        .apply-button.active {
+            background: #30914f;
+        }
+        
+        .demo-content {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-title {
+            color: #2c5530;
+            font-size: 1.5rem;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .demo-card h3 {
+            color: #0070f2;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+        
+        .demo-card p {
+            color: #666;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .reset-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-button:hover {
+            background: #545862;
+            transform: translateY(-2px);
+        }
+        
+        .current-option {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 112, 242, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 112, 242, 0.2);
+        }
+        
+        .current-option strong {
+            color: #0070f2;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="tester-container">
+        <div class="header">
+            <h1>🎨 Probador de Fondos - App Combustibles</h1>
+            <p>Selecciona una opción para ver el degradado gris arena en tiempo real</p>
+        </div>
+        
+        <div class="options-grid">
+            <div class="option-card">
+                <div class="background-preview preview-1">
+                    <div class="preview-label">Opción 1</div>
+                </div>
+                <h3 class="option-title">Gris Perla Suave</h3>
+                <p class="option-description">Degradado radial suave con textura sutil. Ideal para un look elegante y minimalista.</p>
+                <button class="apply-button" onclick="applyBackground(1)">Aplicar Opción 1</button>
+            </div>
+            
+            <div class="option-card">
+                <div class="background-preview preview-2">
+                    <div class="preview-label">Opción 2</div>
+                </div>
+                <h3 class="option-title">Arena Cálida</h3>
+                <p class="option-description">Degradado diagonal con patrones geométricos. Textura arena cálida y acogedora.</p>
+                <button class="apply-button" onclick="applyBackground(2)">Aplicar Opción 2</button>
+            </div>
+            
+            <div class="option-card">
+                <div class="background-preview preview-3">
+                    <div class="preview-label">Opción 3</div>
+                </div>
+                <h3 class="option-title">Arena Fina</h3>
+                <p class="option-description">Degradado radial circular con textura arena muy fina. Transiciones suaves y naturales.</p>
+                <button class="apply-button" onclick="applyBackground(3)">Aplicar Opción 3</button>
+            </div>
+            
+            <div class="option-card">
+                <div class="background-preview preview-4">
+                    <div class="preview-label">Opción 4</div>
+                </div>
+                <h3 class="option-title">Arena Gruesa</h3>
+                <p class="option-description">Degradado vertical con textura arena gruesa. Líneas sutiles que aportan dinamismo.</p>
+                <button class="apply-button" onclick="applyBackground(4)">Aplicar Opción 4</button>
+            </div>
+            
+            <div class="option-card">
+                <div class="background-preview preview-5">
+                    <div class="preview-label">Opción 5</div>
+                </div>
+                <h3 class="option-title">Arena Texturizada</h3>
+                <p class="option-description">Degradado complejo multicapa. Máxima textura y profundidad visual.</p>
+                <button class="apply-button" onclick="applyBackground(5)">Aplicar Opción 5</button>
+            </div>
+        </div>
+        
+        <button class="reset-button" onclick="resetBackground()">🔄 Volver al Fondo Original</button>
+        
+        <div class="current-option" id="currentOption" style="display: none;">
+            <strong>Opción Activa:</strong> <span id="optionName">Ninguna</span>
+        </div>
+        
+        <div class="demo-content">
+            <h2 class="demo-title">📋 Vista Previa del Contenido</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>📊 Dashboard</h3>
+                    <p>Así se verían las tarjetas del dashboard principal con el nuevo fondo. El contraste permite una buena legibilidad del contenido.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🚛 Vehículos</h3>
+                    <p>Los cards de vehículos mantendrían su diseño SAP Fiori mientras se benefician del fondo texturizado.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>⛽ Combustibles</h3>
+                    <p>Las tablas y formularios tendrían mejor separación visual del fondo, creando una jerarquía clara.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>🔧 Mantenimiento</h3>
+                    <p>Los componentes de mantenimiento se integrarían perfectamente con la nueva textura de arena.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>📈 Reportes</h3>
+                    <p>Los gráficos y reportes tendrían un fondo más sofisticado sin comprometer la claridad de los datos.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>👥 Usuarios</h3>
+                    <p>La gestión de usuarios se beneficiaría del aspecto más profesional del fondo texturizado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBg = null;
+        const optionNames = {
+            1: 'Gris Perla Suave',
+            2: 'Arena Cálida', 
+            3: 'Arena Fina',
+            4: 'Arena Gruesa',
+            5: 'Arena Texturizada'
+        };
+        
+        function applyBackground(option) {
+            // Remover clases anteriores
+            if (currentBg) {
+                document.body.classList.remove(`bg-option-${currentBg}`);
+                document.querySelector(`.apply-button:nth-of-type(${currentBg})`);
+                // Remover active de todos los botones
+                document.querySelectorAll('.apply-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            }
+            
+            // Aplicar nueva clase
+            document.body.classList.add(`bg-option-${option}`);
+            currentBg = option;
+            
+            // Marcar botón como activo
+            event.target.classList.add('active');
+            
+            // Mostrar opción actual
+            document.getElementById('currentOption').style.display = 'block';
+            document.getElementById('optionName').textContent = optionNames[option];
+            
+            console.log(`Aplicada opción ${option}: ${optionNames[option]}`);
+        }
+        
+        function resetBackground() {
+            if (currentBg) {
+                document.body.classList.remove(`bg-option-${currentBg}`);
+                currentBg = null;
+                
+                // Remover active de todos los botones
+                document.querySelectorAll('.apply-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Ocultar opción actual
+                document.getElementById('currentOption').style.display = 'none';
+                
+                console.log('Fondo resetado al original');
+            }
+        }
+        
+        // Efectos visuales adicionales
+        document.addEventListener('DOMContentLoaded', function() {
+            // Añadir animaciones de entrada
+            const cards = document.querySelectorAll('.option-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.animation = 'fadeInUp 0.6s ease forwards';
+                }, index * 100);
+            });
+            
+            // Añadir CSS de animación
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInUp {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

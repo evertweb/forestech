@@ -160,26 +160,26 @@
     gap: var(--sap-spacing-md);
     padding: var(--sap-spacing-md);
   }
-  
+
   .navigation-card.sap-theme {
     min-height: 160px;
     padding: var(--sap-spacing-md);
   }
-  
+
   .navigation-card-header.sap-theme {
     gap: var(--sap-spacing-sm);
   }
-  
+
   .navigation-card-icon.sap-theme {
     width: 40px;
     height: 40px;
     font-size: 1.5rem;
   }
-  
+
   .navigation-card-title.sap-theme {
     font-size: 1.125rem;
   }
-  
+
   .navigation-card-stats.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-sm);
@@ -218,7 +218,7 @@
   background: var(--sap-neutral-200) !important;
   min-height: 100vh !important;
   padding: var(--sap-spacing-lg) !important;
-  font-family: '72', 'Open Sans', sans-serif !important;
+  font-family: var(--font-family-primary) !important;
   position: relative !important;
   z-index: 10 !important; /* Aumentado z-index para estar por encima del layout base */
   width: 100% !important;
@@ -250,7 +250,7 @@
 }
 
 .dashboard-container.sap-theme .dashboard-header.sap-theme .dashboard-title.sap-theme {
-  font-family: '72', sans-serif !important;
+  font-family: var(--font-family-primary) !important;
   font-weight: 600 !important;
   font-size: 1.5rem !important;
   color: var(--sap-text-primary) !important;
@@ -271,7 +271,7 @@
 }
 
 .dashboard-container.sap-theme .dashboard-header.sap-theme .dashboard-subtitle.sap-theme {
-  font-family: '72', sans-serif !important;
+  font-family: var(--font-family-primary) !important;
   font-size: 0.875rem !important;
   color: var(--sap-text-secondary) !important;
   margin: var(--sap-spacing-xs) 0 0 0 !important;
@@ -335,7 +335,7 @@
 }
 
 .stat-card-title.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   color: var(--sap-text-secondary);
@@ -372,7 +372,7 @@
 }
 
 .stat-card-value.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 700;
   font-size: 2rem;
   color: var(--sap-text-primary);
@@ -381,7 +381,7 @@
 }
 
 .stat-card-change.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
   font-weight: 500;
   margin-top: var(--sap-spacing-xs);
@@ -433,7 +433,7 @@
 }
 
 .dashboard-table-title.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 1rem;
   color: var(--sap-text-primary);
@@ -455,7 +455,7 @@
 .table.sap-theme th {
   background: var(--sap-neutral-200);
   color: var(--sap-text-primary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 0.875rem;
   padding: var(--sap-spacing-md);
@@ -487,7 +487,7 @@
   gap: var(--sap-spacing-xs);
   padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -526,7 +526,7 @@
 
 /* ==== BUTTONS SAP ==== */
 .btn.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: var(--sap-border-radius-sm);
@@ -646,7 +646,7 @@
 }
 
 .filter-label.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.75rem;
   color: var(--sap-text-secondary);
@@ -662,7 +662,7 @@
   border: 1px solid var(--sap-neutral-400);
   border-radius: var(--sap-border-radius-sm);
   color: var(--sap-text-primary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   transition: all var(--sap-transition-fast);
 }
@@ -679,49 +679,49 @@
   .dashboard-container.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .dashboard-header.sap-theme {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--sap-spacing-md);
   }
-  
+
   .stats-grid.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .dashboard-table-header.sap-theme {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--sap-spacing-md);
   }
-  
+
   .dashboard-table-actions.sap-theme {
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .dashboard-filters.sap-theme {
     flex-direction: column;
     align-items: stretch;
     gap: var(--sap-spacing-md);
   }
-  
+
   .filter-group.sap-theme {
     width: 100%;
   }
-  
+
   .filter-input.sap-theme,
   .filter-select.sap-theme {
     min-width: auto;
     width: 100%;
   }
-  
+
   .table.sap-theme {
     font-size: 0.75rem;
   }
-  
+
   .table.sap-theme th,
   .table.sap-theme td {
     padding: var(--sap-spacing-sm);
@@ -759,7 +759,7 @@
   justify-content: center;
   min-height: 200px;
   color: var(--sap-text-secondary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   gap: var(--sap-spacing-md);
 }
 

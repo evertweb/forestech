@@ -19,50 +19,55 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
   // Función para determinar si requiere horómetro
   const checkIfRequiresHourMeter = useCallback((vehicle) => {
     if (!vehicle) return false;
-    return vehicle.type === 'heavy' || 
-           vehicle.type === 'construction' || 
-           vehicle.category === 'maquinaria';
+    return (
+      vehicle.type === 'heavy' ||
+      vehicle.type === 'construction' ||
+      vehicle.category === 'maquinaria'
+    );
   }, []);
 
   // Función para obtener vehículos compatibles
   const getCompatibleVehicles = useCallback(() => {
     if (!formData.fuelType || vehicles.length === 0) return [];
-    
+
     const requiredFuelType = formData.fuelType.toLowerCase();
-    return vehicles.filter(vehicle => {
+    return vehicles.filter((vehicle) => {
       const vehicleFuelType = vehicle.fuelType?.toLowerCase() || '';
-      return vehicle.status === 'activo' && (
-        (requiredFuelType === 'diesel' && vehicleFuelType === 'diesel') ||
-        (requiredFuelType === 'gasolina' && vehicleFuelType === 'gasolina')
+      return (
+        vehicle.status === 'activo' &&
+        ((requiredFuelType === 'diesel' && vehicleFuelType === 'diesel') ||
+          (requiredFuelType === 'gasolina' && vehicleFuelType === 'gasolina'))
       );
     });
   }, [formData.fuelType, vehicles]);
 
-  const handleVehicleSelection = useCallback(async (vehicle) => {
-    setLoading(true);
-    setError('');
-    setLocalError('');
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      updateFormData('vehicleId', vehicle.vehicleId);
-      setSelectedVehicle(vehicle);
-      
-      const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
-      setShowHourMeter(requiresHourMeter);
-      
-      // Limpiar horómetro previo si no es requerido
-      if (!requiresHourMeter) {
-        updateFormData('currentHours', '');
+  const handleVehicleSelection = useCallback(
+    async (vehicle) => {
+      setLoading(true);
+      setError('');
+      setLocalError('');
+
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+
+        updateFormData('vehicleId', vehicle.vehicleId);
+        setSelectedVehicle(vehicle);
+
+        const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
+        setShowHourMeter(requiresHourMeter);
+
+        // Limpiar horómetro previo si no es requerido
+        if (!requiresHourMeter) {
+          updateFormData('currentHours', '');
+        }
+      } catch {
+        setError('Error al seleccionar vehículo');
+      } finally {
+        setLoading(false);
       }
-      
-    } catch {
-      setError('Error al seleccionar vehículo');
-    } finally {
-      setLoading(false);
-    }
-  }, [updateFormData, setError, checkIfRequiresHourMeter]);
+    },
+    [updateFormData, setError, checkIfRequiresHourMeter]
+  );
 
   // Navegación por teclado
   useEffect(() => {
@@ -71,7 +76,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
     const handleKeyPress = (e) => {
       const compatibleVehicles = getCompatibleVehicles();
       const num = parseInt(e.key);
-      
+
       if (num >= 1 && num <= compatibleVehicles.length) {
         const selectedVehicle = compatibleVehicles[num - 1];
         handleVehicleSelection(selectedVehicle);
@@ -80,14 +85,21 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, vehicles, formData.fuelType, formData.type, getCompatibleVehicles, handleVehicleSelection]);
+  }, [
+    isActive,
+    vehicles,
+    formData.fuelType,
+    formData.type,
+    getCompatibleVehicles,
+    handleVehicleSelection,
+  ]);
 
   // Buscar vehículo seleccionado
   useEffect(() => {
     if (formData.vehicleId && vehicles.length > 0 && formData.type === MOVEMENT_TYPES.SALIDA) {
-      const vehicle = vehicles.find(v => v.vehicleId === formData.vehicleId);
+      const vehicle = vehicles.find((v) => v.vehicleId === formData.vehicleId);
       setSelectedVehicle(vehicle);
-      
+
       const requiresHourMeter = checkIfRequiresHourMeter(vehicle);
       setShowHourMeter(requiresHourMeter);
 
@@ -105,7 +117,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   const handleHourMeterChange = (value) => {
     const numValue = parseFloat(value);
-    
+
     if (value === '' || (!isNaN(numValue) && numValue >= 0)) {
       updateFormData('currentHours', value);
       setLocalError('');
@@ -117,7 +129,7 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
   const getVehicleIcon = (vehicle) => {
     const category = vehicle.category?.toLowerCase() || '';
     const type = vehicle.type?.toLowerCase() || '';
-    
+
     if (category.includes('tractor') || type.includes('tractor')) return '🚜';
     if (category.includes('excavadora') || type.includes('excavadora')) return '🦕';
     if (category.includes('volqueta') || type.includes('volqueta')) return '🚛';
@@ -131,8 +143,8 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
   if (compatibleVehicles.length === 0) {
     return (
       <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
-        <div className="typeform-layout">
-          <div className="typeform-question">
+        <div className="typeform-layout sap-theme">
+          <div className="typeform-question sap-theme">
             <h2>🚫 No hay vehículos compatibles</h2>
             <p>No se encontraron vehículos activos que usen {formData.fuelType}</p>
           </div>
@@ -143,39 +155,46 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   return (
     <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout">
-        <div className="typeform-question">
+      <div className="typeform-layout sap-theme">
+        <div className="typeform-question sap-theme">
           <h2>{WIZARD_QUESTIONS.VEHICLE_SELECTION.title}</h2>
-          <p>{WIZARD_QUESTIONS.VEHICLE_SELECTION.description.replace('{fuelType}', formData.fuelType || 'combustible')}</p>
+          <p>
+            {WIZARD_QUESTIONS.VEHICLE_SELECTION.description.replace(
+              '{fuelType}',
+              formData.fuelType || 'combustible'
+            )}
+          </p>
         </div>
 
         {loading && (
-          <div className="loading-overlay">
-            <div className="loading-spinner"></div>
+          <div className="loading-overlay sap-theme">
+            <div className="loading-spinner sap-theme"></div>
             <p>🔄 Validando vehículo...</p>
           </div>
         )}
 
-        <div className="typeform-options">
+        <div className="typeform-options sap-theme">
           {compatibleVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
               className={`typeform-option ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
               onClick={() => !loading && handleVehicleSelection(vehicle)}
             >
-              <div className="typeform-option-icon">
-                {getVehicleIcon(vehicle)}
-              </div>
-              <div className="typeform-option-content">
-                <h4>{vehicle.vehicleId} - {vehicle.brand || 'Vehículo'}</h4>
+              <div className="typeform-option-icon sap-theme">{getVehicleIcon(vehicle)}</div>
+              <div className="typeform-option-content sap-theme">
+                <h4>
+                  {vehicle.vehicleId} - {vehicle.brand || 'Vehículo'}
+                </h4>
                 <p>{vehicle.model || vehicle.type || 'Equipo de trabajo'}</p>
                 {vehicle.currentHours && (
-                  <small className="vehicle-hours">🕐 {vehicle.currentHours} horas registradas</small>
+                  <small className="vehicle-hours sap-theme">
+                    🕐 {vehicle.currentHours} horas registradas
+                  </small>
                 )}
               </div>
-              <div className="typeform-option-selector">
-                <div className="typeform-check">
-                  <span className="typeform-check-icon">✓</span>
+              <div className="typeform-option-selector sap-theme">
+                <div className="typeform-check sap-theme">
+                  <span className="typeform-check-icon sap-theme">✓</span>
                 </div>
               </div>
             </div>
@@ -184,12 +203,12 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
         {/* Input de horómetro si es requerido */}
         {showHourMeter && selectedVehicle && (
-          <div className="typeform-input-section">
-            <div className="typeform-question">
+          <div className="typeform-input-section sap-theme">
+            <div className="typeform-question sap-theme">
               <h3>🕐 ¿Cuál es el horómetro actual?</h3>
               <p>Ingresa las horas actuales de {selectedVehicle.vehicleId}</p>
             </div>
-            
+
             <input
               ref={hourMeterRef}
               type="number"
@@ -201,29 +220,25 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
               className={`typeform-input ${localError ? 'error' : ''}`}
               autoComplete="off"
             />
-            <span className="typeform-unit">horas</span>
-            
-            {localError && (
-              <div className="validation-warning">
-                {localError}
-              </div>
-            )}
+            <span className="typeform-unit sap-theme">horas</span>
+
+            {localError && <div className="validation-warning sap-theme">{localError}</div>}
           </div>
         )}
 
         {/* Confirmación */}
         {selectedVehicle && formData.vehicleId && (
-          <div className="selection-confirmation">
-            <div className="confirmation-card">
-              <span className="confirmation-icon">{getVehicleIcon(selectedVehicle)}</span>
-              <div className="confirmation-text">
+          <div className="selection-confirmation sap-theme">
+            <div className="confirmation-card sap-theme">
+              <span className="confirmation-icon sap-theme">{getVehicleIcon(selectedVehicle)}</span>
+              <div className="confirmation-text sap-theme">
                 <strong>Perfecto! Combustible para {selectedVehicle.vehicleId}</strong>
                 <br />
                 <small>
                   {selectedVehicle.brand} {selectedVehicle.model}
-                  {showHourMeter && formData.currentHours && 
-                    ` - Horómetro: ${formData.currentHours} horas`
-                  }
+                  {showHourMeter &&
+                    formData.currentHours &&
+                    ` - Horómetro: ${formData.currentHours} horas`}
                 </small>
               </div>
             </div>

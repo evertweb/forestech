@@ -14,31 +14,37 @@ const BaseModal = ({
   showCloseButton = true,
   preventCloseOnOverlay = false,
   className = '',
-  children
+  children,
 }) => {
   // Gestión de escape key
-  const handleEscapeKey = useCallback((event) => {
-    if (event.key === 'Escape' && isOpen && onClose) {
-      onClose();
-    }
-  }, [isOpen, onClose]);
+  const handleEscapeKey = useCallback(
+    (event) => {
+      if (event.key === 'Escape' && isOpen && onClose) {
+        onClose();
+      }
+    },
+    [isOpen, onClose]
+  );
 
   // Gestión de clic en overlay
-  const handleOverlayClick = useCallback((event) => {
-    if (event.target === event.currentTarget && !preventCloseOnOverlay && onClose) {
-      onClose();
-    }
-  }, [preventCloseOnOverlay, onClose]);
+  const handleOverlayClick = useCallback(
+    (event) => {
+      if (event.target === event.currentTarget && !preventCloseOnOverlay && onClose) {
+        onClose();
+      }
+    },
+    [preventCloseOnOverlay, onClose]
+  );
 
   // Efectos para keyboard navigation y body scroll
   useEffect(() => {
     if (isOpen) {
       // Agregar listener para escape key
       document.addEventListener('keydown', handleEscapeKey);
-      
+
       // Prevenir scroll del body
       document.body.style.overflow = 'hidden';
-      
+
       // Focus management - enfocar el modal
       const modalElement = document.querySelector('.modal-content');
       if (modalElement) {
@@ -65,35 +71,31 @@ const BaseModal = ({
     md: 'max-w-2xl',
     lg: 'max-w-4xl',
     xl: 'max-w-6xl',
-    full: 'max-w-7xl'
+    full: 'max-w-7xl',
   };
 
   const modalSizeClass = sizeClasses[size] || sizeClasses.md;
 
   return (
-    <div 
-      className="modal-overlay" 
+    <div
+      className="modal- sap-themeoverlay"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
-      aria-labelledby={title ? "modal-title" : undefined}
+      aria-labelledby={title ? 'modal-title' : undefined}
     >
-      <div 
-        className={`modal-content ${modalSizeClass} ${className}`}
-        role="document"
-        tabIndex="-1"
-      >
+      <div className={`modal-content ${modalSizeClass} ${className}`} role="document" tabIndex="-1">
         {/* Header opcional con título y botón de cerrar */}
         {(title || showCloseButton) && (
-          <div className="modal-header">
+          <div className="modal- sap-themeheader">
             {title && (
-              <h2 id="modal-title" className="modal-title">
+              <h2 id="modal-title" className="modal- sap-themetitle">
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
-                className="modal-close"
+                className="modal- sap-themeclose"
                 onClick={onClose}
                 type="button"
                 aria-label="Cerrar modal"
@@ -105,9 +107,7 @@ const BaseModal = ({
         )}
 
         {/* Contenido del modal */}
-        <div className="modal-body">
-          {children}
-        </div>
+        <div className="modal- sap-themebody">{children}</div>
       </div>
     </div>
   );
@@ -121,7 +121,7 @@ BaseModal.propTypes = {
   showCloseButton: PropTypes.bool,
   preventCloseOnOverlay: PropTypes.bool,
   className: PropTypes.string,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 BaseModal.displayName = 'BaseModal';

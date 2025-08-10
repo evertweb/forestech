@@ -13,7 +13,7 @@
   padding: var(--sap-spacing-lg);
   background: var(--sap-neutral-200);
   min-height: 100vh;
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 /* === HEADER === */
@@ -537,51 +537,51 @@
   .reports-main.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .reports-header.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .reports-title.sap-theme h1.sap-title {
     font-size: 1.5rem;
   }
-  
+
   .filters-grid.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .filter-actions.sap-theme {
     justify-content: stretch;
   }
-  
+
   .filter-btn.sap-theme.sap-button {
     flex: 1;
     min-height: 44px;
   }
-  
+
   .kpis-grid.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .reports-navigation.sap-theme {
     flex-direction: column;
     gap: var(--sap-spacing-xs);
   }
-  
+
   .nav-tab.sap-theme.sap-button {
     min-width: auto;
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .projections-grid,
   .stock-grid {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .kpi-value.sap-theme.sap-text-primary {
     font-size: 1.75rem;
   }
@@ -592,25 +592,25 @@
   .reports-main.sap-theme {
     padding: var(--sap-spacing-lg);
   }
-  
+
   .filters-grid.sap-theme {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
   }
-  
+
   .filter-actions.sap-theme {
     grid-column: 1 / -1;
     justify-content: center;
   }
-  
+
   .kpis-grid.sap-theme {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .reports-navigation.sap-theme {
     flex-wrap: wrap;
   }
-  
+
   .projections-grid,
   .stock-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -622,7 +622,7 @@
   .kpis-grid.sap-theme {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .projections-grid,
   .stock-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -634,7 +634,7 @@
   .reports-main.sap-theme {
     padding: var(--sap-spacing-xl);
   }
-  
+
   .kpis-grid.sap-theme {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -655,12 +655,12 @@
     padding: 0;
     background: white;
   }
-  
+
   .reports-navigation.sap-theme,
   .reports-filters.sap-theme {
     display: none;
   }
-  
+
   .kpi-card.sap-theme.sap-card {
     break-inside: avoid;
     box-shadow: none;
@@ -679,8 +679,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* === HIGH CONTRAST MODE === */
@@ -688,11 +692,11 @@
   .kpi-card.sap-theme.sap-card {
     border-width: 2px;
   }
-  
+
   .alert.sap-theme {
     border-width: 2px;
   }
-  
+
   .nav-tab.sap-theme.sap-button.active.sap-button-primary {
     border: 2px solid var(--sap-neutral-900);
   }
@@ -705,7 +709,7 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .kpi-card.sap-theme.sap-card:hover {
     transform: none;
   }

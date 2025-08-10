@@ -29,7 +29,7 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
     return dateObj.toLocaleDateString('es-CO', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -40,7 +40,7 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
     const targetDate = date instanceof Date ? date : new Date(date);
     const diffTime = Math.abs(now - targetDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return 'hace 1 día';
     if (diffDays < 7) return `hace ${diffDays} días`;
     if (diffDays < 30) return `hace ${Math.ceil(diffDays / 7)} semanas`;
@@ -66,11 +66,16 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   // Obtener clase CSS para estado
   const getStatusClass = (status) => {
     switch (status) {
-      case VEHICLE_STATUS.ACTIVO: return 'status-activo';
-      case VEHICLE_STATUS.MANTENIMIENTO: return 'status-mantenimiento';
-      case VEHICLE_STATUS.INACTIVO: return 'status-inactivo';
-      case VEHICLE_STATUS.REPARACION: return 'status-reparacion';
-      default: return 'status-default';
+      case VEHICLE_STATUS.ACTIVO:
+        return 'status-activo';
+      case VEHICLE_STATUS.MANTENIMIENTO:
+        return 'status-mantenimiento';
+      case VEHICLE_STATUS.INACTIVO:
+        return 'status-inactivo';
+      case VEHICLE_STATUS.REPARACION:
+        return 'status-reparacion';
+      default:
+        return 'status-default';
     }
   };
 
@@ -78,7 +83,7 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   const getVehicleIcon = (type) => {
     if (!type) return '🚗';
     const lowerType = type.toLowerCase();
-    if (lowerType.includes('excavadora')) return '🚚'; 
+    if (lowerType.includes('excavadora')) return '🚚';
     if (lowerType.includes('bulldozer')) return '🚜';
     if (lowerType.includes('cargador')) return '🏗️';
     if (lowerType.includes('camion')) return '🚛';
@@ -92,21 +97,30 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   // Obtener icono para combustible
   const getFuelIcon = (fuelType) => {
     switch (fuelType) {
-      case FUEL_COMPATIBILITY.DIESEL: return '🚛';
-      case FUEL_COMPATIBILITY.GASOLINA: return '🚗';
-      case FUEL_COMPATIBILITY.MIXTO: return '⛽';
-      default: return '⛽';
+      case FUEL_COMPATIBILITY.DIESEL:
+        return '🚛';
+      case FUEL_COMPATIBILITY.GASOLINA:
+        return '🚗';
+      case FUEL_COMPATIBILITY.MIXTO:
+        return '⛽';
+      default:
+        return '⛽';
     }
   };
 
   // Obtener icono para estado
   const getStatusIcon = (status) => {
     switch (status) {
-      case VEHICLE_STATUS.ACTIVO: return '✅';
-      case VEHICLE_STATUS.MANTENIMIENTO: return '🔧';
-      case VEHICLE_STATUS.INACTIVO: return '⏸️';
-      case VEHICLE_STATUS.REPARACION: return '🔴';
-      default: return '❓';
+      case VEHICLE_STATUS.ACTIVO:
+        return '✅';
+      case VEHICLE_STATUS.MANTENIMIENTO:
+        return '🔧';
+      case VEHICLE_STATUS.INACTIVO:
+        return '⏸️';
+      case VEHICLE_STATUS.REPARACION:
+        return '🔴';
+      default:
+        return '❓';
     }
   };
 
@@ -128,25 +142,25 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   };
 
   return (
-    <div className="vehicles-cards">
+    <div className="vehicles-cards sap-theme sap-theme">
       {vehicles.map((vehicle) => (
-        <div 
-          key={vehicle.id} 
-          className={`vehicle-card ${getVehicleTypeClass(vehicle.type)}`}
+        <div
+          key={vehicle.id}
+          className={`vehicle-card sap-theme ${getVehicleTypeClass(vehicle.type)}`}
         >
           {/* Header de la tarjeta */}
-          <div className="card-header">
-            <div className="vehicle-info">
-              <div className="vehicle-id-section">
-                <span className="vehicle-icon">{getVehicleIcon(vehicle.type)}</span>
-                <div className="vehicle-details">
-                  <span className="vehicle-id">{vehicle.vehicleId}</span>
-                  <span className="vehicle-name">{vehicle.name}</span>
+          <div className="card-header sap-theme">
+            <div className="vehicle-info sap-theme">
+              <div className="vehicle-id-section sap-theme">
+                <span className="vehicle-icon sap-theme">{getVehicleIcon(vehicle.type)}</span>
+                <div className="vehicle-details sap-theme">
+                  <span className="vehicle-id sap-theme">{vehicle.vehicleId}</span>
+                  <span className="vehicle-name sap-theme">{vehicle.name}</span>
                 </div>
               </div>
               <div className={`status-badge ${getStatusClass(vehicle.status)}`}>
-                <span className="status-icon">{getStatusIcon(vehicle.status)}</span>
-                <span className="status-label">
+                <span className="status-icon sap-theme">{getStatusIcon(vehicle.status)}</span>
+                <span className="status-label sap-theme">
                   {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
                 </span>
               </div>
@@ -154,94 +168,103 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
           </div>
 
           {/* Información principal */}
-          <div className="card-content">
+          <div className="card-content sap-theme">
             {/* Información básica */}
-            <div className="basic-info">
-              <div className="info-row">
-                <span className="info-label">Tipo:</span>
-                <span className="info-value">
-                  {getVehicleIcon(vehicle.type)} {vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)}
+            <div className="basic-info sap-theme">
+              <div className="info-row sap-theme">
+                <span className="info-label sap-theme">Tipo:</span>
+                <span className="info-value sap-theme">
+                  {getVehicleIcon(vehicle.type)}{' '}
+                  {vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)}
                 </span>
               </div>
 
               {vehicle.brand && vehicle.model && (
-                <div className="info-row">
-                  <span className="info-label">Marca/Modelo:</span>
-                  <span className="info-value">{vehicle.brand} {vehicle.model}</span>
+                <div className="info-row sap-theme">
+                  <span className="info-label sap-theme">Marca/Modelo:</span>
+                  <span className="info-value sap-theme">
+                    {vehicle.brand} {vehicle.model}
+                  </span>
                 </div>
               )}
 
-              <div className="info-row">
-                <span className="info-label">Combustible:</span>
-                <span className="info-value">
+              <div className="info-row sap-theme">
+                <span className="info-label sap-theme">Combustible:</span>
+                <span className="info-value sap-theme">
                   {getFuelIcon(vehicle.fuelType)} {vehicle.fuelType}
                 </span>
               </div>
 
               {vehicle.currentLocation && (
-                <div className="info-row">
-                  <span className="info-label">Ubicación:</span>
-                  <span className="info-value">📍 {vehicle.currentLocation}</span>
+                <div className="info-row sap-theme">
+                  <span className="info-label sap-theme">Ubicación:</span>
+                  <span className="info-value sap-theme">📍 {vehicle.currentLocation}</span>
                 </div>
               )}
             </div>
 
             {/* Métricas de consumo */}
-            <div className="consumption-metrics">
-              <div className="metric-item">
-                <div className="metric-icon">⛽</div>
-                <div className="metric-content">
-                  <div className="metric-value">{formatGallons(vehicle.totalFuelConsumed || 0)}</div>
-                  <div className="metric-label">Consumido</div>
+            <div className="consumption-metrics sap-theme">
+              <div className="metric-item sap-theme">
+                <div className="metric-icon sap-theme">⛽</div>
+                <div className="metric-content sap-theme">
+                  <div className="metric-value sap-theme">
+                    {formatGallons(vehicle.totalFuelConsumed || 0)}
+                  </div>
+                  <div className="metric-label sap-theme">Consumido</div>
                 </div>
               </div>
 
-              <div className="metric-item">
-                <div className="metric-icon">⏰</div>
-                <div className="metric-content">
-                  <div className="metric-value">{formatHours(vehicle.totalHoursWorked || 0)}</div>
-                  <div className="metric-label">Trabajadas</div>
+              <div className="metric-item sap-theme">
+                <div className="metric-icon sap-theme">⏰</div>
+                <div className="metric-content sap-theme">
+                  <div className="metric-value sap-theme">
+                    {formatHours(vehicle.totalHoursWorked || 0)}
+                  </div>
+                  <div className="metric-label sap-theme">Trabajadas</div>
                 </div>
               </div>
 
-              <div className="metric-item">
-                <div className="metric-icon">📊</div>
-                <div className="metric-content">
-                  <div className="metric-value">{getConsumptionPerHour(vehicle).toFixed(1)} gal/hr</div>
-                  <div className="metric-label">Consumo</div>
+              <div className="metric-item sap-theme">
+                <div className="metric-icon sap-theme">📊</div>
+                <div className="metric-content sap-theme">
+                  <div className="metric-value sap-theme">
+                    {getConsumptionPerHour(vehicle).toFixed(1)} gal/hr
+                  </div>
+                  <div className="metric-label sap-theme">Consumo</div>
                 </div>
               </div>
 
-              <div className="metric-item">
-                <div className="metric-icon">🔄</div>
-                <div className="metric-content">
-                  <div className="metric-value">{vehicle.totalMovements || 0}</div>
-                  <div className="metric-label">Movimientos</div>
+              <div className="metric-item sap-theme">
+                <div className="metric-icon sap-theme">🔄</div>
+                <div className="metric-content sap-theme">
+                  <div className="metric-value sap-theme">{vehicle.totalMovements || 0}</div>
+                  <div className="metric-label sap-theme">Movimientos</div>
                 </div>
               </div>
             </div>
 
             {/* Especificaciones técnicas */}
             {(vehicle.enginePower || vehicle.fuelCapacity || vehicle.year) && (
-              <div className="technical-specs">
+              <div className="technical-specs sap-theme">
                 {vehicle.enginePower && (
-                  <div className="spec-item">
-                    <span className="spec-icon">⚡</span>
-                    <span className="spec-value">{vehicle.enginePower} HP</span>
+                  <div className="spec-item sap-theme">
+                    <span className="spec-icon sap-theme">⚡</span>
+                    <span className="spec-value sap-theme">{vehicle.enginePower} HP</span>
                   </div>
                 )}
-                
+
                 {vehicle.fuelCapacity && (
-                  <div className="spec-item">
-                    <span className="spec-icon">🛢️</span>
-                    <span className="spec-value">{vehicle.fuelCapacity} gal</span>
+                  <div className="spec-item sap-theme">
+                    <span className="spec-icon sap-theme">🛢️</span>
+                    <span className="spec-value sap-theme">{vehicle.fuelCapacity} gal</span>
                   </div>
                 )}
-                
+
                 {vehicle.year && (
-                  <div className="spec-item">
-                    <span className="spec-icon">📅</span>
-                    <span className="spec-value">{vehicle.year}</span>
+                  <div className="spec-item sap-theme">
+                    <span className="spec-icon sap-theme">📅</span>
+                    <span className="spec-value sap-theme">{vehicle.year}</span>
                   </div>
                 )}
               </div>
@@ -249,44 +272,52 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
 
             {/* Descripción */}
             {vehicle.description && (
-              <div className="description">
+              <div className="description sap-theme">
                 <p>{vehicle.description}</p>
               </div>
             )}
           </div>
 
           {/* Footer con fechas y acciones */}
-          <div className="card-footer">
-            <div className="date-info">
+          <div className="card-footer sap-theme">
+            <div className="date-info sap-theme">
               {vehicle.lastMovementDate && (
-                <div className="date-item">
-                  <span className="date-label">Último movimiento:</span>
-                  <span className="date-value">{formatDate(vehicle.lastMovementDate)}</span>
-                  <span className="date-relative">{getRelativeTime(vehicle.lastMovementDate)}</span>
+                <div className="date-item sap-theme">
+                  <span className="date-label sap-theme">Último movimiento:</span>
+                  <span className="date-value sap-theme">
+                    {formatDate(vehicle.lastMovementDate)}
+                  </span>
+                  <span className="date-relative sap-theme">
+                    {getRelativeTime(vehicle.lastMovementDate)}
+                  </span>
                 </div>
               )}
-              
+
               {vehicle.lastMaintenanceDate && (
-                <div className="date-item">
-                  <span className="date-label">Último mantenimiento:</span>
-                  <span className="date-value">{formatDate(vehicle.lastMaintenanceDate)}</span>
-                  <span className="date-relative">{getRelativeTime(vehicle.lastMaintenanceDate)}</span>
+                <div className="date-item sap-theme">
+                  <span className="date-label sap-theme">Último mantenimiento:</span>
+                  <span className="date-value sap-theme">
+                    {formatDate(vehicle.lastMaintenanceDate)}
+                  </span>
+                  <span className="date-relative sap-theme">
+                    {getRelativeTime(vehicle.lastMaintenanceDate)}
+                  </span>
                 </div>
               )}
             </div>
 
-            <div className="card-actions">
+            <div className="card-actions sap-theme">
               <button
-                className="btn-view"
+                className="btn-view sap-theme"
                 onClick={() => onView(vehicle)}
                 title="Ver detalles"
               >
                 👁️
               </button>
-              
+
               {onEdit && vehicle.status !== VEHICLE_STATUS.REPARACION && (
                 <button
-                  className="btn-edit"
+                  className="btn-edit sap-theme"
                   onClick={() => onEdit(vehicle)}
                   title="Editar vehículo"
                 >
@@ -296,7 +327,7 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
 
               {onMaintenance && (
                 <button
-                  className="btn-maintenance"
+                  className="btn-maintenance sap-theme"
                   onClick={() => onMaintenance(vehicle)}
                   title="Registrar mantenimiento"
                 >
@@ -308,35 +339,35 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
 
           {/* Indicadores especiales */}
           {vehicle.status === VEHICLE_STATUS.MANTENIMIENTO && (
-            <div className="maintenance-indicator">
-              <div className="maintenance-pulse"></div>
+            <div className="maintenance-indicator sap-theme">
+              <div className="maintenance-pulse sap-theme"></div>
             </div>
           )}
 
           {needsMaintenance(vehicle) && vehicle.status === VEHICLE_STATUS.ACTIVO && (
-            <div className="maintenance-due-badge">
+            <div className="maintenance-due-badge sap-theme">
               <span>Mantenimiento Debido</span>
             </div>
           )}
 
           {vehicle.status === VEHICLE_STATUS.REPARACION && (
-            <div className="repair-badge">
+            <div className="repair-badge sap-theme">
               <span>En Reparación</span>
             </div>
           )}
 
           {/* Indicador de eficiencia */}
           {vehicle.totalHoursWorked > 0 && (
-            <div className="efficiency-indicator">
-              <div className="efficiency-bar">
-                <div 
-                  className="efficiency-fill"
-                  style={{ 
-                    width: `${Math.min((vehicle.totalHoursWorked / 2000) * 100, 100)}%`
+            <div className="efficiency-indicator sap-theme">
+              <div className="efficiency-bar sap-theme">
+                <div
+                  className="efficiency-fill sap-theme"
+                  style={{
+                    width: `${Math.min((vehicle.totalHoursWorked / 2000) * 100, 100)}%`,
                   }}
                 />
               </div>
-              <span className="efficiency-label">
+              <span className="efficiency-label sap-theme">
                 {((vehicle.totalHoursWorked / 2000) * 100).toFixed(1)}% utilización anual
               </span>
             </div>

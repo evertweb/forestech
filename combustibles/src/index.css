@@ -1,6 +1,7 @@
 /* Importar variables de temas globales */
 @import './styles/theme-variables.css';
 @import './styles/css-variables.css';
+@import './styles/sf-pro-optimization.css';
 
 @tailwind base;
 @tailwind components;
@@ -15,22 +16,52 @@ html {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-white);
+  background: var(--bg-white);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(238, 238, 238, 0.04) 0%, transparent 30%),
+    radial-gradient(circle at 40% 40%, rgba(224, 224, 224, 0.02) 0%, transparent 40%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(189, 189, 189, 0.01) 2deg,
+      transparent 4deg
+    );
+  background-attachment: fixed;
 }
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--font-family-primary);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-regular);
 
   color-scheme: light;
   color: var(--text-primary);
-  background-color: var(--bg-white);
+  background: var(--bg-white);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(238, 238, 238, 0.04) 0%, transparent 30%),
+    radial-gradient(circle at 40% 40%, rgba(224, 224, 224, 0.02) 0%, transparent 40%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(189, 189, 189, 0.01) 2deg,
+      transparent 4deg
+    );
+  background-attachment: fixed;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Mejor rendering para SF Pro */
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'calt' 1;
+  font-variant-ligatures: common-ligatures;
+  -webkit-text-size-adjust: 100%;
 }
 
 #root {
@@ -38,7 +69,18 @@ html {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-white);
+  background: var(--bg-white);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(238, 238, 238, 0.04) 0%, transparent 30%),
+    radial-gradient(circle at 40% 40%, rgba(224, 224, 224, 0.02) 0%, transparent 40%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(189, 189, 189, 0.01) 2deg,
+      transparent 4deg
+    );
+  background-attachment: fixed;
 }
 
 a {
@@ -55,7 +97,21 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--bg-white);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  background: var(--bg-white);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
+    radial-gradient(circle at 80% 80%, rgba(238, 238, 238, 0.04) 0%, transparent 30%),
+    radial-gradient(circle at 40% 40%, rgba(224, 224, 224, 0.02) 0%, transparent 40%),
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(189, 189, 189, 0.01) 2deg,
+      transparent 4deg
+    );
+  background-attachment: fixed;
   overflow-x: hidden;
 }
 

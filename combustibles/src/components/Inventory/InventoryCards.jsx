@@ -34,90 +34,88 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
   };
 
   return (
-    <div className="inventory-cards-grid">
+    <div className="inventory-cards-grid sap-theme">
       {items.map((item) => {
-        const fuelInfo = FUEL_INFO[item.fuelType] || {};
-        const stockPercentage = parseFloat(item.stockPercentage) || 0;
-        
-        let stockAlertKey = 'medium'; // default válido
-        if (stockPercentage === 0) stockAlertKey = 'critical'; // empty → critical
-        else if (stockPercentage <= 15) stockAlertKey = 'critical';
-        else if (stockPercentage <= 30) stockAlertKey = 'low';
-        else if (stockPercentage >= 95) stockAlertKey = 'full';
-        else stockAlertKey = 'high'; // normal → high
-        
-        const stockAlert = STOCK_ALERTS[stockAlertKey] || STOCK_ALERTS.medium;
+        const fuelInfo = FUEL_INFO[item.fuelType];
+        const stockAlert = STOCK_ALERTS[item.stockLevel];
 
         const currentStock = parseFloat(item.currentStock) || 0;
-        const maxCapacity = parseFloat(item.maxCapacity) || parseFloat(item.capacity) || 1; // Evitar división por cero
-        const pricePerUnit = parseFloat(item.pricePerUnit) || parseFloat(item.unitPrice) || 0;
+        const pricePerUnit = parseFloat(item.pricePerUnit) || 0;
+        const maxCapacity = parseFloat(item.maxCapacity) || 0;
+        const stockPercentage = parseFloat(item.stockPercentage) || 0;
         const totalValue = currentStock * pricePerUnit;
 
         return (
-          <div key={item.id} className="inventory-card">
-            <div className="card-header">
-              <div className="fuel-info">
-                <span className="fuel-icon" style={{ color: fuelInfo.color }}>
+          <div key={item.id} className="inventory-card sap-theme">
+            <div className="card-header sap-theme">
+              <div className="fuel-info sap-theme">
+                <span className="fuel-icon sap-theme" style={{ color: fuelInfo.color }}>
                   {fuelInfo.icon}
                 </span>
-                <div className="fuel-details">
-                  <h3>{fuelInfo.name || item.name}</h3>
-                  <p className="location">{item.location}</p>
+                <div className="fuel-details sap-theme">
+                  <h4>{fuelInfo.name}</h4>
+                  <p className="location sap-theme">{item.location}</p>
                 </div>
               </div>
-              <div className="stock-status">
-                <span className="status-badge" style={{ backgroundColor: stockAlert.color, color: 'white' }}>
-                  {stockAlert.icon} {stockAlert.label}
+              <div className="stock-status sap-theme">
+                <span
+                  className="status-badge sap-theme"
+                  style={{ backgroundColor: stockAlert.color, color: 'white' }}
+                >
+                  {stockAlert.label}
                 </span>
               </div>
             </div>
 
-            <div className="stock-progress">
-              <div className="progress-header">
-                <span className="stock-text">
-                  <span className="value">{formatNumber(currentStock)}</span> / {formatNumber(maxCapacity)} gal
+            <div className="stock-progress sap-theme">
+              <div className="progress-header sap-theme">
+                <span className="stock-text sap-theme">
+                  <span className="value sap-theme">{formatNumber(currentStock)}</span> /{' '}
+                  {formatNumber(maxCapacity)} gal
                 </span>
-                <span className="percentage" style={{ color: stockAlert.color }}>
+                <span className="percentage sap-theme" style={{ color: stockAlert.color }}>
                   {stockPercentage.toFixed(1)}%
                 </span>
               </div>
-              <div className="progress-bar">
+              <div className="progress-bar sap-theme">
                 <div
-                  className="progress-fill"
+                  className="progress-fill sap-theme"
                   style={{
                     width: `${stockPercentage}%`,
                     backgroundColor: stockAlert.color,
                   }}
                 />
               </div>
-              {item.needsRestock && (
-                <div className="restock-warning">
-                  ⚠️ Nivel bajo
-                </div>
-              )}
+              {item.needsRestock && <div className="restock-warning sap-theme">⚠️ Nivel bajo</div>}
             </div>
 
-            <div className="card-metrics">
-              <div className="metric">
-                <span className="metric-label">Precio/gal:</span>
-                <span className="metric-value">{formatCurrency(pricePerUnit)}</span>
+            <div className="card-metrics sap-theme">
+              <div className="metric sap-theme">
+                <span className="metric-label sap-theme">Precio/gal:</span>
+                <span className="metric-value sap-theme">{formatCurrency(pricePerUnit)}</span>
               </div>
-              <div className="metric">
-                <span className="metric-label">Valor Total:</span>
-                <span className="metric-value">{formatCurrency(totalValue)}</span>
+              <div className="metric sap-theme">
+                <span className="metric-label sap-theme">Valor Total:</span>
+                <span className="metric-value sap-theme">{formatCurrency(totalValue)}</span>
               </div>
             </div>
 
-            <div className="card-footer">
-              <div className="last-update">
+            <div className="card-footer sap-theme">
+              <div className="last-update sap-theme">
                 Actualizado {getTimeAgo(item.updatedAt || item.lastUpdated)}
               </div>
               {canManage && (
-                <div className="card-actions">
-                  <button className="btn btn-secondary btn-sm" onClick={() => onEdit(item)}>
+                <div className="card-actions sap-theme">
+                  <button
+                    className="btn btn-secondary btn-sm sap-theme"
+                    onClick={() => onEdit(item)}
+                  >
                     Editar
                   </button>
-                  <button className="btn btn-danger btn-sm" onClick={() => onDelete(item)}>
+                  <button
+                    className="btn btn-danger btn-sm sap-theme"
+                    onClick={() => onDelete(item)}
+                  >
                     Eliminar
                   </button>
                 </div>

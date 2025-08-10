@@ -10,13 +10,13 @@
   --sap-blue-secondary: #0054b9;
   --sap-blue-light: #e6f3ff;
   --sap-blue-dark: #003d82;
-  
+
   /* SAP Semantic Colors */
   --sap-success: #30914f;
   --sap-warning: #df6e00;
   --sap-error: #dc0d0e;
   --sap-information: #0070f2;
-  
+
   /* SAP Neutral Colors */
   --sap-neutral-100: #ffffff;
   --sap-neutral-200: #f7f7f7;
@@ -27,24 +27,24 @@
   --sap-neutral-700: #666666;
   --sap-neutral-800: #333333;
   --sap-neutral-900: #000000;
-  
+
   /* SAP Text Colors */
   --sap-text-primary: #32363a;
   --sap-text-secondary: #6a6d70;
   --sap-text-muted: #89919a;
   --sap-text-white: #ffffff;
-  
+
   /* SAP Shadows */
   --sap-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
   --sap-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
   --sap-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
   --sap-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
-  
+
   /* SAP Border Radius */
   --sap-border-radius-sm: 4px;
   --sap-border-radius-md: 8px;
   --sap-border-radius-lg: 12px;
-  
+
   /* SAP Spacing */
   --sap-spacing-xs: 4px;
   --sap-spacing-sm: 8px;
@@ -52,14 +52,14 @@
   --sap-spacing-lg: 24px;
   --sap-spacing-xl: 32px;
   --sap-spacing-xxl: 48px;
-  
+
   /* SAP Transitions */
   --sap-transition-fast: 0.125s ease-in-out;
   --sap-transition-smooth: 0.3s ease-in-out;
-  
+
   /* SAP Movement Types - Colores específicos para combustibles */
-  --sap-movement-entry: var(--sap-success);      /* Entradas - Verde */
-  --sap-movement-exit: var(--sap-error);         /* Salidas - Rojo */
+  --sap-movement-entry: var(--sap-success); /* Entradas - Verde */
+  --sap-movement-exit: var(--sap-error); /* Salidas - Rojo */
   --sap-movement-transfer: var(--sap-blue-primary); /* Transferencias - Azul */
   --sap-movement-adjustment: var(--sap-warning); /* Ajustes - Naranja */
 }
@@ -72,7 +72,12 @@
   padding: var(--sap-spacing-xl);
   min-height: 100vh;
   background: var(--sap-neutral-200);
-  font-family: '72', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    '72',
+    'Open Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: var(--sap-text-primary);
   box-sizing: border-box;
 }
@@ -95,7 +100,7 @@
 
 .header-title.sap-theme h2 {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 1.75rem;
   font-weight: 600;
   margin: 0 0 var(--sap-spacing-xs) 0;
@@ -116,7 +121,7 @@
   border: 1px solid var(--sap-blue-primary);
   padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -149,7 +154,7 @@
   border: 1px solid var(--sap-blue-primary);
   padding: var(--sap-spacing-md) var(--sap-spacing-xl);
   border-radius: var(--sap-border-radius-md);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 1rem;
   cursor: pointer;
@@ -175,7 +180,7 @@
   border: 1px solid var(--sap-blue-primary);
   padding: var(--sap-spacing-sm) var(--sap-spacing-lg);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   cursor: pointer;
   transition: var(--sap-transition-fast);
@@ -213,13 +218,17 @@
 }
 
 @keyframes sap-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-container.sap-theme p {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   margin: 0;
 }
@@ -246,7 +255,7 @@
 
 .error-container.sap-theme h3 {
   color: var(--sap-error);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 1.25rem;
   margin: 0 0 var(--sap-spacing-sm) 0;
@@ -254,7 +263,7 @@
 
 .error-container.sap-theme p {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   margin: 0 0 var(--sap-spacing-lg) 0;
   line-height: 1.5;
@@ -285,7 +294,7 @@
 
 .empty-state.sap-theme h3 {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 1.25rem;
   margin: 0 0 var(--sap-spacing-sm) 0;
@@ -294,7 +303,7 @@
 
 .empty-state.sap-theme p {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   margin: 0 0 var(--sap-spacing-xl) 0;
   line-height: 1.5;
@@ -313,37 +322,37 @@
   .movements-main.sap-theme {
     padding: var(--sap-spacing-lg);
   }
-  
+
   .movements-header.sap-theme {
     flex-direction: column;
     align-items: stretch;
     gap: var(--sap-spacing-md);
     padding: var(--sap-spacing-md);
   }
-  
+
   .header-title.sap-theme h2 {
     font-size: 1.5rem;
   }
-  
+
   .create-movement-options.sap-theme {
     justify-content: stretch;
   }
-  
+
   .btn-create-movement.sap-theme {
     width: 100%;
     justify-content: center;
     min-height: 44px;
   }
-  
+
   .empty-state.sap-theme {
     padding: var(--sap-spacing-lg);
     min-height: 250px;
   }
-  
+
   .empty-icon.sap-theme {
     font-size: 3rem;
   }
-  
+
   .empty-state.sap-theme h3 {
     font-size: 1.125rem;
   }
@@ -353,15 +362,15 @@
   .movements-main.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .movements-header.sap-theme {
     padding: var(--sap-spacing-sm);
   }
-  
+
   .header-title.sap-theme h2 {
     font-size: 1.25rem;
   }
-  
+
   .header-title.sap-theme p {
     font-size: 0.8125rem;
   }
@@ -459,7 +468,7 @@
   border: 1px solid var(--sap-neutral-400);
   border-radius: var(--sap-border-radius-sm);
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   transition: var(--sap-transition-fast);
   box-sizing: border-box;
@@ -511,7 +520,7 @@
   border: 1px solid var(--sap-neutral-400);
   padding: var(--sap-spacing-xs) var(--sap-spacing-md);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.8125rem;
   cursor: pointer;
@@ -542,7 +551,7 @@
   border: 1px solid var(--sap-neutral-400);
   padding: var(--sap-spacing-xs) var(--sap-spacing-md);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.8125rem;
   cursor: pointer;
@@ -589,7 +598,7 @@
 
 .view-info.sap-theme {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.8125rem;
   font-weight: 500;
 }
@@ -629,7 +638,7 @@
 
 .filter-group.sap-theme label {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 0.8125rem;
   margin-bottom: var(--sap-spacing-xs);
@@ -643,7 +652,7 @@
   border: 1px solid var(--sap-neutral-400);
   border-radius: var(--sap-border-radius-sm);
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   transition: var(--sap-transition-fast);
   box-sizing: border-box;
@@ -674,7 +683,7 @@
   border: 1px solid var(--sap-neutral-400);
   padding: var(--sap-spacing-sm) var(--sap-spacing-md);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -706,14 +715,14 @@
 
 .results-count.sap-theme {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 0.875rem;
 }
 
 .active-filters-text.sap-theme {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
 }
 
@@ -723,28 +732,28 @@
     gap: var(--sap-spacing-md);
     padding: var(--sap-spacing-md);
   }
-  
+
   .filters-controls.sap-theme {
     flex-direction: column;
     align-items: stretch;
     gap: var(--sap-spacing-md);
   }
-  
+
   .quick-filters.sap-theme {
     justify-content: center;
   }
-  
+
   .filters-grid.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .filters-actions.sap-theme {
     flex-direction: column;
     align-items: stretch;
     gap: var(--sap-spacing-md);
   }
-  
+
   .filters-info.sap-theme {
     align-items: center;
     text-align: center;
@@ -755,17 +764,17 @@
   .filters-advanced.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .quick-filters.sap-theme {
     gap: var(--sap-spacing-xs);
   }
-  
+
   .quick-filter.sap-theme {
     font-size: 0.75rem;
     padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
     min-height: 28px;
   }
-  
+
   .search-input.sap-theme {
     font-size: 0.8125rem;
   }
@@ -845,7 +854,7 @@
 
 .stat-value.sap-theme {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
@@ -854,7 +863,7 @@
 
 .stat-label.sap-theme {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   font-weight: 500;
   margin: 0;
@@ -870,7 +879,7 @@
 }
 
 .trend.sap-theme {
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.8125rem;
   font-weight: 600;
   padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
@@ -897,7 +906,7 @@
 
 .stat-secondary.sap-theme {
   color: var(--sap-text-muted);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.8125rem;
   margin-top: var(--sap-spacing-xs);
 }
@@ -921,7 +930,7 @@
 
 .breakdown-section.sap-theme h4 {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 var(--sap-spacing-md) 0;
@@ -956,7 +965,7 @@
 
 .breakdown-label.sap-theme {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   font-weight: 500;
   flex: 1;
@@ -964,7 +973,7 @@
 
 .breakdown-value.sap-theme {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 1.125rem;
   font-weight: 700;
   margin: var(--sap-spacing-xs) 0;
@@ -987,7 +996,7 @@
 
 .breakdown-percentage.sap-theme {
   color: var(--sap-text-secondary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.8125rem;
   font-weight: 500;
   text-align: right;
@@ -1002,7 +1011,7 @@
 
 .active-filters.sap-theme h4 {
   color: var(--sap-blue-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   font-weight: 600;
   margin: 0 0 var(--sap-spacing-sm) 0;
@@ -1019,7 +1028,7 @@
   color: var(--sap-text-white);
   padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
   font-weight: 500;
   display: inline-flex;
@@ -1034,23 +1043,23 @@
     gap: var(--sap-spacing-md);
     padding: var(--sap-spacing-md);
   }
-  
+
   .stats-breakdown.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
     padding: var(--sap-spacing-md);
   }
-  
+
   .stat-card.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .stat-icon.sap-theme {
     font-size: 2rem;
     width: 50px;
     height: 50px;
   }
-  
+
   .stat-value.sap-theme {
     font-size: 1.75rem;
   }
@@ -1060,21 +1069,21 @@
   .stats-grid.sap-theme {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-card.sap-theme {
     flex-direction: column;
     text-align: center;
     gap: var(--sap-spacing-sm);
   }
-  
+
   .stat-icon.sap-theme {
     margin: 0 auto;
   }
-  
+
   .breakdown-section.sap-theme {
     padding: var(--sap-spacing-sm);
   }
-  
+
   .active-filters.sap-theme {
     padding: var(--sap-spacing-sm);
   }
@@ -1098,7 +1107,7 @@
 .movements-table.sap-theme {
   width: 100%;
   border-collapse: collapse;
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
 }
 
@@ -1343,7 +1352,7 @@
     padding: var(--sap-spacing-sm) var(--sap-spacing-xs);
     font-size: 0.8125rem;
   }
-  
+
   .movements-table.sap-theme th {
     font-size: 0.75rem;
   }
@@ -1354,23 +1363,23 @@
     border-radius: var(--sap-border-radius-sm);
     overflow-x: auto;
   }
-  
+
   .movements-table.sap-theme {
     min-width: 800px;
   }
-  
+
   .movements-table.sap-theme th,
   .movements-table.sap-theme td {
     padding: var(--sap-spacing-xs);
     font-size: 0.75rem;
   }
-  
+
   .action-btn.sap-theme {
     width: 28px;
     height: 28px;
     font-size: 0.75rem;
   }
-  
+
   .status-badge.sap-theme {
     font-size: 0.6875rem;
     padding: 2px var(--sap-spacing-xs);
@@ -1392,7 +1401,7 @@
 
 .table-empty-state.sap-theme h3 {
   color: var(--sap-text-primary);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   margin: 0 0 var(--sap-spacing-sm) 0;
 }

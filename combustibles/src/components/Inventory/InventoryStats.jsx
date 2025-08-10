@@ -5,54 +5,49 @@ import { FUEL_INFO } from '../../constants/combustibleTypes';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 
 const InventoryStats = ({ stats }) => {
-
   return (
-    <div className="inventory-stats">
+    <div className="inventory-stats sap-theme">
       {/* Métricas principales */}
-      <div className="stats-grid">
-        <div className="stat-card primary">
-          <div className="stat-icon">💰</div>
-          <div className="stat-content">
+      <div className="stats-grid sap-theme">
+        <div className="stat- sap-themecard sap-theme primary">
+          <div className="stat- sap-themeicon">💰</div>
+          <div className="stat- sap-themecontent">
             <h3>Valor Total</h3>
-            <div className="stat-value">{formatCurrency(stats.totalValue)}</div>
-            <div className="stat-subtitle">
+            <div className="stat- sap-themevalue">{formatCurrency(stats.totalValue)}</div>
+            <div className="stat- sap-themesubtitle">
               {formatNumber(stats.totalItems)} tipos de combustible
             </div>
           </div>
         </div>
 
-        <div className="stat-card success">
-          <div className="stat-icon">✅</div>
-          <div className="stat-content">
+        <div className="stat- sap-themecard sap-theme success">
+          <div className="stat- sap-themeicon">✅</div>
+          <div className="stat- sap-themecontent">
             <h3>Items Activos</h3>
-            <div className="stat-value">{stats.activeItems}</div>
-            <div className="stat-subtitle">
+            <div className="stat- sap-themevalue">{stats.activeItems}</div>
+            <div className="stat- sap-themesubtitle">
               {Math.round((stats.activeItems / stats.totalItems) * 100)}% del total
             </div>
           </div>
         </div>
 
         <div className={`stat-card ${stats.lowStockItems > 0 ? 'warning' : 'info'}`}>
-          <div className="stat-icon">
-            {stats.lowStockItems > 0 ? '⚠️' : '📊'}
-          </div>
-          <div className="stat-content">
+          <div className="stat- sap-themeicon">{stats.lowStockItems > 0 ? '⚠️' : '📊'}</div>
+          <div className="stat- sap-themecontent">
             <h3>Stock Bajo</h3>
-            <div className="stat-value">{stats.lowStockItems}</div>
-            <div className="stat-subtitle">
+            <div className="stat- sap-themevalue">{stats.lowStockItems}</div>
+            <div className="stat- sap-themesubtitle">
               {stats.lowStockItems > 0 ? 'Requieren atención' : 'Niveles normales'}
             </div>
           </div>
         </div>
 
-        <div className="stat-card info">
-          <div className="stat-icon">📈</div>
-          <div className="stat-content">
+        <div className="stat- sap-themecard sap-theme info">
+          <div className="stat- sap-themeicon">📈</div>
+          <div className="stat- sap-themecontent">
             <h3>Nivel Promedio</h3>
-            <div className="stat-value">{stats.averageStockLevel}%</div>
-            <div className="stat-subtitle">
-              Capacidad promedio utilizada
-            </div>
+            <div className="stat- sap-themevalue">{stats.averageStockLevel}%</div>
+            <div className="stat- sap-themesubtitle">Capacidad promedio utilizada</div>
           </div>
         </div>
       </div>
@@ -63,15 +58,14 @@ const InventoryStats = ({ stats }) => {
         <div className="fuel-types-grid">
           {Object.entries(stats.byFuelType).map(([fuelType, data]) => {
             const fuelInfo = FUEL_INFO[fuelType];
-            const utilizationPercent = data.totalCapacity > 0 
-              ? Math.round((data.totalStock / data.totalCapacity) * 100)
-              : 0;
+            const utilizationPercent =
+              data.totalCapacity > 0 ? Math.round((data.totalStock / data.totalCapacity) * 100) : 0;
 
             return (
               <div key={fuelType} className="fuel-type-card">
                 <div className="fuel-header">
-                  <span 
-                    className="fuel-icon" 
+                  <span
+                    className="fuel-icon"
                     style={{ color: fuelInfo?.color || 'var(--text-muted)' }}
                   >
                     {fuelInfo?.icon || '⛽'}
@@ -81,7 +75,7 @@ const InventoryStats = ({ stats }) => {
                     <span className="fuel-count">{data.count} ubicaciones</span>
                   </div>
                 </div>
-                
+
                 <div className="fuel-metrics">
                   <div className="metric">
                     <span className="metric-label">Stock Total:</span>
@@ -89,36 +83,36 @@ const InventoryStats = ({ stats }) => {
                       {formatNumber(data.totalStock)} {fuelInfo?.unit || 'unidades'}
                     </span>
                   </div>
-                  
+
                   <div className="metric">
                     <span className="metric-label">Capacidad:</span>
                     <span className="metric-value">
                       {formatNumber(data.totalCapacity)} {fuelInfo?.unit || 'unidades'}
                     </span>
                   </div>
-                  
+
                   <div className="metric">
                     <span className="metric-label">Utilización:</span>
-                    <span className={`metric-value ${utilizationPercent < 25 ? 'low' : utilizationPercent > 75 ? 'high' : 'normal'}`}>
+                    <span
+                      className={`metric-value ${utilizationPercent < 25 ? 'low' : utilizationPercent > 75 ? 'high' : 'normal'}`}
+                    >
                       {utilizationPercent}%
                     </span>
                   </div>
-                  
+
                   <div className="metric">
                     <span className="metric-label">Valor:</span>
-                    <span className="metric-value">
-                      {formatCurrency(data.totalValue)}
-                    </span>
+                    <span className="metric-value">{formatCurrency(data.totalValue)}</span>
                   </div>
                 </div>
 
                 {/* Barra de progreso */}
                 <div className="progress-bar">
-                  <div 
+                  <div
                     className="progress-fill"
-                    style={{ 
+                    style={{
                       width: `${utilizationPercent}%`,
-                      backgroundColor: fuelInfo?.color || 'var(--text-muted)'
+                      backgroundColor: fuelInfo?.color || 'var(--text-muted)',
                     }}
                   />
                 </div>

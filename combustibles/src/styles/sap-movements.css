@@ -15,7 +15,7 @@
   background: var(--sap-neutral-200);
   min-height: 100vh;
   padding: var(--sap-spacing-lg);
-  font-family: '72', 'Open Sans', sans-serif;
+  font-family: var(--font-family-primary);
   position: relative;
   z-index: 1;
 }
@@ -33,7 +33,7 @@
 }
 
 .movements-title.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 1.5rem;
   color: var(--sap-text-primary);
@@ -49,7 +49,7 @@
 }
 
 .movements-subtitle.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   color: var(--sap-text-secondary);
   margin: var(--sap-spacing-xs) 0 0 0;
@@ -102,7 +102,7 @@
 }
 
 .movements-stat-value.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 700;
   font-size: 2rem;
   color: var(--sap-text-primary);
@@ -111,7 +111,7 @@
 }
 
 .movements-stat-label.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   color: var(--sap-text-secondary);
   margin-top: var(--sap-spacing-xs);
@@ -140,7 +140,7 @@
 }
 
 .filter-label.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 500;
   font-size: 0.75rem;
   color: var(--sap-text-secondary);
@@ -155,7 +155,7 @@
   border: 1px solid var(--sap-neutral-400);
   border-radius: var(--sap-border-radius-sm);
   color: var(--sap-text-primary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   transition: all var(--sap-transition-fast);
   width: 100%;
@@ -193,7 +193,7 @@
 }
 
 .movements-table-title.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 1rem;
   color: var(--sap-text-primary);
@@ -215,7 +215,7 @@
 .movements-table.sap-theme th {
   background: var(--sap-neutral-200);
   color: var(--sap-text-primary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 0.875rem;
   padding: var(--sap-spacing-md);
@@ -250,7 +250,7 @@
   gap: var(--sap-spacing-xs);
   padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -294,7 +294,7 @@
   gap: var(--sap-spacing-xs);
   padding: var(--sap-spacing-xs) var(--sap-spacing-sm);
   border-radius: var(--sap-border-radius-sm);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -340,14 +340,14 @@
 }
 
 .quantity-value.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
   font-size: 1rem;
   color: var(--sap-text-primary);
 }
 
 .quantity-unit.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.75rem;
   color: var(--sap-text-secondary);
   text-transform: uppercase;
@@ -407,7 +407,7 @@
 
 /* ==== BUTTONS SAP ==== */
 .btn.sap-theme {
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: var(--sap-border-radius-sm);
@@ -485,13 +485,13 @@
 .empty-state.sap-theme h3 {
   margin: 0 0 var(--sap-spacing-md) 0;
   color: var(--sap-text-primary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   font-weight: 600;
 }
 
 .empty-state.sap-theme p {
   margin: 0 0 var(--sap-spacing-lg) 0;
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 /* ==== LOADING STATES SAP ==== */
@@ -501,7 +501,7 @@
   justify-content: center;
   min-height: 200px;
   color: var(--sap-text-secondary);
-  font-family: '72', sans-serif;
+  font-family: var(--font-family-primary);
   gap: var(--sap-spacing-md);
 }
 
@@ -519,47 +519,47 @@
   .movements-container.sap-theme {
     padding: var(--sap-spacing-md);
   }
-  
+
   .movements-header.sap-theme {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--sap-spacing-md);
   }
-  
+
   .movements-stats.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .movements-filters.sap-theme {
     grid-template-columns: 1fr;
     gap: var(--sap-spacing-md);
   }
-  
+
   .filter-actions.sap-theme {
     grid-column: 1 / -1;
     justify-content: stretch;
   }
-  
+
   .filter-actions.sap-theme .btn {
     flex: 1;
   }
-  
+
   .movements-table-header.sap-theme {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--sap-spacing-md);
   }
-  
+
   .movements-table-actions.sap-theme {
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .movements-table.sap-theme {
     font-size: 0.75rem;
   }
-  
+
   .movements-table.sap-theme th,
   .movements-table.sap-theme td {
     padding: var(--sap-spacing-sm);
@@ -570,7 +570,7 @@
   .movements-stats.sap-theme {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .movements-filters.sap-theme {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -582,21 +582,21 @@
   outline-offset: 2px;
 }
 
-.movements-table.sap-theme th[role="columnheader"] {
+.movements-table.sap-theme th[role='columnheader'] {
   cursor: pointer;
 }
 
-.movements-table.sap-theme th[role="columnheader"]:hover {
+.movements-table.sap-theme th[role='columnheader']:hover {
   background: var(--sap-neutral-300);
 }
 
-.movements-table.sap-theme th[aria-sort="ascending"]::after {
+.movements-table.sap-theme th[aria-sort='ascending']::after {
   content: ' ▲';
   font-size: 0.75rem;
   color: var(--sap-blue-primary);
 }
 
-.movements-table.sap-theme th[aria-sort="descending"]::after {
+.movements-table.sap-theme th[aria-sort='descending']::after {
   content: ' ▼';
   font-size: 0.75rem;
   color: var(--sap-blue-primary);

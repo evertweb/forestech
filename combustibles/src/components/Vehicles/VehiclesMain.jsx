@@ -5,11 +5,11 @@
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { 
-  subscribeToVehicles, 
+import {
+  subscribeToVehicles,
   getVehiclesStats,
   VEHICLE_STATUS,
-  FUEL_COMPATIBILITY 
+  FUEL_COMPATIBILITY,
 } from '../../services/vehiclesService';
 
 // Componentes de la pestaña Vehículos
@@ -27,6 +27,7 @@ const VehicleCategoriesManager = lazy(() => import('./VehicleCategoriesManager')
 import { PageLayout } from '../shared';
 
 import './Vehicles.css';
+import '../../styles/sap-vehicles.css';
 
 const VehiclesMain = () => {
   // Estado para manejo de pestañas
@@ -40,11 +41,11 @@ const VehiclesMain = () => {
 
   // Estado de filtros
   const [filters, setFilters] = useState({
-    type: '',           // Tipo de vehículo
-    status: '',         // Estado
-    fuelType: '',       // Tipo de combustible
-    location: '',       // Ubicación actual
-    maintenance: 'all'  // Filtro mantenimiento
+    type: '', // Tipo de vehículo
+    status: '', // Estado
+    fuelType: '', // Tipo de combustible
+    location: '', // Ubicación actual
+    maintenance: 'all', // Filtro mantenimiento
   });
 
   // Estado de vista
@@ -56,9 +57,12 @@ const VehiclesMain = () => {
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
   // Función estabilizada para manejar la suscripción con filtros
-  const handleVehiclesSubscription = useCallback((callback) => {
-    return subscribeToVehicles(callback, filters);
-  }, [filters]);
+  const handleVehiclesSubscription = useCallback(
+    (callback) => {
+      return subscribeToVehicles(callback, filters);
+    },
+    [filters]
+  );
 
   // Función estabilizada para cargar estadísticas
   const loadVehiclesStats = useCallback(async () => {
@@ -75,7 +79,7 @@ const VehiclesMain = () => {
     if (!user) return;
 
     setLoading(true);
-    
+
     const unsubscribe = handleVehiclesSubscription((vehiclesData, error) => {
       if (error) {
         console.error('Error en suscripción de vehículos:', error);
@@ -100,20 +104,24 @@ const VehiclesMain = () => {
   }, [user, vehicles, loadVehiclesStats]);
 
   // Filtrar vehículos por búsqueda
-  const filteredVehicles = useMemo(() => vehicles.filter(vehicle => {
-    if (!searchTerm) return true;
-    
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      vehicle.vehicleId?.toLowerCase().includes(searchLower) ||
-      vehicle.name?.toLowerCase().includes(searchLower) ||
-      vehicle.type?.toLowerCase().includes(searchLower) ||
-      vehicle.brand?.toLowerCase().includes(searchLower) ||
-      vehicle.model?.toLowerCase().includes(searchLower) ||
-      vehicle.currentLocation?.toLowerCase().includes(searchLower) ||
-      vehicle.description?.toLowerCase().includes(searchLower)
-    );
-  }), [vehicles, searchTerm]);
+  const filteredVehicles = useMemo(
+    () =>
+      vehicles.filter((vehicle) => {
+        if (!searchTerm) return true;
+
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          vehicle.vehicleId?.toLowerCase().includes(searchLower) ||
+          vehicle.name?.toLowerCase().includes(searchLower) ||
+          vehicle.type?.toLowerCase().includes(searchLower) ||
+          vehicle.brand?.toLowerCase().includes(searchLower) ||
+          vehicle.model?.toLowerCase().includes(searchLower) ||
+          vehicle.currentLocation?.toLowerCase().includes(searchLower) ||
+          vehicle.description?.toLowerCase().includes(searchLower)
+        );
+      }),
+    [vehicles, searchTerm]
+  );
 
   // Manejadores de eventos
   const handleCreateVehicle = useCallback(() => {
@@ -146,7 +154,7 @@ const VehiclesMain = () => {
   }, []);
 
   const handleFilterChange = useCallback((newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   }, []);
 
   const handleClearFilters = useCallback(() => {
@@ -155,66 +163,80 @@ const VehiclesMain = () => {
       status: '',
       fuelType: '',
       location: '',
-      maintenance: 'all'
+      maintenance: 'all',
     });
     setSearchTerm('');
   }, []);
 
   // Permisos del usuario
-  const canCreateVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
+  const canCreateVehicle =
+    userProfile?.role === 'admin' ||
+    userProfile?.role === 'contador' ||
+    userProfile?.role === 'cliente';
   const canEditVehicle = userProfile?.role === 'admin';
   const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador';
 
   // Componentes para PageLayout
-  const headerActions = useMemo(() => (
-    <div className="header-actions">
-      {/* Navegación por pestañas */}
-      <div className="tabs-navigation" style={{ marginRight: '20px' }}>
-        <button 
-          className={`tab-btn ${activeTab === 'vehicles' ? 'active' : ''}`}
-          onClick={() => setActiveTab('vehicles')}
-        >
-          🚜 Vehículos
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-          onClick={() => setActiveTab('categories')}
-        >
-          🏷️ Categorías
-        </button>
+  const headerActions = useMemo(
+    () => (
+      <div className="header-actions sap-theme">
+        {/* Navegación por pestañas */}
+        <div className="tabs-navigation sap-theme">
+          <button
+            className={`tab-btn sap-theme ${activeTab === 'vehicles' ? 'active' : ''}`}
+            onClick={() => setActiveTab('vehicles')}
+          >
+            🚜 Vehículos
+          </button>
+          <button
+            className={`tab-btn sap-theme ${activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => setActiveTab('categories')}
+          >
+            🏷️ Categorías
+          </button>
+        </div>
+
+        {/* Botón crear vehículo solo para tab vehículos */}
+        {activeTab === 'vehicles' && canCreateVehicle && (
+          <button className="btn-create-vehicle sap-theme" onClick={handleCreateVehicle}>
+            ➕ Nuevo Vehículo
+          </button>
+        )}
       </div>
-      
-      {/* Botón crear vehículo solo para tab vehículos */}
-      {activeTab === 'vehicles' && canCreateVehicle && (
-        <button 
-          className="btn-create-vehicle"
-          onClick={handleCreateVehicle}
-        >
-          ➕ Nuevo Vehículo
-        </button>
-      )}
-    </div>
-  ), [activeTab, canCreateVehicle, handleCreateVehicle]);
+    ),
+    [activeTab, canCreateVehicle, handleCreateVehicle]
+  );
 
-  const statsComponent = useMemo(() => activeTab === 'vehicles' && stats ? (
-    <VehiclesStats 
-      stats={stats}
-      filters={filters}
-    />
-  ) : null, [activeTab, stats, filters]);
+  const statsComponent = useMemo(
+    () =>
+      activeTab === 'vehicles' && stats ? <VehiclesStats stats={stats} filters={filters} /> : null,
+    [activeTab, stats, filters]
+  );
 
-  const filtersComponent = useMemo(() => activeTab === 'vehicles' ? (
-    <VehiclesFilters
-      filters={filters}
-      onFilterChange={handleFilterChange}
-      onClearFilters={handleClearFilters}
-      searchTerm={searchTerm}
-      onSearchChange={setSearchTerm}
-      viewMode={viewMode}
-      onViewModeChange={setViewMode}
-      totalResults={filteredVehicles.length}
-    />
-  ) : null, [activeTab, filters, handleFilterChange, handleClearFilters, searchTerm, viewMode, filteredVehicles.length]);
+  const filtersComponent = useMemo(
+    () =>
+      activeTab === 'vehicles' ? (
+        <VehiclesFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          totalResults={filteredVehicles.length}
+        />
+      ) : null,
+    [
+      activeTab,
+      filters,
+      handleFilterChange,
+      handleClearFilters,
+      searchTerm,
+      viewMode,
+      filteredVehicles.length,
+    ]
+  );
 
   const mainContent = (
     <>
@@ -222,69 +244,64 @@ const VehiclesMain = () => {
       {activeTab === 'vehicles' && (
         <>
           {error && (
-            <div className="error-state">
-              <div className="error-icon">⚠️</div>
+            <div className="error-state sap-theme">
+              <div className="error-icon sap-theme">⚠️</div>
               <h3>Error al cargar vehículos</h3>
               <p>{error}</p>
-              <button 
-                className="btn-retry"
-                onClick={() => window.location.reload()}
-              >
+              <button className="btn-retry sap-theme" onClick={() => window.location.reload()}>
                 Reintentar
               </button>
             </div>
           )}
 
           {/* Lista de vehículos */}
-          {!error && (filteredVehicles.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🚜</div>
-              <h3>
-                {vehicles.length === 0 
-                  ? 'No hay vehículos registrados'
-                  : 'No se encontraron vehículos'
-                }
-              </h3>
-              <p>
-                {vehicles.length === 0 
-                  ? 'Comienza registrando tu primer vehículo o maquinaria forestal'
-                  : 'Intenta ajustar los filtros de búsqueda'
-                }
-              </p>
-              {vehicles.length === 0 && canCreateVehicle && (
-                <button 
-                  className="btn-create-first"
-                  onClick={handleCreateVehicle}
-                >
-                  ➕ Registrar Primer Vehículo
-                </button>
-              )}
-            </div>
-          ) : (
-            <VehiclesList
-              vehicles={filteredVehicles}
-              viewMode={viewMode}
-              onEdit={canEditVehicle ? handleEditVehicle : null}
-              onView={handleViewVehicle}
-              onMaintenance={canManageVehicle ? handleMaintenanceVehicle : null}
-              userRole={user?.role}
-            />
-          ))}
+          {!error &&
+            (filteredVehicles.length === 0 ? (
+              <div className="empty-state sap-theme">
+                <div className="empty-icon sap-theme">🚜</div>
+                <h3>
+                  {vehicles.length === 0
+                    ? 'No hay vehículos registrados'
+                    : 'No se encontraron vehículos'}
+                </h3>
+                <p>
+                  {vehicles.length === 0
+                    ? 'Comienza registrando tu primer vehículo o maquinaria forestal'
+                    : 'Intenta ajustar los filtros de búsqueda'}
+                </p>
+                {vehicles.length === 0 && canCreateVehicle && (
+                  <button className="btn-create-first sap-theme" onClick={handleCreateVehicle}>
+                    ➕ Registrar Primer Vehículo
+                  </button>
+                )}
+              </div>
+            ) : (
+              <VehiclesList
+                vehicles={filteredVehicles}
+                viewMode={viewMode}
+                onEdit={canEditVehicle ? handleEditVehicle : null}
+                onView={handleViewVehicle}
+                onMaintenance={canManageVehicle ? handleMaintenanceVehicle : null}
+                userRole={user?.role}
+              />
+            ))}
         </>
       )}
 
       {activeTab === 'categories' && (
-        <div className="categories-tab-content">
-          <div className="tab-description">
+        <div className="categories-tab-content sap-theme">
+          <div className="tab-description sap-theme">
             <h3>🏷️ Gestión de Categorías de Vehículos</h3>
-            <p>Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal</p>
+            <p>
+              Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal
+            </p>
           </div>
-          
+
           <Suspense
             fallback={
-              <div className="loading-container">
-                <div className="loader">
-                  <div className="spinner"></div>
+              <div className="loading-container sap-theme">
+                <div className="loader sap-theme">
+                  <div className="spinner sap-theme"></div>
                   <p>Cargando categorías...</p>
                 </div>
               </div>
@@ -305,9 +322,9 @@ const VehiclesMain = () => {
       {showModal && (
         <Suspense
           fallback={
-            <div className="loading-container">
-              <div className="loader">
-                <div className="spinner"></div>
+            <div className="loading-container sap-theme">
+              <div className="loader sap-theme">
+                <div className="spinner sap-theme"></div>
                 <p>Cargando formulario...</p>
               </div>
             </div>
@@ -328,9 +345,9 @@ const VehiclesMain = () => {
       {showMaintenanceModal && (
         <Suspense
           fallback={
-            <div className="loading-container">
-              <div className="loader">
-                <div className="spinner"></div>
+            <div className="loading-container sap-theme">
+              <div className="loader sap-theme">
+                <div className="spinner sap-theme"></div>
                 <p>Cargando mantenimiento...</p>
               </div>
             </div>
