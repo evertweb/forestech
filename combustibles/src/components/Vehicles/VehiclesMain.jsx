@@ -28,6 +28,8 @@ import { PageLayout } from '../shared';
 
 import './Vehicles.css';
 import '../../styles/sap-vehicles.css';
+import { openVehicleWizardPopup } from '../Popups/PopupManager';
+import { POPUP_EVENTS } from '../../services/popupCommunication';
 
 const VehiclesMain = () => {
   // Estado para manejo de pestañas
@@ -55,6 +57,8 @@ const VehiclesMain = () => {
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
+  const [openingPopup, setOpeningPopup] = useState(false);
+  const [popupError, setPopupError] = useState(null);
 
   // Función estabilizada para manejar la suscripción con filtros
   const handleVehiclesSubscription = useCallback(
@@ -125,10 +129,36 @@ const VehiclesMain = () => {
 
   // Manejadores de eventos
   const handleCreateVehicle = useCallback(() => {
-    setSelectedVehicle(null);
-    setModalMode('create');
-    setShowModal(true);
-  }, []);
+    // Abrir versión popup con contexto necesario
+    setPopupError(null);
+    setOpeningPopup(true);
+    const initialData = {
+      user,
+      inventory: [],
+      vehicles,
+      suppliers: [],
+      theme: 'sap-fiori',
+    };
+
+    const { success, error } = openVehicleWizardPopup(initialData, ({ type, payload }) => {
+      if (type === POPUP_EVENTS.WIZARD_SUCCESS) {
+        // Actualizar estadísticas y dejar que suscripciones refresquen
+        loadVehiclesStats();
+      } else if (type === POPUP_EVENTS.WIZARD_ERROR) {
+        console.error('Error en wizard popup:', payload);
+        alert(`Error en asistente: ${payload?.message || 'desconocido'}`);
+      }
+    });
+
+    setOpeningPopup(false);
+    if (!success) {
+      // Fallback: si bloqueado, abrir modal inline
+      setPopupError(error || 'Popup bloqueado');
+      setSelectedVehicle(null);
+      setModalMode('create');
+      setShowModal(true);
+    }
+  }, [user, vehicles, loadVehiclesStats]);
 
   const handleEditVehicle = useCallback((vehicle) => {
     setSelectedVehicle(vehicle);
@@ -168,6 +198,18 @@ const VehiclesMain = () => {
     setSearchTerm('');
   }, []);
 
+  // Atajo de teclado Ctrl+Shift+V para abrir popup de vehículo
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        handleCreateVehicle();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleCreateVehicle]);
+
   // Permisos del usuario
   const canCreateVehicle =
     userProfile?.role === 'admin' ||
@@ -198,13 +240,20 @@ const VehiclesMain = () => {
 
         {/* Botón crear vehículo solo para tab vehículos */}
         {activeTab === 'vehicles' && canCreateVehicle && (
-          <button className="btn-create-vehicle sap-theme" onClick={handleCreateVehicle}>
-            ➕ Nuevo Vehículo
-          </button>
+          <div className="create-vehicle-options sap-theme">
+            <button className="btn-create-vehicle sap-theme primary" onClick={handleCreateVehicle}>
+              ➕ Nuevo Vehículo
+            </button>
+            {openingPopup && (
+              <span className="opening-status" style={{ marginLeft: 12 }}>
+                Abriendo formulario...
+              </span>
+            )}
+          </div>
         )}
       </div>
     ),
-    [activeTab, canCreateVehicle, handleCreateVehicle]
+    [activeTab, canCreateVehicle, handleCreateVehicle, openingPopup]
   );
 
   const statsComponent = useMemo(
@@ -285,6 +334,29 @@ const VehiclesMain = () => {
                 userRole={user?.role}
               />
             ))}
+
+          {/* Estado de error de popup y botón de reintento */}
+          {popupError && (
+            <div className="popup-error sap-theme" style={{ marginTop: 16 }}>
+              <p>
+                El navegador bloqueó la ventana emergente. Permite popups para este sitio o usa el
+                formulario integrado.
+              </p>
+              <button className="sap-theme" onClick={() => setShowModal(true)}>
+                Abrir formulario integrado
+              </button>
+              <button
+                className="sap-theme"
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  setPopupError(null);
+                  handleCreateVehicle();
+                }}
+              >
+                Reintentar popup
+              </button>
+            </div>
+          )}
         </>
       )}
 

@@ -11,7 +11,7 @@ import { subscribeToCategories } from '../services/vehicleCategoriesService';
 import movementsService from '../services/movementsService';
 import { getUserProfile } from '../firebase/userService';
 
-const CombustiblesContext = createContext();
+export const CombustiblesContext = createContext();
 
 export const useCombustibles = () => {
   const context = useContext(CombustiblesContext);
@@ -21,7 +21,7 @@ export const useCombustibles = () => {
   return context;
 };
 
-export const CombustiblesProvider = ({ children }) => {
+export const CombustiblesProvider = ({ children, overrides }) => {
   // Usar el nuevo AuthContext minimalista
   const auth = useAuth();
   const [localProfile, setLocalProfile] = useState(null);
@@ -139,5 +139,14 @@ export const CombustiblesProvider = ({ children }) => {
     ]
   );
 
-  return <CombustiblesContext.Provider value={value}>{children}</CombustiblesContext.Provider>;
+  // Permitir overrides para modo popup u otros wrappers (solo para props seguras)
+  const finalValue = useMemo(
+    () => ({
+      ...value,
+      ...(overrides || {}),
+    }),
+    [value, overrides]
+  );
+
+  return <CombustiblesContext.Provider value={finalValue}>{children}</CombustiblesContext.Provider>;
 };

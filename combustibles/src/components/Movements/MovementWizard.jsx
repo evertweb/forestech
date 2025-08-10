@@ -660,8 +660,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         )}
 
         {/* Navegación flotante estilo Typeform */}
-        <div className="typeform-navigation sap-theme">
-          {currentStep > 1 && (
+        <div className={`typeform-navigation sap-theme ${isLastStep ? 'centered-final-step' : ''}`}>
+          {(currentStep > 1 || currentStep === '3b') && (
             <button
               className="typeform-nav-btn sap-theme"
               onClick={prevStep}
@@ -683,12 +683,17 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
             </button>
           ) : (
             <button
-              className="typeform-nav-btn sap-theme"
+              className="typeform-nav-btn sap-theme confirm-button"
               onClick={handleSubmit}
               disabled={isLoading || !confirmChecked || isTransitioning}
               aria-label="Confirmar movimiento"
             >
-              {isLoading ? <span className="loading-spinner small sap-theme"></span> : '✓'}
+              <span className="confirm-icon">
+                {isLoading ? <span className="loading-spinner small sap-theme"></span> : '✓'}
+              </span>
+              <span className="confirm-text">
+                {isLoading ? 'Guardando...' : 'Confirmar movimiento'}
+              </span>
             </button>
           )}
         </div>

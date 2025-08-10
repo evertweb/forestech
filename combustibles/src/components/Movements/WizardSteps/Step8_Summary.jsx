@@ -102,7 +102,7 @@ const Step8_Summary = ({
       </div>
 
       {/* Resumen principal SAP */}
-      <div className="summary-container sap-theme sap-theme">
+      <div className="summary-sections sap-theme">
         <div className={`summary-section sap-theme ${movementType.color}`}>
           <h4>Tipo de Operación</h4>
           <div className="summary-item sap-theme sap-theme">
@@ -125,9 +125,9 @@ const Step8_Summary = ({
               {product?.displayName || formData.fuelType}
             </span>
           </div>
-          <div className="summary-item sap-theme sap-theme">
-            <span className="summary-label sap-theme sap-theme">Cantidad:</span>
-            <span className="summary-value sap-theme sap-theme">
+          <div className="summary-item highlight sap-theme">
+            <span className="summary-label sap-theme">Cantidad:</span>
+            <span className="summary-value sap-theme">
               {parseFloat(formData.quantity).toLocaleString('es-CO')} galones
             </span>
           </div>
@@ -137,11 +137,9 @@ const Step8_Summary = ({
               {formatCurrency(parseFloat(formData.unitPrice))}
             </span>
           </div>
-          <div className="summary-item sap-theme sap-theme">
-            <span className="summary-label sap-theme sap-theme">Valor total:</span>
-            <span className="summary-value sap-theme sap-theme">
-              <strong>{formatCurrency(totalValue)}</strong>
-            </span>
+          <div className="summary-item total sap-theme">
+            <span className="summary-label sap-theme">Valor total:</span>
+            <span className="summary-value sap-theme">{formatCurrency(totalValue)}</span>
           </div>
         </div>
 

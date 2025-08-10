@@ -192,29 +192,27 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive }) => {
               }}
             >
               {/* Pregunta del subpaso */}
-              <div className="typeform-question sap-theme">
-                <h2>{subStep.question}</h2>
+              <div className="step-question sap-theme">
+                <h3>{subStep.question}</h3>
                 <p>{subStep.description}</p>
               </div>
 
               {/* Contenido específico por tipo de subpaso */}
               {subStep.type === 'fuel-selection' && (
-                <div className="typeform-options fuel-options sap-theme">
+                <div className="technical-specs-grid sap-theme">
                   {fuelTypeOptions.map((option) => (
                     <div
                       key={option.type}
-                      className={`typeform-option fuel-option ${option.color} ${
+                      className={`spec-group ${
                         formData.fuelType === option.type ? 'selected' : ''
                       }`}
                       onClick={() => handleFuelTypeSelect(option.type)}
+                      style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
                     >
-                      <div className="option-header sap-theme">
-                        <span className="option-icon sap-theme">{option.icon}</span>
+                      <div className="spec-label sap-theme">
+                        {option.icon} {option.title}
                       </div>
-                      <div className="option-content sap-theme">
-                        <h4 className="option-title sap-theme">{option.title}</h4>
-                        <p className="option-description sap-theme">{option.description}</p>
-                      </div>
+                      <div className="spec-description sap-theme">{option.description}</div>
                       {formData.fuelType === option.type && (
                         <div className="selection-indicator sap-theme">
                           <span className="checkmark sap-theme">✓</span>

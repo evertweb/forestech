@@ -154,8 +154,8 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
               }}
             >
               {/* Pregunta del subpaso */}
-              <div className="typeform-question sap-theme">
-                <h2>{subStep.question}</h2>
+              <div className="step-question sap-theme">
+                <h3>{subStep.question}</h3>
                 <p>{subStep.description}</p>
               </div>
 

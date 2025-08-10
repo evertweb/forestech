@@ -85,25 +85,22 @@ const Step2_Category = ({ formData, updateFormData, errors, isActive, extraData 
         </div>
 
         {/* Grid de categorías */}
-        <div className="typeform-options category-grid sap-theme">
+        <div className="category-options sap-theme">
           {categories.map((category, index) => (
             <div
               key={category.id}
-              className={`typeform-option category-option ${getCategoryColor(category)} ${
+              className={`category-option sap-theme ${
                 formData.category === category.id ? 'selected' : ''
               }`}
               onClick={() => handleCategorySelect(category.id)}
             >
-              <div className="category-header sap-theme">
-                <span className="category-icon sap-theme">{getCategoryIcon(category)}</span>
-                <span className="category-number sap-theme">{index + 1}</span>
-              </div>
+              <div className="category-icon sap-theme">{getCategoryIcon(category)}</div>
 
               <div className="category-content sap-theme">
-                <h3 className="category-title sap-theme">{category.name}</h3>
-                <p className="category-description sap-theme">
+                <div className="category-title sap-theme">{category.name}</div>
+                <div className="category-description sap-theme">
                   {category.description || 'Categoría personalizada'}
-                </p>
+                </div>
 
                 {/* Mostrar campos específicos de la categoría */}
                 {category.fields && category.fields.length > 0 && (

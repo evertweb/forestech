@@ -4,14 +4,14 @@
  * Maneja entradas, salidas, transferencias y ajustes de inventario
  */
 import { CRUDService } from './base/CRUDService.js';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  doc, 
-  runTransaction, 
-  serverTimestamp 
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  runTransaction,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
@@ -19,17 +19,17 @@ import { OPERATIONAL_LOCATIONS } from '../constants/locations';
 
 // Tipos de movimientos
 export const MOVEMENT_TYPES = {
-  ENTRADA: 'entrada',           // Compras, reabastecimientos
-  SALIDA: 'salida',            // Consumo por vehículos
+  ENTRADA: 'entrada', // Compras, reabastecimientos
+  SALIDA: 'salida', // Consumo por vehículos
   TRANSFERENCIA: 'transferencia', // Entre tanques/ubicaciones
-  AJUSTE: 'ajuste'             // Mermas, pérdidas, calibraciones
+  AJUSTE: 'ajuste', // Mermas, pérdidas, calibraciones
 };
 
 // Estados de movimiento
 export const MOVEMENT_STATUS = {
   PENDIENTE: 'pendiente',
   COMPLETADO: 'completado',
-  CANCELADO: 'cancelado'
+  CANCELADO: 'cancelado',
 };
 
 const INVENTORY_COLLECTION = 'combustibles_inventory';
@@ -40,16 +40,16 @@ class MovementsService extends CRUDService {
       enableTimestamps: true,
       enableSoftDelete: false,
       defaultOrderBy: 'createdAt',
-      defaultOrderDirection: 'desc'
+      defaultOrderDirection: 'desc',
     });
   }
 
   validateData(data) {
     const baseValidation = super.validateData(data);
     if (!baseValidation.isValid) return baseValidation;
-    
+
     const errors = [];
-    
+
     // Campos requeridos
     const required = ['type', 'fuelType', 'quantity', 'unitPrice'];
     for (const field of required) {
@@ -92,30 +92,38 @@ class MovementsService extends CRUDService {
     }
 
     // Validar ubicaciones válidas
-    if (data.tipo !== MOVEMENT_TYPES.ENTRADA && data.location && !this.isValidLocation(data.location)) {
-      errors.push(`Ubicación origen inválida: ${data.location}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
+    if (
+      data.tipo !== MOVEMENT_TYPES.ENTRADA &&
+      data.location &&
+      !this.isValidLocation(data.location)
+    ) {
+      errors.push(
+        `Ubicación origen inválida: ${data.location}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`
+      );
     }
 
     if (data.destinationLocation && !this.isValidLocation(data.destinationLocation)) {
-      errors.push(`Ubicación destino inválida: ${data.destinationLocation}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
+      errors.push(
+        `Ubicación destino inválida: ${data.destinationLocation}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`
+      );
     }
 
     // Validar que origen y destino sean diferentes en transferencias
     if (data.type === MOVEMENT_TYPES.TRANSFERENCIA) {
       const origin = (data.location || 'principal').toLowerCase();
       const destination = data.destinationLocation?.toLowerCase();
-      
+
       if (origin === destination) {
         errors.push('La ubicación origen y destino no pueden ser la misma en una transferencia');
       }
     }
-    
+
     return { isValid: errors.length === 0, errors };
   }
 
   processData(data, isUpdate = false) {
     const baseProcessed = super.processData(data, isUpdate);
-    
+
     // Procesar números
     if (data.quantity !== undefined) {
       baseProcessed.quantity = Number(data.quantity);
@@ -164,7 +172,7 @@ class MovementsService extends CRUDService {
       createdAt: item.createdAt?.toDate?.() || item.createdAt,
       updatedAt: item.updatedAt?.toDate?.() || item.updatedAt,
       effectiveDate: item.effectiveDate?.toDate?.() || item.effectiveDate,
-      approvedAt: item.approvedAt?.toDate?.() || item.approvedAt
+      approvedAt: item.approvedAt?.toDate?.() || item.approvedAt,
     };
   }
 
@@ -200,7 +208,7 @@ class MovementsService extends CRUDService {
     try {
       // Construir filtros para CRUDService
       const crudFilters = [];
-      
+
       if (filters.type) {
         crudFilters.push({ field: 'type', operator: '==', value: filters.type });
       }
@@ -216,13 +224,13 @@ class MovementsService extends CRUDService {
 
       const result = await this.getAll(crudFilters, {
         orderBy: 'createdAt',
-        orderDirection: 'desc'
+        orderDirection: 'desc',
       });
 
       if (!result.success) return result;
 
       // Enriquecer datos con conversión de timestamps
-      const enrichedData = result.data.map(item => this.enrichData(item));
+      const enrichedData = result.data.map((item) => this.enrichData(item));
 
       return { ...result, data: enrichedData };
     } catch (error) {
@@ -268,12 +276,12 @@ class MovementsService extends CRUDService {
       // Eliminar en transacción revirtiendo el inventario
       await runTransaction(db, async (transaction) => {
         const docRef = doc(db, this.collectionName, id);
-        
+
         // Si el movimiento ya había afectado el inventario, revertir los cambios
         if (movement.status === MOVEMENT_STATUS.COMPLETADO) {
           await this.revertInventoryChanges(transaction, movement);
         }
-        
+
         // Eliminar el documento del movimiento
         transaction.delete(docRef);
       });
@@ -301,12 +309,12 @@ class MovementsService extends CRUDService {
 
       await runTransaction(db, async (transaction) => {
         const docRef = doc(db, this.collectionName, movementId);
-        
+
         // Actualizar estado a completado
         transaction.update(docRef, {
           status: MOVEMENT_STATUS.COMPLETADO,
           approvedAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         });
 
         // Actualizar inventario
@@ -339,7 +347,7 @@ class MovementsService extends CRUDService {
         // Estadísticas por período
         thisMonth: 0,
         lastMonth: 0,
-        thisWeek: 0
+        thisWeek: 0,
       };
 
       const now = new Date();
@@ -347,16 +355,16 @@ class MovementsService extends CRUDService {
       const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
 
-      movements.forEach(movement => {
+      movements.forEach((movement) => {
         // Por tipo
         stats.byType[movement.type] = (stats.byType[movement.type] || 0) + 1;
-        
+
         // Por estado
         stats.byStatus[movement.status] = (stats.byStatus[movement.status] || 0) + 1;
-        
+
         // Por tipo de combustible
         stats.byFuelType[movement.fuelType] = (stats.byFuelType[movement.fuelType] || 0) + 1;
-        
+
         // Totales
         stats.totalValue += movement.totalValue || 0;
         stats.totalQuantity += movement.quantity || 0;
@@ -386,7 +394,7 @@ class MovementsService extends CRUDService {
   subscribeToMovements(callback, filters = {}) {
     // Construir filtros para el método base
     const subscribeFilters = [];
-    
+
     if (filters.type) {
       subscribeFilters.push({ field: 'type', operator: '==', value: filters.type });
     }
@@ -395,19 +403,22 @@ class MovementsService extends CRUDService {
     }
 
     // Wrapper para enriquecer datos en tiempo real
-    return this.subscribeToChanges((movements, error) => {
-      if (error) {
-        callback([], error);
-        return;
+    return this.subscribeToChanges(
+      (movements, error) => {
+        if (error) {
+          callback([], error);
+          return;
+        }
+
+        const enrichedMovements = movements.map((movement) => this.enrichData(movement));
+        callback(enrichedMovements);
+      },
+      {
+        filters: subscribeFilters,
+        orderBy: 'createdAt',
+        orderDirection: 'desc',
       }
-      
-      const enrichedMovements = movements.map(movement => this.enrichData(movement));
-      callback(enrichedMovements);
-    }, {
-      filters: subscribeFilters,
-      orderBy: 'createdAt',
-      orderDirection: 'desc'
-    });
+    );
   }
 
   // Métodos auxiliares para inventario
@@ -415,7 +426,7 @@ class MovementsService extends CRUDService {
     try {
       // Determinar ubicación correcta según tipo de movimiento
       let targetLocation = movement.location || 'principal';
-      
+
       // Para ENTRADA, usar destinationLocation si existe
       if (movement.type === MOVEMENT_TYPES.ENTRADA) {
         targetLocation = movement.destinationLocation || 'principal';
@@ -429,13 +440,15 @@ class MovementsService extends CRUDService {
       );
 
       const inventorySnapshot = await getDocs(inventoryQuery);
-      
+
       if (inventorySnapshot.empty) {
         // Si no existe inventario, solo se puede procesar una ENTRADA
         if (movement.type !== MOVEMENT_TYPES.ENTRADA) {
-          throw new Error(`No se encontró inventario para ${movement.fuelType} en ${targetLocation} para realizar un movimiento de ${movement.type}.`);
+          throw new Error(
+            `No se encontró inventario para ${movement.fuelType} en ${targetLocation} para realizar un movimiento de ${movement.type}.`
+          );
         }
-        
+
         // Crear inventario automáticamente
         await this.createInventoryFromMovement(transaction, movement, movementId, targetLocation);
       } else {
@@ -459,9 +472,9 @@ class MovementsService extends CRUDService {
       fuelType: movement.fuelType,
       location: targetLocation,
       name: movement.fuelType,
-      maxCapacity: 10000,
+      maxCapacity: 1000, // ✅ Capacidad ajustada para bodegas Austria e Ilusión
       currentStock: preciseRound(movement.quantity, 2),
-      minThreshold: 1500,
+      minThreshold: 150, // ✅ Umbral mínimo ajustado (15% de 1000 galones)
       pricePerUnit: movement.unitPrice || 0,
       status: 'active',
       createdAt: serverTimestamp(),
@@ -470,10 +483,10 @@ class MovementsService extends CRUDService {
         movementId,
         type: movement.type,
         quantity: movement.quantity,
-        date: serverTimestamp()
-      }
+        date: serverTimestamp(),
+      },
     };
-    
+
     transaction.set(inventoryRef, newInventoryData);
   }
 
@@ -503,7 +516,7 @@ class MovementsService extends CRUDService {
         if (newQuantity < 0) {
           throw new Error('Stock insuficiente para realizar la transferencia');
         }
-        
+
         // Manejar suma al destino
         await this.handleTransferToDestination(transaction, movement, movementId);
         break;
@@ -519,9 +532,9 @@ class MovementsService extends CRUDService {
         movementId,
         type: movement.type,
         quantity: movement.quantity,
-        date: serverTimestamp()
+        date: serverTimestamp(),
       },
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   }
 
@@ -546,9 +559,9 @@ class MovementsService extends CRUDService {
         fuelType: movement.fuelType,
         location: movement.destinationLocation,
         name: movement.fuelType,
-        maxCapacity: 10000,
+        maxCapacity: 1000, // ✅ Capacidad ajustada para bodegas Austria e Ilusión
         currentStock: preciseRound(movement.quantity, 2),
-        minThreshold: 1500,
+        minThreshold: 150, // ✅ Umbral mínimo ajustado (15% de 1000 galones)
         pricePerUnit: movement.unitPrice || 0,
         status: 'active',
         createdAt: serverTimestamp(),
@@ -558,18 +571,21 @@ class MovementsService extends CRUDService {
           type: 'transferencia_entrada',
           quantity: movement.quantity,
           date: serverTimestamp(),
-          originLocation: movement.location
-        }
+          originLocation: movement.location,
+        },
       };
-      
+
       transaction.set(inventoryRef, newInventoryData);
     } else {
       // Sumar al inventario existente en destino
       const destinationDoc = destinationSnapshot.docs[0];
       const destinationData = destinationDoc.data();
       const destinationRef = doc(db, INVENTORY_COLLECTION, destinationDoc.id);
-      
-      const newQuantity = preciseRound(preciseAdd(destinationData.currentStock, movement.quantity), 2);
+
+      const newQuantity = preciseRound(
+        preciseAdd(destinationData.currentStock, movement.quantity),
+        2
+      );
 
       transaction.update(destinationRef, {
         currentStock: newQuantity,
@@ -578,9 +594,9 @@ class MovementsService extends CRUDService {
           type: 'transferencia_entrada',
           quantity: movement.quantity,
           date: serverTimestamp(),
-          originLocation: movement.location
+          originLocation: movement.location,
         },
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     }
   }
@@ -612,18 +628,20 @@ class MovementsService extends CRUDService {
       );
 
       const inventorySnapshot = await getDocs(inventoryQuery);
-      
+
       if (inventorySnapshot.empty) {
-        this.logWarning('revertInventoryChanges', `No se encontró inventario para ${movement.fuelType} en ${targetLocation}`);
+        this.logWarning(
+          'revertInventoryChanges',
+          `No se encontró inventario para ${movement.fuelType} en ${targetLocation}`
+        );
         return;
       }
 
       const inventoryDoc = inventorySnapshot.docs[0];
       const inventoryData = inventoryDoc.data();
       const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
-      
-      await this.processInventoryReversion(transaction, inventoryRef, inventoryData, movement);
 
+      await this.processInventoryReversion(transaction, inventoryRef, inventoryData, movement);
     } catch (error) {
       this.logError('revertInventoryChanges', error, movement);
       throw error;
@@ -664,9 +682,9 @@ class MovementsService extends CRUDService {
         quantity: movement.quantity,
         originalType: movement.type,
         date: serverTimestamp(),
-        note: `Reversión de movimiento ${movement.id}`
+        note: `Reversión de movimiento ${movement.id}`,
       },
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   }
 
@@ -682,17 +700,20 @@ class MovementsService extends CRUDService {
     const destinationSnapshot = await getDocs(destinationQuery);
 
     if (destinationSnapshot.empty) {
-      this.logWarning('revertTransferFromDestination', `No se encontró inventario destino: ${movement.fuelType} en ${movement.destinationLocation}`);
+      this.logWarning(
+        'revertTransferFromDestination',
+        `No se encontró inventario destino: ${movement.fuelType} en ${movement.destinationLocation}`
+      );
       return;
     }
 
     const destinationDoc = destinationSnapshot.docs[0];
     const destinationData = destinationDoc.data();
     const destinationRef = doc(db, INVENTORY_COLLECTION, destinationDoc.id);
-    
+
     let newQuantity = preciseSubtract(destinationData.currentStock, movement.quantity);
     if (newQuantity < 0) newQuantity = 0;
-    
+
     newQuantity = preciseRound(newQuantity, 2);
 
     transaction.update(destinationRef, {
@@ -702,9 +723,9 @@ class MovementsService extends CRUDService {
         type: 'reversion_transferencia',
         quantity: movement.quantity,
         date: serverTimestamp(),
-        note: `Reversión de transferencia desde ${movement.location}`
+        note: `Reversión de transferencia desde ${movement.location}`,
       },
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   }
 
@@ -717,7 +738,7 @@ class MovementsService extends CRUDService {
       );
 
       const vehiclesSnapshot = await getDocs(vehiclesQuery);
-      
+
       if (vehiclesSnapshot.empty) {
         this.logWarning('updateVehicleHourMeter', `Vehículo ${vehicleId} no encontrado`);
         return;
@@ -738,7 +759,7 @@ class MovementsService extends CRUDService {
         difference: newHours - previousHours,
         updatedAt: new Date(),
         updatedBy: 'movement_service',
-        source: 'fuel_consumption'
+        source: 'fuel_consumption',
       });
 
       // Actualizar vehículo
@@ -746,9 +767,8 @@ class MovementsService extends CRUDService {
         currentHours: newHours,
         hourMeterHistory: hourMeterHistory,
         lastHourMeterUpdate: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
-
     } catch (error) {
       this.logError('updateVehicleHourMeter', error, { vehicleId, currentHours });
       // No hacer throw para no afectar el movimiento principal
@@ -765,7 +785,8 @@ export const getAllMovements = (filters) => movementsService.getAllMovements(fil
 export const getMovement = (id) => movementsService.getMovementById(id);
 export const updateMovement = (id, data) => movementsService.updateMovement(id, data);
 export const deleteMovement = (id) => movementsService.deleteMovement(id);
-export const subscribeToMovements = (callback, filters) => movementsService.subscribeToMovements(callback, filters);
+export const subscribeToMovements = (callback, filters) =>
+  movementsService.subscribeToMovements(callback, filters);
 export const approveMovement = (id) => movementsService.approveMovement(id);
 export const getMovementsStats = (filters) => movementsService.getMovementsStats(filters);
 

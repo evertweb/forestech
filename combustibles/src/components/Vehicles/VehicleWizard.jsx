@@ -9,6 +9,7 @@ import { getAllVehicleCategories } from '../../services/vehicleCategoriesService
 import { FUEL_TYPES } from '../../data/vehicleCategories';
 import ForestechFormWizard from '../Shared/ForestechFormWizard';
 import CategoryWizard from './CategoryWizard';
+import './WizardSteps-SAP.css';
 
 // Importar pasos del wizard
 import Step1_BasicInfo from './WizardSteps/Step1_BasicInfo';
@@ -17,43 +18,43 @@ import Step3_Technical from './WizardSteps/Step3_Technical';
 import Step4_Operational from './WizardSteps/Step4_Operational';
 import Step5_Summary from './WizardSteps/Step5_Summary';
 
-const VehicleWizard = ({ 
-  isOpen, 
-  onClose, 
-  vehicle = null, 
-  onSuccess 
-}) => {
+const VehicleWizard = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
   // Datos iniciales del formulario
-  const getInitialData = useCallback(() => ({
-    // Información básica (Step 1)
-    vehicleId: vehicle?.vehicleId || '',
-    name: vehicle?.name || '',
-    brand: vehicle?.brand || '',
-    model: vehicle?.model || '',
-    
-    // Categoría (Step 2) 
-    category: vehicle?.category || '',
-    
-    // Información técnica (Step 3)
-    fuelType: vehicle?.fuelType || FUEL_TYPES.DIESEL,
-    plateNumber: vehicle?.plateNumber || '',
-    enginePower: vehicle?.enginePower || '',
-    fuelCapacity: vehicle?.fuelCapacity || '',
-    
-    // Información operacional (Step 4)
-    status: vehicle?.status || VEHICLE_STATUS.ACTIVO,
-    currentLocation: vehicle?.currentLocation || '',
-    hasHourMeter: vehicle?.hasHourMeter || false,
-    currentHours: vehicle?.currentHours || '',
-    description: vehicle?.description || '',
-    lastMaintenanceDate: vehicle?.lastMaintenanceDate ? 
-      new Date(vehicle.lastMaintenanceDate).toISOString().split('T')[0] : '',
-    purchaseDate: vehicle?.purchaseDate ? 
-      new Date(vehicle.purchaseDate).toISOString().split('T')[0] : ''
-  }), [vehicle]);
+  const getInitialData = useCallback(
+    () => ({
+      // Información básica (Step 1)
+      vehicleId: vehicle?.vehicleId || '',
+      name: vehicle?.name || '',
+      brand: vehicle?.brand || '',
+      model: vehicle?.model || '',
+
+      // Categoría (Step 2)
+      category: vehicle?.category || '',
+
+      // Información técnica (Step 3)
+      fuelType: vehicle?.fuelType || FUEL_TYPES.DIESEL,
+      plateNumber: vehicle?.plateNumber || '',
+      enginePower: vehicle?.enginePower || '',
+      fuelCapacity: vehicle?.fuelCapacity || '',
+
+      // Información operacional (Step 4)
+      status: vehicle?.status || VEHICLE_STATUS.ACTIVO,
+      currentLocation: vehicle?.currentLocation || '',
+      hasHourMeter: vehicle?.hasHourMeter || false,
+      currentHours: vehicle?.currentHours || '',
+      description: vehicle?.description || '',
+      lastMaintenanceDate: vehicle?.lastMaintenanceDate
+        ? new Date(vehicle.lastMaintenanceDate).toISOString().split('T')[0]
+        : '',
+      purchaseDate: vehicle?.purchaseDate
+        ? new Date(vehicle.purchaseDate).toISOString().split('T')[0]
+        : '',
+    }),
+    [vehicle]
+  );
 
   // Cargar categorías al abrir el wizard
   const loadCategories = useCallback(async () => {
@@ -93,28 +94,28 @@ const VehicleWizard = ({
     {
       component: Step1_BasicInfo,
       title: 'Información Básica',
-      description: 'Datos generales del vehículo'
+      description: 'Datos generales del vehículo',
     },
     {
       component: Step2_Category,
       title: 'Categoría',
-      description: 'Tipo y clasificación del vehículo'
+      description: 'Tipo y clasificación del vehículo',
     },
     {
       component: Step3_Technical,
       title: 'Especificaciones Técnicas',
-      description: 'Características técnicas y capacidades'
+      description: 'Características técnicas y capacidades',
     },
     {
       component: Step4_Operational,
       title: 'Información Operacional',
-      description: 'Estado, ubicación y mantenimiento'
+      description: 'Estado, ubicación y mantenimiento',
     },
     {
       component: Step5_Summary,
       title: 'Resumen',
-      description: 'Verificar información antes de guardar'
-    }
+      description: 'Verificar información antes de guardar',
+    },
   ];
 
   // Validaciones por paso
@@ -167,7 +168,8 @@ const VehicleWizard = ({
         }
         break;
 
-      case 5: { // Resumen - validar todo
+      case 5: {
+        // Resumen - validar todo
         // Ejecutar todas las validaciones anteriores
         const allErrors = {};
         for (let i = 1; i < 5; i++) {
@@ -190,57 +192,60 @@ const VehicleWizard = ({
   }, []);
 
   // Completar el wizard
-  const handleComplete = useCallback(async (formData) => {
-    try {
-      console.log('💾 Guardando vehículo:', formData);
-      
-      // Encontrar la categoría seleccionada para obtener su nombre
-      const selectedCategory = categories.find(cat => cat.id === formData.category);
-      const categoryName = selectedCategory?.name || 'Otro';
+  const handleComplete = useCallback(
+    async (formData) => {
+      try {
+        console.log('💾 Guardando vehículo:', formData);
 
-      // Preparar datos para guardar
-      const vehicleData = {
-        vehicleId: formData.vehicleId.trim(),
-        name: formData.name.trim(),
-        brand: formData.brand.trim(),
-        model: formData.model.trim(),
-        type: categoryName, // Campo requerido por vehiclesService
-        category: formData.category,
-        fuelType: formData.fuelType,
-        plateNumber: formData.plateNumber?.trim() || '',
-        enginePower: formData.enginePower ? parseFloat(formData.enginePower) : null,
-        fuelCapacity: formData.fuelCapacity ? parseFloat(formData.fuelCapacity) : null,
-        status: formData.status,
-        currentLocation: formData.currentLocation?.trim() || '',
-        hasHourMeter: formData.hasHourMeter,
-        currentHours: formData.currentHours ? parseFloat(formData.currentHours) : null,
-        description: formData.description?.trim() || '',
-        lastMaintenanceDate: formData.lastMaintenanceDate || null,
-        purchaseDate: formData.purchaseDate || null
-      };
+        // Encontrar la categoría seleccionada para obtener su nombre
+        const selectedCategory = categories.find((cat) => cat.id === formData.category);
+        const categoryName = selectedCategory?.name || 'Otro';
 
-      let result;
-      if (vehicle) {
-        // Actualizar vehículo existente
-        result = await updateVehicle(vehicle.id, vehicleData);
-      } else {
-        // Crear nuevo vehículo
-        result = await createVehicle(vehicleData);
-      }
+        // Preparar datos para guardar
+        const vehicleData = {
+          vehicleId: formData.vehicleId.trim(),
+          name: formData.name.trim(),
+          brand: formData.brand.trim(),
+          model: formData.model.trim(),
+          type: categoryName, // Campo requerido por vehiclesService
+          category: formData.category,
+          fuelType: formData.fuelType,
+          plateNumber: formData.plateNumber?.trim() || '',
+          enginePower: formData.enginePower ? parseFloat(formData.enginePower) : null,
+          fuelCapacity: formData.fuelCapacity ? parseFloat(formData.fuelCapacity) : null,
+          status: formData.status,
+          currentLocation: formData.currentLocation?.trim() || '',
+          hasHourMeter: formData.hasHourMeter,
+          currentHours: formData.currentHours ? parseFloat(formData.currentHours) : null,
+          description: formData.description?.trim() || '',
+          lastMaintenanceDate: formData.lastMaintenanceDate || null,
+          purchaseDate: formData.purchaseDate || null,
+        };
 
-      if (result.success) {
-        console.log('✅ Vehículo guardado exitosamente');
-        if (onSuccess) {
-          onSuccess(result.data);
+        let result;
+        if (vehicle) {
+          // Actualizar vehículo existente
+          result = await updateVehicle(vehicle.id, vehicleData);
+        } else {
+          // Crear nuevo vehículo
+          result = await createVehicle(vehicleData);
         }
-      } else {
-        throw new Error(result.error || 'Error al guardar el vehículo');
+
+        if (result.success) {
+          console.log('✅ Vehículo guardado exitosamente');
+          if (onSuccess) {
+            onSuccess(result.data);
+          }
+        } else {
+          throw new Error(result.error || 'Error al guardar el vehículo');
+        }
+      } catch (error) {
+        console.error('❌ Error al guardar vehículo:', error);
+        throw error;
       }
-    } catch (error) {
-      console.error('❌ Error al guardar vehículo:', error);
-      throw error;
-    }
-  }, [vehicle, categories, onSuccess]);
+    },
+    [vehicle, categories, onSuccess]
+  );
 
   if (loadingCategories) {
     return null; // O un loading spinner
@@ -253,16 +258,16 @@ const VehicleWizard = ({
       onComplete={handleComplete}
       steps={wizardSteps}
       initialData={getInitialData()}
-      title={vehicle ? `Editar ${vehicle.name}` : "Nuevo Vehículo"}
+      title={vehicle ? `Editar ${vehicle.name}` : '🚜 Nuevo Vehículo'}
       subtitle="Completa la información paso a paso para registrar el vehículo"
-      theme="vehicles"
+      theme="sap-theme"
       validateStep={validateStep}
       onStepChange={handleStepChange}
-      extraData={{ 
-        categories, 
+      extraData={{
+        categories,
         loadingCategories,
         onCategoriesUpdate: handleCategoriesUpdate,
-        onRequestCategoryCreation: handleRequestCategoryCreation
+        onRequestCategoryCreation: handleRequestCategoryCreation,
       }}
     />
   );

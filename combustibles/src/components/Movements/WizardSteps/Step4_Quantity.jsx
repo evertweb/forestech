@@ -192,47 +192,106 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
           <p>Ingresa la cantidad en galones</p>
         </div>
 
-        {/* Input de cantidad estilo Typeform */}
-        <div className="typeform-input-section sap-theme">
-          <input
-            ref={inputRef}
-            id="quantity"
-            type="number"
-            step="0.1"
-            min="0"
-            value={formData.quantity}
-            onChange={(e) => handleQuantityChange(e.target.value)}
-            placeholder="0"
-            className={`typeform-input ${validationWarning ? 'error' : ''}`}
-            autoComplete="off"
-          />
-          <span className="typeform-unit sap-theme">galones</span>
+        {/* Input de cantidad mejorado y profesional */}
+        <div className="professional-quantity-section">
+          <div className="quantity-input-container-enhanced">
+            <div className="quantity-input-icon">⛽</div>
+            <input
+              ref={inputRef}
+              id="quantity"
+              type="number"
+              step="0.1"
+              min="0"
+              value={formData.quantity}
+              onChange={(e) => handleQuantityChange(e.target.value)}
+              placeholder="0.0"
+              className={`professional-quantity-input ${validationWarning ? 'error' : ''}`}
+              autoComplete="off"
+            />
+            <div className="quantity-unit-enhanced">
+              <span className="unit-text">galones</span>
+              <div className="unit-divider"></div>
+              <div className="fuel-type-indicator">
+                {formData.fuelType === 'ACPM' && (
+                  <span className="fuel-badge diesel">🛢️ DIESEL</span>
+                )}
+                {formData.fuelType === 'GASOLINA_CORRIENTE' && (
+                  <span className="fuel-badge gasoline">⛽ GASOLINA</span>
+                )}
+                {formData.fuelType === 'GASOLINA_EXTRA' && (
+                  <span className="fuel-badge gasoline-extra">🏎️ EXTRA</span>
+                )}
+                {formData.fuelType === 'JET_A1' && (
+                  <span className="fuel-badge jet">✈️ JET A1</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Indicador visual del valor */}
+          {formData.quantity && parseFloat(formData.quantity) > 0 && (
+            <div className="quantity-visual-indicator">
+              <div className="quantity-bar">
+                <div
+                  className="quantity-fill"
+                  style={{
+                    width: `${Math.min((parseFloat(formData.quantity) / 100) * 100, 100)}%`,
+                  }}
+                ></div>
+              </div>
+              <div className="quantity-labels">
+                <span className="quantity-value">
+                  {parseFloat(formData.quantity).toLocaleString('es-CO', {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 2,
+                  })}{' '}
+                  galones
+                </span>
+                {stockInfo && isStockRequired && (
+                  <span className={`quantity-stock ${stockInfo.status}`}>
+                    {stockInfo.icon} Stock: {stockInfo.available.toFixed(1)} gal
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Sugerencias rápidas */}
+        {/* Sugerencias rápidas mejoradas */}
         {stockInfo && stockInfo.available > 0 && (
-          <div className="typeform-suggestions sap-theme">
-            <label className="typeform-suggestions-label sap-theme">Cantidades comunes:</label>
-            <div className="typeform-suggestions-buttons sap-theme">
+          <div className="professional-suggestions">
+            <div className="suggestions-header">
+              <span className="suggestions-icon">💡</span>
+              <label className="suggestions-title">Cantidades frecuentes:</label>
+            </div>
+            <div className="suggestions-grid">
               {suggestQuantities().map((suggestion, index) => (
                 <button
                   key={index}
                   type="button"
-                  className="typeform-suggestion-btn sap-theme"
+                  className="professional-suggestion-btn"
                   onClick={() => handleQuantityChange(suggestion.value)}
                 >
-                  {suggestion.label}
+                  <span className="suggestion-value">{suggestion.label}</span>
+                  <span className="suggestion-action">Usar esta cantidad</span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Indicador de cálculo */}
+        {/* Indicador de cálculo mejorado */}
         {calculating && (
-          <div className="calculating-indicator sap-theme">
-            <div className="loading-spinner small sap-theme"></div>
-            <span>⚙️ Verificando disponibilidad...</span>
+          <div className="professional-calculating">
+            <div className="calculating-spinner"></div>
+            <div className="calculating-content">
+              <span className="calculating-text">Verificando disponibilidad</span>
+              <div className="calculating-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -252,21 +311,34 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
           <div className="validation-warning sap-theme">{validationWarning}</div>
         )}
 
-        {/* Confirmación visual */}
+        {/* Confirmación visual mejorada */}
         {formData.quantity && parseFloat(formData.quantity) > 0 && (
-          <div className="selection-confirmation sap-theme">
-            <div className="confirmation-card sap-theme">
-              <span className="confirmation-icon sap-theme">{getMovementEmoji()}</span>
-              <div className="confirmation-text sap-theme">
-                <strong>
-                  Perfecto! {parseFloat(formData.quantity).toLocaleString('es-CO')} galones
-                </strong>
-                <br />
-                <small>
+          <div className="professional-confirmation">
+            <div className="confirmation-card-enhanced">
+              <div className="confirmation-header">
+                <span className="confirmation-icon-enhanced">{getMovementEmoji()}</span>
+                <div className="confirmation-status">
+                  <span className="status-dot"></span>
+                  Cantidad confirmada
+                </div>
+              </div>
+              <div className="confirmation-details">
+                <div className="main-quantity">
+                  {parseFloat(formData.quantity).toLocaleString('es-CO', {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 2,
+                  })}{' '}
+                  galones
+                </div>
+                <div className="quantity-description">
                   {isStockRequired
-                    ? `Saldrán del inventario de ${formData.location}`
-                    : `Se agregarán al inventario`}
-                </small>
+                    ? `Se tomarán del inventario de ${formData.location}`
+                    : `Se agregarán al inventario de combustible`}
+                </div>
+              </div>
+              <div className="confirmation-action">
+                <span className="action-indicator">✓</span>
+                Listo para continuar
               </div>
             </div>
           </div>
