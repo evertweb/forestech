@@ -1,4 +1,4 @@
-name: Deploy Forestech to Firebase (Optimized)
+name: Deploy Forestech to Firebase (Simplified - No Validations)
 
 on:
   push:
@@ -9,258 +9,34 @@ env:
   NODE_VERSION: '18'
 
 jobs:
-  # ⚡ JOB 1: Setup y Cache Inteligente
-  setup:
-    name: Setup Dependencies & Cache
+  # 🚀 JOB ÚNICO: Direct Build & Deploy (Sin validaciones)
+  build-and-deploy:
+    name: Build & Deploy (No Validations)
     runs-on: ubuntu-latest
-    outputs:
-      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
     steps:
-      - name: Checkout Repository
+      - name: 📋 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js with Cache
+      - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      # 🚀 CACHE INTELIGENTE: Multi-layer cache strategy
-      - name: Cache node_modules
-        id: cache-deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            alimentacion/node_modules
-            combustibles/node_modules
-          key: deps-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            deps-${{ runner.os }}-
-
-      # ⚡ WORKSPACE INSTALL: Single install for all packages
-      - name: Install Dependencies (Workspace)
-        if: steps.cache-deps.outputs.cache-hit != 'true'
+      - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: Verify Workspace Setup
-        run: |
-          echo "✅ Workspace dependencies installed"
-          npm ls --depth=0
-          echo "📦 Alimentacion packages:"
-          npm ls --workspace=alimentacion --depth=0
-          echo "📦 Combustibles packages:"
-          npm ls --workspace=combustibles --depth=0
-
-  # 🛡️ JOB 2: Error Detection (Preservar sistema AI)
-  error-detection:
-    name: Error Detection & Analysis  
-    runs-on: ubuntu-latest
-    needs: setup
-    outputs:
-      has-errors: ${{ steps.error-check.outputs.has-errors }}
-      error-count: ${{ steps.error-check.outputs.error-count }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Restore Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            alimentacion/node_modules
-            combustibles/node_modules
-          key: deps-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
-      - name: 🔍 Circuit Breaker Check
-        id: circuit-breaker
-        run: |
-          COMMIT_COUNT=$(git rev-list --count HEAD~5..HEAD 2>/dev/null || echo "0")
-          echo "Recent commits: $COMMIT_COUNT"
-          
-          if [ "$COMMIT_COUNT" -gt "3" ]; then
-            echo "⚠️ Circuit breaker activated - too many recent commits"
-            echo "circuit-breaker-active=true" >> $GITHUB_OUTPUT
-            exit 1
-          else
-            echo "✅ Circuit breaker: Normal operation"
-            echo "circuit-breaker-active=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: 🔍 Error Detection & Analysis - MEJORADO
-        id: error-check
-        if: steps.circuit-breaker.outputs.circuit-breaker-active != 'true'
-        run: |
-          echo "Running improved error detection..."
-          
-          # MEJORA: Capturar exit code y output del error-collector
-          set +e  # No fallar inmediatamente en errores
-          node scripts/error-collector.js
-          COLLECTOR_EXIT_CODE=$?
-          set -e  # Restaurar fail on error
-          
-          echo "Error collector exit code: $COLLECTOR_EXIT_CODE"
-          
-          # MEJORA: Manejar diferentes escenarios
-          if [ $COLLECTOR_EXIT_CODE -eq 0 ]; then
-            echo "✅ Error detection script executed successfully"
-            
-            # Verificar contexto generado
-            if [ -f error-context.json ]; then
-              ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
-              echo "error-status=$ERROR_STATUS" >> $GITHUB_OUTPUT
-              
-              if [ "$ERROR_STATUS" = "errors_detected" ]; then
-                ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
-                echo "has-errors=true" >> $GITHUB_OUTPUT
-                echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
-                echo "🚨 $ERROR_COUNT errors detected - will delegate to Copilot Agent"
-                
-                # MEJORA: Mostrar resumen de errores para debugging
-                echo "📊 Error summary:"
-                node -e "
-                  const ctx = JSON.parse(require('fs').readFileSync('error-context.json', 'utf8'));
-                  if (ctx.summary) {
-                    console.log('- Total Errors: ' + ctx.summary.totalErrors);
-                    console.log('- Error Types: ' + Object.keys(ctx.summary.byType || {}).join(', '));
-                    console.log('- Files Affected: ' + ctx.summary.uniqueFiles);
-                  }
-                "
-                exit 1  # Activar Copilot Bridge
-              else
-                echo "has-errors=false" >> $GITHUB_OUTPUT
-                echo "✅ No errors detected - proceeding with optimized build"
-              fi
-            else
-              echo "⚠️ error-context.json not generated, assuming no errors"
-              echo "has-errors=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "❌ Error detection script failed with exit code: $COLLECTOR_EXIT_CODE"
-            echo "This usually indicates script/environment issues, not app errors"
-            
-            # MEJORA: Distinguir entre script broken vs app errors
-            if [ $COLLECTOR_EXIT_CODE -eq 127 ]; then
-              echo "🚨 Script not found or permission issues"
-            elif [ $COLLECTOR_EXIT_CODE -eq 1 ]; then
-              echo "🔍 Script found issues - checking if context was generated"
-              if [ -f error-context.json ]; then
-                echo "✅ Context generated despite exit code 1"
-                ERROR_STATUS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).status)")
-                if [ "$ERROR_STATUS" = "errors_detected" ]; then
-                  ERROR_COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('error-context.json', 'utf8')).summary.totalErrors)")
-                  echo "has-errors=true" >> $GITHUB_OUTPUT
-                  echo "error-count=$ERROR_COUNT" >> $GITHUB_OUTPUT
-                  echo "🚨 Confirmed: $ERROR_COUNT errors found"
-                  exit 1
-                fi
-              fi
-            fi
-            
-            # Fallback: Asumir error de script, no de aplicación
-            echo "has-errors=script-error" >> $GITHUB_OUTPUT
-            echo "error-count=1" >> $GITHUB_OUTPUT
-            echo "🚨 Script error detected - will delegate to Copilot Agent"
-            exit 1
-          fi
-        continue-on-error: false
-
-  # 🚀 JOB 3: Parallel Builds (Solo si no hay errores)
-  build:
-    name: Build Apps (Parallel)
-    runs-on: ubuntu-latest
-    needs: [setup, error-detection]
-    if: needs.error-detection.outputs.has-errors != 'true'
-    strategy:
-      matrix:
-        app: [alimentacion, combustibles]
-      fail-fast: false  # Don't fail entire matrix on single failure
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Restore Dependencies Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            alimentacion/node_modules
-            combustibles/node_modules
-          key: deps-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
-      # 🎯 CACHE BUILD OUTPUTS: Vite cache per app
-      - name: Cache Build Artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ matrix.app }}/dist
-            ${{ matrix.app }}/node_modules/.vite
-          key: build-${{ matrix.app }}-${{ runner.os }}-${{ hashFiles(format('{0}/**', matrix.app)) }}
-          restore-keys: |
-            build-${{ matrix.app }}-${{ runner.os }}-
-
-      # ⚡ PARALLEL BUILD: Each app builds simultaneously with optimization
-      - name: Build ${{ matrix.app }} with Retry
-        uses: nick-invision/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 2
-          command: npm run build --workspace=${{ matrix.app }}
+      - name: 🏗️ Build Alimentacion
+        run: npm run build --workspace=alimentacion
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
 
-      # 📁 UPLOAD BUILD ARTIFACTS: For deploy job
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ matrix.app }}
-          path: public/${{ matrix.app }}/
-          retention-days: 1
+      - name: 🏗️ Build Combustibles  
+        run: npm run build --workspace=combustibles
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
 
-  # 🚀 JOB 4: Deploy (Merge artifacts + Deploy)
-  deploy:
-    name: Deploy to Firebase
-    runs-on: ubuntu-latest
-    needs: [setup, error-detection, build]
-    if: needs.error-detection.outputs.has-errors != 'true'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      # 📁 DOWNLOAD ALL BUILD ARTIFACTS
-      - name: Download Alimentacion Build
-        uses: actions/download-artifact@v4
-        with:
-          name: build-alimentacion
-          path: public/alimentacion/
-
-      - name: Download Combustibles Build  
-        uses: actions/download-artifact@v4
-        with:
-          name: build-combustibles
-          path: public/combustibles/
-
-      - name: Verify Build Files
+      - name: 📁 Verify Build Output
         run: |
           echo "✅ Build verification:"
           ls -la public/
@@ -269,46 +45,26 @@ jobs:
           echo "📁 Combustibles files:"
           ls -la public/combustibles/ | head -10
 
-      - name: Install Firebase CLI
+      - name: 🔧 Install Firebase CLI
         run: npm install -g firebase-tools
 
-      # 🚀 FIREBASE DEPLOY: Optimized deployment
-      - name: Deploy to Firebase
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: 🚀 Deploy to Firebase
         run: |
-          echo "🔧 Configurando credenciales Firebase..."
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}' > /tmp/service-account.json
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json
-          
-          echo "🚀 Ejecutando deploy optimizado..."
-          firebase deploy --only hosting --project liquidacionapp-62962
+          echo "🚀 Ejecutando deploy directo (sin validaciones)..."
+          firebase deploy --only hosting --project liquidacionapp-62962 --token "${{ secrets.FIREBASE_TOKEN }}"
 
       - name: 🎉 Deployment Success
         if: success()
         run: |
-          echo "🎉 Deploy exitoso con optimizaciones!"
+          echo "🎉 Deploy exitoso sin validaciones!"
           echo "🍽️ Alimentacion: https://forestechdecolombia.com.co/alimentacion/"
           echo "⛽ Combustibles: https://forestechdecolombia.com.co/combustibles/"
           echo ""
-          echo "⚡ Optimizaciones aplicadas:"
-          echo "  - Workspace monorepo (single npm install)"
-          echo "  - Cache multi-layer (dependencies + build artifacts)"
-          echo "  - Parallel builds (alimentacion + combustibles simultáneos)"
-          echo "  - Build artifact caching"
-
-  # 🚨 JOB 5: Error Bridge (Solo si hay errores)
-  error-bridge:
-    name: Activate Copilot Bridge
-    runs-on: ubuntu-latest
-    needs: [setup, error-detection]
-    if: failure() || needs.error-detection.outputs.has-errors == 'true'
-    steps:
-      - name: 🚨 Trigger Copilot Bridge
-        run: |
-          echo "🚨 Build errors detected: ${{ needs.error-detection.outputs.error-count }}"
-          echo "🤖 Activating Copilot Bridge system..."
-          echo "🔗 Error context prepared for GitHub Copilot Agent"
+          echo "⚡ Modo simplificado activado:"
+          echo "  - ❌ Sin error detection"
+          echo "  - ❌ Sin lint checks" 
+          echo "  - ❌ Sin circuit breaker"
+          echo "  - ❌ Sin Copilot Bridge"
+          echo "  - ✅ Deploy directo tras build exitoso"
           echo ""
-          echo "Sistema mantenido: Copilot Bridge se activará automáticamente"
-          exit 1
+          echo "💡 Recuerda: Tú te encargas del lint y testing local"
