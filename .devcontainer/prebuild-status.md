@@ -1,11 +1,10 @@
-# 📊 Prebuild Status - Sat Aug 2 03:18:47 UTC 2025
+# 📊 Prebuild Status - Sun Aug 10 21:42:43 UTC 2025
 
-- **Última actualización:** Sat Aug 2 03:18:47 UTC 2025
-- **Trigger:** schedule
+- **Última actualización:** Sun Aug 10 21:42:43 UTC 2025
+- **Trigger:** push
 - **Branch:** main
 
 ## 🎯 Configuración Actual
-
 - **Base Image:** `node:20-bullseye`
 - **Prebuild Script:** `.devcontainer/setup-prebuild.sh`
 - **Apps incluidas:** Combustibles, Alimentación
