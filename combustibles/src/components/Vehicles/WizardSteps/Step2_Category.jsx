@@ -81,7 +81,7 @@ const Step2_Category = ({ formData, updateFormData, errors, isActive, extraData 
 
         {/* Grid de categorías */}
         <div className="category-options sap-theme">
-          {categories.map((category, _index) => (
+          {categories.map((category) => (
             <div
               key={category.id}
               className={`category-option sap-theme ${
