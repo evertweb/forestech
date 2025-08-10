@@ -56,20 +56,15 @@ const Step2_Category = ({ formData, updateFormData, errors, isActive, extraData 
     return '🚗'; // Icono por defecto
   };
 
-  const getCategoryColor = (category) => {
-    const name = category.name?.toLowerCase() || '';
-    if (name.includes('tractor')) return 'category-agriculture';
-    if (name.includes('camión') || name.includes('camion') || name.includes('volqueta'))
-      return 'category-transport';
-    if (
-      name.includes('excavadora') ||
-      name.includes('bulldozer') ||
-      name.includes('retroexcavadora')
-    )
-      return 'category-construction';
-    if (name.includes('motoniveladora')) return 'category-road';
-    if (name.includes('compresor') || name.includes('generador')) return 'category-equipment';
-    return 'category-general';
+  const _getCategoryColor = (category) => {
+    const colorMap = {
+      'Equipos de Construcción': '#ff6b35',
+      'Vehículos de Transporte': '#4285f4',
+      'Maquinaria Especializada': '#34a853',
+      'Equipos de Apoyo': '#fbbc04',
+      default: '#6b7280',
+    };
+    return colorMap[category] || colorMap.default;
   };
 
   return (
@@ -86,7 +81,7 @@ const Step2_Category = ({ formData, updateFormData, errors, isActive, extraData 
 
         {/* Grid de categorías */}
         <div className="category-options sap-theme">
-          {categories.map((category, index) => (
+          {categories.map((category, _index) => (
             <div
               key={category.id}
               className={`category-option sap-theme ${

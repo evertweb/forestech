@@ -1,7 +1,7 @@
 // Script para actualizar capacidades de tanques - Consola del navegador
 // Ejecutar cuando la app esté completamente cargada
 
-async function updateTankCapacitiesFixed() {
+async function _updateTankCapacitiesFixed() {
   console.log('🔧 Iniciando actualización de capacidades...');
 
   try {
@@ -128,7 +128,7 @@ async function updateUsingRestAPI() {
   console.log('🌐 Intentando usar Firestore REST API...');
 
   // Obtener project ID de la configuración visible
-  const projectId = 'liquidacionapp-62962'; // Del config visible
+  const _projectId = 'liquidacionapp-62962'; // Del config visible
 
   try {
     // Esta aproximación requiere autenticación que no tenemos desde la consola
