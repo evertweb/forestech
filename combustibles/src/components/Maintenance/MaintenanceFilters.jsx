@@ -14,7 +14,7 @@ const MaintenanceFilters = ({
   onSearchChange,
   viewMode,
   onViewModeChange,
-  totalResults
+  totalResults,
 }) => {
   const getMaintenanceTypeName = (type) => {
     switch (type) {
@@ -53,11 +53,11 @@ const MaintenanceFilters = ({
   };
 
   const hasActiveFilters = () => {
-    return Object.values(filters).some(value => value !== '') || searchTerm;
+    return Object.values(filters).some((value) => value !== '') || searchTerm;
   };
 
   return (
-    <div className="maintenance-filters">
+    <div className="maintenance-filters sap-theme">
       <div className="filters-main">
         {/* Búsqueda */}
         <div className="search-section">
@@ -65,16 +65,13 @@ const MaintenanceFilters = ({
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              className="search-input"
+              className="search-input sap-theme"
               placeholder="Buscar mantenimientos..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
             />
             {searchTerm && (
-              <button
-                className="search-clear"
-                onClick={() => onSearchChange('')}
-              >
+              <button className="search-clear sap-theme" onClick={() => onSearchChange('')}>
                 ×
               </button>
             )}
@@ -86,25 +83,25 @@ const MaintenanceFilters = ({
           {/* Filtros rápidos */}
           <div className="quick-filters">
             <button
-              className={`quick-filter ${!hasActiveFilters() ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${!hasActiveFilters() ? 'active' : ''}`}
               onClick={() => onClearFilters()}
             >
               Todos
             </button>
             <button
-              className={`quick-filter ${filters.type === MAINTENANCE_TYPES.OIL_CHANGE ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${filters.type === MAINTENANCE_TYPES.OIL_CHANGE ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ type: MAINTENANCE_TYPES.OIL_CHANGE })}
             >
               🛢️ Aceite
             </button>
             <button
-              className={`quick-filter ${filters.type === MAINTENANCE_TYPES.BATTERY_CHANGE ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${filters.type === MAINTENANCE_TYPES.BATTERY_CHANGE ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ type: MAINTENANCE_TYPES.BATTERY_CHANGE })}
             >
               🔋 Baterías
             </button>
             <button
-              className={`quick-filter ${filters.status === MAINTENANCE_STATUS.PENDING ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${filters.status === MAINTENANCE_STATUS.PENDING ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ status: MAINTENANCE_STATUS.PENDING })}
             >
               ⏰ Pendientes
@@ -113,13 +110,16 @@ const MaintenanceFilters = ({
 
           {/* Botón filtros avanzados */}
           <button
-            className={`btn-advanced-filters ${hasActiveFilters() ? 'active' : ''}`}
-            onClick={() => document.querySelector('.filters-advanced').classList.toggle('show')}
+            className={`btn-advanced-filters sap-theme ${hasActiveFilters() ? 'active' : ''}`}
+            onClick={() => {
+              const advancedFilters = document.querySelector('.filters-advanced');
+              advancedFilters.classList.toggle('active');
+            }}
           >
             🔧 Filtros Avanzados
             {hasActiveFilters() && (
               <span className="filters-count">
-                {Object.values(filters).filter(v => v !== '').length}
+                {Object.values(filters).filter((v) => v !== '').length}
               </span>
             )}
           </button>
@@ -127,13 +127,13 @@ const MaintenanceFilters = ({
           {/* Modo de vista */}
           <div className="view-modes">
             <button
-              className={`view-mode ${viewMode === 'cards' ? 'active' : ''}`}
+              className={`view-mode sap-theme ${viewMode === 'cards' ? 'active' : ''}`}
               onClick={() => onViewModeChange('cards')}
             >
               📋 Cards
             </button>
             <button
-              className={`view-mode ${viewMode === 'table' ? 'active' : ''}`}
+              className={`view-mode sap-theme ${viewMode === 'table' ? 'active' : ''}`}
               onClick={() => onViewModeChange('table')}
             >
               📊 Tabla
@@ -142,7 +142,7 @@ const MaintenanceFilters = ({
         </div>
 
         {/* Filtros avanzados */}
-        <div className="filters-advanced">
+        <div className="filters-advanced sap-theme">
           <div className="filters-grid">
             {/* Tipo de mantenimiento */}
             <div className="filter-group">
@@ -150,6 +150,7 @@ const MaintenanceFilters = ({
               <select
                 value={filters.type}
                 onChange={(e) => handleFilterChange('type', e.target.value)}
+                className="sap-theme"
               >
                 <option value="">Todos los tipos</option>
                 <option value={MAINTENANCE_TYPES.OIL_CHANGE}>
@@ -173,6 +174,7 @@ const MaintenanceFilters = ({
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
+                className="sap-theme"
               >
                 <option value="">Todos los estados</option>
                 <option value={MAINTENANCE_STATUS.COMPLETED}>
@@ -194,6 +196,7 @@ const MaintenanceFilters = ({
                 type="date"
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                className="sap-theme"
               />
             </div>
 
@@ -204,6 +207,7 @@ const MaintenanceFilters = ({
                 type="date"
                 value={filters.dateTo}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                className="sap-theme"
               />
             </div>
           </div>
@@ -211,7 +215,7 @@ const MaintenanceFilters = ({
           {/* Acciones de filtros */}
           <div className="filters-actions">
             <button
-              className="btn-clear-filters"
+              className="btn-clear-filters sap-theme"
               onClick={onClearFilters}
               disabled={!hasActiveFilters()}
             >
@@ -221,43 +225,69 @@ const MaintenanceFilters = ({
         </div>
 
         {/* Información de resultados */}
-        <div className="filters-info">
+        <div className="filters-info sap-theme">
           <div className="results-count">
-            {totalResults} mantenimiento{totalResults !== 1 ? 's' : ''} encontrado{totalResults !== 1 ? 's' : ''}
+            {totalResults} mantenimiento{totalResults !== 1 ? 's' : ''} encontrado
+            {totalResults !== 1 ? 's' : ''}
           </div>
-          
+
           {hasActiveFilters() && (
             <div className="active-filters">
               <span className="filters-label">Filtros activos:</span>
               <div className="filter-tags">
                 {filters.type && (
-                  <span className="filter-tag">
+                  <span className="filter-tag sap-theme">
                     Tipo: {getMaintenanceTypeName(filters.type)}
-                    <button onClick={() => handleFilterChange('type', '')}>×</button>
+                    <button
+                      className="filter-tag-remove sap-theme"
+                      onClick={() => handleFilterChange('type', '')}
+                    >
+                      ×
+                    </button>
                   </span>
                 )}
                 {filters.status && (
-                  <span className="filter-tag">
+                  <span className="filter-tag sap-theme">
                     Estado: {getStatusName(filters.status)}
-                    <button onClick={() => handleFilterChange('status', '')}>×</button>
+                    <button
+                      className="filter-tag-remove sap-theme"
+                      onClick={() => handleFilterChange('status', '')}
+                    >
+                      ×
+                    </button>
                   </span>
                 )}
                 {filters.dateFrom && (
-                  <span className="filter-tag">
+                  <span className="filter-tag sap-theme">
                     Desde: {filters.dateFrom}
-                    <button onClick={() => handleFilterChange('dateFrom', '')}>×</button>
+                    <button
+                      className="filter-tag-remove sap-theme"
+                      onClick={() => handleFilterChange('dateFrom', '')}
+                    >
+                      ×
+                    </button>
                   </span>
                 )}
                 {filters.dateTo && (
-                  <span className="filter-tag">
+                  <span className="filter-tag sap-theme">
                     Hasta: {filters.dateTo}
-                    <button onClick={() => handleFilterChange('dateTo', '')}>×</button>
+                    <button
+                      className="filter-tag-remove sap-theme"
+                      onClick={() => handleFilterChange('dateTo', '')}
+                    >
+                      ×
+                    </button>
                   </span>
                 )}
                 {searchTerm && (
-                  <span className="filter-tag">
+                  <span className="filter-tag sap-theme">
                     Búsqueda: "{searchTerm}"
-                    <button onClick={() => onSearchChange('')}>×</button>
+                    <button
+                      className="filter-tag-remove sap-theme"
+                      onClick={() => onSearchChange('')}
+                    >
+                      ×
+                    </button>
                   </span>
                 )}
               </div>

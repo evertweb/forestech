@@ -6,8 +6,11 @@
 import React from 'react';
 import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/maintenanceService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
+import { useMaintenanceStatusColors } from '../../hooks/useStatusColors';
 
 const MaintenanceStats = ({ stats }) => {
+  const { getStatusColor } = useMaintenanceStatusColors();
+
   if (!stats) return null;
 
   const getMaintenanceTypeIcon = (type) => {
@@ -40,19 +43,6 @@ const MaintenanceStats = ({ stats }) => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case MAINTENANCE_STATUS.COMPLETED:
-        return '#10b981';
-      case MAINTENANCE_STATUS.PENDING:
-        return '#f59e0b';
-      case MAINTENANCE_STATUS.CANCELLED:
-        return '#ef4444';
-      default:
-        return '#6b7280';
-    }
-  };
-
   const getStatusName = (status) => {
     switch (status) {
       case MAINTENANCE_STATUS.COMPLETED:
@@ -67,7 +57,7 @@ const MaintenanceStats = ({ stats }) => {
   };
 
   return (
-    <div className="maintenance-stats">
+    <div className="maintenance-stats sap-theme">
       <div className="stats-grid">
         {/* Total de mantenimientos */}
         <div className="stat-card primary">
@@ -108,26 +98,22 @@ const MaintenanceStats = ({ stats }) => {
 
       {/* Desglose por tipo */}
       {Object.keys(stats.byType).length > 0 && (
-        <div className="stats-breakdown">
+        <div className="stats-breakdown sap-theme">
           <h3>📊 Desglose por Tipo</h3>
           <div className="breakdown-grid">
             {Object.entries(stats.byType).map(([type, count]) => (
               <div key={type} className="breakdown-item">
                 <div className="breakdown-header">
-                  <span className="breakdown-icon">
-                    {getMaintenanceTypeIcon(type)}
-                  </span>
-                  <span className="breakdown-label">
-                    {getMaintenanceTypeName(type)}
-                  </span>
+                  <span className="breakdown-icon">{getMaintenanceTypeIcon(type)}</span>
+                  <span className="breakdown-label">{getMaintenanceTypeName(type)}</span>
                 </div>
                 <div className="breakdown-value">{formatNumber(count)}</div>
                 <div className="breakdown-bar">
-                  <div 
+                  <div
                     className="breakdown-fill"
-                    style={{ 
+                    style={{
                       width: `${(count / stats.total) * 100}%`,
-                      backgroundColor: '#3b82f6'
+                      backgroundColor: 'var(--sap-blue-primary)',
                     }}
                   ></div>
                 </div>
@@ -142,27 +128,25 @@ const MaintenanceStats = ({ stats }) => {
 
       {/* Desglose por estado */}
       {Object.keys(stats.byStatus).length > 0 && (
-        <div className="stats-breakdown">
+        <div className="stats-breakdown sap-theme">
           <h3>📈 Desglose por Estado</h3>
           <div className="breakdown-grid">
             {Object.entries(stats.byStatus).map(([status, count]) => (
               <div key={status} className="breakdown-item">
                 <div className="breakdown-header">
-                  <span 
+                  <span
                     className="status-dot"
                     style={{ backgroundColor: getStatusColor(status) }}
                   ></span>
-                  <span className="breakdown-label">
-                    {getStatusName(status)}
-                  </span>
+                  <span className="breakdown-label">{getStatusName(status)}</span>
                 </div>
                 <div className="breakdown-value">{formatNumber(count)}</div>
                 <div className="breakdown-bar">
-                  <div 
+                  <div
                     className="breakdown-fill"
-                    style={{ 
+                    style={{
                       width: `${(count / stats.total) * 100}%`,
-                      backgroundColor: getStatusColor(status)
+                      backgroundColor: getStatusColor(status),
                     }}
                   ></div>
                 </div>
@@ -176,16 +160,14 @@ const MaintenanceStats = ({ stats }) => {
       )}
 
       {/* Insights */}
-      <div className="stats-insights">
+      <div className="stats-insights sap-theme">
         <h3>💡 Insights</h3>
         <div className="insights-grid">
           <div className="insight-item">
             <span className="insight-label">Costo Promedio:</span>
-            <span className="insight-value">
-              {formatCurrency(stats.averageCost)}
-            </span>
+            <span className="insight-value">{formatCurrency(stats.averageCost)}</span>
           </div>
-          
+
           {stats.overdueCount > 0 && (
             <div className="insight-item alert">
               <span className="insight-label">⚠️ Mantenimientos Vencidos:</span>
@@ -194,13 +176,11 @@ const MaintenanceStats = ({ stats }) => {
               </span>
             </div>
           )}
-          
+
           {stats.upcomingCount > 0 && (
             <div className="insight-item info">
               <span className="insight-label">⏰ Próximos Mantenimientos:</span>
-              <span className="insight-value">
-                {formatNumber(stats.upcomingCount)} programados
-              </span>
+              <span className="insight-value">{formatNumber(stats.upcomingCount)} programados</span>
             </div>
           )}
         </div>

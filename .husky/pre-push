@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Quality gates rápidos antes de push
+npm run lint:all || exit 1
+npm run test:ci || exit 1

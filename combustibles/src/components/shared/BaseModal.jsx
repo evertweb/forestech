@@ -1,66 +1,128 @@
 /**
  * BaseModal - Componente modal base reutilizable
- * Maneja overlay, animaciones, escape key y estructura base
+ * Incluye overlay, animaciones, gestión de escape key y responsive design
  */
-import React, { useEffect, useCallback } from 'react';
-import './BaseModal.css';
+
+import React, { useEffect, useCallback, memo } from 'react';
+import PropTypes from 'prop-types';
 
 const BaseModal = ({
   isOpen,
   onClose,
+  title,
   size = 'md',
+  showCloseButton = true,
   preventCloseOnOverlay = false,
   className = '',
-  children
+  children,
 }) => {
-  // Manejar tecla Escape
-  const handleEscape = useCallback((e) => {
-    if (e.key === 'Escape' && isOpen && onClose) {
-      onClose();
-    }
-  }, [isOpen, onClose]);
+  // Gestión de escape key
+  const handleEscapeKey = useCallback(
+    (event) => {
+      if (event.key === 'Escape' && isOpen && onClose) {
+        onClose();
+      }
+    },
+    [isOpen, onClose]
+  );
 
-  // Manejar clic en overlay
-  const handleOverlayClick = useCallback((e) => {
-    if (!preventCloseOnOverlay && e.target === e.currentTarget && onClose) {
-      onClose();
-    }
-  }, [preventCloseOnOverlay, onClose]);
+  // Gestión de clic en overlay
+  const handleOverlayClick = useCallback(
+    (event) => {
+      if (event.target === event.currentTarget && !preventCloseOnOverlay && onClose) {
+        onClose();
+      }
+    },
+    [preventCloseOnOverlay, onClose]
+  );
 
-  // Configurar eventos globales
+  // Efectos para keyboard navigation y body scroll
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      // Agregar listener para escape key
+      document.addEventListener('keydown', handleEscapeKey);
+
+      // Prevenir scroll del body
       document.body.style.overflow = 'hidden';
+
+      // Focus management - enfocar el modal
+      const modalElement = document.querySelector('.modal-content');
+      if (modalElement) {
+        modalElement.focus();
+      }
     } else {
-      document.body.style.overflow = '';
+      // Restaurar scroll del body
+      document.body.style.overflow = 'unset';
     }
 
+    // Cleanup
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'unset';
     };
-  }, [isOpen, handleEscape]);
+  }, [isOpen, handleEscapeKey]);
 
-  // No renderizar si no está abierto
+  // No renderizar si el modal no está abierto
   if (!isOpen) return null;
 
-  // Clases de tamaño
+  // Determinar tamaño del modal
   const sizeClasses = {
-    sm: 'base-modal-sm',
-    md: 'base-modal-md',
-    lg: 'base-modal-lg',
-    xl: 'base-modal-xl',
-    full: 'base-modal-full'
+    sm: 'max-w-md',
+    md: 'max-w-2xl',
+    lg: 'max-w-4xl',
+    xl: 'max-w-6xl',
+    full: 'max-w-7xl',
   };
 
+  const modalSizeClass = sizeClasses[size] || sizeClasses.md;
+
   return (
-    <div className="base-modal-overlay" onClick={handleOverlayClick}>
-      <div className={`base-modal-content ${sizeClasses[size]} ${className}`}>
-        {children}
+    <div
+      className="modal- sap-themeoverlay"
+      onClick={handleOverlayClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'modal-title' : undefined}
+    >
+      <div className={`modal-content ${modalSizeClass} ${className}`} role="document" tabIndex="-1">
+        {/* Header opcional con título y botón de cerrar */}
+        {(title || showCloseButton) && (
+          <div className="modal- sap-themeheader">
+            {title && (
+              <h2 id="modal-title" className="modal- sap-themetitle">
+                {title}
+              </h2>
+            )}
+            {showCloseButton && (
+              <button
+                className="modal- sap-themeclose"
+                onClick={onClose}
+                type="button"
+                aria-label="Cerrar modal"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Contenido del modal */}
+        <div className="modal- sap-themebody">{children}</div>
       </div>
     </div>
   );
 };
 
-export default BaseModal;
+BaseModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string,
+  size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl', 'full']),
+  showCloseButton: PropTypes.bool,
+  preventCloseOnOverlay: PropTypes.bool,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+BaseModal.displayName = 'BaseModal';
+export default memo(BaseModal);

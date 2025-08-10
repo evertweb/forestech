@@ -6,13 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import '../WizardSteps/VehicleWizardSteps.css';
 
-const Step4_Summary = ({ 
-  formData, 
-  errors, 
-  isActive,
-  isLoading,
-  extraData 
-}) => {
+const Step4_Summary = ({ formData, errors, isActive, isLoading, extraData }) => {
   const { availableFields: _availableFields = [], fuelTypes = [] } = extraData || {};
   const [showJsonPreview, setShowJsonPreview] = useState(false);
 
@@ -35,7 +29,7 @@ const Step4_Summary = ({
   };
 
   const getSummaryColor = () => {
-    return formData.color || '#4A90E2';
+    return formData.color || 'var(--color-info)';
   };
 
   const getFuelTypeNames = () => {
@@ -43,8 +37,8 @@ const Step4_Summary = ({
       return 'No especificado';
     }
     return formData.fuelTypes
-      .map(id => {
-        const fuel = fuelTypes.find(f => f.id === id);
+      .map((id) => {
+        const fuel = fuelTypes.find((f) => f.id === id);
         return fuel ? fuel.name : id;
       })
       .join(', ');
@@ -65,81 +59,75 @@ const Step4_Summary = ({
         { label: 'Nombre', value: formData.name || 'Sin especificar' },
         { label: 'Descripción', value: formData.description || 'Sin descripción' },
         { label: 'Icono', value: getSummaryIcon() },
-        { label: 'Color', value: getSummaryColor() }
-      ]
+        { label: 'Color', value: getSummaryColor() },
+      ],
     },
     'Apariencia Visual': {
       icon: '🎨',
       items: [
-        { 
-          label: 'Vista previa', 
+        {
+          label: 'Vista previa',
           value: (
             <div className="color-preview-container">
-              <div 
-                className="color-preview" 
-                style={{ backgroundColor: getSummaryColor() }}
-              >
-                <span style={{ color: 'white', fontSize: '20px' }}>
-                  {getSummaryIcon()}
-                </span>
+              <div className="color-preview" style={{ backgroundColor: getSummaryColor() }}>
+                <span style={{ color: 'white', fontSize: '20px' }}>{getSummaryIcon()}</span>
               </div>
               <span>{getSummaryColor()}</span>
             </div>
-          )
-        }
-      ]
+          ),
+        },
+      ],
     },
     'Configuración de Combustibles': {
       icon: '⛽',
       items: [
-        { 
-          label: 'Tipos de combustible', 
-          value: getFuelTypeNames() 
+        {
+          label: 'Tipos de combustible',
+          value: getFuelTypeNames(),
         },
-        { 
-          label: 'Configuración', 
-          value: formData.fuelTypes && formData.fuelTypes.length > 0 
-            ? `${formData.fuelTypes.length} tipo(s) configurado(s)`
-            : 'Acepta todos los tipos de combustible'
-        }
-      ]
+        {
+          label: 'Configuración',
+          value:
+            formData.fuelTypes && formData.fuelTypes.length > 0
+              ? `${formData.fuelTypes.length} tipo(s) configurado(s)`
+              : 'Acepta todos los tipos de combustible',
+        },
+      ],
     },
     'Campos Personalizados': {
       icon: '🔧',
       items: [
-        { 
-          label: 'Campos básicos', 
-          value: `${fieldsCount.basic} campos estándar` 
+        {
+          label: 'Campos básicos',
+          value: `${fieldsCount.basic} campos estándar`,
         },
-        { 
-          label: 'Campos personalizados', 
-          value: `${fieldsCount.custom} campos adicionales` 
+        {
+          label: 'Campos personalizados',
+          value: `${fieldsCount.custom} campos adicionales`,
         },
-        { 
-          label: 'Total de campos', 
-          value: `${fieldsCount.total} campos por vehículo` 
-        }
-      ]
-    }
+        {
+          label: 'Total de campos',
+          value: `${fieldsCount.total} campos por vehículo`,
+        },
+      ],
+    },
   };
 
   return (
     <div className={`wizard-step step-category-summary ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
-        
         {/* Pregunta principal */}
         <div className="typeform-question">
-          <h2>✨ ¡Perfecto! Tu categoría <span className="highlight">{formData.name}</span> está lista</h2>
+          <h2>
+            ✨ ¡Perfecto! Tu categoría <span className="highlight">{formData.name}</span> está lista
+          </h2>
           <p>Revisa todos los detalles antes de continuar</p>
         </div>
 
         {/* Card principal con vista previa */}
         <div className="summary-preview-card">
           <div className="category-preview-header">
-            <div 
-              className="category-preview-icon"
-              style={{ backgroundColor: getSummaryColor() }}
-            >
+            <div className="category-preview-icon" style={{ backgroundColor: getSummaryColor() }}>
               {getSummaryIcon()}
             </div>
             <div className="category-preview-info">
@@ -199,27 +187,31 @@ const Step4_Summary = ({
         {/* Vista JSON (para desarrolladores) */}
         <div className="json-preview-section">
           <div className="json-toggle">
-            <button 
+            <button
               className="json-toggle-btn"
               onClick={() => setShowJsonPreview(!showJsonPreview)}
             >
               {showJsonPreview ? '👁️ Ocultar' : '👁️ Ver'} datos técnicos
             </button>
           </div>
-          
+
           {showJsonPreview && (
             <div className="json-preview">
               <pre className="json-content">
-                {JSON.stringify({
-                  name: formData.name,
-                  description: formData.description,
-                  icon: formData.icon,
-                  color: formData.color,
-                  fuelTypes: formData.fuelTypes,
-                  fields: formData.fields,
-                  createdAt: new Date().toISOString(),
-                  status: 'active'
-                }, null, 2)}
+                {JSON.stringify(
+                  {
+                    name: formData.name,
+                    description: formData.description,
+                    icon: formData.icon,
+                    color: formData.color,
+                    fuelTypes: formData.fuelTypes,
+                    fields: formData.fields,
+                    createdAt: new Date().toISOString(),
+                    status: 'active',
+                  },
+                  null,
+                  2
+                )}
               </pre>
             </div>
           )}
@@ -240,10 +232,20 @@ const Step4_Summary = ({
             <div className="info-content">
               <h4>¿Qué sucede después?</h4>
               <ul>
-                <li><strong>Creación:</strong> La categoría se guardará en la base de datos</li>
-                <li><strong>Disponibilidad:</strong> Estará disponible inmediatamente para nuevos vehículos</li>
-                <li><strong>Edición:</strong> Podrás modificar estos ajustes en cualquier momento</li>
-                <li><strong>Vehículos existentes:</strong> No se verán afectados por esta nueva categoría</li>
+                <li>
+                  <strong>Creación:</strong> La categoría se guardará en la base de datos
+                </li>
+                <li>
+                  <strong>Disponibilidad:</strong> Estará disponible inmediatamente para nuevos
+                  vehículos
+                </li>
+                <li>
+                  <strong>Edición:</strong> Podrás modificar estos ajustes en cualquier momento
+                </li>
+                <li>
+                  <strong>Vehículos existentes:</strong> No se verán afectados por esta nueva
+                  categoría
+                </li>
               </ul>
             </div>
           </div>
@@ -258,7 +260,9 @@ const Step4_Summary = ({
                 <h4>Errores de validación</h4>
                 <ul>
                   {Object.entries(errors).map(([field, error]) => (
-                    <li key={field}><strong>{field}:</strong> {error}</li>
+                    <li key={field}>
+                      <strong>{field}:</strong> {error}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -270,7 +274,6 @@ const Step4_Summary = ({
         <div className="navigation-hint">
           💡 Tip: Presiona "J" para ver/ocultar los datos técnicos
         </div>
-
       </div>
     </div>
   );

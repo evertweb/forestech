@@ -4,16 +4,20 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
+import {
   signInWithEmailAndPassword,
   signInWithPopup,
   createUserWithEmailAndPassword,
-  GoogleAuthProvider 
-} from "firebase/auth";
+  GoogleAuthProvider,
+} from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
-import { getBackgroundImageUrl, preloadBackgroundImage } from '../../services/backgroundImageService';
+import {
+  getBackgroundImageUrl,
+  preloadBackgroundImage,
+} from '../../services/backgroundImageService';
+import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import './AuthVisualEnhanced.css';
 
 // Componente de logo animado con efectos de energía
@@ -38,12 +42,12 @@ const FloatingParticles = ({ count = 15 }) => {
     initialX: Math.random() * 100,
     initialY: Math.random() * 100,
     duration: Math.random() * 20 + 10,
-    delay: Math.random() * 5
+    delay: Math.random() * 5,
   }));
 
   return (
     <div className="floating-particles">
-      {particles.map(particle => (
+      {particles.map((particle) => (
         <div
           key={particle.id}
           className="particle"
@@ -53,7 +57,7 @@ const FloatingParticles = ({ count = 15 }) => {
             left: `${particle.initialX}%`,
             top: `${particle.initialY}%`,
             animationDuration: `${particle.duration}s`,
-            animationDelay: `${particle.delay}s`
+            animationDelay: `${particle.delay}s`,
           }}
         />
       ))}
@@ -61,7 +65,17 @@ const FloatingParticles = ({ count = 15 }) => {
   );
 };
 
-// Componente de loading líquido
+// Loader moderno: puntos saltando
+const DotsLoader = () => (
+  <div className="dots-loader">
+    <span className="dot" />
+    <span className="dot" />
+    <span className="dot" />
+  </div>
+);
+
+// Loader líquido clásico (comentado, puedes volver a activarlo si prefieres)
+/*
 const LiquidLoader = () => {
   return (
     <div className="liquid-loader">
@@ -72,17 +86,18 @@ const LiquidLoader = () => {
     </div>
   );
 };
+*/
 
 const AuthVisualEnhanced = () => {
   const [view, setView] = useState('login');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   // Estado para la imagen de fondo
   const [backgroundImage, setBackgroundImage] = useState('');
   const [imageLoading, setImageLoading] = useState(true);
-  
+
   // Estado para UI progresivo
   const [isExpanded, setIsExpanded] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -96,7 +111,7 @@ const AuthVisualEnhanced = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    invitationCode: ''
+    invitationCode: '',
   });
 
   // Invitation validation state
@@ -106,7 +121,7 @@ const AuthVisualEnhanced = () => {
   // Refs para animaciones
   const containerRef = useRef(null);
   const cardRef = useRef(null);
-  
+
   // Estado para footer scroll
   const [showScrollFooter, setShowScrollFooter] = useState(false);
 
@@ -115,9 +130,9 @@ const AuthVisualEnhanced = () => {
     const loadBackgroundImage = async () => {
       try {
         const imageUrl = await getBackgroundImageUrl();
-        
+
         const loaded = await preloadBackgroundImage(imageUrl);
-        
+
         if (loaded) {
           const cssUrl = imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
           setBackgroundImage(`url("${cssUrl}")`);
@@ -136,13 +151,13 @@ const AuthVisualEnhanced = () => {
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!containerRef.current) return;
-      
+
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
-      
+
       const xPos = (clientX / innerWidth - 0.5) * 20;
       const yPos = (clientY / innerHeight - 0.5) * 20;
-      
+
       containerRef.current.style.setProperty('--mouse-x', `${xPos}px`);
       containerRef.current.style.setProperty('--mouse-y', `${yPos}px`);
     };
@@ -155,15 +170,15 @@ const AuthVisualEnhanced = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (!containerRef.current) return;
-      
+
       const scrollTop = containerRef.current.scrollTop;
       const scrollHeight = containerRef.current.scrollHeight;
       const clientHeight = containerRef.current.clientHeight;
-      
+
       // Mostrar footer cuando se haga scroll hacia abajo (más de 100px desde arriba)
       // O cuando esté cerca del final (dentro de los últimos 200px)
-      const shouldShow = scrollTop > 100 || (scrollHeight - scrollTop - clientHeight) < 200;
-      
+      const shouldShow = scrollTop > 100 || scrollHeight - scrollTop - clientHeight < 200;
+
       setShowScrollFooter(shouldShow);
     };
 
@@ -172,7 +187,7 @@ const AuthVisualEnhanced = () => {
       container.addEventListener('scroll', handleScroll);
       // Verificar estado inicial
       handleScroll();
-      
+
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [isExpanded]);
@@ -199,7 +214,7 @@ const AuthVisualEnhanced = () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      
+
       if (validatedInvite) {
         await createUserProfileWithInvitation(result.user, validatedInvite.code);
       } else {
@@ -228,7 +243,7 @@ const AuthVisualEnhanced = () => {
         setRegisterData({
           ...registerData,
           email: result.invitation.targetEmail,
-          invitationCode: inviteCode
+          invitationCode: inviteCode,
         });
       } else {
         setError(result.error);
@@ -259,10 +274,14 @@ const AuthVisualEnhanced = () => {
     }
 
     try {
-      const result = await createUserWithEmailAndPassword(auth, registerData.email, registerData.password);
-      
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        registerData.email,
+        registerData.password
+      );
+
       const profileResult = await createUserProfileWithInvitation(
-        result.user, 
+        result.user,
         registerData.invitationCode
       );
 
@@ -309,7 +328,7 @@ const AuthVisualEnhanced = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      invitationCode: ''
+      invitationCode: '',
     });
   };
 
@@ -333,10 +352,12 @@ const AuthVisualEnhanced = () => {
                   <h2>Forestech Colombia</h2>
                   <p>Gestión inteligente de recursos energéticos</p>
                 </div>
-                <button 
+                <button
                   onClick={handleExpandLogin}
                   className="hero-cta-button"
-                  disabled={loading || imageLoading}
+                  disabled={loading}
+                  aria-busy={imageLoading ? 'true' : 'false'}
+                  aria-describedby={imageLoading ? 'bg-loading-hint' : undefined}
                 >
                   <span className="button-content">
                     <span className="button-icon">🚀</span>
@@ -344,6 +365,11 @@ const AuthVisualEnhanced = () => {
                   </span>
                   <div className="button-shine"></div>
                 </button>
+                {imageLoading && (
+                  <div id="bg-loading-hint" className="loading-hint">
+                    Cargando fondo... puedes continuar sin esperar
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -355,7 +381,7 @@ const AuthVisualEnhanced = () => {
               <AnimatedLogo size={60} />
               <h3>Iniciar Sesión</h3>
             </div>
-            
+
             <form onSubmit={handleEmailLogin} className="enhanced-form">
               <div className="form-group enhanced">
                 <label htmlFor="email">Email:</label>
@@ -391,11 +417,7 @@ const AuthVisualEnhanced = () => {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="enhanced-button primary"
-                disabled={loading}
-              >
+              <button type="submit" className="enhanced-button primary" disabled={loading}>
                 <span className="button-content">
                   {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                 </span>
@@ -407,7 +429,7 @@ const AuthVisualEnhanced = () => {
               <span>o continúa con</span>
             </div>
 
-            <button 
+            <button
               onClick={handleGoogleLogin}
               className="enhanced-button google-icon-only"
               disabled={loading}
@@ -415,17 +437,29 @@ const AuthVisualEnhanced = () => {
             >
               <span className="button-content">
                 <svg className="google-icon" viewBox="0 0 24 24" width="24" height="24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
                 </svg>
               </span>
               <div className="button-ripple"></div>
             </button>
 
             <div className="auth-actions enhanced">
-              <button 
+              <button
                 className="link-button enhanced"
                 onClick={() => {
                   resetForm();
@@ -466,11 +500,7 @@ const AuthVisualEnhanced = () => {
                 <small>Ingresa el código de 8 caracteres que recibiste</small>
               </div>
 
-              <button 
-                type="submit" 
-                className="enhanced-button primary"
-                disabled={loading}
-              >
+              <button type="submit" className="enhanced-button primary" disabled={loading}>
                 <span className="button-content">
                   {loading ? 'Validando...' : 'Validar Código'}
                 </span>
@@ -479,7 +509,7 @@ const AuthVisualEnhanced = () => {
             </form>
 
             <div className="auth-actions enhanced">
-              <button 
+              <button
                 className="link-button enhanced"
                 onClick={() => {
                   resetForm();
@@ -530,7 +560,7 @@ const AuthVisualEnhanced = () => {
                     id="registerPassword"
                     type="password"
                     value={registerData.password}
-                    onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                     required
                     disabled={loading}
                     placeholder="Mínimo 6 caracteres"
@@ -548,7 +578,9 @@ const AuthVisualEnhanced = () => {
                     id="confirmPassword"
                     type="password"
                     value={registerData.confirmPassword}
-                    onChange={(e) => setRegisterData({...registerData, confirmPassword: e.target.value})}
+                    onChange={(e) =>
+                      setRegisterData({ ...registerData, confirmPassword: e.target.value })
+                    }
                     required
                     disabled={loading}
                     placeholder="Repite tu contraseña"
@@ -558,11 +590,7 @@ const AuthVisualEnhanced = () => {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="enhanced-button primary"
-                disabled={loading}
-              >
+              <button type="submit" className="enhanced-button primary" disabled={loading}>
                 <span className="button-content">
                   {loading ? 'Registrando...' : 'Crear Cuenta'}
                 </span>
@@ -574,7 +602,7 @@ const AuthVisualEnhanced = () => {
               <span>o</span>
             </div>
 
-            <button 
+            <button
               onClick={handleGoogleLogin}
               className="enhanced-button google"
               disabled={loading}
@@ -587,7 +615,7 @@ const AuthVisualEnhanced = () => {
             </button>
 
             <div className="auth-actions enhanced">
-              <button 
+              <button
                 className="link-button enhanced"
                 onClick={() => {
                   resetForm();
@@ -606,25 +634,27 @@ const AuthVisualEnhanced = () => {
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="auth-container-enhanced"
       style={{
-        backgroundImage: backgroundImage ? 
-          `linear-gradient(135deg, rgba(27, 67, 50, 0.2) 0%, rgba(45, 80, 22, 0.1) 50%, rgba(27, 67, 50, 0.2) 100%), ${backgroundImage}` :
-          `radial-gradient(ellipse at top, rgba(82, 165, 113, 0.3) 0%, transparent 60%),
+        backgroundImage: backgroundImage
+          ? `linear-gradient(135deg, rgba(27, 67, 50, 0.2) 0%, rgba(45, 80, 22, 0.1) 50%, rgba(27, 67, 50, 0.2) 100%), ${backgroundImage}`
+          : `radial-gradient(ellipse at top, rgba(82, 165, 113, 0.3) 0%, transparent 60%),
            radial-gradient(ellipse at bottom, rgba(101, 200, 120, 0.3) 0%, transparent 60%),
            linear-gradient(135deg, #0f2027 0%, #203a43 25%, #2c5364 50%, #203a43 75%, #0f2027 100%)`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
+        backgroundAttachment: 'fixed',
       }}
     >
       <FloatingParticles count={20} />
-      
-      {imageLoading && <LiquidLoader />}
-      
+
+      {/* Loader de carga: usa DotsLoader, puedes cambiar a LiquidLoader si prefieres */}
+      {imageLoading && <DotsLoader />}
+      {/* {imageLoading && <LiquidLoader />} */}
+
       <div ref={cardRef} className={`auth-card-enhanced ${isExpanded ? 'expanded' : 'minimal'}`}>
         {error && (
           <div className="error-message enhanced">
@@ -642,12 +672,12 @@ const AuthVisualEnhanced = () => {
 
         {renderContent()}
       </div>
-      
+
       {/* Footer flotante para WhatsApp */}
       {isExpanded && (
         <div className={`scroll-footer ${showScrollFooter ? 'visible' : 'hidden'}`}>
-          <a 
-            href="https://wa.me/573124559869?text=Hola,%20necesito%20un%20código%20de%20invitación%20para%20acceder%20al%20sistema%20de%20combustibles"
+          <a
+            href={COMMUNICATION_URLS.WHATSAPP_SUPPORT}
             target="_blank"
             rel="noopener noreferrer"
             className="whatsapp-float-button"

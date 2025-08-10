@@ -1,42 +1,43 @@
 /**
  * Tipos de vehículos y maquinaria forestal
- * Específico para operaciones forestales en Colombia
+ * Específico para operaciones forestales en Colombia.
+ * Cada bloque está documentado para facilitar el mantenimiento y la extensión.
  */
 
-// Categorías principales de vehículos
+// Categorías principales de vehículos utilizados en la app
 export const VEHICLE_CATEGORIES = {
-  HARVESTING: 'harvesting',      // Cosecha
-  TRANSPORT: 'transport',        // Transporte
-  MAINTENANCE: 'maintenance',    // Mantenimiento
-  SUPPORT: 'support'            // Apoyo
+  HARVESTING: 'harvesting', // Cosecha
+  TRANSPORT: 'transport', // Transporte
+  MAINTENANCE: 'maintenance', // Mantenimiento
+  SUPPORT: 'support', // Apoyo
 };
 
-// Tipos específicos de vehículos/maquinaria
+// Tipos específicos de vehículos/maquinaria, agrupados por función
 export const VEHICLE_TYPES = {
   // Maquinaria de cosecha
   CHAINSAW: 'chainsaw',
   HARVESTER: 'harvester',
   FORWARDER: 'forwarder',
   SKIDDER: 'skidder',
-  
+
   // Transporte terrestre
   LOG_TRUCK: 'log_truck',
   PICKUP_TRUCK: 'pickup_truck',
   CAR: 'car',
   MOTORCYCLE: 'motorcycle',
   ATV: 'atv',
-  
+
   // Maquinaria pesada
   BULLDOZER: 'bulldozer',
   EXCAVATOR: 'excavator',
   GRADER: 'grader',
   LOADER: 'loader',
-  
+
   // Equipos de bombeo y emergencia
   WATER_PUMP: 'water_pump',
   FIRE_PUMP: 'fire_pump',
   GENERATOR: 'generator',
-  COMPRESSOR: 'compressor'
+  COMPRESSOR: 'compressor',
 };
 
 // Información detallada por tipo de vehículo
@@ -48,7 +49,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 2.5, // litros/hora
     icon: '🪚',
     color: '#dc2626',
-    description: 'Herramienta para corte de árboles'
+    description: 'Herramienta para corte de árboles',
   },
   [VEHICLE_TYPES.HARVESTER]: {
     name: 'Cosechadora Forestal',
@@ -57,7 +58,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 25, // galones/hora
     icon: '🚜',
     color: '#059669',
-    description: 'Máquina para corte y procesamiento de árboles'
+    description: 'Máquina para corte y procesamiento de árboles',
   },
   [VEHICLE_TYPES.FORWARDER]: {
     name: 'Forwarder',
@@ -66,7 +67,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 20, // galones/hora
     icon: '🚚',
     color: '#0891b2',
-    description: 'Transporte de troncos dentro del bosque'
+    description: 'Transporte de troncos dentro del bosque',
   },
   [VEHICLE_TYPES.LOG_TRUCK]: {
     name: 'Camión Maderero',
@@ -75,7 +76,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 3.5, // galones/100km
     icon: '🚚',
     color: '#ea580c',
-    description: 'Transporte de madera a destino'
+    description: 'Transporte de madera a destino',
   },
   [VEHICLE_TYPES.PICKUP_TRUCK]: {
     name: 'Camioneta',
@@ -84,7 +85,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 8, // galones/100km
     icon: '🚐',
     color: '#2563eb',
-    description: 'Transporte de personal y herramientas'
+    description: 'Transporte de personal y herramientas',
   },
   [VEHICLE_TYPES.CAR]: {
     name: 'Automóvil',
@@ -93,7 +94,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 12, // galones/100km
     icon: '🚗',
     color: '#3b82f6',
-    description: 'Vehículo liviano para transporte ejecutivo'
+    description: 'Vehículo liviano para transporte ejecutivo',
   },
   [VEHICLE_TYPES.MOTORCYCLE]: {
     name: 'Motocicleta',
@@ -102,7 +103,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 25, // galones/100km
     icon: '🏍️',
     color: '#6366f1',
-    description: 'Transporte ágil para terrenos difíciles'
+    description: 'Transporte ágil para terrenos difíciles',
   },
   [VEHICLE_TYPES.ATV]: {
     name: 'Cuatrimoto',
@@ -111,7 +112,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 15, // galones/100km
     icon: '🏍️',
     color: '#84cc16',
-    description: 'Vehículo todo terreno para supervisión'
+    description: 'Vehículo todo terreno para supervisión',
   },
   [VEHICLE_TYPES.SKIDDER]: {
     name: 'Skidder',
@@ -120,7 +121,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 22, // galones/hora
     icon: '🚜',
     color: '#f59e0b',
-    description: 'Arrastre de troncos desde el lugar de corte'
+    description: 'Arrastre de troncos desde el lugar de corte',
   },
   [VEHICLE_TYPES.BULLDOZER]: {
     name: 'Bulldozer',
@@ -129,7 +130,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 30, // galones/hora
     icon: '🚜',
     color: '#f97316',
-    description: 'Construcción y mantenimiento de caminos'
+    description: 'Construcción y mantenimiento de caminos',
   },
   [VEHICLE_TYPES.EXCAVATOR]: {
     name: 'Excavadora',
@@ -138,7 +139,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 28, // galones/hora
     icon: '🏗️',
     color: '#eab308',
-    description: 'Excavación y movimiento de tierra'
+    description: 'Excavación y movimiento de tierra',
   },
   [VEHICLE_TYPES.GRADER]: {
     name: 'Motoniveladora',
@@ -147,7 +148,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 25, // galones/hora
     icon: '🚜',
     color: '#a3a3a3',
-    description: 'Nivelación y mantenimiento de vías'
+    description: 'Nivelación y mantenimiento de vías',
   },
   [VEHICLE_TYPES.LOADER]: {
     name: 'Cargador Frontal',
@@ -156,7 +157,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 24, // galones/hora
     icon: '🚜',
     color: '#71717a',
-    description: 'Carga y descarga de materiales'
+    description: 'Carga y descarga de materiales',
   },
   [VEHICLE_TYPES.WATER_PUMP]: {
     name: 'Motobomba de Agua',
@@ -165,7 +166,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 3.5, // galones/hora
     icon: '💧',
     color: '#0891b2',
-    description: 'Bombeo de agua para operaciones'
+    description: 'Bombeo de agua para operaciones',
   },
   [VEHICLE_TYPES.FIRE_PUMP]: {
     name: 'Motobomba Contra Incendios',
@@ -174,7 +175,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 4.2, // galones/hora
     icon: '🔥',
     color: '#dc2626',
-    description: 'Equipo de emergencia contra incendios'
+    description: 'Equipo de emergencia contra incendios',
   },
   [VEHICLE_TYPES.GENERATOR]: {
     name: 'Generador Eléctrico',
@@ -183,7 +184,7 @@ export const VEHICLE_INFO = {
     avgConsumption: 2.8, // galones/hora
     icon: '⚡',
     color: '#7c3aed',
-    description: 'Suministro de energía eléctrica'
+    description: 'Suministro de energía eléctrica',
   },
   [VEHICLE_TYPES.COMPRESSOR]: {
     name: 'Compresor de Aire',
@@ -192,8 +193,8 @@ export const VEHICLE_INFO = {
     avgConsumption: 2.5, // galones/hora
     icon: '💨',
     color: '#64748b',
-    description: 'Suministro de aire comprimido'
-  }
+    description: 'Suministro de aire comprimido',
+  },
 };
 
 // NOTA: FUEL_TYPES y FUEL_INFO ahora están centralizados en combustibleTypes.js

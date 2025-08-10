@@ -3,25 +3,30 @@
  * Gestiona la visualización y filtrado de movimientos de combustibles
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { 
-  subscribeToMovements, 
+import {
+  subscribeToMovements,
   getMovementsStats,
   approveMovement,
   updateMovement,
   MOVEMENT_TYPES,
-  MOVEMENT_STATUS 
+  MOVEMENT_STATUS,
 } from '../../services/movementsService';
 import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
-import MovementWizard from './MovementWizard';
+// Lazy load del wizard para reducir el bundle inicial
+const MovementWizard = lazy(() => import('./MovementWizard'));
+import { PageLayout } from '../shared';
 import './Movements.css';
+import './MovementsMain-SAP.css';
+import { openMovementWizardPopup } from '../Popups/PopupManager';
+import { POPUP_EVENTS } from '../../services/popupCommunication';
 
 const MovementsMain = () => {
   // Context y estado
-  const { user, userProfile, deleteMovement } = useCombustibles();
+  const { user, userProfile, deleteMovement, inventory, vehicles } = useCombustibles();
   const [movements, setMovements] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,22 +34,28 @@ const MovementsMain = () => {
 
   // Estado de filtros
   const [filters, setFilters] = useState({
-    type: '',           // Tipo de movimiento
-    status: '',         // Estado
-    fuelType: '',       // Tipo de combustible
-    vehicleId: '',      // Vehículo específico
-    dateRange: 'all'    // Rango de fechas
+    type: '', // Tipo de movimiento
+    status: '', // Estado
+    fuelType: '', // Tipo de combustible
+    vehicleId: '', // Vehículo específico
+    dateRange: 'all', // Rango de fechas
   });
 
   // Estado de vista
   const [searchTerm, setSearchTerm] = useState('');
   const [showWizard, setShowWizard] = useState(false);
+  const [openingPopup, setOpeningPopup] = useState(false);
+  const [popupError, setPopupError] = useState(null);
+  // Nota: no necesitamos mantener una referencia al manager por ahora
   // Variables de estado limpias - solo wizard
 
   // Función estabilizada para manejar la suscripción con filtros
-  const handleMovementsSubscription = useCallback((callback) => {
-    return subscribeToMovements(callback, filters);
-  }, [filters]);
+  const handleMovementsSubscription = useCallback(
+    (callback) => {
+      return subscribeToMovements(callback, filters);
+    },
+    [filters]
+  );
 
   // Función estabilizada para cargar estadísticas
   const loadMovementsStats = useCallback(async () => {
@@ -61,7 +72,7 @@ const MovementsMain = () => {
     if (!user) return;
 
     setLoading(true);
-    
+
     const unsubscribe = handleMovementsSubscription((movementsData, error) => {
       if (error) {
         console.error('Error en suscripción de movimientos:', error);
@@ -78,6 +89,8 @@ const MovementsMain = () => {
     return () => unsubscribe();
   }, [user, handleMovementsSubscription]);
 
+  // (moved below)
+
   // Cargar estadísticas
   useEffect(() => {
     if (user) {
@@ -86,9 +99,9 @@ const MovementsMain = () => {
   }, [user, movements, loadMovementsStats]);
 
   // Filtrar movimientos por búsqueda
-  const filteredMovements = movements.filter(movement => {
+  const filteredMovements = movements.filter((movement) => {
     if (!searchTerm) return true;
-    
+
     const searchLower = searchTerm.toLowerCase();
     return (
       movement.fuelType?.toLowerCase().includes(searchLower) ||
@@ -101,13 +114,53 @@ const MovementsMain = () => {
   });
 
   // Manejadores de eventos
-  const handleCreateMovement = () => {
-    setShowWizard(true);
-  };
+  const handleCreateMovement = useCallback(() => {
+    // Abrir versión popup con contexto necesario
+    setPopupError(null);
+    setOpeningPopup(true);
+    const initialData = {
+      user,
+      inventory,
+      vehicles,
+      suppliers: [],
+      theme: 'sap-fiori',
+    };
+
+    const { success, error } = openMovementWizardPopup(initialData, ({ type, payload }) => {
+      if (type === POPUP_EVENTS.WIZARD_SUCCESS) {
+        // Actualizar estadísticas y dejar que suscripciones refresquen
+        loadMovementsStats();
+      } else if (type === POPUP_EVENTS.WIZARD_ERROR) {
+        console.error('Error en wizard popup:', payload);
+        alert(`Error en asistente: ${payload?.message || 'desconocido'}`);
+      }
+    });
+
+    setOpeningPopup(false);
+    if (!success) {
+      // Fallback: si bloqueado, abrir modal inline
+      setPopupError(error || 'Popup bloqueado');
+      setShowWizard(true);
+    }
+  }, [user, inventory, vehicles, loadMovementsStats]);
+
+  // Atajo de teclado Ctrl+Shift+N para abrir popup (debajo para evitar TDZ)
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        handleCreateMovement();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleCreateMovement]);
 
   const handleViewMovement = (movement) => {
     // Vista de movimientos en modo lectura simplificado
-    alert(`📋 Detalles del movimiento:\n\nTipo: ${movement.type}\nCombustible: ${movement.fuelType}\nCantidad: ${movement.quantity} gal\nFecha: ${new Date(movement.createdAt).toLocaleDateString('es-CO')}`);
+    alert(
+      `📋 Detalles del movimiento:\n\nTipo: ${movement.type}\nCombustible: ${movement.fuelType}\nCantidad: ${movement.quantity} gal\nFecha: ${new Date(movement.createdAt).toLocaleDateString('es-CO')}`
+    );
   };
 
   const handleWizardClose = () => {
@@ -115,7 +168,7 @@ const MovementsMain = () => {
   };
 
   const handleFilterChange = (newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const handleClearFilters = () => {
@@ -124,13 +177,17 @@ const MovementsMain = () => {
       status: '',
       fuelType: '',
       vehicleId: '',
-      dateRange: 'all'
+      dateRange: 'all',
     });
     setSearchTerm('');
   };
 
   const handleApproveMovement = async (movementId) => {
-    if (!window.confirm('¿Estás seguro de que quieres aprobar este movimiento? Esta acción actualizará el inventario.')) {
+    if (
+      !window.confirm(
+        '¿Estás seguro de que quieres aprobar este movimiento? Esta acción actualizará el inventario.'
+      )
+    ) {
       return;
     }
     try {
@@ -170,126 +227,145 @@ const MovementsMain = () => {
   };
 
   // Permisos del usuario
-  const canCreateMovement = userProfile?.role === 'admin' || userProfile?.role === 'contador' || userProfile?.role === 'cliente';
+  const canCreateMovement =
+    userProfile?.role === 'admin' ||
+    userProfile?.role === 'contador' ||
+    userProfile?.role === 'cliente';
 
-  if (loading) {
-    return (
-      <div className="movements-main">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Cargando movimientos...</p>
-        </div>
-      </div>
-    );
-  }
+  // Componentes para PageLayout
+  const headerActions = canCreateMovement && (
+    <div className="create-movement-options sap-theme">
+      <button className="btn-create-movement sap-theme primary" onClick={handleCreateMovement}>
+        ➕ Nuevo Movimiento
+      </button>
+      {openingPopup && (
+        <span className="opening-status" style={{ marginLeft: 12 }}>
+          Abriendo formulario...
+        </span>
+      )}
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="movements-main">
-        <div className="error-container">
-          <div className="error-icon">⚠️</div>
+  const statsComponent = stats && <MovementsStats stats={stats} filters={filters} />;
+
+  const filtersComponent = (
+    <MovementsFilters
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onClearFilters={handleClearFilters}
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      totalResults={filteredMovements.length}
+    />
+  );
+
+  const mainContent = (
+    <>
+      {error && (
+        <div className="error-container sap-theme">
+          <div className="error-icon sap-theme">⚠️</div>
           <h3>Error al cargar movimientos</h3>
           <p>{error}</p>
-          <button 
-            className="btn-retry"
-            onClick={() => window.location.reload()}
-          >
+          <button className="btn-retry sap-theme" onClick={() => window.location.reload()}>
             Reintentar
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="movements-main">
-      {/* Header */}
-      <div className="movements-header">
-        <div className="header-title">
-          <h2>📊 Movimientos de Combustibles</h2>
-          <p>Gestiona entradas, salidas, transferencias y ajustes de inventario</p>
-        </div>
-        
-        {canCreateMovement && (
-          <div className="create-movement-options">
-            <button 
-              className="btn-create-movement primary"
-              onClick={handleCreateMovement}
-            >
-              ➕ Nuevo Movimiento
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Estadísticas */}
-      {stats && (
-        <MovementsStats 
-          stats={stats}
-          filters={filters}
-        />
       )}
-
-      {/* Filtros y búsqueda */}
-      <MovementsFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        totalResults={filteredMovements.length}
-      />
 
       {/* Lista de movimientos */}
-      {filteredMovements.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">📋</div>
-          <h3>
-            {movements.length === 0 
-              ? 'No hay movimientos registrados'
-              : 'No se encontraron movimientos'
-            }
-          </h3>
+      {!error &&
+        (filteredMovements.length === 0 ? (
+          <div className="empty-state sap-theme">
+            <div className="empty-icon sap-theme">📋</div>
+            <h3>
+              {movements.length === 0
+                ? 'No hay movimientos registrados'
+                : 'No se encontraron movimientos'}
+            </h3>
+            <p>
+              {movements.length === 0
+                ? 'Comienza creando tu primer movimiento de combustible'
+                : 'Intenta ajustar los filtros de búsqueda'}
+            </p>
+            {movements.length === 0 && canCreateMovement && (
+              <div className="create-first-options sap-theme">
+                <button
+                  className="btn-create-first sap-theme primary"
+                  onClick={handleCreateMovement}
+                >
+                  ➕ Crear Primer Movimiento
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <MovementsList
+            movements={filteredMovements}
+            onEdit={null} // Edición eliminada - solo wizard
+            onView={handleViewMovement}
+            onApprove={handleApproveMovement}
+            onReject={handleRejectMovement}
+            onDelete={handleDeleteMovement}
+            userRole={userProfile?.role}
+          />
+        ))}
+
+      {/* Estado de error de popup y botón de reintento */}
+      {popupError && (
+        <div className="popup-error sap-theme" style={{ marginTop: 16 }}>
           <p>
-            {movements.length === 0 
-              ? 'Comienza creando tu primer movimiento de combustible'
-              : 'Intenta ajustar los filtros de búsqueda'
-            }
+            El navegador bloqueó la ventana emergente. Permite popups para este sitio o usa el
+            formulario integrado.
           </p>
-          {movements.length === 0 && canCreateMovement && (
-            <div className="create-first-options">
-              <button 
-                className="btn-create-first primary"
-                onClick={handleCreateMovement}
-              >
-                ➕ Crear Primer Movimiento
-              </button>
-            </div>
-          )}
+          <button className="sap-theme" onClick={() => setShowWizard(true)}>
+            Abrir formulario integrado
+          </button>
+          <button
+            className="sap-theme"
+            style={{ marginLeft: 8 }}
+            onClick={() => {
+              setPopupError(null);
+              handleCreateMovement();
+            }}
+          >
+            Reintentar popup
+          </button>
         </div>
-      ) : (
-        <MovementsList
-          movements={filteredMovements}
-          onEdit={null} // Edición eliminada - solo wizard
-          onView={handleViewMovement}
-          onApprove={handleApproveMovement}
-          onReject={handleRejectMovement}
-          onDelete={handleDeleteMovement}
-          userRole={userProfile?.role}
-        />
       )}
 
-      {/* Wizard - Única Opción */}
+      {/* Wizard - Única Opción (lazy) */}
       {showWizard && (
-        <MovementWizard
-          isOpen={showWizard}
-          onClose={handleWizardClose}
-          onSuccess={() => {
-            handleWizardClose();
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="loading-container sap-theme">
+              <div className="loading-spinner sap-theme"></div>
+              <p>Cargando asistente...</p>
+            </div>
+          }
+        >
+          <MovementWizard
+            isOpen={showWizard}
+            onClose={handleWizardClose}
+            onSuccess={() => {
+              handleWizardClose();
+            }}
+          />
+        </Suspense>
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="📊 Movimientos de Combustibles"
+      subtitle="Gestiona entradas, salidas, transferencias y ajustes de inventario"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 

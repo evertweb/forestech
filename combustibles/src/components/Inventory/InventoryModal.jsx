@@ -1,37 +1,27 @@
 /**
  * InventoryModal - Modal para crear y editar items de inventario
- * Refactorizado usando BaseModal system + useFormData hook
+ * Refactorizado para usar BaseModal
  */
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
-import { useFormData } from '../../hooks/useFormData';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
+import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
+import useFormData from '../../hooks/useFormData';
+import { validationSchemas, crossFieldValidators } from '../../utils/validators';
 
 const InventoryModal = ({ item, onClose, onSuccess }) => {
-  const { userProfile } = useCombustibles();
+  // Estado y loading solo con hooks centralizados
   const [loading, setLoading] = useState(false);
   const isEditing = !!item;
+  const { userProfile } = useCombustibles();
 
-  // Datos iniciales del formulario
-  const initialData = useMemo(() => {
-    if (isEditing && item) {
-      return {
-        fuelType: item.fuelType || '',
-        location: item.location || '',
-        currentStock: item.currentStock || '',
-        maxCapacity: item.maxCapacity || '',
-        minThreshold: item.minThreshold || '',
-        pricePerUnit: item.pricePerUnit || '',
-        supplier: item.supplier || '',
-        description: item.description || '',
-        status: item.status || 'active'
-      };
-    }
-    return {
+  // Estado inicial y validación con useFormData
+  const getInitialFormData = useCallback(
+    () => ({
       fuelType: '',
       location: '',
       currentStock: '',
@@ -40,71 +30,48 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
       pricePerUnit: '',
       supplier: '',
       description: '',
-      status: 'active'
-    };
-  }, [isEditing, item]);
+      status: 'active',
+    }),
+    []
+  );
 
-  // Reglas de validación
-  const validationRules = useMemo(() => ({
-    fuelType: {
-      required: 'Tipo de combustible es requerido'
-    },
-    location: {
-      required: 'Ubicación es requerida'
-    },
-    maxCapacity: {
-      required: 'Capacidad máxima es requerida',
-      min: 1,
-      minMessage: 'Capacidad máxima debe ser un número válido mayor a 0'
-    },
-    currentStock: {
-      min: 0,
-      minMessage: 'Stock actual debe ser un número válido mayor o igual a 0',
-      validate: (value, formData) => {
-        if (value && formData.maxCapacity && Number(value) > Number(formData.maxCapacity)) {
-          return 'Stock actual no puede ser mayor a la capacidad máxima';
-        }
-        return null;
-      }
-    },
-    minThreshold: {
-      min: 0,
-      minMessage: 'Umbral mínimo debe ser un número válido mayor o igual a 0',
-      validate: (value, formData) => {
-        if (value && formData.maxCapacity && Number(value) > Number(formData.maxCapacity)) {
-          return 'Umbral mínimo no puede ser mayor a la capacidad máxima';
-        }
-        return null;
-      }
-    },
-    pricePerUnit: {
-      min: 0,
-      minMessage: 'Precio debe ser un número válido mayor o igual a 0'
-    }
-  }), []);
+  // Validación centralizada por schema + reglas cruzadas
+  const modalValidationOptions = {
+    validationSchema: validationSchemas.inventory,
+    crossValidators: [
+      crossFieldValidators.stockVsCapacity,
+      crossFieldValidators.thresholdVsCapacity,
+    ],
+  };
 
-  // Hook de formulario
-  const { 
-    formData, 
-    errors, 
-    handleInputChange, 
-    updateValue,
-    validateForm, 
-    resetForm 
-  } = useFormData(initialData, validationRules);
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    handleInputChange,
+    validateForm,
+  } = useFormData(getInitialFormData(), undefined, modalValidationOptions);
 
-  // Auto-calcular umbral mínimo cuando cambia capacidad máxima
+  // Reinicializar formulario cuando cambie el item a editar
   useEffect(() => {
-    if (formData.maxCapacity && !formData.minThreshold) {
-      const autoThreshold = Math.round(Number(formData.maxCapacity) * 0.15);
-      updateValue('minThreshold', autoThreshold);
+    if (isEditing && item) {
+      setFormData({
+        fuelType: item.fuelType || '',
+        location: item.location || '',
+        currentStock: item.currentStock || '',
+        maxCapacity: item.maxCapacity || '',
+        minThreshold: item.minThreshold || '',
+        pricePerUnit: item.pricePerUnit || '',
+        supplier: item.supplier || '',
+        description: item.description || '',
+        status: item.status || 'active',
+      });
     }
-  }, [formData.maxCapacity, formData.minThreshold, updateValue]);
+  }, [isEditing, item, setFormData]);
 
-  // Funciones de manejo
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -113,36 +80,36 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
 
     try {
       let result;
-      
+
       if (isEditing) {
-        // Actualizar item existente
+        // Update existing item
         result = await updateInventoryItem(
           item.id,
           {
             location: formData.location,
             currentStock: Number(formData.currentStock) || 0,
             maxCapacity: Number(formData.maxCapacity),
-            minThreshold: Number(formData.minThreshold) || (Number(formData.maxCapacity) * 0.15),
+            minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
             pricePerUnit: Number(formData.pricePerUnit) || 0,
             supplier: formData.supplier,
             description: formData.description,
-            status: formData.status
+            status: formData.status,
           },
           userProfile.uid
         );
       } else {
-        // Crear nuevo item
+        // Create new item
         result = await createInventoryItem(
           {
             fuelType: formData.fuelType,
             location: formData.location,
             currentStock: Number(formData.currentStock) || 0,
             maxCapacity: Number(formData.maxCapacity),
-            minThreshold: Number(formData.minThreshold) || (Number(formData.maxCapacity) * 0.15),
+            minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
             pricePerUnit: Number(formData.pricePerUnit) || 0,
             supplier: formData.supplier,
             description: formData.description,
-            status: formData.status
+            status: formData.status,
           },
           userProfile.uid
         );
@@ -162,249 +129,252 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
     }
   };
 
-  const handleClose = () => {
-    resetForm(initialData);
-    onClose();
-  };
-
-  // Información del combustible seleccionado
   const selectedFuelInfo = FUEL_INFO[formData.fuelType];
 
-  // Título del modal
-  const getTitle = () => {
-    return isEditing ? '✏️ Editar Combustible' : '➕ Agregar Nuevo Combustible';
+  const getModalTitle = () => {
+    return isEditing ? `${UI_ACTIONS.EDIT} Combustible` : `${UI_ACTIONS.ADD} Nuevo Combustible`;
+  };
+
+  const getModalIcon = () => {
+    return isEditing ? '✏️' : '➕';
   };
 
   return (
-    <BaseModal 
-      isOpen={true}
-      onClose={handleClose}
-      size="lg"
-      className="inventory-modal"
-    >
-      <ModalHeader 
-        title={getTitle()} 
-        onClose={handleClose} 
-      />
+    <BaseModal isOpen={true} onClose={onClose} size="lg" className="inventory-modal sap-theme">
+      <ModalHeader title={getModalTitle()} icon={getModalIcon()} onClose={onClose} />
 
-      <form onSubmit={handleSubmit} className="modal-form">
-        <div className="form-grid">
-          {/* Tipo de Combustible */}
-          <div className="form-group">
-            <label htmlFor="fuelType">
-              Tipo de Combustible *
-              {selectedFuelInfo && (
-                <span className="fuel-preview">
-                  {selectedFuelInfo.icon} {selectedFuelInfo.name}
-                </span>
-              )}
-            </label>
-            <select
-              id="fuelType"
-              name="fuelType"
-              value={formData.fuelType}
-              onChange={handleInputChange}
-              disabled={isEditing} // No permitir cambiar tipo al editar
-              className={errors.fuelType ? 'error' : ''}
-              required
-            >
-              <option value="">Seleccionar tipo...</option>
-              {Object.entries(FUEL_TYPES).map(([key, value]) => {
-                const info = FUEL_INFO[value];
-                return (
-                  <option key={key} value={value}>
-                    {info.icon} {info.name} ({info.unit})
-                  </option>
-                );
-              })}
-            </select>
-            {errors.fuelType && <span className="error-text">{errors.fuelType}</span>}
-          </div>
-
-          {/* Ubicación */}
-          <div className="form-group">
-            <label htmlFor="location">Ubicación / Tanque *</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              placeholder="ej. Tanque Principal, Depósito A, Bodega Norte"
-              className={errors.location ? 'error' : ''}
-              required
-            />
-            {errors.location && <span className="error-text">{errors.location}</span>}
-          </div>
-
-          {/* Stock Actual */}
-          <div className="form-group">
-            <label htmlFor="currentStock">
-              Stock Actual {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
-            </label>
-            <input
-              type="number"
-              id="currentStock"
-              name="currentStock"
-              value={formData.currentStock}
-              onChange={handleInputChange}
-              placeholder="0"
-              min="0"
-              step="0.01"
-              className={errors.currentStock ? 'error' : ''}
-            />
-            {errors.currentStock && <span className="error-text">{errors.currentStock}</span>}
-          </div>
-
-          {/* Capacidad Máxima */}
-          <div className="form-group">
-            <label htmlFor="maxCapacity">
-              Capacidad Máxima * {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
-            </label>
-            <input
-              type="number"
-              id="maxCapacity"
-              name="maxCapacity"
-              value={formData.maxCapacity}
-              onChange={handleInputChange}
-              placeholder="1000"
-              min="1"
-              step="0.01"
-              className={errors.maxCapacity ? 'error' : ''}
-              required
-            />
-            {errors.maxCapacity && <span className="error-text">{errors.maxCapacity}</span>}
-          </div>
-
-          {/* Umbral Mínimo */}
-          <div className="form-group">
-            <label htmlFor="minThreshold">
-              Umbral Mínimo {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
-              <span className="field-hint">Para alertas de stock bajo</span>
-            </label>
-            <input
-              type="number"
-              id="minThreshold"
-              name="minThreshold"
-              value={formData.minThreshold}
-              onChange={handleInputChange}
-              placeholder="Auto: 15% de capacidad máxima"
-              min="0"
-              step="0.01"
-              className={errors.minThreshold ? 'error' : ''}
-            />
-            {errors.minThreshold && <span className="error-text">{errors.minThreshold}</span>}
-            {formData.maxCapacity && (
-              <span className="field-hint">
-                Sugerido: {Math.round(Number(formData.maxCapacity) * 0.15)} {selectedFuelInfo?.unit || 'unidades'}
-              </span>
-            )}
-          </div>
-
-          {/* Precio por Unidad */}
-          <div className="form-group">
-            <label htmlFor="pricePerUnit">
-              Precio por {selectedFuelInfo?.unit || 'Unidad'}
-            </label>
-            <input
-              type="number"
-              id="pricePerUnit"
-              name="pricePerUnit"
-              value={formData.pricePerUnit}
-              onChange={handleInputChange}
-              placeholder="12000"
-              min="0"
-              step="0.01"
-              className={errors.pricePerUnit ? 'error' : ''}
-            />
-            {errors.pricePerUnit && <span className="error-text">{errors.pricePerUnit}</span>}
-          </div>
-
-          {/* Proveedor */}
-          <div className="form-group">
-            <label htmlFor="supplier">Proveedor Principal</label>
-            <input
-              type="text"
-              id="supplier"
-              name="supplier"
-              value={formData.supplier}
-              onChange={handleInputChange}
-              placeholder="ej. Petrobras, Terpel, Mobil"
-            />
-          </div>
-
-          {/* Estado */}
-          <div className="form-group">
-            <label htmlFor="status">Estado</label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-            >
-              <option value="active">Activo</option>
-              <option value="inactive">Inactivo</option>
-              <option value="maintenance">Mantenimiento</option>
-            </select>
-          </div>
-
-          {/* Descripción */}
-          <div className="form-group full-width">
-            <label htmlFor="description">Descripción / Notas</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Información adicional sobre este combustible..."
-              rows="3"
-            />
-          </div>
-        </div>
-
-        {/* Vista Previa */}
-        {selectedFuelInfo && formData.maxCapacity && (
-          <div className="form-preview">
-            <h4>📊 Vista Previa</h4>
-            <div className="preview-card">
-              <div className="preview-header">
-                <span style={{ color: selectedFuelInfo.color }}>
-                  {selectedFuelInfo.icon} {selectedFuelInfo.name}
-                </span>
-                <span>{formData.location}</span>
-              </div>
-              <div className="preview-capacity">
-                {formData.currentStock || 0} / {formData.maxCapacity} {selectedFuelInfo.unit}
-                {formData.currentStock && formData.maxCapacity && (
-                  <span className="preview-percentage">
-                    ({Math.round((Number(formData.currentStock) / Number(formData.maxCapacity)) * 100)}%)
+      <div className="modal-body sap-theme">
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid sap-theme">
+            {/* Tipo de Combustible */}
+            <div className="form-group sap-theme">
+              <label htmlFor="fuelType">
+                {UI_FORM_LABELS.FUEL_TYPE} *
+                {selectedFuelInfo && (
+                  <span className="fuel-preview sap-theme">
+                    {selectedFuelInfo.icon} {selectedFuelInfo.name}
                   </span>
                 )}
-              </div>
-              {formData.pricePerUnit && (
-                <div className="preview-value">
-                  Valor total: {new Intl.NumberFormat('es-CO', {
-                    style: 'currency',
-                    currency: 'COP',
-                    minimumFractionDigits: 0
-                  }).format((Number(formData.currentStock) || 0) * Number(formData.pricePerUnit))}
-                </div>
+              </label>
+              <select
+                id="fuelType"
+                name="fuelType"
+                value={formData.fuelType}
+                onChange={handleInputChange}
+                disabled={isEditing} // No permitir cambiar tipo al editar
+                className={errors.fuelType ? 'error' : ''}
+                required
+              >
+                <option value="">Seleccionar tipo...</option>
+                {Object.entries(FUEL_TYPES).map(([key, value]) => {
+                  const info = FUEL_INFO[value];
+                  return (
+                    <option key={key} value={value}>
+                      {info.icon} {info.name} ({info.unit})
+                    </option>
+                  );
+                })}
+              </select>
+              {errors.fuelType && <span className="error-text sap-theme">{errors.fuelType}</span>}
+            </div>
+
+            {/* Ubicación */}
+            <div className="form-group sap-theme">
+              <label htmlFor="location">Ubicación / Tanque *</label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                placeholder="ej. Tanque Principal, Depósito A, Bodega Norte"
+                className={errors.location ? 'error' : ''}
+                required
+              />
+              {errors.location && <span className="error-text sap-theme">{errors.location}</span>}
+            </div>
+
+            {/* Stock Actual */}
+            <div className="form-group sap-theme">
+              <label htmlFor="currentStock">
+                Stock Actual {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
+              </label>
+              <input
+                type="number"
+                id="currentStock"
+                name="currentStock"
+                value={formData.currentStock}
+                onChange={handleInputChange}
+                placeholder="0"
+                min="0"
+                step="0.01"
+                className={errors.currentStock ? 'error' : ''}
+              />
+              {errors.currentStock && (
+                <span className="error-text sap-theme">{errors.currentStock}</span>
               )}
             </div>
-          </div>
-        )}
-      </form>
 
-      <ModalFooter 
+            {/* Capacidad Máxima */}
+            <div className="form-group sap-theme">
+              <label htmlFor="maxCapacity">
+                Capacidad Máxima * {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
+              </label>
+              <input
+                type="number"
+                id="maxCapacity"
+                name="maxCapacity"
+                value={formData.maxCapacity}
+                onChange={handleInputChange}
+                placeholder="1000"
+                min="1"
+                step="0.01"
+                className={errors.maxCapacity ? 'error' : ''}
+                required
+              />
+              {errors.maxCapacity && (
+                <span className="error-text sap-theme">{errors.maxCapacity}</span>
+              )}
+            </div>
+
+            {/* Umbral Mínimo */}
+            <div className="form-group sap-theme">
+              <label htmlFor="minThreshold">
+                Umbral Mínimo {selectedFuelInfo && `(${selectedFuelInfo.unit})`}
+                <span className="field-hint sap-theme">Para alertas de stock bajo</span>
+              </label>
+              <input
+                type="number"
+                id="minThreshold"
+                name="minThreshold"
+                value={formData.minThreshold}
+                onChange={handleInputChange}
+                placeholder="Auto: 15% de capacidad máxima"
+                min="0"
+                step="0.01"
+                className={errors.minThreshold ? 'error' : ''}
+              />
+              {errors.minThreshold && (
+                <span className="error-text sap-theme">{errors.minThreshold}</span>
+              )}
+              {formData.maxCapacity && (
+                <span className="field-hint sap-theme">
+                  Sugerido: {Math.round(Number(formData.maxCapacity) * 0.15)}{' '}
+                  {selectedFuelInfo?.unit || 'unidades'}
+                </span>
+              )}
+            </div>
+
+            {/* Precio por Unidad */}
+            <div className="form-group sap-theme">
+              <label htmlFor="pricePerUnit">Precio por {selectedFuelInfo?.unit || 'Unidad'}</label>
+              <input
+                type="number"
+                id="pricePerUnit"
+                name="pricePerUnit"
+                value={formData.pricePerUnit}
+                onChange={handleInputChange}
+                placeholder="12000"
+                min="0"
+                step="0.01"
+                className={errors.pricePerUnit ? 'error' : ''}
+              />
+              {errors.pricePerUnit && (
+                <span className="error-text sap-theme">{errors.pricePerUnit}</span>
+              )}
+            </div>
+
+            {/* Proveedor */}
+            <div className="form-group sap-theme">
+              <label htmlFor="supplier">Proveedor Principal</label>
+              <input
+                type="text"
+                id="supplier"
+                name="supplier"
+                value={formData.supplier}
+                onChange={handleInputChange}
+                placeholder="ej. Petrobras, Terpel, Mobil"
+              />
+            </div>
+
+            {/* Estado */}
+            <div className="form-group sap-theme">
+              <label htmlFor="status">Estado</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+              >
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+                <option value="maintenance">Mantenimiento</option>
+              </select>
+            </div>
+
+            {/* Descripción */}
+            <div className="form-group full-width">
+              <label htmlFor="description">Descripción / Notas</label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Información adicional sobre este combustible..."
+                rows="3"
+              />
+            </div>
+          </div>
+
+          {/* Preview */}
+          {selectedFuelInfo && formData.maxCapacity && (
+            <div className="form-preview">
+              <h4>📊 Vista Previa</h4>
+              <div className="preview-card">
+                <div className="preview-header">
+                  <span style={{ color: selectedFuelInfo.color }}>
+                    {selectedFuelInfo.icon} {selectedFuelInfo.name}
+                  </span>
+                  <span>{formData.location}</span>
+                </div>
+                <div className="preview-capacity">
+                  {formData.currentStock || 0} / {formData.maxCapacity} {selectedFuelInfo.unit}
+                  {formData.currentStock && formData.maxCapacity && (
+                    <span className="preview-percentage">
+                      (
+                      {Math.round(
+                        (Number(formData.currentStock) / Number(formData.maxCapacity)) * 100
+                      )}
+                      %)
+                    </span>
+                  )}
+                </div>
+                {formData.pricePerUnit && (
+                  <div className="preview-value">
+                    Valor total:{' '}
+                    {new Intl.NumberFormat('es-CO', {
+                      style: 'currency',
+                      currency: 'COP',
+                      minimumFractionDigits: 0,
+                    }).format((Number(formData.currentStock) || 0) * Number(formData.pricePerUnit))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
+
+      <ModalFooter
         primaryAction={{
-          label: isEditing ? 'Actualizar' : 'Crear',
+          label: loading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear',
           onClick: handleSubmit,
-          disabled: Object.keys(errors).some(key => errors[key]),
-          loadingLabel: 'Guardando...'
+          disabled: loading,
+          type: 'submit',
         }}
         secondaryAction={{
           label: 'Cancelar',
-          onClick: handleClose
+          onClick: onClose,
         }}
         isLoading={loading}
       />

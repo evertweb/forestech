@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFormData } from '../../hooks/useFormData';
 import { VEHICLE_STATUS } from '../../services/vehiclesService';
 
 // Tipos de mantenimiento
@@ -11,7 +12,7 @@ const MAINTENANCE_TYPES = {
   PREVENTIVO: 'preventivo',
   CORRECTIVO: 'correctivo',
   PREDICTIVO: 'predictivo',
-  EMERGENCIA: 'emergencia'
+  EMERGENCIA: 'emergencia',
 };
 
 // Estados de mantenimiento
@@ -19,7 +20,7 @@ const MAINTENANCE_STATUS = {
   PROGRAMADO: 'programado',
   EN_PROCESO: 'en_proceso',
   COMPLETADO: 'completado',
-  CANCELADO: 'cancelado'
+  CANCELADO: 'cancelado',
 };
 
 // Prioridades
@@ -27,105 +28,157 @@ const MAINTENANCE_PRIORITY = {
   BAJA: 'baja',
   MEDIA: 'media',
   ALTA: 'alta',
-  CRITICA: 'critica'
+  CRITICA: 'critica',
 };
 
-const MaintenanceModal = ({ 
-  isOpen, 
-  onClose, 
-  vehicle, 
+const MaintenanceModal = ({
+  isOpen,
+  onClose,
+  vehicle,
   maintenance,
-  onSave, 
+  onSave,
   mode = 'create',
-  userRole 
+  userRole,
 }) => {
   // Estado inicial del formulario
-  const getInitialFormData = useCallback(() => ({
-    vehicleId: vehicle?.vehicleId || '',
-    vehicleName: vehicle?.name || '',
-    type: maintenance?.type || MAINTENANCE_TYPES.PREVENTIVO,
-    title: maintenance?.title || '',
-    description: maintenance?.description || '',
-    priority: maintenance?.priority || MAINTENANCE_PRIORITY.MEDIA,
-    status: maintenance?.status || MAINTENANCE_STATUS.PROGRAMADO,
-    scheduledDate: maintenance?.scheduledDate ? 
-      new Date(maintenance.scheduledDate).toISOString().split('T')[0] : '',
-    startDate: maintenance?.startDate ? 
-      new Date(maintenance.startDate).toISOString().split('T')[0] : '',
-    completedDate: maintenance?.completedDate ? 
-      new Date(maintenance.completedDate).toISOString().split('T')[0] : '',
-    estimatedHours: maintenance?.estimatedHours || 0,
-    actualHours: maintenance?.actualHours || 0,
-    estimatedCost: maintenance?.estimatedCost || 0,
-    actualCost: maintenance?.actualCost || 0,
-    technician: maintenance?.technician || '',
-    workshop: maintenance?.workshop || '',
-    parts: maintenance?.parts || [],
-    notes: maintenance?.notes || '',
-    nextMaintenanceKm: maintenance?.nextMaintenanceKm || 0,
-    nextMaintenanceHours: maintenance?.nextMaintenanceHours || 0,
-    nextMaintenanceDate: maintenance?.nextMaintenanceDate ? 
-      new Date(maintenance.nextMaintenanceDate).toISOString().split('T')[0] : ''
-  }), [maintenance, vehicle]);
+  const getInitialFormData = useCallback(
+    () => ({
+      vehicleId: vehicle?.vehicleId || '',
+      vehicleName: vehicle?.name || '',
+      type: maintenance?.type || MAINTENANCE_TYPES.PREVENTIVO,
+      title: maintenance?.title || '',
+      description: maintenance?.description || '',
+      priority: maintenance?.priority || MAINTENANCE_PRIORITY.MEDIA,
+      status: maintenance?.status || MAINTENANCE_STATUS.PROGRAMADO,
+      scheduledDate: maintenance?.scheduledDate
+        ? new Date(maintenance.scheduledDate).toISOString().split('T')[0]
+        : '',
+      startDate: maintenance?.startDate
+        ? new Date(maintenance.startDate).toISOString().split('T')[0]
+        : '',
+      completedDate: maintenance?.completedDate
+        ? new Date(maintenance.completedDate).toISOString().split('T')[0]
+        : '',
+      estimatedHours: maintenance?.estimatedHours || 0,
+      actualHours: maintenance?.actualHours || 0,
+      estimatedCost: maintenance?.estimatedCost || 0,
+      actualCost: maintenance?.actualCost || 0,
+      technician: maintenance?.technician || '',
+      workshop: maintenance?.workshop || '',
+      parts: maintenance?.parts || [],
+      notes: maintenance?.notes || '',
+      nextMaintenanceKm: maintenance?.nextMaintenanceKm || 0,
+      nextMaintenanceHours: maintenance?.nextMaintenanceHours || 0,
+      nextMaintenanceDate: maintenance?.nextMaintenanceDate
+        ? new Date(maintenance.nextMaintenanceDate).toISOString().split('T')[0]
+        : '',
+    }),
+    [maintenance, vehicle]
+  );
 
-  const [formData, setFormData] = useState(getInitialFormData());
-  const [errors, setErrors] = useState({});
+  // Función de validación para useFormData
+  const validate = (values) => {
+    const newErrors = {};
+
+    // Validaciones obligatorias
+    if (!values.title?.trim()) {
+      newErrors.title = 'El título del mantenimiento es obligatorio';
+    }
+    if (!values.description?.trim()) {
+      newErrors.description = 'La descripción es obligatoria';
+    }
+    if (!values.type) {
+      newErrors.type = 'El tipo de mantenimiento es requerido';
+    }
+    if (!values.vehicleId) {
+      newErrors.vehicleId = 'El vehículo es requerido';
+    }
+    if (!values.scheduledDate) {
+      newErrors.scheduledDate = 'La fecha programada es obligatoria';
+    }
+
+    // Validaciones de fechas
+    if (values.startDate && values.completedDate) {
+      const startDate = new Date(values.startDate);
+      const completedDate = new Date(values.completedDate);
+      if (completedDate < startDate) {
+        newErrors.completedDate = 'La fecha de finalización debe ser posterior al inicio';
+      }
+    }
+
+    // Validaciones numéricas
+    if (values.estimatedCost < 0) {
+      newErrors.estimatedCost = 'El costo estimado no puede ser negativo';
+    }
+    if (values.actualCost < 0) {
+      newErrors.actualCost = 'El costo real no puede ser negativo';
+    }
+    if (values.estimatedHours < 0) {
+      newErrors.estimatedHours = 'Las horas estimadas no pueden ser negativas';
+    }
+    if (values.actualHours < 0) {
+      newErrors.actualHours = 'Las horas reales no pueden ser negativas';
+    }
+
+    // Validación de estado vs fechas
+    if (values.status === MAINTENANCE_STATUS.COMPLETADO && !values.completedDate) {
+      newErrors.completedDate =
+        'La fecha de finalización es obligatoria para mantenimientos completados';
+    }
+    if (values.status === MAINTENANCE_STATUS.EN_PROCESO && !values.startDate) {
+      newErrors.startDate = 'La fecha de inicio es obligatoria para mantenimientos en proceso';
+    }
+
+    return { isValid: Object.keys(newErrors).length === 0, errors: newErrors };
+  };
+
+  // Usar el hook useFormData
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange,
+    resetForm,
+    validateForm,
+  } = useFormData(getInitialFormData(), validate);
+
   const [loading, setLoading] = useState(false);
   const [newPart, setNewPart] = useState({ name: '', quantity: 1, cost: 0 });
 
   // Reinicializar formulario cuando cambie el mantenimiento
   useEffect(() => {
     if (isOpen) {
-      setFormData(getInitialFormData());
-      setErrors({});
+      resetForm();
     }
-  }, [isOpen, maintenance, vehicle, getInitialFormData]);
-
-  // Manejar cambios en inputs
-  const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    const newValue = type === 'number' ? parseFloat(value) || 0 : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
-
-    // Limpiar error del campo si existe
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
+  }, [isOpen, resetForm]);
 
   // Manejar cambios en partes
   const handlePartChange = (e) => {
     const { name, value, type } = e.target;
     const newValue = type === 'number' ? parseFloat(value) || 0 : value;
-    
-    setNewPart(prev => ({
+
+    setNewPart((prev) => ({
       ...prev,
-      [name]: newValue
+      [name]: newValue,
     }));
   };
 
   // Agregar parte
   const addPart = () => {
     if (!newPart.name.trim()) return;
-    
+
     const part = {
       id: Date.now().toString(),
       name: newPart.name.trim(),
       quantity: newPart.quantity,
       cost: newPart.cost,
-      total: newPart.quantity * newPart.cost
+      total: newPart.quantity * newPart.cost,
     };
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      parts: [...prev.parts, part]
+      parts: [...prev.parts, part],
     }));
 
     setNewPart({ name: '', quantity: 1, cost: 0 });
@@ -133,80 +186,16 @@ const MaintenanceModal = ({
 
   // Remover parte
   const removePart = (partId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      parts: prev.parts.filter(part => part.id !== partId)
+      parts: prev.parts.filter((part) => part.id !== partId),
     }));
-  };
-
-  // Validaciones del formulario
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Validaciones obligatorias
-    if (!formData.title.trim()) {
-      newErrors.title = 'El título del mantenimiento es obligatorio';
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = 'La descripción es obligatoria';
-    }
-
-    if (!formData.scheduledDate) {
-      newErrors.scheduledDate = 'La fecha programada es obligatoria';
-    }
-
-    // Validaciones de fechas
-    if (formData.startDate && formData.completedDate) {
-      const startDate = new Date(formData.startDate);
-      const completedDate = new Date(formData.completedDate);
-      if (completedDate < startDate) {
-        newErrors.completedDate = 'La fecha de finalización debe ser posterior al inicio';
-      }
-    }
-
-    if (formData.scheduledDate && formData.startDate) {
-      const scheduledDate = new Date(formData.scheduledDate);
-      const startDate = new Date(formData.startDate);
-      if (startDate < scheduledDate) {
-        // Permitir pero avisar
-      }
-    }
-
-    // Validaciones numéricas
-    if (formData.estimatedHours < 0) {
-      newErrors.estimatedHours = 'Las horas estimadas no pueden ser negativas';
-    }
-
-    if (formData.actualHours < 0) {
-      newErrors.actualHours = 'Las horas reales no pueden ser negativas';
-    }
-
-    if (formData.estimatedCost < 0) {
-      newErrors.estimatedCost = 'El costo estimado no puede ser negativo';
-    }
-
-    if (formData.actualCost < 0) {
-      newErrors.actualCost = 'El costo real no puede ser negativo';
-    }
-
-    // Validación de estado vs fechas
-    if (formData.status === MAINTENANCE_STATUS.COMPLETADO && !formData.completedDate) {
-      newErrors.completedDate = 'La fecha de finalización es obligatoria para mantenimientos completados';
-    }
-
-    if (formData.status === MAINTENANCE_STATUS.EN_PROCESO && !formData.startDate) {
-      newErrors.startDate = 'La fecha de inicio es obligatoria para mantenimientos en proceso';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   // Manejar envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -233,7 +222,7 @@ const MaintenanceModal = ({
         completedDate: formData.completedDate || null,
         nextMaintenanceDate: formData.nextMaintenanceDate || null,
         createdAt: maintenance?.createdAt || new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       await onSave(submitData);
@@ -249,33 +238,48 @@ const MaintenanceModal = ({
   // Obtener icono para tipo de mantenimiento
   const getMaintenanceTypeIcon = (type) => {
     switch (type) {
-      case MAINTENANCE_TYPES.PREVENTIVO: return '🔧';
-      case MAINTENANCE_TYPES.CORRECTIVO: return '🛠️';
-      case MAINTENANCE_TYPES.PREDICTIVO: return '📊';
-      case MAINTENANCE_TYPES.EMERGENCIA: return '🚨';
-      default: return '⚙️';
+      case MAINTENANCE_TYPES.PREVENTIVO:
+        return '🔧';
+      case MAINTENANCE_TYPES.CORRECTIVO:
+        return '🛠️';
+      case MAINTENANCE_TYPES.PREDICTIVO:
+        return '📊';
+      case MAINTENANCE_TYPES.EMERGENCIA:
+        return '🚨';
+      default:
+        return '⚙️';
     }
   };
 
   // Obtener clase CSS para prioridad
   const getPriorityClass = (priority) => {
     switch (priority) {
-      case MAINTENANCE_PRIORITY.BAJA: return 'priority-low';
-      case MAINTENANCE_PRIORITY.MEDIA: return 'priority-medium';
-      case MAINTENANCE_PRIORITY.ALTA: return 'priority-high';
-      case MAINTENANCE_PRIORITY.CRITICA: return 'priority-critical';
-      default: return 'priority-medium';
+      case MAINTENANCE_PRIORITY.BAJA:
+        return 'priority-low';
+      case MAINTENANCE_PRIORITY.MEDIA:
+        return 'priority-medium';
+      case MAINTENANCE_PRIORITY.ALTA:
+        return 'priority-high';
+      case MAINTENANCE_PRIORITY.CRITICA:
+        return 'priority-critical';
+      default:
+        return 'priority-medium';
     }
   };
 
   // Obtener clase CSS para estado
   const getStatusClass = (status) => {
     switch (status) {
-      case MAINTENANCE_STATUS.PROGRAMADO: return 'status-scheduled';
-      case MAINTENANCE_STATUS.EN_PROCESO: return 'status-in-progress';
-      case MAINTENANCE_STATUS.COMPLETADO: return 'status-completed';
-      case MAINTENANCE_STATUS.CANCELADO: return 'status-cancelled';
-      default: return 'status-scheduled';
+      case MAINTENANCE_STATUS.PROGRAMADO:
+        return 'status-scheduled';
+      case MAINTENANCE_STATUS.EN_PROCESO:
+        return 'status-in-progress';
+      case MAINTENANCE_STATUS.COMPLETADO:
+        return 'status-completed';
+      case MAINTENANCE_STATUS.CANCELADO:
+        return 'status-cancelled';
+      default:
+        return 'status-scheduled';
     }
   };
 
@@ -291,15 +295,18 @@ const MaintenanceModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content maintenance-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay sap-theme" onClick={onClose}>
+      <div
+        className="modal-content maintenance-modal sap-theme"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header del modal */}
-        <div className="modal-header">
-          <div className="modal-title">
-            <span className="title-icon">
+        <div className="modal-header sap-theme">
+          <div className="modal-title sap-theme">
+            <span className="title-icon sap-theme">
               {mode === 'create' ? '➕' : mode === 'edit' ? '✏️' : '👁️'}
             </span>
-            <div className="title-text">
+            <div className="title-text sap-theme">
               <h3>
                 {mode === 'create' && 'Registrar Mantenimiento'}
                 {mode === 'edit' && 'Editar Mantenimiento'}
@@ -310,30 +317,24 @@ const MaintenanceModal = ({
               </p>
             </div>
           </div>
-          <button 
-            className="btn-close" 
-            onClick={onClose}
-            type="button"
-          >
+          <button className="btn-close sap-theme" onClick={onClose} type="button">
             ✕
           </button>
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="modal-form">
-          <div className="form-content">
+        <form onSubmit={handleSubmit} className="modal-form sap-theme">
+          <div className="form-content sap-theme">
             {/* Error general */}
             {errors.general && (
-              <div className="error-message general-error">
-                ⚠️ {errors.general}
-              </div>
+              <div className="error-message general-error sap-theme">⚠️ {errors.general}</div>
             )}
 
             {/* Información básica */}
-            <div className="form-section">
-              <h4 className="section-title">📋 Información del Mantenimiento</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">📋 Información del Mantenimiento</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="type">Tipo de Mantenimiento</label>
                   <select
                     id="type"
@@ -342,15 +343,16 @@ const MaintenanceModal = ({
                     onChange={handleInputChange}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
-                    {Object.values(MAINTENANCE_TYPES).map(type => (
+                    {Object.values(MAINTENANCE_TYPES).map((type) => (
                       <option key={type} value={type}>
-                        {getMaintenanceTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
+                        {getMaintenanceTypeIcon(type)}{' '}
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="priority">Prioridad</label>
                   <select
                     id="priority"
@@ -360,7 +362,7 @@ const MaintenanceModal = ({
                     className={getPriorityClass(formData.priority)}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
-                    {Object.values(MAINTENANCE_PRIORITY).map(priority => (
+                    {Object.values(MAINTENANCE_PRIORITY).map((priority) => (
                       <option key={priority} value={priority}>
                         {priority.charAt(0).toUpperCase() + priority.slice(1)}
                       </option>
@@ -368,7 +370,7 @@ const MaintenanceModal = ({
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="status">Estado</label>
                   <select
                     id="status"
@@ -378,7 +380,7 @@ const MaintenanceModal = ({
                     className={getStatusClass(formData.status)}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
-                    {Object.values(MAINTENANCE_STATUS).map(status => (
+                    {Object.values(MAINTENANCE_STATUS).map((status) => (
                       <option key={status} value={status}>
                         {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
                       </option>
@@ -386,7 +388,7 @@ const MaintenanceModal = ({
                   </select>
                 </div>
 
-                <div className="form-group full-width">
+                <div className="form-group full-width sap-theme">
                   <label htmlFor="title">Título del Mantenimiento *</label>
                   <input
                     type="text"
@@ -399,18 +401,16 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={100}
                   />
-                  {errors.title && (
-                    <span className="error-text">{errors.title}</span>
-                  )}
+                  {errors.title && <span className="error-text sap-theme">{errors.title}</span>}
                 </div>
               </div>
             </div>
 
             {/* Fechas de programación */}
-            <div className="form-section">
-              <h4 className="section-title">📅 Programación</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">📅 Programación</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="scheduledDate">Fecha Programada *</label>
                   <input
                     type="date"
@@ -422,11 +422,11 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.scheduledDate && (
-                    <span className="error-text">{errors.scheduledDate}</span>
+                    <span className="error-text sap-theme">{errors.scheduledDate}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="startDate">Fecha de Inicio</label>
                   <input
                     type="date"
@@ -438,11 +438,11 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.startDate && (
-                    <span className="error-text">{errors.startDate}</span>
+                    <span className="error-text sap-theme">{errors.startDate}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="completedDate">Fecha de Finalización</label>
                   <input
                     type="date"
@@ -454,11 +454,11 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.completedDate && (
-                    <span className="error-text">{errors.completedDate}</span>
+                    <span className="error-text sap-theme">{errors.completedDate}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="nextMaintenanceDate">Próximo Mantenimiento</label>
                   <input
                     type="date"
@@ -473,10 +473,10 @@ const MaintenanceModal = ({
             </div>
 
             {/* Recursos y costos */}
-            <div className="form-section">
-              <h4 className="section-title">💰 Recursos y Costos</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">💰 Recursos y Costos</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="technician">Técnico Responsable</label>
                   <input
                     type="text"
@@ -490,7 +490,7 @@ const MaintenanceModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="workshop">Taller/Ubicación</label>
                   <input
                     type="text"
@@ -504,7 +504,7 @@ const MaintenanceModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="estimatedHours">Horas Estimadas</label>
                   <input
                     type="number"
@@ -518,11 +518,11 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.estimatedHours && (
-                    <span className="error-text">{errors.estimatedHours}</span>
+                    <span className="error-text sap-theme">{errors.estimatedHours}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="actualHours">Horas Reales</label>
                   <input
                     type="number"
@@ -536,11 +536,11 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.actualHours && (
-                    <span className="error-text">{errors.actualHours}</span>
+                    <span className="error-text sap-theme">{errors.actualHours}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="estimatedCost">Costo Estimado (COP)</label>
                   <input
                     type="number"
@@ -554,11 +554,11 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.estimatedCost && (
-                    <span className="error-text">{errors.estimatedCost}</span>
+                    <span className="error-text sap-theme">{errors.estimatedCost}</span>
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="actualCost">Costo Real (COP)</label>
                   <input
                     type="number"
@@ -572,20 +572,20 @@ const MaintenanceModal = ({
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.actualCost && (
-                    <span className="error-text">{errors.actualCost}</span>
+                    <span className="error-text sap-theme">{errors.actualCost}</span>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Partes y repuestos */}
-            <div className="form-section">
-              <h4 className="section-title">🔧 Partes y Repuestos</h4>
-              
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">🔧 Partes y Repuestos</h4>
+
               {!isReadOnly && canEdit && (
-                <div className="parts-form">
-                  <div className="form-grid">
-                    <div className="form-group">
+                <div className="parts-form sap-theme">
+                  <div className="form-grid sap-theme">
+                    <div className="form-group sap-theme">
                       <label htmlFor="partName">Nombre de la Parte</label>
                       <input
                         type="text"
@@ -598,7 +598,7 @@ const MaintenanceModal = ({
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="form-group sap-theme">
                       <label htmlFor="partQuantity">Cantidad</label>
                       <input
                         type="number"
@@ -611,7 +611,7 @@ const MaintenanceModal = ({
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="form-group sap-theme">
                       <label htmlFor="partCost">Costo Unitario (COP)</label>
                       <input
                         type="number"
@@ -624,10 +624,10 @@ const MaintenanceModal = ({
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="form-group sap-theme">
                       <button
                         type="button"
-                        className="btn-add-part"
+                        className="btn-add-part sap-theme"
                         onClick={addPart}
                         disabled={!newPart.name.trim()}
                       >
@@ -640,8 +640,8 @@ const MaintenanceModal = ({
 
               {/* Lista de partes */}
               {formData.parts.length > 0 && (
-                <div className="parts-list">
-                  <table className="parts-table">
+                <div className="parts-list sap-theme">
+                  <table className="parts-table sap-theme">
                     <thead>
                       <tr>
                         <th>Parte</th>
@@ -662,7 +662,7 @@ const MaintenanceModal = ({
                             <td>
                               <button
                                 type="button"
-                                className="btn-remove-part"
+                                className="btn-remove-part sap-theme"
                                 onClick={() => removePart(part.id)}
                                 title="Eliminar parte"
                               >
@@ -674,9 +674,13 @@ const MaintenanceModal = ({
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="total-row">
-                        <td colSpan="3"><strong>Total Partes:</strong></td>
-                        <td><strong>${getTotalPartsCost().toLocaleString('es-CO')}</strong></td>
+                      <tr className="total-row sap-theme">
+                        <td colSpan="3">
+                          <strong>Total Partes:</strong>
+                        </td>
+                        <td>
+                          <strong>${getTotalPartsCost().toLocaleString('es-CO')}</strong>
+                        </td>
                         {!isReadOnly && canEdit && <td></td>}
                       </tr>
                     </tfoot>
@@ -686,10 +690,10 @@ const MaintenanceModal = ({
             </div>
 
             {/* Próximo mantenimiento */}
-            <div className="form-section">
-              <h4 className="section-title">🔄 Próximo Mantenimiento</h4>
-              <div className="form-grid">
-                <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">🔄 Próximo Mantenimiento</h4>
+              <div className="form-grid sap-theme">
+                <div className="form-group sap-theme">
                   <label htmlFor="nextMaintenanceKm">Próximo Mantenimiento (Km)</label>
                   <input
                     type="number"
@@ -704,7 +708,7 @@ const MaintenanceModal = ({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label htmlFor="nextMaintenanceHours">Próximo Mantenimiento (Horas)</label>
                   <input
                     type="number"
@@ -722,9 +726,9 @@ const MaintenanceModal = ({
             </div>
 
             {/* Descripción y notas */}
-            <div className="form-section">
-              <h4 className="section-title">📝 Descripción y Notas</h4>
-              <div className="form-group">
+            <div className="form-section sap-theme">
+              <h4 className="section-title sap-theme">📝 Descripción y Notas</h4>
+              <div className="form-group sap-theme">
                 <label htmlFor="description">Descripción del Trabajo *</label>
                 <textarea
                   id="description"
@@ -738,11 +742,11 @@ const MaintenanceModal = ({
                   disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                 />
                 {errors.description && (
-                  <span className="error-text">{errors.description}</span>
+                  <span className="error-text sap-theme">{errors.description}</span>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="form-group sap-theme">
                 <label htmlFor="notes">Notas Adicionales</label>
                 <textarea
                   id="notes"
@@ -754,27 +758,29 @@ const MaintenanceModal = ({
                   maxLength="500"
                   disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                 />
-                <span className="char-count">
-                  {formData.notes.length}/500 caracteres
-                </span>
+                <span className="char-count sap-theme">{formData.notes.length}/500 caracteres</span>
               </div>
             </div>
 
             {/* Resumen de costos */}
-            <div className="cost-summary">
+            <div className="cost-summary sap-theme">
               <h4>💰 Resumen de Costos</h4>
-              <div className="cost-grid">
-                <div className="cost-item">
-                  <span className="cost-label">Mano de Obra:</span>
-                  <span className="cost-value">${formData.actualCost.toLocaleString('es-CO')}</span>
+              <div className="cost-grid sap-theme">
+                <div className="cost-item sap-theme">
+                  <span className="cost-label sap-theme">Mano de Obra:</span>
+                  <span className="cost-value sap-theme">
+                    ${formData.actualCost.toLocaleString('es-CO')}
+                  </span>
                 </div>
-                <div className="cost-item">
-                  <span className="cost-label">Partes:</span>
-                  <span className="cost-value">${getTotalPartsCost().toLocaleString('es-CO')}</span>
+                <div className="cost-item sap-theme">
+                  <span className="cost-label sap-theme">Partes:</span>
+                  <span className="cost-value sap-theme">
+                    ${getTotalPartsCost().toLocaleString('es-CO')}
+                  </span>
                 </div>
-                <div className="cost-item total-cost">
-                  <span className="cost-label">Total:</span>
-                  <span className="cost-value">
+                <div className="cost-item total-cost sap-theme">
+                  <span className="cost-label sap-theme">Total:</span>
+                  <span className="cost-value sap-theme">
                     ${(formData.actualCost + getTotalPartsCost()).toLocaleString('es-CO')}
                   </span>
                 </div>
@@ -783,31 +789,25 @@ const MaintenanceModal = ({
           </div>
 
           {/* Footer del modal */}
-          <div className="modal-footer">
+          <div className="modal-footer sap-theme">
             <button
               type="button"
-              className="btn-secondary"
+              className="btn-secondary sap-theme"
               onClick={onClose}
               disabled={loading}
             >
               {mode === 'view' ? 'Cerrar' : 'Cancelar'}
             </button>
-            
+
             {!isReadOnly && canEdit && (
-              <button
-                type="submit"
-                className="btn-primary"
-                disabled={loading}
-              >
+              <button type="submit" className="btn-primary sap-theme" disabled={loading}>
                 {loading ? (
                   <>
-                    <span className="loading-spinner"></span>
+                    <span className="loading-spinner sap-theme"></span>
                     Guardando...
                   </>
                 ) : (
-                  <>
-                    {mode === 'create' ? '➕ Registrar Mantenimiento' : '💾 Guardar Cambios'}
-                  </>
+                  <>{mode === 'create' ? '➕ Registrar Mantenimiento' : '💾 Guardar Cambios'}</>
                 )}
               </button>
             )}

@@ -6,7 +6,8 @@ import { visualizer } from 'rollup-plugin-visualizer';
 export default defineConfig({
   plugins: [
     react(),
-    visualizer({ // Plugin para analizar el tamaño del bundle
+    visualizer({
+      // Plugin para analizar el tamaño del bundle
       filename: 'stats.html',
       open: true,
       gzipSize: true,
@@ -14,38 +15,54 @@ export default defineConfig({
     }),
   ],
   base: '/combustibles/',
+  // Configuración de pruebas con Vitest (integración/UI)
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setupTests.jsx',
+    globals: true,
+    css: true,
+    exclude: ['tests-e2e/**', 'node_modules/**', 'dist/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+    },
+  },
   build: {
     outDir: '../public/combustibles',
     emptyOutDir: true,
-    // 🚀 Build optimization for GitHub Actions
+    // 🚀 Build optimization for GitHub Actions + LCP crítico
     rollupOptions: {
+      treeshake: 'recommended', // Tree-shaking agresivo para LCP
       output: {
         manualChunks: {
-          // Vendor libraries (React ecosystem)  
+          // Vendor libraries (React ecosystem)
           vendor: ['react', 'react-dom'],
           // UI components and icons
           ui: ['react-aria-components', 'lucide-react', '@untitledui/icons'],
           // Charts and data visualization
           charts: ['chart.js', 'react-chartjs-2'],
-          // Firebase and utilities
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          // Firebase core (crítico para LCP - separar auth/firestore)
+          'firebase-core': ['firebase/app'],
+          'firebase-auth': ['firebase/auth'],
+          'firebase-db': ['firebase/firestore', 'firebase/storage'],
           // Utils and smaller libraries (only installed ones)
-          utils: ['clsx', 'tailwind-merge', 'xlsx']
-        }
-      }
+          utils: ['clsx', 'tailwind-merge', 'xlsx'],
+        },
+      },
     },
     // Performance optimizations
     target: 'esnext',
     minify: 'esbuild', // Use esbuild instead of terser (faster and no extra dependency)
     chunkSizeWarningLimit: 1000,
-    // Build speed optimizations  
+    // Build speed optimizations
     sourcemap: false, // Disable sourcemaps for production builds
     // Reduce bundle size
     reportCompressedSize: false,
     // Optimize CSS
-    cssCodeSplit: true
+    cssCodeSplit: true,
   },
   server: {
-    port: 5174 // Puerto diferente al de alimentación (5173)
-  }
+    port: 5174, // Puerto diferente al de alimentación (5173)
+  },
 });

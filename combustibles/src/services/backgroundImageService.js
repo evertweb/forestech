@@ -13,15 +13,15 @@ const storage = getStorage();
 const BACKGROUND_CONFIG = {
   // Ruta en Firebase Storage donde se almacena la imagen
   storagePath: 'auth/login-background.jpg',
-  
+
   // Imagen de fallback si no se puede cargar desde Firebase
   fallbackUrl: '/api/placeholder/1920/1080',
-  
+
   // URLs de imágenes predeterminadas que se pueden usar (CORS compatible)
   defaultImages: [
     '/assets/background-forest.svg', // Imagen SVG local de bosque
-    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJmb3Jlc3QiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGI3OTg4IiAvPgo8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iIzMzNjM1OSIgLz4KPHN0b3Agb2Zmc2V0PSI3MCUiIHN0b3AtY29sb3I9IiMyMTU0MzIiIC8+CjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFmMzIyZiIgLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2ZvcmVzdCkiLz4KPC9zdmc+'
-  ]
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJmb3Jlc3QiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGI3OTg4IiAvPgo8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iIzMzNjM1OSIgLz4KPHN0b3Agb2Zmc2V0PSI3MCUiIHN0b3AtY29sb3I9IiMyMTU0MzIiIC8+CjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFmMzIyZiIgLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2ZvcmVzdCkiLz4KPC9zdmc+',
+  ],
 };
 
 /**
@@ -30,18 +30,40 @@ const BACKGROUND_CONFIG = {
  */
 export const getBackgroundImageUrl = async () => {
   try {
-    // Intentar obtener la imagen desde Firebase Storage
+    // Intentar obtener la imagen desde Firebase Storage con timeout seguro
     const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
-    const url = await getDownloadURL(imageRef);
-    
+
+    const TIMEOUT_MS = Number(import.meta.env.VITE_BG_DOWNLOAD_TIMEOUT_MS) || 2000;
+
+    const withTimeout = (promise, ms) => {
+      return new Promise((resolve, reject) => {
+        const id = setTimeout(() => reject(new Error('timeout')), ms);
+        promise
+          .then((value) => {
+            clearTimeout(id);
+            resolve(value);
+          })
+          .catch((error) => {
+            clearTimeout(id);
+            reject(error);
+          });
+      });
+    };
+
+    const url = await withTimeout(getDownloadURL(imageRef), TIMEOUT_MS);
+
     return url;
-    
-  } catch {
-    
+  } catch (error) {
+    // Log específico para diagnóstico sin interrumpir UI
+    console.warn('⚠️ No se pudo obtener imagen de fondo desde Storage, usando fallback.', {
+      message: error?.message,
+      code: error?.code,
+    });
+
     // Usar una imagen predeterminada aleatoria como fallback
     const randomIndex = Math.floor(Math.random() * BACKGROUND_CONFIG.defaultImages.length);
     const fallbackUrl = BACKGROUND_CONFIG.defaultImages[randomIndex];
-    
+
     console.log('🔄 Usando imagen predeterminada como fallback:', fallbackUrl);
     return fallbackUrl;
   }
@@ -58,7 +80,7 @@ export const uploadBackgroundImage = async (file) => {
     if (!file.type.startsWith('image/')) {
       return {
         success: false,
-        error: 'El archivo debe ser una imagen'
+        error: 'El archivo debe ser una imagen',
       };
     }
 
@@ -67,7 +89,7 @@ export const uploadBackgroundImage = async (file) => {
     if (file.size > maxSize) {
       return {
         success: false,
-        error: 'La imagen no puede superar los 5MB'
+        error: 'La imagen no puede superar los 5MB',
       };
     }
 
@@ -76,34 +98,33 @@ export const uploadBackgroundImage = async (file) => {
     if (!allowedTypes.includes(file.type)) {
       return {
         success: false,
-        error: 'Formato no soportado. Use JPG, PNG o WebP'
+        error: 'Formato no soportado. Use JPG, PNG o WebP',
       };
     }
 
     console.log('🔄 Subiendo imagen de fondo...', {
       name: file.name,
       size: (file.size / 1024 / 1024).toFixed(2) + 'MB',
-      type: file.type
+      type: file.type,
     });
 
     // Subir imagen a Firebase Storage
     const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
     const _uploadResult = await uploadBytes(imageRef, file);
-    
+
     // Obtener URL de descarga
     const url = await getDownloadURL(imageRef);
-    
+
     return {
       success: true,
-      url: url
+      url: url,
     };
-    
   } catch (error) {
     console.error('❌ Error subiendo imagen de fondo:', error);
-    
+
     // Mensajes de error más específicos
     let errorMessage = 'Error al subir la imagen';
-    
+
     if (error.code === 'storage/unauthorized') {
       errorMessage = 'Sin permisos para subir imagen. Contacta al administrador.';
     } else if (error.code === 'storage/quota-exceeded') {
@@ -113,10 +134,10 @@ export const uploadBackgroundImage = async (file) => {
     } else if (error.message) {
       errorMessage = error.message;
     }
-    
+
     return {
       success: false,
-      error: errorMessage
+      error: errorMessage,
     };
   }
 };
@@ -129,15 +150,15 @@ export const uploadBackgroundImage = async (file) => {
 export const preloadBackgroundImage = (url) => {
   return new Promise((resolve) => {
     const img = new Image();
-    
+
     img.onload = () => {
       resolve(true);
     };
-    
+
     img.onerror = () => {
       resolve(false);
     };
-    
+
     img.src = url;
   });
 };
@@ -152,10 +173,10 @@ export const preloadBackgroundImage = (url) => {
 //     const loadImage = async () => {
 //       try {
 //         const url = await getBackgroundImageUrl();
-        
+
 //         // Precargar la imagen
 //         const loaded = await preloadBackgroundImage(url);
-        
+
 //         if (loaded) {
 //           setImageUrl(url);
 //         } else {
@@ -178,5 +199,5 @@ export default {
   getBackgroundImageUrl,
   uploadBackgroundImage,
   preloadBackgroundImage,
-  BACKGROUND_CONFIG
+  BACKGROUND_CONFIG,
 };

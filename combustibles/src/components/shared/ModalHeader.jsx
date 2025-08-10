@@ -2,40 +2,54 @@
  * ModalHeader - Header consistente para modales
  * Incluye título y botón de cerrar opcional
  */
-import React from 'react';
-import './ModalHeader.css';
 
-const ModalHeader = ({ 
-  title, 
-  onClose, 
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
+
+const ModalHeader = ({
+  title,
+  onClose,
   showCloseButton = true,
+  subtitle,
+  icon,
   className = '',
-  children 
 }) => {
   return (
-    <div className={`modal-header-base ${className}`}>
-      <div className="modal-header-content">
-        {typeof title === 'string' ? (
-          <h2 className="modal-header-title">{title}</h2>
-        ) : (
-          title
+    <div className={`modal-header ${className}`}>
+      <div className="modal-header-content sap-theme">
+        {/* Icono y título */}
+        <div className="modal-title-section sap-theme">
+          {icon && <span className="modal-icon sap-theme">{icon}</span>}
+          <div className="modal-title-text sap-theme">
+            <h2 className="modal-title sap-theme">{title}</h2>
+            {subtitle && <p className="modal-subtitle sap-theme">{subtitle}</p>}
+          </div>
+        </div>
+
+        {/* Botón de cerrar */}
+        {showCloseButton && onClose && (
+          <button
+            className="modal-close sap-theme"
+            onClick={onClose}
+            type="button"
+            aria-label="Cerrar modal"
+          >
+            ✕
+          </button>
         )}
-        {children}
       </div>
-      
-      {showCloseButton && onClose && (
-        <button
-          type="button"
-          className="modal-header-close"
-          onClick={onClose}
-          aria-label="Cerrar modal"
-          title="Cerrar"
-        >
-          ✕
-        </button>
-      )}
     </div>
   );
 };
 
-export default ModalHeader;
+ModalHeader.propTypes = {
+  title: PropTypes.string.isRequired,
+  onClose: PropTypes.func,
+  showCloseButton: PropTypes.bool,
+  subtitle: PropTypes.string,
+  icon: PropTypes.node,
+  className: PropTypes.string,
+};
+
+ModalHeader.displayName = 'ModalHeader';
+export default memo(ModalHeader);

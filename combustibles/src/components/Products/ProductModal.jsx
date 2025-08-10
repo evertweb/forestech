@@ -1,277 +1,235 @@
 /**
  * ProductModal - Modal para crear, editar y ver productos
- * Refactorizado usando BaseModal system + useFormData hook
+ * Formulario completo con validaciones y preview
+ * Refactorizado para usar BaseModal
  */
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
-import { useFormData } from '../../hooks/useFormData';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
+import { PRODUCT_COLORS } from '../../constants/designTokens';
+import {
+  UI_ACTIONS,
+  UI_FORM_LABELS,
+  UI_MESSAGES,
+  UI_PLACEHOLDERS,
+  MODAL_TEXT,
+  UI_TITLES,
+} from '../../constants';
 
-const ProductModal = ({ 
-  isOpen, 
-  onClose, 
-  product, 
-  mode = 'create',
-  onSave,
-  userRole 
-}) => {
-  const [loading, setLoading] = useState(false);
+import { useFormData } from '../../hooks/useFormData';
+import { validators, validateForm as runValidation } from '../../utils/validators';
+const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userRole }) => {
+  const initialValues = {
+    name: '',
+    displayName: '',
+    category: PRODUCT_CATEGORIES.COMBUSTIBLE,
+    unit: 'gal',
+    defaultPrice: 0,
+    color: '#FF6B35',
+    icon: '🛢️',
+    description: '',
+    isActive: true,
+    currentStock: 0,
+    minThreshold: 10,
+    maxCapacity: 1000,
+  };
+  const [loading] = useState(false);
 
-  // Datos iniciales del formulario
-  const initialData = useMemo(() => {
+  // Validación centralizada: requeridos básicos y reglas numéricas comunes
+  const validationSchema = {
+    name: [validators.required],
+    displayName: [validators.required],
+    category: [validators.required],
+    unit: [validators.required],
+    defaultPrice: [validators.nonNegative],
+    currentStock: [validators.nonNegative],
+    minThreshold: [validators.nonNegative],
+    maxCapacity: [validators.fuelCapacity],
+  };
+
+  const validate = (values) => runValidation(values, validationSchema);
+
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    setErrors,
+    handleInputChange,
+    resetForm,
+    validateForm,
+  } = useFormData(initialValues, validate);
+  // Colores predefinidos usando design tokens
+  const colorOptions = PRODUCT_COLORS.DEFAULT_PALETTE;
+
+  // Opciones de unidades
+  const unitOptions = [
+    { value: 'gal', label: 'Galones' },
+    { value: 'L', label: 'Litros' },
+    { value: 'bbl', label: 'Barriles' },
+    { value: 'kg', label: 'Kilogramos' },
+    { value: 'ton', label: 'Toneladas' },
+  ];
+
+  // Iconos por categoría
+  const iconOptions = {
+    combustible: ['⛽', '🛢️', '🚗', '⚡'],
+    lubricante: ['🛠️', '⚙️', '🔧', '🛡️'],
+    aditivo: ['🧪', '⚗️', '💊', '🔬'],
+    otros: ['📦', '🏷️', '🔧', '⚡'],
+  };
+
+  useEffect(() => {
     if (product && (mode === 'edit' || mode === 'view')) {
-      return {
+      setFormData({
         name: product.name || '',
         displayName: product.displayName || '',
         category: product.category || PRODUCT_CATEGORIES.COMBUSTIBLE,
         unit: product.unit || 'gal',
         defaultPrice: product.defaultPrice || 0,
-        color: product.color || '#FF6B35',
+        color:
+          product.color ||
+          PRODUCT_COLORS.getColorByCategory(product.category || PRODUCT_CATEGORIES.COMBUSTIBLE),
         icon: product.icon || '🛢️',
         description: product.description || '',
         isActive: product.isActive !== undefined ? product.isActive : true,
         currentStock: product.currentStock || 0,
         minThreshold: product.minThreshold || 10,
-        maxCapacity: product.maxCapacity || 1000
-      };
+        maxCapacity: product.maxCapacity || 1000,
+      });
+    } else {
+      // Reset form for create mode
+      resetForm();
     }
-    return {
-      name: '',
-      displayName: '',
-      category: PRODUCT_CATEGORIES.COMBUSTIBLE,
-      unit: 'gal',
-      defaultPrice: 0,
-      color: '#FF6B35',
-      icon: '🛢️',
-      description: '',
-      isActive: true,
-      currentStock: 0,
-      minThreshold: 10,
-      maxCapacity: 1000
-    };
-  }, [product, mode]);
+  }, [product, mode, setFormData, resetForm]);
 
-  // Reglas de validación
-  const validationRules = useMemo(() => ({
-    name: {
-      required: 'El nombre es requerido'
-    },
-    displayName: {
-      required: 'El nombre de visualización es requerido'
-    },
-    category: {
-      required: 'La categoría es requerida'
-    },
-    unit: {
-      required: 'La unidad es requerida'
-    },
-    defaultPrice: {
-      min: 0,
-      minMessage: 'El precio debe ser mayor o igual a 0'
-    },
-    currentStock: {
-      min: 0,
-      minMessage: 'El stock debe ser mayor o igual a 0'
-    },
-    minThreshold: {
-      min: 0,
-      minMessage: 'El umbral mínimo debe ser mayor o igual a 0',
-      validate: (value, formData) => {
-        if (value >= formData.maxCapacity) {
-          return 'El umbral mínimo debe ser menor que la capacidad máxima';
-        }
-        return null;
-      }
-    },
-    maxCapacity: {
-      min: 1,
-      minMessage: 'La capacidad máxima debe ser mayor a 0'
-    }
-  }), []);
-
-  // Hook de formulario
-  const { 
-    formData, 
-    errors, 
-    handleInputChange, 
-    updateValue,
-    validateForm, 
-    resetForm 
-  } = useFormData(initialData, validationRules);
-
-  // Opciones de configuración
-  const unitOptions = [
-    { value: 'gal', label: 'Galones (gal)' },
-    { value: 'L', label: 'Litros (L)' },
-    { value: 'kg', label: 'Kilogramos (kg)' },
-    { value: 'und', label: 'Unidades (und)' }
-  ];
-
-  const iconOptions = {
-    [PRODUCT_CATEGORIES.COMBUSTIBLE]: ['🛢️', '🚛', '🚗', '⛽', '🌿'],
-    [PRODUCT_CATEGORIES.ACEITE]: ['🛢️', '⚙️', '🔧', '🚜', '🏭'],
-    [PRODUCT_CATEGORIES.LUBRICANTE]: ['🟥', '🟡', '🔵', '⚫', '🟤'],
-    [PRODUCT_CATEGORIES.FLUIDO]: ['🛑', '💧', '🔴', '🟢', '🔵']
-  };
-
-  const colorOptions = [
-    '#FF6B35', '#4CAF50', '#2196F3', '#FF9800', '#F44336',
-    '#9C27B0', '#E91E63', '#795548', '#607D8B', '#3F51B5'
-  ];
-
-  // Funciones de manejo
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm() || !canEdit) return;
 
-    setLoading(true);
     try {
-      await onSave({
-        ...formData,
-        defaultPrice: parseFloat(formData.defaultPrice),
-        currentStock: parseFloat(formData.currentStock),
-        minThreshold: parseFloat(formData.minThreshold),
-        maxCapacity: parseFloat(formData.maxCapacity)
-      });
-      onClose();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      // Los errores los maneja el componente padre
-    } finally {
-      setLoading(false);
+      await onSave(formData);
+    } catch {
+      setErrors({ submit: 'Error al guardar el producto' });
     }
   };
 
-  const handleClose = () => {
-    resetForm(initialData);
-    onClose();
-  };
-
-  // Permisos
   const canEdit = ['admin', 'supervisor'].includes(userRole) && mode !== 'view';
 
-  // Título del modal
-  const getTitle = () => {
-    if (mode === 'create') return '➕ Crear Producto';
-    if (mode === 'edit') return '✏️ Editar Producto';
-    return '👁️ Ver Producto';
+  const getModalTitle = () => {
+    if (mode === 'create') return `➕ ${MODAL_TEXT.PRODUCT.CREATE_TITLE}`;
+    if (mode === 'edit') return `✏️ ${MODAL_TEXT.PRODUCT.EDIT_TITLE}`;
+    return `👁️ ${MODAL_TEXT.PRODUCT.VIEW_TITLE}`;
   };
 
   return (
-    <BaseModal 
-      isOpen={isOpen} 
-      onClose={handleClose} 
-      size="lg"
-      className="product-modal"
-    >
-      <ModalHeader 
-        title={getTitle()} 
-        onClose={handleClose} 
-      />
+    <BaseModal isOpen={isOpen} onClose={onClose} size="lg" className="product-modal sap-theme">
+      <ModalHeader title={getModalTitle()} onClose={onClose} icon="🛢️" />
 
-      <form onSubmit={handleSubmit} className="modal-body">
-        {/* Vista Previa del Producto */}
-        <div className="product-preview">
-          <div className="preview-card">
-            <div className="preview-icon" style={{ color: formData.color }}>
+      <div className="modal-body sap-theme">
+        {/* Preview Card */}
+        <div className="product-preview sap-theme">
+          <div className="preview-card sap-theme">
+            <div className="preview-icon sap-theme" style={{ color: formData.color }}>
               {formData.icon}
             </div>
-            <div className="preview-info">
-              <h3>{formData.displayName || 'Nombre del producto'}</h3>
-              <p className="preview-category">{formData.category}</p>
-              <p className="preview-description">{formData.description}</p>
-              <div className="preview-price">
+            <div className="preview-info sap-theme">
+              <h3>{formData.displayName || UI_FORM_LABELS.DISPLAY_NAME}</h3>
+              <p className="preview-category sap-theme">{formData.category}</p>
+              <p className="preview-description sap-theme">{formData.description}</p>
+              <div className="preview-price sap-theme">
                 ${new Intl.NumberFormat('es-CO').format(formData.defaultPrice)} / {formData.unit}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="form-grid">
+        <div className="form-grid sap-theme">
           {/* Información Básica */}
-          <div className="form-section">
-            <h3>📝 Información Básica</h3>
-            
-            <div className="form-group">
-              <label>Nombre Interno *</label>
+          <div className="form-section sap-theme">
+            <h3>📝 {UI_TITLES.BASIC_INFO}</h3>
+
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.INTERNAL_NAME} *</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 disabled={!canEdit}
-                placeholder="Ej: ACPM, GASOLINA"
+                placeholder={UI_PLACEHOLDERS.INTERNAL_NAME}
               />
-              {errors.name && <span className="error">{errors.name}</span>}
+              {errors.name && <span className="error sap-theme">{errors.name}</span>}
             </div>
 
-            <div className="form-group">
-              <label>Nombre de Visualización *</label>
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.DISPLAY_NAME} *</label>
               <input
                 type="text"
                 name="displayName"
                 value={formData.displayName}
                 onChange={handleInputChange}
                 disabled={!canEdit}
-                placeholder="Ej: ACPM 🚛, Gasolina 🚗"
+                placeholder={UI_PLACEHOLDERS.DISPLAY_NAME}
               />
-              {errors.displayName && <span className="error">{errors.displayName}</span>}
+              {errors.displayName && <span className="error sap-theme">{errors.displayName}</span>}
             </div>
 
-            <div className="form-group">
-              <label>Categoría *</label>
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.CATEGORY} *</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
                 disabled={!canEdit}
               >
-                {Object.values(PRODUCT_CATEGORIES).map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {Object.values(PRODUCT_CATEGORIES).map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
                 ))}
               </select>
-              {errors.category && <span className="error">{errors.category}</span>}
+              {errors.category && <span className="error sap-theme">{errors.category}</span>}
             </div>
 
-            <div className="form-group">
-              <label>Descripción</label>
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.DESCRIPTION}</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 disabled={!canEdit}
-                placeholder="Descripción del producto..."
+                placeholder={UI_PLACEHOLDERS.PRODUCT_DESCRIPTION}
                 rows="3"
               />
             </div>
           </div>
 
           {/* Configuración */}
-          <div className="form-section">
-            <h3>⚙️ Configuración</h3>
-            
-            <div className="form-group">
-              <label>Unidad de Medida *</label>
+          <div className="form-section sap-theme">
+            <h3>⚙️ {UI_TITLES.SETTINGS}</h3>
+
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.UNIT_OF_MEASUREMENT} *</label>
               <select
                 name="unit"
                 value={formData.unit}
                 onChange={handleInputChange}
                 disabled={!canEdit}
               >
-                {unitOptions.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                {unitOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
               </select>
-              {errors.unit && <span className="error">{errors.unit}</span>}
+              {errors.unit && <span className="error sap-theme">{errors.unit}</span>}
             </div>
 
-            <div className="form-group">
-              <label>Precio por Defecto</label>
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.DEFAULT_PRICE}</label>
               <input
                 type="number"
                 name="defaultPrice"
@@ -281,10 +239,12 @@ const ProductModal = ({
                 min="0"
                 step="0.01"
               />
-              {errors.defaultPrice && <span className="error">{errors.defaultPrice}</span>}
+              {errors.defaultPrice && (
+                <span className="error sap-theme">{errors.defaultPrice}</span>
+              )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group sap-theme">
               <label>
                 <input
                   type="checkbox"
@@ -293,17 +253,17 @@ const ProductModal = ({
                   onChange={handleInputChange}
                   disabled={!canEdit}
                 />
-                Producto Activo
+                {UI_FORM_LABELS.IS_ACTIVE}
               </label>
             </div>
           </div>
 
           {/* Stock y Umbrales */}
-          <div className="form-section">
-            <h3>📊 Stock y Umbrales</h3>
-            
-            <div className="form-group">
-              <label>Stock Actual</label>
+          <div className="form-section sap-theme">
+            <h3>📊 {UI_TITLES.STOCK_AND_THRESHOLDS}</h3>
+
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.CURRENT_STOCK}</label>
               <input
                 type="number"
                 name="currentStock"
@@ -313,11 +273,13 @@ const ProductModal = ({
                 min="0"
                 step="0.01"
               />
-              {errors.currentStock && <span className="error">{errors.currentStock}</span>}
+              {errors.currentStock && (
+                <span className="error sap-theme">{errors.currentStock}</span>
+              )}
             </div>
 
-            <div className="form-group">
-              <label>Umbral Mínimo</label>
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.MIN_THRESHOLD}</label>
               <input
                 type="number"
                 name="minThreshold"
@@ -327,11 +289,13 @@ const ProductModal = ({
                 min="0"
                 step="0.01"
               />
-              {errors.minThreshold && <span className="error">{errors.minThreshold}</span>}
+              {errors.minThreshold && (
+                <span className="error sap-theme">{errors.minThreshold}</span>
+              )}
             </div>
 
-            <div className="form-group">
-              <label>Capacidad Máxima</label>
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.MAX_CAPACITY}</label>
               <input
                 type="number"
                 name="maxCapacity"
@@ -341,23 +305,23 @@ const ProductModal = ({
                 min="1"
                 step="0.01"
               />
-              {errors.maxCapacity && <span className="error">{errors.maxCapacity}</span>}
+              {errors.maxCapacity && <span className="error sap-theme">{errors.maxCapacity}</span>}
             </div>
           </div>
 
           {/* Apariencia */}
-          <div className="form-section">
-            <h3>🎨 Apariencia</h3>
-            
-            <div className="form-group">
-              <label>Icono</label>
-              <div className="icon-selector">
-                {iconOptions[formData.category]?.map(icon => (
+          <div className="form-section sap-theme">
+            <h3>🎨 {UI_FORM_LABELS.APPEARANCE}</h3>
+
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.ICON}</label>
+              <div className="icon-selector sap-theme">
+                {iconOptions[formData.category]?.map((icon) => (
                   <button
                     key={icon}
                     type="button"
                     className={`icon-option ${formData.icon === icon ? 'selected' : ''}`}
-                    onClick={() => updateValue('icon', icon)}
+                    onClick={() => setFormData((prev) => ({ ...prev, icon }))}
                     disabled={!canEdit}
                   >
                     {icon}
@@ -366,16 +330,16 @@ const ProductModal = ({
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Color</label>
-              <div className="color-selector">
-                {colorOptions.map(color => (
+            <div className="form-group sap-theme">
+              <label>{UI_FORM_LABELS.COLOR}</label>
+              <div className="color-selector sap-theme">
+                {colorOptions.map((color) => (
                   <button
                     key={color}
                     type="button"
                     className={`color-option ${formData.color === color ? 'selected' : ''}`}
                     style={{ backgroundColor: color }}
-                    onClick={() => updateValue('color', color)}
+                    onClick={() => setFormData((prev) => ({ ...prev, color }))}
                     disabled={!canEdit}
                   />
                 ))}
@@ -383,18 +347,24 @@ const ProductModal = ({
             </div>
           </div>
         </div>
-      </form>
 
-      <ModalFooter 
-        primaryAction={canEdit ? {
-          label: 'Guardar',
-          onClick: handleSubmit,
-          disabled: Object.keys(errors).some(key => errors[key]),
-          loadingLabel: 'Guardando...'
-        } : undefined}
+        {errors.submit && <div className="error-message sap-theme">{errors.submit}</div>}
+      </div>
+
+      <ModalFooter
+        primaryAction={
+          canEdit
+            ? {
+                label: loading ? UI_MESSAGES.LOADING.SAVING : UI_ACTIONS.SAVE,
+                onClick: handleSubmit,
+                disabled: loading,
+                type: 'submit',
+              }
+            : null
+        }
         secondaryAction={{
-          label: mode === 'view' ? 'Cerrar' : 'Cancelar',
-          onClick: handleClose
+          label: mode === 'view' ? UI_ACTIONS.CLOSE : UI_ACTIONS.CANCEL,
+          onClick: onClose,
         }}
         isLoading={loading}
       />

@@ -15,8 +15,12 @@
 }
 
 @keyframes stepFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes stepSlideIn {
@@ -38,7 +42,7 @@
 }
 
 .typeform-question {
-  margin-bottom: 16rem;
+  margin-bottom: 2rem;
   text-align: left;
 }
 
@@ -92,6 +96,7 @@
 
 .typeform-input-group {
   margin-bottom: 2rem;
+  flex: 1;
 }
 
 .input-with-icon {
@@ -164,9 +169,7 @@
 
 .typeform-option.selected {
   border-color: var(--current-primary);
-  background: linear-gradient(135deg, 
-    rgba(59, 130, 246, 0.05) 0%, 
-    rgba(59, 130, 246, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
 }
 
@@ -433,7 +436,7 @@
   background: rgba(59, 130, 246, 0.02);
 }
 
-.checkbox-option input[type="checkbox"] {
+.checkbox-option input[type='checkbox'] {
   display: none;
 }
 
@@ -447,12 +450,12 @@
   transition: all 0.3s ease;
 }
 
-.checkbox-option input[type="checkbox"]:checked + .checkbox-custom {
+.checkbox-option input[type='checkbox']:checked + .checkbox-custom {
   background: var(--current-primary);
   border-color: var(--current-primary);
 }
 
-.checkbox-option input[type="checkbox"]:checked + .checkbox-custom::after {
+.checkbox-option input[type='checkbox']:checked + .checkbox-custom::after {
   content: '✓';
   position: absolute;
   top: 50%;
@@ -544,9 +547,7 @@
 }
 
 .preview-card {
-  background: linear-gradient(135deg, 
-    rgba(59, 130, 246, 0.05) 0%, 
-    rgba(59, 130, 246, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 16px;
   padding: 1.5rem;
@@ -634,9 +635,7 @@
 }
 
 .summary-header {
-  background: linear-gradient(135deg, 
-    rgba(59, 130, 246, 0.05) 0%, 
-    rgba(59, 130, 246, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
   padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
   display: flex;
@@ -698,9 +697,7 @@
 }
 
 .confirmation-card {
-  background: linear-gradient(135deg, 
-    rgba(16, 185, 129, 0.05) 0%, 
-    rgba(16, 185, 129, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
   border: 2px solid #10b981;
   border-radius: 16px;
   padding: 2rem;
@@ -786,9 +783,7 @@
 }
 
 .info-card {
-  background: linear-gradient(135deg, 
-    rgba(245, 158, 11, 0.05) 0%, 
-    rgba(245, 158, 11, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 12px;
   padding: 1.5rem;
@@ -855,34 +850,34 @@
   .typeform-question h2 {
     font-size: 1.75rem;
   }
-  
+
   .typeform-question p {
     font-size: 1rem;
   }
-  
+
   .typeform-option {
     padding: 1rem;
   }
-  
+
   .option-content,
   .category-content {
     margin-left: 0;
   }
-  
+
   .summary-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .item-label {
     min-width: auto;
   }
-  
+
   .item-value {
     text-align: left;
   }
-  
+
   .dependent-field {
     margin-left: 1rem;
   }
@@ -900,8 +895,8 @@
 
 .wizard-btn-outline {
   background-color: transparent;
-  border: 2px solid var(--vehicles-primary, #4A90E2);
-  color: var(--vehicles-primary, #4A90E2);
+  border: 2px solid var(--vehicles-primary, #4a90e2);
+  color: var(--vehicles-primary, #4a90e2);
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -914,7 +909,7 @@
 }
 
 .wizard-btn-outline:hover {
-  background-color: var(--vehicles-primary, #4A90E2);
+  background-color: var(--vehicles-primary, #4a90e2);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
@@ -931,7 +926,8 @@
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.1);
   }
   50% {
@@ -1057,7 +1053,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  min-height: 400px;
+  min-height: 600px;
   margin-bottom: 2rem;
 }
 
@@ -1067,7 +1063,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  min-height: 400px;
+  min-height: 600px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
@@ -1075,6 +1071,7 @@
   opacity: 0;
   visibility: hidden;
   transform: translateX(100%);
+  padding: 0 1rem;
 }
 
 .substep-slide.current {
@@ -1092,7 +1089,7 @@
 
 .substep-slide.future {
   transform: translateX(100%);
-  opacity: 0;  
+  opacity: 0;
   visibility: hidden;
 }
 
@@ -1105,9 +1102,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 3rem;
+  margin-top: auto;
   padding-top: 2rem;
   border-top: 1px solid #e2e8f0;
+  min-height: 80px;
 }
 
 .substep-btn {
@@ -1216,25 +1214,42 @@
 /* Mejorar la experiencia en móviles */
 @media (max-width: 640px) {
   .substeps-container {
-    min-height: 350px;
+    min-height: 500px;
   }
-  
+
+  .substep-slide {
+    min-height: 500px;
+    padding: 0 0.5rem;
+  }
+
   .substep-navigation {
     flex-direction: column;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: auto;
     padding-top: 1.5rem;
+    min-height: 100px;
   }
-  
+
   .substep-btn {
     width: 100%;
     justify-content: center;
+    padding: 1rem 1.5rem;
   }
-  
+
   .substep-progress {
     margin-bottom: 1.5rem;
   }
-  
+
+  .typeform-question h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .typeform-question p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
   .dates-and-notes-section .typeform-row {
     grid-template-columns: 1fr;
     gap: 1rem;

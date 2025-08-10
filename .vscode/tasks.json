@@ -1,13 +1,20 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "dev-combustibles",
-			"type": "shell",
-			"command": "npm run dev:combustibles",
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": []
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev-combustibles",
+      "type": "shell",
+      "command": "npm run dev:combustibles",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev-combustibles",
+      "type": "shell",
+      "command": "npm run dev:combustibles",
+      "isBackground": true,
+      "group": "build"
+    }
+  ]
 }

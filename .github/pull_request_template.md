@@ -30,6 +30,15 @@ Describe brevemente los cambios realizados en este PR.
 - [ ] He agregado tests que prueban que mi fix es efectivo o que mi feature funciona
 - [ ] Los tests unitarios nuevos y existentes pasan localmente con mis cambios
 
+### 🧭 TAREAS PENDIENTES
+
+- [ ] Lista de seguimiento actualizada en el PR (EN PROGRESO/COMPLETADAS/PENDIENTES)
+
+### ♿ Accesibilidad y Rendimiento
+
+- [ ] Lighthouse: Perf/Best Practices ≥ 85, A11y ≥ 90 (adjuntar reporte si aplica)
+- [ ] Peso del bundle/chunk no supera budgets definidos (si aplica)
+
 ## 🧪 Cómo se ha probado
 
 Describe las pruebas que realizaste para verificar tus cambios:
@@ -38,10 +47,11 @@ Describe las pruebas que realizaste para verificar tus cambios:
 - [ ] Test B
 
 **Configuración de prueba**:
-* Versión del firmware:
-* Hardware:
-* Toolchain:
-* SDK:
+
+- Versión del firmware:
+- Hardware:
+- Toolchain:
+- SDK:
 
 ## 📱 Capturas de pantalla (si aplica)
 

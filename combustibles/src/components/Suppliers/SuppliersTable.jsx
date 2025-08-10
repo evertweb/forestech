@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import { formatCurrency } from '../../utils/calculations';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
+import { UI_ACTIONS, UI_TOOLTIPS, UI_FORM_LABELS } from '../../constants';
 
-const SuppliersTable = ({ 
-  suppliers, 
-  onEdit, 
-  onDelete, 
-  hasEditPermission, 
-  hasDeletePermission 
+const SuppliersTable = ({
+  suppliers,
+  onEdit,
+  onDelete,
+  hasEditPermission,
+  hasDeletePermission,
 }) => {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -55,19 +56,27 @@ const SuppliersTable = ({
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return '#22c55e';
-      case 'inactive': return '#ef4444';
-      case 'suspended': return '#f59e0b';
-      default: return '#6b7280';
+      case 'active':
+        return 'var(--color-success-light)';
+      case 'inactive':
+        return 'var(--color-error)';
+      case 'suspended':
+        return 'var(--color-warning)';
+      default:
+        return 'var(--text-muted)';
     }
   };
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'active': return 'Activo';
-      case 'inactive': return 'Inactivo';
-      case 'suspended': return 'Suspendido';
-      default: return 'Desconocido';
+      case 'active':
+        return 'Activo';
+      case 'inactive':
+        return 'Inactivo';
+      case 'suspended':
+        return 'Suspendido';
+      default:
+        return 'Desconocido';
     }
   };
 
@@ -81,31 +90,34 @@ const SuppliersTable = ({
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span 
-          key={i} 
-          className={`star ${i <= rating ? 'filled' : ''}`}
-        >
+        <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
           ★
         </span>
       );
     }
-    return <div className="rating-stars">{stars}</div>;
+    return <div className="rating-stars sap-theme">{stars}</div>;
   };
 
   const renderFuelTypes = (fuelTypes) => {
     if (!fuelTypes || fuelTypes.length === 0) {
-      return <span className="no-data">-</span>;
+      return <span className="no-data sap-theme">-</span>;
     }
 
     return (
-      <div className="fuel-types-cell">
-        {fuelTypes.slice(0, 2).map(fuelType => (
-          <span key={fuelType} className="fuel-badge-sm">
+      <div className="fuel-types-cell sap-theme">
+        {fuelTypes.slice(0, 2).map((fuelType) => (
+          <span key={fuelType} className="fuel-badge-sm sap-theme">
             {FUEL_TYPES[fuelType] || fuelType}
           </span>
         ))}
         {fuelTypes.length > 2 && (
-          <span className="fuel-badge-sm more" title={fuelTypes.slice(2).map(ft => FUEL_TYPES[ft] || ft).join(', ')}>
+          <span
+            className="fuel-badge-sm more sap-theme"
+            title={fuelTypes
+              .slice(2)
+              .map((ft) => FUEL_TYPES[ft] || ft)
+              .join(', ')}
+          >
             +{fuelTypes.length - 2}
           </span>
         )}
@@ -119,102 +131,100 @@ const SuppliersTable = ({
   };
 
   return (
-    <div className="suppliers-table-container">
-      <div className="table-wrapper">
-        <table className="suppliers-table">
+    <div className="suppliers-table-container sap-theme">
+      <div className="table-wrapper sap-theme">
+        <table className="suppliers-table sap-theme">
           <thead>
             <tr>
-              <th 
+              <th
                 className={`sortable ${sortField === 'name' ? 'active' : ''}`}
                 onClick={() => handleSort('name')}
               >
-                <span>Proveedor</span>
+                <span>{UI_FORM_LABELS.SUPPLIER}</span>
                 <i className={getSortIcon('name')}></i>
               </th>
-              
-              <th 
+
+              <th
                 className={`sortable ${sortField === 'status' ? 'active' : ''}`}
                 onClick={() => handleSort('status')}
               >
-                <span>Estado</span>
+                <span>{UI_FORM_LABELS.STATUS}</span>
                 <i className={getSortIcon('status')}></i>
               </th>
-              
-              <th 
+
+              <th
                 className={`sortable ${sortField === 'category' ? 'active' : ''}`}
                 onClick={() => handleSort('category')}
               >
-                <span>Categoría</span>
+                <span>{UI_FORM_LABELS.CATEGORY}</span>
                 <i className={getSortIcon('category')}></i>
               </th>
-              
+
               <th>
                 <span>Combustibles</span>
               </th>
-              
+
               <th>
                 <span>Contacto</span>
               </th>
-              
-              <th 
+
+              <th
                 className={`sortable ${sortField === 'rating' ? 'active' : ''}`}
                 onClick={() => handleSort('rating')}
               >
                 <span>Rating</span>
                 <i className={getSortIcon('rating')}></i>
               </th>
-              
-              <th 
+
+              <th
                 className={`sortable ${sortField === 'totalOrders' ? 'active' : ''}`}
                 onClick={() => handleSort('totalOrders')}
               >
                 <span>Órdenes</span>
                 <i className={getSortIcon('totalOrders')}></i>
               </th>
-              
-              <th 
+
+              <th
                 className={`sortable ${sortField === 'totalPurchased' ? 'active' : ''}`}
                 onClick={() => handleSort('totalPurchased')}
               >
                 <span>Total Comprado</span>
                 <i className={getSortIcon('totalPurchased')}></i>
               </th>
-              
-              <th 
+
+              <th
                 className={`sortable ${sortField === 'createdAt' ? 'active' : ''}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <span>Creado</span>
                 <i className={getSortIcon('createdAt')}></i>
               </th>
-              
-              <th className="actions-column">
+
+              <th className="actions-column sap-theme">
                 <span>Acciones</span>
               </th>
             </tr>
           </thead>
-          
+
           <tbody>
-            {sortedSuppliers.map(supplier => (
+            {sortedSuppliers.map((supplier) => (
               <tr key={supplier.id} className={`supplier-row ${supplier.status}`}>
                 {/* Supplier Info */}
-                <td className="supplier-info-cell">
-                  <div className="supplier-main-info">
-                    <div className="supplier-name">
+                <td className="supplier-info-cell sap-theme">
+                  <div className="supplier-main-info sap-theme">
+                    <div className="supplier-name sap-theme">
                       {supplier.name}
                       {supplier.isPreferred && (
-                        <span className="preferred-badge" title="Proveedor Preferido">
-                          <i className="icon-star"></i>
+                        <span className="preferred-badge sap-theme" title="Proveedor Preferido">
+                          <i className="icon-star sap-theme"></i>
                         </span>
                       )}
                     </div>
                     {supplier.taxId && (
-                      <div className="supplier-tax-id">
-                        NIT: {supplier.taxId}
-                      </div>
+                      <div className="supplier-tax-id sap-theme">NIT: {supplier.taxId}</div>
                     )}
                     {supplier.type && (
-                      <div className="supplier-type">
+                      <div className="supplier-type sap-theme">
                         {supplier.type.charAt(0).toUpperCase() + supplier.type.slice(1)}
                       </div>
                     )}
@@ -222,54 +232,53 @@ const SuppliersTable = ({
                 </td>
 
                 {/* Status */}
-                <td className="status-cell">
-                  <div className="status-display">
-                    <span 
-                      className="status-dot"
+                <td className="status-cell sap-theme">
+                  <div className="status-display sap-theme">
+                    <span
+                      className="status-dot sap-theme"
                       style={{ backgroundColor: getStatusColor(supplier.status) }}
                     ></span>
-                    <span className="status-label">
+                    <span className="status-label sap-theme">
                       {getStatusLabel(supplier.status)}
                     </span>
                   </div>
                 </td>
 
                 {/* Category */}
-                <td className="category-cell">
-                  <span className="category-label">
-                    {supplier.category?.charAt(0).toUpperCase() + supplier.category?.slice(1) || '-'}
+                <td className="category-cell sap-theme">
+                  <span className="category-label sap-theme">
+                    {supplier.category?.charAt(0).toUpperCase() + supplier.category?.slice(1) ||
+                      '-'}
                   </span>
                 </td>
 
                 {/* Fuel Types */}
-                <td className="fuel-types-cell">
-                  {renderFuelTypes(supplier.fuelTypes)}
-                </td>
+                <td className="fuel-types-cell sap-theme">{renderFuelTypes(supplier.fuelTypes)}</td>
 
                 {/* Contact Info */}
-                <td className="contact-cell">
-                  <div className="contact-info">
+                <td className="contact-cell sap-theme">
+                  <div className="contact-info sap-theme">
                     {supplier.contactPerson && (
-                      <div className="contact-person">
-                        <i className="icon-user"></i>
+                      <div className="contact-person sap-theme">
+                        <i className="icon-user sap-theme"></i>
                         <span>{supplier.contactPerson}</span>
                       </div>
                     )}
                     {supplier.phone && (
-                      <div className="contact-item">
-                        <i className="icon-phone"></i>
+                      <div className="contact-item sap-theme">
+                        <i className="icon-phone sap-theme"></i>
                         <a href={`tel:${supplier.phone}`}>{supplier.phone}</a>
                       </div>
                     )}
                     {supplier.email && (
-                      <div className="contact-item">
-                        <i className="icon-mail"></i>
+                      <div className="contact-item sap-theme">
+                        <i className="icon-mail sap-theme"></i>
                         <a href={`mailto:${supplier.email}`}>{supplier.email}</a>
                       </div>
                     )}
                     {supplier.city && (
-                      <div className="contact-item">
-                        <i className="icon-map-pin"></i>
+                      <div className="contact-item sap-theme">
+                        <i className="icon-map-pin sap-theme"></i>
                         <span>{supplier.city}</span>
                       </div>
                     )}
@@ -277,78 +286,74 @@ const SuppliersTable = ({
                 </td>
 
                 {/* Rating */}
-                <td className="rating-cell">
-                  <div className="rating-display">
+                <td className="rating-cell sap-theme">
+                  <div className="rating-display sap-theme">
                     {renderRating(supplier.rating || 0)}
-                    <span className="rating-value">
+                    <span className="rating-value sap-theme">
                       {(supplier.rating || 0).toFixed(1)}
                     </span>
                   </div>
                 </td>
 
                 {/* Total Orders */}
-                <td className="orders-cell">
-                  <span className="orders-count">
-                    {supplier.totalOrders || 0}
-                  </span>
+                <td className="orders-cell sap-theme">
+                  <span className="orders-count sap-theme">{supplier.totalOrders || 0}</span>
                 </td>
 
                 {/* Total Purchased */}
-                <td className="purchased-cell">
-                  <span className="purchased-amount">
+                <td className="purchased-cell sap-theme">
+                  <span className="purchased-amount sap-theme">
                     {formatCurrency(supplier.totalPurchased || 0)}
                   </span>
                 </td>
 
                 {/* Created Date */}
-                <td className="date-cell">
-                  <span className="date-value">
-                    {formatDate(supplier.createdAt)}
-                  </span>
+                <td className="date-cell sap-theme">
+                  <span className="date-value sap-theme">{formatDate(supplier.createdAt)}</span>
                 </td>
 
                 {/* Actions */}
-                <td className="actions-cell">
-                  <div className="action-buttons">
+                <td className="actions-cell sap-theme">
+                  <div className="action-buttons sap-theme">
                     {hasEditPermission && (
                       <button
-                        className="btn btn-sm btn-secondary"
+                        className="btn btn-sm btn-secondary sap-theme"
                         onClick={() => onEdit(supplier)}
-                        title="Editar proveedor"
+                        title={UI_TOOLTIPS.EDIT}
                       >
-                        <i className="icon-edit"></i>
+                        <i className="icon-edit sap-theme"></i>
                       </button>
                     )}
 
                     {hasDeletePermission && supplier.status === 'active' && (
                       <button
-                        className="btn btn-sm btn-danger"
+                        className="btn btn-sm btn-danger sap-theme"
                         onClick={() => onDelete(supplier.id, supplier.name)}
-                        title="Desactivar proveedor"
+                        title={UI_TOOLTIPS.DELETE}
                       >
-                        <i className="icon-x-circle"></i>
+                        <i className="icon-x-circle sap-theme"></i>
                       </button>
                     )}
 
                     {/* Quick contact actions */}
-                    <div className="quick-actions">
+                    <div className="quick-actions sap-theme">
                       {supplier.phone && (
                         <a
                           href={`tel:${supplier.phone}`}
-                          className="quick-action-btn"
+                          className="quick-action-btn sap-theme"
                           title="Llamar"
                         >
-                          <i className="icon-phone"></i>
+                          <i className="icon-phone sap-theme"></i>
                         </a>
                       )}
-                      
+
                       {supplier.email && (
                         <a
                           href={`mailto:${supplier.email}`}
-                          className="quick-action-btn"
+                          className="quick-action-btn sap-theme"
                           title="Enviar email"
                         >
-                          <i className="icon-mail"></i>
+                          <i className="icon-mail sap-theme"></i>
                         </a>
                       )}
                     </div>
@@ -360,31 +365,40 @@ const SuppliersTable = ({
         </table>
 
         {sortedSuppliers.length === 0 && (
-          <div className="table-empty-state">
-            <i className="icon-truck"></i>
+          <div className="table-empty-state sap-theme">
+            <i className="icon-truck sap-theme"></i>
             <p>No hay proveedores para mostrar</p>
           </div>
         )}
       </div>
 
       {/* Table Footer */}
-      <div className="table-footer">
-        <div className="table-info">
+      <div className="table-footer sap-theme">
+        <div className="table-info sap-theme">
           <span>
             Mostrando {sortedSuppliers.length} proveedor{sortedSuppliers.length !== 1 ? 'es' : ''}
           </span>
         </div>
-        
-        <div className="table-actions">
-          <span className="sort-info">
-            Ordenado por: {sortField === 'name' ? 'Nombre' :
-                         sortField === 'status' ? 'Estado' :
-                         sortField === 'category' ? 'Categoría' :
-                         sortField === 'rating' ? 'Rating' :
-                         sortField === 'totalOrders' ? 'Órdenes' :
-                         sortField === 'totalPurchased' ? 'Total Comprado' :
-                         sortField === 'createdAt' ? 'Fecha de Creación' :
-                         sortField} ({sortDirection === 'asc' ? 'Ascendente' : 'Descendente'})
+
+        <div className="table-actions sap-theme">
+          <span className="sort-info sap-theme">
+            Ordenado por:{' '}
+            {sortField === 'name'
+              ? 'Nombre'
+              : sortField === 'status'
+                ? 'Estado'
+                : sortField === 'category'
+                  ? 'Categoría'
+                  : sortField === 'rating'
+                    ? 'Rating'
+                    : sortField === 'totalOrders'
+                      ? 'Órdenes'
+                      : sortField === 'totalPurchased'
+                        ? 'Total Comprado'
+                        : sortField === 'createdAt'
+                          ? 'Fecha de Creación'
+                          : sortField}{' '}
+            ({sortDirection === 'asc' ? 'Ascendente' : 'Descendente'})
           </span>
         </div>
       </div>

@@ -1,160 +1,93 @@
+import { useState, useCallback } from 'react';
+import { validateForm as runValidation } from '../utils/validators';
+
 /**
- * useFormData - Hook reutilizable para manejo de formularios
- * Extrae patrones comunes de ProductModal e InventoryModal
+ * Hook reutilizable para manejo de formularios en modales.
+ * Incluye manejo de estado, validación y cambios de input.
+ *
+ * @param {object} initialValues - Valores iniciales del formulario
+ * @param {function} validate - Función de validación (opcional)
+ * @returns {object} { values, errors, handleInputChange, setValues, resetForm, validateForm }
  */
-import { useState, useEffect, useCallback } from 'react';
-
-export const useFormData = (initialData = {}, validationRules = {}) => {
-  const [formData, setFormData] = useState(initialData);
+// Soporta validación por función (validate) o por schema centralizado (options.validationSchema)
+// y validadores cruzados (options.crossValidators)
+export const useFormData = (initialValues = {}, validate, options = {}) => {
+  const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
-  // Resetear formulario cuando cambia initialData
-  useEffect(() => {
-    setFormData(initialData);
-    setErrors({});
-    setTouched({});
-  }, [initialData]);
-
-  // Manejar cambios en inputs
-  const handleInputChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
-    
-    // Marcar campo como tocado
-    setTouched(prev => ({
-      ...prev,
-      [name]: true
-    }));
-    
-    // Limpiar error cuando el usuario empiece a escribir
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+  // Maneja cambios de input para cualquier campo
+  const handleInputChange = useCallback((arg1, arg2) => {
+    // Soporta: handleInputChange(event) o handleInputChange(name, value)
+    if (typeof arg1 === 'string') {
+      const name = arg1;
+      const value = arg2;
+      setValues((prev) => ({ ...prev, [name]: value }));
+      return;
     }
-  }, [errors]);
 
-  // Actualizar valor específico programáticamente
-  const updateValue = useCallback((name, value) => {
-    setFormData(prev => ({
+    const e = arg1;
+    const { name, value, type, checked } = e?.target || {};
+    if (!name) return;
+    setValues((prev) => ({
       ...prev,
-      [name]: value
-    }));
-    
-    setTouched(prev => ({
-      ...prev,
-      [name]: true
+      [name]: type === 'checkbox' ? !!checked : value,
     }));
   }, []);
 
-  // Validar formulario completo
-  const validateForm = useCallback(() => {
-    const newErrors = {};
-
-    Object.keys(validationRules).forEach(field => {
-      const rules = validationRules[field];
-      const value = formData[field];
-
-      // Validación required
-      if (rules.required && (!value || (typeof value === 'string' && !value.trim()))) {
-        newErrors[field] = rules.required;
-        return;
+  // Validación individual o global
+  const validateForm = useCallback(
+    (fieldValues = values) => {
+      // 1) Prioridad: función validate personalizada si se provee
+      if (typeof validate === 'function') {
+        const validation = validate(fieldValues);
+        setErrors(validation.errors || {});
+        return validation.isValid;
       }
 
-      // Validación min para números
-      if (rules.min !== undefined && value !== '' && Number(value) < rules.min) {
-        newErrors[field] = rules.minMessage || `Debe ser mayor o igual a ${rules.min}`;
-        return;
-      }
+      // 2) Alternativa: schema centralizado + validadores cruzados
+      const { validationSchema, crossValidators } = options || {};
+      if (validationSchema) {
+        // Validación por schema
+        const schemaResult = runValidation(fieldValues, validationSchema);
+        let combinedErrors = { ...schemaResult.errors };
 
-      // Validación max para números
-      if (rules.max !== undefined && value !== '' && Number(value) > rules.max) {
-        newErrors[field] = rules.maxMessage || `Debe ser menor o igual a ${rules.max}`;
-        return;
-      }
-
-      // Validación custom
-      if (rules.validate && typeof rules.validate === 'function') {
-        const customError = rules.validate(value, formData);
-        if (customError) {
-          newErrors[field] = customError;
-          return;
+        // Validaciones cross-field (acumular errores)
+        if (Array.isArray(crossValidators) && crossValidators.length > 0) {
+          for (const cross of crossValidators) {
+            try {
+              const crossErrors = cross(fieldValues) || {};
+              combinedErrors = { ...combinedErrors, ...crossErrors };
+            } catch {
+              // Ignorar errores de validadores cruzados para no romper flujo
+            }
+          }
         }
+
+        const isValid = Object.keys(combinedErrors).length === 0;
+        setErrors(combinedErrors);
+        return isValid;
       }
-    });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [formData, validationRules]);
-
-  // Validar campo específico
-  const validateField = useCallback((fieldName) => {
-    const rules = validationRules[fieldName];
-    if (!rules) return true;
-
-    const value = formData[fieldName];
-    let error = '';
-
-    if (rules.required && (!value || (typeof value === 'string' && !value.trim()))) {
-      error = rules.required;
-    } else if (rules.min !== undefined && value !== '' && Number(value) < rules.min) {
-      error = rules.minMessage || `Debe ser mayor o igual a ${rules.min}`;
-    } else if (rules.max !== undefined && value !== '' && Number(value) > rules.max) {
-      error = rules.maxMessage || `Debe ser menor o igual a ${rules.max}`;
-    } else if (rules.validate && typeof rules.validate === 'function') {
-      error = rules.validate(value, formData) || '';
-    }
-
-    setErrors(prev => ({
-      ...prev,
-      [fieldName]: error
-    }));
-
-    return !error;
-  }, [formData, validationRules]);
+      // 3) Sin validación configurada
+      return true;
+    },
+    [validate, options, values]
+  );
 
   // Resetear formulario
-  const resetForm = useCallback((newData = {}) => {
-    setFormData(newData);
+  const resetForm = useCallback(() => {
+    setValues(initialValues);
     setErrors({});
-    setTouched({});
-  }, []);
-
-  // Limpiar errores
-  const clearErrors = useCallback(() => {
-    setErrors({});
-  }, []);
-
-  // Verificar si el formulario tiene errores
-  const hasErrors = Object.values(errors).some(error => error !== '');
-
-  // Verificar si el formulario está sucio (modificado)
-  const isDirty = Object.keys(touched).length > 0;
-
-  // Verificar si el formulario es válido
-  const isValid = !hasErrors && isDirty;
+  }, [initialValues]);
 
   return {
-    formData,
+    values,
+    setValues,
     errors,
-    touched,
-    hasErrors,
-    isDirty,
-    isValid,
+    setErrors,
     handleInputChange,
-    updateValue,
-    validateForm,
-    validateField,
     resetForm,
-    clearErrors,
-    setFormData
+    validateForm,
   };
 };
 

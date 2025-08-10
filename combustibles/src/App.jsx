@@ -1,13 +1,18 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContextLazy';
 import { CombustiblesProvider, useCombustibles } from './contexts/CombustiblesContext';
-import Dashboard from './components/Dashboard/Dashboard';
-import AuthVisualEnhanced from './components/Auth/AuthVisualEnhanced';
 import './App.css';
+// Rutas de los popups cargadas de forma perezosa
+const MovementWizardPopup = lazy(() => import('./components/Popups/MovementWizardPopup'));
+const VehicleWizardPopup = lazy(() => import('./components/Popups/VehicleWizardPopup'));
+
+// Lazy load CRÍTICO - dividir componentes pesados para LCP
+const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
+const AuthVisualEnhanced = lazy(() => import('./components/Auth/AuthVisualEnhanced'));
 
 // Lazy load de los componentes de ruta
-const DashboardMain = lazy(() => import('./components/Dashboard/DashboardMain'));
+const DashboardMain = lazy(() => import('./components/Dashboard/DashboardMain-SAP'));
 const InventoryMain = lazy(() => import('./components/Inventory/InventoryMain'));
 const MovementsMain = lazy(() => import('./components/Movements/MovementsMain'));
 const VehiclesMain = lazy(() => import('./components/Vehicles/VehiclesMain'));
@@ -53,11 +58,15 @@ function AppContent() {
 
   return (
     <div className="App">
-      {!user ? (
-        <AuthVisualEnhanced />
-      ) : (
-        <Suspense fallback={<LoadingFallback />}>
+      <Suspense fallback={<LoadingFallback />}>
+        {/* Rutas según autenticación */}
+        {!user ? (
+          <AuthVisualEnhanced />
+        ) : (
           <Routes>
+            {/* Rutas dedicadas para los popups de wizards */}
+            <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
+            <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
             <Route path="/" element={<Dashboard />}>
               <Route index element={<DashboardMain />} />
               <Route path="inventario" element={<InventoryMain />} />
@@ -70,8 +79,8 @@ function AppContent() {
               <Route path="admin" element={<AdminMain />} />
             </Route>
           </Routes>
-        </Suspense>
-      )}
+        )}
+      </Suspense>
     </div>
   );
 }

@@ -10,22 +10,25 @@ import {
   updateCategory,
   deleteCategory,
   subscribeToCategories,
-  getCategoryStats
+  getCategoryStats,
 } from '../../services/vehicleCategoriesService';
-import { resetVehicleCategories, hasCustomCategories } from '../../services/resetVehicleCategoriesService';
+import {
+  resetVehicleCategories,
+  hasCustomCategories,
+} from '../../services/resetVehicleCategoriesService';
 import {
   uploadCategoryIcon,
   deleteCategoryIcon,
   generateImagePreview,
   validateImageFile,
   isCustomIcon,
-  renderCategoryIcon
+  renderCategoryIcon,
 } from '../../services/iconUploadService.jsx';
-import { 
+import {
   DEFAULT_VEHICLE_CATEGORIES,
   AVAILABLE_FIELDS,
   FUEL_TYPES,
-  generateCategoryId
+  generateCategoryId,
 } from '../../data/vehicleCategories';
 import './VehicleCategoriesManager.css';
 
@@ -48,7 +51,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     color: '#2E86AB',
     fuelTypes: [],
     fields: [],
-    uniqueCode: ''
+    uniqueCode: '',
   });
 
   // Estado para manejo de iconos personalizados
@@ -66,13 +69,13 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     1: { title: '¿Cuál es el nombre de la categoría?', field: 'name' },
     2: { title: '¿Qué tipos de combustible utiliza?', field: 'fuelTypes' },
     3: { title: '¿Qué campos específicos necesita?', field: 'fields' },
-    4: { title: 'Personalización y vista previa', field: 'preview' }
+    4: { title: 'Personalización y vista previa', field: 'preview' },
   };
 
   useEffect(() => {
     loadCategoriesAndStats();
     checkCustomCategories();
-    
+
     // Suscribirse a cambios en tiempo real
     const unsubscribe = subscribeToCategories((updatedCategories) => {
       setCategories(updatedCategories);
@@ -90,7 +93,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       setLoading(true);
       const [categoriesData, statsData] = await Promise.all([
         getAllVehicleCategories(),
-        getCategoryStats()
+        getCategoryStats(),
       ]);
       setCategories(categoriesData);
       setStats(statsData);
@@ -123,13 +126,15 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   // Función para generar código único automáticamente
   const generateUniqueCode = (name) => {
     if (!name) return '';
-    
+
     const baseCode = name
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, '')
       .substring(0, 6);
-    
-    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+
+    const randomSuffix = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, '0');
     return `${baseCode}${randomSuffix}`;
   };
 
@@ -142,7 +147,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       color: '#2E86AB',
       fuelTypes: [],
       fields: [],
-      uniqueCode: ''
+      uniqueCode: '',
     });
     // Limpiar estado de iconos
     setIconFile(null);
@@ -161,9 +166,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       color: category.color || '#2E86AB',
       fuelTypes: category.fuelTypes || [],
       fields: category.fields || [],
-      uniqueCode: category.uniqueCode || generateUniqueCode(category.name)
+      uniqueCode: category.uniqueCode || generateUniqueCode(category.name),
     });
-    
+
     // Limpiar estado de iconos al editar
     setIconFile(null);
     setIconPreview('');
@@ -174,7 +179,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
 
   const handleDeleteCategory = async (category) => {
     console.log('🗑️ Intentando eliminar categoría:', category);
-    
+
     const confirmed = window.confirm(
       `¿Está seguro de eliminar la categoría "${category.name}"?\n\nEsta acción no se puede deshacer.`
     );
@@ -187,7 +192,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     try {
       setSaving(true);
       console.log('🔄 Eliminando categoría del Firestore...');
-      
+
       // Si tiene un icono personalizado, eliminarlo también
       if (category.icon && isCustomIcon(category.icon)) {
         console.log('🖼️ Eliminando icono personalizado:', category.icon);
@@ -198,7 +203,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
           console.warn('⚠️ Error eliminando icono, continuando con categoría:', iconError);
         }
       }
-      
+
       await deleteCategory(category.id);
       console.log('✅ Categoría eliminada exitosamente');
       setError('');
@@ -213,7 +218,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validaciones básicas
     if (!formData.name.trim()) {
       setError('El nombre de la categoría es requerido');
@@ -253,21 +258,23 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
         uniqueCode: formData.uniqueCode.trim(),
         icon: iconURL,
         createdAt: selectedCategory ? selectedCategory.createdAt : new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       if (selectedCategory) {
         // Si había un icono personalizado anterior y se cambió, eliminar el anterior
-        if (selectedCategory.icon && 
-            isCustomIcon(selectedCategory.icon) && 
-            selectedCategory.icon !== iconURL) {
+        if (
+          selectedCategory.icon &&
+          isCustomIcon(selectedCategory.icon) &&
+          selectedCategory.icon !== iconURL
+        ) {
           try {
             await deleteCategoryIcon(selectedCategory.icon);
           } catch (deleteError) {
             console.warn('Error eliminando icono anterior:', deleteError);
           }
         }
-        
+
         // Actualizar categoría existente
         await updateCategory(selectedCategory.id, categoryData);
       } else {
@@ -282,7 +289,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       setIconPreview('');
       setIconError('');
       setShowModal(false);
-      
+
       // La lista se actualizará automáticamente via suscripción
     } catch (error) {
       console.error('Error guardando categoría:', error);
@@ -293,28 +300,28 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   };
 
   const handleFieldToggle = (fieldKey) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       fields: prev.fields.includes(fieldKey)
-        ? prev.fields.filter(f => f !== fieldKey)
-        : [...prev.fields, fieldKey]
+        ? prev.fields.filter((f) => f !== fieldKey)
+        : [...prev.fields, fieldKey],
     }));
   };
 
   const handleFuelTypeToggle = (fuelType) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       fuelTypes: prev.fuelTypes.includes(fuelType)
-        ? prev.fuelTypes.filter(f => f !== fuelType)
-        : [...prev.fuelTypes, fuelType]
+        ? prev.fuelTypes.filter((f) => f !== fuelType)
+        : [...prev.fuelTypes, fuelType],
     }));
   };
 
   const handleNameChange = (name) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       name: name,
-      uniqueCode: generateUniqueCode(name)
+      uniqueCode: generateUniqueCode(name),
     }));
   };
 
@@ -351,14 +358,14 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     setIconUploading(true);
     try {
       const downloadURL = await uploadCategoryIcon(
-        iconFile, 
+        iconFile,
         formData.uniqueCode || 'temp',
         (progress) => {
           // Callback de progreso opcional
           console.log('Upload progress:', progress);
         }
       );
-      
+
       setIconUploading(false);
       return downloadURL;
     } catch (error) {
@@ -372,25 +379,25 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     setIconFile(null);
     setIconPreview('');
     setIconError('');
-    setFormData(prev => ({ ...prev, icon: '🚗' }));
+    setFormData((prev) => ({ ...prev, icon: '🚗' }));
   };
 
   // Navegación entre pasos
   const handleNextStep = () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
   const handlePrevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
   const handleStepSubmit = (e) => {
     e.preventDefault();
-    
+
     if (currentStep === totalSteps) {
       // Último paso - guardar categoría
       handleSubmit(e);
@@ -438,7 +445,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               />
               {formData.name && (
                 <div className="auto-generated">
-                  <small>Código generado: <code>{formData.uniqueCode}</code></small>
+                  <small>
+                    Código generado: <code>{formData.uniqueCode}</code>
+                  </small>
                 </div>
               )}
             </div>
@@ -455,7 +464,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
             </div>
             <div className="step-content">
               <div className="fuel-options">
-                {Object.values(FUEL_TYPES).map(fuelType => (
+                {Object.values(FUEL_TYPES).map((fuelType) => (
                   <label key={fuelType} className="fuel-option">
                     <input
                       type="checkbox"
@@ -464,8 +473,8 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                     />
                     <span className="fuel-card">
                       <span className="fuel-icon">
-                        {fuelType === 'Diesel' && '🛢️'} 
-                        {fuelType === 'Gasolina' && '⛽'} 
+                        {fuelType === 'Diesel' && '🛢️'}
+                        {fuelType === 'Gasolina' && '⛽'}
                         {fuelType === 'Mixto' && '🔄'}
                       </span>
                       <span className="fuel-name">{fuelType}</span>
@@ -487,7 +496,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
             </div>
             <div className="step-content">
               <div className="field-options">
-                {AVAILABLE_FIELDS.map(field => (
+                {AVAILABLE_FIELDS.map((field) => (
                   <label key={field.key} className="field-option">
                     <input
                       type="checkbox"
@@ -524,12 +533,14 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                     <label>Descripción (opcional)</label>
                     <textarea
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, description: e.target.value }))
+                      }
                       placeholder="Describe el tipo de vehículos que incluye esta categoría"
                       className="typeform-textarea"
                     />
                   </div>
-                  
+
                   <div className="field-row">
                     <div className="field-group">
                       <label>Icono</label>
@@ -537,7 +548,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                         <input
                           type="text"
                           value={iconFile ? '' : formData.icon}
-                          onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, icon: e.target.value }))
+                          }
                           placeholder="🚗"
                           className="typeform-input-small"
                           disabled={iconFile || iconUploading}
@@ -551,29 +564,29 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                           id="icon-upload"
                           disabled={iconUploading}
                         />
-                        <label 
-                          htmlFor="icon-upload" 
+                        <label
+                          htmlFor="icon-upload"
                           className={`upload-button ${iconUploading ? 'uploading' : ''}`}
                           title="Subir imagen personalizada"
                         >
                           {iconUploading ? '⏳' : '📁'} Subir imagen
                         </label>
                       </div>
-                      
-                      {iconError && (
-                        <div className="icon-error">
-                          ⚠️ {iconError}
-                        </div>
-                      )}
-                      
+
+                      {iconError && <div className="icon-error">⚠️ {iconError}</div>}
+
                       {iconPreview && (
                         <div className="icon-preview-section">
-                          <img 
-                            src={iconPreview} 
-                            alt="Preview del icono" 
+                          <img
+                            src={iconPreview}
+                            alt="Preview del icono"
                             className="icon-preview-img"
+                            width={32}
+                            height={32}
+                            loading="lazy"
+                            decoding="async"
                           />
-                          <button 
+                          <button
                             type="button"
                             className="clear-icon-btn"
                             onClick={clearCustomIcon}
@@ -584,13 +597,15 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="field-group">
                       <label>Color</label>
                       <input
                         type="color"
                         value={formData.color}
-                        onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, color: e.target.value }))
+                        }
                         className="typeform-color"
                       />
                     </div>
@@ -601,7 +616,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                     <input
                       type="text"
                       value={formData.uniqueCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, uniqueCode: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, uniqueCode: e.target.value }))
+                      }
                       placeholder="CODIGO123"
                       className="typeform-input unique-code"
                     />
@@ -610,14 +627,21 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
 
                 <div className="preview-section">
                   <h3>Vista previa</h3>
-                  <div className="category-preview-card" style={{ '--category-color': formData.color }}>
+                  <div
+                    className="category-preview-card"
+                    style={{ '--category-color': formData.color }}
+                  >
                     <div className="preview-header">
                       <span className="preview-icon" style={{ color: formData.color }}>
                         {iconPreview ? (
-                          <img 
-                            src={iconPreview} 
-                            alt="Preview del icono" 
+                          <img
+                            src={iconPreview}
+                            alt="Preview del icono"
                             className="preview-custom-icon"
+                            width={24}
+                            height={24}
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           formData.icon
@@ -655,9 +679,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     try {
       setSaving(true);
       setError('');
-      
+
       const result = await resetVehicleCategories();
-      
+
       if (result.success) {
         setShowResetConfirm(false);
         setError('');
@@ -675,7 +699,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   };
 
   const getStatsForCategory = (categoryId) => {
-    return stats.find(stat => stat.id === categoryId) || { vehicleCount: 0, activeVehicles: 0 };
+    return stats.find((stat) => stat.id === categoryId) || { vehicleCount: 0, activeVehicles: 0 };
   };
 
   if (loading) {
@@ -686,11 +710,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       </div>
     );
 
-    return embedded ? loadingContent : (
-      <div className="categories-manager">
-        {loadingContent}
-      </div>
-    );
+    return embedded ? loadingContent : <div className="categories-manager">{loadingContent}</div>;
   }
 
   const mainContent = (
@@ -698,20 +718,20 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       <div className="categories-header">
         <h3>📋 Gestión de Categorías</h3>
         <div className="header-actions">
-          <button 
+          <button
             className="btn-primary"
             onClick={handleCreateCategory}
             disabled={saving}
-            style={{ 
+            style={{
               pointerEvents: saving ? 'none' : 'auto',
-              opacity: saving ? 0.6 : 1 
+              opacity: saving ? 0.6 : 1,
             }}
           >
             ➕ Nueva Categoría
           </button>
-          
+
           {hasCustom && (
-            <button 
+            <button
               className="btn-warning"
               onClick={() => setShowResetConfirm(true)}
               disabled={saving}
@@ -719,12 +739,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               🗑️ Eliminar Todas
             </button>
           )}
-          
+
           {!embedded && onClose && (
-            <button 
-              className="btn-secondary"
-              onClick={onClose}
-            >
+            <button className="btn-secondary" onClick={onClose}>
               ✕ Cerrar
             </button>
           )}
@@ -739,20 +756,20 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       )}
 
       <div className="categories-grid">
-        {categories.map(category => {
+        {categories.map((category) => {
           const categoryStats = getStatsForCategory(category.id);
-          
+
           return (
-            <div 
-              key={category.id} 
+            <div
+              key={category.id}
               className="category-card custom"
               style={{ '--category-color': category.color }}
             >
               <div className="category-header">
                 <div className="category-icon" style={{ color: category.color }}>
-                  {renderCategoryIcon(category.icon, { 
+                  {renderCategoryIcon(category.icon, {
                     className: 'category-icon-display',
-                    style: { color: category.color } 
+                    style: { color: category.color },
                   })}
                 </div>
                 <div className="category-info">
@@ -776,8 +793,10 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                 <div className="fuel-types">
                   <strong>Combustibles:</strong>
                   <div className="fuel-list">
-                    {(category.fuelTypes || []).map(fuel => (
-                      <span key={fuel} className="fuel-tag">{fuel}</span>
+                    {(category.fuelTypes || []).map((fuel) => (
+                      <span key={fuel} className="fuel-tag">
+                        {fuel}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -785,8 +804,8 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                 <div className="fields">
                   <strong>Campos:</strong>
                   <div className="fields-list">
-                    {(category.fields || []).slice(0, 3).map(fieldKey => {
-                      const field = AVAILABLE_FIELDS.find(f => f.key === fieldKey);
+                    {(category.fields || []).slice(0, 3).map((fieldKey) => {
+                      const field = AVAILABLE_FIELDS.find((f) => f.key === fieldKey);
                       return field ? (
                         <span key={fieldKey} className="field-tag">
                           {field.icon} {field.label}
@@ -801,7 +820,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               </div>
 
               <div className="category-actions">
-                <button 
+                <button
                   className="btn-edit"
                   onClick={() => handleEditCategory(category)}
                   disabled={saving}
@@ -809,12 +828,12 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                 >
                   ✏️ Editar
                 </button>
-                <button 
+                <button
                   className="btn-delete"
                   onClick={() => handleDeleteCategory(category)}
                   disabled={saving || categoryStats.vehicleCount > 0}
                   title={
-                    categoryStats.vehicleCount > 0 
+                    categoryStats.vehicleCount > 0
                       ? 'No se puede eliminar una categoría con vehículos asignados'
                       : 'Eliminar categoría'
                   }
@@ -832,7 +851,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   return embedded ? (
     <>
       {mainContent}
-      
+
       {/* Modal de creación/edición - Estilo Typeform */}
       {showModal && (
         <div className="typeform-overlay">
@@ -843,7 +862,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               </button>
               <div className="typeform-progress">
                 <div className="progress-bar">
-                  <div 
+                  <div
                     className="progress-fill"
                     style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                   />
@@ -857,26 +876,26 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
             <div className="typeform-body">
               <form onSubmit={handleStepSubmit} className="typeform-form">
                 {renderStep(currentStep)}
-                
+
                 <div className="typeform-actions">
                   {currentStep > 1 && (
-                    <button 
-                      type="button"
-                      className="btn-back"
-                      onClick={handlePrevStep}
-                    >
+                    <button type="button" className="btn-back" onClick={handlePrevStep}>
                       ← Anterior
                     </button>
                   )}
-                  
-                  <button 
+
+                  <button
                     type="submit"
                     className="btn-next"
                     disabled={!isStepValid(currentStep) || saving}
                   >
-                    {saving ? 'Guardando...' : 
-                     iconUploading ? 'Subiendo icono...' :
-                     currentStep === totalSteps ? 'Crear Categoría' : 'Siguiente →'}
+                    {saving
+                      ? 'Guardando...'
+                      : iconUploading
+                        ? 'Subiendo icono...'
+                        : currentStep === totalSteps
+                          ? 'Crear Categoría'
+                          : 'Siguiente →'}
                   </button>
                 </div>
               </form>
@@ -894,23 +913,21 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               <button onClick={() => setShowResetConfirm(false)}>✕</button>
             </div>
             <div className="modal-body">
-              <p><strong>¿Estás seguro de que deseas eliminar todas las categorías?</strong></p>
+              <p>
+                <strong>¿Estás seguro de que deseas eliminar todas las categorías?</strong>
+              </p>
               <p>Esta acción eliminará todas las categorías de vehículos de la aplicación.</p>
               <p className="warning">⚠️ Esta acción no se puede deshacer.</p>
             </div>
             <div className="modal-actions">
-              <button 
+              <button
                 className="btn-secondary"
                 onClick={() => setShowResetConfirm(false)}
                 disabled={saving}
               >
                 Cancelar
               </button>
-              <button 
-                className="btn-danger"
-                onClick={handleResetCategories}
-                disabled={saving}
-              >
+              <button className="btn-danger" onClick={handleResetCategories} disabled={saving}>
                 {saving ? 'Eliminando...' : 'Eliminar Todas'}
               </button>
             </div>
@@ -932,7 +949,7 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               </button>
               <div className="typeform-progress">
                 <div className="progress-bar">
-                  <div 
+                  <div
                     className="progress-fill"
                     style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                   />
@@ -946,26 +963,26 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
             <div className="typeform-body">
               <form onSubmit={handleStepSubmit} className="typeform-form">
                 {renderStep(currentStep)}
-                
+
                 <div className="typeform-actions">
                   {currentStep > 1 && (
-                    <button 
-                      type="button"
-                      className="btn-back"
-                      onClick={handlePrevStep}
-                    >
+                    <button type="button" className="btn-back" onClick={handlePrevStep}>
                       ← Anterior
                     </button>
                   )}
-                  
-                  <button 
+
+                  <button
                     type="submit"
                     className="btn-next"
                     disabled={!isStepValid(currentStep) || saving}
                   >
-                    {saving ? 'Guardando...' : 
-                     iconUploading ? 'Subiendo icono...' :
-                     currentStep === totalSteps ? 'Crear Categoría' : 'Siguiente →'}
+                    {saving
+                      ? 'Guardando...'
+                      : iconUploading
+                        ? 'Subiendo icono...'
+                        : currentStep === totalSteps
+                          ? 'Crear Categoría'
+                          : 'Siguiente →'}
                   </button>
                 </div>
               </form>
@@ -983,23 +1000,21 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
               <button onClick={() => setShowResetConfirm(false)}>✕</button>
             </div>
             <div className="modal-body">
-              <p><strong>¿Estás seguro de que deseas eliminar todas las categorías?</strong></p>
+              <p>
+                <strong>¿Estás seguro de que deseas eliminar todas las categorías?</strong>
+              </p>
               <p>Esta acción eliminará todas las categorías de vehículos de la aplicación.</p>
               <p className="warning">⚠️ Esta acción no se puede deshacer.</p>
             </div>
             <div className="modal-actions">
-              <button 
+              <button
                 className="btn-secondary"
                 onClick={() => setShowResetConfirm(false)}
                 disabled={saving}
               >
                 Cancelar
               </button>
-              <button 
-                className="btn-danger"
-                onClick={handleResetCategories}
-                disabled={saving}
-              >
+              <button className="btn-danger" onClick={handleResetCategories} disabled={saving}>
                 {saving ? 'Eliminando...' : 'Eliminar Todas'}
               </button>
             </div>

@@ -14,7 +14,7 @@ const VehiclesFilters = ({
   onSearchChange,
   viewMode,
   onViewModeChange,
-  totalResults
+  totalResults,
 }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
@@ -28,12 +28,12 @@ const VehiclesFilters = ({
     'Proyecto A',
     'Proyecto B',
     'En Reparación',
-    'Otros'
+    'Otros',
   ];
 
   // Contar filtros activos
-  const activeFiltersCount = Object.values(filters).filter(value => 
-    value && value !== '' && value !== 'all'
+  const activeFiltersCount = Object.values(filters).filter(
+    (value) => value && value !== '' && value !== 'all'
   ).length;
 
   const handleFilterChange = (field, value) => {
@@ -45,9 +45,9 @@ const VehiclesFilters = ({
   };
 
   return (
-    <div className="vehicles-filters">
+    <div className="vehicles-filters sap-theme">
       {/* Barra de búsqueda y controles principales */}
-      <div className="filters-main">
+      <div className="filters-main sap-theme">
         <div className="search-section">
           <div className="search-box">
             <span className="search-icon">🔍</span>
@@ -59,7 +59,7 @@ const VehiclesFilters = ({
               className="search-input"
             />
             {searchTerm && (
-              <button 
+              <button
                 className="search-clear"
                 onClick={() => onSearchChange('')}
                 title="Limpiar búsqueda"
@@ -104,10 +104,8 @@ const VehiclesFilters = ({
             className={`btn-advanced-filters ${showAdvancedFilters ? 'active' : ''}`}
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
           >
-            🎛️ Filtros 
-            {activeFiltersCount > 0 && (
-              <span className="filters-count">{activeFiltersCount}</span>
-            )}
+            🎛️ Filtros
+            {activeFiltersCount > 0 && <span className="filters-count">{activeFiltersCount}</span>}
           </button>
 
           {/* Modos de vista */}
@@ -195,7 +193,7 @@ const VehiclesFilters = ({
                 className="filter-select"
               >
                 <option value="">Todas las ubicaciones</option>
-                {commonLocations.map(location => (
+                {commonLocations.map((location) => (
                   <option key={location} value={location}>
                     📍 {location}
                   </option>
@@ -234,7 +232,8 @@ const VehiclesFilters = ({
               </span>
               {activeFiltersCount > 0 && (
                 <span className="active-filters-text">
-                  ({activeFiltersCount} filtro{activeFiltersCount !== 1 ? 's' : ''} activo{activeFiltersCount !== 1 ? 's' : ''})
+                  ({activeFiltersCount} filtro{activeFiltersCount !== 1 ? 's' : ''} activo
+                  {activeFiltersCount !== 1 ? 's' : ''})
                 </span>
               )}
             </div>
@@ -269,7 +268,10 @@ const VehiclesFilters = ({
                 </span>
               )}
               {filters.maintenance !== 'all' && (
-                <span className="summary-tag" onClick={() => handleFilterChange('maintenance', 'all')}>
+                <span
+                  className="summary-tag"
+                  onClick={() => handleFilterChange('maintenance', 'all')}
+                >
                   Mantenimiento: {filters.maintenance} ✕
                 </span>
               )}

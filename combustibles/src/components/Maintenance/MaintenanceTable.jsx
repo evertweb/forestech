@@ -7,13 +7,7 @@ import React, { useState } from 'react';
 import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/maintenanceService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 
-const MaintenanceTable = ({ 
-  maintenanceRecords, 
-  onEdit, 
-  onView, 
-  onDelete, 
-  userRole 
-}) => {
+const MaintenanceTable = ({ maintenanceRecords, onEdit, onView, onDelete, userRole }) => {
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
 
@@ -23,7 +17,7 @@ const MaintenanceTable = ({
     return d.toLocaleDateString('es-CO', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     });
   };
 
@@ -142,40 +136,25 @@ const MaintenanceTable = ({
   const canManage = userRole === 'admin' || userRole === 'supervisor';
 
   return (
-    <div className="maintenance-table-container">
-      <div className="table-wrapper">
-        <table className="maintenance-table">
+    <div className="maintenance-table-container sap-theme">
+      <div className="table-wrapper sap-theme">
+        <table className="maintenance-table sap-theme">
           <thead>
             <tr>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('type')}
-              >
+              <th className="sortable sap-theme" onClick={() => handleSort('type')}>
                 Tipo {getSortIcon('type')}
               </th>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('vehicleName')}
-              >
+              <th className="sortable sap-theme" onClick={() => handleSort('vehicleName')}>
                 Vehículo {getSortIcon('vehicleName')}
               </th>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('date')}
-              >
+              <th className="sortable sap-theme" onClick={() => handleSort('date')}>
                 Fecha {getSortIcon('date')}
               </th>
               <th>Detalles</th>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('status')}
-              >
+              <th className="sortable sap-theme" onClick={() => handleSort('status')}>
                 Estado {getSortIcon('status')}
               </th>
-              <th 
-                className="sortable text-right"
-                onClick={() => handleSort('cost')}
-              >
+              <th className="sortable sap-theme text-right" onClick={() => handleSort('cost')}>
                 Costo {getSortIcon('cost')}
               </th>
               <th>Acciones</th>
@@ -183,91 +162,91 @@ const MaintenanceTable = ({
           </thead>
           <tbody>
             {sortedRecords.map((maintenance) => (
-              <tr key={maintenance.id} className="maintenance-row">
+              <tr key={maintenance.id} className="maintenance-row sap-theme">
                 {/* Tipo */}
-                <td className="type-cell">
-                  <div className="type-content">
-                    <span className="type-icon">
+                <td className="type-cell sap-theme">
+                  <div className="type-content sap-theme">
+                    <span className="type-icon sap-theme">
                       {getMaintenanceIcon(maintenance.type)}
                     </span>
-                    <span className="type-name">
+                    <span className="type-name sap-theme">
                       {getMaintenanceTypeName(maintenance.type)}
                     </span>
                   </div>
                 </td>
 
                 {/* Vehículo */}
-                <td className="vehicle-cell">
-                  <div className="vehicle-info">
-                    <div className="vehicle-name">{maintenance.vehicleName}</div>
-                    <div className="vehicle-id">{maintenance.vehicleId}</div>
+                <td className="vehicle-cell sap-theme">
+                  <div className="vehicle-info sap-theme">
+                    <div className="vehicle-name sap-theme">{maintenance.vehicleName}</div>
+                    <div className="vehicle-id sap-theme">{maintenance.vehicleId}</div>
                   </div>
                 </td>
 
                 {/* Fecha */}
-                <td className="date-cell">
-                  <div className="date-content">
-                    <div className="date-value">{formatDate(maintenance.date)}</div>
+                <td className="date-cell sap-theme">
+                  <div className="date-content sap-theme">
+                    <div className="date-value sap-theme">{formatDate(maintenance.date)}</div>
                   </div>
                 </td>
 
                 {/* Detalles */}
-                <td className="details-cell">
+                <td className="details-cell sap-theme">
                   {maintenance.type === MAINTENANCE_TYPES.OIL_CHANGE && (
-                    <div className="oil-details">
+                    <div className="oil-details sap-theme">
                       <div>Qty: {formatNumber(maintenance.quantity)} gal</div>
                       <div>Hrs: {formatNumber(maintenance.currentHours)}</div>
                       {maintenance.filters && <div>Filtros: {maintenance.filters}</div>}
                     </div>
                   )}
                   {maintenance.type === MAINTENANCE_TYPES.BATTERY_CHANGE && (
-                    <div className="battery-details">
+                    <div className="battery-details sap-theme">
                       <div>{maintenance.batteryType}</div>
                       {maintenance.brand && <div>{maintenance.brand}</div>}
                       <div>Estado: {maintenance.batteryStatus}</div>
                     </div>
                   )}
                   {maintenance.notes && (
-                    <div className="notes-small">{maintenance.notes}</div>
+                    <div className="notes-small sap-theme">{maintenance.notes}</div>
                   )}
                 </td>
 
                 {/* Estado */}
-                <td className="status-cell">
+                <td className="status-cell sap-theme">
                   <div className={`status-badge ${getStatusClass(maintenance.status)}`}>
                     {getStatusIcon(maintenance.status)} {getStatusName(maintenance.status)}
                   </div>
                 </td>
 
                 {/* Costo */}
-                <td className="cost-cell text-right">
+                <td className="cost-cell sap-theme text-right">
                   {maintenance.cost ? formatCurrency(maintenance.cost) : 'N/A'}
                 </td>
 
                 {/* Acciones */}
-                <td className="actions-cell">
-                  <div className="action-buttons">
+                <td className="actions-cell sap-theme">
+                  <div className="action-buttons sap-theme">
                     <button
-                      className="btn-action btn-view"
+                      className="btn-action btn-view sap-theme"
                       onClick={() => onView(maintenance)}
                       title="Ver detalles"
                     >
                       👁️
                     </button>
-                    
+
                     {canManage && onEdit && (
                       <button
-                        className="btn-action btn-edit"
+                        className="btn-action btn-edit sap-theme"
                         onClick={() => onEdit(maintenance)}
                         title="Editar"
                       >
                         ✏️
                       </button>
                     )}
-                    
+
                     {canManage && onDelete && (
                       <button
-                        className="btn-action btn-delete"
+                        className="btn-action btn-delete sap-theme"
                         onClick={() => onDelete(maintenance.id)}
                         title="Eliminar"
                       >
@@ -283,28 +262,29 @@ const MaintenanceTable = ({
       </div>
 
       {/* Información de la tabla */}
-      <div className="table-info">
-        <div className="table-summary">
-          <span className="total-rows">
-            {maintenanceRecords.length} mantenimiento{maintenanceRecords.length !== 1 ? 's' : ''} en total
+      <div className="table-info sap-theme">
+        <div className="table-summary sap-theme">
+          <span className="total-rows sap-theme">
+            {maintenanceRecords.length} mantenimiento{maintenanceRecords.length !== 1 ? 's' : ''} en
+            total
           </span>
         </div>
-        
-        <div className="table-legend">
-          <div className="legend-item">
-            <span className="legend-dot oil-change"></span>
+
+        <div className="table-legend sap-theme">
+          <div className="legend-item sap-theme">
+            <span className="legend-dot oil-change sap-theme"></span>
             <span>Cambio de Aceite</span>
           </div>
-          <div className="legend-item">
-            <span className="legend-dot battery-change"></span>
+          <div className="legend-item sap-theme">
+            <span className="legend-dot battery-change sap-theme"></span>
             <span>Cambio de Batería</span>
           </div>
-          <div className="legend-item">
-            <span className="legend-dot filter-change"></span>
+          <div className="legend-item sap-theme">
+            <span className="legend-dot filter-change sap-theme"></span>
             <span>Cambio de Filtros</span>
           </div>
-          <div className="legend-item">
-            <span className="legend-dot general"></span>
+          <div className="legend-item sap-theme">
+            <span className="legend-dot general sap-theme"></span>
             <span>Mantenimiento General</span>
           </div>
         </div>

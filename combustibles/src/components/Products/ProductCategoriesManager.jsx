@@ -13,7 +13,7 @@ import {
   getCategoryStats,
   DEFAULT_PRODUCT_CATEGORIES,
   AVAILABLE_FIELDS,
-  generateCategoryId
+  generateCategoryId,
 } from '../../services/productCategoriesService';
 import './ProductCategoriesManager.css';
 
@@ -36,12 +36,12 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
     icon: '📦',
     color: '#2E86AB',
     units: [],
-    fields: []
+    fields: [],
   });
 
   useEffect(() => {
     loadCategoriesAndStats();
-    
+
     // Suscribirse a cambios en tiempo real
     const unsubscribe = subscribeToCategories((updatedCategories) => {
       setCategories(updatedCategories);
@@ -56,7 +56,7 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
       setLoading(true);
       const [categoriesData, statsData] = await Promise.all([
         getAllProductCategories(),
-        getCategoryStats()
+        getCategoryStats(),
       ]);
       setCategories(categoriesData);
       setStats(statsData);
@@ -85,7 +85,7 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
       icon: '📦',
       color: '#2E86AB',
       units: [],
-      fields: []
+      fields: [],
     });
     setShowModal(true);
   };
@@ -95,7 +95,7 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
       setError('No se pueden editar las categorías predeterminadas');
       return;
     }
-    
+
     setSelectedCategory(category);
     setFormData({
       name: category.name || '',
@@ -103,7 +103,7 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
       icon: category.icon || '📦',
       color: category.color || '#2E86AB',
       units: category.units || [],
-      fields: category.fields || []
+      fields: category.fields || [],
     });
     setShowModal(true);
   };
@@ -135,7 +135,7 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       setError('El nombre de la categoría es requerido');
       return;
@@ -172,32 +172,32 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
   };
 
   const handleFieldToggle = (fieldKey) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       fields: prev.fields.includes(fieldKey)
-        ? prev.fields.filter(f => f !== fieldKey)
-        : [...prev.fields, fieldKey]
+        ? prev.fields.filter((f) => f !== fieldKey)
+        : [...prev.fields, fieldKey],
     }));
   };
 
   const handleUnitToggle = (unit) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       units: prev.units.includes(unit)
-        ? prev.units.filter(u => u !== unit)
-        : [...prev.units, unit]
+        ? prev.units.filter((u) => u !== unit)
+        : [...prev.units, unit],
     }));
   };
 
   const getStatsForCategory = (categoryId) => {
-    return stats.find(stat => stat.id === categoryId) || { productCount: 0, activeProducts: 0 };
+    return stats.find((stat) => stat.id === categoryId) || { productCount: 0, activeProducts: 0 };
   };
 
   if (loading) {
     return (
-      <div className="product-categories-manager">
-        <div className="loading">
-          <div className="spinner"></div>
+      <div className="product-categories-manager sap-theme">
+        <div className="loading sap-theme">
+          <div className="spinner sap-theme"></div>
           <p>Cargando categorías...</p>
         </div>
       </div>
@@ -205,110 +205,117 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
   }
 
   return (
-    <div className="product-categories-manager">
-      <div className="categories-header">
+    <div className="product-categories-manager sap-theme">
+      <div className="categories-header sap-theme">
         <h3>🏷️ Gestión de Categorías de Productos</h3>
-        <div className="header-actions">
-          <button 
-            className="btn-primary"
+        <div className="header-actions sap-theme">
+          <button
+            className="btn-primary sap-theme"
             onClick={handleCreateCategory}
             disabled={saving}
           >
             ➕ Nueva Categoría
           </button>
-          <button 
-            className="btn-secondary"
-            onClick={onClose}
-          >
+          <button className="btn-secondary sap-theme" onClick={onClose}>
             ✕ Cerrar
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="error-message">
+        <div className="error-message sap-theme">
           <span>⚠️ {error}</span>
           <button onClick={() => setError('')}>✕</button>
         </div>
       )}
 
-      <div className="categories-grid">
-        {categories.map(category => {
+      <div className="categories-grid sap-theme">
+        {categories.map((category) => {
           const categoryStats = getStatsForCategory(category.id);
-          
+
           return (
-            <div 
-              key={category.id} 
+            <div
+              key={category.id}
               className={`category-card ${category.isDefault ? 'default' : 'custom'}`}
               style={{ '--category-color': category.color }}
             >
-              <div className="category-header">
-                <div className="category-icon" style={{ color: category.color }}>
+              <div className="category-header sap-theme">
+                <div className="category-icon sap-theme" style={{ color: category.color }}>
                   {category.icon}
                 </div>
-                <div className="category-info">
+                <div className="category-info sap-theme">
                   <h4>{category.name}</h4>
                   <p>{category.description}</p>
                 </div>
-                {category.isDefault && <span className="default-badge">Predeterminada</span>}
+                {category.isDefault && (
+                  <span className="default-badge sap-theme">Predeterminada</span>
+                )}
               </div>
 
-              <div className="category-stats">
-                <div className="stat">
-                  <span className="stat-value">{categoryStats.productCount}</span>
-                  <span className="stat-label">Productos</span>
+              <div className="category-stats sap-theme">
+                <div className="stat sap-theme">
+                  <span className="stat-value sap-theme">{categoryStats.productCount}</span>
+                  <span className="stat-label sap-theme">Productos</span>
                 </div>
-                <div className="stat">
-                  <span className="stat-value">{categoryStats.activeProducts}</span>
-                  <span className="stat-label">Activos</span>
+                <div className="stat sap-theme">
+                  <span className="stat-value sap-theme">{categoryStats.activeProducts}</span>
+                  <span className="stat-label sap-theme">Activos</span>
                 </div>
               </div>
 
-              <div className="category-details">
-                <div className="units">
+              <div className="category-details sap-theme">
+                <div className="units sap-theme">
                   <strong>Unidades:</strong>
-                  <div className="units-list">
-                    {(category.units || []).map(unit => (
-                      <span key={unit} className="unit-tag">{unit}</span>
+                  <div className="units-list sap-theme">
+                    {(category.units || []).map((unit) => (
+                      <span key={unit} className="unit-tag sap-theme">
+                        {unit}
+                      </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="fields">
+                <div className="fields sap-theme">
                   <strong>Campos:</strong>
-                  <div className="fields-list">
-                    {(category.fields || []).slice(0, 3).map(fieldKey => {
-                      const field = AVAILABLE_FIELDS.find(f => f.key === fieldKey);
+                  <div className="fields-list sap-theme">
+                    {(category.fields || []).slice(0, 3).map((fieldKey) => {
+                      const field = AVAILABLE_FIELDS.find((f) => f.key === fieldKey);
                       return field ? (
-                        <span key={fieldKey} className="field-tag">
+                        <span key={fieldKey} className="field-tag sap-theme">
                           {field.icon} {field.label}
                         </span>
                       ) : null;
                     })}
                     {(category.fields || []).length > 3 && (
-                      <span className="more-fields">+{(category.fields || []).length - 3} más</span>
+                      <span className="more-fields sap-theme">
+                        +{(category.fields || []).length - 3} más
+                      </span>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="category-actions">
-                <button 
-                  className="btn-edit"
+              <div className="category-actions sap-theme">
+                <button
+                  className="btn-edit sap-theme"
                   onClick={() => handleEditCategory(category)}
                   disabled={category.isDefault || saving}
-                  title={category.isDefault ? 'No se pueden editar categorías predeterminadas' : 'Editar categoría'}
+                  title={
+                    category.isDefault
+                      ? 'No se pueden editar categorías predeterminadas'
+                      : 'Editar categoría'
+                  }
                 >
                   ✏️ Editar
                 </button>
-                <button 
-                  className="btn-delete"
+                <button
+                  className="btn-delete sap-theme"
                   onClick={() => handleDeleteCategory(category)}
                   disabled={category.isDefault || saving || categoryStats.productCount > 0}
                   title={
-                    category.isDefault 
+                    category.isDefault
                       ? 'No se pueden eliminar categorías predeterminadas'
-                      : categoryStats.productCount > 0 
+                      : categoryStats.productCount > 0
                         ? 'No se puede eliminar una categoría con productos asignados'
                         : 'Eliminar categoría'
                   }
@@ -323,69 +330,71 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
 
       {/* Modal de creación/edición */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
+        <div className="modal-overlay sap-theme">
+          <div className="modal-content sap-theme">
+            <div className="modal-header sap-theme">
               <h3>{selectedCategory ? '✏️ Editar Categoría' : '➕ Nueva Categoría'}</h3>
               <button onClick={() => setShowModal(false)}>✕</button>
             </div>
 
-            <form onSubmit={handleSubmit} className="category-form">
+            <form onSubmit={handleSubmit} className="category-form sap-theme">
               {/* Información básica */}
-              <div className="form-section">
+              <div className="form-section sap-theme">
                 <h4>Información Básica</h4>
-                
-                <div className="form-row">
-                  <div className="form-group">
+
+                <div className="form-row sap-theme">
+                  <div className="form-group sap-theme">
                     <label>Nombre *</label>
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                       placeholder="Ej: Aditivos"
                       required
                     />
                   </div>
-                  
-                  <div className="form-group">
+
+                  <div className="form-group sap-theme">
                     <label>Icono</label>
                     <input
                       type="text"
                       value={formData.icon}
-                      onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, icon: e.target.value }))}
                       placeholder="📦"
-                      className="icon-input"
+                      className="icon-input sap-theme"
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label>Descripción</label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, description: e.target.value }))
+                    }
                     placeholder="Describe el tipo de productos que incluye esta categoría"
                     rows="2"
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group sap-theme">
                   <label>Color</label>
                   <input
                     type="color"
                     value={formData.color}
-                    onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
-                    className="color-input"
+                    onChange={(e) => setFormData((prev) => ({ ...prev, color: e.target.value }))}
+                    className="color-input sap-theme"
                   />
                 </div>
               </div>
 
               {/* Unidades disponibles */}
-              <div className="form-section">
+              <div className="form-section sap-theme">
                 <h4>Unidades de Medida</h4>
-                <div className="units-grid">
-                  {AVAILABLE_UNITS.map(unit => (
-                    <label key={unit} className="checkbox-label">
+                <div className="units-grid sap-theme">
+                  {AVAILABLE_UNITS.map((unit) => (
+                    <label key={unit} className="checkbox-label sap-theme">
                       <input
                         type="checkbox"
                         checked={formData.units.includes(unit)}
@@ -398,14 +407,14 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
               </div>
 
               {/* Campos disponibles */}
-              <div className="form-section">
+              <div className="form-section sap-theme">
                 <h4>Campos Específicos</h4>
-                <p className="section-description">
+                <p className="section-description sap-theme">
                   Selecciona los campos que serán relevantes para esta categoría
                 </p>
-                <div className="fields-grid">
-                  {AVAILABLE_FIELDS.map(field => (
-                    <label key={field.key} className="checkbox-label">
+                <div className="fields-grid sap-theme">
+                  {AVAILABLE_FIELDS.map((field) => (
+                    <label key={field.key} className="checkbox-label sap-theme">
                       <input
                         type="checkbox"
                         checked={formData.fields.includes(field.key)}
@@ -420,17 +429,17 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
               </div>
 
               {/* Vista previa */}
-              <div className="form-section">
+              <div className="form-section sap-theme">
                 <h4>Vista Previa</h4>
-                <div 
-                  className="category-preview"
+                <div
+                  className="category-preview sap-theme"
                   style={{ '--category-color': formData.color }}
                 >
-                  <div className="category-header">
-                    <div className="category-icon" style={{ color: formData.color }}>
+                  <div className="category-header sap-theme">
+                    <div className="category-icon sap-theme" style={{ color: formData.color }}>
                       {formData.icon}
                     </div>
-                    <div className="category-info">
+                    <div className="category-info sap-theme">
                       <h4>{formData.name || 'Nombre de la categoría'}</h4>
                       <p>{formData.description || 'Descripción de la categoría'}</p>
                     </div>
@@ -438,18 +447,18 @@ const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {
                 </div>
               </div>
 
-              <div className="form-actions">
-                <button 
-                  type="button" 
-                  className="btn-secondary"
+              <div className="form-actions sap-theme">
+                <button
+                  type="button"
+                  className="btn-secondary sap-theme"
                   onClick={() => setShowModal(false)}
                   disabled={saving}
                 >
                   Cancelar
                 </button>
-                <button 
-                  type="submit" 
-                  className="btn-primary"
+                <button
+                  type="submit"
+                  className="btn-primary sap-theme"
                   disabled={saving || !formData.name.trim()}
                 >
                   {saving ? 'Guardando...' : selectedCategory ? 'Actualizar' : 'Crear'}

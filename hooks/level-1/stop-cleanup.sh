@@ -5,7 +5,7 @@
 set -e  # Salir si hay errores
 
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-PROJECT_DIR="/home/evert/Documentos/appwebforestech/forestech"
+PROJECT_DIR="/home/hp/Documents/forestech"
 
 # Log de inicio
 echo "[$TIMESTAMP] Stop Hook - Iniciando cleanup automático..." >> "$PROJECT_DIR/logs/hooks.log"

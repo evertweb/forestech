@@ -19,11 +19,11 @@ const VehicleWizardDemo = () => {
     <div style={{ padding: '2rem' }}>
       <h1>🚗 Demo - Wizard de Vehículos</h1>
       <p>Prueba el nuevo formulario wizard estilo Typeform para crear vehículos.</p>
-      
-      <button 
+
+      <button
         onClick={() => setShowWizard(true)}
         style={{
-          background: '#3b82f6',
+          background: 'var(--color-info)',
           color: 'white',
           border: 'none',
           padding: '1rem 2rem',
@@ -31,7 +31,7 @@ const VehicleWizardDemo = () => {
           fontSize: '1rem',
           fontWeight: '600',
           cursor: 'pointer',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         }}
       >
         🚀 Abrir Wizard de Vehículo

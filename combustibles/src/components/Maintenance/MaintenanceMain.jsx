@@ -6,18 +6,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 // maintenanceService se importa estáticamente aquí (eliminar dynamic import)
-import { 
-  subscribeToMaintenance, 
+import {
+  subscribeToMaintenance,
   getMaintenanceStats,
   deleteMaintenanceRecord,
   MAINTENANCE_TYPES,
-  MAINTENANCE_STATUS
+  MAINTENANCE_STATUS,
 } from '../../services/maintenanceService';
 import MaintenanceStats from './MaintenanceStats';
 import MaintenanceFilters from './MaintenanceFilters';
 import MaintenanceList from './MaintenanceList';
 import MaintenanceModal from './MaintenanceModal';
-import './Maintenance.css';
+import { PageLayout } from '../shared';
+import './MaintenanceMain-SAP.css';
 
 const MaintenanceMain = () => {
   // Context y estado
@@ -29,11 +30,11 @@ const MaintenanceMain = () => {
 
   // Estado de filtros
   const [filters, setFilters] = useState({
-    type: '',           // Tipo de mantenimiento
-    status: '',         // Estado
-    vehicleId: '',      // Vehículo específico
-    dateFrom: '',       // Fecha desde
-    dateTo: ''          // Fecha hasta
+    type: '', // Tipo de mantenimiento
+    status: '', // Estado
+    vehicleId: '', // Vehículo específico
+    dateFrom: '', // Fecha desde
+    dateTo: '', // Fecha hasta
   });
 
   // Estado de vista
@@ -44,9 +45,12 @@ const MaintenanceMain = () => {
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
 
   // Función estabilizada para manejar la suscripción con filtros
-  const handleMaintenanceSubscription = useCallback((callback) => {
-    return subscribeToMaintenance(callback, filters);
-  }, [filters]);
+  const handleMaintenanceSubscription = useCallback(
+    (callback) => {
+      return subscribeToMaintenance(callback, filters);
+    },
+    [filters]
+  );
 
   // Función estabilizada para cargar estadísticas
   const loadMaintenanceStats = useCallback(async () => {
@@ -63,7 +67,7 @@ const MaintenanceMain = () => {
     if (!user) return;
 
     setLoading(true);
-    
+
     const unsubscribe = handleMaintenanceSubscription((maintenanceData, error) => {
       if (error) {
         console.error('Error en suscripción de mantenimientos:', error);
@@ -88,9 +92,9 @@ const MaintenanceMain = () => {
   }, [user, maintenanceRecords, loadMaintenanceStats]);
 
   // Filtrar mantenimientos por búsqueda
-  const filteredMaintenance = maintenanceRecords.filter(record => {
+  const filteredMaintenance = maintenanceRecords.filter((record) => {
     if (!searchTerm) return true;
-    
+
     const searchLower = searchTerm.toLowerCase();
     return (
       record.vehicleName?.toLowerCase().includes(searchLower) ||
@@ -133,7 +137,7 @@ const MaintenanceMain = () => {
   };
 
   const handleFilterChange = (newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const handleClearFilters = () => {
@@ -142,7 +146,7 @@ const MaintenanceMain = () => {
       status: '',
       vehicleId: '',
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
     });
     setSearchTerm('');
   };
@@ -168,76 +172,85 @@ const MaintenanceMain = () => {
   // Renderizado condicional
   if (!user) {
     return (
-      <div className="maintenance-main">
-        <div className="auth-required">
-          <h2>🔐 Autenticación Requerida</h2>
-          <p>Debes iniciar sesión para acceder al módulo de mantenimiento.</p>
+      <div className="maintenance-main sap-theme">
+        <div className="auth-required sap-theme sap-message-info">
+          <h2 className="sap-title">🔐 Autenticación Requerida</h2>
+          <p className="sap-text">Debes iniciar sesión para acceder al módulo de mantenimiento.</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="maintenance-main">
-      {/* Header */}
-      <div className="maintenance-header">
-        <div className="header-title">
-          <h2>🔧 Mantenimiento de Vehículos</h2>
-          <p>Gestión de cambios de aceite, filtros y baterías</p>
-        </div>
-        <div className="header-actions">
-          {canManageMaintenance && (
-            <button 
-              className="btn-create-maintenance"
-              onClick={handleCreateMaintenance}
-            >
-              ➕ Crear Mantenimiento
-            </button>
-          )}
-        </div>
-      </div>
+  // Componentes para PageLayout
+  const headerActions = canManageMaintenance ? (
+    <div className="header-actions sap-theme">
+      <button
+        className="btn-create-maintenance sap-theme sap-button sap-button-primary"
+        onClick={handleCreateMaintenance}
+      >
+        ➕ Crear Mantenimiento
+      </button>
+    </div>
+  ) : null;
 
-      {/* Loading */}
-      {loading && (
-        <div className="maintenance-loading">
-          <div className="loading-spinner"></div>
-          <p>Cargando mantenimientos...</p>
-        </div>
-      )}
+  const statsComponent = stats ? <MaintenanceStats stats={stats} /> : null;
 
+  const filtersComponent = (
+    <MaintenanceFilters
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onClearFilters={handleClearFilters}
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      viewMode={viewMode}
+      onViewModeChange={setViewMode}
+      totalResults={filteredMaintenance.length}
+    />
+  );
+
+  const mainContent = (
+    <>
       {/* Error */}
       {error && (
-        <div className="error-banner">
+        <div className="error-banner sap-theme sap-message-error">
           <span>❌ {error}</span>
-          <button onClick={() => window.location.reload()}>Reintentar</button>
+          <button
+            className="sap-button sap-button-secondary"
+            onClick={() => window.location.reload()}
+          >
+            Reintentar
+          </button>
         </div>
       )}
-
-      {/* Estadísticas */}
-      {stats && <MaintenanceStats stats={stats} />}
-
-      {/* Filtros */}
-      <MaintenanceFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        totalResults={filteredMaintenance.length}
-      />
 
       {/* Lista de mantenimientos */}
       {!loading && !error && (
-        <MaintenanceList
-          maintenanceRecords={filteredMaintenance}
-          viewMode={viewMode}
-          onEdit={canManageMaintenance ? handleEditMaintenance : null}
-          onView={handleViewMaintenance}
-          onDelete={canManageMaintenance ? handleDeleteMaintenance : null}
-          userRole={userProfile?.role}
-        />
+        <>
+          {filteredMaintenance.length > 0 ? (
+            <MaintenanceList
+              maintenanceRecords={filteredMaintenance}
+              viewMode={viewMode}
+              onEdit={canManageMaintenance ? handleEditMaintenance : null}
+              onView={handleViewMaintenance}
+              onDelete={canManageMaintenance ? handleDeleteMaintenance : null}
+              userRole={userProfile?.role}
+            />
+          ) : (
+            <div className="empty-state sap-theme">
+              <div className="empty-icon sap-theme">🔧</div>
+              <h3>No hay mantenimientos registrados</h3>
+              <p>Comienza creando el primer mantenimiento para tu flota de vehículos.</p>
+              {canManageMaintenance && (
+                <button
+                  className="sap-button sap-button-primary sap-mt-lg"
+                  onClick={handleCreateMaintenance}
+                >
+                  ➕ Crear Primer Mantenimiento
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal */}
@@ -251,7 +264,20 @@ const MaintenanceMain = () => {
           userRole={userProfile?.role}
         />
       )}
-    </div>
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="🔧 Mantenimiento de Vehículos"
+      subtitle="Gestión de cambios de aceite, filtros y baterías"
+      actions={headerActions}
+      stats={statsComponent}
+      filters={filtersComponent}
+      loading={loading}
+    >
+      {mainContent}
+    </PageLayout>
   );
 };
 

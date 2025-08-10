@@ -7,7 +7,16 @@
     "dev": "vite",
     "build": "vite build --outDir ../public/combustibles",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:ui": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed --project=chromium",
+    "e2e:install": "playwright install chromium",
+    "e2e:smoke": "playwright test smoke.spec.ts --project=chromium",
+    "e2e:movement-flow": "playwright test movement-flow.spec.ts --project=chromium",
+    "e2e:ci": "playwright test --project=chromium --reporter=github-actions"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",
@@ -24,22 +33,30 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-react-aria-components": "^2.0.0",
+    "web-vitals": "^4.2.4",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@playwright/test": "^1.54.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
+    "@vitest/coverage-v8": "^2.1.9",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.6",
     "prop-types": "^15.8.1",
     "rollup-plugin-visualizer": "^6.0.3",
     "tailwindcss": "^4.1.11",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "vitest": "^2.0.5"
   }
 }

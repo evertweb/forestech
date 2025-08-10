@@ -1,41 +1,98 @@
-// combustibles/src/components/Suppliers/SupplierModal.jsx
-// Modal para crear/editar proveedores
-import React, { useState, useEffect } from 'react';
+/**
+ * SupplierModal - Modal para crear/editar proveedores
+ * Refactorizado para usar BaseModal
+ */
+import React, { useState, useEffect, useCallback } from 'react';
+import BaseModal from '../shared/BaseModal';
+import ModalHeader from '../shared/ModalHeader';
+import ModalFooter from '../shared/ModalFooter';
+import useFormData from '../../hooks/useFormData';
+import {
+  validationSchemas,
+  validators,
+  validateForm as runValidation,
+} from '../../utils/validators';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
+import {
+  MODAL_PRESETS,
+  UI_ACTIONS,
+  UI_FORM_LABELS,
+  UI_MESSAGES,
+  UI_TITLES,
+  UI_STATUS,
+  UI_PLACEHOLDERS,
+} from '../../constants';
 
 const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
   const { userProfile } = useCombustibles();
   const isEditing = !!supplier;
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    taxId: '',
-    type: 'proveedor',
-    category: 'combustibles',
-    contactPerson: '',
-    phone: '',
-    email: '',
-    address: '',
-    city: '',
-    state: 'Colombia',
-    fuelTypes: [],
-    paymentTerms: 'contado',
-    creditLimit: '',
-    priceList: {},
-    rating: 5,
-    evaluationNotes: '',
-    status: 'active',
-    isPreferred: false
-  });
-
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState('basic'); // 'basic', 'contact', 'products', 'commercial'
 
-  // Initialize form data when editing
+  // Estado inicial y validación con useFormData
+  const getInitialFormData = useCallback(
+    () => ({
+      name: '',
+      taxId: '',
+      type: 'proveedor',
+      category: 'combustibles',
+      contactPerson: '',
+      phone: '',
+      email: '',
+      address: '',
+      city: '',
+      state: 'Colombia',
+      fuelTypes: [],
+      paymentTerms: 'contado',
+      creditLimit: '',
+      priceList: {},
+      rating: 5,
+      evaluationNotes: '',
+      status: 'active',
+      isPreferred: false,
+    }),
+    []
+  );
+
+  // Validación centralizada: schema + reglas extra dinámicas (priceList por fuelType)
+  const validate = (values) => {
+    // Ejecutar schema base de suppliers
+    const base = validationSchemas.supplier
+      ? runValidation(values, validationSchemas.supplier)
+      : { isValid: true, errors: {} };
+
+    // Reglas adicionales: category y type requeridos
+    const extraErrors = { ...base.errors };
+    if (!values.category) extraErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
+    if (!values.type)
+      extraErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
+
+    // Validar priceList por cada fuelType marcado
+    (values.fuelTypes || []).forEach((fuelType) => {
+      const price = values.priceList?.[fuelType];
+      const err = validators.nonNegative(
+        price,
+        `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`
+      );
+      if (err) extraErrors[`price_${fuelType}`] = err;
+    });
+
+    return { isValid: Object.keys(extraErrors).length === 0, errors: extraErrors };
+  };
+
+  const {
+    values: formData,
+    setValues: setFormData,
+    errors,
+    handleInputChange,
+    resetForm,
+    validateForm,
+  } = useFormData(getInitialFormData(), validate);
+
+  // Inicializar datos al editar
   useEffect(() => {
     if (isEditing && supplier) {
       setFormData({
@@ -56,122 +113,66 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
         rating: supplier.rating || 5,
         evaluationNotes: supplier.evaluationNotes || '',
         status: supplier.status || 'active',
-        isPreferred: supplier.isPreferred || false
+        isPreferred: supplier.isPreferred || false,
       });
+    } else if (!isEditing) {
+      resetForm();
     }
-  }, [isEditing, supplier]);
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }));
-    }
-  };
+  }, [isEditing, supplier, setFormData, resetForm]);
 
   const handleFuelTypeToggle = (fuelType) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       fuelTypes: prev.fuelTypes.includes(fuelType)
-        ? prev.fuelTypes.filter(ft => ft !== fuelType)
-        : [...prev.fuelTypes, fuelType]
+        ? prev.fuelTypes.filter((ft) => ft !== fuelType)
+        : [...prev.fuelTypes, fuelType],
     }));
   };
 
   const handlePriceChange = (fuelType, price) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       priceList: {
         ...prev.priceList,
-        [fuelType]: parseFloat(price) || 0
-      }
+        [fuelType]: parseFloat(price) || 0,
+      },
     }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Required fields
-    if (!formData.name.trim()) {
-      newErrors.name = 'El nombre del proveedor es requerido';
-    }
-
-    if (!formData.category) {
-      newErrors.category = 'La categoría es requerida';
-    }
-
-    if (!formData.type) {
-      newErrors.type = 'El tipo de proveedor es requerido';
-    }
-
-    // Email validation
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'El formato del email no es válido';
-    }
-
-    // Phone validation (basic)
-    if (formData.phone && !/^[\d\s\-+()]+$/.test(formData.phone)) {
-      newErrors.phone = 'El formato del teléfono no es válido';
-    }
-
-    // Credit limit validation
-    if (formData.creditLimit && (isNaN(formData.creditLimit) || parseFloat(formData.creditLimit) < 0)) {
-      newErrors.creditLimit = 'El límite de crédito debe ser un número positivo';
-    }
-
-    // Rating validation
-    if (formData.rating < 1 || formData.rating > 5) {
-      newErrors.rating = 'El rating debe estar entre 1 y 5';
-    }
-
-    // Fuel types validation for prices
-    formData.fuelTypes.forEach(fuelType => {
-      if (formData.priceList[fuelType] && (isNaN(formData.priceList[fuelType]) || parseFloat(formData.priceList[fuelType]) < 0)) {
-        newErrors[`price_${fuelType}`] = `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`;
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setLoading(true);
-
     try {
       const supplierData = {
         ...formData,
         creditLimit: parseFloat(formData.creditLimit) || 0,
         rating: parseFloat(formData.rating) || 5,
-        // Clean up price list - only include prices for selected fuel types
         priceList: Object.fromEntries(
-          Object.entries(formData.priceList).filter(([fuelType, price]) => 
-            formData.fuelTypes.includes(fuelType) && price > 0
+          Object.entries(formData.priceList).filter(
+            ([fuelType, price]) => formData.fuelTypes.includes(fuelType) && price > 0
           )
-        )
+        ),
       };
-
       let result;
       if (isEditing) {
         result = await updateSupplier(supplier.id, supplierData, userProfile?.email);
       } else {
         result = await createSupplier(supplierData, userProfile?.email);
       }
-
       if (result.success) {
         onSuccess();
       } else {
-        onError(result.error || 'Error al guardar proveedor');
+        onError(
+          result.error ||
+            `${UI_MESSAGES.ERROR.SAVE_FAILED} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
+        );
       }
     } catch (error) {
       console.error('Error saving supplier:', error);
-      onError('Error inesperado al guardar proveedor');
+      onError(
+        `Error inesperado al ${UI_ACTIONS.SAVE.toLowerCase()} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
+      );
     } finally {
       setLoading(false);
     }
@@ -179,28 +180,26 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
   const tabs = [
     { id: 'basic', label: 'Información Básica', icon: 'icon-info' },
-    { id: 'contact', label: 'Contacto', icon: 'icon-phone' },
-    { id: 'products', label: 'Productos', icon: 'icon-package' },
-    { id: 'commercial', label: 'Comercial', icon: 'icon-credit-card' }
+    { id: 'contact', label: UI_FORM_LABELS.CONTACT, icon: 'icon-phone' },
+    { id: 'products', label: UI_TITLES.PRODUCTS, icon: 'icon-package' },
+    { id: 'commercial', label: 'Comercial', icon: 'icon-credit-card' },
   ];
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container large" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>
-            <i className="icon-truck"></i>
-            {isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'}
-          </h2>
-          <button className="modal-close" onClick={onClose}>
-            <i className="icon-x"></i>
-          </button>
-        </div>
+  const getModalTitle = () => {
+    return isEditing
+      ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.SUPPLIER}`
+      : `Nuevo ${UI_FORM_LABELS.SUPPLIER}`;
+  };
 
+  return (
+    <BaseModal isOpen={true} onClose={onClose} size="lg" className="supplier-modal sap-theme">
+      <ModalHeader title={getModalTitle()} icon="🚚" onClose={onClose} />
+
+      <div className="modal-body sap-theme">
         <form onSubmit={handleSubmit}>
           {/* Tabs */}
-          <div className="modal-tabs">
-            {tabs.map(tab => (
+          <div className="modal-tabs sap-theme">
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
@@ -213,84 +212,94 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
             ))}
           </div>
 
-          <div className="modal-body">
+          <div className="modal-body sap-theme">
             {/* Basic Information Tab */}
             {activeTab === 'basic' && (
-              <div className="tab-content">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="required">Nombre del Proveedor</label>
+              <div className="tab-content sap-theme">
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
+                    <label className="required sap-theme">
+                      {UI_FORM_LABELS.NAME} del {UI_FORM_LABELS.SUPPLIER}
+                    </label>
                     <input
                       type="text"
                       value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Ingresa el nombre del proveedor"
+                      name="name"
+                      onChange={handleInputChange}
+                      placeholder={`Ingresa el ${UI_FORM_LABELS.NAME.toLowerCase()} del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       className={errors.name ? 'error' : ''}
                     />
-                    {errors.name && <span className="error-message">{errors.name}</span>}
+                    {errors.name && <span className="error-message sap-theme">{errors.name}</span>}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>NIT / Documento</label>
                     <input
                       type="text"
                       value={formData.taxId}
-                      onChange={(e) => handleInputChange('taxId', e.target.value)}
+                      name="taxId"
+                      onChange={handleInputChange}
                       placeholder="123456789-0"
                       className={errors.taxId ? 'error' : ''}
                     />
-                    {errors.taxId && <span className="error-message">{errors.taxId}</span>}
+                    {errors.taxId && (
+                      <span className="error-message sap-theme">{errors.taxId}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
-                    <label className="required">Tipo de Proveedor</label>
+                  <div className="form-group sap-theme">
+                    <label className="required sap-theme">
+                      {UI_FORM_LABELS.TYPE} de {UI_FORM_LABELS.SUPPLIER}
+                    </label>
                     <select
                       value={formData.type}
-                      onChange={(e) => handleInputChange('type', e.target.value)}
+                      name="type"
+                      onChange={handleInputChange}
                       className={errors.type ? 'error' : ''}
                     >
-                      <option value="proveedor">Proveedor</option>
+                      <option value="proveedor">{UI_FORM_LABELS.SUPPLIER}</option>
                       <option value="distribuidor">Distribuidor</option>
                       <option value="mayorista">Mayorista</option>
                     </select>
-                    {errors.type && <span className="error-message">{errors.type}</span>}
+                    {errors.type && <span className="error-message sap-theme">{errors.type}</span>}
                   </div>
 
-                  <div className="form-group">
-                    <label className="required">Categoría</label>
+                  <div className="form-group sap-theme">
+                    <label className="required sap-theme">{UI_FORM_LABELS.CATEGORY}</label>
                     <select
                       value={formData.category}
-                      onChange={(e) => handleInputChange('category', e.target.value)}
+                      name="category"
+                      onChange={handleInputChange}
                       className={errors.category ? 'error' : ''}
                     >
                       <option value="combustibles">Combustibles</option>
                       <option value="lubricantes">Lubricantes</option>
                       <option value="aditivos">Aditivos</option>
                     </select>
-                    {errors.category && <span className="error-message">{errors.category}</span>}
+                    {errors.category && (
+                      <span className="error-message sap-theme">{errors.category}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
-                    <label>Estado</label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => handleInputChange('status', e.target.value)}
-                    >
-                      <option value="active">Activo</option>
-                      <option value="inactive">Inactivo</option>
+                  <div className="form-group sap-theme">
+                    <label>{UI_FORM_LABELS.STATUS}</label>
+                    <select value={formData.status} name="status" onChange={handleInputChange}>
+                      <option value="active">{UI_STATUS.ACTIVE}</option>
+                      <option value="inactive">{UI_STATUS.INACTIVE}</option>
                       <option value="suspended">Suspendido</option>
                     </select>
                   </div>
 
-                  <div className="form-group checkbox">
-                    <label className="checkbox-label">
+                  <div className="form-group checkbox sap-theme">
+                    <label className="checkbox-label sap-theme">
                       <input
                         type="checkbox"
+                        name="isPreferred"
                         checked={formData.isPreferred}
-                        onChange={(e) => handleInputChange('isPreferred', e.target.checked)}
+                        onChange={handleInputChange}
                       />
-                      <span className="checkbox-mark"></span>
-                      Proveedor Preferido
+                      <span className="checkbox-mark sap-theme"></span>
+                      {UI_STATUS.PREFERRED_SUPPLIER}
                     </label>
                   </div>
                 </div>
@@ -299,68 +308,78 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
             {/* Contact Information Tab */}
             {activeTab === 'contact' && (
-              <div className="tab-content">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Persona de Contacto</label>
+              <div className="tab-content sap-theme">
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
+                    <label>Persona de {UI_FORM_LABELS.CONTACT}</label>
                     <input
                       type="text"
                       value={formData.contactPerson}
-                      onChange={(e) => handleInputChange('contactPerson', e.target.value)}
+                      name="contactPerson"
+                      onChange={handleInputChange}
                       placeholder="Nombre del contacto principal"
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>Teléfono</label>
+                  <div className="form-group sap-theme">
+                    <label>{UI_FORM_LABELS.PHONE}</label>
                     <input
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="+57 300 123 4567"
+                      name="phone"
+                      onChange={handleInputChange}
+                      placeholder={UI_PLACEHOLDERS.PHONE_FORMAT}
                       className={errors.phone ? 'error' : ''}
                     />
-                    {errors.phone && <span className="error-message">{errors.phone}</span>}
+                    {errors.phone && (
+                      <span className="error-message sap-theme">{errors.phone}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
-                    <label>Email</label>
+                  <div className="form-group sap-theme">
+                    <label>{UI_FORM_LABELS.EMAIL}</label>
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="contacto@proveedor.com"
+                      name="email"
+                      onChange={handleInputChange}
+                      placeholder={UI_PLACEHOLDERS.EMAIL_FORMAT}
                       className={errors.email ? 'error' : ''}
                     />
-                    {errors.email && <span className="error-message">{errors.email}</span>}
+                    {errors.email && (
+                      <span className="error-message sap-theme">{errors.email}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Ciudad</label>
                     <input
                       type="text"
                       value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      name="city"
+                      onChange={handleInputChange}
                       placeholder="Bogotá"
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Estado/País</label>
                     <input
                       type="text"
                       value={formData.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
+                      name="state"
+                      onChange={handleInputChange}
                       placeholder="Colombia"
                     />
                   </div>
 
-                  <div className="form-group full-width">
-                    <label>Dirección</label>
+                  <div className="form-group full-width sap-theme">
+                    <label>{UI_FORM_LABELS.ADDRESS}</label>
                     <textarea
                       value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Dirección completa del proveedor"
+                      name="address"
+                      onChange={handleInputChange}
+                      placeholder={`${UI_FORM_LABELS.ADDRESS} completa del ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`}
                       rows="3"
                     />
                   </div>
@@ -370,19 +389,19 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
             {/* Products Tab */}
             {activeTab === 'products' && (
-              <div className="tab-content">
-                <div className="section">
+              <div className="tab-content sap-theme">
+                <div className="section sap-theme">
                   <h3>Tipos de Combustible que Suministra</h3>
-                  <div className="fuel-types-grid">
+                  <div className="fuel-types-grid sap-theme">
                     {Object.entries(FUEL_TYPES).map(([key, label]) => (
-                      <div key={key} className="fuel-type-item">
-                        <label className="checkbox-label">
+                      <div key={key} className="fuel-type-item sap-theme">
+                        <label className="checkbox-label sap-theme">
                           <input
                             type="checkbox"
                             checked={formData.fuelTypes.includes(key)}
                             onChange={() => handleFuelTypeToggle(key)}
                           />
-                          <span className="checkbox-mark"></span>
+                          <span className="checkbox-mark sap-theme"></span>
                           {label}
                         </label>
                       </div>
@@ -391,14 +410,14 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                 </div>
 
                 {formData.fuelTypes.length > 0 && (
-                  <div className="section">
+                  <div className="section sap-theme">
                     <h3>Precios por Litro (Opcional)</h3>
-                    <div className="prices-grid">
-                      {formData.fuelTypes.map(fuelType => (
-                        <div key={fuelType} className="form-group">
+                    <div className="prices-grid sap-theme">
+                      {formData.fuelTypes.map((fuelType) => (
+                        <div key={fuelType} className="form-group sap-theme">
                           <label>{FUEL_TYPES[fuelType]}</label>
-                          <div className="input-with-currency">
-                            <span className="currency-symbol">$</span>
+                          <div className="input-with-currency sap-theme">
+                            <span className="currency-symbol sap-theme">$</span>
                             <input
                               type="number"
                               step="0.01"
@@ -410,7 +429,9 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                             />
                           </div>
                           {errors[`price_${fuelType}`] && (
-                            <span className="error-message">{errors[`price_${fuelType}`]}</span>
+                            <span className="error-message sap-theme">
+                              {errors[`price_${fuelType}`]}
+                            </span>
                           )}
                         </div>
                       ))}
@@ -422,13 +443,14 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
 
             {/* Commercial Tab */}
             {activeTab === 'commercial' && (
-              <div className="tab-content">
-                <div className="form-grid">
-                  <div className="form-group">
+              <div className="tab-content sap-theme">
+                <div className="form-grid sap-theme">
+                  <div className="form-group sap-theme">
                     <label>Términos de Pago</label>
                     <select
                       value={formData.paymentTerms}
-                      onChange={(e) => handleInputChange('paymentTerms', e.target.value)}
+                      name="paymentTerms"
+                      onChange={handleInputChange}
                     >
                       <option value="contado">Contado</option>
                       <option value="30dias">30 días</option>
@@ -437,41 +459,45 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                     </select>
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Límite de Crédito</label>
-                    <div className="input-with-currency">
-                      <span className="currency-symbol">$</span>
+                    <div className="input-with-currency sap-theme">
+                      <span className="currency-symbol sap-theme">$</span>
                       <input
                         type="number"
                         step="0.01"
                         min="0"
+                        name="creditLimit"
                         value={formData.creditLimit}
-                        onChange={(e) => handleInputChange('creditLimit', e.target.value)}
+                        onChange={handleInputChange}
                         placeholder="0.00"
                         className={errors.creditLimit ? 'error' : ''}
                       />
                     </div>
-                    {errors.creditLimit && <span className="error-message">{errors.creditLimit}</span>}
+                    {errors.creditLimit && (
+                      <span className="error-message sap-theme">{errors.creditLimit}</span>
+                    )}
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group sap-theme">
                     <label>Rating</label>
-                    <div className="rating-input">
+                    <div className="rating-input sap-theme">
                       <input
                         type="range"
                         min="1"
                         max="5"
                         step="0.1"
+                        name="rating"
                         value={formData.rating}
-                        onChange={(e) => handleInputChange('rating', parseFloat(e.target.value))}
+                        onChange={handleInputChange}
                         className={errors.rating ? 'error' : ''}
                       />
-                      <div className="rating-display">
-                        <span className="rating-value">{formData.rating.toFixed(1)}</span>
-                        <div className="rating-stars">
-                          {[1, 2, 3, 4, 5].map(star => (
-                            <span 
-                              key={star} 
+                      <div className="rating-display sap-theme">
+                        <span className="rating-value sap-theme">{formData.rating.toFixed(1)}</span>
+                        <div className="rating-stars sap-theme">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
                               className={`star ${star <= Math.round(formData.rating) ? 'filled' : ''}`}
                             >
                               ★
@@ -480,14 +506,17 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                         </div>
                       </div>
                     </div>
-                    {errors.rating && <span className="error-message">{errors.rating}</span>}
+                    {errors.rating && (
+                      <span className="error-message sap-theme">{errors.rating}</span>
+                    )}
                   </div>
 
-                  <div className="form-group full-width">
+                  <div className="form-group full-width sap-theme">
                     <label>Notas de Evaluación</label>
                     <textarea
+                      name="evaluationNotes"
                       value={formData.evaluationNotes}
-                      onChange={(e) => handleInputChange('evaluationNotes', e.target.value)}
+                      onChange={handleInputChange}
                       placeholder="Comentarios sobre el desempeño del proveedor..."
                       rows="4"
                     />
@@ -496,38 +525,29 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               </div>
             )}
           </div>
-
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <div className="loading-spinner small"></div>
-                  {isEditing ? 'Actualizando...' : 'Creando...'}
-                </>
-              ) : (
-                <>
-                  <i className="icon-save"></i>
-                  {isEditing ? 'Actualizar Proveedor' : 'Crear Proveedor'}
-                </>
-              )}
-            </button>
-          </div>
         </form>
       </div>
-    </div>
+
+      <ModalFooter
+        primaryAction={{
+          label: loading
+            ? isEditing
+              ? UI_MESSAGES.LOADING.UPDATING
+              : UI_MESSAGES.LOADING.CREATING
+            : isEditing
+              ? `${UI_ACTIONS.UPDATE} ${UI_FORM_LABELS.SUPPLIER}`
+              : `${UI_ACTIONS.CREATE} ${UI_FORM_LABELS.SUPPLIER}`,
+          onClick: handleSubmit,
+          disabled: loading,
+          type: 'submit',
+        }}
+        secondaryAction={{
+          label: UI_ACTIONS.CANCEL,
+          onClick: onClose,
+        }}
+        isLoading={loading}
+      />
+    </BaseModal>
   );
 };
 

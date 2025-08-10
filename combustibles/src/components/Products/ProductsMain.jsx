@@ -4,12 +4,18 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { subscribeToProducts, createProduct, updateProduct, deleteProduct } from '../../services/productsService';
+import {
+  subscribeToProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from '../../services/productsService';
 import { PRODUCT_INFO, PRODUCT_CATEGORIES, getAllProducts } from '../../constants/productTypes';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
 import ProductCategoriesManager from './ProductCategoriesManager';
-import './Products.css';
+import { PageLayout } from '../shared';
+import './ProductsMain-SAP.css';
 
 const ProductsMain = ({ userProfile }) => {
   const [products, setProducts] = useState([]);
@@ -50,15 +56,15 @@ const ProductsMain = ({ userProfile }) => {
       console.log('🔍 Debug - Inicializando productos:', {
         productsLength: products.length,
         loading,
-        canManageProducts
+        canManageProducts,
       });
-      
+
       if (products.length === 0 && !loading && canManageProducts) {
         try {
           console.log('🚀 Creando productos predefinidos...');
           const predefinedProducts = getAllProducts();
           console.log('📦 Productos predefinidos:', predefinedProducts);
-          
+
           for (const productInfo of predefinedProducts) {
             console.log('➕ Creando producto:', productInfo.name);
             await createProduct({
@@ -73,7 +79,7 @@ const ProductsMain = ({ userProfile }) => {
               isActive: true,
               currentStock: 0,
               minThreshold: 10,
-              maxCapacity: 1000
+              maxCapacity: 1000,
             });
           }
           console.log('✅ Productos predefinidos creados exitosamente');
@@ -82,9 +88,14 @@ const ProductsMain = ({ userProfile }) => {
         }
       } else {
         console.log('ℹ️ No se inicializan productos:', {
-          reason: products.length > 0 ? 'Ya existen productos' : 
-                  loading ? 'Está cargando' : 
-                  !canManageProducts ? 'Sin permisos' : 'Otra razón'
+          reason:
+            products.length > 0
+              ? 'Ya existen productos'
+              : loading
+                ? 'Está cargando'
+                : !canManageProducts
+                  ? 'Sin permisos'
+                  : 'Otra razón',
         });
       }
     };
@@ -136,179 +147,160 @@ const ProductsMain = ({ userProfile }) => {
   };
 
   // Filtrar productos
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  if (loading) {
-    return (
-      <div className="products-main">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Cargando productos...</p>
-        </div>
-      </div>
-    );
-  }
+  const headerActions = canManageProducts ? (
+    <div className="header-actions sap-theme">
+      <button
+        className="btn-primary sap-theme sap-button sap-button-primary"
+        onClick={handleCreateProduct}
+      >
+        ➕ Nuevo producto
+      </button>
 
-  if (error) {
-    return (
-      <div className="products-main">
-        <div className="error-container">
-          <p>⚠️ {error}</p>
-          <button onClick={() => window.location.reload()}>Reintentar</button>
-        </div>
-      </div>
-    );
-  }
+      <button
+        className="btn-secondary sap-theme sap-button sap-button-secondary"
+        onClick={() => setShowCategoriesManager(!showCategoriesManager)}
+        style={{ marginLeft: '10px' }}
+      >
+        🏷️ Gestionar Categorías
+      </button>
+      <button
+        className="btn-secondary sap-theme sap-button sap-button-secondary"
+        onClick={async () => {
+          try {
+            console.log('🧪 Forzando creación de productos predefinidos...');
+            const predefinedProducts = getAllProducts();
+            for (const productInfo of predefinedProducts) {
+              await createProduct({
+                name: productInfo.name,
+                displayName: productInfo.displayName,
+                category: productInfo.category,
+                unit: productInfo.unit,
+                defaultPrice: productInfo.defaultPrice,
+                color: productInfo.color,
+                icon: productInfo.icon,
+                description: productInfo.description,
+                isActive: true,
+                currentStock: 0,
+                minThreshold: 10,
+                maxCapacity: 1000,
+              });
+            }
+            alert('Productos predefinidos creados exitosamente');
+          } catch (error) {
+            console.error('Error:', error);
+            alert('Error creando productos: ' + error.message);
+          }
+        }}
+        style={{ marginLeft: '10px' }}
+      >
+        🧪 Crear Predefinidos
+      </button>
+    </div>
+  ) : null;
 
-  return (
-    <div className="products-main">
-      <div className="products-header">
-        <div className="header-title">
-          <h1>🛢️ Gestión de Productos</h1>
-          <p>Administra los tipos de combustibles y productos disponibles</p>
-        </div>
-        
-        {canManageProducts && (
-          <div className="header-actions">
-            <button 
-              className="btn-primary"
-              onClick={handleCreateProduct}
-            >
-              ➕ Agregar Producto
-            </button>
-            <button 
-              className="btn-secondary"
-              onClick={() => setShowCategoriesManager(true)}
-              style={{ marginLeft: '10px' }}
-            >
-              🏷️ Gestionar Categorías
-            </button>
-            <button 
-              className="btn-secondary"
-              onClick={async () => {
-                try {
-                  console.log('🧪 Forzando creación de productos predefinidos...');
-                  const predefinedProducts = getAllProducts();
-                  for (const productInfo of predefinedProducts) {
-                    await createProduct({
-                      name: productInfo.name,
-                      displayName: productInfo.displayName,
-                      category: productInfo.category,
-                      unit: productInfo.unit,
-                      defaultPrice: productInfo.defaultPrice,
-                      color: productInfo.color,
-                      icon: productInfo.icon,
-                      description: productInfo.description,
-                      isActive: true,
-                      currentStock: 0,
-                      minThreshold: 10,
-                      maxCapacity: 1000
-                    });
-                  }
-                  alert('Productos predefinidos creados exitosamente');
-                } catch (error) {
-                  console.error('Error:', error);
-                  alert('Error creando productos: ' + error.message);
-                }
-              }}
-              style={{ marginLeft: '10px' }}
-            >
-              🧪 Crear Predefinidos
-            </button>
-          </div>
-        )}
+  const filtersComponent = (
+    <div className="products-filters sap-theme">
+      <div className="filter-group sap-theme">
+        <input
+          type="text"
+          placeholder="🔍 Buscar productos..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input sap-theme sap-input"
+        />
       </div>
 
-      {showStats && <ProductsStats products={products} />}
-
-      <div className="products-filters">
-        <div className="filter-group">
-          <input
-            type="text"
-            placeholder="🔍 Buscar productos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-        
-        <div className="filter-group">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="filter-select"
-          >
-            <option value="">🏷️ Todas las categorías</option>
-            {Object.values(PRODUCT_CATEGORIES).map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <button
-            className={`toggle-btn ${showStats ? 'active' : ''}`}
-            onClick={() => setShowStats(!showStats)}
-          >
-            📊 Estadísticas
-          </button>
-        </div>
+      <div className="filter-group sap-theme">
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="filter-select sap-theme sap-select"
+        >
+          <option value="">🏷️ Todas las categorías</option>
+          {Object.values(PRODUCT_CATEGORIES).map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="products-grid">
-        {filteredProducts.map(product => (
-          <div key={product.id} className="product-card">
-            <div className="product-icon" style={{ color: product.color }}>
+      <div className="filter-group sap-theme">
+        <button
+          className={`toggle-btn sap-theme sap-button ${showStats ? 'active sap-button-primary' : 'sap-button-secondary'}`}
+          onClick={() => setShowStats(!showStats)}
+        >
+          📊 Estadísticas
+        </button>
+      </div>
+    </div>
+  );
+
+  const tableContent = (
+    <>
+      {error && <div className="error-message sap-theme sap-message-error">⚠️ {error}</div>}
+
+      <div className="products-grid sap-theme">
+        {filteredProducts.map((product) => (
+          <div key={product.id} className="product-card sap-theme sap-card">
+            <div className="product-icon sap-theme" style={{ color: product.color }}>
               {product.icon}
             </div>
-            
-            <div className="product-info">
-              <h3>{product.displayName}</h3>
-              <p className="product-category">{product.category}</p>
-              <p className="product-description">{product.description}</p>
-              
-              <div className="product-stats">
-                <div className="stat">
-                  <span className="stat-label">Stock:</span>
-                  <span className="stat-value">{product.currentStock || 0} {product.unit}</span>
+
+            <div className="product-info sap-theme">
+              <h3 className="sap-title">{product.displayName}</h3>
+              <p className="product-category sap-theme sap-text-secondary">{product.category}</p>
+              <p className="product-description sap-theme sap-text">{product.description}</p>
+
+              <div className="product-stats sap-theme">
+                <div className="stat sap-theme">
+                  <span className="stat-label sap-theme sap-text-secondary">Stock:</span>
+                  <span className="stat-value sap-theme sap-text-primary">
+                    {product.currentStock || 0} {product.unit}
+                  </span>
                 </div>
-                <div className="stat">
-                  <span className="stat-label">Precio:</span>
-                  <span className="stat-value">
+                <div className="stat sap-theme">
+                  <span className="stat-label sap-theme sap-text-secondary">Precio:</span>
+                  <span className="stat-value sap-theme sap-text-primary">
                     ${new Intl.NumberFormat('es-CO').format(product.defaultPrice || 0)}
                   </span>
                 </div>
               </div>
-              
-              <div className={`product-status ${product.isActive ? 'active' : 'inactive'}`}>
+
+              <div
+                className={`product-status sap-theme sap-badge ${product.isActive ? 'active sap-badge-success' : 'inactive sap-badge-error'}`}
+              >
                 {product.isActive ? '✅ Activo' : '❌ Inactivo'}
               </div>
             </div>
 
-            <div className="product-actions">
+            <div className="product-actions sap-theme">
               <button
-                className="btn-secondary"
+                className="btn-secondary sap-theme sap-button sap-button-secondary"
                 onClick={() => handleViewProduct(product)}
               >
                 👁️ Ver
               </button>
-              
+
               {canManageProducts && (
                 <>
                   <button
-                    className="btn-primary"
+                    className="btn-primary sap-theme sap-button sap-button-primary"
                     onClick={() => handleEditProduct(product)}
                   >
                     ✏️ Editar
                   </button>
-                  
+
                   <button
-                    className="btn-danger"
+                    className="btn-danger sap-theme sap-button sap-button-danger"
                     onClick={() => handleDeleteProduct(product.id)}
                   >
                     🗑️ Eliminar
@@ -321,22 +313,37 @@ const ProductsMain = ({ userProfile }) => {
       </div>
 
       {filteredProducts.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">📦</div>
-          <h3>No hay productos</h3>
-          <p>
-            {searchTerm || selectedCategory 
+        <div className="empty-state sap-theme sap-message-info">
+          <div className="empty-icon sap-theme">📦</div>
+          <h3 className="sap-title">No hay productos</h3>
+          <p className="sap-text">
+            {searchTerm || selectedCategory
               ? 'No se encontraron productos con los filtros aplicados.'
-              : 'Aún no hay productos registrados.'
-            }
+              : 'Aún no hay productos registrados.'}
           </p>
           {canManageProducts && !searchTerm && !selectedCategory && (
-            <button className="btn-primary" onClick={handleCreateProduct}>
+            <button
+              className="btn-primary sap-theme sap-button sap-button-primary"
+              onClick={handleCreateProduct}
+            >
               ➕ Crear primer producto
             </button>
           )}
         </div>
       )}
+    </>
+  );
+
+  return (
+    <PageLayout
+      title="🛢️ Gestión de Productos"
+      subtitle="Administra los tipos de combustibles y productos disponibles"
+      actions={headerActions}
+      stats={showStats && <ProductsStats products={products} />}
+      filters={filtersComponent}
+      loading={loading}
+    >
+      {tableContent}
 
       <ProductModal
         isOpen={isModalOpen}
@@ -357,7 +364,7 @@ const ProductsMain = ({ userProfile }) => {
           }}
         />
       )}
-    </div>
+    </PageLayout>
   );
 };
 

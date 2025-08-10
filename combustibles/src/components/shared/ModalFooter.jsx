@@ -1,9 +1,10 @@
 /**
- * ModalFooter - Footer con botones de acción para modales
- * Maneja acciones primarias y secundarias con estados de loading
+ * ModalFooter - Footer consistente para modales
+ * Incluye botones de acción primaria y secundaria
  */
-import React from 'react';
-import './ModalFooter.css';
+
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
 const ModalFooter = ({
   primaryAction,
@@ -11,58 +12,62 @@ const ModalFooter = ({
   isLoading = false,
   className = '',
   children,
-  layout = 'end' // 'start', 'center', 'end', 'between', 'around'
 }) => {
-  const layoutClasses = {
-    start: 'modal-footer-start',
-    center: 'modal-footer-center',
-    end: 'modal-footer-end',
-    between: 'modal-footer-between',
-    around: 'modal-footer-around'
-  };
-
   return (
-    <div className={`modal-footer-base ${layoutClasses[layout]} ${className}`}>
+    <div className={`modal-footer ${className}`}>
+      {/* Contenido personalizado si se proporciona */}
       {children}
-      
-      <div className="modal-footer-actions">
-        {secondaryAction && (
-          <button
-            type="button"
-            className={`modal-footer-button modal-footer-secondary ${secondaryAction.className || ''}`}
-            onClick={secondaryAction.onClick}
-            disabled={isLoading || secondaryAction.disabled}
-            {...(secondaryAction.props || {})}
-          >
-            {secondaryAction.icon && <span className="button-icon">{secondaryAction.icon}</span>}
-            {secondaryAction.label || 'Cancelar'}
-          </button>
-        )}
-        
-        {primaryAction && (
-          <button
-            type={primaryAction.type || 'button'}
-            className={`modal-footer-button modal-footer-primary ${primaryAction.className || ''}`}
-            onClick={primaryAction.onClick}
-            disabled={isLoading || primaryAction.disabled}
-            {...(primaryAction.props || {})}
-          >
-            {isLoading ? (
-              <>
-                <span className="button-spinner"></span>
-                {primaryAction.loadingLabel || 'Guardando...'}
-              </>
-            ) : (
-              <>
-                {primaryAction.icon && <span className="button-icon">{primaryAction.icon}</span>}
-                {primaryAction.label || 'Guardar'}
-              </>
-            )}
-          </button>
-        )}
-      </div>
+
+      {/* Botones de acción estándar */}
+      {(primaryAction || secondaryAction) && (
+        <div className="modal-actions sap-theme">
+          {/* Botón secundario (normalmente Cancelar) */}
+          {secondaryAction && (
+            <button
+              type="button"
+              className={`btn-secondary ${secondaryAction.className || ''}`}
+              onClick={secondaryAction.onClick}
+              disabled={isLoading || secondaryAction.disabled}
+            >
+              {secondaryAction.label || 'Cancelar'}
+            </button>
+          )}
+
+          {/* Botón primario (normalmente Guardar/Aceptar) */}
+          {primaryAction && (
+            <button
+              type={primaryAction.type || 'button'}
+              className={`btn-primary ${primaryAction.className || ''}`}
+              onClick={primaryAction.onClick}
+              disabled={isLoading || primaryAction.disabled}
+            >
+              {isLoading ? 'Guardando...' : primaryAction.label || 'Guardar'}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-export default ModalFooter;
+ModalFooter.propTypes = {
+  primaryAction: PropTypes.shape({
+    label: PropTypes.string,
+    onClick: PropTypes.func,
+    disabled: PropTypes.bool,
+    type: PropTypes.string,
+    className: PropTypes.string,
+  }),
+  secondaryAction: PropTypes.shape({
+    label: PropTypes.string,
+    onClick: PropTypes.func,
+    disabled: PropTypes.bool,
+    className: PropTypes.string,
+  }),
+  isLoading: PropTypes.bool,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
+ModalFooter.displayName = 'ModalFooter';
+export default memo(ModalFooter);

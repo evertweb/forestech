@@ -1,0 +1,133 @@
+name: 'Combustibles E2E Tests'
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - 'combustibles/**'
+      - '.github/workflows/combustibles-e2e.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'combustibles/**'
+  workflow_dispatch: # Permite ejecutar manualmente
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    env:
+      NODE_ENV: test
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'combustibles/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: ./combustibles
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        working-directory: ./combustibles
+        run: npx playwright install chromium --with-deps
+      
+      - name: Create environment file
+        working-directory: ./combustibles
+        run: |
+          echo "# CI Environment" > .env.local
+          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env.local
+          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env.local
+          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env.local
+          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env.local
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env.local
+          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env.local
+          echo "VITE_BG_DOWNLOAD_TIMEOUT_MS=2000" >> .env.local
+      
+      - name: Run E2E tests
+        working-directory: ./combustibles
+        run: |
+          # Usar la configuración de webServer de playwright.config.ts
+          # que automáticamente levanta el servidor en puerto 5176
+          npm run e2e
+        env:
+          CI: true
+          E2E_BASE_URL: http://localhost:5176/combustibles/
+      
+      - name: Upload Playwright report on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            combustibles/playwright-report/
+            combustibles/test-results/
+          retention-days: 7
+      
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-screenshots-${{ github.run_id }}
+          path: combustibles/test-results/
+          retention-days: 3
+
+  # Job adicional para smoke tests rápidos
+  smoke-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'combustibles/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: ./combustibles
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        working-directory: ./combustibles
+        run: npx playwright install chromium --with-deps
+      
+      - name: Create minimal environment file
+        working-directory: ./combustibles
+        run: |
+          echo "# Smoke Test Environment" > .env.local
+          echo "VITE_FIREBASE_API_KEY=test-key" >> .env.local
+          echo "VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com" >> .env.local
+          echo "VITE_FIREBASE_PROJECT_ID=test-project" >> .env.local
+          echo "VITE_FIREBASE_STORAGE_BUCKET=test-project.appspot.com" >> .env.local
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=123456789" >> .env.local
+          echo "VITE_FIREBASE_APP_ID=test-app-id" >> .env.local
+          echo "VITE_BG_DOWNLOAD_TIMEOUT_MS=1000" >> .env.local
+      
+      - name: Run smoke tests only
+        working-directory: ./combustibles
+        run: |
+          # Ejecutar solo los smoke tests
+          npx playwright test smoke.spec.ts --project=chromium
+        env:
+          CI: true
+          E2E_BASE_URL: http://localhost:5176/combustibles/
+      
+      - name: Upload smoke test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-test-artifacts-${{ github.run_id }}
+          path: combustibles/test-results/
+          retention-days: 2

@@ -7,54 +7,53 @@ import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { VEHICLE_STATUS } from '../../../services/vehiclesService';
 import './VehicleWizardSteps.css';
 
-const Step4_Operational = ({ 
-  formData, 
-  updateFormData, 
-  errors, 
-  isActive 
-}) => {
+const Step4_Operational = ({ formData, updateFormData, errors, isActive }) => {
   const [currentSubStep, setCurrentSubStep] = useState(1);
   const [isSubStepTransitioning, setIsSubStepTransitioning] = useState(false);
-  
+
   const totalSubSteps = 4;
-  
+
   // Definir los subpasos
-  const subSteps = useMemo(() => [
-    {
-      id: 1,
-      title: 'Estado Operacional',
-      question: '🚀 ¿Cuál es el estado operacional actual?',
-      description: 'Esta información nos ayudará a gestionar la disponibilidad y programar mantenimientos',
-      type: 'status-selection',
-      hint: '🔧 El estado determina si el vehículo puede ser asignado para operaciones'
-    },
-    {
-      id: 2,
-      title: 'Ubicación',
-      question: '📍 ¿Dónde se encuentra actualmente este vehículo?',
-      description: 'Especifica la ubicación actual para facilitar su localización',
-      type: 'input',
-      field: 'currentLocation',
-      placeholder: 'Ej: Almacén Central, Campo Norte, Taller Mecánico',
-      hint: '🗺️ Sé específico para facilitar la localización del vehículo'
-    },
-    {
-      id: 3,
-      title: 'Horómetro',
-      question: '⏱️ ¿Este vehículo tiene horómetro?',
-      description: 'El horómetro nos ayuda a programar mantenimientos preventivos',
-      type: 'hour-meter',
-      hint: '📊 Las horas de operación son clave para el mantenimiento preventivo'
-    },
-    {
-      id: 4,
-      title: 'Fechas y Observaciones',
-      question: '📅 Información adicional del vehículo',
-      description: 'Fechas importantes y cualquier observación relevante',
-      type: 'dates-and-notes',
-      hint: '📝 Esta información nos ayuda con el historial y planificación'
-    }
-  ], []);
+  const subSteps = useMemo(
+    () => [
+      {
+        id: 1,
+        title: 'Estado Operacional',
+        question: '🚀 ¿Cuál es el estado operacional actual?',
+        description:
+          'Esta información nos ayudará a gestionar la disponibilidad y programar mantenimientos',
+        type: 'status-selection',
+        hint: '🔧 El estado determina si el vehículo puede ser asignado para operaciones',
+      },
+      {
+        id: 2,
+        title: 'Ubicación',
+        question: '📍 ¿Dónde se encuentra actualmente este vehículo?',
+        description: 'Especifica la ubicación actual para facilitar su localización',
+        type: 'input',
+        field: 'currentLocation',
+        placeholder: 'Ej: Almacén Central, Campo Norte, Taller Mecánico',
+        hint: '🗺️ Sé específico para facilitar la localización del vehículo',
+      },
+      {
+        id: 3,
+        title: 'Horómetro',
+        question: '⏱️ ¿Este vehículo tiene horómetro?',
+        description: 'El horómetro nos ayuda a programar mantenimientos preventivos',
+        type: 'hour-meter',
+        hint: '📊 Las horas de operación son clave para el mantenimiento preventivo',
+      },
+      {
+        id: 4,
+        title: 'Fechas y Observaciones',
+        question: '📅 Información adicional del vehículo',
+        description: 'Fechas importantes y cualquier observación relevante',
+        type: 'dates-and-notes',
+        hint: '📝 Esta información nos ayuda con el historial y planificación',
+      },
+    ],
+    []
+  );
 
   // Resetear subpasos cuando el paso se activa
   useEffect(() => {
@@ -68,7 +67,7 @@ const Step4_Operational = ({
     if (currentSubStep < totalSubSteps) {
       setIsSubStepTransitioning(true);
       setTimeout(() => {
-        setCurrentSubStep(prev => prev + 1);
+        setCurrentSubStep((prev) => prev + 1);
         setIsSubStepTransitioning(false);
       }, 200);
     }
@@ -78,7 +77,7 @@ const Step4_Operational = ({
     if (currentSubStep > 1) {
       setIsSubStepTransitioning(true);
       setTimeout(() => {
-        setCurrentSubStep(prev => prev - 1);
+        setCurrentSubStep((prev) => prev - 1);
         setIsSubStepTransitioning(false);
       }, 200);
     }
@@ -87,7 +86,7 @@ const Step4_Operational = ({
   // Verificar si el subcampo actual está completo
   const isCurrentSubStepValid = useCallback(() => {
     const currentStep = subSteps[currentSubStep - 1];
-    
+
     switch (currentStep.type) {
       case 'status-selection':
         return formData.status && formData.status.trim().length > 0;
@@ -105,43 +104,46 @@ const Step4_Operational = ({
     }
   }, [currentSubStep, formData, subSteps]);
 
-  const statusOptions = useMemo(() => [
-    {
-      value: VEHICLE_STATUS.ACTIVO,
-      icon: '✅',
-      title: 'Activo',
-      description: 'En operación normal, disponible para uso',
-      color: 'status-active'
-    },
-    {
-      value: VEHICLE_STATUS.MANTENIMIENTO,
-      icon: '🔧',
-      title: 'En Mantenimiento',
-      description: 'Mantenimiento preventivo programado',
-      color: 'status-maintenance'
-    },
-    {
-      value: VEHICLE_STATUS.REPARACION,
-      icon: '⚠️',
-      title: 'En Reparación',
-      description: 'Requiere reparación, fuera de servicio',
-      color: 'status-repair'
-    },
-    {
-      value: VEHICLE_STATUS.INACTIVO,
-      icon: '⏸️',
-      title: 'Inactivo',
-      description: 'Temporalmente fuera de operación',
-      color: 'status-inactive'
-    },
-    {
-      value: VEHICLE_STATUS.FUERA_DE_SERVICIO,
-      icon: '❌',
-      title: 'Fuera de Servicio',
-      description: 'Permanentemente fuera de operación',
-      color: 'status-out-of-service'
-    }
-  ], []);
+  const statusOptions = useMemo(
+    () => [
+      {
+        value: VEHICLE_STATUS.ACTIVO,
+        icon: '✅',
+        title: 'Activo',
+        description: 'En operación normal, disponible para uso',
+        color: 'status-active',
+      },
+      {
+        value: VEHICLE_STATUS.MANTENIMIENTO,
+        icon: '🔧',
+        title: 'En Mantenimiento',
+        description: 'Mantenimiento preventivo programado',
+        color: 'status-maintenance',
+      },
+      {
+        value: VEHICLE_STATUS.REPARACION,
+        icon: '⚠️',
+        title: 'En Reparación',
+        description: 'Requiere reparación, fuera de servicio',
+        color: 'status-repair',
+      },
+      {
+        value: VEHICLE_STATUS.INACTIVO,
+        icon: '⏸️',
+        title: 'Inactivo',
+        description: 'Temporalmente fuera de operación',
+        color: 'status-inactive',
+      },
+      {
+        value: VEHICLE_STATUS.FUERA_DE_SERVICIO,
+        icon: '❌',
+        title: 'Fuera de Servicio',
+        description: 'Permanentemente fuera de operación',
+        color: 'status-out-of-service',
+      },
+    ],
+    []
+  );
 
   // Navegación por teclado
   useEffect(() => {
@@ -162,7 +164,7 @@ const Step4_Operational = ({
           goToNextSubStep();
         }
       }
-      
+
       // Numbers 1-5 para seleccionar estado (solo en el subpaso de estado)
       if (currentSubStep === 1) {
         const num = parseInt(e.key);
@@ -175,64 +177,71 @@ const Step4_Operational = ({
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isActive, currentSubStep, isCurrentSubStepValid, goToNextSubStep, goToPrevSubStep, updateFormData, statusOptions]);
+  }, [
+    isActive,
+    currentSubStep,
+    isCurrentSubStepValid,
+    goToNextSubStep,
+    goToPrevSubStep,
+    updateFormData,
+    statusOptions,
+  ]);
 
-  const handleInputChange = useCallback((field) => (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    updateFormData(field, value);
-  }, [updateFormData]);
+  const handleInputChange = useCallback(
+    (field) => (e) => {
+      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      updateFormData(field, value);
+    },
+    [updateFormData]
+  );
 
-  const handleStatusSelect = useCallback((status) => {
-    updateFormData('status', status);
-  }, [updateFormData]);
+  const handleStatusSelect = useCallback(
+    (status) => {
+      updateFormData('status', status);
+    },
+    [updateFormData]
+  );
 
   const currentStepData = subSteps[currentSubStep - 1];
   const subStepProgress = (currentSubStep / totalSubSteps) * 100;
 
   return (
     <div className={`wizard-step step-operational ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout">
-        
+      <div className="typeform-layout sap-theme">
         {/* Indicador de progreso de subpasos */}
-        <div className="substep-progress">
-          <div className="substep-progress-bar">
-            <div 
-              className="substep-progress-fill"
+        <div className="substep-progress sap-theme">
+          <div className="substep-progress-bar sap-theme">
+            <div
+              className="substep-progress-fill sap-theme"
               style={{ width: `${subStepProgress}%` }}
             />
           </div>
-          <div className="substep-counter">
+          <div className="substep-counter sap-theme">
             {currentSubStep} de {totalSubSteps} - {currentStepData.title}
           </div>
         </div>
 
         {/* Contenedor de subpasos */}
-        <div className="substeps-container">
+        <div className="substeps-container sap-theme">
           {subSteps.map((subStep, index) => (
             <div
               key={subStep.id}
-              className={`
-                substep-slide 
-                ${index + 1 === currentSubStep ? 'current' : ''}
-                ${index + 1 < currentSubStep ? 'past' : ''}
-                ${index + 1 > currentSubStep ? 'future' : ''}
-                ${isSubStepTransitioning ? 'transitioning' : ''}
-              `}
+              className={`substep-slide ${index + 1 === currentSubStep ? 'current' : ''} ${index + 1 < currentSubStep ? 'past' : ''} ${index + 1 > currentSubStep ? 'future' : ''} ${isSubStepTransitioning ? 'transitioning' : ''} `}
               style={{
                 transform: `translateX(${(index + 1 - currentSubStep) * 100}%)`,
                 opacity: index + 1 === currentSubStep ? 1 : 0,
-                visibility: index + 1 === currentSubStep ? 'visible' : 'hidden'
+                visibility: index + 1 === currentSubStep ? 'visible' : 'hidden',
               }}
             >
               {/* Pregunta del subpaso */}
-              <div className="typeform-question">
+              <div className="typeform-question sap-theme">
                 <h2>{subStep.question}</h2>
                 <p>{subStep.description}</p>
               </div>
 
               {/* Contenido específico por tipo de subpaso */}
               {subStep.type === 'status-selection' && (
-                <div className="typeform-options status-options">
+                <div className="typeform-options status-options sap-theme">
                   {statusOptions.map((option, optionIndex) => (
                     <div
                       key={option.value}
@@ -241,24 +250,24 @@ const Step4_Operational = ({
                       }`}
                       onClick={() => handleStatusSelect(option.value)}
                     >
-                      <div className="option-header">
-                        <span className="option-icon">{option.icon}</span>
-                        <span className="option-number">{optionIndex + 1}</span>
+                      <div className="option-header sap-theme">
+                        <span className="option-icon sap-theme">{option.icon}</span>
+                        <span className="option-number sap-theme">{optionIndex + 1}</span>
                       </div>
-                      <div className="option-content">
-                        <h4 className="option-title">{option.title}</h4>
-                        <p className="option-description">{option.description}</p>
+                      <div className="option-content sap-theme">
+                        <h4 className="option-title sap-theme">{option.title}</h4>
+                        <p className="option-description sap-theme">{option.description}</p>
                       </div>
                       {formData.status === option.value && (
-                        <div className="selection-indicator">
-                          <span className="checkmark">✓</span>
+                        <div className="selection-indicator sap-theme">
+                          <span className="checkmark sap-theme">✓</span>
                         </div>
                       )}
                     </div>
                   ))}
                   {errors.status && (
-                    <div className="input-error-centered">
-                      <span className="error-icon">⚠️</span>
+                    <div className="input-error-centered sap-theme">
+                      <span className="error-icon sap-theme">⚠️</span>
                       {errors.status}
                     </div>
                   )}
@@ -266,58 +275,56 @@ const Step4_Operational = ({
               )}
 
               {subStep.type === 'input' && (
-                <div className="typeform-input-group">
-                  <div className="input-with-icon">
-                    <span className="input-icon">📍</span>
+                <div className="typeform-input-group sap-theme">
+                  <div className="input-with-icon sap-theme">
+                    <span className="input-icon sap-theme">📍</span>
                     <input
                       type="text"
-                      className="typeform-input substep-input"
+                      className="typeform-input substep-input sap-theme"
                       placeholder={subStep.placeholder}
                       value={formData[subStep.field] || ''}
                       onChange={handleInputChange(subStep.field)}
                       autoFocus={index + 1 === currentSubStep}
                     />
                   </div>
-                  
+
                   {errors[subStep.field] && (
-                    <div className="input-error">
-                      <span className="error-icon">⚠️</span>
+                    <div className="input-error sap-theme">
+                      <span className="error-icon sap-theme">⚠️</span>
                       {errors[subStep.field]}
                     </div>
                   )}
-                  
-                  <div className="input-hint">
-                    {subStep.hint}
-                  </div>
+
+                  <div className="input-hint sap-theme">{subStep.hint}</div>
                 </div>
               )}
 
               {subStep.type === 'hour-meter' && (
-                <div className="typeform-section">
-                  <div className="checkbox-group">
-                    <label className="checkbox-option">
+                <div className="typeform-section sap-theme">
+                  <div className="checkbox-group sap-theme">
+                    <label className="checkbox-option sap-theme">
                       <input
                         type="checkbox"
                         checked={formData.hasHourMeter || false}
                         onChange={handleInputChange('hasHourMeter')}
                       />
-                      <span className="checkbox-custom"></span>
-                      <span className="checkbox-label">
+                      <span className="checkbox-custom sap-theme"></span>
+                      <span className="checkbox-label sap-theme">
                         🕐 Sí, este vehículo tiene horómetro
                       </span>
                     </label>
                   </div>
-                  
+
                   {formData.hasHourMeter && (
-                    <div className="typeform-input-group dependent-field">
-                      <label className="typeform-label">
+                    <div className="typeform-input-group dependent-field sap-theme">
+                      <label className="typeform-label sap-theme">
                         ¿Cuántas horas marca actualmente?
                       </label>
-                      <div className="input-with-icon">
-                        <span className="input-icon">⏱️</span>
+                      <div className="input-with-icon sap-theme">
+                        <span className="input-icon sap-theme">⏱️</span>
                         <input
                           type="number"
-                          className="typeform-input substep-input"
+                          className="typeform-input substep-input sap-theme"
                           placeholder="1250.5"
                           min="0"
                           step="0.1"
@@ -326,48 +333,44 @@ const Step4_Operational = ({
                         />
                       </div>
                       {errors.currentHours && (
-                        <div className="input-error">
-                          <span className="error-icon">⚠️</span>
+                        <div className="input-error sap-theme">
+                          <span className="error-icon sap-theme">⚠️</span>
                           {errors.currentHours}
                         </div>
                       )}
                     </div>
                   )}
-                  
-                  <div className="input-hint">
-                    {subStep.hint}
-                  </div>
+
+                  <div className="input-hint sap-theme">{subStep.hint}</div>
                 </div>
               )}
 
               {subStep.type === 'dates-and-notes' && (
-                <div className="dates-and-notes-section">
+                <div className="dates-and-notes-section sap-theme">
                   {/* Fechas importantes */}
-                  <div className="typeform-row">
-                    <div className="typeform-input-group">
-                      <label className="typeform-label">
+                  <div className="typeform-row sap-theme">
+                    <div className="typeform-input-group sap-theme">
+                      <label className="typeform-label sap-theme">
                         Último mantenimiento (opcional)
                       </label>
-                      <div className="input-with-icon">
-                        <span className="input-icon">🔧</span>
+                      <div className="input-with-icon sap-theme">
+                        <span className="input-icon sap-theme">🔧</span>
                         <input
                           type="date"
-                          className="typeform-input substep-input"
+                          className="typeform-input substep-input sap-theme"
                           value={formData.lastMaintenanceDate || ''}
                           onChange={handleInputChange('lastMaintenanceDate')}
                         />
                       </div>
                     </div>
 
-                    <div className="typeform-input-group">
-                      <label className="typeform-label">
-                        Fecha de compra (opcional)
-                      </label>
-                      <div className="input-with-icon">
-                        <span className="input-icon">📅</span>
+                    <div className="typeform-input-group sap-theme">
+                      <label className="typeform-label sap-theme">Fecha de compra (opcional)</label>
+                      <div className="input-with-icon sap-theme">
+                        <span className="input-icon sap-theme">📅</span>
                         <input
                           type="date"
-                          className="typeform-input substep-input"
+                          className="typeform-input substep-input sap-theme"
                           value={formData.purchaseDate || ''}
                           onChange={handleInputChange('purchaseDate')}
                         />
@@ -376,14 +379,14 @@ const Step4_Operational = ({
                   </div>
 
                   {/* Descripción adicional */}
-                  <div className="typeform-input-group">
-                    <label className="typeform-label">
+                  <div className="typeform-input-group sap-theme">
+                    <label className="typeform-label sap-theme">
                       ¿Algo más que debamos saber? (opcional)
                     </label>
-                    <div className="input-with-icon">
-                      <span className="input-icon">📝</span>
+                    <div className="input-with-icon sap-theme">
+                      <span className="input-icon sap-theme">📝</span>
                       <textarea
-                        className="typeform-textarea substep-input"
+                        className="typeform-textarea substep-input sap-theme"
                         placeholder="Observaciones, características especiales, modificaciones, etc."
                         rows="3"
                         value={formData.description || ''}
@@ -391,27 +394,25 @@ const Step4_Operational = ({
                       />
                     </div>
                   </div>
-                  
-                  <div className="input-hint">
-                    {subStep.hint}
-                  </div>
+
+                  <div className="input-hint sap-theme">{subStep.hint}</div>
                 </div>
               )}
 
               {/* Navegación de subpasos */}
-              <div className="substep-navigation">
+              <div className="substep-navigation sap-theme">
                 {currentSubStep > 1 && (
-                  <button 
+                  <button
                     type="button"
-                    className="substep-btn substep-btn-back"
+                    className="substep-btn substep-btn-back sap-theme"
                     onClick={goToPrevSubStep}
                   >
                     ← Anterior
                   </button>
                 )}
-                
+
                 {currentSubStep < totalSubSteps && (
-                  <button 
+                  <button
                     type="button"
                     className={`substep-btn substep-btn-next ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
                     onClick={goToNextSubStep}
@@ -427,49 +428,49 @@ const Step4_Operational = ({
 
         {/* Resumen visual (solo mostrar cuando se haya completado información) */}
         {currentSubStep === totalSubSteps && formData.status && (
-          <div className="step-preview">
-            <div className="preview-card">
+          <div className="step-preview sap-theme">
+            <div className="preview-card sap-theme">
               <h4>📋 Estado operacional</h4>
-              
-              <div className="preview-item">
-                <span className="preview-label">Estado:</span>
-                <span className="preview-value">
-                  {statusOptions.find(s => s.value === formData.status)?.icon} {formData.status}
+
+              <div className="preview-item sap-theme">
+                <span className="preview-label sap-theme">Estado:</span>
+                <span className="preview-value sap-theme">
+                  {statusOptions.find((s) => s.value === formData.status)?.icon} {formData.status}
                 </span>
               </div>
-              
+
               {formData.currentLocation && (
-                <div className="preview-item">
-                  <span className="preview-label">Ubicación:</span>
-                  <span className="preview-value">📍 {formData.currentLocation}</span>
+                <div className="preview-item sap-theme">
+                  <span className="preview-label sap-theme">Ubicación:</span>
+                  <span className="preview-value sap-theme">📍 {formData.currentLocation}</span>
                 </div>
               )}
-              
+
               {formData.hasHourMeter && formData.currentHours && (
-                <div className="preview-item">
-                  <span className="preview-label">Horómetro:</span>
-                  <span className="preview-value">⏱️ {formData.currentHours} horas</span>
+                <div className="preview-item sap-theme">
+                  <span className="preview-label sap-theme">Horómetro:</span>
+                  <span className="preview-value sap-theme">⏱️ {formData.currentHours} horas</span>
                 </div>
               )}
-              
+
               {formData.lastMaintenanceDate && (
-                <div className="preview-item">
-                  <span className="preview-label">Último mantenimiento:</span>
-                  <span className="preview-value">🔧 {formData.lastMaintenanceDate}</span>
+                <div className="preview-item sap-theme">
+                  <span className="preview-label sap-theme">Último mantenimiento:</span>
+                  <span className="preview-value sap-theme">🔧 {formData.lastMaintenanceDate}</span>
                 </div>
               )}
 
               {formData.purchaseDate && (
-                <div className="preview-item">
-                  <span className="preview-label">Fecha de compra:</span>
-                  <span className="preview-value">📅 {formData.purchaseDate}</span>
+                <div className="preview-item sap-theme">
+                  <span className="preview-label sap-theme">Fecha de compra:</span>
+                  <span className="preview-value sap-theme">📅 {formData.purchaseDate}</span>
                 </div>
               )}
 
               {formData.description && (
-                <div className="preview-item">
-                  <span className="preview-label">Observaciones:</span>
-                  <span className="preview-value">📝 {formData.description}</span>
+                <div className="preview-item sap-theme">
+                  <span className="preview-label sap-theme">Observaciones:</span>
+                  <span className="preview-value sap-theme">📝 {formData.description}</span>
                 </div>
               )}
             </div>
@@ -477,11 +478,10 @@ const Step4_Operational = ({
         )}
 
         {/* Indicador de navegación */}
-        <div className="navigation-hint">
+        <div className="navigation-hint sap-theme">
           💡 Tip: Usa Enter o → para avanzar, ← para retroceder
           {currentSubStep === 1 && ` | Teclas 1-${statusOptions.length} para seleccionar estado`}
         </div>
-
       </div>
     </div>
   );

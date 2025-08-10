@@ -1,16 +1,19 @@
 // combustibles/src/components/Auth/Auth.jsx
 // Componente de autenticación con soporte de invitaciones y fondo dinámico
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   signInWithEmailAndPassword,
   signInWithPopup,
   createUserWithEmailAndPassword,
-  GoogleAuthProvider 
-} from "firebase/auth";
+  GoogleAuthProvider,
+} from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
-import { getBackgroundImageUrl, preloadBackgroundImage } from '../../services/backgroundImageService';
+import {
+  getBackgroundImageUrl,
+  preloadBackgroundImage,
+} from '../../services/backgroundImageService';
 import './Auth.css';
 
 const Auth = () => {
@@ -18,11 +21,11 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   // Estado para la imagen de fondo
   const [backgroundImage, setBackgroundImage] = useState('');
   const [imageLoading, setImageLoading] = useState(true);
-  
+
   // Estado para UI progresivo
   const [isExpanded, setIsExpanded] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -36,7 +39,7 @@ const Auth = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    invitationCode: ''
+    invitationCode: '',
   });
 
   // Invitation validation state
@@ -48,10 +51,10 @@ const Auth = () => {
     const loadBackgroundImage = async () => {
       try {
         const imageUrl = await getBackgroundImageUrl();
-        
+
         // Precargar la imagen para evitar flickering
         const loaded = await preloadBackgroundImage(imageUrl);
-        
+
         if (loaded) {
           // Asegurar que la URL esté correctamente escapada para CSS
           const cssUrl = imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -92,7 +95,7 @@ const Auth = () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      
+
       // Si hay un código de invitación validado, crear perfil con invitación
       if (validatedInvite) {
         await createUserProfileWithInvitation(result.user, validatedInvite.code);
@@ -122,7 +125,7 @@ const Auth = () => {
         setRegisterData({
           ...registerData,
           email: result.invitation.targetEmail,
-          invitationCode: inviteCode
+          invitationCode: inviteCode,
         });
       } else {
         setError(result.error);
@@ -155,11 +158,15 @@ const Auth = () => {
 
     try {
       // Crear usuario en Firebase Auth
-      const result = await createUserWithEmailAndPassword(auth, registerData.email, registerData.password);
-      
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        registerData.email,
+        registerData.password
+      );
+
       // Crear perfil con invitación
       const profileResult = await createUserProfileWithInvitation(
-        result.user, 
+        result.user,
         registerData.invitationCode
       );
 
@@ -206,7 +213,7 @@ const Auth = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      invitationCode: ''
+      invitationCode: '',
     });
   };
 
@@ -225,13 +232,20 @@ const Auth = () => {
           // Vista minimalista inicial - solo botón
           return (
             <div className="minimal-login-container">
-              <button 
+              <button
                 onClick={handleExpandLogin}
                 className="auth-button minimal-login-btn"
-                disabled={loading || imageLoading}
+                disabled={loading}
+                aria-busy={imageLoading ? 'true' : 'false'}
+                aria-describedby={imageLoading ? 'bg-loading-hint' : undefined}
               >
                 ⛽ Ingresar al Sistema
               </button>
+              {imageLoading && (
+                <div id="bg-loading-hint" className="loading-hint">
+                  Cargando fondo... puedes continuar sin esperar
+                </div>
+              )}
             </div>
           );
         }
@@ -266,11 +280,7 @@ const Auth = () => {
                 />
               </div>
 
-              <button 
-                type="submit" 
-                className="auth-button primary"
-                disabled={loading}
-              >
+              <button type="submit" className="auth-button primary" disabled={loading}>
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
             </form>
@@ -279,17 +289,13 @@ const Auth = () => {
               <span>o</span>
             </div>
 
-            <button 
-              onClick={handleGoogleLogin}
-              className="auth-button google"
-              disabled={loading}
-            >
+            <button onClick={handleGoogleLogin} className="auth-button google" disabled={loading}>
               <span>🔗</span>
               Continuar con Google
             </button>
 
             <div className="auth-actions">
-              <button 
+              <button
                 className="link-button"
                 onClick={() => {
                   resetForm();
@@ -322,17 +328,13 @@ const Auth = () => {
                 <small>Ingresa el código de 8 caracteres que recibiste</small>
               </div>
 
-              <button 
-                type="submit" 
-                className="auth-button primary"
-                disabled={loading}
-              >
+              <button type="submit" className="auth-button primary" disabled={loading}>
                 {loading ? 'Validando...' : 'Validar Código'}
               </button>
             </form>
 
             <div className="auth-actions">
-              <button 
+              <button
                 className="link-button"
                 onClick={() => {
                   resetForm();
@@ -372,7 +374,7 @@ const Auth = () => {
                   id="registerPassword"
                   type="password"
                   value={registerData.password}
-                  onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+                  onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                   required
                   disabled={loading}
                   placeholder="Mínimo 6 caracteres"
@@ -386,18 +388,16 @@ const Auth = () => {
                   id="confirmPassword"
                   type="password"
                   value={registerData.confirmPassword}
-                  onChange={(e) => setRegisterData({...registerData, confirmPassword: e.target.value})}
+                  onChange={(e) =>
+                    setRegisterData({ ...registerData, confirmPassword: e.target.value })
+                  }
                   required
                   disabled={loading}
                   placeholder="Repite tu contraseña"
                 />
               </div>
 
-              <button 
-                type="submit" 
-                className="auth-button primary"
-                disabled={loading}
-              >
+              <button type="submit" className="auth-button primary" disabled={loading}>
                 {loading ? 'Registrando...' : 'Crear Cuenta'}
               </button>
             </form>
@@ -406,17 +406,13 @@ const Auth = () => {
               <span>o</span>
             </div>
 
-            <button 
-              onClick={handleGoogleLogin}
-              className="auth-button google"
-              disabled={loading}
-            >
+            <button onClick={handleGoogleLogin} className="auth-button google" disabled={loading}>
               <span>🔗</span>
               Registrarse con Google
             </button>
 
             <div className="auth-actions">
-              <button 
+              <button
                 className="link-button"
                 onClick={() => {
                   resetForm();
@@ -435,19 +431,19 @@ const Auth = () => {
   };
 
   return (
-    <div 
+    <div
       className="auth-container"
       style={{
-        backgroundImage: backgroundImage ? 
-          `linear-gradient(135deg, rgba(27, 67, 50, 0.3) 0%, rgba(45, 80, 22, 0.2) 50%, rgba(27, 67, 50, 0.3) 100%), ${backgroundImage}` :
-          `radial-gradient(circle at 20% 20%, rgba(82, 165, 113, 0.4) 0%, transparent 50%),
+        backgroundImage: backgroundImage
+          ? `linear-gradient(135deg, rgba(27, 67, 50, 0.3) 0%, rgba(45, 80, 22, 0.2) 50%, rgba(27, 67, 50, 0.3) 100%), ${backgroundImage}`
+          : `radial-gradient(circle at 20% 20%, rgba(82, 165, 113, 0.4) 0%, transparent 50%),
            radial-gradient(circle at 80% 80%, rgba(101, 200, 120, 0.4) 0%, transparent 50%),
            radial-gradient(circle at 40% 60%, rgba(64, 130, 109, 0.4) 0%, transparent 50%),
            linear-gradient(135deg, #1b4332 0%, #2d5016 25%, #40826d 50%, #2d5016 75%, #1b4332 100%)`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
+        backgroundAttachment: 'fixed',
       }}
     >
       {imageLoading && (
@@ -458,7 +454,7 @@ const Auth = () => {
           </div>
         </div>
       )}
-      
+
       <div className={`auth-card ${isExpanded ? 'expanded' : 'minimal'}`}>
         {isExpanded && (
           <div className="auth-header">
@@ -473,17 +469,9 @@ const Auth = () => {
         )}
 
         <div className="auth-form">
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
 
-          {success && (
-            <div className="success-message">
-              {success}
-            </div>
-          )}
+          {success && <div className="success-message">{success}</div>}
 
           {renderContent()}
 
@@ -493,10 +481,9 @@ const Auth = () => {
                 <small>
                   Solo usuarios autorizados pueden acceder al sistema.
                   <br />
-                  {view === 'login' 
+                  {view === 'login'
                     ? 'Contacta al administrador para obtener un código de invitación.'
-                    : 'Si no tienes código, contacta al administrador.'
-                  }
+                    : 'Si no tienes código, contacta al administrador.'}
                 </small>
               </p>
             </div>

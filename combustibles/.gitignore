@@ -28,3 +28,6 @@ test-background-debug.js
 test-background-image-debug.js
 upload-background-fix.js
 temp-test-image.js
+
+# Env files (local)
+.env.local

@@ -3,18 +3,18 @@
  * Maneja entradas, salidas, transferencias y ajustes de inventario
  */
 
-import { 
-  collection, 
-  updateDoc, 
-  doc, 
-  getDocs, 
+import {
+  collection,
+  updateDoc,
+  doc,
+  getDocs,
   getDoc,
-  query, 
-  orderBy, 
+  query,
+  orderBy,
   where,
   onSnapshot,
   serverTimestamp,
-  runTransaction
+  runTransaction,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
@@ -25,17 +25,17 @@ const INVENTORY_COLLECTION = 'combustibles_inventory';
 
 // Tipos de movimientos
 export const MOVEMENT_TYPES = {
-  ENTRADA: 'entrada',           // Compras, reabastecimientos
-  SALIDA: 'salida',            // Consumo por vehículos
+  ENTRADA: 'entrada', // Compras, reabastecimientos
+  SALIDA: 'salida', // Consumo por vehículos
   TRANSFERENCIA: 'transferencia', // Entre tanques/ubicaciones
-  AJUSTE: 'ajuste'             // Mermas, pérdidas, calibraciones
+  AJUSTE: 'ajuste', // Mermas, pérdidas, calibraciones
 };
 
 // Estados de movimiento
 export const MOVEMENT_STATUS = {
   PENDIENTE: 'pendiente',
   COMPLETADO: 'completado',
-  CANCELADO: 'cancelado'
+  CANCELADO: 'cancelado',
 };
 
 /**
@@ -53,41 +53,46 @@ export const createMovement = async (movementData) => {
     const movement = {
       // 1. FECHA (efectiveDate) - Campo principal para ordenamiento
       effectiveDate: movementData.effectiveDate || serverTimestamp(),
-      
+
       // 2. TIPO DE MOVIMIENTO
       type: movementData.type,
-      
-      // 3. PRODUCTO (fuelType) 
+
+      // 3. PRODUCTO (fuelType)
       fuelType: movementData.fuelType,
-      
+
       // 4. VEHÍCULO (para salidas)
-      ...(movementData.type === MOVEMENT_TYPES.SALIDA && movementData.vehicleId && {
-        vehicleId: movementData.vehicleId,
-        currentHours: movementData.currentHours || null
-      }),
-      
+      ...(movementData.type === MOVEMENT_TYPES.SALIDA &&
+        movementData.vehicleId && {
+          vehicleId: movementData.vehicleId,
+          currentHours: movementData.currentHours || null,
+        }),
+
       // 5. CANTIDAD
       quantity: movementData.quantity,
-      
+
       // 6. PRECIO
       unitPrice: movementData.unitPrice,
       totalValue: calculateMovementValue(movementData),
-      
+
       // 7. UBICACIONES (según tipo de movimiento)
       ...(movementData.location && { location: movementData.location }),
-      ...(movementData.destinationLocation && { destinationLocation: movementData.destinationLocation }),
+      ...(movementData.destinationLocation && {
+        destinationLocation: movementData.destinationLocation,
+      }),
       ...(movementData.supplierName && { supplierName: movementData.supplierName }),
-      
+
       // 8. DETALLES ADICIONALES
       ...(movementData.description && { description: movementData.description }),
       ...(movementData.reference && { reference: movementData.reference }),
-      ...(movementData.additionalComments && { additionalComments: movementData.additionalComments }),
-      
+      ...(movementData.additionalComments && {
+        additionalComments: movementData.additionalComments,
+      }),
+
       // 9. METADATOS DEL SISTEMA (al final)
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       status: MOVEMENT_STATUS.COMPLETADO,
-      approvedAt: serverTimestamp()
+      approvedAt: serverTimestamp(),
     };
 
     // Crear movimiento en transacción para actualizar inventario
@@ -104,7 +109,6 @@ export const createMovement = async (movementData) => {
 
     console.log('✅ Movimiento creado exitosamente:', result);
     return result;
-
   } catch (error) {
     console.error('❌ Error al crear movimiento:', error);
     throw new Error(`Error al crear movimiento: ${error.message}`);
@@ -149,12 +153,11 @@ export const getAllMovements = async (filters = {}) => {
         // Convertir timestamps para el frontend
         createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
         updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
-        effectiveDate: doc.data().effectiveDate?.toDate?.() || doc.data().effectiveDate
+        effectiveDate: doc.data().effectiveDate?.toDate?.() || doc.data().effectiveDate,
       });
     });
 
     return movements;
-
   } catch (error) {
     console.error('❌ Error al obtener movimientos:', error);
     throw new Error(`Error al obtener movimientos: ${error.message}`);
@@ -186,9 +189,8 @@ export const getMovement = async (movementId) => {
       ...docSnap.data(),
       createdAt: docSnap.data().createdAt?.toDate?.() || docSnap.data().createdAt,
       updatedAt: docSnap.data().updatedAt?.toDate?.() || docSnap.data().updatedAt,
-      effectiveDate: docSnap.data().effectiveDate?.toDate?.() || docSnap.data().effectiveDate
+      effectiveDate: docSnap.data().effectiveDate?.toDate?.() || docSnap.data().effectiveDate,
     };
-
   } catch (error) {
     console.error('❌ Error al obtener movimiento:', error);
     throw new Error(`Error al obtener movimiento: ${error.message}`);
@@ -212,16 +214,17 @@ export const updateMovement = async (movementId, updateData) => {
       ...updateData,
       updatedAt: serverTimestamp(),
       // Recalcular valor si cambian cantidades o precios
-      ...(updateData.quantity || updateData.unitPrice ? {
-        totalValue: calculateMovementValue(updateData)
-      } : {})
+      ...(updateData.quantity || updateData.unitPrice
+        ? {
+            totalValue: calculateMovementValue(updateData),
+          }
+        : {}),
     };
 
     const docRef = doc(db, COLLECTION_NAME, movementId);
     await updateDoc(docRef, updatedData);
 
     console.log('✅ Movimiento actualizado exitosamente');
-
   } catch (error) {
     console.error('❌ Error al actualizar movimiento:', error);
     throw new Error(`Error al actualizar movimiento: ${error.message}`);
@@ -245,23 +248,22 @@ export const deleteMovement = async (movementId) => {
       throw new Error('Movimiento no encontrado');
     }
 
-    // Se permite eliminar movimientos en cualquier estado, 
+    // Se permite eliminar movimientos en cualquier estado,
     // revirtiendo el inventario si ya estaba completado.
 
     await runTransaction(db, async (transaction) => {
       const docRef = doc(db, COLLECTION_NAME, movementId);
-      
+
       // Si el movimiento ya había afectado el inventario, revertir los cambios.
       if (movement.status === MOVEMENT_STATUS.COMPLETADO) {
         await revertInventoryChanges(transaction, movement);
       }
-      
+
       // Finalmente, eliminar el documento del movimiento.
       transaction.delete(docRef);
     });
 
     console.log('✅ Movimiento eliminado y cambios de inventario revertidos exitosamente');
-
   } catch (error) {
     console.error('❌ Error al eliminar movimiento:', error);
     throw new Error(`Error al eliminar movimiento: ${error.message}`);
@@ -289,23 +291,26 @@ export const subscribeToMovements = (callback, filters = {}) => {
     // Ordenar por fecha
     q = query(q, orderBy('createdAt', 'desc'));
 
-    return onSnapshot(q, (querySnapshot) => {
-      const movements = [];
-      querySnapshot.forEach((doc) => {
-        movements.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-          updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
-          effectiveDate: doc.data().effectiveDate?.toDate?.() || doc.data().effectiveDate
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
+        const movements = [];
+        querySnapshot.forEach((doc) => {
+          movements.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
+            updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
+            effectiveDate: doc.data().effectiveDate?.toDate?.() || doc.data().effectiveDate,
+          });
         });
-      });
-      callback(movements);
-    }, (error) => {
-      console.error('❌ Error en suscripción de movimientos:', error);
-      callback([], error);
-    });
-
+        callback(movements);
+      },
+      (error) => {
+        console.error('❌ Error en suscripción de movimientos:', error);
+        callback([], error);
+      }
+    );
   } catch (error) {
     console.error('❌ Error al configurar suscripción:', error);
     throw new Error(`Error en suscripción: ${error.message}`);
@@ -330,12 +335,12 @@ export const approveMovement = async (movementId) => {
 
     await runTransaction(db, async (transaction) => {
       const docRef = doc(db, COLLECTION_NAME, movementId);
-      
+
       // Actualizar estado a completado
       transaction.update(docRef, {
         status: MOVEMENT_STATUS.COMPLETADO,
         approvedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
 
       // Actualizar inventario
@@ -343,7 +348,6 @@ export const approveMovement = async (movementId) => {
     });
 
     console.log('✅ Movimiento aprobado exitosamente');
-
   } catch (error) {
     console.error('❌ Error al aprobar movimiento:', error);
     throw new Error(`Error al aprobar movimiento: ${error.message}`);
@@ -371,7 +375,7 @@ export const getMovementsStats = async (filters = {}) => {
       // Estadísticas por período
       thisMonth: 0,
       lastMonth: 0,
-      thisWeek: 0
+      thisWeek: 0,
     };
 
     const now = new Date();
@@ -379,16 +383,16 @@ export const getMovementsStats = async (filters = {}) => {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
 
-    movements.forEach(movement => {
+    movements.forEach((movement) => {
       // Por tipo
       stats.byType[movement.type] = (stats.byType[movement.type] || 0) + 1;
-      
+
       // Por estado
       stats.byStatus[movement.status] = (stats.byStatus[movement.status] || 0) + 1;
-      
+
       // Por tipo de combustible
       stats.byFuelType[movement.fuelType] = (stats.byFuelType[movement.fuelType] || 0) + 1;
-      
+
       // Totales
       stats.totalValue += movement.totalValue || 0;
       stats.totalQuantity += movement.quantity || 0;
@@ -409,7 +413,6 @@ export const getMovementsStats = async (filters = {}) => {
     stats.averageValue = stats.totalMovements > 0 ? stats.totalValue / stats.totalMovements : 0;
 
     return stats;
-
   } catch (error) {
     console.error('❌ Error al calcular estadísticas:', error);
     throw new Error(`Error al calcular estadísticas: ${error.message}`);
@@ -434,7 +437,7 @@ const isValidLocation = (location) => {
  */
 const validateMovementData = (movementData) => {
   const required = ['type', 'fuelType', 'quantity', 'unitPrice'];
-  
+
   for (const field of required) {
     if (!movementData[field]) {
       throw new Error(`Campo requerido: ${field}`);
@@ -475,19 +478,27 @@ const validateMovementData = (movementData) => {
   }
 
   // ✅ Validar ubicaciones válidas (excepto para entradas que usan supplierName)
-  if (movementData.type !== MOVEMENT_TYPES.ENTRADA && movementData.location && !isValidLocation(movementData.location)) {
-    throw new Error(`Ubicación origen inválida: ${movementData.location}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
+  if (
+    movementData.type !== MOVEMENT_TYPES.ENTRADA &&
+    movementData.location &&
+    !isValidLocation(movementData.location)
+  ) {
+    throw new Error(
+      `Ubicación origen inválida: ${movementData.location}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`
+    );
   }
 
   if (movementData.destinationLocation && !isValidLocation(movementData.destinationLocation)) {
-    throw new Error(`Ubicación destino inválida: ${movementData.destinationLocation}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`);
+    throw new Error(
+      `Ubicación destino inválida: ${movementData.destinationLocation}. Ubicaciones válidas: ${OPERATIONAL_LOCATIONS.join(', ')}`
+    );
   }
 
   // ✅ Validar que origen y destino sean diferentes en transferencias
   if (movementData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
     const origin = (movementData.location || 'principal').toLowerCase();
     const destination = movementData.destinationLocation.toLowerCase();
-    
+
     if (origin === destination) {
       throw new Error('La ubicación origen y destino no pueden ser la misma en una transferencia');
     }
@@ -513,7 +524,7 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
   try {
     // Determinar ubicación correcta según tipo de movimiento
     let targetLocation = movement.location || 'principal';
-    
+
     // Para ENTRADA, usar destinationLocation si existe, sino ubicación principal
     if (movement.type === MOVEMENT_TYPES.ENTRADA) {
       targetLocation = movement.destinationLocation || 'principal';
@@ -527,24 +538,28 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
     );
 
     const inventorySnapshot = await getDocs(inventoryQuery);
-    
+
     if (inventorySnapshot.empty) {
       // --- LÓGICA DE CREACIÓN ---
       // Si no existe inventario, solo se puede procesar una ENTRADA.
       if (movement.type !== MOVEMENT_TYPES.ENTRADA) {
-        throw new Error(`No se encontró inventario para ${movement.fuelType} en ${targetLocation} para realizar un movimiento de ${movement.type}.`);
+        throw new Error(
+          `No se encontró inventario para ${movement.fuelType} en ${targetLocation} para realizar un movimiento de ${movement.type}.`
+        );
       }
-      
-      console.log(`📦 Creando inventario automático para ${movement.fuelType} en ${targetLocation}`);
-      
+
+      console.log(
+        `📦 Creando inventario automático para ${movement.fuelType} en ${targetLocation}`
+      );
+
       const inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
       const newInventoryData = {
         fuelType: movement.fuelType,
         location: targetLocation,
         name: movement.fuelType, // Asignar un nombre por defecto
-        maxCapacity: 10000, // ✅ Capacidad por defecto, se puede ajustar luego
+        maxCapacity: 1000, // ✅ Capacidad ajustada para bodegas Austria e Ilusión
         currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad del movimiento usando precisión
-        minThreshold: 1500, // ✅ 15% de la capacidad por defecto
+        minThreshold: 150, // ✅ 15% de la capacidad por defecto (ajustado a nueva capacidad)
         pricePerUnit: movement.unitPrice || 0, // ✅ Usar pricePerUnit consistente
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -553,13 +568,12 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
           movementId,
           type: movement.type,
           quantity: movement.quantity,
-          date: serverTimestamp()
-        }
+          date: serverTimestamp(),
+        },
       };
-      
+
       // Crear el nuevo item de inventario en la transacción
       transaction.set(inventoryRef, newInventoryData);
-
     } else {
       // --- LÓGICA DE ACTUALIZACIÓN ---
       // Usar inventario existente
@@ -588,7 +602,7 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
           if (newQuantity < 0) {
             throw new Error('Stock insuficiente para realizar la transferencia');
           }
-          
+
           // ✅ IMPLEMENTAR SUMA AL DESTINO
           await handleTransferToDestination(transaction, movement, movementId);
           break;
@@ -604,9 +618,9 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
           movementId,
           type: movement.type,
           quantity: movement.quantity,
-          date: serverTimestamp()
+          date: serverTimestamp(),
         },
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     }
 
@@ -619,7 +633,6 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
     if (movement.type === MOVEMENT_TYPES.SALIDA && movement.vehicleId && movement.currentHours) {
       await updateVehicleHourMeter(transaction, movement.vehicleId, movement.currentHours);
     }
-
   } catch (error) {
     console.error('❌ Error al actualizar inventario:', error);
     throw error;
@@ -665,31 +678,33 @@ const revertInventoryChanges = async (transaction, movement) => {
     );
 
     const inventorySnapshot = await getDocs(inventoryQuery);
-    
+
     if (inventorySnapshot.empty) {
       // Si no encuentra inventario, intentar con ubicación alternativa o crear entrada
       console.warn(`⚠️ No se encontró inventario para ${movement.fuelType} en ${targetLocation}`);
-      
+
       // Estrategia de fallback: buscar en cualquier ubicación para el mismo combustible
       const fallbackQuery = query(
         collection(db, INVENTORY_COLLECTION),
         where('fuelType', '==', movement.fuelType)
       );
-      
+
       const fallbackSnapshot = await getDocs(fallbackQuery);
-      
+
       if (fallbackSnapshot.empty) {
         // Si no existe inventario en ninguna ubicación, no se puede revertir
         console.error(`❌ No existe inventario para ${movement.fuelType} en ninguna ubicación`);
-        throw new Error(`No se puede revertir: no existe inventario para ${movement.fuelType} en ninguna ubicación. Movimiento huérfano detectado.`);
+        throw new Error(
+          `No se puede revertir: no existe inventario para ${movement.fuelType} en ninguna ubicación. Movimiento huérfano detectado.`
+        );
       }
-      
+
       // Usar el primer inventario encontrado como fallback
       console.log(`🔄 Usando inventario fallback en ${fallbackSnapshot.docs[0].data().location}`);
       const inventoryDoc = fallbackSnapshot.docs[0];
       const inventoryData = inventoryDoc.data();
       const inventoryRef = doc(db, INVENTORY_COLLECTION, inventoryDoc.id);
-      
+
       // Proceder con la reversión usando el inventario fallback
       await processInventoryReversion(transaction, inventoryRef, inventoryData, movement);
       return;
@@ -701,7 +716,6 @@ const revertInventoryChanges = async (transaction, movement) => {
 
     // Proceder con la reversión usando el inventario encontrado
     await processInventoryReversion(transaction, inventoryRef, inventoryData, movement);
-
   } catch (error) {
     console.error('❌ Error al revertir cambios de inventario:', error);
     throw new Error(`Error al revertir inventario: ${error.message}`);
@@ -739,7 +753,9 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
         // Revertir ajuste: restar la cantidad que se había sumado
         newQuantity = preciseSubtract(newQuantity, movement.quantity);
         if (newQuantity < 0) {
-          console.warn('⚠️ Advertencia: La reversión de ajuste resulta en stock negativo, ajustando a 0');
+          console.warn(
+            '⚠️ Advertencia: La reversión de ajuste resulta en stock negativo, ajustando a 0'
+          );
           newQuantity = 0;
         }
         break;
@@ -747,7 +763,7 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
       case MOVEMENT_TYPES.TRANSFERENCIA:
         // Revertir transferencia: sumar la cantidad que se había restado del origen
         newQuantity = preciseAdd(newQuantity, movement.quantity);
-        
+
         // ✅ TAMBIÉN REVERTIR DEL DESTINO
         await revertTransferFromDestination(transaction, movement);
         break;
@@ -768,13 +784,14 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
         quantity: movement.quantity,
         originalType: movement.type,
         date: serverTimestamp(),
-        note: `Reversión de movimiento ${movement.id} - Ubicación original: ${movement.location || movement.destinationLocation || 'no especificada'}`
+        note: `Reversión de movimiento ${movement.id} - Ubicación original: ${movement.location || movement.destinationLocation || 'no especificada'}`,
       },
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
-    console.log(`✅ Inventario revertido exitosamente. Stock anterior: ${inventoryData.currentStock}, Nuevo stock: ${newQuantity}`);
-
+    console.log(
+      `✅ Inventario revertido exitosamente. Stock anterior: ${inventoryData.currentStock}, Nuevo stock: ${newQuantity}`
+    );
   } catch (error) {
     console.error('❌ Error en procesamiento de reversión:', error);
     throw error;
@@ -793,7 +810,9 @@ const handleTransferToDestination = async (transaction, movement, movementId) =>
       throw new Error('Ubicación destino requerida para transferencias');
     }
 
-    console.log(`🔄 Transfiriendo ${movement.quantity} ${movement.fuelType} a ${movement.destinationLocation}`);
+    console.log(
+      `🔄 Transfiriendo ${movement.quantity} ${movement.fuelType} a ${movement.destinationLocation}`
+    );
 
     // Buscar inventario destino
     const destinationQuery = query(
@@ -806,16 +825,18 @@ const handleTransferToDestination = async (transaction, movement, movementId) =>
 
     if (destinationSnapshot.empty) {
       // Crear inventario automáticamente en destino
-      console.log(`📦 Creando inventario automático en destino: ${movement.fuelType} en ${movement.destinationLocation}`);
-      
+      console.log(
+        `📦 Creando inventario automático en destino: ${movement.fuelType} en ${movement.destinationLocation}`
+      );
+
       const inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
       const newInventoryData = {
         fuelType: movement.fuelType,
         location: movement.destinationLocation,
         name: movement.fuelType,
-        maxCapacity: 10000, // ✅ Capacidad por defecto
+        maxCapacity: 1000, // ✅ Capacidad ajustada para bodegas Austria e Ilusión
         currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad transferida
-        minThreshold: 1500, // ✅ Usar minThreshold consistente
+        minThreshold: 150, // ✅ Umbral mínimo ajustado (15% de 1000 galones)
         pricePerUnit: movement.unitPrice || 0, // ✅ Usar pricePerUnit consistente
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -825,18 +846,21 @@ const handleTransferToDestination = async (transaction, movement, movementId) =>
           type: 'transferencia_entrada',
           quantity: movement.quantity,
           date: serverTimestamp(),
-          originLocation: movement.location
-        }
+          originLocation: movement.location,
+        },
       };
-      
+
       transaction.set(inventoryRef, newInventoryData);
     } else {
       // Sumar al inventario existente en destino
       const destinationDoc = destinationSnapshot.docs[0];
       const destinationData = destinationDoc.data();
       const destinationRef = doc(db, INVENTORY_COLLECTION, destinationDoc.id);
-      
-      const newQuantity = preciseRound(preciseAdd(destinationData.currentStock, movement.quantity), 2);
+
+      const newQuantity = preciseRound(
+        preciseAdd(destinationData.currentStock, movement.quantity),
+        2
+      );
 
       transaction.update(destinationRef, {
         currentStock: newQuantity,
@@ -845,14 +869,13 @@ const handleTransferToDestination = async (transaction, movement, movementId) =>
           type: 'transferencia_entrada',
           quantity: movement.quantity,
           date: serverTimestamp(),
-          originLocation: movement.location
+          originLocation: movement.location,
         },
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     }
 
     console.log(`✅ Transferencia al destino completada exitosamente`);
-
   } catch (error) {
     console.error('❌ Error al transferir a destino:', error);
     throw new Error(`Error en transferencia a destino: ${error.message}`);
@@ -883,21 +906,25 @@ const revertTransferFromDestination = async (transaction, movement) => {
     const destinationSnapshot = await getDocs(destinationQuery);
 
     if (destinationSnapshot.empty) {
-      console.warn(`⚠️ No se encontró inventario destino para revertir: ${movement.fuelType} en ${movement.destinationLocation}`);
+      console.warn(
+        `⚠️ No se encontró inventario destino para revertir: ${movement.fuelType} en ${movement.destinationLocation}`
+      );
       return;
     }
 
     const destinationDoc = destinationSnapshot.docs[0];
     const destinationData = destinationDoc.data();
     const destinationRef = doc(db, INVENTORY_COLLECTION, destinationDoc.id);
-    
+
     // Restar la cantidad que se había sumado
     let newQuantity = preciseSubtract(destinationData.currentStock, movement.quantity);
     if (newQuantity < 0) {
-      console.warn('⚠️ Advertencia: La reversión en destino resulta en stock negativo, ajustando a 0');
+      console.warn(
+        '⚠️ Advertencia: La reversión en destino resulta en stock negativo, ajustando a 0'
+      );
       newQuantity = 0;
     }
-    
+
     newQuantity = preciseRound(newQuantity, 2);
 
     transaction.update(destinationRef, {
@@ -907,13 +934,12 @@ const revertTransferFromDestination = async (transaction, movement) => {
         type: 'reversion_transferencia',
         quantity: movement.quantity,
         date: serverTimestamp(),
-        note: `Reversión de transferencia desde ${movement.location}`
+        note: `Reversión de transferencia desde ${movement.location}`,
       },
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     console.log(`✅ Reversión en destino completada exitosamente`);
-
   } catch (error) {
     console.error('❌ Error al revertir transferencia en destino:', error);
     throw new Error(`Error al revertir destino: ${error.message}`);
@@ -937,7 +963,7 @@ const updateVehicleHourMeter = async (transaction, vehicleId, currentHours) => {
     );
 
     const vehiclesSnapshot = await getDocs(vehiclesQuery);
-    
+
     if (vehiclesSnapshot.empty) {
       console.warn(`⚠️ Vehículo ${vehicleId} no encontrado para actualizar horómetro`);
       return;
@@ -952,7 +978,9 @@ const updateVehicleHourMeter = async (transaction, vehicleId, currentHours) => {
     const newHours = parseFloat(currentHours);
 
     if (newHours < previousHours) {
-      console.warn(`⚠️ Nueva lectura horómetro (${newHours}) menor a la anterior (${previousHours}). Actualizando de todas formas.`);
+      console.warn(
+        `⚠️ Nueva lectura horómetro (${newHours}) menor a la anterior (${previousHours}). Actualizando de todas formas.`
+      );
     }
 
     // Crear registro de historial de horómetro
@@ -963,7 +991,7 @@ const updateVehicleHourMeter = async (transaction, vehicleId, currentHours) => {
       difference: newHours - previousHours,
       updatedAt: new Date(),
       updatedBy: 'movement_service',
-      source: 'fuel_consumption'
+      source: 'fuel_consumption',
     });
 
     // Actualizar vehículo con nueva lectura
@@ -971,11 +999,10 @@ const updateVehicleHourMeter = async (transaction, vehicleId, currentHours) => {
       currentHours: newHours,
       hourMeterHistory: hourMeterHistory,
       lastHourMeterUpdate: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     console.log(`✅ Horómetro actualizado: ${vehicleId} - ${previousHours}h → ${newHours}h`);
-
   } catch (error) {
     console.error('❌ Error al actualizar horómetro del vehículo:', error);
     // No hacer throw para no afectar el movimiento principal
@@ -993,5 +1020,5 @@ export default {
   approveMovement,
   getMovementsStats,
   MOVEMENT_TYPES,
-  MOVEMENT_STATUS
+  MOVEMENT_STATUS,
 };

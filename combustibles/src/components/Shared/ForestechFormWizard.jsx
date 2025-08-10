@@ -12,12 +12,12 @@ const ForestechFormWizard = ({
   onComplete,
   steps = [],
   initialData = {},
-  title = "Formulario",
-  subtitle = "Completa la información paso a paso",
-  theme = "forestech", // forestech, vehicles, products, etc.
+  title = 'Formulario',
+  subtitle = 'Completa la información paso a paso',
+  theme = 'forestech', // forestech, vehicles, products, etc.
   validateStep = null, // Función personalizada de validación
   onStepChange = null, // Callback cuando cambia el paso
-  extraData = {} // Datos adicionales para pasar a los componentes
+  extraData = {}, // Datos adicionales para pasar a los componentes
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -43,21 +43,24 @@ const ForestechFormWizard = ({
   }, [isOpen, initialData]);
 
   // Actualizar datos del formulario
-  const updateFormData = useCallback((field, value) => {
-    setFormData(prev => {
-      const newData = { ...prev, [field]: value };
-      return newData;
-    });
-    
-    // Limpiar errores del campo actualizado
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
+  const updateFormData = useCallback(
+    (field, value) => {
+      setFormData((prev) => {
+        const newData = { ...prev, [field]: value };
+        return newData;
       });
-    }
-  }, [errors]);
+
+      // Limpiar errores del campo actualizado
+      if (errors[field]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
 
   // Validar paso actual
   const validateCurrentStep = useCallback(() => {
@@ -77,10 +80,10 @@ const ForestechFormWizard = ({
 
     if (currentStep < steps.length) {
       setIsTransitioning(true);
-      
+
       // Transición más suave con animación escalonada
       setTimeout(() => {
-        setCurrentStep(prev => prev + 1);
+        setCurrentStep((prev) => prev + 1);
         if (onStepChange) {
           onStepChange(currentStep + 1, formData);
         }
@@ -96,10 +99,10 @@ const ForestechFormWizard = ({
   const goToPreviousStep = useCallback(() => {
     if (currentStep > 1) {
       setIsTransitioning(true);
-      
+
       // Transición más suave con animación escalonada
       setTimeout(() => {
-        setCurrentStep(prev => prev - 1);
+        setCurrentStep((prev) => prev - 1);
         if (onStepChange) {
           onStepChange(currentStep - 1, formData);
         }
@@ -156,30 +159,28 @@ const ForestechFormWizard = ({
   const CurrentStepComponent = steps[currentStep - 1]?.component;
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay sap-theme">
       <div className={`wizard-overlay ${theme}`}>
-        <div className="modal-content">
+        <div className="modal-content sap-theme">
           <div className={`forestech-wizard-modal ${theme}`}>
-            
             {/* Barra de progreso estilo Typeform */}
-            <div className="typeform-progress">
-              <div 
-                className="typeform-progress-fill"
-                style={{ width: `${progress}%` }}
-              />
+            <div className="typeform-progress sap-theme">
+              <div className="typeform-progress-fill sap-theme" style={{ width: `${progress}%` }} />
             </div>
 
             {/* Header del wizard */}
-            <div className="forestech-wizard-header">
-              <div className="wizard-progress-info">
-                <span className="step-counter">{currentStep} de {steps.length}</span>
-                <h1 className="wizard-title">{title}</h1>
-                <p className="wizard-subtitle">{subtitle}</p>
-                
+            <div className="forestech-wizard-header sap-theme">
+              <div className="wizard-progress-info sap-theme">
+                <span className="step-counter sap-theme">
+                  {currentStep} de {steps.length}
+                </span>
+                <h1 className="wizard-title sap-theme">{title}</h1>
+                <p className="wizard-subtitle sap-theme">{subtitle}</p>
+
                 {/* Mini indicadores de pasos */}
-                <div className="step-indicators">
+                <div className="step-indicators sap-theme">
                   {steps.map((step, index) => (
-                    <div 
+                    <div
                       key={index}
                       className={`step-indicator ${index + 1 === currentStep ? 'active' : ''} ${index + 1 < currentStep ? 'completed' : ''}`}
                       title={step.title}
@@ -189,9 +190,9 @@ const ForestechFormWizard = ({
                   ))}
                 </div>
               </div>
-              
-              <button 
-                className="wizard-close-btn"
+
+              <button
+                className="wizard-close-btn sap-theme"
                 onClick={onClose}
                 aria-label="Cerrar formulario"
               >
@@ -200,37 +201,33 @@ const ForestechFormWizard = ({
             </div>
 
             {/* Contenido del paso actual */}
-            <div className="forestech-wizard-content">
-              <div className="typeform-steps-container">
+            <div className="forestech-wizard-content sap-theme">
+              <div className="typeform-steps-container sap-theme">
                 {steps.map((step, index) => {
                   const StepComponent = step.component;
                   const stepNumber = index + 1;
                   const isCurrentStep = stepNumber === currentStep;
                   const isPastStep = stepNumber < currentStep;
                   const isFutureStep = stepNumber > currentStep;
-                  
+
                   return (
-                    <div 
+                    <div
                       key={stepNumber}
-                      className={`
-                        wizard-step-slide 
-                        ${isCurrentStep ? 'current' : ''}
-                        ${isPastStep ? 'past' : ''}
-                        ${isFutureStep ? 'future' : ''}
-                        ${isTransitioning ? 'transitioning' : ''}
-                      `}
+                      className={`wizard-step-slide ${isCurrentStep ? 'current' : ''} ${isPastStep ? 'past' : ''} ${isFutureStep ? 'future' : ''} ${isTransitioning ? 'transitioning' : ''} `}
                       style={{
                         transform: `translateX(${(stepNumber - currentStep) * 100}%)`,
                         opacity: isCurrentStep ? 1 : 0,
-                        visibility: isCurrentStep ? 'visible' : 'hidden'
+                        visibility: isCurrentStep ? 'visible' : 'hidden',
                       }}
                     >
-                      <div className="step-content-wrapper">
+                      <div className="step-content-wrapper sap-theme">
                         <StepComponent
                           formData={formData}
                           updateFormData={updateFormData}
                           errors={errors}
-                          setError={(field, message) => setErrors(prev => ({ ...prev, [field]: message }))}
+                          setError={(field, message) =>
+                            setErrors((prev) => ({ ...prev, [field]: message }))
+                          }
                           isActive={isCurrentStep && !isTransitioning}
                           stepNumber={stepNumber}
                           totalSteps={steps.length}
@@ -245,37 +242,37 @@ const ForestechFormWizard = ({
 
             {/* Error general */}
             {errors.general && (
-              <div className="wizard-error-general">
-                <span className="error-icon">⚠️</span>
+              <div className="wizard-error-general sap-theme">
+                <span className="error-icon sap-theme">⚠️</span>
                 {errors.general}
               </div>
             )}
 
             {/* Footer con navegación */}
-            <div className="forestech-wizard-footer">
-              <div className="wizard-navigation">
+            <div className="forestech-wizard-footer sap-theme">
+              <div className="wizard-navigation sap-theme">
                 {currentStep > 1 && (
-                  <button 
-                    className="wizard-btn wizard-btn-secondary"
+                  <button
+                    className="wizard-btn wizard-btn-secondary sap-theme"
                     onClick={goToPreviousStep}
                     disabled={isLoading}
                   >
                     ← Anterior
                   </button>
                 )}
-                
-                <div className="wizard-navigation-right">
+
+                <div className="wizard-navigation-right sap-theme">
                   {currentStep < steps.length ? (
-                    <button 
-                      className="wizard-btn wizard-btn-primary"
+                    <button
+                      className="wizard-btn wizard-btn-primary sap-theme"
                       onClick={goToNextStep}
                       disabled={isLoading || isTransitioning}
                     >
                       Siguiente →
                     </button>
                   ) : (
-                    <button 
-                      className="wizard-btn wizard-btn-success"
+                    <button
+                      className="wizard-btn wizard-btn-success sap-theme"
                       onClick={handleComplete}
                       disabled={isLoading}
                     >
@@ -285,7 +282,6 @@ const ForestechFormWizard = ({
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>

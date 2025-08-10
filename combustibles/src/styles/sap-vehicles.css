@@ -1,0 +1,959 @@
+/* sap-vehicles.css - Vehicles SAP Fiori Theme */
+@import url('../../../shared/styles/sap-theme-base.css');
+
+/* ==== SIDEBAR COMPATIBILITY FIX ==== */
+.sidebar-toggle {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 2000 !important;
+  position: relative !important;
+}
+
+/* ==== VEHICLES CONTAINER SAP ==== */
+.vehicles-container.sap-theme {
+  background: var(--sap-neutral-200) !important;
+  min-height: 100vh !important;
+  padding: var(--sap-spacing-lg) !important;
+  font-family: '72', 'Open Sans', sans-serif !important;
+  position: relative !important;
+  z-index: 10 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* ==== VEHICLES HEADER SAP ==== */
+.vehicles-header.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  padding: var(--sap-spacing-lg) !important;
+  margin-bottom: var(--sap-spacing-xl) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: var(--sap-spacing-lg) !important;
+}
+
+.vehicles-title.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-sm) !important;
+}
+
+.vehicles-title.sap-theme::before {
+  content: '🚜' !important;
+  font-size: 1.25rem !important;
+}
+
+.vehicles-subtitle.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  color: var(--sap-text-secondary) !important;
+  margin: var(--sap-spacing-xs) 0 0 0 !important;
+}
+
+/* ==== VEHICLES TABS SAP ==== */
+.tabs-navigation.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  overflow: hidden !important;
+  display: flex !important;
+}
+
+.tab-btn.sap-theme {
+  background: transparent !important;
+  border: none !important;
+  padding: var(--sap-spacing-md) var(--sap-spacing-lg) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--sap-text-secondary) !important;
+  cursor: pointer !important;
+  transition: all var(--sap-transition-fast) !important;
+  border-right: 1px solid var(--sap-neutral-300) !important;
+  min-width: 140px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--sap-spacing-sm) !important;
+  position: relative !important;
+}
+
+.tab-btn.sap-theme:last-child {
+  border-right: none !important;
+}
+
+.tab-btn.sap-theme:hover {
+  background: var(--sap-blue-light) !important;
+  color: var(--sap-blue-primary) !important;
+}
+
+.tab-btn.sap-theme.active {
+  background: var(--sap-blue-primary) !important;
+  color: var(--sap-neutral-100) !important;
+  box-shadow: inset 0 0 0 2px var(--sap-blue-dark) !important;
+}
+
+.tab-btn.sap-theme.active:hover {
+  background: var(--sap-blue-dark) !important;
+}
+
+/* ==== VEHICLES ACTIONS SAP ==== */
+.header-actions.sap-theme {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-lg) !important;
+  flex-wrap: wrap !important;
+}
+
+.btn-create-vehicle.sap-theme {
+  background: var(--sap-blue-primary) !important;
+  color: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-blue-primary) !important;
+  border-radius: var(--sap-border-radius-sm) !important;
+  padding: var(--sap-spacing-sm) var(--sap-spacing-lg) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all var(--sap-transition-fast) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-sm) !important;
+  white-space: nowrap !important;
+  min-height: 36px !important;
+}
+
+.btn-create-vehicle.sap-theme:hover {
+  background: var(--sap-blue-dark) !important;
+  border-color: var(--sap-blue-dark) !important;
+  box-shadow: var(--sap-shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ==== VEHICLES STATS SAP ==== */
+.vehicles-stats.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  padding: var(--sap-spacing-lg) !important;
+  margin-bottom: var(--sap-spacing-xl) !important;
+}
+
+.stats-grid.sap-theme {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: var(--sap-spacing-lg) !important;
+}
+
+.stat-card.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  padding: var(--sap-spacing-lg) !important;
+  transition: all var(--sap-transition-fast) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-md) !important;
+}
+
+.stat-card.sap-theme:hover {
+  box-shadow: var(--sap-shadow-md) !important;
+  border-color: var(--sap-blue-primary) !important;
+  transform: translateY(-2px) !important;
+}
+
+.stat-card.sap-theme.primary::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 4px !important;
+  height: 100% !important;
+  background: var(--sap-blue-primary) !important;
+}
+
+.stat-card.sap-theme.success::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 4px !important;
+  height: 100% !important;
+  background: var(--sap-success) !important;
+}
+
+.stat-card.sap-theme.warning::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 4px !important;
+  height: 100% !important;
+  background: var(--sap-warning) !important;
+}
+
+.stat-card.sap-theme.error::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 4px !important;
+  height: 100% !important;
+  background: var(--sap-error) !important;
+}
+
+.stat-icon.sap-theme {
+  width: 48px !important;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--sap-blue-light) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  color: var(--sap-blue-primary) !important;
+  font-size: 1.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.stat-content.sap-theme {
+  flex: 1 !important;
+}
+
+.stat-value.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.75rem !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 0 var(--sap-spacing-xs) 0 !important;
+  line-height: 1.2 !important;
+}
+
+.stat-label.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  color: var(--sap-text-secondary) !important;
+  margin: 0 0 var(--sap-spacing-xs) 0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.stat-trend.sap-theme {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-xs) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+.trend.positive.sap-theme {
+  color: var(--sap-success) !important;
+}
+
+.trend.positive.sap-theme::before {
+  content: '↗' !important;
+}
+
+.trend.negative.sap-theme {
+  color: var(--sap-error) !important;
+}
+
+.trend.negative.sap-theme::before {
+  content: '↘' !important;
+}
+
+.trend.neutral.sap-theme {
+  color: var(--sap-text-muted) !important;
+}
+
+.trend.neutral.sap-theme::before {
+  content: '→' !important;
+}
+
+/* ==== VEHICLES FILTERS SAP ==== */
+.vehicles-filters.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  padding: var(--sap-spacing-lg) !important;
+  margin-bottom: var(--sap-spacing-xl) !important;
+}
+
+.filters-main.sap-theme {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: var(--sap-spacing-lg) !important;
+  align-items: flex-end !important;
+}
+
+.search-section.sap-theme {
+  min-width: 300px !important;
+}
+
+.search-box.sap-theme {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.search-icon.sap-theme {
+  position: absolute !important;
+  left: var(--sap-spacing-md) !important;
+  color: var(--sap-text-muted) !important;
+  z-index: 1 !important;
+  font-size: 1rem !important;
+}
+
+.search-input.sap-theme {
+  width: 100% !important;
+  padding: var(--sap-spacing-md) var(--sap-spacing-xl) var(--sap-spacing-md) 40px !important;
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-400) !important;
+  border-radius: var(--sap-border-radius-sm) !important;
+  color: var(--sap-text-primary) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  transition: all var(--sap-transition-fast) !important;
+  box-sizing: border-box !important;
+}
+
+.search-input.sap-theme:focus {
+  outline: none !important;
+  border-color: var(--sap-blue-primary) !important;
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2) !important;
+}
+
+.search-clear.sap-theme {
+  position: absolute !important;
+  right: var(--sap-spacing-md) !important;
+  background: none !important;
+  border: none !important;
+  color: var(--sap-text-muted) !important;
+  cursor: pointer !important;
+  padding: var(--sap-spacing-xs) !important;
+  border-radius: 50% !important;
+  transition: all var(--sap-transition-fast) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.search-clear.sap-theme:hover {
+  background: var(--sap-neutral-300) !important;
+  color: var(--sap-error) !important;
+}
+
+.filters-controls.sap-theme {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-md) !important;
+  flex-wrap: wrap !important;
+}
+
+/* ==== VEHICLE CARDS SAP ==== */
+.vehicles-cards.sap-theme {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)) !important;
+  gap: var(--sap-spacing-lg) !important;
+}
+
+.vehicle-card.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-lg) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  transition: all var(--sap-transition-fast) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.vehicle-card.sap-theme:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: var(--sap-shadow-lg) !important;
+  border-color: var(--sap-blue-primary) !important;
+}
+
+/* Vehicle Type Colors SAP Fiori Style */
+.vehicle-card.sap-theme.vehicle-excavadora::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 4px !important;
+  background: var(--sap-success) !important;
+}
+
+.vehicle-card.sap-theme.vehicle-bulldozer::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 4px !important;
+  background: var(--sap-error) !important;
+}
+
+.vehicle-card.sap-theme.vehicle-cargador::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 4px !important;
+  background: var(--sap-blue-primary) !important;
+}
+
+.vehicle-card.sap-theme.vehicle-camion::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 4px !important;
+  background: var(--sap-secondary) !important;
+}
+
+.vehicle-card.sap-theme.vehicle-grua::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 4px !important;
+  background: var(--sap-warning) !important;
+}
+
+.card-header.sap-theme {
+  padding: var(--sap-spacing-lg) !important;
+  border-bottom: 1px solid var(--sap-neutral-300) !important;
+  background: var(--sap-neutral-200) !important;
+}
+
+.vehicle-info.sap-theme {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+}
+
+.vehicle-id-section.sap-theme {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-md) !important;
+}
+
+.vehicle-icon.sap-theme {
+  width: 48px !important;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--sap-blue-light) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  color: var(--sap-blue-primary) !important;
+  font-size: 1.5rem !important;
+}
+
+.vehicle-details.sap-theme {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.vehicle-id.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.125rem !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 0 var(--sap-spacing-xs) 0 !important;
+}
+
+.vehicle-name.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  color: var(--sap-text-secondary) !important;
+}
+
+/* ==== STATUS BADGES SAP ==== */
+.status-badge.sap-theme {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-xs) !important;
+  padding: var(--sap-spacing-xs) var(--sap-spacing-sm) !important;
+  border-radius: var(--sap-border-radius-sm) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  white-space: nowrap !important;
+}
+
+.status-badge.sap-theme.status-activo {
+  background: rgba(48, 145, 79, 0.1) !important;
+  color: var(--sap-success) !important;
+  border: 1px solid rgba(48, 145, 79, 0.3) !important;
+}
+
+.status-badge.sap-theme.status-mantenimiento {
+  background: rgba(223, 110, 0, 0.1) !important;
+  color: var(--sap-warning) !important;
+  border: 1px solid rgba(223, 110, 0, 0.3) !important;
+}
+
+.status-badge.sap-theme.status-inactivo {
+  background: rgba(153, 153, 153, 0.1) !important;
+  color: var(--sap-neutral-600) !important;
+  border: 1px solid rgba(153, 153, 153, 0.3) !important;
+}
+
+.status-badge.sap-theme.status-reparacion {
+  background: rgba(220, 13, 14, 0.1) !important;
+  color: var(--sap-error) !important;
+  border: 1px solid rgba(220, 13, 14, 0.3) !important;
+}
+
+.status-badge.sap-theme::before {
+  content: '●' !important;
+  font-size: 0.5rem !important;
+}
+
+.card-content.sap-theme {
+  padding: var(--sap-spacing-lg) !important;
+  flex-grow: 1 !important;
+}
+
+.basic-info.sap-theme {
+  margin-bottom: var(--sap-spacing-lg) !important;
+}
+
+.info-row.sap-theme {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: var(--sap-spacing-sm) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+}
+
+.info-label.sap-theme {
+  color: var(--sap-text-secondary) !important;
+  font-weight: 500 !important;
+}
+
+.info-value.sap-theme {
+  color: var(--sap-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* ==== CONSUMPTION METRICS SAP ==== */
+.consumption-metrics.sap-theme {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: var(--sap-spacing-md) !important;
+  margin-bottom: var(--sap-spacing-lg) !important;
+  padding: var(--sap-spacing-md) !important;
+  background: var(--sap-neutral-200) !important;
+  border-radius: var(--sap-border-radius-sm) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+}
+
+.metric-item.sap-theme {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  gap: var(--sap-spacing-xs) !important;
+}
+
+.metric-icon.sap-theme {
+  font-size: 1.25rem !important;
+  color: var(--sap-blue-primary) !important;
+}
+
+.metric-value.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 !important;
+}
+
+.metric-label.sap-theme {
+  font-family: '72', sans-serif !important;
+  font-size: 0.75rem !important;
+  color: var(--sap-text-secondary) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.card-footer.sap-theme {
+  padding: var(--sap-spacing-lg) !important;
+  border-top: 1px solid var(--sap-neutral-300) !important;
+  background: var(--sap-neutral-200) !important;
+}
+
+.card-actions.sap-theme {
+  display: flex !important;
+  gap: var(--sap-spacing-sm) !important;
+  justify-content: flex-end !important;
+  margin-top: var(--sap-spacing-md) !important;
+}
+
+/* ==== ACTION BUTTONS SAP ==== */
+.btn-view.sap-theme,
+.btn-edit.sap-theme,
+.btn-maintenance.sap-theme {
+  background: transparent !important;
+  border: 1px solid var(--sap-neutral-400) !important;
+  border-radius: var(--sap-border-radius-sm) !important;
+  color: var(--sap-text-secondary) !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+  transition: all var(--sap-transition-fast) !important;
+}
+
+.btn-view.sap-theme:hover {
+  background: rgba(48, 145, 79, 0.1) !important;
+  border-color: var(--sap-success) !important;
+  color: var(--sap-success) !important;
+}
+
+.btn-edit.sap-theme:hover {
+  background: rgba(0, 112, 242, 0.1) !important;
+  border-color: var(--sap-blue-primary) !important;
+  color: var(--sap-blue-primary) !important;
+}
+
+.btn-maintenance.sap-theme:hover {
+  background: rgba(223, 110, 0, 0.1) !important;
+  border-color: var(--sap-warning) !important;
+  color: var(--sap-warning) !important;
+}
+
+/* ==== VEHICLES TABLE SAP ==== */
+.vehicles-table-container.sap-theme {
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  box-shadow: var(--sap-shadow-sm) !important;
+  overflow: hidden !important;
+}
+
+.table-wrapper.sap-theme {
+  overflow-x: auto !important;
+}
+
+.vehicles-table.sap-theme {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: var(--sap-neutral-100) !important;
+  font-size: 0.875rem !important;
+  min-width: 1200px !important;
+}
+
+.vehicles-table.sap-theme th {
+  background: var(--sap-neutral-200) !important;
+  color: var(--sap-text-primary) !important;
+  font-family: '72', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: var(--sap-spacing-md) !important;
+  text-align: left !important;
+  border-bottom: 1px solid var(--sap-neutral-300) !important;
+  white-space: nowrap !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+}
+
+.vehicles-table.sap-theme th.sortable {
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: all var(--sap-transition-fast) !important;
+}
+
+.vehicles-table.sap-theme th.sortable:hover {
+  background: var(--sap-neutral-300) !important;
+}
+
+.vehicles-table.sap-theme td {
+  padding: var(--sap-spacing-md) !important;
+  border-bottom: 1px solid var(--sap-neutral-300) !important;
+  color: var(--sap-text-primary) !important;
+  font-size: 0.875rem !important;
+  vertical-align: middle !important;
+}
+
+.vehicle-row.sap-theme:hover {
+  background: var(--sap-blue-light) !important;
+}
+
+.vehicle-row.sap-theme:last-child td {
+  border-bottom: none !important;
+}
+
+/* ==== EMPTY STATES SAP ==== */
+.empty-state.sap-theme {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: var(--sap-spacing-xl) !important;
+  text-align: center !important;
+  min-height: 300px !important;
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+}
+
+.empty-icon.sap-theme {
+  font-size: 4rem !important;
+  margin-bottom: var(--sap-spacing-lg) !important;
+  opacity: 0.5 !important;
+  color: var(--sap-text-muted) !important;
+}
+
+.empty-state.sap-theme h3 {
+  font-family: '72', sans-serif !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 0 var(--sap-spacing-sm) 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+.empty-state.sap-theme p {
+  font-family: '72', sans-serif !important;
+  color: var(--sap-text-secondary) !important;
+  margin: 0 0 var(--sap-spacing-lg) 0 !important;
+  max-width: 400px !important;
+  line-height: 1.5 !important;
+}
+
+.btn-create-first.sap-theme {
+  background: var(--sap-blue-primary) !important;
+  color: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-blue-primary) !important;
+  border-radius: var(--sap-border-radius-sm) !important;
+  padding: var(--sap-spacing-md) var(--sap-spacing-lg) !important;
+  font-family: '72', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all var(--sap-transition-fast) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--sap-spacing-sm) !important;
+}
+
+.btn-create-first.sap-theme:hover {
+  background: var(--sap-blue-dark) !important;
+  border-color: var(--sap-blue-dark) !important;
+  box-shadow: var(--sap-shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ==== RESPONSIVE DESIGN SAP ==== */
+@media (max-width: 768px) {
+  .vehicles-container.sap-theme {
+    padding: var(--sap-spacing-md) !important;
+  }
+
+  .vehicles-header.sap-theme {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--sap-spacing-md) !important;
+  }
+
+  .header-actions.sap-theme {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .tabs-navigation.sap-theme {
+    width: 100% !important;
+  }
+
+  .tab-btn.sap-theme {
+    flex: 1 !important;
+    min-width: auto !important;
+    font-size: 0.75rem !important;
+    padding: var(--sap-spacing-sm) !important;
+  }
+
+  .btn-create-vehicle.sap-theme {
+    width: 100% !important;
+    justify-content: center !important;
+    margin-top: var(--sap-spacing-sm) !important;
+  }
+
+  .stats-grid.sap-theme {
+    grid-template-columns: 1fr !important;
+    gap: var(--sap-spacing-md) !important;
+  }
+
+  .vehicles-cards.sap-theme {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filters-main.sap-theme {
+    grid-template-columns: 1fr !important;
+    gap: var(--sap-spacing-md) !important;
+  }
+
+  .search-section.sap-theme {
+    min-width: auto !important;
+  }
+
+  .filters-controls.sap-theme {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .consumption-metrics.sap-theme {
+    grid-template-columns: 1fr !important;
+  }
+
+  .vehicles-table.sap-theme {
+    font-size: 0.75rem !important;
+  }
+
+  .vehicles-table.sap-theme th,
+  .vehicles-table.sap-theme td {
+    padding: var(--sap-spacing-sm) !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .stats-grid.sap-theme {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .vehicles-cards.sap-theme {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==== ACCESSIBILITY SAP ==== */
+.vehicles-container.sap-theme .focusable:focus {
+  outline: 2px solid var(--sap-blue-primary) !important;
+  outline-offset: 2px !important;
+}
+
+.vehicles-table.sap-theme th[role='columnheader'] {
+  cursor: pointer !important;
+}
+
+.vehicles-table.sap-theme th[role='columnheader']:hover {
+  background: var(--sap-neutral-300) !important;
+}
+
+.vehicles-table.sap-theme th[aria-sort='ascending']::after {
+  content: ' ▲' !important;
+  font-size: 0.75rem !important;
+  color: var(--sap-blue-primary) !important;
+}
+
+.vehicles-table.sap-theme th[aria-sort='descending']::after {
+  content: ' ▼' !important;
+  font-size: 0.75rem !important;
+  color: var(--sap-blue-primary) !important;
+}
+
+/* ==== LOADING STATES SAP ==== */
+.loading-container.sap-theme {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 300px !important;
+  color: var(--sap-text-secondary) !important;
+  font-family: '72', sans-serif !important;
+  gap: var(--sap-spacing-md) !important;
+  background: var(--sap-neutral-100) !important;
+  border: 1px solid var(--sap-neutral-300) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+}
+
+.loading-spinner.sap-theme {
+  width: 32px !important;
+  height: 32px !important;
+  border: 3px solid var(--sap-neutral-300) !important;
+  border-top: 3px solid var(--sap-blue-primary) !important;
+  border-radius: 50% !important;
+  animation: sapSpin 1s linear infinite !important;
+}
+
+@keyframes sapSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==== TAB CONTENT SAP ==== */
+.tab-description.sap-theme {
+  background: var(--sap-blue-light) !important;
+  border: 1px solid var(--sap-blue-primary) !important;
+  border-radius: var(--sap-border-radius-md) !important;
+  padding: var(--sap-spacing-lg) !important;
+  margin-bottom: var(--sap-spacing-xl) !important;
+  text-align: center !important;
+}
+
+.tab-description.sap-theme h3 {
+  font-family: '72', sans-serif !important;
+  color: var(--sap-blue-primary) !important;
+  margin: 0 0 var(--sap-spacing-sm) 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+.tab-description.sap-theme p {
+  font-family: '72', sans-serif !important;
+  color: var(--sap-text-primary) !important;
+  margin: 0 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+
+.categories-tab-content.sap-theme {
+  animation: fadeIn 0.3s ease-in-out !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

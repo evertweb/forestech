@@ -4,8 +4,8 @@
 
 export const ROLES = {
   ADMIN: 'admin',
-  CONTADOR: 'contador', 
-  CLIENTE: 'cliente'
+  CONTADOR: 'contador',
+  CLIENTE: 'cliente',
 };
 
 // Permisos específicos para COMBUSTIBLES
@@ -18,7 +18,7 @@ export const COMBUSTIBLES_PERMISSIONS = {
   MANAGE_SUPPLIERS: 'canManageSuppliers',
   VIEW_REPORTS: 'canViewReports',
   EXPORT_REPORTS: 'canExportReports',
-  MODIFY_SETTINGS: 'canModifySettings'
+  MODIFY_SETTINGS: 'canModifySettings',
 };
 
 /**
@@ -32,6 +32,7 @@ export const ADMIN_EMAIL = 'contacto.evert@gmail.com';
 export const getCombustiblesPermissions = (role) => {
   switch (role) {
     case ROLES.ADMIN:
+      // Permisos completos para administradores
       return {
         [COMBUSTIBLES_PERMISSIONS.MANAGE_INVENTORY]: true,
         [COMBUSTIBLES_PERMISSIONS.CREATE_MOVEMENTS]: true,
@@ -41,24 +42,24 @@ export const getCombustiblesPermissions = (role) => {
         [COMBUSTIBLES_PERMISSIONS.MANAGE_SUPPLIERS]: true,
         [COMBUSTIBLES_PERMISSIONS.VIEW_REPORTS]: true,
         [COMBUSTIBLES_PERMISSIONS.EXPORT_REPORTS]: true,
-        [COMBUSTIBLES_PERMISSIONS.MODIFY_SETTINGS]: true
+        [COMBUSTIBLES_PERMISSIONS.MODIFY_SETTINGS]: true,
       };
-    
     case ROLES.CONTADOR:
+      // Permisos para contadores
       return {
         [COMBUSTIBLES_PERMISSIONS.MANAGE_INVENTORY]: true,
         [COMBUSTIBLES_PERMISSIONS.CREATE_MOVEMENTS]: true,
         [COMBUSTIBLES_PERMISSIONS.VIEW_ALL_MOVEMENTS]: true,
         [COMBUSTIBLES_PERMISSIONS.MANAGE_VEHICLES]: false,
-        [COMBUSTIBLES_PERMISSIONS.MANAGE_MAINTENANCE]: true,
+        [COMBUSTIBLES_PERMISSIONS.MANAGE_MAINTENANCE]: false,
         [COMBUSTIBLES_PERMISSIONS.MANAGE_SUPPLIERS]: false,
         [COMBUSTIBLES_PERMISSIONS.VIEW_REPORTS]: true,
         [COMBUSTIBLES_PERMISSIONS.EXPORT_REPORTS]: true,
-        [COMBUSTIBLES_PERMISSIONS.MODIFY_SETTINGS]: false
+        [COMBUSTIBLES_PERMISSIONS.MODIFY_SETTINGS]: false,
       };
-    
     case ROLES.CLIENTE:
     default:
+      // Permisos mínimos para clientes y otros roles
       return {
         [COMBUSTIBLES_PERMISSIONS.MANAGE_INVENTORY]: false,
         [COMBUSTIBLES_PERMISSIONS.CREATE_MOVEMENTS]: true,
@@ -68,7 +69,7 @@ export const getCombustiblesPermissions = (role) => {
         [COMBUSTIBLES_PERMISSIONS.MANAGE_SUPPLIERS]: false,
         [COMBUSTIBLES_PERMISSIONS.VIEW_REPORTS]: false,
         [COMBUSTIBLES_PERMISSIONS.EXPORT_REPORTS]: false,
-        [COMBUSTIBLES_PERMISSIONS.MODIFY_SETTINGS]: false
+        [COMBUSTIBLES_PERMISSIONS.MODIFY_SETTINGS]: false,
       };
   }
 };
@@ -80,7 +81,7 @@ export const determineUserRole = (email) => {
   if (email === ADMIN_EMAIL) {
     return ROLES.ADMIN;
   }
-  
+
   // Por defecto, usuarios sin invitación son clientes
   return ROLES.CLIENTE;
 };

@@ -12,7 +12,7 @@ const MovementsFilters = ({
   onClearFilters,
   searchTerm,
   onSearchChange,
-  totalResults
+  totalResults,
 }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
@@ -20,7 +20,7 @@ const MovementsFilters = ({
   const fuelTypes = [
     { value: 'Diesel', label: 'Diesel 🚛' },
     { value: 'Gasolina', label: 'Gasolina 🚗' },
-    { value: 'Lubricante', label: 'Lubricante 🛢️' }
+    { value: 'Lubricante', label: 'Lubricante 🛢️' },
   ];
 
   // Rangos de fecha
@@ -30,12 +30,12 @@ const MovementsFilters = ({
     { value: 'week', label: 'Esta semana' },
     { value: 'month', label: 'Este mes' },
     { value: 'quarter', label: 'Este trimestre' },
-    { value: 'year', label: 'Este año' }
+    { value: 'year', label: 'Este año' },
   ];
 
   // Contar filtros activos
-  const activeFiltersCount = Object.values(filters).filter(value => 
-    value && value !== '' && value !== 'all'
+  const activeFiltersCount = Object.values(filters).filter(
+    (value) => value && value !== '' && value !== 'all'
   ).length;
 
   const handleFilterChange = (field, value) => {
@@ -47,22 +47,22 @@ const MovementsFilters = ({
   };
 
   return (
-    <div className="movements-filters">
+    <div className="movements-filters sap-theme">
       {/* Barra de búsqueda y controles principales */}
-      <div className="filters-main">
-        <div className="search-section">
-          <div className="search-box">
-            <span className="search-icon">🔍</span>
+      <div className="filters-main sap-theme">
+        <div className="search-section sap-theme">
+          <div className="search-box sap-theme">
+            <span className="search-icon sap-theme">🔍</span>
             <input
               type="text"
               placeholder="Buscar por combustible, vehículo, referencia..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="search-input"
+              className="search-input sap-theme"
             />
             {searchTerm && (
-              <button 
-                className="search-clear"
+              <button
+                className="search-clear sap-theme"
                 onClick={() => onSearchChange('')}
                 title="Limpiar búsqueda"
               >
@@ -72,23 +72,23 @@ const MovementsFilters = ({
           </div>
         </div>
 
-        <div className="filters-controls">
+        <div className="filters-controls sap-theme">
           {/* Filtros rápidos */}
-          <div className="quick-filters">
+          <div className="quick-filters sap-theme">
             <button
-              className={`quick-filter ${filters.type === MOVEMENT_TYPES.ENTRADA ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${filters.type === MOVEMENT_TYPES.ENTRADA ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ type: MOVEMENT_TYPES.ENTRADA })}
             >
               📥 Entradas
             </button>
             <button
-              className={`quick-filter ${filters.type === MOVEMENT_TYPES.SALIDA ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${filters.type === MOVEMENT_TYPES.SALIDA ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ type: MOVEMENT_TYPES.SALIDA })}
             >
               📤 Salidas
             </button>
             <button
-              className={`quick-filter ${filters.status === MOVEMENT_STATUS.PENDIENTE ? 'active' : ''}`}
+              className={`quick-filter sap-theme ${filters.status === MOVEMENT_STATUS.PENDIENTE ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ status: MOVEMENT_STATUS.PENDIENTE })}
             >
               ⏳ Pendientes
@@ -97,35 +97,33 @@ const MovementsFilters = ({
 
           {/* Toggle filtros avanzados */}
           <button
-            className={`btn-advanced-filters ${showAdvancedFilters ? 'active' : ''}`}
+            className={`btn-advanced-filters sap-theme ${showAdvancedFilters ? 'active' : ''}`}
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
           >
-            🎛️ Filtros 
+            🎛️ Filtros
             {activeFiltersCount > 0 && (
-              <span className="filters-count">{activeFiltersCount}</span>
+              <span className="filters-count sap-theme">{activeFiltersCount}</span>
             )}
           </button>
 
           {/* Vista única tabla - selector removido */}
-          <div className="view-indicator">
-            <span className="view-info">
-              📋 Vista Tabla
-            </span>
+          <div className="view-indicator sap-theme">
+            <span className="view-info sap-theme">📋 Vista Tabla</span>
           </div>
         </div>
       </div>
 
       {/* Filtros avanzados */}
       {showAdvancedFilters && (
-        <div className="filters-advanced">
-          <div className="filters-grid">
+        <div className="filters-advanced sap-theme">
+          <div className="filters-grid sap-theme">
             {/* Tipo de movimiento */}
-            <div className="filter-group">
+            <div className="filter-group sap-theme">
               <label>Tipo de Movimiento</label>
               <select
                 value={filters.type}
                 onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="filter-select"
+                className="filter-select sap-theme"
               >
                 <option value="">Todos los tipos</option>
                 <option value={MOVEMENT_TYPES.ENTRADA}>📥 Entrada</option>
@@ -136,12 +134,12 @@ const MovementsFilters = ({
             </div>
 
             {/* Estado */}
-            <div className="filter-group">
+            <div className="filter-group sap-theme">
               <label>Estado</label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="filter-select"
+                className="filter-select sap-theme"
               >
                 <option value="">Todos los estados</option>
                 <option value={MOVEMENT_STATUS.PENDIENTE}>⏳ Pendiente</option>
@@ -151,15 +149,15 @@ const MovementsFilters = ({
             </div>
 
             {/* Tipo de combustible */}
-            <div className="filter-group">
+            <div className="filter-group sap-theme">
               <label>Tipo de Combustible</label>
               <select
                 value={filters.fuelType}
                 onChange={(e) => handleFilterChange('fuelType', e.target.value)}
-                className="filter-select"
+                className="filter-select sap-theme"
               >
                 <option value="">Todos los combustibles</option>
-                {fuelTypes.map(fuel => (
+                {fuelTypes.map((fuel) => (
                   <option key={fuel.value} value={fuel.value}>
                     {fuel.label}
                   </option>
@@ -168,14 +166,14 @@ const MovementsFilters = ({
             </div>
 
             {/* Rango de fechas */}
-            <div className="filter-group">
+            <div className="filter-group sap-theme">
               <label>Período</label>
               <select
                 value={filters.dateRange}
                 onChange={(e) => handleFilterChange('dateRange', e.target.value)}
-                className="filter-select"
+                className="filter-select sap-theme"
               >
-                {dateRanges.map(range => (
+                {dateRanges.map((range) => (
                   <option key={range.value} value={range.value}>
                     {range.label}
                   </option>
@@ -184,34 +182,35 @@ const MovementsFilters = ({
             </div>
 
             {/* Vehículo */}
-            <div className="filter-group">
+            <div className="filter-group sap-theme">
               <label>Vehículo/Equipo</label>
               <input
                 type="text"
                 placeholder="ID del vehículo..."
                 value={filters.vehicleId}
                 onChange={(e) => handleFilterChange('vehicleId', e.target.value)}
-                className="filter-input"
+                className="filter-input sap-theme"
               />
             </div>
           </div>
 
           {/* Acciones de filtros */}
-          <div className="filters-actions">
+          <div className="filters-actions sap-theme">
             <button
-              className="btn-clear-filters"
+              className="btn-clear-filters sap-theme"
               onClick={onClearFilters}
               disabled={activeFiltersCount === 0}
             >
               🗑️ Limpiar Filtros
             </button>
-            <div className="filters-info">
-              <span className="results-count">
+            <div className="filters-info sap-theme">
+              <span className="results-count sap-theme">
                 {totalResults} resultado{totalResults !== 1 ? 's' : ''}
               </span>
               {activeFiltersCount > 0 && (
-                <span className="active-filters-text">
-                  ({activeFiltersCount} filtro{activeFiltersCount !== 1 ? 's' : ''} activo{activeFiltersCount !== 1 ? 's' : ''})
+                <span className="active-filters-text sap-theme">
+                  ({activeFiltersCount} filtro{activeFiltersCount !== 1 ? 's' : ''} activo
+                  {activeFiltersCount !== 1 ? 's' : ''})
                 </span>
               )}
             </div>

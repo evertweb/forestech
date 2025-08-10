@@ -1,0 +1,475 @@
+/* Suppliers Filters - SAP Fiori Theme */
+
+/* SAP Fiori Variables */
+:root {
+  --sap-primary: #0070f2;
+  --sap-primary-dark: #0040b0;
+  --sap-primary-light: #e6f3ff;
+  --sap-success: #107e3e;
+  --sap-warning: #df6e0c;
+  --sap-error: #bb0000;
+  --sap-neutral-0: #ffffff;
+  --sap-neutral-1: #f7f7f7;
+  --sap-neutral-2: #ededed;
+  --sap-neutral-3: #d9d9d9;
+  --sap-neutral-4: #89919a;
+  --sap-neutral-5: #6a6d70;
+  --sap-neutral-6: #354a5f;
+  --sap-neutral-7: #2c3e50;
+  --sap-font: '72', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sap-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --sap-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --sap-shadow-3: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --sap-radius: 4px;
+  --sap-spacing-xs: 4px;
+  --sap-spacing-s: 8px;
+  --sap-spacing-m: 16px;
+  --sap-spacing-l: 24px;
+  --sap-spacing-xl: 32px;
+  --sap-transition: all 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+/* Main Container */
+.suppliers-filters.sap-theme {
+  background: var(--sap-neutral-0);
+  border: 1px solid var(--sap-neutral-3);
+  border-radius: var(--sap-radius);
+  box-shadow: var(--sap-shadow-1);
+  font-family: var(--sap-font);
+  margin-bottom: var(--sap-spacing-l);
+  overflow: hidden;
+}
+
+.suppliers-filters.sap-theme .filters-main {
+  padding: var(--sap-spacing-l);
+}
+
+/* Search Section */
+.suppliers-filters.sap-theme .search-section {
+  margin-bottom: var(--sap-spacing-l);
+}
+
+.suppliers-filters.sap-theme .search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--sap-neutral-0);
+  border: 2px solid var(--sap-neutral-3);
+  border-radius: var(--sap-radius);
+  padding: var(--sap-spacing-s) var(--sap-spacing-m);
+  transition: var(--sap-transition);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.suppliers-filters.sap-theme .search-box:focus-within {
+  border-color: var(--sap-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2);
+}
+
+.suppliers-filters.sap-theme .search-icon {
+  color: var(--sap-neutral-4);
+  margin-right: var(--sap-spacing-s);
+  font-size: 18px;
+}
+
+.suppliers-filters.sap-theme .search-input.sap-theme {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: var(--sap-neutral-7);
+  background: transparent;
+  font-family: var(--sap-font);
+}
+
+.suppliers-filters.sap-theme .search-input.sap-theme::placeholder {
+  color: var(--sap-neutral-4);
+}
+
+.suppliers-filters.sap-theme .search-clear.sap-theme {
+  background: var(--sap-error);
+  color: var(--sap-neutral-0);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--sap-transition);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.suppliers-filters.sap-theme .search-clear.sap-theme:hover {
+  background: #cc0000;
+  transform: scale(1.1);
+}
+
+/* Filter Controls */
+.suppliers-filters.sap-theme .filters-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sap-spacing-m);
+  margin-bottom: var(--sap-spacing-l);
+  padding: var(--sap-spacing-m);
+  background: var(--sap-neutral-1);
+  border-radius: var(--sap-radius);
+}
+
+/* Quick Filters */
+.suppliers-filters.sap-theme .quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sap-spacing-s);
+  flex: 1;
+  min-width: 300px;
+}
+
+.suppliers-filters.sap-theme .quick-filter.sap-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-xs);
+  padding: var(--sap-spacing-s) var(--sap-spacing-m);
+  border: 2px solid var(--sap-neutral-3);
+  background: var(--sap-neutral-0);
+  color: var(--sap-neutral-6);
+  border-radius: var(--sap-radius);
+  cursor: pointer;
+  transition: var(--sap-transition);
+  font-family: var(--sap-font);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.suppliers-filters.sap-theme .quick-filter.sap-theme:hover {
+  border-color: var(--sap-primary);
+  background: var(--sap-primary-light);
+  color: var(--sap-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--sap-shadow-2);
+}
+
+.suppliers-filters.sap-theme .quick-filter.sap-theme.active {
+  background: var(--sap-primary);
+  border-color: var(--sap-primary);
+  color: var(--sap-neutral-0);
+  box-shadow: var(--sap-shadow-2);
+}
+
+.suppliers-filters.sap-theme .quick-filter.sap-theme.active:hover {
+  background: var(--sap-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* Advanced Filters Toggle */
+.suppliers-filters.sap-theme .btn-advanced-filters.sap-theme {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-s);
+  padding: var(--sap-spacing-s) var(--sap-spacing-m);
+  border: 2px solid var(--sap-neutral-4);
+  background: var(--sap-neutral-0);
+  color: var(--sap-neutral-6);
+  border-radius: var(--sap-radius);
+  cursor: pointer;
+  transition: var(--sap-transition);
+  font-family: var(--sap-font);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.suppliers-filters.sap-theme .btn-advanced-filters.sap-theme:hover {
+  border-color: var(--sap-primary);
+  background: var(--sap-primary-light);
+  color: var(--sap-primary-dark);
+}
+
+.suppliers-filters.sap-theme .btn-advanced-filters.sap-theme.active {
+  background: var(--sap-warning);
+  border-color: var(--sap-warning);
+  color: var(--sap-neutral-0);
+}
+
+.suppliers-filters.sap-theme .filters-count {
+  background: var(--sap-error);
+  color: var(--sap-neutral-0);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+/* View Modes */
+.suppliers-filters.sap-theme .view-modes {
+  display: flex;
+  border: 2px solid var(--sap-neutral-3);
+  border-radius: var(--sap-radius);
+  overflow: hidden;
+}
+
+.suppliers-filters.sap-theme .view-mode.sap-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-xs);
+  padding: var(--sap-spacing-s) var(--sap-spacing-m);
+  border: none;
+  background: var(--sap-neutral-0);
+  color: var(--sap-neutral-6);
+  cursor: pointer;
+  transition: var(--sap-transition);
+  font-family: var(--sap-font);
+  font-size: 14px;
+  border-right: 1px solid var(--sap-neutral-3);
+}
+
+.suppliers-filters.sap-theme .view-mode.sap-theme:last-child {
+  border-right: none;
+}
+
+.suppliers-filters.sap-theme .view-mode.sap-theme:hover {
+  background: var(--sap-primary-light);
+  color: var(--sap-primary-dark);
+}
+
+.suppliers-filters.sap-theme .view-mode.sap-theme.active {
+  background: var(--sap-primary);
+  color: var(--sap-neutral-0);
+}
+
+/* Advanced Filters */
+.suppliers-filters.sap-theme .filters-advanced.sap-theme {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  background: var(--sap-neutral-1);
+  border-radius: var(--sap-radius);
+  margin-top: var(--sap-spacing-m);
+}
+
+.suppliers-filters.sap-theme .filters-advanced.sap-theme.active {
+  max-height: 400px;
+  padding: var(--sap-spacing-l);
+}
+
+.suppliers-filters.sap-theme .filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sap-spacing-l);
+}
+
+.suppliers-filters.sap-theme .filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sap-spacing-s);
+}
+
+.suppliers-filters.sap-theme .filter-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sap-neutral-7);
+  font-family: var(--sap-font);
+}
+
+.suppliers-filters.sap-theme .filter-group select.sap-theme,
+.suppliers-filters.sap-theme .btn-clear-filters.sap-theme {
+  padding: var(--sap-spacing-s) var(--sap-spacing-m);
+  border: 2px solid var(--sap-neutral-3);
+  border-radius: var(--sap-radius);
+  background: var(--sap-neutral-0);
+  color: var(--sap-neutral-7);
+  font-family: var(--sap-font);
+  font-size: 14px;
+  transition: var(--sap-transition);
+  cursor: pointer;
+}
+
+.suppliers-filters.sap-theme .filter-group select.sap-theme:focus,
+.suppliers-filters.sap-theme .btn-clear-filters.sap-theme:focus {
+  outline: none;
+  border-color: var(--sap-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.2);
+}
+
+.suppliers-filters.sap-theme .btn-clear-filters.sap-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-s);
+  justify-content: center;
+  font-weight: 500;
+  color: var(--sap-error);
+  border-color: var(--sap-error);
+}
+
+.suppliers-filters.sap-theme .btn-clear-filters.sap-theme:hover:not(:disabled) {
+  background: var(--sap-error);
+  color: var(--sap-neutral-0);
+  transform: translateY(-1px);
+  box-shadow: var(--sap-shadow-2);
+}
+
+.suppliers-filters.sap-theme .btn-clear-filters.sap-theme:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Results Info */
+.suppliers-filters.sap-theme .filters-info.sap-theme {
+  padding: var(--sap-spacing-l);
+  background: var(--sap-neutral-1);
+  border-top: 1px solid var(--sap-neutral-3);
+  margin-top: var(--sap-spacing-l);
+}
+
+.suppliers-filters.sap-theme .results-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sap-neutral-7);
+  margin-bottom: var(--sap-spacing-m);
+  text-align: center;
+}
+
+.suppliers-filters.sap-theme .active-filters {
+  margin-top: var(--sap-spacing-m);
+}
+
+.suppliers-filters.sap-theme .filters-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sap-neutral-6);
+  margin-bottom: var(--sap-spacing-s);
+  display: block;
+}
+
+.suppliers-filters.sap-theme .filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sap-spacing-s);
+}
+
+.suppliers-filters.sap-theme .filter-tag.sap-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--sap-spacing-xs);
+  padding: var(--sap-spacing-xs) var(--sap-spacing-s);
+  background: var(--sap-primary-light);
+  color: var(--sap-primary-dark);
+  border-radius: var(--sap-radius);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.suppliers-filters.sap-theme .filter-tag-remove.sap-theme {
+  background: var(--sap-primary);
+  color: var(--sap-neutral-0);
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  margin-left: var(--sap-spacing-xs);
+}
+
+.suppliers-filters.sap-theme .filter-tag-remove.sap-theme:hover {
+  background: var(--sap-error);
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .suppliers-filters.sap-theme .filters-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sap-spacing-m);
+  }
+
+  .suppliers-filters.sap-theme .quick-filters {
+    min-width: 100%;
+    justify-content: center;
+  }
+
+  .suppliers-filters.sap-theme .view-modes {
+    align-self: center;
+  }
+
+  .suppliers-filters.sap-theme .filters-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sap-spacing-m);
+  }
+}
+
+@media (max-width: 768px) {
+  .suppliers-filters.sap-theme .filters-main {
+    padding: var(--sap-spacing-m);
+  }
+
+  .suppliers-filters.sap-theme .search-box {
+    max-width: 100%;
+  }
+
+  .suppliers-filters.sap-theme .quick-filters {
+    flex-direction: column;
+    gap: var(--sap-spacing-s);
+  }
+
+  .suppliers-filters.sap-theme .quick-filter.sap-theme {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .suppliers-filters.sap-theme .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .suppliers-filters.sap-theme .filter-tags {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .suppliers-filters.sap-theme .filter-tag.sap-theme {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .suppliers-filters.sap-theme .filters-main {
+    padding: var(--sap-spacing-s);
+  }
+
+  .suppliers-filters.sap-theme .search-input.sap-theme {
+    font-size: 14px;
+  }
+
+  .suppliers-filters.sap-theme .quick-filter.sap-theme {
+    padding: var(--sap-spacing-s);
+    font-size: 12px;
+  }
+
+  .suppliers-filters.sap-theme .view-mode.sap-theme {
+    padding: var(--sap-spacing-s);
+    font-size: 12px;
+  }
+
+  .suppliers-filters.sap-theme .btn-advanced-filters.sap-theme {
+    padding: var(--sap-spacing-s);
+    font-size: 12px;
+  }
+}
