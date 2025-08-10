@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:ssr": "npm run build:ssr && npm run serve:ssr",
     "build": "vite build --outDir ../public/combustibles",
+    "build:ssr": "vite build --outDir ../public/combustibles && vite build --ssr src/entry-client-ssr.jsx --outDir ../functions/ssr/dist",
+    "serve:ssr": "cd ../functions && npm run serve",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

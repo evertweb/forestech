@@ -1,3 +1,8 @@
+# Env files
+.env
+.env.*
+functions/.env
+functions/.env.*
 # Firebase cache
 .firebase/
 

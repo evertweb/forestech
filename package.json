@@ -23,6 +23,9 @@
     "test": "echo 'Tests delegated to GitHub Actions' && exit 0",
     "test:ci": "npm run test --workspace=alimentacion --if-present && npm run test --workspace=combustibles --if-present",
     "deploy": "npm run build:all && firebase deploy",
+    "serve:ssr": "cd functions && npm run serve",
+    "deploy:ssr": "cd functions && npm run deploy",
+    "perf:baseline": "node scripts/run-lighthouse-baseline.js",
     "install:all": "npm ci",
     "prepare": "husky",
     "lint-staged": "lint-staged"

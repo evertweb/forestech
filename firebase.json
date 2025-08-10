@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "source": "functions"
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
@@ -8,19 +11,19 @@
   },
   "hosting": {
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "/alimentacion/**",
         "destination": "/alimentacion/index.html"
       },
       {
+        "source": "/combustibles/ssr-health",
+        "function": "ssrCombustibles"
+      },
+      {
         "source": "/combustibles/**",
-        "destination": "/combustibles/index.html"
+        "function": "ssrCombustibles"
       }
     ]
   }
