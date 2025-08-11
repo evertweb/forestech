@@ -7,11 +7,12 @@ updates:
       interval: "monthly"
       day: "monday"  
       time: "10:00"
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 2
     reviewers:
       - "evertweb"
     assignees:
       - "evertweb"
+    target-branch: "main"
     commit-message:
       prefix: "⬆️ deps:"
       include: "scope"
@@ -36,14 +37,21 @@ updates:
       interval: "monthly"
       day: "monday"
       time: "10:00"
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 2
     reviewers:
       - "evertweb"
     assignees:
       - "evertweb"
+    target-branch: "main"
     commit-message:
       prefix: "⬆️ deps:"
       include: "scope"
+    # Ignorar actualizaciones major que rompen compatibilidad
+    ignore:
+      - dependency-name: "firebase"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
     groups:
       react:
         patterns:
@@ -64,8 +72,8 @@ updates:
     schedule:
       interval: "monthly"
       day: "monday"
-      time: "10:00"
-    open-pull-requests-limit: 1
+      time: "11:00"
+    open-pull-requests-limit: 2
     reviewers:
       - "evertweb"
     assignees:
@@ -73,6 +81,10 @@ updates:
     commit-message:
       prefix: "⬆️ workspace:"
       include: "scope"
+    # Ignorar actualizaciones major
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # 🚀 GitHub Actions
   - package-ecosystem: "github-actions"
