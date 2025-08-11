@@ -4,10 +4,10 @@ updates:
   - package-ecosystem: "npm"
     directory: "/combustibles"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "monthly"
+      day: "monday"  
       time: "10:00"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 1
     reviewers:
       - "evertweb"
     assignees:
@@ -33,10 +33,10 @@ updates:
   - package-ecosystem: "npm"
     directory: "/alimentacion"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
       time: "10:00"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 1
     reviewers:
       - "evertweb"
     assignees:
@@ -62,10 +62,10 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
       time: "10:00"
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 1
     reviewers:
       - "evertweb"
     assignees:

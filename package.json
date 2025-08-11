@@ -29,7 +29,7 @@
     "test:rollback": "node scripts/test-remote-config-rollback.js",
     "test:ssr-validation": "npx playwright test tests-e2e/ssr-validation.spec.ts",
     "install:all": "npm ci",
-    "prepare": "husky",
+    "prepare": "husky || exit 0",
     "lint-staged": "lint-staged"
   },
   "private": true,

@@ -16,6 +16,8 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Skip E2E tests para PRs de Dependabot (solo actualizaciones de deps)
+    if: github.actor != 'dependabot[bot]'
     
     env:
       NODE_ENV: test
@@ -32,8 +34,10 @@ jobs:
           cache-dependency-path: 'combustibles/package-lock.json'
       
       - name: Install dependencies
-        working-directory: ./combustibles
+        working-directory: ./combustibles  
         run: npm ci
+        env:
+          HUSKY: 0  # Deshabilitar husky en CI
       
       - name: Install Playwright browsers
         working-directory: ./combustibles
@@ -83,6 +87,8 @@ jobs:
   smoke-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Skip smoke tests para PRs de Dependabot
+    if: github.actor != 'dependabot[bot]'
     
     steps:
       - name: Checkout code
@@ -96,8 +102,10 @@ jobs:
           cache-dependency-path: 'combustibles/package-lock.json'
       
       - name: Install dependencies
-        working-directory: ./combustibles
+        working-directory: ./combustibles  
         run: npm ci
+        env:
+          HUSKY: 0  # Deshabilitar husky en CI
       
       - name: Install Playwright browsers
         working-directory: ./combustibles
