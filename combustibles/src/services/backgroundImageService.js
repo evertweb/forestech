@@ -3,13 +3,8 @@
  * combustibles/src/services/backgroundImageService.js
  */
 
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-   
-} from 'firebase/storage';
-import { storage } from '../../firebase/config';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../../shared/firebase/config';
 // eslint-disable-next-line no-unused-vars
 import { getFirebaseErrorMessage, logFirebaseError } from './firebaseErrorHandler';
 
