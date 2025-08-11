@@ -72,7 +72,7 @@ else
     fi
 
     # Ejecutar deploy selectivo
-    DEPLOY_CMD="$DEPLOY_CMD --only$(echo $TARGETS | tr ' ' ',')"
+    DEPLOY_CMD="$DEPLOY_CMD --only $(echo $TARGETS | tr ' ' ',')"
     echo "🚀 Ejecutando: $DEPLOY_CMD"
     eval $DEPLOY_CMD
 fi
