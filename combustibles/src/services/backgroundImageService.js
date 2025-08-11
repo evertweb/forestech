@@ -4,7 +4,7 @@
  */
 
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../../shared/firebase/config';
+import { storage } from '../firebase/config';
 // eslint-disable-next-line no-unused-vars
 import { getFirebaseErrorMessage, logFirebaseError } from './firebaseErrorHandler';
 
