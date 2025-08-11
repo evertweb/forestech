@@ -19,7 +19,7 @@ export function useClientEffect(effect, deps = []) {
     if (isClient) {
       return effect();
     }
-  }, [effect, ...deps]);
+  }, [effect, deps]);
 }
 
 /**

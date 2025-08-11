@@ -5,6 +5,8 @@
  * Valida metadatos, Open Graph, estructuras de datos y métricas Core Web Vitals
  */
 
+/* eslint-env node */
+
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -253,7 +255,7 @@ function validateStructuredData(html) {
   if (jsonLdMatch) {
     try {
       data.jsonLd = JSON.parse(jsonLdMatch[1]);
-    } catch (error) {
+    } catch {
       warnings.push('Invalid JSON-LD structure');
     }
   } else {
@@ -448,18 +450,18 @@ async function main() {
   const passedAll = results.every((r) => r.passed);
   if (passedAll) {
     console.log('\n🎉 All SEO validations passed! Fase 3 complete.');
-    process.exit(0);
+    globalThis.process?.exit(0);
   } else {
     console.log('\n❌ Some validations failed. Check report for details.');
-    process.exit(1);
+    globalThis.process?.exit(1);
   }
 }
 
 // Ejecutar si es llamado directamente
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === `file://${globalThis.process?.argv[1]}`) {
   main().catch((error) => {
     console.error('❌ Validation failed:', error);
-    process.exit(1);
+    globalThis.process?.exit(1);
   });
 }
 
