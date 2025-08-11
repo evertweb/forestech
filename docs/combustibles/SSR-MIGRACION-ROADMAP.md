@@ -115,25 +115,25 @@ Validación:
 
 ---
 
-### Fase 2 — Datos iniciales y Auth (1d) 🔄 PRÓXIMA FASE
+### Fase 2 — Datos iniciales y Auth (1d) ✅ COMPLETADA
 
 Responsable: Copilot, revisión Claude
 
 Entregables:
 
-- [ ] Integración `FirebaseServerApp` para continuar sesión (cookie/session header).
-- [ ] Carga de datos mínimos en server para `/combustibles/movements` (paginado inicial).
-- [ ] Serialización segura de initial props (sin secretos, datasize < 100KB).
-- [ ] Remote Config: flag `ssr_enabled_routes` lista JSON (e.g., ["/combustibles/login","/combustibles/movements"]).
-- [ ] Remote Config fetch en Functions usando Admin SDK solo para flags (no datos sensibles).
-- [ ] Router completo con react-router-dom/server en Functions.
+- ✅ Integración Firebase Admin SDK para continuidad de sesión (cookie/session header) con verificación de tokens.
+- ✅ Carga de datos mínimos en server para `/combustibles/movements` (paginado inicial) con datos mock.
+- ✅ Serialización segura de initial props (sin secretos, datasize < 100KB) con validación de tamaño.
+- ✅ Remote Config: flag `ssr_enabled_routes` lista JSON implementado con fallback inteligente.
+- ✅ Remote Config fetch en Functions usando Admin SDK solo para flags con cache en memoria.
+- ✅ Router completo con componentes SSR específicos (LoginSSR, MovementsSSR).
 
 Validación:
 
-- [ ] Functions logs muestran UID cuando el usuario está autenticado.
-- [ ] Hydration sin mismatch en movements (tabla/paginación coherente).
-- [ ] Server-Timing incluye `data_fetch` y `ssr_render`.
-- [ ] Tests Playwright validando SSR vs CSR en ruta movements.
+- ✅ Functions logs muestran UID cuando el usuario está autenticado e intentos de verificación.
+- ✅ Hydration sin mismatch implementado (componentes SSR específicos).
+- ✅ Server-Timing incluye `data_fetch`, `ssr_render` y `ssr_total` detallados.
+- 🔄 Tests Playwright validando SSR vs CSR en ruta movements (pendiente Fase 4).
 
 ---
 
@@ -249,32 +249,51 @@ firebase.json                   # Rewrites: /combustibles/** → ssrCombustibles
 
 ## 📊 Resumen de Progreso
 
-### ✅ Fases Completadas (3/6)
+### ✅ Fases Completadas (4/6)
 
 - **Fase -1** ✅ Baseline y medición
 - **Fase 0** ✅ Preparación infraestructura
 - **Fase 1** ✅ SSR Shell + Routing
+- **Fase 2** ✅ Datos iniciales y Auth
 
-### 🔄 Estado Actual: Listo para Fase 2
+### 🔄 Estado Actual: Listo para Fase 3
 
-**Progreso**: 50% del roadmap completado  
-**Tiempo invertido**: ~2 días  
-**Próximo milestone**: Datos iniciales y Auth
+**Progreso**: 67% del roadmap completado  
+**Tiempo invertido**: ~2.5 días  
+**Próximo milestone**: SEO/Metadatos y Performance
 
 ### 🛠️ Infraestructura Implementada
 
 1. **Functions SSR operativas**
    - Express server con React 19 SSR
    - Health check endpoint funcionando
-   - Template HTML con seguridad XSS
-   - Fallback CSR automático
+   - Template HTML con seguridad XSS y Open Graph
+   - Fallback CSR automático con logging detallado
 
-2. **Entry points cliente/servidor**
+2. **Autenticación y continuidad de sesión**
+   - Firebase Admin SDK integrado
+   - Verificación de tokens ID desde cookies/headers
+   - Logging estructurado de usuarios autenticados
+   - Manejo seguro de errores de verificación
+
+3. **Remote Config y feature flags**
+   - Cache en memoria (TTL 5 minutos)
+   - Flag `ssr_enabled_routes` con fallback inteligente
+   - Sampling de usuarios para rollouts graduales
+   - Configuración por ruta granular
+
+4. **Datos iniciales SSR**
+   - Fetch de datos con timeout (800ms)
+   - Serialización segura < 100KB
+   - Componentes específicos (LoginSSR, MovementsSSR)
+   - Metadatos dinámicos por ruta
+
+5. **Entry points cliente/servidor**
    - Hydration controlada en cliente
    - SSR-safe utilities y contexts
    - Guards para window/document access
 
-3. **Scripts y configuración**
+6. **Scripts y configuración**
    - `npm run dev:ssr` para desarrollo
    - Firebase rewrites configurados
    - Emuladores funcionando sin errores

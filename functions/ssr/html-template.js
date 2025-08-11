@@ -3,6 +3,7 @@
  * @param {Object} options
  * @param {string} options.title - Título de la página
  * @param {string} options.description - Meta descripción
+ * @param {string} options.ogImage - URL imagen Open Graph (opcional)
  * @param {Object} options.initialState - Estado inicial para hydration
  * @param {string} options.appHtml - HTML renderizado de la app
  * @param {string} options.serverTiming - Header Server-Timing
@@ -11,6 +12,7 @@
 export function createHtmlTemplate({ 
   title = 'Combustibles - Gestión de Inventario', 
   description = 'Sistema de gestión de inventario de combustibles',
+  ogImage = null,
   initialState = {},
   appHtml = '',
   serverTiming = ''
@@ -28,6 +30,18 @@ export function createHtmlTemplate({
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : ''}
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    ${ogImage ? `<meta name="twitter:image" content="${escapeHtml(ogImage)}" />` : ''}
     
     <!-- Preload critical resources -->
     <link rel="preload" href="/combustibles/assets/index.css" as="style" />
