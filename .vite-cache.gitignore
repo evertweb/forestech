@@ -1,0 +1,17 @@
+# .gitignore actualización para optimizaciones de cache
+# Cache de Vite (preservar entre builds)
+**/node_modules/.vite/
+combustibles/node_modules/.vite/
+alimentacion/node_modules/.vite/
+
+# Build caches
+**/.cache/
+**/dist/
+**/build/
+
+# Stats y análisis de bundle
+**/stats.html
+**/bundle-analyzer-report.html
+
+# Logs de deploy
+deploy-*.log

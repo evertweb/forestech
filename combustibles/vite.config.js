@@ -15,6 +15,22 @@ export default defineConfig({
     }),
   ],
   base: '/combustibles/',
+  // 🚀 Cache optimizations para builds incrementales
+  cacheDir: 'node_modules/.vite', // Cache de Vite persistente
+  optimizeDeps: {
+    // Pre-bundle dependencies para builds más rápidos
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'firebase/app',
+      'firebase/auth',
+      'firebase/firestore',
+      'firebase/storage',
+    ],
+    // Cache persistente de dependencies
+    force: false, // Solo re-build dependencies si cambian
+  },
   // Configuración de pruebas con Vitest (integración/UI)
   test: {
     environment: 'jsdom',
@@ -31,10 +47,20 @@ export default defineConfig({
   build: {
     outDir: '../public/combustibles',
     emptyOutDir: true,
-    // 🚀 Build optimization for GitHub Actions + LCP crítico
+    // 🚀 Build cache para builds incrementales
     rollupOptions: {
       treeshake: 'recommended', // Tree-shaking agresivo para LCP
+      // Cache de dependencias para builds más rápidos
+      cache: {
+        buildDependencies: {
+          config: ['vite.config.js'],
+        },
+      },
       output: {
+        // Chunk estable para mejor cache del navegador
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
           // Vendor libraries (React ecosystem)
           vendor: ['react', 'react-dom'],
