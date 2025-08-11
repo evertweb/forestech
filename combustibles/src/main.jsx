@@ -38,3 +38,4 @@ if (import.meta.env.DEV) {
     registerWebVitals();
   });
 }
+console.log('Build optimizado funcionando');
