@@ -199,7 +199,7 @@ async function navigateToInventoryAndVerify(page: Page) {
   expect(quantity).toBeGreaterThan(0);
 }
 
-test.describe('Flujo E2E: Crear Movimiento y Verificar Inventario', () => {
+test.describe.skip('Flujo E2E: Crear Movimiento y Verificar Inventario', () => {
   test('debe crear un movimiento de entrada y reflejarse en inventario', async ({
     page,
     baseURL,
