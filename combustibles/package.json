@@ -19,7 +19,9 @@
     "e2e:install": "playwright install chromium",
     "e2e:smoke": "playwright test smoke.spec.ts --project=chromium",
     "e2e:movement-flow": "playwright test movement-flow.spec.ts --project=chromium",
-    "e2e:ci": "playwright test --project=chromium --reporter=github-actions"
+    "e2e:ci": "playwright test --project=chromium --reporter=github-actions",
+    "seo:validate": "node scripts/seo-validation.js",
+    "seo:report": "node scripts/seo-validation.js && cat logs/seo-validation-report.md"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",

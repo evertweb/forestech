@@ -18,6 +18,18 @@
         "destination": "/alimentacion/index.html"
       },
       {
+        "source": "/sitemap.xml",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/sitemap-*.xml",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/robots.txt",
+        "function": "ssrCombustibles"
+      },
+      {
         "source": "/combustibles/ssr-health",
         "function": "ssrCombustibles"
       },

@@ -47,7 +47,7 @@ export async function getRemoteConfig() {
     
     // Fallback a configuración por defecto si Remote Config falla
     const fallbackConfig = {
-      ssrEnabledRoutes: ['/combustibles/login', '/combustibles/movements'],
+      ssrEnabledRoutes: ['/combustibles/login', '/combustibles/movements', '/combustibles/inventory', '/combustibles/vehicles'],
       ssrEnabled: true,
       ssrUserSampling: 100,
       maxDataFetchTime: 800,

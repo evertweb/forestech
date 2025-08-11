@@ -7,6 +7,7 @@ import { createHtmlTemplate } from './html-template.js';
 import AppSSRMinimal from './AppSSRMinimal.js';
 import { initFirebaseServerApp, getSerializableUser, hasRouteAccess } from './firebase-server-app.js';
 import { isSSREnabled } from './remote-config.js';
+import { getRouteMetadata, validateMetadata, generateStructuredData } from '../../combustibles/src/ssr/route-meta.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,18 +30,50 @@ export async function ssrHandler(req, res) {
   let dataFetchStart = 0;
   let dataFetchDuration = 0;
   
-  const sendFallback = async (status = 200, reason = 'error') => {
+  const sendFallback = async (status = 200, reason = 'error', errorCode = null) => {
     try {
       const html = await readCSRIndex();
       res.setHeader('x-fallback-csr', '1');
       res.setHeader('x-fallback-reason', reason);
+      if (errorCode) {
+        res.setHeader('x-error-code', errorCode);
+      }
       res.status(status).send(html);
       
-      // Log fallback para monitoreo
-      console.info(`SSR Fallback: ${req.path} | Reason: ${reason} | Duration: ${Date.now() - start}ms`);
+      // Log fallback estruturado para monitoreo y alertas
+      const logData = {
+        type: 'ssr_fallback',
+        route: req.path,
+        reason,
+        errorCode,
+        fallback: true,
+        duration: Date.now() - start,
+        timestamp: new Date().toISOString(),
+        userAgent: req.get('User-Agent'),
+        ip: req.ip || req.connection?.remoteAddress,
+        user: req.user?.uid || null
+      };
+      
+      console.info(`SSR Fallback:`, JSON.stringify(logData));
+      
+      // Incrementar contador para alertas
+      incrementErrorCounter(reason, errorCode);
+      
     } catch (e) {
-      console.error('Fallback error:', e);
-      res.status(500).send('SSR fallback error');
+      console.error('Fallback CSR error:', e);
+      
+      // Log critical error
+      const criticalLog = {
+        type: 'ssr_critical_error',
+        route: req.path,
+        error: e.message,
+        stack: e.stack?.substring(0, 500),
+        fallback: false,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.error(`SSR Critical:`, JSON.stringify(criticalLog));
+      res.status(500).send('SSR critical error');
     }
   };
 
@@ -57,13 +90,13 @@ export async function ssrHandler(req, res) {
     // 2. Verificar si SSR está habilitado para esta ruta via Remote Config
     const ssrEnabled = await isSSREnabled(req.path, user);
     if (!ssrEnabled) {
-      return sendFallback(200, 'ssr_disabled');
+      return sendFallback(200, 'ssr_disabled', 'RC001');
     }
     
     // 3. Verificar acceso a la ruta
     if (!hasRouteAccess(user, req.path)) {
       // Para rutas protegidas sin auth, redirigir a login via CSR
-      return sendFallback(200, 'auth_required');
+      return sendFallback(200, 'auth_required', 'AUTH001');
     }
     
     // 4. Cargar datos iniciales según la ruta
@@ -95,7 +128,9 @@ export async function ssrHandler(req, res) {
     }
 
     // 7. Determinar metadatos dinámicos por ruta
-    const routeMeta = getRouteMeta(req.path, initialData, user);
+    const dynamicData = prepareDynamicData(req.path, initialData, user);
+    const routeMetadata = getRouteMetadata(req.path, dynamicData);
+    const validatedMetadata = validateMetadata(routeMetadata);
     
     // 8. Renderizar con React SSR
     const renderStart = Date.now();
@@ -118,14 +153,13 @@ export async function ssrHandler(req, res) {
             `ssr_total;dur=${totalDur}, ssr_render;dur=${renderDur}, data_fetch;dur=${dataFetchDuration}`
           );
           
-          // Crear HTML template completo con datos
+          // Crear HTML template completo con metadatos dinámicos
           const html = createHtmlTemplate({
-            title: routeMeta.title,
-            description: routeMeta.description,
-            ogImage: routeMeta.ogImage,
+            metadata: validatedMetadata,
             initialState,
             appHtml: '', // Se llenará por pipe
-            serverTiming: `ssr_total;dur=${totalDur}`
+            serverTiming: `ssr_total;dur=${totalDur}, ssr_render;dur=${renderDur}, data_fetch;dur=${dataFetchDuration}`,
+            currentUrl: req.path
           });
           
           // Enviar template hasta el div root
@@ -141,24 +175,38 @@ export async function ssrHandler(req, res) {
         },
         onError(err) {
           console.error('SSR render error:', err);
-          sendFallback(200, 'render_error');
+          sendFallback(200, 'render_error', 'RENDER001');
         },
       }
     );
   } catch (e) {
     console.error('SSR top-level error', e);
-    sendFallback(200, 'server_error');
+    sendFallback(200, 'server_error', 'SERVER001');
   }
 }
 
 /**
- * Cargar datos iniciales según la ruta
+ * Cargar datos iniciales según la ruta con cache SWR
  * @param {string} route - Ruta actual
  * @param {Object} firebase - Contexto Firebase (app, auth, firestore, user)
  * @returns {Promise<Object>} - Datos iniciales para la ruta
  */
 async function fetchInitialData(route, firebase) {
   try {
+    // Generar cache key considerando usuario para datos personalizados
+    const userId = firebase.user?.uid || 'anonymous';
+    const cacheKey = `${route}:${userId}`;
+    
+    // Intentar obtener datos del cache para datos no sensibles
+    const isPublicRoute = route.includes('/login') || route === '/combustibles/' || route === '/combustibles';
+    if (isPublicRoute) {
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        console.info(`Cache hit for ${route}`);
+        return cached;
+      }
+    }
+    
     // Timeout para fetch de datos (máximo 800ms)
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error('Data fetch timeout')), 800)
@@ -167,7 +215,10 @@ async function fetchInitialData(route, firebase) {
     const dataPromise = (async () => {
       // Rutas públicas - sin datos
       if (route.includes('/login') || route === '/combustibles/' || route === '/combustibles') {
-        return { pageType: 'login', requiresAuth: false };
+        const data = { pageType: 'login', requiresAuth: false };
+        // Cache datos públicos
+        setCachedData(cacheKey, data);
+        return data;
       }
       
       // Ruta movements - cargar datos iniciales
@@ -175,21 +226,33 @@ async function fetchInitialData(route, firebase) {
         return await fetchMovementsData(firebase);
       }
       
-      // Ruta inventory - placeholder para Fase 4
+      // Ruta inventory - cargar datos SSR
       if (route.includes('/inventory')) {
-        return { pageType: 'inventory', requiresAuth: true };
+        return await fetchInventoryData(firebase);
       }
       
-      // Ruta vehicles - placeholder para Fase 4  
+      // Ruta vehicles - cargar datos SSR  
       if (route.includes('/vehicles')) {
-        return { pageType: 'vehicles', requiresAuth: true };
+        return await fetchVehiclesData(firebase);
+      }
+      
+      // Dashboard - datos personalizados
+      if (route.includes('/dashboard')) {
+        return { pageType: 'dashboard', requiresAuth: true, user: firebase.user };
       }
       
       // Ruta por defecto
       return { pageType: 'unknown', route };
     })();
     
-    return await Promise.race([dataPromise, timeoutPromise]);
+    const result = await Promise.race([dataPromise, timeoutPromise]);
+    
+    // Cache result para rutas apropiadas (no datos sensibles)
+    if (isPublicRoute) {
+      setCachedData(cacheKey, result);
+    }
+    
+    return result;
     
   } catch (error) {
     console.warn(`Data fetch error for ${route}:`, error.message);
@@ -257,35 +320,301 @@ async function fetchMovementsData(firebase) {
 }
 
 /**
- * Obtener metadatos SEO dinámicos por ruta
- * @param {string} route - Ruta actual
- * @param {Object} data - Datos iniciales
- * @param {Object} user - Usuario autenticado
- * @returns {Object} - Metadatos de la ruta
+ * Cargar datos iniciales para la página de inventory
+ * @param {Object} firebase - Contexto Firebase
+ * @returns {Promise<Object>} - Datos de inventory
  */
-function getRouteMeta(route, data, user) {
-  const baseMeta = {
-    title: 'Combustibles - Gestión de Inventario',
-    description: 'Sistema de gestión de inventario de combustibles',
-    ogImage: null
+async function fetchInventoryData(firebase) {
+  if (!firebase.user) {
+    return { pageType: 'inventory', requiresAuth: true, authenticated: false };
+  }
+  
+  try {
+    // Datos mock para inventory - en implementación real sería Firestore query
+    const mockInventory = {
+      products: [
+        {
+          id: 'prod_001',
+          name: 'Diesel',
+          category: 'combustible',
+          currentStock: 15000,
+          minStock: 5000,
+          maxStock: 25000,
+          unit: 'litros',
+          lastUpdate: new Date().toISOString(),
+          status: 'normal'
+        },
+        {
+          id: 'prod_002',
+          name: 'Gasolina Extra',
+          category: 'combustible',
+          currentStock: 8500,
+          minStock: 3000,
+          maxStock: 15000,
+          unit: 'litros',
+          lastUpdate: new Date().toISOString(),
+          status: 'normal'
+        },
+        {
+          id: 'prod_003',
+          name: 'Aceite Motor 15W40',
+          category: 'lubricante',
+          currentStock: 250,
+          minStock: 100,
+          maxStock: 500,
+          unit: 'litros',
+          lastUpdate: new Date().toISOString(),
+          status: 'low'
+        }
+      ],
+      summary: {
+        totalProducts: 12,
+        activeProducts: 11,
+        lowStockItems: 3,
+        totalValue: 125000000,
+        lastInventoryDate: new Date(Date.now() - 86400000).toISOString()
+      }
+    };
+    
+    return {
+      pageType: 'inventory',
+      requiresAuth: true,
+      authenticated: true,
+      ...mockInventory
+    };
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    return {
+      pageType: 'inventory',
+      requiresAuth: true,
+      authenticated: true,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Cargar datos iniciales para la página de vehicles
+ * @param {Object} firebase - Contexto Firebase
+ * @returns {Promise<Object>} - Datos de vehicles
+ */
+async function fetchVehiclesData(firebase) {
+  if (!firebase.user) {
+    return { pageType: 'vehicles', requiresAuth: true, authenticated: false };
+  }
+  
+  try {
+    // Datos mock para vehicles - en implementación real sería Firestore query
+    const mockVehicles = {
+      vehicles: [
+        {
+          id: 'veh_001',
+          plate: 'ABC123',
+          brand: 'Chevrolet',
+          model: 'NPR',
+          year: 2020,
+          category: 'camion',
+          fuelType: 'diesel',
+          status: 'activo',
+          lastMaintenance: new Date(Date.now() - 15 * 86400000).toISOString(),
+          nextMaintenance: new Date(Date.now() + 15 * 86400000).toISOString(),
+          mileage: 85000
+        },
+        {
+          id: 'veh_002',
+          plate: 'DEF456',
+          brand: 'Toyota',
+          model: 'Hilux',
+          year: 2019,
+          category: 'pickup',
+          fuelType: 'gasolina',
+          status: 'activo',
+          lastMaintenance: new Date(Date.now() - 30 * 86400000).toISOString(),
+          nextMaintenance: new Date(Date.now() + 30 * 86400000).toISOString(),
+          mileage: 125000
+        }
+      ],
+      categories: [
+        { id: 'camion', name: 'Camión', count: 8 },
+        { id: 'pickup', name: 'Pickup', count: 12 },
+        { id: 'moto', name: 'Motocicleta', count: 5 }
+      ],
+      summary: {
+        totalVehicles: 25,
+        activeVehicles: 23,
+        inMaintenance: 2,
+        needsMaintenance: 4,
+        categories: 5
+      }
+    };
+    
+    return {
+      pageType: 'vehicles',
+      requiresAuth: true,
+      authenticated: true,
+      ...mockVehicles
+    };
+  } catch (error) {
+    console.error('Error fetching vehicles:', error);
+    return {
+      pageType: 'vehicles',
+      requiresAuth: true,
+      authenticated: true,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Preparar datos dinámicos para enriquecer metadatos
+ * @param {string} route - Ruta actual
+ * @param {Object} data - Datos iniciales de la ruta
+ * @param {Object} user - Usuario autenticado
+ * @returns {Object} - Datos dinámicos para metadatos
+ */
+function prepareDynamicData(route, data, user) {
+  const dynamicData = {};
+
+  // Movements: preparar stats para metadatos
+  if (route.includes('/movements') && data?.movements) {
+    dynamicData.movementsStats = {
+      total: data.movements.length || 0,
+      today: data.movements.filter(m => {
+        const movDate = new Date(m.date);
+        const today = new Date();
+        return movDate.toDateString() === today.toDateString();
+      }).length || 0
+    };
+  }
+
+  // Inventory: preparar stats (mock por ahora)
+  if (route.includes('/inventory')) {
+    dynamicData.inventoryStats = {
+      activeProducts: data?.products?.length || 12, // Mock
+      totalStock: 45000, // Mock - litros totales
+      lowStockItems: 3 // Mock
+    };
+  }
+
+  // Vehicles: preparar stats (mock por ahora)
+  if (route.includes('/vehicles')) {
+    dynamicData.vehiclesStats = {
+      totalVehicles: data?.vehicles?.length || 25, // Mock
+      categories: 5, // Mock
+      activeVehicles: 23 // Mock
+    };
+  }
+
+  // Dashboard: stats de usuario personalizado
+  if (route.includes('/dashboard') && user) {
+    dynamicData.userStats = {
+      userName: user.displayName || user.email?.split('@')[0] || 'Usuario',
+      lastLogin: user.lastSignInTime,
+      role: user.customClaims?.role || 'operador'
+    };
+  }
+
+  return dynamicData;
+}
+
+/**
+ * Implementar cache SWR en memoria para datos no sensibles
+ */
+const memoryCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function getCachedData(key) {
+  const cached = memoryCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedData(key, data) {
+  memoryCache.set(key, {
+    data,
+    timestamp: Date.now()
+  });
+  
+  // Cleanup: eliminar entradas expiradas
+  if (memoryCache.size > 100) {
+    const now = Date.now();
+    for (const [k, v] of memoryCache.entries()) {
+      if (now - v.timestamp > CACHE_TTL) {
+        memoryCache.delete(k);
+      }
+    }
+  }
+}
+
+/**
+ * Sistema de contadores para monitoreo y alertas
+ */
+const errorCounters = new Map();
+const COUNTER_RESET_INTERVAL = 5 * 60 * 1000; // 5 minutos
+const ERROR_THRESHOLD = 0.05; // 5% de error rate
+const LATENCY_THRESHOLD = 2000; // 2 segundos
+
+// Reset contadores cada 5 minutos
+setInterval(() => {
+  errorCounters.clear();
+}, COUNTER_RESET_INTERVAL);
+
+/**
+ * Incrementar contador de errores para alertas
+ * @param {string} reason - Razón del fallback
+ * @param {string} errorCode - Código de error
+ */
+function incrementErrorCounter(reason, errorCode) {
+  const key = `${reason}_${errorCode || 'UNKNOWN'}`;
+  const current = errorCounters.get(key) || 0;
+  errorCounters.set(key, current + 1);
+  
+  // Check si excede threshold para alertar
+  const totalRequests = getTotalRequestCount();
+  if (totalRequests > 20) { // Mínimo 20 requests para calcular rate
+    const errorRate = current / totalRequests;
+    if (errorRate > ERROR_THRESHOLD) {
+      console.error(`🚨 HIGH ERROR RATE ALERT: ${key} - Rate: ${(errorRate * 100).toFixed(2)}% | Count: ${current}/${totalRequests}`);
+      
+      // En producción, aquí se podría enviar a un sistema de alertas
+      // sendAlert('high_error_rate', { reason, errorCode, rate: errorRate, count: current });
+    }
+  }
+}
+
+/**
+ * Obtener total de requests (simplificado - en producción usar métricas reales)
+ * @returns {number} Total de requests estimado
+ */
+function getTotalRequestCount() {
+  // Simplificado: suma todos los contadores + estimación de éxitos
+  const totalErrors = Array.from(errorCounters.values()).reduce((sum, count) => sum + count, 0);
+  // Estimamos que por cada error hay ~19 éxitos (5% error rate base)
+  return totalErrors * 20;
+}
+
+/**
+ * Obtener estadísticas de errores para dashboard
+ * @returns {Object} Estadísticas de errores
+ */
+export function getErrorStats() {
+  const stats = {};
+  const totalRequests = getTotalRequestCount();
+  
+  for (const [key, count] of errorCounters.entries()) {
+    const rate = totalRequests > 0 ? (count / totalRequests) * 100 : 0;
+    stats[key] = {
+      count,
+      rate: Math.round(rate * 100) / 100
+    };
+  }
+  
+  return {
+    counters: stats,
+    totalRequests,
+    errorThreshold: ERROR_THRESHOLD * 100,
+    latencyThreshold: LATENCY_THRESHOLD
   };
-  
-  if (route.includes('/login') || route === '/combustibles/' || route === '/combustibles') {
-    return {
-      title: 'Login - Combustibles',
-      description: 'Acceder al sistema de gestión de combustibles',
-      ogImage: null
-    };
-  }
-  
-  if (route.includes('/movements')) {
-    const movementsCount = data?.movements?.length || 0;
-    return {
-      title: `Movimientos (${movementsCount}) - Combustibles`,
-      description: `Gestión de movimientos de combustible. ${movementsCount} movimientos recientes.`,
-      ogImage: null
-    };
-  }
-  
-  return baseMeta;
 }

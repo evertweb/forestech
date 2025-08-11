@@ -26,6 +26,8 @@
     "serve:ssr": "cd functions && npm run serve",
     "deploy:ssr": "cd functions && npm run deploy",
     "perf:baseline": "node scripts/run-lighthouse-baseline.js",
+    "test:rollback": "node scripts/test-remote-config-rollback.js",
+    "test:ssr-validation": "npx playwright test tests-e2e/ssr-validation.spec.ts",
     "install:all": "npm ci",
     "prepare": "husky",
     "lint-staged": "lint-staged"
