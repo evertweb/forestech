@@ -3,9 +3,15 @@
  * combustibles/src/services/backgroundImageService.js
  */
 
-import { getStorage, ref, getDownloadURL, uploadBytes } from 'firebase/storage';
-
-const storage = getStorage();
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+   
+} from 'firebase/storage';
+import { storage } from '../../firebase/config';
+// eslint-disable-next-line no-unused-vars
+import { getFirebaseErrorMessage, logFirebaseError } from './firebaseErrorHandler';
 
 /**
  * Configuración de la imagen de fondo
@@ -20,8 +26,20 @@ const BACKGROUND_CONFIG = {
   // URLs de imágenes predeterminadas que se pueden usar (CORS compatible)
   defaultImages: [
     '/assets/background-forest.svg', // Imagen SVG local de bosque
-    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJmb3Jlc3QiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGI3OTg4IiAvPgo8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iIzMzNjM1OSIgLz4KPHN0b3Agb2Zmc2V0PSI3MCUiIHN0b3AtY29sb3I9IiMyMTU0MzIiIC8+CjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFmMzIyZiIgLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2ZvcmVzdCkiLz4KPC9zdmc+',
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZm9yZXN0LWJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGI3OTg4IiAvPjxzdG9wIG9mZnNldD0iMzAlIiBzdG9wLWNvbG9yPSIjMzM2MzU5IiAvPjxzdG9wIG9mZnNldD0iNzAlIiBzdG9wLWNvbG9yPSIjMjE1NDMyIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFmMzIyZiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2ZvcmVzdC1iZykiLz48L3N2Zz4=',
   ],
+};
+
+/**
+ * Operación segura de Storage con manejo de errores
+ */
+const safeStorageOperation = async (operation, fallback = null) => {
+  try {
+    return await operation();
+  } catch (error) {
+    console.error('Storage operation failed:', error);
+    return fallback;
+  }
 };
 
 /**
@@ -29,44 +47,50 @@ const BACKGROUND_CONFIG = {
  * @returns {Promise<string>} URL de la imagen
  */
 export const getBackgroundImageUrl = async () => {
-  try {
-    // Intentar obtener la imagen desde Firebase Storage con timeout seguro
-    const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
+  const result = await safeStorageOperation(
+    async () => {
+      const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
+      const TIMEOUT_MS = Number(import.meta.env.VITE_BG_DOWNLOAD_TIMEOUT_MS) || 2000;
 
-    const TIMEOUT_MS = Number(import.meta.env.VITE_BG_DOWNLOAD_TIMEOUT_MS) || 2000;
+      const withTimeout = (promise, ms) => {
+        return new Promise((resolve, reject) => {
+          const id = setTimeout(() => reject(new Error('timeout')), ms);
+          promise
+            .then((value) => {
+              clearTimeout(id);
+              resolve(value);
+            })
+            .catch((error) => {
+              clearTimeout(id);
+              reject(error);
+            });
+        });
+      };
 
-    const withTimeout = (promise, ms) => {
-      return new Promise((resolve, reject) => {
-        const id = setTimeout(() => reject(new Error('timeout')), ms);
-        promise
-          .then((value) => {
-            clearTimeout(id);
-            resolve(value);
-          })
-          .catch((error) => {
-            clearTimeout(id);
-            reject(error);
-          });
-      });
-    };
+      return await withTimeout(getDownloadURL(imageRef), TIMEOUT_MS);
+    },
+    {
+      operation: 'get_background_image',
+      storagePath: BACKGROUND_CONFIG.storagePath,
+    }
+  );
 
-    const url = await withTimeout(getDownloadURL(imageRef), TIMEOUT_MS);
-
-    return url;
-  } catch (error) {
-    // Log específico para diagnóstico sin interrumpir UI
-    console.warn('⚠️ No se pudo obtener imagen de fondo desde Storage, usando fallback.', {
-      message: error?.message,
-      code: error?.code,
-    });
-
-    // Usar una imagen predeterminada aleatoria como fallback
-    const randomIndex = Math.floor(Math.random() * BACKGROUND_CONFIG.defaultImages.length);
-    const fallbackUrl = BACKGROUND_CONFIG.defaultImages[randomIndex];
-
-    console.log('🔄 Usando imagen predeterminada como fallback:', fallbackUrl);
-    return fallbackUrl;
+  if (result.success) {
+    return result.data;
   }
+
+  // Log específico para diagnóstico sin interrumpir UI
+  console.warn(
+    '⚠️ No se pudo obtener imagen de fondo desde Storage, usando fallback:',
+    result.error
+  );
+
+  // Usar una imagen predeterminada aleatoria como fallback
+  const randomIndex = Math.floor(Math.random() * BACKGROUND_CONFIG.defaultImages.length);
+  const fallbackUrl = BACKGROUND_CONFIG.defaultImages[randomIndex];
+
+  console.log('🔄 Usando imagen predeterminada como fallback:', fallbackUrl);
+  return fallbackUrl;
 };
 
 /**
@@ -75,71 +99,62 @@ export const getBackgroundImageUrl = async () => {
  * @returns {Promise<{success: boolean, url?: string, error?: string}>}
  */
 export const uploadBackgroundImage = async (file) => {
-  try {
-    // Validar que es una imagen
-    if (!file.type.startsWith('image/')) {
-      return {
-        success: false,
-        error: 'El archivo debe ser una imagen',
-      };
-    }
-
-    // Validar tamaño (máximo 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      return {
-        success: false,
-        error: 'La imagen no puede superar los 5MB',
-      };
-    }
-
-    // Validar formatos permitidos
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      return {
-        success: false,
-        error: 'Formato no soportado. Use JPG, PNG o WebP',
-      };
-    }
-
-    console.log('🔄 Subiendo imagen de fondo...', {
-      name: file.name,
-      size: (file.size / 1024 / 1024).toFixed(2) + 'MB',
-      type: file.type,
-    });
-
-    // Subir imagen a Firebase Storage
-    const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
-    const _uploadResult = await uploadBytes(imageRef, file);
-
-    // Obtener URL de descarga
-    const url = await getDownloadURL(imageRef);
-
-    return {
-      success: true,
-      url: url,
-    };
-  } catch (error) {
-    console.error('❌ Error subiendo imagen de fondo:', error);
-
-    // Mensajes de error más específicos
-    let errorMessage = 'Error al subir la imagen';
-
-    if (error.code === 'storage/unauthorized') {
-      errorMessage = 'Sin permisos para subir imagen. Contacta al administrador.';
-    } else if (error.code === 'storage/quota-exceeded') {
-      errorMessage = 'Cuota de almacenamiento excedida';
-    } else if (error.code === 'storage/invalid-format') {
-      errorMessage = 'Formato de imagen no válido';
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-
+  // Validaciones locales primero
+  if (!file.type.startsWith('image/')) {
     return {
       success: false,
-      error: errorMessage,
+      error: 'El archivo debe ser una imagen',
     };
   }
+
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    return {
+      success: false,
+      error: 'La imagen no puede superar los 5MB',
+    };
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      success: false,
+      error: 'Formato no soportado. Use JPG, PNG o WebP',
+    };
+  }
+
+  console.log('🔄 Subiendo imagen de fondo...', {
+    name: file.name,
+    size: (file.size / 1024 / 1024).toFixed(2) + 'MB',
+    type: file.type,
+  });
+
+  // Subir usando el manejador de errores seguro
+  const result = await safeStorageOperation(
+    async () => {
+      const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
+      await uploadBytes(imageRef, file);
+      return await getDownloadURL(imageRef);
+    },
+    {
+      operation: 'upload_background_image',
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+    }
+  );
+
+  if (result.success) {
+    return {
+      success: true,
+      url: result.data,
+    };
+  }
+
+  return {
+    success: false,
+    error: result.error,
+  };
 };
 
 /**

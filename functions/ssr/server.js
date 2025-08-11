@@ -6,16 +6,14 @@ import { fileURLToPath } from 'node:url';
 import { createHtmlTemplate } from './html-template.js';
 import AppSSRMinimal from './AppSSRMinimal.js';
 import { initFirebaseServerApp, getSerializableUser, hasRouteAccess } from './firebase-server-app.js';
-import { isSSREnabled } from './remote-config.js';
-import { getRouteMetadata, validateMetadata, generateStructuredData } from '../../combustibles/src/ssr/route-meta.js';
+import { getRouteMetadata, validateMetadata, generateStructuredData } from './route-meta.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const readCSRIndex = async () => {
-  // Lee el index.html del build de combustibles publicado en hosting local (fallback)
-  const root = path.resolve(__dirname, '../../');
-  // En tiempo de emulador/hosting, serviremos desde /public/combustibles/index.html
+  // En Cloud Functions, servir desde el directorio functions/public/
+  const root = path.resolve(__dirname, '../');
   const filePath = path.resolve(root, 'public/combustibles/index.html');
   return fs.readFile(filePath, 'utf8');
 };
@@ -88,6 +86,12 @@ export async function ssrHandler(req, res) {
     }
     
     // 2. Verificar si SSR está habilitado para esta ruta via Remote Config
+    // Usar configuración de test en emulador
+    const useTestConfig = process.env.FUNCTIONS_EMULATOR === 'true' || process.env.NODE_ENV === 'test';
+    const { isSSREnabled } = useTestConfig 
+      ? await import('./remote-config-test.js')
+      : await import('./remote-config.js');
+    
     const ssrEnabled = await isSSREnabled(req.path, user);
     if (!ssrEnabled) {
       return sendFallback(200, 'ssr_disabled', 'RC001');

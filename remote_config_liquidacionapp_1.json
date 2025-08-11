@@ -1,0 +1,48 @@
+{
+  "parameters": {
+    "ssr_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Habilita SSR globalmente - PRODUCCIÓN PERMANENTE",
+      "valueType": "STRING"
+    },
+    "ssr_enabled_routes": {
+      "defaultValue": {
+        "value": "[\"/combustibles/login\", \"/combustibles/movements\", \"/combustibles/inventory\", \"/combustibles/vehicles\", \"/combustibles/dashboard\", \"/combustibles/maintenance\", \"/combustibles/reports\"]"
+      },
+      "description": "Lista de rutas donde SSR está habilitado",
+      "valueType": "STRING"
+    },
+    "ssr_user_sampling": {
+      "defaultValue": {
+        "value": "100"
+      },
+      "description": "Porcentaje de usuarios que reciben SSR (100 = todos)",
+      "valueType": "STRING"
+    },
+    "max_data_fetch_time": {
+      "defaultValue": {
+        "value": "800"
+      },
+      "description": "Tiempo máximo para fetch de datos SSR en milisegundos",
+      "valueType": "STRING"
+    },
+    "enable_caching": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Habilita cache de respuestas SSR",
+      "valueType": "STRING"
+    }
+  },
+  "version": {
+    "versionNumber": "1",
+    "updateTime": "2025-08-11T21:14:53.424937Z",
+    "updateUser": {
+      "email": "cardenasever072@gmail.com"
+    },
+    "updateOrigin": "CONSOLE",
+    "updateType": "INCREMENTAL_UPDATE"
+  }
+}

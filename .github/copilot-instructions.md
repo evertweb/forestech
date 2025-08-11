@@ -24,6 +24,64 @@ Cambios desde 1.0.0
 - Registrar errores con logger estructurado y proveer feedback al usuario.
 - No exponer secretos; usar variables de entorno validadas y .env.example por app.
 
+## ⚡ COMANDOS EN BACKGROUND OBLIGATORIOS
+
+**CRÍTICO**: Para desarrollo y testing, ciertos procesos deben ejecutarse en background sin interrupciones.
+
+### Patrón de Ejecución Background
+
+```bash
+# ✅ CORRECTO - Usar nohup para procesos persistentes
+nohup firebase emulators:start --only hosting,functions --project liquidacionapp-62962 > emulator.log 2>&1 &
+
+# ✅ CORRECTO - Verificar que están corriendo
+ps aux | grep firebase
+
+# ❌ INCORRECTO - NO usar run_in_terminal isBackground=true para emuladores
+# Esto causa interrupciones cuando se ejecutan otros comandos
+```
+
+### Comandos Background Requeridos
+
+1. **Emuladores Firebase** (desarrollo SSR/testing):
+
+   ```bash
+   nohup firebase emulators:start --only hosting,functions --project liquidacionapp-62962 > emulator.log 2>&1 &
+   ```
+
+2. **Servidor dev React** (desarrollo paralelo):
+
+   ```bash
+   nohup npm run dev:combustibles > dev-combustibles.log 2>&1 &
+   ```
+
+3. **Tests en watch mode** (desarrollo TDD):
+   ```bash
+   nohup npm run test:watch > test-watch.log 2>&1 &
+   ```
+
+### Verificación de Procesos Background
+
+```bash
+# Ver logs en tiempo real
+tail -f emulator.log
+
+# Verificar puertos activos
+netstat -tlnp | grep :5000
+netstat -tlnp | grep :5001
+
+# Terminar procesos si necesario
+pkill -f firebase
+pkill -f "npm run"
+```
+
+### Protocolo de Testing SSR
+
+1. **Antes de cualquier test SSR**: Verificar emuladores corriendo
+2. **Si emuladores no responden**: Reiniciar con nohup
+3. **Para cambios en Functions**: Reiniciar solo emuladores
+4. **Para cambios en React**: Reiniciar solo dev server
+
 ## 🧩 Gobernanza, Calidad y Estándares Operativos
 
 ### Convenciones de ramas y commits

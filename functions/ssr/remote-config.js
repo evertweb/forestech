@@ -21,10 +21,36 @@ export async function getRemoteConfig() {
     // Inicializar Admin SDK si no está inicializado
     if (!admin.apps.length) {
       admin.initializeApp({
-        projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+        projectId: 'liquidacionapp-62962',
       });
     }
     
+    // TEMPORAL: Usar configuración hardcodeada hasta que Remote Config se sincronice
+    const config = {
+      ssrEnabledRoutes: [
+        '/combustibles/login', 
+        '/combustibles/movements', 
+        '/combustibles/inventory', 
+        '/combustibles/vehicles',
+        '/combustibles/dashboard',
+        '/combustibles/maintenance',
+        '/combustibles/reports'
+      ],
+      ssrEnabled: true,
+      ssrUserSampling: 100,
+      maxDataFetchTime: 800,
+      enableCaching: true,
+    };
+    
+    console.log('🎯 Using hardcoded config until Remote Config syncs:', config);
+    
+    // Actualizar cache
+    configCache = config;
+    cacheTimestamp = now;
+    
+    return config;
+    
+    /* COMENTADO TEMPORALMENTE - Remote Config con problemas de sync
     const remoteConfig = admin.remoteConfig();
     const template = await remoteConfig.getTemplate();
     
@@ -42,6 +68,7 @@ export async function getRemoteConfig() {
     cacheTimestamp = now;
     
     return config;
+    */
   } catch (error) {
     console.error('Error fetching Remote Config:', error);
     

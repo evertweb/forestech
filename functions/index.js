@@ -25,6 +25,8 @@ export const ssrCombustibles = onRequest(
     region: process.env.FIREBASE_DEFAULT_REGION || 'us-central1',
     timeoutSeconds: 60,
     memory: '512MiB',
+    maxInstances: 10,
+    concurrency: 80,
   },
   app
 );

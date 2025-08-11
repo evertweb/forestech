@@ -1,0 +1,45 @@
+{
+  "parameters": {
+    "ssr_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Habilita o deshabilita Server-Side Rendering globalmente"
+    },
+    "ssr_enabled_routes": {
+      "defaultValue": {
+        "value": "[\"/combustibles/login\", \"/combustibles/movements\", \"/combustibles/inventory\", \"/combustibles/vehicles\", \"/combustibles/dashboard\"]"
+      },
+      "description": "Lista de rutas donde SSR está habilitado"
+    },
+    "ssr_user_sampling": {
+      "defaultValue": {
+        "value": "100"
+      },
+      "description": "Porcentaje de usuarios que reciben SSR (0-100)"
+    },
+    "max_data_fetch_time": {
+      "defaultValue": {
+        "value": "800"
+      },
+      "description": "Tiempo máximo para fetch de datos en SSR (ms)"
+    },
+    "enable_caching": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Habilita cache de respuestas SSR"
+    }
+  },
+  "parameterGroups": {},
+  "version": {
+    "versionNumber": "1",
+    "updateTime": "2025-08-11T20:25:00.000Z",
+    "updateUser": {
+      "email": "admin@forestech.com"
+    },
+    "description": "Configuración inicial SSR para combustibles app",
+    "updateOrigin": "CONSOLE",
+    "updateType": "INCREMENTAL_UPDATE"
+  }
+}
