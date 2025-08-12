@@ -47,6 +47,10 @@
           "function": "ssrCombustibles"
         },
         {
+          "source": "/test-robots-hosting",
+          "function": "ssrCombustibles"
+        },
+        {
           "source": "/combustibles/ssr-health",
           "function": "ssrCombustibles"
         },
@@ -56,6 +60,18 @@
         },
         {
           "source": "/health",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/seo-validation",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/movement-wizard-popup",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/vehicle-wizard-popup",
           "function": "ssrCombustibles"
         },
         {

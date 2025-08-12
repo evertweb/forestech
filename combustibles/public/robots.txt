@@ -1,0 +1,32 @@
+# Robots.txt para Forestech Colombia - App Combustibles
+# https://forestechdecolombia.com.co/combustibles/
+
+User-agent: *
+Allow: /
+
+# Permitir acceso a sitemap
+Sitemap: https://forestechdecolombia.com.co/sitemap.xml
+
+# Bloquear rutas privadas (requieren autenticación)
+Disallow: /movimientos
+Disallow: /inventario
+Disallow: /vehiculos
+Disallow: /mantenimiento
+Disallow: /productos
+Disallow: /proveedores
+Disallow: /reportes
+Disallow: /admin
+
+# Bloquear archivos del sistema
+Disallow: /.well-known/
+Disallow: /api/
+
+# Permitir bots principales
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay
+Crawl-delay: 1

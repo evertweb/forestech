@@ -138,25 +138,41 @@ export function getSerializableUser(firebase) {
 }
 
 /**
- * Verificar si el usuario tiene permisos para acceder a una ruta - FASE 1 MEJORADO
+ * Verificar si el usuario tiene permisos para acceder a una ruta - FASE 1 CORREGIDO
  * @param {Object} user - Usuario autenticado
  * @param {string} route - Ruta a verificar
  * @returns {boolean} - true si tiene acceso, false caso contrario
  */
 export function hasRouteAccess(user, route) {
-  // Rutas públicas (no requieren autenticación) - EXPANDIDAS para SSR
+  // Rutas públicas (no requieren autenticación)
   const publicRoutes = [
     '/combustibles', 
     '/combustibles/', 
     '/combustibles/ssr-health',
     '/combustibles/dashboard',     // Dashboard público para SEO y demo
-    '/combustibles/movimientos',   // Movimientos público (solo lectura)
-    '/combustibles/inventario',    // Inventario público (solo lectura)
-    '/combustibles/vehiculos',     // Vehículos público (solo lectura)
     '/combustibles/login'          // Login siempre público
   ];
   
   if (publicRoutes.some(r => route === r || route.startsWith(r))) return true;
+  
+  // Rutas protegidas que requieren autenticación
+  const protectedRoutes = [
+    '/combustibles/movimientos',   // Requiere autenticación
+    '/combustibles/inventario',    // Requiere autenticación
+    '/combustibles/vehiculos',     // Requiere autenticación
+    '/combustibles/mantenimiento',
+    '/combustibles/productos',
+    '/combustibles/proveedores',
+    '/combustibles/reportes',
+    '/combustibles/admin',
+    '/movement-wizard-popup',      // Popup de movimientos requiere auth
+    '/vehicle-wizard-popup'        // Popup de vehículos requiere auth
+  ];
+  
+  if (protectedRoutes.some(r => route === r || route.startsWith(r))) {
+    // Usuario debe estar autenticado y no ser anónimo
+    return !!user && !user.isAnonymous;
+  }
   
   // Rutas administrativas que SÍ requieren autenticación estricta
   const strictAuthRoutes = ['/admin', '/reportes', '/configuracion'];

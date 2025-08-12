@@ -41,7 +41,7 @@ const PRIVATE_ROUTES = [
  */
 export function generateSitemap(options = {}) {
   const {
-    baseUrl = 'https://forestech.web.app',
+    baseUrl = 'https://forestechdecolombia.com.co',
     includePrivate = false,
     dynamicRoutes = []
   } = options;
@@ -87,7 +87,7 @@ ${urlEntries}
  * @param {string} baseUrl - URL base
  * @returns {string} - XML del sitemap index
  */
-export function generateSitemapIndex(baseUrl = 'https://forestech.web.app') {
+export function generateSitemapIndex(baseUrl = 'https://forestechdecolombia.com.co') {
   const now = new Date().toISOString();
   
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -110,7 +110,8 @@ export function generateSitemapIndex(baseUrl = 'https://forestech.web.app') {
  */
 export function sitemapHandler(req, res) {
   try {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Usar siempre el dominio correcto en lugar del host de la request
+    const baseUrl = 'https://forestechdecolombia.com.co';
     
     // Detectar tipo de sitemap solicitado
     const path = req.path;
@@ -216,7 +217,7 @@ export function isValidSitemapUrl(url, baseUrl) {
  * @param {string} baseUrl - URL base
  * @returns {string} - Contenido del robots.txt
  */
-export function generateRobotsTxt(baseUrl = 'https://forestech.web.app') {
+export function generateRobotsTxt(baseUrl = 'https://forestechdecolombia.com.co') {
   return `# Robots.txt para Forestech - Sistema Combustibles
 # Generado automáticamente - Fase 3 SSR
 
@@ -269,7 +270,8 @@ Crawl-delay: 2
  */
 export function robotsHandler(req, res) {
   try {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Usar siempre el dominio correcto
+    const baseUrl = 'https://forestechdecolombia.com.co';
     const robotsTxt = generateRobotsTxt(baseUrl);
     
     res.set({

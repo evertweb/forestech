@@ -43,9 +43,19 @@ export async function ssrHandler(req, res) {
   
   // Función legacy para compatibilidad - ahora usa el sistema avanzado
   const sendFallback = async (status = 200, reason = 'error', errorCode = null) => {
+    // Determinar categoría basada en el reason
+    let category = 'TIMEOUT'; // categoría por defecto
+    if (reason === 'auth_required' || reason === 'authentication_required') {
+      category = 'AUTH';
+    } else if (reason === 'render_error') {
+      category = 'RENDER';
+    } else if (reason === 'data_fetch_error') {
+      category = 'DATA_FETCH';
+    }
+    
     const error = new SSRError(`SSR fallback: ${reason}`, {
       code: errorCode || 'FALLBACK001',
-      category: 'TIMEOUT', // categoría por defecto para fallbacks
+      category,
       route: req.path,
       user: req.user,
       context: {
@@ -239,6 +249,15 @@ async function fetchInitialData(route, firebase) {
       // Rutas públicas - sin datos
       if (route.includes('/login') || route === '/combustibles/' || route === '/combustibles') {
         return { pageType: 'login', requiresAuth: false };
+      }
+      
+      // Rutas de popup - datos mínimos para popup
+      if (route === '/movement-wizard-popup') {
+        return { pageType: 'movement_popup', requiresAuth: true, authenticated: !!firebase.user };
+      }
+      
+      if (route === '/vehicle-wizard-popup') {
+        return { pageType: 'vehicle_popup', requiresAuth: true, authenticated: !!firebase.user };
       }
       
       // Ruta movimientos - cargar datos iniciales

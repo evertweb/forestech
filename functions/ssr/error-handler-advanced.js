@@ -451,21 +451,59 @@ function sendSSRResponse(res, data, metadata) {
 }
 
 /**
- * Enviar redirect de login
+ * Enviar página de login (HTML en lugar de redirect)
  */
-function sendLoginRedirect(res, metadata) {
-  const redirectUrl = `/combustibles/?redirect=${encodeURIComponent(metadata.originalUrl)}`;
-  
-  res.status(302)
-     .set('Location', redirectUrl)
-     .set('X-SSR-Fallback', 'LOGIN_REDIRECT')
-     .send();
-  
-  return {
-    type: 'login_redirect',
-    success: true,
-    metadata
-  };
+async function sendLoginRedirect(res, metadata) {
+  try {
+    // Leer el HTML base de combustibles que contiene la página de login
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+    const { fileURLToPath } = await import('node:url');
+    
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const root = path.resolve(__dirname, '../');
+    const filePath = path.resolve(root, 'public/combustibles/index.html');
+    
+    const loginHTML = await fs.readFile(filePath, 'utf8');
+    
+    // Modificar el HTML para incluir información de redirección
+    const modifiedHTML = loginHTML.replace(
+      '<head>',
+      `<head>
+        <meta name="redirect-after-login" content="${metadata.originalUrl || ''}" />
+        <meta name="auth-required" content="true" />`
+    );
+    
+    res.status(200)
+       .set('Content-Type', 'text/html')
+       .set('X-SSR-Fallback', 'LOGIN_PAGE')
+       .set('Cache-Control', 'no-cache, no-store, must-revalidate')
+       .send(modifiedHTML);
+    
+    return {
+      type: 'login_redirect',
+      success: true,
+      metadata
+    };
+  } catch (error) {
+    console.error('Error serving login page:', error);
+    
+    // Fallback a redirección si falla la lectura del archivo
+    const redirectUrl = `/combustibles/?redirect=${encodeURIComponent(metadata.originalUrl)}`;
+    
+    res.status(302)
+       .set('Location', redirectUrl)
+       .set('X-SSR-Fallback', 'LOGIN_REDIRECT_FALLBACK')
+       .send();
+    
+    return {
+      type: 'login_redirect',
+      success: true,
+      metadata,
+      fallback: true
+    };
+  }
 }
 
 /**

@@ -9,6 +9,7 @@ import { reportingHandler } from './ssr/reporting-system.js';
 import { alertsHandler, startAlertingSystem } from './ssr/alerting-system.js';
 import { performanceOptimizationHandler } from './ssr/performance-optimization.js';
 import { coverageMonitoringHandler } from './ssr/coverage-monitoring.js';
+import { seoValidationHandler } from './ssr/seo-endpoint.js';
 import { ensureEnv } from './ssr/env.js';
 
 ensureEnv();
@@ -25,7 +26,22 @@ const app = express();
 applyErrorMiddlewares(app, {
   timeout: 5000, // 5 segundos timeout
   rateLimit: 60, // 60 requests por minuto
-  validRoutes: ['/combustibles/*', '/sitemap*', '/robots.txt', '/health', '/ab-testing', '/error-stats', '/ssr-reports', '/ssr-alerts', '/ssr-optimization', '/ssr-coverage'],
+  validRoutes: [
+    '/combustibles/*', 
+    '/movement-wizard-popup', 
+    '/vehicle-wizard-popup',
+    '/sitemap*', 
+    '/robots.txt',
+    '/test-robots-hosting',
+    '/health', 
+    '/ab-testing', 
+    '/error-stats', 
+    '/ssr-reports', 
+    '/ssr-alerts', 
+    '/ssr-optimization', 
+    '/ssr-coverage', 
+    '/seo-validation'
+  ],
   enableLogging: process.env.NODE_ENV !== 'test' // Disable en tests
 });
 
@@ -33,7 +49,16 @@ applyErrorMiddlewares(app, {
 app.get('/sitemap.xml', sitemapHandler);
 app.get('/sitemap-combustibles.xml', sitemapHandler);
 app.get('/sitemap-index.xml', sitemapHandler);
-app.get('/robots.txt', robotsHandler);
+app.get('/robots.txt', (req, res) => {
+  console.log('🤖 ROBOTS.TXT REQUEST RECEIVED:', req.path);
+  return robotsHandler(req, res);
+});
+
+// Ruta temporal para debug hosting
+app.get('/test-robots-hosting', (req, res) => {
+  console.log('🏠 TEST ROBOTS HOSTING REQUEST:', req.path);
+  return robotsHandler(req, res);
+});
 
 // SSR handler para todas las rutas de combustibles (incluye health check)
 app.get('/combustibles/*', ssrHandler);
@@ -62,6 +87,10 @@ app.post('/ssr-optimization', performanceOptimizationHandler);
 // SSR Coverage Monitoring endpoint - Fase 4 (monitoreo de cobertura 45%)
 app.get('/ssr-coverage', coverageMonitoringHandler);
 app.post('/ssr-coverage', coverageMonitoringHandler);
+
+// SEO Validation endpoint - Validación y monitoreo SEO
+app.get('/seo-validation', seoValidationHandler);
+app.post('/seo-validation', seoValidationHandler);
 
 export const ssrCombustibles = onRequest(
   {

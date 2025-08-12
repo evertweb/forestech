@@ -202,7 +202,15 @@ export function applyErrorMiddlewares(app, options = {}) {
   const config = {
     timeout: 5000,
     rateLimit: 60,
-    validRoutes: ['/combustibles/*'],
+    validRoutes: [
+      '/combustibles/*',
+      '/movement-wizard-popup',
+      '/vehicle-wizard-popup',
+      '/sitemap*',
+      '/robots.txt',
+      '/health',
+      '/ab-testing'
+    ],
     enableLogging: true,
     ...options
   };

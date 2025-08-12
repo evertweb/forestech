@@ -1,3 +1,5 @@
+import { generateMetaTags, generateMetaTagsHTML, generateJsonLD } from './seo-config.js';
+
 /**
  * Template HTML para SSR con metadatos dinámicos y SEO optimizado
  * @param {Object} options
@@ -6,6 +8,8 @@
  * @param {string} options.appHtml - HTML renderizado de la app
  * @param {string} options.serverTiming - Header Server-Timing
  * @param {string} options.currentUrl - URL actual para canonical
+ * @param {string} options.route - Ruta actual para SEO dinámico
+ * @param {string} options.app - Aplicación actual (combustibles/alimentacion)
  * @returns {string} HTML completo
  */
 export function createHtmlTemplate({ 
@@ -13,23 +17,35 @@ export function createHtmlTemplate({
   initialState = {},
   appHtml = '',
   serverTiming = '',
-  currentUrl = ''
+  currentUrl = '',
+  route = '/',
+  app = 'combustibles'
 }) {
+  // Generar meta tags dinámicos usando la nueva configuración SEO
+  const dynamicMetaTags = generateMetaTags(route, app);
+  const jsonLD = generateJsonLD(route, app);
+  
+  // Combinar metadata manual con la dinámica (manual tiene prioridad)
+  const finalMetadata = {
+    ...dynamicMetaTags,
+    ...metadata // metadata manual override
+  };
+  
   // Destructuring con defaults seguros
   const {
-    title = 'Combustibles - Gestión de Inventario',
-    description = 'Sistema de gestión de inventario de combustibles',
-    keywords = 'combustibles, gestión, inventario',
-    canonical = '',
-    robots = 'index,follow',
-    ogImage = null,
-    siteName = 'Forestech - Sistema Combustibles',
-    locale = 'es_CO',
-    type = 'website',
+    title = dynamicMetaTags.title,
+    description = dynamicMetaTags.description,
+    keywords = dynamicMetaTags.keywords,
+    canonical = dynamicMetaTags.canonical,
+    robots = finalMetadata.robots,
+    ogImage = finalMetadata['og:image'],
+    siteName = 'Forestech Colombia',
+    locale = finalMetadata['og:locale'],
+    type = finalMetadata['og:type'],
     author = 'Forestech Development Team',
     themeColor = '#2563eb',
-    structuredData = null
-  } = metadata;
+    structuredData = jsonLD
+  } = finalMetadata;
   // Escapar JSON para prevenir XSS
   const escapedInitialState = JSON.stringify(initialState)
     .replace(/</g, '\\u003c')
