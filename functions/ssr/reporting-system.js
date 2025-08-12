@@ -111,6 +111,56 @@ export async function generateSSRReport(timeWindow = '1h', options = {}) {
       // Estado del sistema
       systemHealth: calculateSystemHealth(analysis)
     };
+
+/**
+ * Calcula el estado de salud del sistema SSR
+ */
+function calculateSystemHealth(analysis) {
+  const { performanceSummary, errorSummary, cacheSummary } = analysis;
+  
+  let score = 100;
+  let issues = [];
+  let status = 'healthy';
+  
+  // Penalizar por errores
+  if (errorSummary.errorRate > 0.05) { // >5% error rate
+    score -= 30;
+    issues.push('High error rate detected');
+    status = 'critical';
+  } else if (errorSummary.errorRate > 0.02) { // >2% error rate
+    score -= 15;
+    issues.push('Elevated error rate');
+    status = 'warning';
+  }
+  
+  // Penalizar por performance pobre
+  if (performanceSummary.avgResponseTime > 2000) { // >2s response time
+    score -= 25;
+    issues.push('Slow response times');
+    status = status === 'critical' ? 'critical' : 'warning';
+  } else if (performanceSummary.avgResponseTime > 1000) { // >1s response time
+    score -= 10;
+    issues.push('Moderate response times');
+  }
+  
+  // Penalizar por cache hit rate bajo
+  if (cacheSummary.hitRate < 0.5) { // <50% cache hit rate
+    score -= 15;
+    issues.push('Low cache hit rate');
+  }
+  
+  // Determinar status final
+  if (score >= 90) status = 'healthy';
+  else if (score >= 70) status = 'warning';
+  else status = 'critical';
+  
+  return {
+    score: Math.max(0, score),
+    status,
+    issues,
+    lastCheck: new Date().toISOString()
+  };
+}
     
     // Almacenar reporte
     storeReport(report);

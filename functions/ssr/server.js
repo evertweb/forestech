@@ -559,26 +559,22 @@ async function fetchVehiclesData(firebase) {
  * @returns {Promise<Object>} - Datos del dashboard
  */
 async function fetchDashboardData(firebase) {
-  if (!firebase.user) {
-    return { 
-      pageType: 'dashboard', 
-      requiresAuth: true, 
-      authenticated: false 
-    };
-  }
-  
   try {
+    // Dashboard ahora es público con funcionalidad básica para SEO/demo
+    // Si hay usuario autenticado, mostrar datos personalizados
+    // Si no hay usuario, mostrar datos públicos/demo
+    
     // Mock data optimizado para SSR - En implementación real sería queries a Firestore
     const stats = {
-      vehicles: 25,
-      fuel: 45000,      // Litros en stock
-      movements: 12,    // Movimientos de hoy
-      alerts: 3,        // Alertas activas
+      vehicles: firebase.user ? 25 : 12,     // Datos completos vs demo
+      fuel: firebase.user ? 45000 : 8500,    // Litros en stock
+      movements: firebase.user ? 12 : 3,     // Movimientos de hoy
+      alerts: firebase.user ? 3 : 1,         // Alertas activas
       lastUpdate: new Date().toISOString()
     };
     
     // Datos adicionales para el dashboard
-    const recentActivity = [
+    const recentActivity = firebase.user ? [
       {
         id: 'act_001',
         type: 'movement',
@@ -593,13 +589,22 @@ async function fetchDashboardData(firebase) {
         timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4h ago
         priority: 'medium'
       }
+    ] : [
+      {
+        id: 'demo_001',
+        type: 'info',
+        description: 'Dashboard en modo demo - Inicia sesión para ver datos completos',
+        timestamp: new Date().toISOString(),
+        priority: 'info'
+      }
     ];
     
     return {
       pageType: 'dashboard',
-      requiresAuth: true,
-      authenticated: true,
+      requiresAuth: false,              // Ahora es público
+      authenticated: !!firebase.user,   // Indicar si está autenticado
       user: firebase.user,
+      demoMode: !firebase.user,         // Indicar si es modo demo
       stats,
       recentActivity,
       timestamp: Date.now()
@@ -608,9 +613,10 @@ async function fetchDashboardData(firebase) {
     console.error('Error fetching dashboard data:', error);
     return {
       pageType: 'dashboard',
-      requiresAuth: true,
-      authenticated: true,
+      requiresAuth: false,
+      authenticated: !!firebase.user,
       user: firebase.user,
+      demoMode: !firebase.user,
       error: error.message,
       stats: {} // Fallback con stats vacíos
     };

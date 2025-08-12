@@ -144,18 +144,28 @@ export function getSerializableUser(firebase) {
  * @returns {boolean} - true si tiene acceso, false caso contrario
  */
 export function hasRouteAccess(user, route) {
-  // Rutas públicas (no requieren autenticación)
-  const publicRoutes = ['/combustibles', '/combustibles/', '/combustibles/ssr-health'];
-  if (publicRoutes.some(r => route === r)) return true;
+  // Rutas públicas (no requieren autenticación) - EXPANDIDAS para SSR
+  const publicRoutes = [
+    '/combustibles', 
+    '/combustibles/', 
+    '/combustibles/ssr-health',
+    '/combustibles/dashboard',     // Dashboard público para SEO y demo
+    '/combustibles/movimientos',   // Movimientos público (solo lectura)
+    '/combustibles/inventario',    // Inventario público (solo lectura)
+    '/combustibles/vehiculos',     // Vehículos público (solo lectura)
+    '/combustibles/login'          // Login siempre público
+  ];
   
-  // Rutas protegidas requieren usuario autenticado
-  const protectedRoutes = ['/dashboard', '/movimientos', '/inventario', '/vehiculos', '/reportes'];
-  if (protectedRoutes.some(r => route.includes(r))) {
+  if (publicRoutes.some(r => route === r || route.startsWith(r))) return true;
+  
+  // Rutas administrativas que SÍ requieren autenticación estricta
+  const strictAuthRoutes = ['/admin', '/reportes', '/configuracion'];
+  if (strictAuthRoutes.some(r => route.includes(r))) {
     // Usuario debe estar autenticado y no ser anónimo
     return !!user && !user.isAnonymous;
   }
   
-  // Por defecto, permitir acceso para rutas no definidas
+  // Por defecto, permitir acceso para rutas no definidas (modo público)
   return true;
 }
 
