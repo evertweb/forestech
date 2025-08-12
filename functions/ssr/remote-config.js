@@ -25,16 +25,13 @@ export async function getRemoteConfig() {
       });
     }
     
-    // TEMPORAL: Usar configuración hardcodeada hasta que Remote Config se sincronice
+    // TEMPORAL: Configuración conservadora hasta que Remote Config se sincronice
     const config = {
       ssrEnabledRoutes: [
-        '/combustibles/login', 
-        '/combustibles/movements', 
-        '/combustibles/inventory', 
-        '/combustibles/vehicles',
-        '/combustibles/dashboard',
-        '/combustibles/maintenance',
-        '/combustibles/reports'
+        '/combustibles/', 
+        '/combustibles/movimientos', 
+        '/combustibles/inventario', 
+        '/combustibles/vehiculos'
       ],
       ssrEnabled: true,
       ssrUserSampling: 100,
@@ -74,7 +71,7 @@ export async function getRemoteConfig() {
     
     // Fallback a configuración por defecto si Remote Config falla
     const fallbackConfig = {
-      ssrEnabledRoutes: ['/combustibles/login', '/combustibles/movements', '/combustibles/inventory', '/combustibles/vehicles'],
+      ssrEnabledRoutes: ['/combustibles/', '/combustibles/inventario', '/combustibles/movimientos', '/combustibles/vehiculos', '/combustibles/mantenimiento'],
       ssrEnabled: true,
       ssrUserSampling: 100,
       maxDataFetchTime: 800,
@@ -143,7 +140,16 @@ export async function isSSREnabled(route, user = null) {
     // Verificar si la ruta específica está en la lista habilitada
     const enabledRoutes = config.ssrEnabledRoutes || [];
     const isRouteEnabled = enabledRoutes.some(enabledRoute => {
-      return route === enabledRoute || route.startsWith(enabledRoute);
+      // Exact match
+      if (route === enabledRoute) return true;
+      
+      // Para la ruta raíz /combustibles/, solo permitir exacta (sin sub-rutas)
+      if (enabledRoute === '/combustibles/') {
+        return route === '/combustibles/' || route === '/combustibles';
+      }
+      
+      // Para rutas específicas, permitir sub-rutas con /
+      return route.startsWith(enabledRoute + '/');
     });
     
     if (!isRouteEnabled) {
@@ -162,8 +168,9 @@ export async function isSSREnabled(route, user = null) {
     return true;
   } catch (error) {
     console.error('Error checking SSR enablement:', error);
-    // Fallback a habilitado para rutas críticas
-    return route.includes('/login') || route.includes('/movements');
+    // Fallback muy específico solo para rutas críticas exactas
+    const criticalRoutes = ['/combustibles/', '/combustibles/movimientos', '/combustibles/inventario'];
+    return criticalRoutes.includes(route);
   }
 }
 

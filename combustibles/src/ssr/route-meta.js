@@ -1,6 +1,30 @@
 /**
  * Meta tags dinámicos para SEO por ruta
- * Configuración centralizada de metadatos para SSR
+ * Configuración centraliz    robots: 'noindex,nofollow',
+    type: 'website',
+    ogImage: '/combustibles/assets/images/og-vehicles.webp',
+  },
+
+  // Mantenimiento  
+  '/combustibles/mantenimiento': {
+    title: 'Mantenimiento - Control Preventivo',
+    description: 'Sistema de mantenimiento preventivo y correctivo.',
+    keywords: 'mantenimiento, preventivo, horómetros',
+    canonical: '/combustibles/mantenimiento',
+    robots: 'noindex,nofollow',
+    type: 'website',
+    ogImage: '/combustibles/assets/images/og-maintenance.webp',
+  },
+
+  // Admin
+  '/combustibles/admin': {
+    title: 'Administración - Configuración Sistema',
+    description: 'Panel de administración para configuración avanzada del sistema de combustibles.',
+    keywords: 'administración, configuración, sistema, admin',
+    canonical: '/combustibles/admin',
+    robots: 'noindex,nofollow,noarchive,nosnippet',
+    type: 'website',
+  },adatos para SSR
  */
 
 export const routeMetadata = {
@@ -24,25 +48,13 @@ export const routeMetadata = {
     },
   },
 
-  // Dashboard principal
-  '/combustibles/dashboard': {
-    title: 'Dashboard - Resumen Combustibles',
-    description:
-      'Panel de control con métricas en tiempo real, estadísticas de inventario y alertas de combustibles.',
-    keywords: 'dashboard, métricas, estadísticas, inventario combustibles',
-    canonical: '/combustibles/dashboard',
-    robots: 'noindex,nofollow', // Página privada
-    type: 'website',
-    ogImage: '/combustibles/assets/images/og-dashboard.webp',
-  },
-
   // Movimientos
-  '/combustibles/movements': {
+  '/combustibles/movimientos': {
     title: 'Movimientos - Control de Combustibles',
     description:
       'Registro y seguimiento de movimientos de combustibles. Control de entradas, salidas y transferencias con historial completo.',
     keywords: 'movimientos combustibles, registro, entradas, salidas, historial',
-    canonical: '/combustibles/movements',
+    canonical: '/combustibles/movimientos',
     robots: 'noindex,nofollow',
     type: 'website',
     ogImage: '/combustibles/assets/images/og-movements.webp',
@@ -59,27 +71,26 @@ export const routeMetadata = {
   },
 
   // Inventario
-  '/combustibles/inventory': {
+  '/combustibles/inventario': {
     title: 'Inventario - Stock de Combustibles',
     description:
-      'Gestión integral del inventario de combustibles. Niveles de stock, alertas automáticas y control de productos.',
-    keywords: 'inventario, stock combustibles, niveles, alertas, productos',
-    canonical: '/combustibles/inventory',
+      'Gestión completa de inventario de combustibles. Control de stock, niveles críticos y reposición automática.',
+    keywords: 'inventario combustibles, stock, control, reposición',
+    canonical: '/combustibles/inventario',
     robots: 'noindex,nofollow',
     type: 'website',
     ogImage: '/combustibles/assets/images/og-inventory.webp',
   },
 
   // Vehículos
-  '/combustibles/vehicles': {
+  '/combustibles/vehiculos': {
     title: 'Vehículos - Gestión de Flota',
     description:
-      'Administración completa de vehículos y categorías. Registro, mantenimiento y asignación de combustibles por vehículo.',
-    keywords: 'vehículos, flota, gestión, categorías, mantenimiento',
-    canonical: '/combustibles/vehicles',
+      'Control completo de la flota vehicular. Seguimiento de consumo, mantenimiento y horómetros.',
+    keywords: 'vehículos, flota, consumo combustible, mantenimiento',
+    canonical: '/combustibles/vehiculos',
     robots: 'noindex,nofollow',
     type: 'website',
-    ogImage: '/combustibles/assets/images/og-vehicles.webp',
   },
 
   // Mantenimiento

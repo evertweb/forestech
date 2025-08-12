@@ -19,10 +19,10 @@ const VALIDATION_CONFIG = {
   baseUrl: 'http://127.0.0.1:5000', // Emulator
   routes: [
     '/combustibles/',
-    '/combustibles/login',
-    '/combustibles/movements',
-    '/combustibles/inventory',
-    '/combustibles/vehicles',
+    '/combustibles/movimientos',
+    '/combustibles/inventario',
+    '/combustibles/vehiculos',
+    '/combustibles/mantenimiento',
   ],
   seoChecks: {
     title: { minLength: 10, maxLength: 60 },

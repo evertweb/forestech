@@ -145,14 +145,14 @@ export function getSerializableUser(firebase) {
  */
 export function hasRouteAccess(user, route) {
   // Rutas públicas (no requieren autenticación)
-  const publicRoutes = ['/combustibles/', '/combustibles/login'];
+  const publicRoutes = ['/combustibles/'];
   
   if (publicRoutes.some(publicRoute => route === publicRoute || route.startsWith(publicRoute))) {
     return true;
   }
   
-  // Rutas protegidas requieren usuario autenticado
-  const protectedRoutes = ['/combustibles/movements', '/combustibles/inventory', '/combustibles/vehicles'];
+  // Rutas protegidas requieren usuario autenticado (usar rutas reales de React Router)
+  const protectedRoutes = ['/combustibles/movimientos', '/combustibles/inventario', '/combustibles/vehiculos'];
   
   if (protectedRoutes.some(protectedRoute => route.startsWith(protectedRoute))) {
     return !!user && !user.isAnonymous;

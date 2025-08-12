@@ -4,16 +4,16 @@
  */
 
 export const routeMetadata = {
-  // Página principal - Login
+  // Página principal - Dashboard o Login según autenticación
   '/combustibles': {
     title: 'Combustibles - Sistema de Gestión',
     description:
-      'Sistema integral de gestión de inventario de combustibles. Acceso seguro para control de movimientos, vehículos y mantenimiento.',
-    keywords: 'combustibles, gestión inventario, login, sistema',
+      'Sistema integral de gestión de inventario de combustibles. Dashboard con métricas en tiempo real o acceso seguro para login.',
+    keywords: 'combustibles, gestión inventario, dashboard, sistema',
     canonical: '/combustibles',
     robots: 'index,follow',
     type: 'website',
-    ogImage: '/combustibles/assets/images/og-login.webp',
+    ogImage: '/combustibles/assets/images/og-dashboard.webp',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
@@ -24,25 +24,13 @@ export const routeMetadata = {
     },
   },
 
-  // Dashboard principal
-  '/combustibles/dashboard': {
-    title: 'Dashboard - Resumen Combustibles',
-    description:
-      'Panel de control con métricas en tiempo real, estadísticas de inventario y alertas de combustibles.',
-    keywords: 'dashboard, métricas, estadísticas, inventario combustibles',
-    canonical: '/combustibles/dashboard',
-    robots: 'noindex,nofollow', // Página privada
-    type: 'website',
-    ogImage: '/combustibles/assets/images/og-dashboard.webp',
-  },
-
   // Movimientos
-  '/combustibles/movements': {
+  '/combustibles/movimientos': {
     title: 'Movimientos - Control de Combustibles',
     description:
       'Registro y seguimiento de movimientos de combustibles. Control de entradas, salidas y transferencias con historial completo.',
     keywords: 'movimientos combustibles, registro, entradas, salidas, historial',
-    canonical: '/combustibles/movements',
+    canonical: '/combustibles/movimientos',
     robots: 'noindex,nofollow',
     type: 'website',
     ogImage: '/combustibles/assets/images/og-movements.webp',
@@ -59,36 +47,35 @@ export const routeMetadata = {
   },
 
   // Inventario
-  '/combustibles/inventory': {
+  '/combustibles/inventario': {
     title: 'Inventario - Stock de Combustibles',
     description:
-      'Gestión integral del inventario de combustibles. Niveles de stock, alertas automáticas y control de productos.',
-    keywords: 'inventario, stock combustibles, niveles, alertas, productos',
-    canonical: '/combustibles/inventory',
+      'Gestión completa de inventario de combustibles. Control de stock, niveles críticos y reposición automática.',
+    keywords: 'inventario combustibles, stock, control, reposición',
+    canonical: '/combustibles/inventario',
     robots: 'noindex,nofollow',
     type: 'website',
     ogImage: '/combustibles/assets/images/og-inventory.webp',
   },
 
   // Vehículos
-  '/combustibles/vehicles': {
+    // Vehículos
+  '/combustibles/vehiculos': {
     title: 'Vehículos - Gestión de Flota',
     description:
-      'Administración completa de vehículos y categorías. Registro, mantenimiento y asignación de combustibles por vehículo.',
-    keywords: 'vehículos, flota, gestión, categorías, mantenimiento',
-    canonical: '/combustibles/vehicles',
-    robots: 'noindex,nofollow',
-    type: 'website',
-    ogImage: '/combustibles/assets/images/og-vehicles.webp',
+      'Control completo de la flota vehicular. Seguimiento de consumo, mantenimiento y horómetros.',
+    keywords: 'vehículos, flota, consumo combustible, mantenimiento',
+    canonical: '/combustibles/vehiculos',
   },
 
   // Mantenimiento
-  '/combustibles/maintenance': {
-    title: 'Mantenimiento - Gestión Preventiva',
+    // Mantenimiento
+  '/combustibles/mantenimiento': {
+    title: 'Mantenimiento - Control Preventivo',
     description:
-      'Sistema de mantenimiento preventivo y correctivo. Programación, seguimiento y historial de mantenimientos.',
-    keywords: 'mantenimiento, preventivo, correctivo, programación, historial',
-    canonical: '/combustibles/maintenance',
+      'Sistema de mantenimiento preventivo y correctivo. Programación de servicios y control de horómetros.',
+    keywords: 'mantenimiento, preventivo, horómetros, servicios, programación',
+    canonical: '/combustibles/mantenimiento',
     robots: 'noindex,nofollow',
     type: 'website',
     ogImage: '/combustibles/assets/images/og-maintenance.webp',
@@ -149,7 +136,7 @@ function enhanceMetadataWithDynamicData(baseMetadata, dynamicData, route) {
   const enhanced = { ...baseMetadata };
 
   // Movements: agregar stats de movimientos
-  if (route === '/combustibles/movements' && dynamicData.movementsStats) {
+  if (route === '/combustibles/movimientos' && dynamicData.movementsStats) {
     const stats = dynamicData.movementsStats;
     enhanced.description = `${enhanced.description} Total registros: ${stats.total || 0}, Movimientos hoy: ${stats.today || 0}.`;
 
@@ -167,19 +154,19 @@ function enhanceMetadataWithDynamicData(baseMetadata, dynamicData, route) {
   }
 
   // Inventory: agregar info de stock
-  if (route === '/combustibles/inventory' && dynamicData.inventoryStats) {
+  if (route === '/combustibles/inventario' && dynamicData.inventoryStats) {
     const stats = dynamicData.inventoryStats;
     enhanced.description = `${enhanced.description} Productos activos: ${stats.activeProducts || 0}, Stock total: ${stats.totalStock || 0} L.`;
   }
 
   // Vehicles: agregar info de flota
-  if (route === '/combustibles/vehicles' && dynamicData.vehiclesStats) {
+  if (route === '/combustibles/vehiculos' && dynamicData.vehiclesStats) {
     const stats = dynamicData.vehiclesStats;
     enhanced.description = `${enhanced.description} Vehículos registrados: ${stats.totalVehicles || 0}, Categorías: ${stats.categories || 0}.`;
   }
 
   // Dashboard: personalizar con datos del usuario
-  if (route === '/combustibles/dashboard' && dynamicData.userStats) {
+  if (route === '/combustibles/' && dynamicData.userStats) {
     const stats = dynamicData.userStats;
     enhanced.title = `Dashboard - ${stats.userName || 'Usuario'}`;
     enhanced.description = `Panel personalizado con métricas de ${stats.userName || 'usuario'}. ${enhanced.description}`;

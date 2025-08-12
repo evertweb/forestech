@@ -28,6 +28,13 @@ export async function ssrHandler(req, res) {
   let dataFetchStart = 0;
   let dataFetchDuration = 0;
   
+  // Limpiar cache en el primer request después de deploy (para nueva versión de componentes)
+  if (!global.ssrCacheInitialized) {
+    clearCache();
+    global.ssrCacheInitialized = true;
+    console.info('🚀 SSR initialized with fresh cache');
+  }
+  
   const sendFallback = async (status = 200, reason = 'error', errorCode = null) => {
     try {
       const html = await readCSRIndex();
@@ -550,6 +557,23 @@ function setCachedData(key, data) {
       }
     }
   }
+}
+
+// Función para limpiar cache manualmente (útil después de deploys)
+function clearCache() {
+  memoryCache.clear();
+  console.info('🧹 SSR Cache cleared');
+  return { cleared: true, timestamp: new Date().toISOString() };
+}
+
+// Endpoint especial para limpiar cache (solo en desarrollo)
+export function clearCacheHandler(req, res) {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Cache clear not allowed in production' });
+  }
+  
+  const result = clearCache();
+  res.json(result);
 }
 
 /**

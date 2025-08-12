@@ -14,7 +14,7 @@
 - Nombre del parámetro (clave): `ssr_enabled_routes`
 - Tipo de datos: String
 - Description: `Lista de rutas donde SSR está habilitado`
-- Default value: `["/combustibles/login", "/combustibles/movements", "/combustibles/inventory", "/combustibles/vehicles", "/combustibles/dashboard", "/combustibles/maintenance", "/combustibles/reports"]`
+- Default value: `["/combustibles/", "/combustibles/movimientos", "/combustibles/inventario", "/combustibles/vehiculos", "/combustibles/mantenimiento", "/combustibles/productos", "/combustibles/proveedores", "/combustibles/reportes", "/combustibles/admin"]`
 
 **Parámetro 3: `ssr_user_sampling`**
 
@@ -68,7 +68,7 @@ Una vez configurado → `server-timing: ssr_total;dur=X` (sin x-fallback-csr)
 ### 🔍 Para verificar después de configurar:
 
 ```bash
-curl -I https://liquidacionapp-62962.web.app/combustibles/login
+curl -I https://forestechdecolombia.com.co/combustibles/
 ```
 
 Deberías ver:

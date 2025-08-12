@@ -999,19 +999,19 @@ import { test, expect } from '@playwright/test';
 test.describe('Fuel Movement Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Configurar estado inicial con datos de test
-    await page.goto('/combustibles/login');
+    await page.goto('/combustibles/');
     await page.fill('[data-testid="email"]', 'admin@test.com');
     await page.fill('[data-testid="password"]', 'testpassword');
     await page.click('[data-testid="login-button"]');
 
-    // Esperar navegación
-    await expect(page).toHaveURL('/combustibles/dashboard');
+    // Esperar navegación (permanece en / pero ahora autenticado)
+    await expect(page).toHaveURL('/combustibles/');
   });
 
   test('should complete fuel exit movement successfully', async ({ page }) => {
     // Ir a página de movimientos
     await page.click('[data-testid="nav-movements"]');
-    await expect(page).toHaveURL('/combustibles/movements');
+    await expect(page).toHaveURL('/combustibles/movimientos');
 
     // Crear nuevo movimiento
     await page.click('[data-testid="new-movement"]');

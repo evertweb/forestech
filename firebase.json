@@ -9,34 +9,73 @@
   "storage": {
     "rules": "storage.rules"
   },
-  "hosting": {
-    "public": "public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
-      {
-        "source": "/alimentacion/**",
-        "destination": "/alimentacion/index.html"
-      },
-      {
-        "source": "/sitemap.xml",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/sitemap-*.xml",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/robots.txt",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/combustibles/ssr-health",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/combustibles/**",
-        "function": "ssrCombustibles"
-      }
-    ]
-  }
+  "hosting": [
+    {
+      "target": "forestechdecolombia",
+      "public": "public",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Powered-By",
+              "value": "Forestech Colombia"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/",
+          "destination": "/index.html"
+        },
+        {
+          "source": "/alimentacion/**",
+          "destination": "/alimentacion/index.html"
+        },
+        {
+          "source": "/sitemap.xml",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/sitemap-*.xml",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/robots.txt",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/combustibles/ssr-health",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/combustibles/**",
+          "function": "ssrCombustibles"
+        }
+      ]
+    },
+    {
+      "target": "liquidacionapp-62962",
+      "public": "public-legacy",
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ]
 }

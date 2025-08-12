@@ -4,34 +4,30 @@
  */
 
 /**
- * Rutas públicas disponibles para sitemap
- * Solo incluimos rutas indexables por motores de búsqueda
+ * Rutas públicas incluidas en sitemap
  */
 const PUBLIC_ROUTES = [
   {
-    url: '/combustibles',
-    priority: 1.0,
+    url: '/combustibles/',
+    priority: 0.9,
     changefreq: 'daily',
     lastmod: null // Se calculará dinámicamente
-  },
-  {
-    url: '/combustibles/login',
-    priority: 0.8,
-    changefreq: 'weekly',
-    lastmod: null
   }
 ];
 
 /**
  * Rutas privadas para usuarios autenticados
  * No se incluyen en sitemap público por seguridad
+ * Actualizadas con rutas reales de React Router
  */
 const PRIVATE_ROUTES = [
-  '/combustibles/dashboard',
-  '/combustibles/movements',
-  '/combustibles/inventory', 
-  '/combustibles/vehicles',
-  '/combustibles/maintenance',
+  '/combustibles/movimientos',
+  '/combustibles/inventario', 
+  '/combustibles/vehiculos',
+  '/combustibles/mantenimiento',
+  '/combustibles/productos',
+  '/combustibles/proveedores',
+  '/combustibles/reportes',
   '/combustibles/admin'
 ];
 
@@ -228,14 +224,15 @@ User-agent: *
 
 # Permitir acceso a páginas públicas
 Allow: /combustibles/$
-Allow: /combustibles/login
 
-# Bloquear rutas privadas y de administración
-Disallow: /combustibles/dashboard
-Disallow: /combustibles/movements
-Disallow: /combustibles/inventory
-Disallow: /combustibles/vehicles
-Disallow: /combustibles/maintenance
+# Bloquear rutas privadas y de administración (rutas reales de React Router)
+Disallow: /combustibles/movimientos
+Disallow: /combustibles/inventario
+Disallow: /combustibles/vehiculos
+Disallow: /combustibles/mantenimiento
+Disallow: /combustibles/productos
+Disallow: /combustibles/proveedores
+Disallow: /combustibles/reportes
 Disallow: /combustibles/admin
 Disallow: /combustibles/api/
 
@@ -257,12 +254,10 @@ Crawl-delay: 1
 # User agents específicos
 User-agent: Googlebot
 Allow: /combustibles/$
-Allow: /combustibles/login
 Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /combustibles/$
-Allow: /combustibles/login
 Crawl-delay: 2
 `;
 }

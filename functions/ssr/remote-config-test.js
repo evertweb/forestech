@@ -9,22 +9,30 @@
  * @returns {Promise<boolean>} - true si SSR está habilitado
  */
 export async function isSSREnabled(route, user = null) {
-  // Para testing: habilitar SSR en todas las rutas de combustibles
-  if (process.env.NODE_ENV === 'test' || process.env.FIREBASE_CONFIG) {
+  // En modo test: siempre true para rutas de combustibles
+  if (process.env.NODE_ENV === 'test') {
     return route.includes('/combustibles/');
   }
   
-  // En modo emulador, usar configuración por defecto
+  // En modo emulador, usar configuración conservadora
   const defaultEnabledRoutes = [
-    '/combustibles/login',
-    '/combustibles/movements',
-    '/combustibles/inventory',
-    '/combustibles/vehicles',
-    '/combustibles/dashboard'
+    '/combustibles/',
+    '/combustibles/movimientos',
+    '/combustibles/inventario',
+    '/combustibles/vehiculos'
   ];
   
   return defaultEnabledRoutes.some(enabledRoute => {
-    return route === enabledRoute || route.startsWith(enabledRoute);
+    // Exact match
+    if (route === enabledRoute) return true;
+    
+    // Para la ruta raíz /combustibles/, solo permitir exacta (sin sub-rutas)
+    if (enabledRoute === '/combustibles/') {
+      return route === '/combustibles/' || route === '/combustibles';
+    }
+    
+    // Para rutas específicas, permitir sub-rutas con /
+    return route.startsWith(enabledRoute + '/');
   });
 }
 
@@ -34,11 +42,10 @@ export async function isSSREnabled(route, user = null) {
 export async function getRemoteConfig() {
   return {
     ssrEnabledRoutes: [
-      '/combustibles/login',
-      '/combustibles/movements', 
-      '/combustibles/inventory',
-      '/combustibles/vehicles',
-      '/combustibles/dashboard'
+      '/combustibles/',
+      '/combustibles/movimientos', 
+      '/combustibles/inventario',
+      '/combustibles/vehiculos'
     ],
     ssrEnabled: true,
     ssrUserSampling: 100,
