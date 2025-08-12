@@ -25,12 +25,15 @@ export async function getRemoteConfig() {
       });
     }
     
-    // FASE 1: Configuración expandida según roadmap
+    // FASE 3: Configuración expandida según roadmap
     const config = {
       ssrEnabledRoutes: [
         '/combustibles',
         '/combustibles/',
-        '/combustibles/dashboard',     // 🆕 NUEVO - Fase 1
+        '/combustibles/dashboard',     // ✅ Fase 1 - Activo
+        '/combustibles/movimientos',   // ✅ Fase 2 - Activo
+        '/combustibles/vehiculos',     // 🆕 NUEVO - Fase 3
+        '/combustibles/inventario',    // 🆕 NUEVO - Fase 3
         '/combustibles/ssr-health'
       ],
       ssrEnabled: true,
@@ -72,10 +75,17 @@ export async function getRemoteConfig() {
     
     // Fallback a configuración por defecto si Remote Config falla
     const fallbackConfig = {
-      ssrEnabledRoutes: ['/combustibles/', '/combustibles/inventario', '/combustibles/movimientos', '/combustibles/vehiculos', '/combustibles/mantenimiento'],
+      ssrEnabledRoutes: [
+        '/combustibles/', 
+        '/combustibles/dashboard', 
+        '/combustibles/movimientos', 
+        '/combustibles/vehiculos', 
+        '/combustibles/inventario',
+        '/combustibles/ssr-health'
+      ],
       ssrEnabled: true,
       ssrUserSampling: 100,
-      maxDataFetchTime: 800,
+      maxDataFetchTime: 1500,
       enableCaching: true,
     };
     
@@ -170,7 +180,13 @@ export async function isSSREnabled(route, user = null) {
   } catch (error) {
     console.error('Error checking SSR enablement:', error);
     // Fallback muy específico solo para rutas críticas exactas
-    const criticalRoutes = ['/combustibles/', '/combustibles/movimientos', '/combustibles/inventario'];
+    const criticalRoutes = [
+      '/combustibles/', 
+      '/combustibles/dashboard',
+      '/combustibles/movimientos', 
+      '/combustibles/vehiculos',
+      '/combustibles/inventario'
+    ];
     return criticalRoutes.includes(route);
   }
 }

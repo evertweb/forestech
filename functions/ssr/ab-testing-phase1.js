@@ -14,6 +14,13 @@ const SSR_ROLLOUT_CONFIG = {
     maxErrors: 5,          // Máx 5 errores antes de rollback automático
     description: 'Dashboard SSR Fase 1'
   },
+  '/combustibles/movimientos': {
+    enabled: true,
+    percentage: 100,       // Fase 2 - Empezar con 100% para testing
+    minVersion: '2.0.0',
+    maxErrors: 5,          // Máx 5 errores antes de rollback automático
+    description: 'Movements SSR Fase 2'
+  },
   '/combustibles/ssr-health': {
     enabled: true,
     percentage: 100,       // Health check siempre al 100%

@@ -237,8 +237,11 @@ const LoginSSR = () => {
   );
 };
 
-// Importar nuevo componente Dashboard SSR
+// Importar componentes SSR
 import DashboardSSR from './components/DashboardSSR.js';
+import MovementsSSR from './components/MovementsSSR.js';
+import VehiclesSSR from './components/VehiclesSSR.js';
+import InventorySSR from './components/InventorySSR.js';
 
 // Wrapper expandido para SSR - REFACTOR FASE 1
 const AppSSRMinimal = ({ location, initialState, user }) => {
@@ -249,10 +252,46 @@ const AppSSRMinimal = ({ location, initialState, user }) => {
     return React.createElement(LoginSSR);
   }
   
-  // Dashboard SSR (nuevo - Fase 1)
+  // Dashboard SSR (Fase 1)
   if (route.includes('/dashboard')) {
     if (user && !user.isAnonymous) {
       return React.createElement(DashboardSSR, { 
+        initialState, 
+        user 
+      });
+    }
+    // Sin usuario autenticado -> fallback a login
+    return React.createElement(LoginSSR);
+  }
+  
+  // Movements SSR (Fase 2 - NUEVO)
+  if (route.includes('/movimientos')) {
+    if (user && !user.isAnonymous) {
+      return React.createElement(MovementsSSR, { 
+        initialState, 
+        user 
+      });
+    }
+    // Sin usuario autenticado -> fallback a login
+    return React.createElement(LoginSSR);
+  }
+  
+  // Vehicles SSR (Fase 3 - NUEVO)
+  if (route.includes('/vehiculos')) {
+    if (user && !user.isAnonymous) {
+      return React.createElement(VehiclesSSR, { 
+        initialState, 
+        user 
+      });
+    }
+    // Sin usuario autenticado -> fallback a login
+    return React.createElement(LoginSSR);
+  }
+  
+  // Inventory SSR (Fase 3 - NUEVO)
+  if (route.includes('/inventario')) {
+    if (user && !user.isAnonymous) {
+      return React.createElement(InventorySSR, { 
         initialState, 
         user 
       });

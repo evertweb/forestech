@@ -9,6 +9,8 @@ import { initFirebaseServerApp, getSerializableUser, hasRouteAccess } from './fi
 import { getRouteMetadata, validateMetadata, generateStructuredData } from './route-meta.js';
 import { monitorSSRPerformance, createTimer } from './performance-monitor.js';
 import { shouldUseSSR, checkRollback } from './ab-testing-phase1.js';
+import { getCachedOrFetch, getCacheStats, invalidateCache } from './cache-strategy.js';
+import { SSRError, handleSSRError } from './error-handler-advanced.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,51 +41,22 @@ export async function ssrHandler(req, res) {
     console.info('🚀 SSR initialized with fresh cache');
   }
   
+  // Función legacy para compatibilidad - ahora usa el sistema avanzado
   const sendFallback = async (status = 200, reason = 'error', errorCode = null) => {
-    try {
-      const html = await readCSRIndex();
-      res.setHeader('x-fallback-csr', '1');
-      res.setHeader('x-fallback-reason', reason);
-      if (errorCode) {
-        res.setHeader('x-error-code', errorCode);
-      }
-      res.status(status).send(html);
-      
-      // Log fallback estruturado para monitoreo y alertas
-      const logData = {
-        type: 'ssr_fallback',
-        route: req.path,
+    const error = new SSRError(`SSR fallback: ${reason}`, {
+      code: errorCode || 'FALLBACK001',
+      category: 'TIMEOUT', // categoría por defecto para fallbacks
+      route: req.path,
+      user: req.user,
+      context: {
         reason,
-        errorCode,
-        fallback: true,
         duration: Date.now() - start,
-        timestamp: new Date().toISOString(),
-        userAgent: req.get('User-Agent'),
-        ip: req.ip || req.connection?.remoteAddress,
-        user: req.user?.uid || null
-      };
-      
-      console.info(`SSR Fallback:`, JSON.stringify(logData));
-      
-      // Incrementar contador para alertas
-      incrementErrorCounter(reason, errorCode);
-      
-    } catch (e) {
-      console.error('Fallback CSR error:', e);
-      
-      // Log critical error
-      const criticalLog = {
-        type: 'ssr_critical_error',
-        route: req.path,
-        error: e.message,
-        stack: e.stack?.substring(0, 500),
-        fallback: false,
-        timestamp: new Date().toISOString()
-      };
-      
-      console.error(`SSR Critical:`, JSON.stringify(criticalLog));
-      res.status(500).send('SSR critical error');
-    }
+        userAgent: req.get('User-Agent')?.substring(0, 100),
+        ip: req.ip || req.connection?.remoteAddress
+      }
+    });
+    
+    return await handleSSRError(error, req, res);
   };
 
   try {
@@ -219,7 +192,21 @@ export async function ssrHandler(req, res) {
       }
     );
   } catch (e) {
-    console.error('SSR top-level error', e);
+    // Sistema de error handling avanzado - Fase 4
+    const error = new SSRError(e.message, {
+      code: e.code || 'SSR001',
+      category: 'RENDER', // categoría por defecto para errores de renderizado
+      route: req.path,
+      user: getSerializableUser(req.firebase),
+      context: {
+        originalError: e.name,
+        duration: Date.now() - start,
+        dataFetchDuration,
+        authDuration,
+        stack: e.stack?.substring(0, 500),
+        userAgent: req.get('User-Agent')?.substring(0, 100)
+      }
+    });
     
     // Monitoreo de error top-level
     monitorSSRPerformance(req, start, false, {
@@ -228,7 +215,7 @@ export async function ssrHandler(req, res) {
       error: e.message
     });
     
-    sendFallback(200, 'server_error', 'SERVER001');
+    return await handleSSRError(error, req, res);
   }
 }
 
@@ -239,47 +226,33 @@ export async function ssrHandler(req, res) {
  * @returns {Promise<Object>} - Datos iniciales para la ruta
  */
 async function fetchInitialData(route, firebase) {
-  try {
-    // Generar cache key considerando usuario para datos personalizados
-    const userId = firebase.user?.uid || 'anonymous';
-    const cacheKey = `${route}:${userId}`;
-    
-    // Intentar obtener datos del cache para datos no sensibles
-    const isPublicRoute = route.includes('/login') || route === '/combustibles/' || route === '/combustibles';
-    if (isPublicRoute) {
-      const cached = getCachedData(cacheKey);
-      if (cached) {
-        console.info(`Cache hit for ${route}`);
-        return cached;
-      }
-    }
-    
-    // Timeout para fetch de datos (máximo 800ms)
+  const userId = firebase.user?.uid || 'anonymous';
+  
+  // Use enhanced caching strategy
+  return await getCachedOrFetch(route, userId, async () => {
+    // Timeout para fetch de datos (máximo 1200ms for Phase 3)
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Data fetch timeout')), 800)
+      setTimeout(() => reject(new Error('Data fetch timeout')), 1200)
     );
     
     const dataPromise = (async () => {
       // Rutas públicas - sin datos
       if (route.includes('/login') || route === '/combustibles/' || route === '/combustibles') {
-        const data = { pageType: 'login', requiresAuth: false };
-        // Cache datos públicos
-        setCachedData(cacheKey, data);
-        return data;
+        return { pageType: 'login', requiresAuth: false };
       }
       
-      // Ruta movements - cargar datos iniciales
-      if (route.includes('/movements')) {
+      // Ruta movimientos - cargar datos iniciales
+      if (route.includes('/movimientos')) {
         return await fetchMovementsData(firebase);
       }
       
-      // Ruta inventory - cargar datos SSR
-      if (route.includes('/inventory')) {
+      // Ruta inventario - cargar datos SSR
+      if (route.includes('/inventario')) {
         return await fetchInventoryData(firebase);
       }
       
-      // Ruta vehicles - cargar datos SSR  
-      if (route.includes('/vehicles')) {
+      // Ruta vehiculos - cargar datos SSR  
+      if (route.includes('/vehiculos')) {
         return await fetchVehiclesData(firebase);
       }
       
@@ -292,23 +265,9 @@ async function fetchInitialData(route, firebase) {
       return { pageType: 'unknown', route };
     })();
     
-    const result = await Promise.race([dataPromise, timeoutPromise]);
-    
-    // Cache result para rutas apropiadas (no datos sensibles)
-    if (isPublicRoute) {
-      setCachedData(cacheKey, result);
-    }
-    
-    return result;
-    
-  } catch (error) {
-    console.warn(`Data fetch error for ${route}:`, error.message);
-    return { 
-      error: error.message, 
-      pageType: 'error',
-      fallback: true 
-    };
-  }
+    // Race against timeout
+    return await Promise.race([dataPromise, timeoutPromise]);
+  });
 }
 
 /**
@@ -379,47 +338,78 @@ async function fetchInventoryData(firebase) {
   try {
     // Datos mock para inventory - en implementación real sería Firestore query
     const mockInventory = {
-      products: [
+      inventory: [
         {
-          id: 'prod_001',
+          id: 'inv_001',
           name: 'Diesel',
-          category: 'combustible',
           currentStock: 15000,
           minStock: 5000,
-          maxStock: 25000,
-          unit: 'litros',
-          lastUpdate: new Date().toISOString(),
-          status: 'normal'
+          lastUpdate: new Date().toISOString()
         },
         {
-          id: 'prod_002',
+          id: 'inv_002',
           name: 'Gasolina Extra',
-          category: 'combustible',
           currentStock: 8500,
           minStock: 3000,
-          maxStock: 15000,
-          unit: 'litros',
-          lastUpdate: new Date().toISOString(),
-          status: 'normal'
+          lastUpdate: new Date().toISOString()
         },
         {
-          id: 'prod_003',
+          id: 'inv_003',
+          name: 'Gasolina Corriente',
+          currentStock: 12000,
+          minStock: 4000,
+          lastUpdate: new Date().toISOString()
+        },
+        {
+          id: 'inv_004',
           name: 'Aceite Motor 15W40',
-          category: 'lubricante',
           currentStock: 250,
           minStock: 100,
-          maxStock: 500,
-          unit: 'litros',
-          lastUpdate: new Date().toISOString(),
-          status: 'low'
+          lastUpdate: new Date().toISOString()
+        },
+        {
+          id: 'inv_005',
+          name: 'Aceite Hidráulico',
+          currentStock: 150,
+          minStock: 200,
+          lastUpdate: new Date().toISOString()
+        }
+      ],
+      tanks: [
+        {
+          id: 'tank_001',
+          name: 'Tanque Principal Diesel',
+          fuelType: 'Diesel',
+          capacity: 25000,
+          currentLevel: 18500
+        },
+        {
+          id: 'tank_002',
+          name: 'Tanque Gasolina Extra',
+          fuelType: 'Gasolina Extra',
+          capacity: 15000,
+          currentLevel: 8500
+        },
+        {
+          id: 'tank_003',
+          name: 'Tanque Gasolina Corriente',
+          fuelType: 'Gasolina Corriente',
+          capacity: 20000,
+          currentLevel: 12000
+        },
+        {
+          id: 'tank_004',
+          name: 'Tanque Reserva Diesel',
+          fuelType: 'Diesel',
+          capacity: 10000,
+          currentLevel: 3200
         }
       ],
       summary: {
-        totalProducts: 12,
-        activeProducts: 11,
-        lowStockItems: 3,
-        totalValue: 125000000,
-        lastInventoryDate: new Date(Date.now() - 86400000).toISOString()
+        totalLiters: 42200,
+        fuelTypes: 3,
+        activeTanks: 4,
+        lowStockItems: 1
       }
     };
     
@@ -460,8 +450,8 @@ async function fetchVehiclesData(firebase) {
           brand: 'Chevrolet',
           model: 'NPR',
           year: 2020,
-          category: 'camion',
-          fuelType: 'diesel',
+          type: 'Camión',
+          fuelType: 'Diesel',
           status: 'activo',
           lastMaintenance: new Date(Date.now() - 15 * 86400000).toISOString(),
           nextMaintenance: new Date(Date.now() + 15 * 86400000).toISOString(),
@@ -473,12 +463,64 @@ async function fetchVehiclesData(firebase) {
           brand: 'Toyota',
           model: 'Hilux',
           year: 2019,
-          category: 'pickup',
-          fuelType: 'gasolina',
+          type: 'Pickup',
+          fuelType: 'Gasolina',
           status: 'activo',
           lastMaintenance: new Date(Date.now() - 30 * 86400000).toISOString(),
           nextMaintenance: new Date(Date.now() + 30 * 86400000).toISOString(),
           mileage: 125000
+        },
+        {
+          id: 'veh_003',
+          plate: 'GHI789',
+          brand: 'Ford',
+          model: 'Ranger',
+          year: 2018,
+          type: 'Pickup',
+          fuelType: 'Diesel',
+          status: 'mantenimiento',
+          lastMaintenance: new Date(Date.now() - 5 * 86400000).toISOString(),
+          nextMaintenance: new Date(Date.now() + 60 * 86400000).toISOString(),
+          mileage: 95000
+        },
+        {
+          id: 'veh_004',
+          plate: 'JKL012',
+          brand: 'Nissan',
+          model: 'Frontier',
+          year: 2021,
+          type: 'Pickup',
+          fuelType: 'Gasolina',
+          status: 'activo',
+          lastMaintenance: new Date(Date.now() - 45 * 86400000).toISOString(),
+          nextMaintenance: new Date(Date.now() + 45 * 86400000).toISOString(),
+          mileage: 42000
+        },
+        {
+          id: 'veh_005',
+          plate: 'MNO345',
+          brand: 'Isuzu',
+          model: 'NQR',
+          year: 2019,
+          type: 'Camión',
+          fuelType: 'Diesel',
+          status: 'activo',
+          lastMaintenance: new Date(Date.now() - 20 * 86400000).toISOString(),
+          nextMaintenance: new Date(Date.now() + 40 * 86400000).toISOString(),
+          mileage: 78000
+        },
+        {
+          id: 'veh_006',
+          plate: 'PQR678',
+          brand: 'Chevrolet',
+          model: 'Colorado',
+          year: 2020,
+          type: 'Pickup',
+          fuelType: 'Diesel',
+          status: 'inactivo',
+          lastMaintenance: new Date(Date.now() - 90 * 86400000).toISOString(),
+          nextMaintenance: new Date(Date.now() - 30 * 86400000).toISOString(),
+          mileage: 110000
         }
       ],
       categories: [
@@ -488,10 +530,9 @@ async function fetchVehiclesData(firebase) {
       ],
       summary: {
         totalVehicles: 25,
-        activeVehicles: 23,
-        inMaintenance: 2,
-        needsMaintenance: 4,
-        categories: 5
+        activeVehicles: 20,
+        inMaintenance: 3,
+        inactiveVehicles: 2
       }
     };
     
@@ -629,41 +670,15 @@ function prepareDynamicData(route, data, user) {
 }
 
 /**
- * Implementar cache SWR en memoria para datos no sensibles
+ * Enhanced caching system - Phase 3 implementation
+ * Uses cache-strategy.js for TTL-based caching with personalization
  */
-const memoryCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
-function getCachedData(key) {
-  const cached = memoryCache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
-  return null;
-}
-
-function setCachedData(key, data) {
-  memoryCache.set(key, {
-    data,
-    timestamp: Date.now()
-  });
-  
-  // Cleanup: eliminar entradas expiradas
-  if (memoryCache.size > 100) {
-    const now = Date.now();
-    for (const [k, v] of memoryCache.entries()) {
-      if (now - v.timestamp > CACHE_TTL) {
-        memoryCache.delete(k);
-      }
-    }
-  }
-}
-
-// Función para limpiar cache manualmente (útil después de deploys)
+// Function to clear cache manually (useful after deploys)
 function clearCache() {
-  memoryCache.clear();
-  console.info('🧹 SSR Cache cleared');
-  return { cleared: true, timestamp: new Date().toISOString() };
+  const cleared = invalidateCache('');
+  console.info(`🧹 SSR Cache cleared: ${cleared} entries`);
+  return { cleared: cleared, timestamp: new Date().toISOString() };
 }
 
 // Endpoint especial para limpiar cache (solo en desarrollo)
@@ -674,6 +689,22 @@ export function clearCacheHandler(req, res) {
   
   const result = clearCache();
   res.json(result);
+}
+
+// Endpoint para obtener estadísticas de cache
+export function cacheStatsHandler(req, res) {
+  try {
+    const stats = getCacheStats();
+    res.json({
+      ...stats,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Failed to get cache stats', 
+      message: error.message 
+    });
+  }
 }
 
 /**
