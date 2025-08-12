@@ -1,6 +1,0 @@
-Contact: cardenasever072@gmail.com
-Expires: 2026-08-12T00:00:00.000Z
-Acknowledgments: https://forestechdecolombia.com.co/combustibles/
-Preferred-Languages: es, en
-Policy: https://forestechdecolombia.com.co/combustibles/
-Canonical: https://forestechdecolombia.com.co/combustibles/.well-known/security.txt
