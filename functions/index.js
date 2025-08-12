@@ -7,6 +7,8 @@ import { errorStatsHandler } from './ssr/error-handler-advanced.js';
 import { applyErrorMiddlewares } from './ssr/error-middleware.js';
 import { reportsHandler } from './ssr/reporting-system.js';
 import { alertsHandler, startAlertingSystem } from './ssr/alerting-system.js';
+import { performanceOptimizationHandler } from './ssr/performance-optimization.js';
+import { coverageMonitoringHandler } from './ssr/coverage-monitoring.js';
 import { ensureEnv } from './ssr/env.js';
 
 ensureEnv();
@@ -23,7 +25,7 @@ const app = express();
 applyErrorMiddlewares(app, {
   timeout: 5000, // 5 segundos timeout
   rateLimit: 60, // 60 requests por minuto
-  validRoutes: ['/combustibles/*', '/sitemap*', '/robots.txt', '/health', '/ab-testing', '/error-stats', '/ssr-reports', '/ssr-alerts'],
+  validRoutes: ['/combustibles/*', '/sitemap*', '/robots.txt', '/health', '/ab-testing', '/error-stats', '/ssr-reports', '/ssr-alerts', '/ssr-optimization', '/ssr-coverage'],
   enableLogging: process.env.NODE_ENV !== 'test' // Disable en tests
 });
 
@@ -52,6 +54,14 @@ app.post('/ssr-reports', reportsHandler);
 // SSR Alerts endpoint - Fase 4 (sistema de alertas automáticas)
 app.get('/ssr-alerts', alertsHandler);
 app.post('/ssr-alerts', alertsHandler);
+
+// SSR Performance Optimization endpoint - Fase 4 (optimización de performance)
+app.get('/ssr-optimization', performanceOptimizationHandler);
+app.post('/ssr-optimization', performanceOptimizationHandler);
+
+// SSR Coverage Monitoring endpoint - Fase 4 (monitoreo de cobertura 45%)
+app.get('/ssr-coverage', coverageMonitoringHandler);
+app.post('/ssr-coverage', coverageMonitoringHandler);
 
 export const ssrCombustibles = onRequest(
   {
