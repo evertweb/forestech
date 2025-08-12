@@ -23,6 +23,8 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import useColorScheme from '../../hooks/useColorScheme';
+import AdminSSRBanner from './AdminSSRBanner';
+import './AdminSSRBanner.css';
 
 const DashboardLayout = React.memo(({ children }) => {
   // Extrae el perfil de usuario y las funciones de verificación de permisos del contexto.
@@ -364,6 +366,9 @@ const DashboardLayout = React.memo(({ children }) => {
           className={`dashboard-main ${isDashboardHome ? 'dashboard-home' : sidebarOpen ? '' : 'sidebar-hidden'}`}
         >
           <div className="main-content">
+            {/* Banner de administración SSR - Solo visible para admins */}
+            <AdminSSRBanner />
+
             {/* Aquí se renderiza el contenido de la página actual (ej. Home, Reports, etc.) */}
             {children}
           </div>
