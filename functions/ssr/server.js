@@ -8,6 +8,7 @@ import AppSSRMinimal from './AppSSRMinimal.js';
 import { initFirebaseServerApp, getSerializableUser, hasRouteAccess } from './firebase-server-app.js';
 import { getRouteMetadata, validateMetadata, generateStructuredData } from './route-meta.js';
 import { monitorSSRPerformance, createTimer } from './performance-monitor.js';
+import { shouldUseSSR, checkRollback } from './ab-testing-phase1.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,7 +98,7 @@ export async function ssrHandler(req, res) {
       console.info(`SSR Auth: ${req.path} | UID: ${user.uid} | Email: ${user.email || 'N/A'}`);
     }
     
-    // 2. Verificar si SSR está habilitado para esta ruta via Remote Config
+    // 2. Verificar si SSR está habilitado via Remote Config + A/B Testing
     // Usar configuración de test en emulador
     const useTestConfig = process.env.FUNCTIONS_EMULATOR === 'true' || process.env.NODE_ENV === 'test';
     const { isSSREnabled } = useTestConfig 
@@ -107,6 +108,12 @@ export async function ssrHandler(req, res) {
     const ssrEnabled = await isSSREnabled(req.path, user);
     if (!ssrEnabled) {
       return sendFallback(200, 'ssr_disabled', 'RC001');
+    }
+    
+    // 2b. A/B Testing - Verificar si este usuario debe recibir SSR
+    const useSSRForUser = shouldUseSSR(req.path, user);
+    if (!useSSRForUser) {
+      return sendFallback(200, 'ab_test_csr', 'AB001');
     }
     
     // 3. Verificar acceso a la ruta

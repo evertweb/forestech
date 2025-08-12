@@ -51,6 +51,14 @@
           "function": "ssrCombustibles"
         },
         {
+          "source": "/ab-testing",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/health",
+          "function": "ssrCombustibles"
+        },
+        {
           "source": "/combustibles/**",
           "function": "ssrCombustibles"
         }
