@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 const VehiclesSSR = ({ initialState, user }) => {
   const { data = {} } = initialState || {};
@@ -354,4 +354,4 @@ function getStatusColor(status) {
   }
 }
 
-module.exports = VehiclesSSR;
+export default VehiclesSSR;

@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 const InventorySSR = ({ initialState, user }) => {
   const { data = {} } = initialState || {};
@@ -557,4 +557,4 @@ function getStockStatusText(currentStock, minStock) {
   return 'OK';
 }
 
-module.exports = InventorySSR;
+export default InventorySSR;

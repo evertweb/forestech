@@ -5,7 +5,7 @@ import { sitemapHandler, robotsHandler } from './ssr/sitemap.js';
 import { abTestingHandler } from './ssr/ab-testing-phase1.js';
 import { errorStatsHandler } from './ssr/error-handler-advanced.js';
 import { applyErrorMiddlewares } from './ssr/error-middleware.js';
-import { reportsHandler } from './ssr/reporting-system.js';
+import { reportingHandler } from './ssr/reporting-system.js';
 import { alertsHandler, startAlertingSystem } from './ssr/alerting-system.js';
 import { performanceOptimizationHandler } from './ssr/performance-optimization.js';
 import { coverageMonitoringHandler } from './ssr/coverage-monitoring.js';
@@ -48,8 +48,8 @@ app.get('/ab-testing', abTestingHandler);
 app.get('/error-stats', errorStatsHandler);
 
 // SSR Reports endpoint - Fase 4 (sistema de reportes avanzado)
-app.get('/ssr-reports', reportsHandler);
-app.post('/ssr-reports', reportsHandler);
+app.get('/ssr-reports', reportingHandler);
+app.post('/ssr-reports', reportingHandler);
 
 // SSR Alerts endpoint - Fase 4 (sistema de alertas automáticas)
 app.get('/ssr-alerts', alertsHandler);
