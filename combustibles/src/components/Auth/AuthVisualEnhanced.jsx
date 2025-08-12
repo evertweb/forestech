@@ -18,6 +18,7 @@ import {
   preloadBackgroundImage,
 } from '../../services/backgroundImageService';
 import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
+import SEOContent from '../SEO/SEOContent';
 import './AuthVisualEnhanced.css';
 
 // Componente de logo animado con efectos de energía
@@ -650,6 +651,9 @@ const AuthVisualEnhanced = () => {
       }}
     >
       <FloatingParticles count={20} />
+
+      {/* Contenido SEO para indexación */}
+      <SEOContent />
 
       {/* Loader de carga: usa DotsLoader, puedes cambiar a LiquidLoader si prefieres */}
       {imageLoading && <DotsLoader />}

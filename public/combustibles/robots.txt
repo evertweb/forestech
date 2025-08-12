@@ -1,0 +1,25 @@
+# Robots.txt para Forestech Colombia - Sistema de Combustibles
+# Permite la indexación de todas las páginas públicas
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://forestechdecolombia.com.co/combustibles/sitemap.xml
+
+# Restricciones específicas (si las hay en el futuro)
+# Disallow: /private/
+# Disallow: /admin/
+
+# Permitir específicamente para motores de búsqueda principales
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Crawl-delay para evitar sobrecarga
+Crawl-delay: 1

@@ -10,7 +10,8 @@
       "https://forestech-colombia.firebaseapp.com",
       "https://liquidacionapp-62962.web.app",
       "https://liquidacionapp-62962.firebaseapp.com",
-      "https://firebasestorage.googleapis.com"
+      "https://firebasestorage.googleapis.com",
+      "https://liquidacionapp-62962.firebasestorage.app"
     ],
     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     "maxAgeSeconds": 3600,
