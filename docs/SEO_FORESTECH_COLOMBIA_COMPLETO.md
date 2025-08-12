@@ -270,10 +270,10 @@ TTL: 3600
 
 ### **Configuración Pendiente (Tu Responsabilidad):**
 
-- [ ] **DNS del dominio**: Configurar CNAME/A record
-- [ ] **Firebase Hosting**: Agregar dominio personalizado
-- [ ] **Google Search Console**: Registrar y verificar
-- [ ] **Sitemap submission**: Enviar a GSC
+- [x] **DNS del dominio**: Configurar CNAME/A record
+- [x] **Firebase Hosting**: Agregar dominio personalizado
+- [x] **Google Search Console**: Registrar y verificar
+- [x] **Sitemap submission**: Enviar a GSC
 - [ ] **Google Analytics**: Configurar tracking (opcional)
 
 ---
