@@ -5,9 +5,17 @@ import { sitemapHandler, robotsHandler } from './ssr/sitemap.js';
 import { abTestingHandler } from './ssr/ab-testing-phase1.js';
 import { errorStatsHandler } from './ssr/error-handler-advanced.js';
 import { applyErrorMiddlewares } from './ssr/error-middleware.js';
+import { reportsHandler } from './ssr/reporting-system.js';
+import { alertsHandler, startAlertingSystem } from './ssr/alerting-system.js';
 import { ensureEnv } from './ssr/env.js';
 
 ensureEnv();
+
+// Inicializar sistema de alertas automáticas - Fase 4
+if (process.env.NODE_ENV === 'production') {
+  startAlertingSystem();
+  console.info('SSR Alerting System initialized for production');
+}
 
 const app = express();
 
@@ -15,7 +23,7 @@ const app = express();
 applyErrorMiddlewares(app, {
   timeout: 5000, // 5 segundos timeout
   rateLimit: 60, // 60 requests por minuto
-  validRoutes: ['/combustibles/*', '/sitemap*', '/robots.txt', '/health', '/ab-testing', '/error-stats'],
+  validRoutes: ['/combustibles/*', '/sitemap*', '/robots.txt', '/health', '/ab-testing', '/error-stats', '/ssr-reports', '/ssr-alerts'],
   enableLogging: process.env.NODE_ENV !== 'test' // Disable en tests
 });
 
@@ -36,6 +44,14 @@ app.get('/ab-testing', abTestingHandler);
 
 // Error statistics endpoint (monitoreo)
 app.get('/error-stats', errorStatsHandler);
+
+// SSR Reports endpoint - Fase 4 (sistema de reportes avanzado)
+app.get('/ssr-reports', reportsHandler);
+app.post('/ssr-reports', reportsHandler);
+
+// SSR Alerts endpoint - Fase 4 (sistema de alertas automáticas)
+app.get('/ssr-alerts', alertsHandler);
+app.post('/ssr-alerts', alertsHandler);
 
 export const ssrCombustibles = onRequest(
   {
