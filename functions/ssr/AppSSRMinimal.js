@@ -237,8 +237,47 @@ const LoginSSR = () => {
   );
 };
 
-// Wrapper simple para SSR (sin StaticRouter para evitar dependencias)
-const AppSSRMinimal = ({ location }) => {
+// Importar nuevo componente Dashboard SSR
+import DashboardSSR from './components/DashboardSSR.js';
+
+// Wrapper expandido para SSR - REFACTOR FASE 1
+const AppSSRMinimal = ({ location, initialState, user }) => {
+  const route = location || '';
+  
+  // Landing/Login (actual)
+  if (route === '/combustibles' || route === '/combustibles/') {
+    return React.createElement(LoginSSR);
+  }
+  
+  // Dashboard SSR (nuevo - Fase 1)
+  if (route.includes('/dashboard')) {
+    if (user && !user.isAnonymous) {
+      return React.createElement(DashboardSSR, { 
+        initialState, 
+        user 
+      });
+    }
+    // Sin usuario autenticado -> fallback a login
+    return React.createElement(LoginSSR);
+  }
+  
+  // Health check SSR
+  if (route === '/combustibles/ssr-health') {
+    return React.createElement('div', {
+      style: {
+        padding: '2rem',
+        textAlign: 'center',
+        fontFamily: 'system-ui, sans-serif'
+      }
+    },
+      React.createElement('h1', null, '✅ SSR Health Check'),
+      React.createElement('p', null, `Route: ${route}`),
+      React.createElement('p', null, `User: ${user ? 'Authenticated' : 'Anonymous'}`),
+      React.createElement('p', null, `Timestamp: ${new Date().toISOString()}`)
+    );
+  }
+  
+  // Fallback a login para rutas no reconocidas
   return React.createElement(LoginSSR);
 };
 

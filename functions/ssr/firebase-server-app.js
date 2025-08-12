@@ -138,26 +138,48 @@ export function getSerializableUser(firebase) {
 }
 
 /**
- * Verificar si el usuario tiene permisos para acceder a una ruta
+ * Verificar si el usuario tiene permisos para acceder a una ruta - FASE 1 MEJORADO
  * @param {Object} user - Usuario autenticado
  * @param {string} route - Ruta a verificar
  * @returns {boolean} - true si tiene acceso, false caso contrario
  */
 export function hasRouteAccess(user, route) {
   // Rutas públicas (no requieren autenticación)
-  const publicRoutes = ['/combustibles/'];
+  const publicRoutes = ['/combustibles', '/combustibles/', '/combustibles/ssr-health'];
+  if (publicRoutes.some(r => route === r)) return true;
   
-  if (publicRoutes.some(publicRoute => route === publicRoute || route.startsWith(publicRoute))) {
-    return true;
-  }
-  
-  // Rutas protegidas requieren usuario autenticado (usar rutas reales de React Router)
-  const protectedRoutes = ['/combustibles/movimientos', '/combustibles/inventario', '/combustibles/vehiculos'];
-  
-  if (protectedRoutes.some(protectedRoute => route.startsWith(protectedRoute))) {
+  // Rutas protegidas requieren usuario autenticado
+  const protectedRoutes = ['/dashboard', '/movimientos', '/inventario', '/vehiculos', '/reportes'];
+  if (protectedRoutes.some(r => route.includes(r))) {
+    // Usuario debe estar autenticado y no ser anónimo
     return !!user && !user.isAnonymous;
   }
   
-  // Por defecto, permitir acceso (rutas nuevas no definidas)
+  // Por defecto, permitir acceso para rutas no definidas
   return true;
+}
+
+/**
+ * Verificar si una ruta requiere autenticación para SSR - NUEVO
+ * @param {string} route - Ruta a verificar
+ * @returns {boolean} - true si requiere auth, false para rutas públicas
+ */
+export function requiresAuthentication(route) {
+  const publicRoutes = ['/combustibles', '/combustibles/', '/combustibles/ssr-health'];
+  return !publicRoutes.some(r => route === r);
+}
+
+/**
+ * Obtener nivel de acceso del usuario para logging/analytics - NUEVO
+ * @param {Object} user - Usuario autenticado
+ * @returns {string} - Nivel de acceso: 'anonymous', 'authenticated', 'admin'
+ */
+export function getUserAccessLevel(user) {
+  if (!user) return 'anonymous';
+  if (user.isAnonymous) return 'anonymous';
+  
+  // En futuro: verificar custom claims para admin
+  if (user.customClaims?.admin) return 'admin';
+  
+  return 'authenticated';
 }

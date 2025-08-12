@@ -25,18 +25,19 @@ export async function getRemoteConfig() {
       });
     }
     
-    // TEMPORAL: Configuración conservadora hasta que Remote Config se sincronice
+    // FASE 1: Configuración expandida según roadmap
     const config = {
       ssrEnabledRoutes: [
-        '/combustibles/', 
-        '/combustibles/movimientos', 
-        '/combustibles/inventario', 
-        '/combustibles/vehiculos'
+        '/combustibles',
+        '/combustibles/',
+        '/combustibles/dashboard',     // 🆕 NUEVO - Fase 1
+        '/combustibles/ssr-health'
       ],
       ssrEnabled: true,
       ssrUserSampling: 100,
-      maxDataFetchTime: 800,
+      maxDataFetchTime: 1500,          // 🆕 Aumentado para dashboard SSR
       enableCaching: true,
+      authenticatedSSR: true,          // 🆕 Soporte para usuarios autenticados
     };
     
     console.log('🎯 Using hardcoded config until Remote Config syncs:', config);

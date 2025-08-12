@@ -7,6 +7,7 @@ import { createHtmlTemplate } from './html-template.js';
 import AppSSRMinimal from './AppSSRMinimal.js';
 import { initFirebaseServerApp, getSerializableUser, hasRouteAccess } from './firebase-server-app.js';
 import { getRouteMetadata, validateMetadata, generateStructuredData } from './route-meta.js';
+import { monitorSSRPerformance, createTimer } from './performance-monitor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,9 +25,11 @@ export function healthHandler(req, res) {
 }
 
 export async function ssrHandler(req, res) {
-  const start = Date.now();
+  const timer = createTimer();
+  const start = timer.start;
   let dataFetchStart = 0;
   let dataFetchDuration = 0;
+  let authDuration = 0;
   
   // Limpiar cache en el primer request después de deploy (para nueva versión de componentes)
   if (!global.ssrCacheInitialized) {
@@ -84,8 +87,10 @@ export async function ssrHandler(req, res) {
 
   try {
     // 1. Inicializar Firebase Server App con continuidad de sesión
+    const authStart = Date.now();
     const firebase = await initFirebaseServerApp(req);
     const user = getSerializableUser(firebase);
+    authDuration = Date.now() - authStart;
     
     // Log usuario autenticado (solo UID por privacidad)
     if (user?.uid) {
@@ -181,17 +186,41 @@ export async function ssrHandler(req, res) {
           pipe(res);
           res.write('</div>' + afterContent);
           
-          // Log exitoso para monitoreo
+          // Log exitoso + monitoreo de performance
           console.info(`SSR Success: ${req.path} | Total: ${totalDur}ms | Render: ${renderDur}ms | DataFetch: ${dataFetchDuration}ms | User: ${user?.uid || 'anonymous'}`);
+          
+          // Monitoreo de performance - FASE 1
+          monitorSSRPerformance(req, start, true, {
+            dataFetch: dataFetchDuration,
+            render: renderDur,
+            auth: authDuration
+          });
         },
         onError(err) {
           console.error('SSR render error:', err);
+          
+          // Monitoreo de error de render
+          monitorSSRPerformance(req, start, false, {
+            dataFetch: dataFetchDuration,
+            render: Date.now() - renderStart,
+            auth: authDuration,
+            error: err.message
+          });
+          
           sendFallback(200, 'render_error', 'RENDER001');
         },
       }
     );
   } catch (e) {
     console.error('SSR top-level error', e);
+    
+    // Monitoreo de error top-level
+    monitorSSRPerformance(req, start, false, {
+      dataFetch: dataFetchDuration,
+      auth: authDuration,
+      error: e.message
+    });
+    
     sendFallback(200, 'server_error', 'SERVER001');
   }
 }
@@ -247,9 +276,9 @@ async function fetchInitialData(route, firebase) {
         return await fetchVehiclesData(firebase);
       }
       
-      // Dashboard - datos personalizados
+      // Dashboard - FASE 1 ACTIVADO con datos
       if (route.includes('/dashboard')) {
-        return { pageType: 'dashboard', requiresAuth: true, user: firebase.user };
+        return await fetchDashboardData(firebase);
       }
       
       // Ruta por defecto
@@ -472,6 +501,70 @@ async function fetchVehiclesData(firebase) {
       requiresAuth: true,
       authenticated: true,
       error: error.message
+    };
+  }
+}
+
+/**
+ * Cargar datos iniciales para el Dashboard - FASE 1 NUEVO
+ * @param {Object} firebase - Contexto Firebase
+ * @returns {Promise<Object>} - Datos del dashboard
+ */
+async function fetchDashboardData(firebase) {
+  if (!firebase.user) {
+    return { 
+      pageType: 'dashboard', 
+      requiresAuth: true, 
+      authenticated: false 
+    };
+  }
+  
+  try {
+    // Mock data optimizado para SSR - En implementación real sería queries a Firestore
+    const stats = {
+      vehicles: 25,
+      fuel: 45000,      // Litros en stock
+      movements: 12,    // Movimientos de hoy
+      alerts: 3,        // Alertas activas
+      lastUpdate: new Date().toISOString()
+    };
+    
+    // Datos adicionales para el dashboard
+    const recentActivity = [
+      {
+        id: 'act_001',
+        type: 'movement',
+        description: 'Entrada de 1500L diesel - Camión ABC123',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
+        user: 'Operador Juan'
+      },
+      {
+        id: 'act_002', 
+        type: 'alert',
+        description: 'Stock bajo en Aceite Motor 15W40',
+        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4h ago
+        priority: 'medium'
+      }
+    ];
+    
+    return {
+      pageType: 'dashboard',
+      requiresAuth: true,
+      authenticated: true,
+      user: firebase.user,
+      stats,
+      recentActivity,
+      timestamp: Date.now()
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    return {
+      pageType: 'dashboard',
+      requiresAuth: true,
+      authenticated: true,
+      user: firebase.user,
+      error: error.message,
+      stats: {} // Fallback con stats vacíos
     };
   }
 }
