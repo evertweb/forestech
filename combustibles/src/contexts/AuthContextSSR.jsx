@@ -2,6 +2,7 @@
 // AuthContext compatible con SSR - no ejecuta efectos en servidor
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { setAuthCookie, clearAuthCookie, setupCookieRefresh } from '../utils/authCookies';
 import { isServer } from '../utils/ssr';
 
 const AuthContext = createContext();
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
     if (isServer) return;
 
     let unsubscribe = null;
+    let cookieRefreshCleanup = null;
 
     // Cargar Firebase de forma lazy después del mount inicial
     const initAuth = async () => {
@@ -37,9 +39,28 @@ export const AuthProvider = ({ children }) => {
         );
         setFirebaseLoaded(true);
 
-        unsubscribe = onAuthStateChanged(auth, (authUser) => {
+        unsubscribe = onAuthStateChanged(auth, async (authUser) => {
           setUser(authUser);
           setLoading(false);
+
+          if (authUser) {
+            // 🍪 Establecer cookie para SSR
+            await setAuthCookie(authUser);
+
+            // Configurar refresh automático de cookies
+            if (cookieRefreshCleanup) {
+              cookieRefreshCleanup();
+            }
+            cookieRefreshCleanup = setupCookieRefresh(authUser);
+          } else {
+            // 🧹 Limpiar cookie cuando no hay usuario
+            clearAuthCookie();
+
+            if (cookieRefreshCleanup) {
+              cookieRefreshCleanup();
+              cookieRefreshCleanup = null;
+            }
+          }
         });
       } catch (error) {
         console.error('Error inicializando Auth:', error);
@@ -52,6 +73,9 @@ export const AuthProvider = ({ children }) => {
     return () => {
       if (unsubscribe) {
         unsubscribe();
+      }
+      if (cookieRefreshCleanup) {
+        cookieRefreshCleanup();
       }
     };
   }, []);

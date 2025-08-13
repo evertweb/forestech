@@ -5,6 +5,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { createUserProfile, getUserProfile } from '../firebase/userService';
+import { setAuthCookie, clearAuthCookie, setupCookieRefresh } from '../utils/authCookies';
 
 const AuthContext = createContext();
 
@@ -23,6 +24,8 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let cookieRefreshCleanup = null;
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         setLoading(true);
@@ -31,12 +34,21 @@ export const AuthProvider = ({ children }) => {
         if (firebaseUser) {
           setUser(firebaseUser);
 
+          // 🍪 Establecer cookie para SSR
+          await setAuthCookie(firebaseUser);
+
+          // Configurar refresh automático de cookies
+          if (cookieRefreshCleanup) {
+            cookieRefreshCleanup();
+          }
+          cookieRefreshCleanup = setupCookieRefresh(firebaseUser);
+
           let profileResult = await getUserProfile(firebaseUser.uid);
 
           if (!profileResult.success) {
             profileResult = await createUserProfile(firebaseUser, {
               provider: 'existing_account',
-              appContext: 'combustibles'
+              appContext: 'combustibles',
             });
           }
 
@@ -48,6 +60,14 @@ export const AuthProvider = ({ children }) => {
         } else {
           setUser(null);
           setUserProfile(null);
+
+          // 🧹 Limpiar cookie cuando no hay usuario
+          clearAuthCookie();
+
+          if (cookieRefreshCleanup) {
+            cookieRefreshCleanup();
+            cookieRefreshCleanup = null;
+          }
         }
       } catch (error) {
         console.error('Error en autenticación:', error);
@@ -57,7 +77,12 @@ export const AuthProvider = ({ children }) => {
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeAuth();
+      if (cookieRefreshCleanup) {
+        cookieRefreshCleanup();
+      }
+    };
   }, []);
 
   // Funciones de utilidad para permisos
@@ -80,12 +105,8 @@ export const AuthProvider = ({ children }) => {
     error,
     hasPermission,
     isAdmin,
-    isCounterOrAbove
+    isCounterOrAbove,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
