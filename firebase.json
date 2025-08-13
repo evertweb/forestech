@@ -25,6 +25,13 @@
           ]
         }
       ],
+      "redirects": [
+        {
+          "source": "/robots.txt",
+          "destination": "/seo-robots",
+          "type": 301
+        }
+      ],
       "rewrites": [
         {
           "source": "/",
@@ -43,7 +50,7 @@
           "function": "ssrCombustibles"
         },
         {
-          "source": "/robots.txt",
+          "source": "/seo-robots",
           "function": "ssrCombustibles"
         },
         {

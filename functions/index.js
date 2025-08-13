@@ -32,6 +32,7 @@ applyErrorMiddlewares(app, {
     '/vehicle-wizard-popup',
     '/sitemap*', 
     '/robots.txt',
+    '/seo-robots',
     '/test-robots-hosting',
     '/health', 
     '/ab-testing', 
@@ -49,8 +50,16 @@ applyErrorMiddlewares(app, {
 app.get('/sitemap.xml', sitemapHandler);
 app.get('/sitemap-combustibles.xml', sitemapHandler);
 app.get('/sitemap-index.xml', sitemapHandler);
+
+// WORKAROUND: Firebase Hosting intercepta /robots.txt - usar rutas alternativas
 app.get('/robots.txt', (req, res) => {
   console.log('🤖 ROBOTS.TXT REQUEST RECEIVED:', req.path);
+  return robotsHandler(req, res);
+});
+
+// Ruta alternativa funcional para robots.txt
+app.get('/seo-robots', (req, res) => {
+  console.log('🤖 SEO-ROBOTS REQUEST RECEIVED:', req.path);
   return robotsHandler(req, res);
 });
 
