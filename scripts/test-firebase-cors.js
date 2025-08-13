@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4",
   authDomain: "liquidacionapp-62962.firebaseapp.com",
   projectId: "liquidacionapp-62962",
-  storageBucket: "liquidacionapp-62962.appspot.com",
+  storageBucket: "liquidacionapp-62962.firebasestorage.app",
   messagingSenderId: "851382130132",
   appId: "1:851382130132:web:eaba38fab449f14fb5b241"
 };
