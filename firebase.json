@@ -82,6 +82,14 @@
           "function": "ssrCombustibles"
         },
         {
+          "source": "/combustibles/assets/**",
+          "destination": "/combustibles/assets/:splat"
+        },
+        {
+          "source": "/combustibles/src/**",
+          "destination": "/combustibles/src/:splat"
+        },
+        {
           "source": "/combustibles/**",
           "function": "ssrCombustibles"
         }
