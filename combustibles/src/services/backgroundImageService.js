@@ -20,20 +20,39 @@ const BACKGROUND_CONFIG = {
 
   // URLs de imágenes predeterminadas que se pueden usar (CORS compatible)
   defaultImages: [
-    '/assets/background-forest.svg', // Imagen SVG local de bosque
+    '/combustibles/assets/background-forest.svg', // Imagen SVG local de bosque
     'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTkyMCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZm9yZXN0LWJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGI3OTg4IiAvPjxzdG9wIG9mZnNldD0iMzAlIiBzdG9wLWNvbG9yPSIjMzM2MzU5IiAvPjxzdG9wIG9mZnNldD0iNzAlIiBzdG9wLWNvbG9yPSIjMjE1NDMyIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFmMzIyZiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2ZvcmVzdC1iZykiLz48L3N2Zz4=',
   ],
 };
 
 /**
- * Operación segura de Storage con manejo de errores
+ * Operación segura de Storage con manejo de errores mejorado
  */
-const safeStorageOperation = async (operation, fallback = null) => {
+const safeStorageOperation = async (operation, context = {}) => {
   try {
-    return await operation();
+    const result = await operation();
+    console.log(`✅ Storage operation successful:`, context);
+    return { success: true, data: result };
   } catch (error) {
-    console.error('Storage operation failed:', error);
-    return fallback;
+    const errorDetails = {
+      ...context,
+      error: error.message,
+      code: error.code,
+      timestamp: new Date().toISOString(),
+    };
+
+    console.warn('⚠️ Storage operation failed:', errorDetails);
+
+    // Categorizar el error para mejor troubleshooting
+    if (error.message.includes('timeout')) {
+      console.log('🔄 Timeout detected - will use fallback image');
+    } else if (error.code === 'storage/object-not-found') {
+      console.log('📁 Image not found in Storage - will use fallback');
+    } else if (error.code === 'storage/unauthorized') {
+      console.log('🔒 Storage access denied - check Firebase rules');
+    }
+
+    return { success: false, error: error.message, context: errorDetails };
   }
 };
 
@@ -45,11 +64,14 @@ export const getBackgroundImageUrl = async () => {
   const result = await safeStorageOperation(
     async () => {
       const imageRef = ref(storage, BACKGROUND_CONFIG.storagePath);
-      const TIMEOUT_MS = Number(import.meta.env.VITE_BG_DOWNLOAD_TIMEOUT_MS) || 2000;
+      const TIMEOUT_MS = Number(import.meta.env.VITE_BG_DOWNLOAD_TIMEOUT_MS) || 10000;
 
       const withTimeout = (promise, ms) => {
         return new Promise((resolve, reject) => {
-          const id = setTimeout(() => reject(new Error('timeout')), ms);
+          const id = setTimeout(
+            () => reject(new Error(`Firebase Storage timeout after ${ms}ms`)),
+            ms
+          );
           promise
             .then((value) => {
               clearTimeout(id);
@@ -62,6 +84,7 @@ export const getBackgroundImageUrl = async () => {
         });
       };
 
+      console.log(`🔍 Obteniendo imagen de fondo desde Storage (timeout: ${TIMEOUT_MS}ms)...`);
       return await withTimeout(getDownloadURL(imageRef), TIMEOUT_MS);
     },
     {

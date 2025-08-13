@@ -11,7 +11,7 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-comp
 // Configuración de Firebase (sincronizada con config.js y .env.local)
 const firebaseConfig = {
   apiKey: "AIzaSyCbU834quCY8hjSffRwljJLgZrcxK8i2F4",
-  authDomain: "liquidacionapp-62962.firebaseapp.com", 
+  authDomain: "liquidacionapp-62962.firebaseapp.com",
   projectId: "liquidacionapp-62962",
   storageBucket: "liquidacionapp-62962.firebasestorage.app",
   messagingSenderId: "851382130132",

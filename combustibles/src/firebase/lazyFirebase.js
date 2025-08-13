@@ -22,7 +22,7 @@ export const loadFirebase = async () => {
     appId: env.VITE_FIREBASE_APP_ID,
     authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || 'liquidacionapp-62962.firebaseapp.com',
     projectId: env.VITE_FIREBASE_PROJECT_ID || 'liquidacionapp-62962',
-    storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || 'liquidacionapp-62962.appspot.com',
+    storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || 'liquidacionapp-62962.firebasestorage.app',
     messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '851382130132',
     measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || undefined,
   };

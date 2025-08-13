@@ -8,7 +8,7 @@ echo "=========================================="
 echo ""
 
 PROJECT_ID="liquidacionapp-62962"
-BUCKET_NAME="${PROJECT_ID}.appspot.com"
+BUCKET_NAME="${PROJECT_ID}.firebasestorage.app"
 CORS_FILE="cors.json"
 
 echo "📋 Información del proyecto:"
