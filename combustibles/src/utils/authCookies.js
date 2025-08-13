@@ -56,19 +56,28 @@ export const refreshAuthCookie = async (user) => {
 };
 
 /**
- * Configurar listener para refresh automático de cookies
+ * Configurar refresh automático de cookies (cada 50 minutos)
  * @param {Object} user - Usuario autenticado de Firebase
+ * @returns {Function} Función de cleanup
  */
 export const setupCookieRefresh = (user) => {
-  if (!user) return null;
+  if (!user) return () => {};
 
-  // Refresh cada 50 minutos (tokens duran 1 hora)
-  const interval = setInterval(
+  // Refresh cada 50 minutos (antes de que expire el token de 1 hora)
+  const refreshInterval = setInterval(
     async () => {
-      await refreshAuthCookie(user);
+      try {
+        await refreshAuthCookie(user);
+      } catch (error) {
+        console.error('Error en refresh automático de cookie:', error);
+      }
     },
     50 * 60 * 1000
-  );
+  ); // 50 minutos
 
-  return () => clearInterval(interval);
+  // Función de cleanup
+  return () => {
+    clearInterval(refreshInterval);
+    console.log('🧹 Cookie refresh automático desactivado');
+  };
 };
