@@ -17,7 +17,7 @@ import VehiclesStats from './VehiclesStats';
 import VehiclesFilters from './VehiclesFilters';
 import VehiclesList from './VehiclesList';
 // Lazy load de modales pesados para dividir bundle
-const VehicleFormSmart = lazy(() => import('./VehicleFormSmart')); // ✅ VERSIÓN MÁS RECIENTE (6 Aug)
+const VehicleFormCorporate = lazy(() => import('./VehicleFormCorporate')); // ✅ CORPORATE MODERN FORM
 const MaintenanceModal = lazy(() => import('./MaintenanceModal'));
 
 // Componentes de la pestaña Categorías
@@ -402,7 +402,7 @@ const VehiclesMain = () => {
             </div>
           }
         >
-          <VehicleFormSmart
+          <VehicleFormCorporate
             isOpen={showModal}
             onClose={handleModalClose}
             vehicle={modalMode === 'edit' ? selectedVehicle : null}

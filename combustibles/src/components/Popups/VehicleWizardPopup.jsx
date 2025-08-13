@@ -12,7 +12,7 @@ import {
 import '../../styles/sap-vehicles.css';
 import '../Vehicles/WizardSteps-SAP.css';
 
-const VehicleWizard = lazy(() => import('../Vehicles/VehicleWizard'));
+const VehicleFormCorporate = lazy(() => import('../Vehicles/VehicleFormCorporate'));
 
 const PopupInner = () => {
   const { subscribeToVehicleCategories } = useCombustibles();
@@ -77,7 +77,7 @@ const PopupInner = () => {
         </div>
       }
     >
-      <VehicleWizard
+      <VehicleFormCorporate
         isOpen={true}
         onClose={() => {
           if (window.opener) {
@@ -91,7 +91,7 @@ const PopupInner = () => {
           }
           window.close();
         }}
-        // VehicleWizard usa contexto para data; initData conserva theme/config si se requiere.
+        // VehicleFormCorporate usa contexto para data; initData conserva theme/config si se requiere.
       />
     </Suspense>
   );
