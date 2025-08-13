@@ -53,53 +53,47 @@ function App() {
 function AppContent() {
   const { user, loading } = useCombustibles();
 
-  // En SSR, mostrar login por defecto (no autenticado)
-  if (isServer) {
-    return (
-      <div className="App">
-        <Suspense fallback={<LoadingFallback />}>
-          <AuthVisualEnhanced />
-        </Suspense>
-      </div>
-    );
-  }
-
-  // Cliente: lógica normal
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loader">
-          <div className="spinner"></div>
-          <p>Cargando...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="App">
       <Suspense fallback={<LoadingFallback />}>
-        {/* Rutas según autenticación */}
-        {!user ? (
-          <AuthVisualEnhanced />
-        ) : (
-          <Routes>
-            {/* Rutas dedicadas para los popups de wizards */}
-            <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
-            <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
-            <Route path="/" element={<Dashboard />}>
-              <Route index element={<DashboardMain />} />
-              <Route path="inventario" element={<InventoryMain />} />
-              <Route path="movimientos" element={<MovementsMain />} />
-              <Route path="vehiculos" element={<VehiclesMain />} />
-              <Route path="mantenimiento" element={<MaintenanceMain />} />
-              <Route path="productos" element={<ProductsMain />} />
-              <Route path="proveedores" element={<SuppliersMain />} />
-              <Route path="reportes" element={<ReportsMain />} />
-              <Route path="admin" element={<AdminMain />} />
-            </Route>
-          </Routes>
-        )}
+        <Routes>
+          {/* Rutas de popup SIEMPRE disponibles - tanto en SSR como CSR */}
+          <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
+          <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+
+          {/* Resto de rutas según contexto SSR/CSR */}
+          <Route
+            path="*"
+            element={
+              isServer ? (
+                <AuthVisualEnhanced />
+              ) : loading ? (
+                <div className="loading-container">
+                  <div className="loader">
+                    <div className="spinner"></div>
+                    <p>Cargando...</p>
+                  </div>
+                </div>
+              ) : !user ? (
+                <AuthVisualEnhanced />
+              ) : (
+                <Routes>
+                  <Route path="/" element={<Dashboard />}>
+                    <Route index element={<DashboardMain />} />
+                    <Route path="inventario" element={<InventoryMain />} />
+                    <Route path="movimientos" element={<MovementsMain />} />
+                    <Route path="vehiculos" element={<VehiclesMain />} />
+                    <Route path="mantenimiento" element={<MaintenanceMain />} />
+                    <Route path="productos" element={<ProductsMain />} />
+                    <Route path="proveedores" element={<SuppliersMain />} />
+                    <Route path="reportes" element={<ReportsMain />} />
+                    <Route path="admin" element={<AdminMain />} />
+                  </Route>
+                </Routes>
+              )
+            }
+          />
+        </Routes>
       </Suspense>
     </div>
   );
