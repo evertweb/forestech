@@ -75,11 +75,19 @@
         },
         {
           "source": "/movement-wizard-popup",
-          "function": "ssrCombustibles"
+          "destination": "/combustibles/index.html"
         },
         {
           "source": "/vehicle-wizard-popup",
-          "function": "ssrCombustibles"
+          "destination": "/combustibles/index.html"
+        },
+        {
+          "source": "/combustibles/movement-wizard-popup",
+          "destination": "/combustibles/index.html"
+        },
+        {
+          "source": "/combustibles/vehicle-wizard-popup",
+          "destination": "/combustibles/index.html"
         },
         {
           "source": "/combustibles/assets/**",
