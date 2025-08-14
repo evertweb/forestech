@@ -28,17 +28,60 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   // Función para obtener vehículos compatibles
   const getCompatibleVehicles = useCallback(() => {
-    if (!formData.fuelType || vehicles.length === 0) return [];
+    if (!formData.fuelType || vehicles.length === 0) {
+      console.log('🔍 [Step5] No fuelType o no vehicles:', {
+        fuelType: formData.fuelType,
+        vehiclesCount: vehicles.length,
+      });
+      return [];
+    }
 
-    const requiredFuelType = formData.fuelType.toLowerCase();
-    return vehicles.filter((vehicle) => {
-      const vehicleFuelType = vehicle.fuelType?.toLowerCase() || '';
-      return (
-        vehicle.status === 'activo' &&
-        ((requiredFuelType === 'diesel' && vehicleFuelType === 'diesel') ||
-          (requiredFuelType === 'gasolina' && vehicleFuelType === 'gasolina'))
+    const requiredFuelType = formData.fuelType.toUpperCase();
+    console.log('🔍 [Step5] Buscando vehículos para:', requiredFuelType);
+    console.log('🔍 [Step5] Total vehículos disponibles:', vehicles.length);
+
+    // Debug: mostrar tipos de combustible de todos los vehículos
+    const fuelTypes = vehicles.map((v) => ({
+      name: v.name || v.plateNumber,
+      fuelType: v.fuelType,
+      status: v.status,
+    }));
+    console.log('🔍 [Step5] Tipos de combustible en vehículos:', fuelTypes);
+
+    const filtered = vehicles.filter((vehicle) => {
+      const vehicleFuelType = vehicle.fuelType?.toUpperCase() || '';
+      const isActive = vehicle.status === 'activo';
+
+      // Lógica robusta de compatibilidad de combustibles
+      const isFuelCompatible =
+        // DIESEL es compatible con DIESEL, ACPM
+        (requiredFuelType === 'DIESEL' &&
+          (vehicleFuelType === 'DIESEL' || vehicleFuelType === 'ACPM')) ||
+        // ACPM es compatible con DIESEL y ACPM
+        (requiredFuelType === 'ACPM' &&
+          (vehicleFuelType === 'DIESEL' || vehicleFuelType === 'ACPM')) ||
+        // GASOLINE es compatible con GASOLINE, GASOLINA (variantes legacy)
+        (requiredFuelType === 'GASOLINE' &&
+          (vehicleFuelType === 'GASOLINE' || vehicleFuelType === 'GASOLINA')) ||
+        // GASOLINA (legacy) es compatible con GASOLINE
+        (requiredFuelType === 'GASOLINA' &&
+          (vehicleFuelType === 'GASOLINE' || vehicleFuelType === 'GASOLINA')) ||
+        // MIXTO es compatible con cualquier combustible
+        (requiredFuelType === 'MIXTO' &&
+          (vehicleFuelType === 'DIESEL' ||
+            vehicleFuelType === 'GASOLINE' ||
+            vehicleFuelType === 'GASOLINA' ||
+            vehicleFuelType === 'ACPM'));
+
+      console.log(
+        `🔍 [Step5] Vehículo ${vehicle.name || vehicle.plateNumber}: fuelType=${vehicleFuelType}, status=${vehicle.status}, compatible=${isFuelCompatible}`
       );
+
+      return isActive && isFuelCompatible;
     });
+
+    console.log('🔍 [Step5] Vehículos compatibles encontrados:', filtered.length);
+    return filtered;
   }, [formData.fuelType, vehicles]);
 
   const handleVehicleSelection = useCallback(

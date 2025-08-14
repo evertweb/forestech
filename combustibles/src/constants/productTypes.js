@@ -5,7 +5,7 @@
 
 export const PRODUCT_TYPES = {
   DIESEL: 'DIESEL',
-  GASOLINA: 'GASOLINA',
+  GASOLINE: 'GASOLINE',
   /**
    * Constantes para tipos de productos/combustibles
    * Sistema dinámico expandido con 9 productos predefinidos.
@@ -23,16 +23,16 @@ export const PRODUCT_TYPES = {
 export const PRODUCT_INFO = {
   [PRODUCT_TYPES.DIESEL]: {
     name: 'DIESEL',
-    displayName: 'Diesel 🚛',
+    displayName: 'DIESEL 🚛',
     category: 'Combustible',
     unit: 'gal',
     defaultPrice: 12500,
     color: '#FF6B35',
     icon: '🚛',
-    description: 'Combustible diesel para vehículos pesados',
+    description: 'Combustible DIESEL para vehículos pesados',
   },
-  [PRODUCT_TYPES.GASOLINA]: {
-    name: 'GASOLINA',
+  [PRODUCT_TYPES.GASOLINE]: {
+    name: 'GASOLINE',
     displayName: 'Gasolina 🚗',
     category: 'Combustible',
     unit: 'gal',

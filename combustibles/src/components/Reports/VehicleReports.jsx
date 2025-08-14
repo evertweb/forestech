@@ -71,7 +71,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       const vehicleInfo = VEHICLE_INFO[vehicle.type] || {};
 
       // Análisis de horómetro para vehículos diesel
-      const hasHourMeter = vehicle.fuelType === 'diesel' || vehicle.fuelType === 'Diesel';
+      const hasHourMeter = vehicle.fuelType === 'DIESEL';
       const currentHours = parseFloat(vehicle.currentHours) || 0;
       const totalHoursWorked = parseFloat(vehicle.totalHoursWorked) || 0;
 
@@ -449,7 +449,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                   <td>{vehicle.type}</td>
                   <td>
                     <span
-                      className={`badge ${vehicle.fuelType === 'diesel' ? 'info' : 'secondary'}`}
+                      className={`badge ${vehicle.fuelType === 'DIESEL' ? 'info' : 'secondary'}`}
                     >
                       {vehicle.fuelType}
                     </span>

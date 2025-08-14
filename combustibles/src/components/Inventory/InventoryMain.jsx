@@ -283,7 +283,7 @@ const InventoryMain = () => {
           className="filter-select sap-theme"
         >
           <option value="all">Todas</option>
-          <option value="diesel">Diesel</option>
+          <option value="DIESEL">DIESEL</option>
           <option value="gasolina">Gasolina</option>
           <option value="lubricantes">Lubricantes</option>
           <option value="aditivos">Aditivos</option>

@@ -286,8 +286,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           if (formData.vehicleId && Array.isArray(vehicles)) {
             const selectedVehicle = vehicles.find((v) => v.vehicleId === formData.vehicleId);
             if (selectedVehicle) {
-              const fuel = (selectedVehicle.fuelType || '').toLowerCase();
-              requiresHourMeter = fuel === 'diesel';
+              const fuel = (selectedVehicle.fuelType || '').toUpperCase();
+              requiresHourMeter = fuel === 'DIESEL';
             }
           }
 
@@ -491,8 +491,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         if (formData.vehicleId && Array.isArray(vehicles)) {
           const selectedVehicle = vehicles.find((v) => v.vehicleId === formData.vehicleId);
           if (selectedVehicle) {
-            const fuel = (selectedVehicle.fuelType || '').toLowerCase();
-            requiresHourMeter = fuel === 'diesel';
+            const fuel = (selectedVehicle.fuelType || '').toUpperCase();
+            requiresHourMeter = fuel === 'DIESEL';
           }
         }
         if (requiresHourMeter) {

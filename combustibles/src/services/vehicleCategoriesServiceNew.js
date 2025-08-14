@@ -70,7 +70,7 @@ class VehicleCategoriesService extends CRUDService {
       color: data.color || '#666666',
       fuelType: data.fuelType || 'ACPM',
       baseConsumption: Number(data.baseConsumption) || 0,
-      engineType: data.engineType || 'diesel',
+      engineType: data.engineType || 'DIESEL',
       isCustom: true, // Las categorías personalizadas siempre son custom
       isActive: data.isActive !== false,
     };

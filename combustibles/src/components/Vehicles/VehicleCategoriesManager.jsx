@@ -30,6 +30,7 @@ import {
   FUEL_TYPES,
   generateCategoryId,
 } from '../../data/vehicleCategories';
+import VehicleCategoryModal from './VehicleCategoryModal';
 import './VehicleCategoriesManager.css';
 
 const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false }) => {
@@ -39,6 +40,8 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   const [saving, setSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
   const [error, setError] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [hasCustom, setHasCustom] = useState(false);
@@ -139,25 +142,32 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   };
 
   const handleCreateCategory = () => {
-    setSelectedCategory(null);
-    setFormData({
-      name: '',
-      description: '',
-      icon: '🚗',
-      color: '#2E86AB',
-      fuelTypes: [],
-      fields: [],
-      uniqueCode: '',
-    });
-    // Limpiar estado de iconos
-    setIconFile(null);
-    setIconPreview('');
-    setIconError('');
-    setCurrentStep(1);
-    setShowModal(true);
+    setEditingCategory(null);
+    setShowCategoryModal(true);
   };
 
   const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setShowCategoryModal(true);
+  };
+
+  // Manejar éxito del modal
+  const handleCategoryModalSuccess = () => {
+    loadCategoriesAndStats(); // Recargar categorías
+    setShowCategoryModal(false);
+    setEditingCategory(null);
+    if (onCategoryCreated) {
+      onCategoryCreated();
+    }
+  };
+
+  // Cerrar modal
+  const handleCategoryModalClose = () => {
+    setShowCategoryModal(false);
+    setEditingCategory(null);
+  };
+
+  const _UNUSED_handleEditCategoryOld = (category) => {
     setSelectedCategory(category);
     setFormData({
       name: category.name || '',
@@ -473,9 +483,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                     />
                     <span className="fuel-card">
                       <span className="fuel-icon">
-                        {fuelType === 'Diesel' && '🛢️'}
-                        {fuelType === 'Gasolina' && '⛽'}
-                        {fuelType === 'Mixto' && '🔄'}
+                        {fuelType === 'DIESEL' && '🛢️'}
+                        {fuelType === 'GASOLINE' && '⛽'}
+                        {fuelType === 'MIXTO' && '🔄'}
                       </span>
                       <span className="fuel-name">{fuelType}</span>
                     </span>
@@ -1021,6 +1031,14 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
           </div>
         </div>
       )}
+
+      {/* Nuevo Modal de Categorías */}
+      <VehicleCategoryModal
+        isOpen={showCategoryModal}
+        onClose={handleCategoryModalClose}
+        category={editingCategory}
+        onSuccess={handleCategoryModalSuccess}
+      />
     </div>
   );
 };

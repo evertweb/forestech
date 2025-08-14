@@ -21,6 +21,7 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
         // Simular carga de precios actualizados
         await new Promise((resolve) => setTimeout(resolve, 800));
 
+        console.log('🔄 [Step2] Seleccionando combustible:', fuelType, product);
         updateFormData('fuelType', fuelType);
         setSelectedProduct(product);
 
@@ -81,7 +82,7 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
     return (
       <div className={`wizard-step step-fuel-type sap-theme ${isActive ? 'active' : ''}`}>
         <div className="step-question sap-theme sap-theme">
-          <h3>⛽ Crear producto diesel manualmente</h3>
+          <h3>⛽ Crear producto DIESEL manualmente</h3>
           <p>No hay productos disponibles. Creemos uno temporalmente.</p>
         </div>
 
@@ -91,18 +92,18 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
             onClick={() =>
               handleFuelSelection('DIESEL', {
                 name: 'DIESEL',
-                displayName: 'Diesel 🚛',
+                displayName: 'DIESEL 🚛',
                 icon: '🚛',
-                description: 'Combustible diesel para vehículos pesados',
+                description: 'Combustible DIESEL para vehículos pesados',
                 defaultPrice: 12500,
               })
             }
           >
             <div className="option-icon sap-theme sap-theme">🚛</div>
             <div className="option-content sap-theme sap-theme">
-              <h4 className="option-title sap-theme sap-theme">Diesel 🚛</h4>
+              <h4 className="option-title sap-theme sap-theme">DIESEL 🚛</h4>
               <p className="option-description sap-theme sap-theme">
-                Combustible diesel para vehículos pesados
+                Combustible DIESEL para vehículos pesados
               </p>
               <div className="fuel-price sap-theme sap-theme">
                 <span className="price-value sap-theme sap-theme">$12,500 COP/galón</span>

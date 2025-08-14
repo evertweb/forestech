@@ -145,7 +145,7 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive }) => {
       color: 'fuel-diesel',
     },
     {
-      type: FUEL_TYPES.GASOLINA,
+      type: FUEL_TYPES.GASOLINE,
       icon: '⛽',
       title: 'Gasolina',
       description: 'Para vehículos ligeros y herramientas menores',
@@ -155,7 +155,7 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive }) => {
       type: FUEL_TYPES.MIXTO,
       icon: '🔄',
       title: 'Mixto',
-      description: 'Puede usar tanto diésel como gasolina',
+      description: 'Puede usar tanto DIESEL como gasolina',
       color: 'fuel-mixed',
     },
   ];

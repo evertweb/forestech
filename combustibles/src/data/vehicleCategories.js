@@ -12,14 +12,16 @@ export const VEHICLE_STATUS = {
   MANTENIMIENTO: 'mantenimiento',
   INACTIVO: 'inactivo',
   REPARACION: 'reparacion',
-  FUERA_DE_SERVICIO: 'fuera_de_servicio'
+  FUERA_DE_SERVICIO: 'fuera_de_servicio',
 };
 
-// Tipos de combustible disponibles
+// Tipos de combustible disponibles - Importados de la fuente única de verdad
+import { FUEL_TYPES as COMBUSTIBLE_FUEL_TYPES } from '../constants/combustibleTypes';
+
 export const FUEL_TYPES = {
-  DIESEL: 'Diesel',
-  GASOLINA: 'Gasolina',
-  MIXTO: 'Mixto'
+  DIESEL: COMBUSTIBLE_FUEL_TYPES.DIESEL,
+  GASOLINE: COMBUSTIBLE_FUEL_TYPES.GASOLINE, // Antes era GASOLINA
+  MIXTO: COMBUSTIBLE_FUEL_TYPES.MIXED,
 };
 
 // Campos esenciales disponibles para categorías (simplificados)
@@ -30,7 +32,7 @@ export const AVAILABLE_FIELDS = [
     type: 'text',
     icon: '🏷️',
     required: true,
-    description: 'Identificación única del vehículo'
+    description: 'Identificación única del vehículo',
   },
   {
     key: 'hasHourMeter',
@@ -38,7 +40,7 @@ export const AVAILABLE_FIELDS = [
     type: 'boolean',
     icon: '⏰',
     required: false,
-    description: 'Registro de horas de funcionamiento'
+    description: 'Registro de horas de funcionamiento',
   },
   {
     key: 'uniqueCode',
@@ -46,8 +48,8 @@ export const AVAILABLE_FIELDS = [
     type: 'text',
     icon: '🔢',
     required: true,
-    description: 'Código interno de identificación'
-  }
+    description: 'Código interno de identificación',
+  },
 ];
 
 /**
@@ -58,11 +60,11 @@ export const AVAILABLE_FIELDS = [
  */
 export const getCategoryById = (categoryId, customCategories = []) => {
   // Buscar primero en categorías personalizadas
-  const customCategory = customCategories.find(cat => cat.id === categoryId);
+  const customCategory = customCategories.find((cat) => cat.id === categoryId);
   if (customCategory) return customCategory;
-  
+
   // Buscar en categorías predeterminadas
-  return DEFAULT_VEHICLE_CATEGORIES.find(cat => cat.id === categoryId) || null;
+  return DEFAULT_VEHICLE_CATEGORIES.find((cat) => cat.id === categoryId) || null;
 };
 
 /**
@@ -71,9 +73,9 @@ export const getCategoryById = (categoryId, customCategories = []) => {
  * @returns {Array} - Lista combinada de categorías
  */
 export const getAllCategories = (customCategories = []) => {
-  const defaultIds = DEFAULT_VEHICLE_CATEGORIES.map(cat => cat.id);
-  const uniqueCustom = customCategories.filter(cat => !defaultIds.includes(cat.id));
-  
+  const defaultIds = DEFAULT_VEHICLE_CATEGORIES.map((cat) => cat.id);
+  const uniqueCustom = customCategories.filter((cat) => !defaultIds.includes(cat.id));
+
   return [...DEFAULT_VEHICLE_CATEGORIES, ...uniqueCustom];
 };
 
@@ -84,15 +86,15 @@ export const getAllCategories = (customCategories = []) => {
  */
 export const validateCategory = (category) => {
   const errors = [];
-  
+
   if (!category.id || typeof category.id !== 'string') {
     errors.push('ID de categoría requerido y debe ser texto');
   }
-  
+
   if (!category.name || typeof category.name !== 'string') {
     errors.push('Nombre de categoría requerido y debe ser texto');
   }
-  
+
   if (category.name && category.name.length < 2) {
     errors.push('Nombre debe tener al menos 2 caracteres');
   }
@@ -104,7 +106,7 @@ export const validateCategory = (category) => {
   if (category.uniqueCode && category.uniqueCode.length < 3) {
     errors.push('Código único debe tener al menos 3 caracteres');
   }
-  
+
   if (category.fuelTypes && !Array.isArray(category.fuelTypes)) {
     errors.push('Tipos de combustible debe ser un array');
   }
@@ -112,14 +114,14 @@ export const validateCategory = (category) => {
   if (category.fuelTypes && category.fuelTypes.length === 0) {
     errors.push('Debe seleccionar al menos un tipo de combustible');
   }
-  
+
   if (category.fields && !Array.isArray(category.fields)) {
     errors.push('Campos debe ser un array');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -135,15 +137,15 @@ export const generateCategoryId = (name, existingCategories = []) => {
     .replace(/[^a-z0-9]/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '');
-  
+
   let id = baseId;
   let counter = 1;
-  
-  while (existingCategories.some(cat => cat.id === id)) {
+
+  while (existingCategories.some((cat) => cat.id === id)) {
     id = `${baseId}_${counter}`;
     counter++;
   }
-  
+
   return id;
 };
 
@@ -155,5 +157,5 @@ export default {
   getCategoryById,
   getAllCategories,
   validateCategory,
-  generateCategoryId
+  generateCategoryId,
 };

@@ -54,7 +54,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.HARVESTER]: {
     name: 'Cosechadora Forestal',
     category: VEHICLE_CATEGORIES.HARVESTING,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 25, // galones/hora
     icon: '🚜',
     color: '#059669',
@@ -63,7 +63,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.FORWARDER]: {
     name: 'Forwarder',
     category: VEHICLE_CATEGORIES.HARVESTING,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 20, // galones/hora
     icon: '🚚',
     color: '#0891b2',
@@ -72,7 +72,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.LOG_TRUCK]: {
     name: 'Camión Maderero',
     category: VEHICLE_CATEGORIES.TRANSPORT,
-    fuelType: 'acpm',
+    fuelType: 'DIESEL',
     avgConsumption: 3.5, // galones/100km
     icon: '🚚',
     color: '#ea580c',
@@ -81,7 +81,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.PICKUP_TRUCK]: {
     name: 'Camioneta',
     category: VEHICLE_CATEGORIES.TRANSPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 8, // galones/100km
     icon: '🚐',
     color: '#2563eb',
@@ -90,7 +90,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.CAR]: {
     name: 'Automóvil',
     category: VEHICLE_CATEGORIES.TRANSPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 12, // galones/100km
     icon: '🚗',
     color: '#3b82f6',
@@ -99,7 +99,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.MOTORCYCLE]: {
     name: 'Motocicleta',
     category: VEHICLE_CATEGORIES.TRANSPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 25, // galones/100km
     icon: '🏍️',
     color: '#6366f1',
@@ -108,7 +108,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.ATV]: {
     name: 'Cuatrimoto',
     category: VEHICLE_CATEGORIES.TRANSPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 15, // galones/100km
     icon: '🏍️',
     color: '#84cc16',
@@ -117,7 +117,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.SKIDDER]: {
     name: 'Skidder',
     category: VEHICLE_CATEGORIES.HARVESTING,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 22, // galones/hora
     icon: '🚜',
     color: '#f59e0b',
@@ -126,7 +126,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.BULLDOZER]: {
     name: 'Bulldozer',
     category: VEHICLE_CATEGORIES.MAINTENANCE,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 30, // galones/hora
     icon: '🚜',
     color: '#f97316',
@@ -135,7 +135,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.EXCAVATOR]: {
     name: 'Excavadora',
     category: VEHICLE_CATEGORIES.MAINTENANCE,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 28, // galones/hora
     icon: '🏗️',
     color: '#eab308',
@@ -144,7 +144,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.GRADER]: {
     name: 'Motoniveladora',
     category: VEHICLE_CATEGORIES.MAINTENANCE,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 25, // galones/hora
     icon: '🚜',
     color: '#a3a3a3',
@@ -153,7 +153,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.LOADER]: {
     name: 'Cargador Frontal',
     category: VEHICLE_CATEGORIES.MAINTENANCE,
-    fuelType: 'diesel',
+    fuelType: 'DIESEL',
     avgConsumption: 24, // galones/hora
     icon: '🚜',
     color: '#71717a',
@@ -162,7 +162,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.WATER_PUMP]: {
     name: 'Motobomba de Agua',
     category: VEHICLE_CATEGORIES.SUPPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 3.5, // galones/hora
     icon: '💧',
     color: '#0891b2',
@@ -171,7 +171,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.FIRE_PUMP]: {
     name: 'Motobomba Contra Incendios',
     category: VEHICLE_CATEGORIES.SUPPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 4.2, // galones/hora
     icon: '🔥',
     color: '#dc2626',
@@ -180,7 +180,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.GENERATOR]: {
     name: 'Generador Eléctrico',
     category: VEHICLE_CATEGORIES.SUPPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 2.8, // galones/hora
     icon: '⚡',
     color: '#7c3aed',
@@ -189,7 +189,7 @@ export const VEHICLE_INFO = {
   [VEHICLE_TYPES.COMPRESSOR]: {
     name: 'Compresor de Aire',
     category: VEHICLE_CATEGORIES.SUPPORT,
-    fuelType: 'gasoline',
+    fuelType: 'GASOLINE',
     avgConsumption: 2.5, // galones/hora
     icon: '💨',
     color: '#64748b',

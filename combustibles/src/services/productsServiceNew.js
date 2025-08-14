@@ -430,8 +430,8 @@ class ProductsService extends CRUDService {
   async initializeDefaultProducts() {
     const defaultProducts = [
       {
-        name: 'Diesel Común',
-        type: 'Diesel',
+        name: 'DIESEL Común',
+        type: 'DIESEL',
         category: 'combustible',
         description: 'Combustible diesel estándar para maquinaria pesada',
         unit: 'litros',

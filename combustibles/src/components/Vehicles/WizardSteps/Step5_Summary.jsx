@@ -36,7 +36,7 @@ const Step5_Summary = ({ formData, isActive, extraData }) => {
     switch (fuelType) {
       case FUEL_TYPES.DIESEL:
         return '🛢️';
-      case FUEL_TYPES.GASOLINA:
+      case FUEL_TYPES.GASOLINE:
         return '⛽';
       case FUEL_TYPES.MIXTO:
         return '🔄';

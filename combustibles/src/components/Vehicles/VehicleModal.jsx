@@ -168,7 +168,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
     switch (fuelType) {
       case FUEL_COMPATIBILITY.DIESEL:
         return '🚛';
-      case FUEL_COMPATIBILITY.GASOLINA:
+      case FUEL_COMPATIBILITY.GASOLINE:
         return '🚗';
       case FUEL_COMPATIBILITY.MIXTO:
         return '⛽';

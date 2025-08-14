@@ -6,13 +6,7 @@
 import React, { useEffect, useCallback } from 'react';
 import '../WizardSteps/VehicleWizardSteps.css';
 
-const Step1_BasicInfo = ({ 
-  formData, 
-  updateFormData, 
-  errors, 
-  isActive
-}) => {
-
+const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
   // Navegación por teclado
   useEffect(() => {
     if (!isActive) return;
@@ -33,49 +27,57 @@ const Step1_BasicInfo = ({
     return () => window.removeEventListener('keypress', handleKeyPress);
   }, [isActive]);
 
-  const handleInputChange = useCallback((field) => (e) => {
-    updateFormData(field, e.target.value);
-  }, [updateFormData]);
+  const handleInputChange = useCallback(
+    (field) => (e) => {
+      updateFormData(field, e.target.value);
+    },
+    [updateFormData]
+  );
 
-  const handleFuelTypeToggle = useCallback((fuelType) => {
-    const currentFuelTypes = formData.fuelTypes || [];
-    if (currentFuelTypes.includes(fuelType)) {
-      // Remover si ya está seleccionado
-      updateFormData('fuelTypes', currentFuelTypes.filter(type => type !== fuelType));
-    } else {
-      // Agregar si no está seleccionado
-      updateFormData('fuelTypes', [...currentFuelTypes, fuelType]);
-    }
-  }, [formData.fuelTypes, updateFormData]);
+  const handleFuelTypeToggle = useCallback(
+    (fuelType) => {
+      const currentFuelTypes = formData.fuelTypes || [];
+      if (currentFuelTypes.includes(fuelType)) {
+        // Remover si ya está seleccionado
+        updateFormData(
+          'fuelTypes',
+          currentFuelTypes.filter((type) => type !== fuelType)
+        );
+      } else {
+        // Agregar si no está seleccionado
+        updateFormData('fuelTypes', [...currentFuelTypes, fuelType]);
+      }
+    },
+    [formData.fuelTypes, updateFormData]
+  );
 
   const fuelTypeOptions = [
     {
-      type: 'Diesel',
+      type: 'DIESEL',
       icon: '🛢️',
       title: 'Diésel',
       description: 'Para maquinaria pesada y tractores',
-      color: 'fuel-diesel'
+      color: 'fuel-diesel',
     },
     {
-      type: 'Gasolina',
+      type: 'GASOLINE',
       icon: '⛽',
       title: 'Gasolina',
       description: 'Para vehículos ligeros y herramientas',
-      color: 'fuel-gasoline'
+      color: 'fuel-gasoline',
     },
     {
-      type: 'Mixto',
+      type: 'MIXTO',
       icon: '🔄',
       title: 'Mixto',
       description: 'Compatible con múltiples combustibles',
-      color: 'fuel-mixed'
-    }
+      color: 'fuel-mixed',
+    },
   ];
 
   return (
     <div className={`wizard-step step-category-basic ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout">
-        
         {/* Pregunta principal */}
         <div className="typeform-question">
           <h2>🏷️ ¡Excelente! Vamos a crear una nueva categoría de vehículo</h2>
@@ -108,9 +110,7 @@ const Step1_BasicInfo = ({
 
         {/* Campo descripción */}
         <div className="typeform-input-group">
-          <label className="typeform-label">
-            Ahora describe brevemente esta categoría
-          </label>
+          <label className="typeform-label">Ahora describe brevemente esta categoría</label>
           <div className="input-with-icon">
             <span className="input-icon">📋</span>
             <textarea
@@ -192,10 +192,12 @@ const Step1_BasicInfo = ({
                 <div className="preview-item">
                   <span className="preview-label">Combustibles:</span>
                   <span className="preview-value">
-                    {formData.fuelTypes.map(type => {
-                      const option = fuelTypeOptions.find(opt => opt.type === type);
-                      return option ? `${option.icon} ${type}` : type;
-                    }).join(', ')}
+                    {formData.fuelTypes
+                      .map((type) => {
+                        const option = fuelTypeOptions.find((opt) => opt.type === type);
+                        return option ? `${option.icon} ${type}` : type;
+                      })
+                      .join(', ')}
                   </span>
                 </div>
               )}
@@ -210,15 +212,22 @@ const Step1_BasicInfo = ({
             <div className="info-content">
               <h4>¿Para qué sirve crear categorías?</h4>
               <ul>
-                <li><strong>Organización:</strong> Agrupa vehículos similares</li>
-                <li><strong>Campos personalizados:</strong> Define información específica</li>
-                <li><strong>Gestión eficiente:</strong> Facilita búsquedas y filtros</li>
-                <li><strong>Reportes:</strong> Genera estadísticas por tipo de vehículo</li>
+                <li>
+                  <strong>Organización:</strong> Agrupa vehículos similares
+                </li>
+                <li>
+                  <strong>Campos personalizados:</strong> Define información específica
+                </li>
+                <li>
+                  <strong>Gestión eficiente:</strong> Facilita búsquedas y filtros
+                </li>
+                <li>
+                  <strong>Reportes:</strong> Genera estadísticas por tipo de vehículo
+                </li>
               </ul>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export class MigrationValidator {
       totalRows: 0,
       validRows: 0,
       invalidRows: 0,
-      duplicates: 0
+      duplicates: 0,
     };
   }
 
@@ -25,25 +25,25 @@ export class MigrationValidator {
    */
   validateFileData(fileData) {
     this.reset();
-    
+
     // Validar estructura básica
     this.validateBasicStructure(fileData);
-    
+
     // Validar contenido de movimientos
     if (fileData.movements && fileData.movements.length > 0) {
       this.validateMovements(fileData.movements);
     }
-    
+
     // Validar vehículos si existen
     if (fileData.vehicles && fileData.vehicles.length > 0) {
       this.validateVehicles(fileData.vehicles);
     }
-    
+
     return {
       isValid: this.errors.length === 0,
       errors: this.errors,
       warnings: this.warnings,
-      stats: this.stats
+      stats: this.stats,
     };
   }
 
@@ -57,7 +57,7 @@ export class MigrationValidator {
       totalRows: 0,
       validRows: 0,
       invalidRows: 0,
-      duplicates: 0
+      duplicates: 0,
     };
   }
 
@@ -80,17 +80,26 @@ export class MigrationValidator {
     const requiredColumns = ['fecha', 'codigo', 'articulo', 'usuario', 'cantidad'];
     const firstRow = fileData.movements[0];
     const availableColumns = Object.keys(firstRow);
-    
-    const missingColumns = requiredColumns.filter(col => !availableColumns.includes(col));
+
+    const missingColumns = requiredColumns.filter((col) => !availableColumns.includes(col));
     if (missingColumns.length > 0) {
       this.errors.push(`❌ Faltan columnas obligatorias: ${missingColumns.join(', ')}`);
     }
 
     // Verificar que no hay columnas con nombres extraños
-    const unexpectedColumns = availableColumns.filter(col => 
-      !['fecha', 'codigo', 'articulo', 'usuario', 'cantidad', 'horometro', 'descripcion'].includes(col)
+    const unexpectedColumns = availableColumns.filter(
+      (col) =>
+        ![
+          'fecha',
+          'codigo',
+          'articulo',
+          'usuario',
+          'cantidad',
+          'horometro',
+          'descripcion',
+        ].includes(col)
     );
-    
+
     if (unexpectedColumns.length > 0) {
       this.warnings.push(`⚠️ Columnas no reconocidas encontradas: ${unexpectedColumns.join(', ')}`);
     }
@@ -151,7 +160,9 @@ export class MigrationValidator {
       // Verificar duplicados
       const movementKey = `${movement.fecha}_${movement.usuario}_${movement.cantidad}`;
       if (seenMovements.has(movementKey)) {
-        this.warnings.push(`⚠️ Posible duplicado en fila ${rowNumber}: mismo vehículo, fecha y cantidad que fila ${seenMovements.get(movementKey)}`);
+        this.warnings.push(
+          `⚠️ Posible duplicado en fila ${rowNumber}: mismo vehículo, fecha y cantidad que fila ${seenMovements.get(movementKey)}`
+        );
         this.stats.duplicates++;
       } else {
         seenMovements.set(movementKey, rowNumber);
@@ -173,31 +184,31 @@ export class MigrationValidator {
     if (!dateValue || dateValue.toString().trim() === '') {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: La fecha es obligatoria`
+        error: `❌ Fila ${rowNumber}: La fecha es obligatoria`,
       };
     }
 
     const dateString = dateValue.toString().trim();
-    
+
     // Verificar formato DD/MM/YYYY
     const datePattern = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
     const match = dateString.match(datePattern);
-    
+
     if (!match) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: Fecha "${dateString}" debe estar en formato DD/MM/YYYY (ejemplo: 15/01/2024)`
+        error: `❌ Fila ${rowNumber}: Fecha "${dateString}" debe estar en formato DD/MM/YYYY (ejemplo: 15/01/2024)`,
       };
     }
 
     const [, day, month, year] = match;
     const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    
+
     // Verificar que la fecha es válida
     if (date.getDate() != day || date.getMonth() != month - 1 || date.getFullYear() != year) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: "${dateString}" no es una fecha válida`
+        error: `❌ Fila ${rowNumber}: "${dateString}" no es una fecha válida`,
       };
     }
 
@@ -206,7 +217,7 @@ export class MigrationValidator {
     if (parseInt(year) < 2020 || parseInt(year) > currentYear + 1) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: Año ${year} fuera del rango permitido (2020-${currentYear + 1})`
+        error: `❌ Fila ${rowNumber}: Año ${year} fuera del rango permitido (2020-${currentYear + 1})`,
       };
     }
 
@@ -220,17 +231,17 @@ export class MigrationValidator {
     if (!code || code.toString().trim() === '') {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: El código de producto es obligatorio`
+        error: `❌ Fila ${rowNumber}: El código de producto es obligatorio`,
       };
     }
 
     const validCodes = ['A', 'G', 'AO', 'AM4T', 'GA', 'VA', 'LO', 'MA', '15W40'];
     const codeStr = code.toString().trim().toUpperCase();
-    
+
     if (!validCodes.includes(codeStr)) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: Código "${code}" no válido. Códigos permitidos: ${validCodes.join(', ')}`
+        error: `❌ Fila ${rowNumber}: Código "${code}" no válido. Códigos permitidos: ${validCodes.join(', ')}`,
       };
     }
 
@@ -244,28 +255,30 @@ export class MigrationValidator {
     if (!quantity && quantity !== 0) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: La cantidad es obligatoria`
+        error: `❌ Fila ${rowNumber}: La cantidad es obligatoria`,
       };
     }
 
     const quantityNum = parseFloat(quantity);
-    
+
     if (isNaN(quantityNum)) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: "${quantity}" no es un número válido. Use punto (.) como separador decimal`
+        error: `❌ Fila ${rowNumber}: "${quantity}" no es un número válido. Use punto (.) como separador decimal`,
       };
     }
 
     if (quantityNum <= 0) {
       return {
         isValid: false,
-        error: `❌ Fila ${rowNumber}: La cantidad debe ser mayor a cero (valor: ${quantity})`
+        error: `❌ Fila ${rowNumber}: La cantidad debe ser mayor a cero (valor: ${quantity})`,
       };
     }
 
     if (quantityNum > 1000) {
-      this.warnings.push(`⚠️ Fila ${rowNumber}: Cantidad ${quantity} galones es muy alta. Verifique que sea correcta`);
+      this.warnings.push(
+        `⚠️ Fila ${rowNumber}: Cantidad ${quantity} galones es muy alta. Verifique que sea correcta`
+      );
     }
 
     return { isValid: true };
@@ -276,25 +289,25 @@ export class MigrationValidator {
    */
   validateHorometer(horometer, rowNumber) {
     const horometerNum = parseFloat(horometer);
-    
+
     if (isNaN(horometerNum)) {
       return {
         isValid: false,
-        error: `⚠️ Fila ${rowNumber}: Horómetro "${horometer}" no es un número válido`
+        error: `⚠️ Fila ${rowNumber}: Horómetro "${horometer}" no es un número válido`,
       };
     }
 
     if (horometerNum < 0) {
       return {
         isValid: false,
-        error: `⚠️ Fila ${rowNumber}: El horómetro no puede ser negativo (valor: ${horometer})`
+        error: `⚠️ Fila ${rowNumber}: El horómetro no puede ser negativo (valor: ${horometer})`,
       };
     }
 
     if (horometerNum > 50000) {
       return {
         isValid: false,
-        error: `⚠️ Fila ${rowNumber}: Horómetro ${horometer} horas parece demasiado alto`
+        error: `⚠️ Fila ${rowNumber}: Horómetro ${horometer} horas parece demasiado alto`,
       };
     }
 
@@ -306,10 +319,10 @@ export class MigrationValidator {
    */
   validateVehicles(vehicles) {
     const seenCodes = new Set();
-    
+
     vehicles.forEach((vehicle, index) => {
       const rowNumber = index + 2;
-      
+
       // Validar código único
       if (!vehicle.codigo || vehicle.codigo.toString().trim() === '') {
         this.errors.push(`❌ Vehículos fila ${rowNumber}: El código es obligatorio`);
@@ -333,9 +346,11 @@ export class MigrationValidator {
       }
 
       // Validar combustible
-      const validFuels = ['Diesel', 'Gasolina'];
+      const validFuels = ['DIESEL', 'GASOLINA'];
       if (vehicle.combustible && !validFuels.includes(vehicle.combustible)) {
-        this.warnings.push(`⚠️ Vehículos fila ${rowNumber}: Combustible "${vehicle.combustible}" no estándar. Recomendados: ${validFuels.join(', ')}`);
+        this.warnings.push(
+          `⚠️ Vehículos fila ${rowNumber}: Combustible "${vehicle.combustible}" no estándar. Recomendados: ${validFuels.join(', ')}`
+        );
       }
     });
   }

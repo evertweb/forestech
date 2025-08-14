@@ -186,12 +186,12 @@ const MovementsStats = ({ stats, filters }) => {
             {Object.entries(stats.byFuelType).map(([fuelType, count]) => {
               const percentage = ((count / stats.totalMovements) * 100).toFixed(1);
               const getFuelIcon = (fuel) => {
-                switch (fuel?.toLowerCase()) {
-                  case 'diesel':
+                switch (fuel?.toUpperCase()) {
+                  case 'DIESEL':
                     return '🚛';
-                  case 'gasolina':
+                  case 'GASOLINA':
                     return '🚗';
-                  case 'lubricante':
+                  case 'LUBRICANTE':
                     return '🛢️';
                   default:
                     return '⛽';

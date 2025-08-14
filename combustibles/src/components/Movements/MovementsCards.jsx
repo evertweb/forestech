@@ -93,12 +93,12 @@ const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, onDele
 
   // Obtener icono para combustible
   const getFuelIcon = (fuelType) => {
-    switch (fuelType?.toLowerCase()) {
-      case 'diesel':
+    switch (fuelType?.toUpperCase()) {
+      case 'DIESEL':
         return '🚛';
-      case 'gasolina':
+      case 'GASOLINA':
         return '🚗';
-      case 'lubricante':
+      case 'LUBRICANTE':
         return '🛢️';
       default:
         return '⛽';

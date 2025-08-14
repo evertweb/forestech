@@ -459,7 +459,7 @@ const DashboardTable = () => {
                       <td className="vehicle-type sap-theme">{vehicle.type}</td>
                       <td>
                         <span className="fuel-type sap-theme">
-                          {vehicle.fuelType === 'diesel' ? '🚛' : '🚗'} {vehicle.fuelType}
+                          {vehicle.fuelType === 'DIESEL' ? '🚛' : '🚗'} {vehicle.fuelType}
                         </span>
                       </td>
                       <td className="consumption-value sap-theme">

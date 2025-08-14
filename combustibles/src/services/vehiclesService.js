@@ -30,9 +30,9 @@ export { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories';
 
 // Tipos de combustible compatibles (mantener compatibilidad)
 export const FUEL_COMPATIBILITY = {
-  DIESEL: 'Diesel',
-  GASOLINA: 'Gasolina',
-  MIXTO: 'Mixto', // Para equipos que usan múltiples combustibles
+  DIESEL: 'DIESEL',
+  GASOLINE: 'GASOLINE', // Actualizado para consistencia
+  MIXTO: 'MIXTO', // Para equipos que usan múltiples combustibles
 };
 
 /**
@@ -885,7 +885,7 @@ const calculateEstimatedConsumption = (vehicleData) => {
   // Factores de ajuste por tipo de combustible
   const fuelFactors = {
     [FUEL_COMPATIBILITY.DIESEL]: 1.0,
-    [FUEL_COMPATIBILITY.GASOLINA]: 1.2,
+    [FUEL_COMPATIBILITY.GASOLINE]: 1.2,
     [FUEL_COMPATIBILITY.MIXTO]: 1.1,
   };
 

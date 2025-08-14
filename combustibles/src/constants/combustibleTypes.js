@@ -7,11 +7,11 @@
 // Tipos principales de combustibles utilizados en la app
 // -------------------------------------------------------------------
 export const FUEL_TYPES = {
-  DIESEL: 'diesel',
-  GASOLINE: 'gasoline',
-  LUBRICANTS: 'lubricants',
-  TWO_STROKE: 'two_stroke',
-  MIXED: 'mixed', // Agregado desde vehicleTypes.js para compatibilidad
+  DIESEL: 'DIESEL',
+  GASOLINE: 'GASOLINE',
+  LUBRICANTS: 'LUBRICANTS',
+  TWO_STROKE: 'TWO_STROKE',
+  MIXED: 'MIXED', // Agregado desde vehicleTypes.js para compatibilidad
 };
 
 // -------------------------------------------------------------------

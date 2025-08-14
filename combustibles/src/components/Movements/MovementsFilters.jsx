@@ -18,9 +18,9 @@ const MovementsFilters = ({
 
   // Tipos de combustible disponibles
   const fuelTypes = [
-    { value: 'Diesel', label: 'Diesel 🚛' },
-    { value: 'Gasolina', label: 'Gasolina 🚗' },
-    { value: 'Lubricante', label: 'Lubricante 🛢️' },
+    { value: 'DIESEL', label: 'DIESEL 🚛' },
+    { value: 'GASOLINA', label: 'GASOLINA 🚗' },
+    { value: 'LUBRICANTE', label: 'LUBRICANTE 🛢️' },
   ];
 
   // Rangos de fecha

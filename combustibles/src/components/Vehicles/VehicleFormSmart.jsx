@@ -361,10 +361,10 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       onChange={(e) => handleFieldChange('fuelType', e.target.value)}
                     >
                       <option value="">{UI_PLACEHOLDERS.SELECT_FUEL}</option>
-                      <option value="diesel">🛢️ Diésel</option>
-                      <option value="gasoline">⛽ Gasolina</option>
-                      <option value="acpm">🚛 ACPM</option>
-                      <option value="electric">⚡ Eléctrico</option>
+                      <option value="DIESEL">🛢️ Diésel</option>
+                      <option value="GASOLINE">⛽ Gasolina</option>
+                      <option value="ACPM">🚛 ACPM</option>
+                      <option value="ELECTRIC">⚡ Eléctrico</option>
                     </select>
                     {errors.fuelType && <span className="field-error">{errors.fuelType}</span>}
                   </div>
