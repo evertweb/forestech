@@ -3,21 +3,21 @@
  * Maneja catálogo, consumo, rendimiento y mantenimientos
  */
 
-import { 
-  collection, 
+import {
+  collection,
   addDoc,
-  updateDoc, 
+  updateDoc,
   deleteDoc,
-  doc, 
-  getDocs, 
+  doc,
+  getDocs,
   getDoc,
-  query, 
-  orderBy, 
+  query,
+  orderBy,
   where,
   limit,
   onSnapshot,
   serverTimestamp,
-  runTransaction
+  runTransaction,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories';
@@ -32,7 +32,7 @@ export { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories';
 export const FUEL_COMPATIBILITY = {
   DIESEL: 'Diesel',
   GASOLINA: 'Gasolina',
-  MIXTO: 'Mixto' // Para equipos que usan múltiples combustibles
+  MIXTO: 'Mixto', // Para equipos que usan múltiples combustibles
 };
 
 /**
@@ -51,7 +51,7 @@ export const createVehicle = async (vehicleData) => {
       throw new Error(`El código de vehículo '${vehicleData.vehicleId}' ya existe`);
     }
 
-    // Preparar datos del vehículo
+    // Preparar datos del vehículo con valores por defecto optimizados
     const vehicle = {
       ...vehicleData,
       createdAt: serverTimestamp(),
@@ -63,17 +63,27 @@ export const createVehicle = async (vehicleData) => {
       totalMovements: 0,
       lastMovementDate: null,
       // Calcular consumo estimado por hora
-      estimatedConsumptionPerHour: calculateEstimatedConsumption(vehicleData)
+      estimatedConsumptionPerHour: calculateEstimatedConsumption(vehicleData),
+      // Inicializar historial vacío
+      maintenanceHistory: [],
+      hourMeterHistory: vehicleData.hasHourMeter ? [] : undefined,
+      // Tags de búsqueda para mejorar rendimiento
+      searchTags: [
+        vehicleData.vehicleId?.toLowerCase(),
+        vehicleData.name?.toLowerCase(),
+        vehicleData.brand?.toLowerCase(),
+        vehicleData.model?.toLowerCase(),
+        vehicleData.type?.toLowerCase(),
+      ].filter(Boolean),
     };
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), vehicle);
-    
-    console.log('✅ Vehículo creado exitosamente:', docRef.id);
-    return docRef.id;
 
+    console.log('✅ Vehículo creado exitosamente:', docRef.id);
+    return { success: true, id: docRef.id, data: vehicle };
   } catch (error) {
     console.error('❌ Error al crear vehículo:', error);
-    throw new Error(`Error al crear vehículo: ${error.message}`);
+    return { success: false, error: error.message };
   }
 };
 
@@ -114,12 +124,12 @@ export const getAllVehicles = async (filters = {}) => {
         createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
         updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
         lastMovementDate: doc.data().lastMovementDate?.toDate?.() || doc.data().lastMovementDate,
-        lastMaintenanceDate: doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate
+        lastMaintenanceDate:
+          doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate,
       });
     });
 
     return vehicles;
-
   } catch (error) {
     console.error('❌ Error al obtener vehículos:', error);
     throw new Error(`Error al obtener vehículos: ${error.message}`);
@@ -149,10 +159,11 @@ export const getVehicle = async (vehicleId) => {
       ...docSnap.data(),
       createdAt: docSnap.data().createdAt?.toDate?.() || docSnap.data().createdAt,
       updatedAt: docSnap.data().updatedAt?.toDate?.() || docSnap.data().updatedAt,
-      lastMovementDate: docSnap.data().lastMovementDate?.toDate?.() || docSnap.data().lastMovementDate,
-      lastMaintenanceDate: docSnap.data().lastMaintenanceDate?.toDate?.() || docSnap.data().lastMaintenanceDate
+      lastMovementDate:
+        docSnap.data().lastMovementDate?.toDate?.() || docSnap.data().lastMovementDate,
+      lastMaintenanceDate:
+        docSnap.data().lastMaintenanceDate?.toDate?.() || docSnap.data().lastMaintenanceDate,
     };
-
   } catch (error) {
     console.error('❌ Error al obtener vehículo:', error);
     throw new Error(`Error al obtener vehículo: ${error.message}`);
@@ -166,13 +177,10 @@ export const getVehicle = async (vehicleId) => {
  */
 export const getVehicleByCode = async (vehicleCode) => {
   try {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('vehicleId', '==', vehicleCode)
-    );
-    
+    const q = query(collection(db, COLLECTION_NAME), where('vehicleId', '==', vehicleCode));
+
     const querySnapshot = await getDocs(q);
-    
+
     if (querySnapshot.empty) {
       return null;
     }
@@ -184,9 +192,9 @@ export const getVehicleByCode = async (vehicleCode) => {
       createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
       updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
       lastMovementDate: doc.data().lastMovementDate?.toDate?.() || doc.data().lastMovementDate,
-      lastMaintenanceDate: doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate
+      lastMaintenanceDate:
+        doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate,
     };
-
   } catch (error) {
     console.error('❌ Error al buscar vehículo por código:', error);
     throw new Error(`Error al buscar vehículo: ${error.message}`);
@@ -213,24 +221,51 @@ export const updateVehicle = async (vehicleId, updateData) => {
       }
     }
 
+    // Obtener datos actuales para merge
+    const currentVehicle = await getVehicle(vehicleId);
+    if (!currentVehicle) {
+      throw new Error('Vehículo no encontrado');
+    }
+
     // Preparar datos de actualización
     const updatedData = {
       ...updateData,
       updatedAt: serverTimestamp(),
       // Recalcular consumo estimado si cambian especificaciones
-      ...(updateData.enginePower || updateData.type ? {
-        estimatedConsumptionPerHour: calculateEstimatedConsumption(updateData)
-      } : {})
+      ...(updateData.enginePower || updateData.type
+        ? {
+            estimatedConsumptionPerHour: calculateEstimatedConsumption({
+              ...currentVehicle,
+              ...updateData,
+            }),
+          }
+        : {}),
+      // Actualizar tags de búsqueda si cambian campos relevantes
+      ...(updateData.vehicleId ||
+      updateData.name ||
+      updateData.brand ||
+      updateData.model ||
+      updateData.type
+        ? {
+            searchTags: [
+              (updateData.vehicleId || currentVehicle.vehicleId)?.toLowerCase(),
+              (updateData.name || currentVehicle.name)?.toLowerCase(),
+              (updateData.brand || currentVehicle.brand)?.toLowerCase(),
+              (updateData.model || currentVehicle.model)?.toLowerCase(),
+              (updateData.type || currentVehicle.type)?.toLowerCase(),
+            ].filter(Boolean),
+          }
+        : {}),
     };
 
     const docRef = doc(db, COLLECTION_NAME, vehicleId);
     await updateDoc(docRef, updatedData);
 
     console.log('✅ Vehículo actualizado exitosamente');
-
+    return { success: true, data: { ...currentVehicle, ...updatedData } };
   } catch (error) {
     console.error('❌ Error al actualizar vehículo:', error);
-    throw new Error(`Error al actualizar vehículo: ${error.message}`);
+    return { success: false, error: error.message };
   }
 };
 
@@ -248,12 +283,13 @@ export const deleteVehicle = async (vehicleId) => {
     // Verificar que no tenga movimientos asociados recientes
     const recentMovements = await getVehicleMovements(vehicleId, { limit: 1 });
     if (recentMovements.length > 0) {
-      throw new Error('No se puede eliminar un vehículo con movimientos asociados. Cambie el estado a inactivo en su lugar.');
+      throw new Error(
+        'No se puede eliminar un vehículo con movimientos asociados. Cambie el estado a inactivo en su lugar.'
+      );
     }
 
     await deleteDoc(doc(db, COLLECTION_NAME, vehicleId));
     console.log('✅ Vehículo eliminado exitosamente');
-
   } catch (error) {
     console.error('❌ Error al eliminar vehículo:', error);
     throw new Error(`Error al eliminar vehículo: ${error.message}`);
@@ -272,7 +308,7 @@ export const subscribeToVehicles = (callback, filters = {}) => {
 
     // Aplicar filtros de manera eficiente
     const whereFilters = [];
-    
+
     if (filters.category) {
       whereFilters.push(where('category', '==', filters.category));
     }
@@ -287,7 +323,7 @@ export const subscribeToVehicles = (callback, filters = {}) => {
     }
 
     // Aplicar filtros where
-    whereFilters.forEach(filter => {
+    whereFilters.forEach((filter) => {
       q = query(q, filter);
     });
 
@@ -295,65 +331,76 @@ export const subscribeToVehicles = (callback, filters = {}) => {
     q = query(q, orderBy('updatedAt', 'desc'));
 
     let lastUpdateTime = null;
-    
-    return onSnapshot(q, (querySnapshot) => {
-      const currentTime = Date.now();
-      
-      // Optimización: evitar procesamiento duplicado si los datos no han cambiado
-      if (lastUpdateTime && (currentTime - lastUpdateTime) < 500) {
-        return; // Throttle updates to max 2 per second
-      }
-      
-      lastUpdateTime = currentTime;
-      
-      const vehicles = [];
-      const changes = {
-        added: [],
-        modified: [],
-        removed: []
-      };
 
-      // Procesar cambios de manera eficiente
-      querySnapshot.docChanges().forEach((change) => {
-        const vehicleData = {
-          id: change.doc.id,
-          ...change.doc.data(),
-          createdAt: change.doc.data().createdAt?.toDate?.() || change.doc.data().createdAt,
-          updatedAt: change.doc.data().updatedAt?.toDate?.() || change.doc.data().updatedAt,
-          lastMovementDate: change.doc.data().lastMovementDate?.toDate?.() || change.doc.data().lastMovementDate,
-          lastMaintenanceDate: change.doc.data().lastMaintenanceDate?.toDate?.() || change.doc.data().lastMaintenanceDate,
-          lastHourMeterDate: change.doc.data().lastHourMeterDate?.toDate?.() || change.doc.data().lastHourMeterDate
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
+        const currentTime = Date.now();
+
+        // Optimización: evitar procesamiento duplicado si los datos no han cambiado
+        if (lastUpdateTime && currentTime - lastUpdateTime < 500) {
+          return; // Throttle updates to max 2 per second
+        }
+
+        lastUpdateTime = currentTime;
+
+        const vehicles = [];
+        const changes = {
+          added: [],
+          modified: [],
+          removed: [],
         };
 
-        if (change.type === 'added') {
-          changes.added.push(vehicleData);
-        } else if (change.type === 'modified') {
-          changes.modified.push(vehicleData);
-        } else if (change.type === 'removed') {
-          changes.removed.push({ id: change.doc.id });
-        }
-      });
+        // Procesar cambios de manera eficiente
+        querySnapshot.docChanges().forEach((change) => {
+          const vehicleData = {
+            id: change.doc.id,
+            ...change.doc.data(),
+            createdAt: change.doc.data().createdAt?.toDate?.() || change.doc.data().createdAt,
+            updatedAt: change.doc.data().updatedAt?.toDate?.() || change.doc.data().updatedAt,
+            lastMovementDate:
+              change.doc.data().lastMovementDate?.toDate?.() || change.doc.data().lastMovementDate,
+            lastMaintenanceDate:
+              change.doc.data().lastMaintenanceDate?.toDate?.() ||
+              change.doc.data().lastMaintenanceDate,
+            lastHourMeterDate:
+              change.doc.data().lastHourMeterDate?.toDate?.() ||
+              change.doc.data().lastHourMeterDate,
+          };
 
-      // Construir lista completa de vehículos
-      querySnapshot.forEach((doc) => {
-        vehicles.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-          updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
-          lastMovementDate: doc.data().lastMovementDate?.toDate?.() || doc.data().lastMovementDate,
-          lastMaintenanceDate: doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate,
-          lastHourMeterDate: doc.data().lastHourMeterDate?.toDate?.() || doc.data().lastHourMeterDate
+          if (change.type === 'added') {
+            changes.added.push(vehicleData);
+          } else if (change.type === 'modified') {
+            changes.modified.push(vehicleData);
+          } else if (change.type === 'removed') {
+            changes.removed.push({ id: change.doc.id });
+          }
         });
-      });
 
-      // Callback con datos optimizados
-      callback(vehicles, null, changes);
-    }, (error) => {
-      console.error('❌ Error en suscripción de vehículos:', error);
-      callback([], error);
-    });
+        // Construir lista completa de vehículos
+        querySnapshot.forEach((doc) => {
+          vehicles.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
+            updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
+            lastMovementDate:
+              doc.data().lastMovementDate?.toDate?.() || doc.data().lastMovementDate,
+            lastMaintenanceDate:
+              doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate,
+            lastHourMeterDate:
+              doc.data().lastHourMeterDate?.toDate?.() || doc.data().lastHourMeterDate,
+          });
+        });
 
+        // Callback con datos optimizados
+        callback(vehicles, null, changes);
+      },
+      (error) => {
+        console.error('❌ Error en suscripción de vehículos:', error);
+        callback([], error);
+      }
+    );
   } catch (error) {
     console.error('❌ Error al configurar suscripción:', error);
     throw new Error(`Error en suscripción: ${error.message}`);
@@ -375,48 +422,51 @@ export const subscribeToVehiclesStats = (callback, filters = {}) => {
       q = query(q, where('status', '==', filters.status));
     }
 
-    return onSnapshot(q, (querySnapshot) => {
-      const stats = {
-        total: 0,
-        byStatus: {},
-        byCategory: {},
-        byFuelType: {},
-        totalFuelConsumed: 0,
-        totalHoursWorked: 0,
-        activeCount: 0
-      };
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
+        const stats = {
+          total: 0,
+          byStatus: {},
+          byCategory: {},
+          byFuelType: {},
+          totalFuelConsumed: 0,
+          totalHoursWorked: 0,
+          activeCount: 0,
+        };
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        stats.total++;
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          stats.total++;
 
-        // Por estado
-        const status = data.status || 'unknown';
-        stats.byStatus[status] = (stats.byStatus[status] || 0) + 1;
-        
-        if (status === 'activo') {
-          stats.activeCount++;
-        }
+          // Por estado
+          const status = data.status || 'unknown';
+          stats.byStatus[status] = (stats.byStatus[status] || 0) + 1;
 
-        // Por categoría
-        const category = data.category || 'sin_categoria';
-        stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
+          if (status === 'activo') {
+            stats.activeCount++;
+          }
 
-        // Por tipo de combustible
-        const fuelType = data.fuelType || 'unknown';
-        stats.byFuelType[fuelType] = (stats.byFuelType[fuelType] || 0) + 1;
+          // Por categoría
+          const category = data.category || 'sin_categoria';
+          stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
 
-        // Totales
-        stats.totalFuelConsumed += data.totalFuelConsumed || 0;
-        stats.totalHoursWorked += data.totalHoursWorked || 0;
-      });
+          // Por tipo de combustible
+          const fuelType = data.fuelType || 'unknown';
+          stats.byFuelType[fuelType] = (stats.byFuelType[fuelType] || 0) + 1;
 
-      callback(stats);
-    }, (error) => {
-      console.error('❌ Error en suscripción de estadísticas:', error);
-      callback(null, error);
-    });
+          // Totales
+          stats.totalFuelConsumed += data.totalFuelConsumed || 0;
+          stats.totalHoursWorked += data.totalHoursWorked || 0;
+        });
 
+        callback(stats);
+      },
+      (error) => {
+        console.error('❌ Error en suscripción de estadísticas:', error);
+        callback(null, error);
+      }
+    );
   } catch (error) {
     console.error('❌ Error al configurar suscripción de estadísticas:', error);
     return () => {};
@@ -431,10 +481,7 @@ export const subscribeToVehiclesStats = (callback, filters = {}) => {
  */
 export const getVehicleMovements = async (vehicleCode, options = {}) => {
   try {
-    let q = query(
-      collection(db, MOVEMENTS_COLLECTION),
-      where('vehicleId', '==', vehicleCode)
-    );
+    let q = query(collection(db, MOVEMENTS_COLLECTION), where('vehicleId', '==', vehicleCode));
 
     // Ordenar por fecha (más recientes primero)
     q = query(q, orderBy('createdAt', 'desc'));
@@ -452,12 +499,11 @@ export const getVehicleMovements = async (vehicleCode, options = {}) => {
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-        updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt
+        updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
       });
     });
 
     return movements;
-
   } catch (error) {
     console.error('❌ Error al obtener movimientos del vehículo:', error);
     throw new Error(`Error al obtener movimientos: ${error.message}`);
@@ -466,7 +512,7 @@ export const getVehicleMovements = async (vehicleCode, options = {}) => {
 
 /**
  * Actualizar métricas de consumo de un vehículo
- * @param {string} vehicleCode - Código del vehículo  
+ * @param {string} vehicleCode - Código del vehículo
  * @param {Object} movementData - Datos del movimiento
  * @returns {Promise<void>}
  */
@@ -480,26 +526,27 @@ export const updateVehicleMetrics = async (vehicleCode, movementData) => {
 
     await runTransaction(db, async (transaction) => {
       const vehicleRef = doc(db, COLLECTION_NAME, vehicle.id);
-      
+
       // Calcular nuevas métricas
       const newTotalFuel = (vehicle.totalFuelConsumed || 0) + movementData.quantity;
       const newTotalMovements = (vehicle.totalMovements || 0) + 1;
-      
+
       // Actualizar métricas
       transaction.update(vehicleRef, {
         totalFuelConsumed: newTotalFuel,
         totalMovements: newTotalMovements,
         lastMovementDate: serverTimestamp(),
         // Calcular eficiencia real si hay horas trabajadas
-        ...(vehicle.totalHoursWorked > 0 ? {
-          actualConsumptionPerHour: newTotalFuel / vehicle.totalHoursWorked
-        } : {}),
-        updatedAt: serverTimestamp()
+        ...(vehicle.totalHoursWorked > 0
+          ? {
+              actualConsumptionPerHour: newTotalFuel / vehicle.totalHoursWorked,
+            }
+          : {}),
+        updatedAt: serverTimestamp(),
       });
     });
 
     console.log(`✅ Métricas del vehículo ${vehicleCode} actualizadas`);
-
   } catch (error) {
     console.error('❌ Error al actualizar métricas del vehículo:', error);
     // No lanzar error para no afectar el flujo principal
@@ -526,14 +573,16 @@ export const updateHourMeter = async (vehicleCode, newHours, notes = '') => {
 
     const currentHours = vehicle.currentHours || 0;
     if (newHours < currentHours) {
-      throw new Error(`La nueva lectura (${newHours}h) no puede ser menor a la actual (${currentHours}h)`);
+      throw new Error(
+        `La nueva lectura (${newHours}h) no puede ser menor a la actual (${currentHours}h)`
+      );
     }
 
     const hoursWorked = newHours - currentHours;
 
     await runTransaction(db, async (transaction) => {
       const vehicleRef = doc(db, COLLECTION_NAME, vehicle.id);
-      
+
       // Crear registro en el historial de horómetro
       const hourMeterHistory = vehicle.hourMeterHistory || [];
       hourMeterHistory.push({
@@ -542,7 +591,7 @@ export const updateHourMeter = async (vehicleCode, newHours, notes = '') => {
         hoursWorked: hoursWorked,
         date: serverTimestamp(),
         notes: notes,
-        registeredBy: 'system' // Puede personalizarse con el usuario actual
+        registeredBy: 'system', // Puede personalizarse con el usuario actual
       });
 
       // Actualizar vehículo
@@ -553,15 +602,19 @@ export const updateHourMeter = async (vehicleCode, newHours, notes = '') => {
         totalHoursWorked: (vehicle.totalHoursWorked || 0) + hoursWorked,
         hourMeterHistory: hourMeterHistory,
         // Recalcular eficiencia si hay combustible consumido
-        ...(vehicle.totalFuelConsumed > 0 ? {
-          actualConsumptionPerHour: vehicle.totalFuelConsumed / ((vehicle.totalHoursWorked || 0) + hoursWorked)
-        } : {}),
-        updatedAt: serverTimestamp()
+        ...(vehicle.totalFuelConsumed > 0
+          ? {
+              actualConsumptionPerHour:
+                vehicle.totalFuelConsumed / ((vehicle.totalHoursWorked || 0) + hoursWorked),
+            }
+          : {}),
+        updatedAt: serverTimestamp(),
       });
     });
 
-    console.log(`✅ Horómetro del tractor ${vehicleCode} actualizado: ${currentHours}h → ${newHours}h (+${hoursWorked}h)`);
-
+    console.log(
+      `✅ Horómetro del tractor ${vehicleCode} actualizado: ${currentHours}h → ${newHours}h (+${hoursWorked}h)`
+    );
   } catch (error) {
     console.error('❌ Error al actualizar horómetro:', error);
     throw new Error(`Error al actualizar horómetro: ${error.message}`);
@@ -586,7 +639,7 @@ export const getHourMeterHistory = async (vehicleCode, limit = 50) => {
     }
 
     const history = vehicle.hourMeterHistory || [];
-    
+
     // Ordenar por fecha (más recientes primero) y limitar
     return history
       .sort((a, b) => {
@@ -595,11 +648,10 @@ export const getHourMeterHistory = async (vehicleCode, limit = 50) => {
         return dateB - dateA;
       })
       .slice(0, limit)
-      .map(record => ({
+      .map((record) => ({
         ...record,
-        date: record.date?.toDate?.() || record.date
+        date: record.date?.toDate?.() || record.date,
       }));
-
   } catch (error) {
     console.error('❌ Error al obtener historial de horómetro:', error);
     throw new Error(`Error al obtener historial: ${error.message}`);
@@ -636,12 +688,13 @@ export const calculateTractorConsumption = async (vehicleCode) => {
       actualConsumptionPerHour: totalHours > 0 ? totalFuel / totalHours : 0,
       efficiencyPercentage: 0,
       fuelSaved: 0,
-      projectedNextMaintenance: null
+      projectedNextMaintenance: null,
     };
 
     // Calcular eficiencia vs estimado
     if (estimatedConsumption > 0 && metrics.actualConsumptionPerHour > 0) {
-      metrics.efficiencyPercentage = ((estimatedConsumption - metrics.actualConsumptionPerHour) / estimatedConsumption) * 100;
+      metrics.efficiencyPercentage =
+        ((estimatedConsumption - metrics.actualConsumptionPerHour) / estimatedConsumption) * 100;
       metrics.fuelSaved = (estimatedConsumption - metrics.actualConsumptionPerHour) * totalHours;
     }
 
@@ -649,11 +702,10 @@ export const calculateTractorConsumption = async (vehicleCode) => {
     const hoursUntilMaintenance = 250 - (currentHours % 250);
     metrics.projectedNextMaintenance = {
       hoursRemaining: hoursUntilMaintenance,
-      projectedHours: currentHours + hoursUntilMaintenance
+      projectedHours: currentHours + hoursUntilMaintenance,
     };
 
     return metrics;
-
   } catch (error) {
     console.error('❌ Error al calcular consumo del tractor:', error);
     throw new Error(`Error al calcular métricas: ${error.message}`);
@@ -679,22 +731,22 @@ export const getVehiclesStats = async (filters = {}) => {
       totalHoursWorked: 0,
       averageConsumption: 0,
       mostActiveVehicle: null,
-      leastActiveVehicle: null
+      leastActiveVehicle: null,
     };
 
     let maxMovements = 0;
     let minMovements = Infinity;
 
-    vehicles.forEach(vehicle => {
+    vehicles.forEach((vehicle) => {
       // Por tipo
       stats.byType[vehicle.type] = (stats.byType[vehicle.type] || 0) + 1;
-      
+
       // Por estado
       stats.byStatus[vehicle.status] = (stats.byStatus[vehicle.status] || 0) + 1;
-      
+
       // Por tipo de combustible
       stats.byFuelType[vehicle.fuelType] = (stats.byFuelType[vehicle.fuelType] || 0) + 1;
-      
+
       // Totales
       stats.totalFuelConsumed += vehicle.totalFuelConsumed || 0;
       stats.totalHoursWorked += vehicle.totalHoursWorked || 0;
@@ -717,7 +769,6 @@ export const getVehiclesStats = async (filters = {}) => {
     }
 
     return stats;
-
   } catch (error) {
     console.error('❌ Error al calcular estadísticas:', error);
     throw new Error(`Error al calcular estadísticas: ${error.message}`);
@@ -742,7 +793,7 @@ export const registerMaintenance = async (vehicleId, maintenanceData) => {
     maintenanceHistory.push({
       ...maintenanceData,
       date: serverTimestamp(),
-      registeredAt: serverTimestamp()
+      registeredAt: serverTimestamp(),
     });
 
     // Actualizar vehículo
@@ -750,13 +801,14 @@ export const registerMaintenance = async (vehicleId, maintenanceData) => {
       maintenanceHistory,
       lastMaintenanceDate: serverTimestamp(),
       // Cambiar estado si es mantenimiento mayor
-      ...(maintenanceData.type === 'major' ? {
-        status: VEHICLE_STATUS.MANTENIMIENTO
-      } : {})
+      ...(maintenanceData.type === 'major'
+        ? {
+            status: VEHICLE_STATUS.MANTENIMIENTO,
+          }
+        : {}),
     });
 
     console.log('✅ Mantenimiento registrado exitosamente');
-
   } catch (error) {
     console.error('❌ Error al registrar mantenimiento:', error);
     throw new Error(`Error al registrar mantenimiento: ${error.message}`);
@@ -771,7 +823,7 @@ export const registerMaintenance = async (vehicleId, maintenanceData) => {
  */
 const validateVehicleData = (vehicleData) => {
   const required = ['vehicleId', 'name', 'type', 'fuelType'];
-  
+
   for (const field of required) {
     if (!vehicleData[field]) {
       throw new Error(`Campo requerido: ${field}`);
@@ -794,11 +846,11 @@ const validateVehicleData = (vehicleData) => {
   }
 
   // Validar campos numéricos
-  if (vehicleData.enginePower && (vehicleData.enginePower <= 0)) {
+  if (vehicleData.enginePower && vehicleData.enginePower <= 0) {
     throw new Error('La potencia del motor debe ser mayor a cero');
   }
 
-  if (vehicleData.fuelCapacity && (vehicleData.fuelCapacity <= 0)) {
+  if (vehicleData.fuelCapacity && vehicleData.fuelCapacity <= 0) {
     throw new Error('La capacidad de combustible debe ser mayor a cero');
   }
 };
@@ -813,35 +865,35 @@ const calculateEstimatedConsumption = (vehicleData) => {
 
   // Factores base por tipo de vehículo (galones/hora por HP)
   const consumptionFactors = {
-    'excavadora': 0.04,
-    'bulldozer': 0.05,
-    'cargador': 0.035,
-    'camion': 0.03,
-    'camioneta': 0.03,
-    'grua': 0.045,
-    'motosierra': 0.02,
-    'tractor': 0.025,
-    'volqueta': 0.035,
-    'motobomba': 0.035,
-    'fumigadora': 0.025,
-    'guadana': 0.02,
-    'motocicleta': 0.015,
-    'planta_electrica': 0.08,
-    'otros': 0.03
+    excavadora: 0.04,
+    bulldozer: 0.05,
+    cargador: 0.035,
+    camion: 0.03,
+    camioneta: 0.03,
+    grua: 0.045,
+    motosierra: 0.02,
+    tractor: 0.025,
+    volqueta: 0.035,
+    motobomba: 0.035,
+    fumigadora: 0.025,
+    guadana: 0.02,
+    motocicleta: 0.015,
+    planta_electrica: 0.08,
+    otros: 0.03,
   };
 
   // Factores de ajuste por tipo de combustible
   const fuelFactors = {
     [FUEL_COMPATIBILITY.DIESEL]: 1.0,
     [FUEL_COMPATIBILITY.GASOLINA]: 1.2,
-    [FUEL_COMPATIBILITY.MIXTO]: 1.1
+    [FUEL_COMPATIBILITY.MIXTO]: 1.1,
   };
 
   const baseFactor = consumptionFactors[type] || 0.03;
   const fuelFactor = fuelFactors[fuelType] || 1.0;
   const power = enginePower || 100; // HP por defecto
 
-  return (baseFactor * power * fuelFactor);
+  return baseFactor * power * fuelFactor;
 };
 
 /**
@@ -852,16 +904,13 @@ const calculateEstimatedConsumption = (vehicleData) => {
 export const countVehiclesByCategory = async (categoryId) => {
   try {
     console.log('🔍 Contando vehículos para categoría:', categoryId);
-    
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('category', '==', categoryId)
-    );
-    
+
+    const q = query(collection(db, COLLECTION_NAME), where('category', '==', categoryId));
+
     console.log('🔍 Ejecutando consulta a Firestore...');
     const querySnapshot = await getDocs(q);
     const count = querySnapshot.size;
-    
+
     console.log('📊 Vehículos encontrados:', count);
     return count;
   } catch (error) {
@@ -889,5 +938,5 @@ export default {
   registerMaintenance,
   countVehiclesByCategory,
   VEHICLE_STATUS,
-  FUEL_COMPATIBILITY
+  FUEL_COMPATIBILITY,
 };

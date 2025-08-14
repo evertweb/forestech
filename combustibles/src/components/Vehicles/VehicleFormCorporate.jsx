@@ -4,10 +4,47 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { createVehicle, updateVehicle, VEHICLE_STATUS } from '../../services/vehiclesService';
+import {
+  createVehicle,
+  updateVehicle,
+  VEHICLE_STATUS,
+  getAllVehicles,
+} from '../../services/vehiclesService';
 import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
 import { FUEL_TYPES } from '../../data/vehicleCategories';
+import { DEFAULT_VEHICLE_ICON } from '../../constants/vehicleIcons';
+import VehicleIconSelector from './VehicleIconSelector';
 import './VehicleFormCorporate.css';
+
+// Función para generar ID automático de vehículo
+const generateVehicleId = async (vehicleName, existingVehicles = []) => {
+  if (!vehicleName || vehicleName.trim().length === 0) {
+    return '';
+  }
+
+  // Obtener primera letra del nombre del vehículo
+  const firstLetter = vehicleName.trim().charAt(0).toUpperCase();
+
+  // Obtener números existentes para esta letra
+  const existingNumbers = existingVehicles
+    .filter((v) => v.vehicleId && v.vehicleId.startsWith(firstLetter))
+    .map((v) => {
+      const numberPart = v.vehicleId.slice(1);
+      return parseInt(numberPart) || 0;
+    })
+    .filter((num) => !isNaN(num));
+
+  // Encontrar el siguiente número disponible
+  let nextNumber = 1;
+  while (existingNumbers.includes(nextNumber)) {
+    nextNumber++;
+  }
+
+  // Formatear con ceros a la izquierda (mínimo 2 dígitos)
+  const formattedNumber = nextNumber.toString().padStart(2, '0');
+
+  return `${firstLetter}${formattedNumber}`;
+};
 
 const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
   // Estados principales
@@ -16,6 +53,7 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
   const [categories, setCategories] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [existingVehicles, setExistingVehicles] = useState([]);
 
   // Referencias para animaciones
   const containerRef = useRef(null);
@@ -27,6 +65,7 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
     name: vehicle?.name || '',
     brand: vehicle?.brand || '',
     model: vehicle?.model || '',
+    iconId: vehicle?.iconId || DEFAULT_VEHICLE_ICON.id,
 
     // Categoría y especificaciones
     category: vehicle?.category || '',
@@ -56,7 +95,7 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
         id: 'basic',
         title: 'Información Básica',
         subtitle: 'Datos principales del vehículo',
-        fields: ['vehicleId', 'name', 'brand', 'model'],
+        fields: ['vehicleId', 'name', 'brand', 'model', 'iconId'],
       },
       {
         id: 'category',
@@ -86,10 +125,10 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
     []
   );
 
-  // Cargar categorías al abrir
+  // Cargar categorías y vehículos existentes al abrir
   useEffect(() => {
     if (isOpen) {
-      loadCategories();
+      loadInitialData();
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -100,13 +139,20 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
     };
   }, [isOpen]);
 
-  const loadCategories = async () => {
+  const loadInitialData = async () => {
     try {
-      const categoriesData = await getAllVehicleCategories();
+      // Cargar categorías y vehículos existentes en paralelo
+      const [categoriesData, vehiclesData] = await Promise.all([
+        getAllVehicleCategories(),
+        getAllVehicles(),
+      ]);
+
       setCategories(categoriesData);
+      setExistingVehicles(vehiclesData);
     } catch (error) {
-      console.error('Error cargando categorías:', error);
+      console.error('Error cargando datos iniciales:', error);
       setCategories([]);
+      setExistingVehicles([]);
     }
   };
 
@@ -200,8 +246,18 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
 
   // Manejo de cambios en el formulario
   const handleChange = useCallback(
-    (field, value) => {
+    async (field, value) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
+
+      // Generar ID automáticamente cuando se cambia el nombre (solo para vehículos nuevos)
+      if (field === 'name' && !vehicle && value && value.trim()) {
+        try {
+          const generatedId = await generateVehicleId(value, existingVehicles);
+          setFormData((prev) => ({ ...prev, vehicleId: generatedId }));
+        } catch (error) {
+          console.error('Error generando ID automático:', error);
+        }
+      }
 
       // Limpiar error del campo cuando se modifica
       if (errors[field]) {
@@ -212,8 +268,13 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
         });
       }
     },
-    [errors]
+    [errors, vehicle, existingVehicles]
   );
+
+  // Manejo específico para cambio de iconos (no async)
+  const handleIconChange = useCallback((iconId) => {
+    setFormData((prev) => ({ ...prev, iconId }));
+  }, []);
 
   // Envío del formulario
   const handleSubmit = useCallback(async () => {
@@ -239,6 +300,7 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
         name: formData.name.trim(),
         brand: formData.brand.trim(),
         model: formData.model.trim(),
+        iconId: formData.iconId,
         type: selectedCategory?.name || '',
         category: formData.category,
         fuelType: formData.fuelType,
@@ -256,12 +318,16 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
 
       let result;
       if (vehicle) {
+        // Modo edición
         result = await updateVehicle(vehicle.id, vehicleData);
       } else {
+        // Modo creación
         result = await createVehicle(vehicleData);
       }
 
       if (result.success) {
+        console.log('✅ Vehículo guardado exitosamente:', result.data);
+
         if (onSuccess) {
           onSuccess(result.data);
         }
@@ -361,15 +427,27 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
                 <div className="form-group">
                   <label htmlFor="vehicleId" className="form-label">
                     ID del Vehículo *
+                    {!vehicle && (
+                      <span className="field-hint">Se genera automáticamente desde el nombre</span>
+                    )}
                   </label>
                   <input
                     id="vehicleId"
                     type="text"
                     className={`form-input ${errors.vehicleId ? 'error' : ''}`}
-                    placeholder="TR001, CAM01, EXC001"
+                    placeholder={
+                      vehicle ? 'TR001, CAM01, EXC001' : 'Se generará automáticamente...'
+                    }
                     value={formData.vehicleId}
                     onChange={(e) => handleChange('vehicleId', e.target.value)}
+                    disabled={!vehicle && !formData.vehicleId}
                   />
+                  {!vehicle && (
+                    <div className="field-help">
+                      El ID se genera automáticamente con la primera letra del nombre + número
+                      consecutivo (ej: T01, C02, E03)
+                    </div>
+                  )}
                   {errors.vehicleId && <div className="error-message">{errors.vehicleId}</div>}
                 </div>
 
@@ -417,6 +495,19 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
                       onChange={(e) => handleChange('model', e.target.value)}
                     />
                     {errors.model && <div className="error-message">{errors.model}</div>}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Icono del Vehículo</label>
+                  <VehicleIconSelector
+                    key={`icon-selector-${formData.iconId}`}
+                    selectedIconId={formData.iconId}
+                    onIconSelect={handleIconChange}
+                    disabled={isSubmitting}
+                  />
+                  <div className="field-help">
+                    Selecciona un icono que represente mejor este vehículo
                   </div>
                 </div>
               </div>

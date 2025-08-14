@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import VehicleIcon from './VehicleIcon';
 
 const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   // Formatear número
@@ -79,19 +80,9 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
     }
   };
 
-  // Obtener icono para tipo de vehículo (dinámico)
-  const getVehicleIcon = (type) => {
-    if (!type) return '🚗';
-    const lowerType = type.toLowerCase();
-    if (lowerType.includes('excavadora')) return '🚚';
-    if (lowerType.includes('bulldozer')) return '🚜';
-    if (lowerType.includes('cargador')) return '🏗️';
-    if (lowerType.includes('camion')) return '🚛';
-    if (lowerType.includes('grua')) return '🏗️';
-    if (lowerType.includes('motosierra')) return '🪚';
-    if (lowerType.includes('tractor')) return '🚜';
-    if (lowerType.includes('volqueta')) return '🚛';
-    return '🚗';
+  // Renderizar icono de vehículo personalizado
+  const renderVehicleIcon = (vehicle) => {
+    return <VehicleIcon iconId={vehicle.iconId} size="medium" showBorder={true} />;
   };
 
   // Obtener icono para combustible
@@ -152,7 +143,7 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
           <div className="card-header sap-theme">
             <div className="vehicle-info sap-theme">
               <div className="vehicle-id-section sap-theme">
-                <span className="vehicle-icon sap-theme">{getVehicleIcon(vehicle.type)}</span>
+                {renderVehicleIcon(vehicle)}
                 <div className="vehicle-details sap-theme">
                   <span className="vehicle-id sap-theme">{vehicle.vehicleId}</span>
                   <span className="vehicle-name sap-theme">{vehicle.name}</span>
@@ -174,7 +165,6 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
               <div className="info-row sap-theme">
                 <span className="info-label sap-theme">Tipo:</span>
                 <span className="info-value sap-theme">
-                  {getVehicleIcon(vehicle.type)}{' '}
                   {vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)}
                 </span>
               </div>

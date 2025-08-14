@@ -5,6 +5,7 @@
 
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import VehicleIcon from './VehicleIcon';
 
 const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
   const [sortField, setSortField] = useState('vehicleId');
@@ -34,21 +35,6 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
       month: '2-digit',
       year: '2-digit',
     });
-  };
-
-  // Obtener icono para tipo de vehículo (dinámico)
-  const getVehicleIcon = (type) => {
-    if (!type) return '🚗';
-    const lowerType = type.toLowerCase();
-    if (lowerType.includes('excavadora')) return '🚚';
-    if (lowerType.includes('bulldozer')) return '🚜';
-    if (lowerType.includes('cargador')) return '🏗️';
-    if (lowerType.includes('camion')) return '🚛';
-    if (lowerType.includes('grua')) return '🏗️';
-    if (lowerType.includes('motosierra')) return '🪚';
-    if (lowerType.includes('tractor')) return '🚜';
-    if (lowerType.includes('volqueta')) return '🚛';
-    return '🚗';
   };
 
   // Obtener icono para combustible
@@ -204,7 +190,6 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
                 onView={onView}
                 onEdit={onEdit}
                 onMaintenance={onMaintenance}
-                getVehicleIcon={getVehicleIcon}
                 getFuelIcon={getFuelIcon}
                 getStatusIcon={getStatusIcon}
                 getStatusClass={getStatusClass}
@@ -260,7 +245,6 @@ const VehiclesRow = memo(function VehiclesRow({
   onView,
   onEdit,
   onMaintenance,
-  getVehicleIcon,
   getFuelIcon,
   getStatusIcon,
   getStatusClass,
@@ -268,6 +252,10 @@ const VehiclesRow = memo(function VehiclesRow({
   formatHours,
   formatDate,
 }) {
+  // Renderizar icono de vehículo personalizado
+  const renderVehicleIcon = (vehicle) => {
+    return <VehicleIcon iconId={vehicle.iconId} size="small" showBorder={true} />;
+  };
   const needsMaintenance = useCallback(() => {
     if (!vehicle.lastMaintenanceDate) return true;
     const daysSinceLastMaintenance = Math.floor(
@@ -289,7 +277,7 @@ const VehiclesRow = memo(function VehiclesRow({
     >
       <td className="vehicle-id-cell sap-theme">
         <div className="id-content sap-theme">
-          <span className="vehicle-icon sap-theme">{getVehicleIcon(vehicle.type)}</span>
+          {renderVehicleIcon(vehicle)}
           <span className="vehicle-id sap-theme">{vehicle.vehicleId}</span>
         </div>
       </td>
