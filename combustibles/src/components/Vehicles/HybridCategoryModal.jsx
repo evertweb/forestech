@@ -3,26 +3,10 @@
  * Combina React Portal con DOM directo como respaldo
  */
 
-import React, { useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useEffect, useCallback } from 'react';
 
 const HybridCategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
-  useEffect(() => {
-    console.log('🎯 HybridCategoryModal - useEffect EJECUTADO:', { isOpen, timestamp: Date.now() });
-
-    if (isOpen) {
-      console.log('🚀 MODAL ABIERTO - Creando modal DOM directo inmediatamente');
-
-      // Test inmediato con alert
-      console.log('🔥 ALERTA DE PRUEBA - El modal debería abrirse');
-
-      createDirectModal();
-    } else {
-      console.log('❌ isOpen es false, no creando modal');
-    }
-  }, [isOpen]);
-
-  const createDirectModal = () => {
+  const createDirectModal = useCallback(() => {
     // Limpiar modales existentes
     const existingModal = document.getElementById('hybrid-category-modal');
     if (existingModal) {
@@ -311,7 +295,22 @@ const HybridCategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
       const nameInput = modalDiv.querySelector('#category-name');
       if (nameInput) nameInput.focus();
     }, 100);
-  };
+  }, [onClose, onSave, category]);
+
+  useEffect(() => {
+    console.log('🎯 HybridCategoryModal - useEffect EJECUTADO:', { isOpen, timestamp: Date.now() });
+
+    if (isOpen) {
+      console.log('🚀 MODAL ABIERTO - Creando modal DOM directo inmediatamente');
+
+      // Test inmediato con alert
+      console.log('🔥 ALERTA DE PRUEBA - El modal debería abrirse');
+
+      createDirectModal();
+    } else {
+      console.log('❌ isOpen es false, no creando modal');
+    }
+  }, [isOpen, createDirectModal]);
 
   // No renderizar nada en React - todo se maneja por DOM directo
   return null;

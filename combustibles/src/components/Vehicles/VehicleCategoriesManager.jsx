@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import {
   createCategory,
   getAllVehicleCategories,
-  updateCategory,
   deleteCategory,
   subscribeToCategories,
   getCategoryStats,
@@ -21,7 +20,7 @@ import {
   renderCategoryIcon,
   deleteCategoryIcon,
 } from '../../services/iconUploadService.jsx';
-import { AVAILABLE_FIELDS, generateCategoryId } from '../../data/vehicleCategories';
+import { AVAILABLE_FIELDS } from '../../data/vehicleCategories';
 import './VehicleCategoriesManager.css';
 
 const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false }) => {
@@ -32,6 +31,8 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   const [error, setError] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [hasCustom, setHasCustom] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingCategory, _setEditingCategory] = useState(null);
 
   useEffect(() => {
     loadCategoriesAndStats();
@@ -82,21 +83,6 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     } catch (error) {
       console.error('❌ Error verificando categorías personalizadas:', error);
     }
-  };
-
-  // Función para generar código único automáticamente
-  const generateUniqueCode = (name) => {
-    if (!name) return '';
-
-    const baseCode = name
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, '')
-      .substring(0, 6);
-
-    const randomSuffix = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, '0');
-    return `${baseCode}${randomSuffix}`;
   };
 
   const handleEditCategory = (category) => {
@@ -1223,58 +1209,6 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
     <>
       {mainContent}
 
-      {/* Modal eliminado - usar DOM directo en su lugar */}
-      {false && (
-        <div className="typeform-overlay">
-          <div className="typeform-modal">
-            <div className="typeform-header">
-              <button className="typeform-close" onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-              <div className="typeform-progress">
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                  />
-                </div>
-                <span className="progress-text">
-                  {currentStep} de {totalSteps}
-                </span>
-              </div>
-            </div>
-
-            <div className="typeform-body">
-              <form onSubmit={handleStepSubmit} className="typeform-form">
-                {renderStep(currentStep)}
-
-                <div className="typeform-actions">
-                  {currentStep > 1 && (
-                    <button type="button" className="btn-back" onClick={handlePrevStep}>
-                      ← Anterior
-                    </button>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="btn-next"
-                    disabled={!isStepValid(currentStep) || saving}
-                  >
-                    {saving
-                      ? 'Guardando...'
-                      : iconUploading
-                        ? 'Subiendo icono...'
-                        : currentStep === totalSteps
-                          ? 'Crear Categoría'
-                          : 'Siguiente →'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Modal de confirmación para reset */}
       {showResetConfirm && (
         <div className="modal-overlay">
@@ -1309,58 +1243,6 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   ) : (
     <div className="categories-manager">
       {mainContent}
-
-      {/* Modal eliminado - usar DOM directo en su lugar */}
-      {false && (
-        <div className="typeform-overlay">
-          <div className="typeform-modal">
-            <div className="typeform-header">
-              <button className="typeform-close" onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-              <div className="typeform-progress">
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                  />
-                </div>
-                <span className="progress-text">
-                  {currentStep} de {totalSteps}
-                </span>
-              </div>
-            </div>
-
-            <div className="typeform-body">
-              <form onSubmit={handleStepSubmit} className="typeform-form">
-                {renderStep(currentStep)}
-
-                <div className="typeform-actions">
-                  {currentStep > 1 && (
-                    <button type="button" className="btn-back" onClick={handlePrevStep}>
-                      ← Anterior
-                    </button>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="btn-next"
-                    disabled={!isStepValid(currentStep) || saving}
-                  >
-                    {saving
-                      ? 'Guardando...'
-                      : iconUploading
-                        ? 'Subiendo icono...'
-                        : currentStep === totalSteps
-                          ? 'Crear Categoría'
-                          : 'Siguiente →'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal de confirmación para reset */}
       {showResetConfirm && (

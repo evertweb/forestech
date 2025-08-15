@@ -210,7 +210,7 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
 
       return stepErrors;
     },
-    [formData, steps]
+    [formData, steps, shouldShowFuelField]
   );
 
   // Navegación entre pasos
