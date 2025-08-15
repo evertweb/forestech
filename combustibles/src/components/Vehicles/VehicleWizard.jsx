@@ -201,6 +201,37 @@ const VehicleWizard = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
         const selectedCategory = categories.find((cat) => cat.id === formData.category);
         const categoryName = selectedCategory?.name || 'Otro';
 
+        // Heredar tipo de combustible de la categoría si no se especificó o si la categoría tiene un solo tipo
+        let fuelType = formData.fuelType;
+        if (
+          selectedCategory &&
+          selectedCategory.fuelTypes &&
+          selectedCategory.fuelTypes.length === 1
+        ) {
+          fuelType = selectedCategory.fuelTypes[0];
+          console.log('🔄 Heredando tipo de combustible de categoría:', fuelType);
+        } else if (
+          !fuelType &&
+          selectedCategory &&
+          selectedCategory.fuelTypes &&
+          selectedCategory.fuelTypes.length > 0
+        ) {
+          // Si no hay fuelType pero la categoría tiene opciones, usar la primera como fallback
+          fuelType = selectedCategory.fuelTypes[0];
+          console.log('🔄 Usando primer tipo de combustible de categoría como fallback:', fuelType);
+        }
+
+        // Heredar hasHourMeter de la categoría si está incluido en sus campos
+        let hasHourMeter = formData.hasHourMeter;
+        if (
+          selectedCategory &&
+          selectedCategory.fields &&
+          selectedCategory.fields.includes('hasHourMeter')
+        ) {
+          hasHourMeter = true;
+          console.log('🔄 Heredando hasHourMeter=true de categoría:', selectedCategory.name);
+        }
+
         // Preparar datos para guardar
         const vehicleData = {
           vehicleId: formData.vehicleId.trim(),
@@ -209,18 +240,23 @@ const VehicleWizard = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
           model: formData.model.trim(),
           type: categoryName, // Campo requerido por vehiclesService
           category: formData.category,
-          fuelType: formData.fuelType,
+          fuelType: fuelType,
           plateNumber: formData.plateNumber?.trim() || '',
           enginePower: formData.enginePower ? parseFloat(formData.enginePower) : null,
           fuelCapacity: formData.fuelCapacity ? parseFloat(formData.fuelCapacity) : null,
           status: formData.status,
           currentLocation: formData.currentLocation?.trim() || '',
-          hasHourMeter: formData.hasHourMeter,
+          hasHourMeter: hasHourMeter,
           currentHours: formData.currentHours ? parseFloat(formData.currentHours) : null,
           description: formData.description?.trim() || '',
           lastMaintenanceDate: formData.lastMaintenanceDate || null,
           purchaseDate: formData.purchaseDate || null,
         };
+
+        console.log('🔍 Categoría seleccionada:', selectedCategory);
+        console.log('⛽ Tipo de combustible final:', fuelType);
+        console.log('⏰ HasHourMeter final:', hasHourMeter);
+        console.log('🔄 Datos finales del vehículo:', vehicleData);
 
         let result;
         if (vehicle) {

@@ -190,7 +190,8 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
             }
             break;
           case 'fuelType':
-            if (!formData.fuelType) {
+            // Solo validar si el campo se muestra (no se hereda automáticamente)
+            if (shouldShowFuelField && !formData.fuelType) {
               stepErrors.fuelType = 'Debe seleccionar el tipo de combustible';
             }
             break;
@@ -358,11 +359,36 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
   }, [isOpen, onClose]);
 
   // Opciones para selects
-  const fuelTypeOptions = [
+  // Encontrar la categoría seleccionada
+  const selectedCategory = categories.find((cat) => cat.id === formData.category);
+
+  // Determinar si mostrar el campo de combustible (solo si categoría tiene múltiples o no está definida)
+  const shouldShowFuelField =
+    !selectedCategory || !selectedCategory.fuelTypes || selectedCategory.fuelTypes.length !== 1;
+
+  // Heredar combustible automáticamente si la categoría tiene exactamente uno
+  useEffect(() => {
+    if (selectedCategory && selectedCategory.fuelTypes && selectedCategory.fuelTypes.length === 1) {
+      console.log('🔄 Heredando combustible de categoría:', selectedCategory.fuelTypes[0]);
+      console.log('🔍 DEBUG VehicleFormCorporate - Categoría:', selectedCategory);
+      setFormData((prev) => ({
+        ...prev,
+        fuelType: selectedCategory.fuelTypes[0],
+      }));
+    }
+  }, [selectedCategory]);
+
+  // Filtrar opciones de combustible según la categoría
+  const allFuelTypeOptions = [
     { value: FUEL_TYPES.DIESEL, label: 'Diésel' },
     { value: FUEL_TYPES.GASOLINE, label: 'Gasolina' },
     { value: FUEL_TYPES.MIXTO, label: 'Mixto' },
   ];
+
+  const fuelTypeOptions =
+    selectedCategory && selectedCategory.fuelTypes
+      ? allFuelTypeOptions.filter((option) => selectedCategory.fuelTypes.includes(option.value))
+      : allFuelTypeOptions;
 
   const statusOptions = [
     { value: VEHICLE_STATUS.ACTIVO, label: 'Activo' },
@@ -555,24 +581,56 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
             {/* Step 2: Especificaciones Técnicas */}
             {currentStep === 2 && (
               <div className="form-section">
-                <div className="form-group">
-                  <label htmlFor="fuelType" className="form-label">
-                    Tipo de Combustible *
-                  </label>
-                  <select
-                    id="fuelType"
-                    className={`form-select ${errors.fuelType ? 'error' : ''}`}
-                    value={formData.fuelType}
-                    onChange={(e) => handleChange('fuelType', e.target.value)}
-                  >
-                    {fuelTypeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.fuelType && <div className="error-message">{errors.fuelType}</div>}
-                </div>
+                {/* Mostrar campo de combustible solo si es necesario */}
+                {shouldShowFuelField ? (
+                  <div className="form-group">
+                    <label htmlFor="fuelType" className="form-label">
+                      Tipo de Combustible *
+                    </label>
+                    <select
+                      id="fuelType"
+                      className={`form-select ${errors.fuelType ? 'error' : ''}`}
+                      value={formData.fuelType}
+                      onChange={(e) => handleChange('fuelType', e.target.value)}
+                    >
+                      {fuelTypeOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.fuelType && <div className="error-message">{errors.fuelType}</div>}
+                    {selectedCategory && selectedCategory.fuelTypes?.length > 1 && (
+                      <div className="field-help">
+                        Esta categoría soporta: {selectedCategory.fuelTypes.join(', ')}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="form-group">
+                    <div
+                      style={{
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        color: 'white',
+                        padding: '16px',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                      }}
+                    >
+                      <div style={{ fontSize: '24px' }}>⛽</div>
+                      <div>
+                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                          Combustible heredado de categoría
+                        </div>
+                        <div style={{ fontSize: '14px', opacity: '0.9' }}>
+                          {selectedCategory?.name}: {formData.fuelType}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label htmlFor="plateNumber" className="form-label">

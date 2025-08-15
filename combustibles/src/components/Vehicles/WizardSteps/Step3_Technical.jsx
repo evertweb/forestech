@@ -7,46 +7,101 @@ import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { FUEL_TYPES } from '../../../data/vehicleCategories';
 import './VehicleWizardSteps.css';
 
-const Step3_Technical = ({ formData, updateFormData, errors, isActive }) => {
+const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData }) => {
+  console.log('🚨 Step3_Technical CARGADO - NUEVOS CAMBIOS APLICADOS!');
+
   const [currentSubStep, setCurrentSubStep] = useState(1);
   const [isSubStepTransitioning, setIsSubStepTransitioning] = useState(false);
 
-  const totalSubSteps = 3;
+  const { categories = [] } = extraData || {};
 
-  // Definir los subpasos
-  const subSteps = useMemo(
-    () => [
-      {
-        id: 1,
+  // Encontrar la categoría seleccionada
+  const selectedCategory = categories.find((cat) => cat.id === formData.category);
+
+  // DEBUG: Agregar logging detallado
+  React.useEffect(() => {
+    console.log('🔍 DEBUG Step3_Technical:');
+    console.log('- formData.category:', formData.category);
+    console.log(
+      '- categories disponibles:',
+      categories.map((c) => ({ id: c.id, name: c.name, fuelTypes: c.fuelTypes }))
+    );
+    console.log('- selectedCategory:', selectedCategory);
+    console.log('- selectedCategory.fuelTypes:', selectedCategory?.fuelTypes);
+    console.log('- fuelTypes.length:', selectedCategory?.fuelTypes?.length);
+  }, [formData.category, categories, selectedCategory]);
+
+  // Determinar si necesitamos mostrar el campo de tipo de combustible
+  const shouldShowFuelSelection =
+    !selectedCategory || !selectedCategory.fuelTypes || selectedCategory.fuelTypes.length !== 1;
+
+  console.log('🎯 shouldShowFuelSelection:', shouldShowFuelSelection, {
+    hasCategory: !!selectedCategory,
+    hasFuelTypes: !!selectedCategory?.fuelTypes,
+    fuelTypesLength: selectedCategory?.fuelTypes?.length,
+  });
+
+  // Si la categoría tiene exactamente un tipo de combustible, heredarlo automáticamente
+  React.useEffect(() => {
+    if (
+      selectedCategory &&
+      selectedCategory.fuelTypes &&
+      selectedCategory.fuelTypes.length === 1 &&
+      !formData.fuelType
+    ) {
+      console.log('🔄 Heredando tipo de combustible de categoría:', selectedCategory.fuelTypes[0]);
+      updateFormData('fuelType', selectedCategory.fuelTypes[0]);
+    }
+  }, [selectedCategory, formData.fuelType, updateFormData]);
+
+  const totalSubSteps = shouldShowFuelSelection ? 3 : 2;
+
+  // Definir los subpasos dinámicamente según la categoría seleccionada
+  const subSteps = useMemo(() => {
+    const steps = [];
+
+    // Solo agregar el paso de combustible si es necesario
+    if (shouldShowFuelSelection) {
+      steps.push({
+        id: steps.length + 1,
         title: 'Tipo de Combustible',
-        question: '⛽ ¿Qué tipo de combustible usa este vehículo?',
+        question:
+          selectedCategory && selectedCategory.fuelTypes?.length > 1
+            ? `⛽ Esta categoría soporta ${selectedCategory.fuelTypes.join(' y ')}. ¿Cuál usa este vehículo?`
+            : '⛽ ¿Qué tipo de combustible usa este vehículo?',
         description: 'Esta información es crucial para la gestión de combustible y mantenimiento',
         type: 'fuel-selection',
-        hint: '💡 La mayoría de tractores y maquinaria pesada usa diésel',
-      },
-      {
-        id: 2,
-        title: 'Número de Placa',
-        question: '🏷️ ¿Cuál es el número de placa de este vehículo?',
-        description:
-          'Si el vehículo tiene placa, especifícala aquí. Es opcional para equipos sin placa.',
-        type: 'input',
-        field: 'plateNumber',
-        placeholder: 'Ej: ABC-123, XYZ-456',
-        hint: '🚗 Deja vacío si no aplica (equipos sin placa)',
-      },
-      {
-        id: 3,
-        title: 'Especificaciones',
-        question: '⚡ Especificaciones técnicas del motor',
-        description:
-          'Potencia del motor y capacidad de combustible nos ayudan a gestionar mejor el vehículo',
-        type: 'technical-specs',
-        hint: '📋 Revisa la documentación técnica si no estás seguro',
-      },
-    ],
-    []
-  );
+        hint: selectedCategory
+          ? `💡 Categoría "${selectedCategory.name}" - combustibles permitidos: ${selectedCategory.fuelTypes?.join(', ') || 'todos'}`
+          : '💡 La mayoría de tractores y maquinaria pesada usa diésel',
+      });
+    }
+
+    // Siempre agregar el paso de placa
+    steps.push({
+      id: steps.length + 1,
+      title: 'Número de Placa',
+      question: '🏷️ ¿Cuál es el número de placa de este vehículo?',
+      description:
+        'Si el vehículo tiene placa, especifícala aquí. Es opcional para equipos sin placa.',
+      type: 'input',
+      field: 'plateNumber',
+      placeholder: 'Ej: ABC-123, XYZ-456',
+      hint: '🚗 Deja vacío si no aplica (equipos sin placa)',
+    });
+
+    // Siempre agregar el paso de especificaciones técnicas
+    steps.push({
+      id: steps.length + 1,
+      title: 'Especificaciones Técnicas',
+      question: '🔧 ¿Cuáles son las especificaciones técnicas?',
+      description: 'Ingresa la potencia del motor y/o capacidad del tanque si están disponibles',
+      type: 'technical-specs',
+      hint: '⚡ Especifica al menos uno de los dos campos',
+    });
+
+    return steps;
+  }, [shouldShowFuelSelection, selectedCategory]);
 
   // Resetear subpasos cuando el paso se activa
   useEffect(() => {
@@ -136,7 +191,8 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive }) => {
     [updateFormData]
   );
 
-  const fuelTypeOptions = [
+  // Filtrar opciones de combustible según la categoría seleccionada
+  const allFuelTypeOptions = [
     {
       type: FUEL_TYPES.DIESEL,
       icon: '🛢️',
@@ -160,12 +216,47 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive }) => {
     },
   ];
 
+  // Filtrar según los tipos permitidos por la categoría
+  const fuelTypeOptions =
+    selectedCategory && selectedCategory.fuelTypes
+      ? allFuelTypeOptions.filter((option) => selectedCategory.fuelTypes.includes(option.type))
+      : allFuelTypeOptions;
+
   const currentStepData = subSteps[currentSubStep - 1];
   const subStepProgress = (currentSubStep / totalSubSteps) * 100;
 
   return (
     <div className={`wizard-step step-technical ${isActive ? 'active' : ''}`}>
       <div className="typeform-layout sap-theme">
+        {/* Mensaje informativo si el combustible se hereda automáticamente */}
+        {!shouldShowFuelSelection && selectedCategory && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
+              zIndex: 1000,
+              animation: 'slideIn 0.3s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '18px' }}>⛽</span>
+              <div>
+                <div style={{ fontWeight: '600' }}>Combustible heredado</div>
+                <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                  {selectedCategory.name}: {selectedCategory.fuelTypes?.[0]}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Indicador de progreso de subpasos */}
         <div className="substep-progress sap-theme">
           <div className="substep-progress-bar sap-theme">

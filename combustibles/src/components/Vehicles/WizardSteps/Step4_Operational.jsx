@@ -7,53 +7,93 @@ import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { VEHICLE_STATUS } from '../../../services/vehiclesService';
 import './VehicleWizardSteps.css';
 
-const Step4_Operational = ({ formData, updateFormData, errors, isActive }) => {
+const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraData }) => {
   const [currentSubStep, setCurrentSubStep] = useState(1);
   const [isSubStepTransitioning, setIsSubStepTransitioning] = useState(false);
 
-  const totalSubSteps = 4;
+  const { categories = [] } = extraData || {};
 
-  // Definir los subpasos
-  const subSteps = useMemo(
-    () => [
-      {
-        id: 1,
-        title: 'Estado Operacional',
-        question: '🚀 ¿Cuál es el estado operacional actual?',
-        description:
-          'Esta información nos ayudará a gestionar la disponibilidad y programar mantenimientos',
-        type: 'status-selection',
-        hint: '🔧 El estado determina si el vehículo puede ser asignado para operaciones',
-      },
-      {
-        id: 2,
-        title: 'Ubicación',
-        question: '📍 ¿Dónde se encuentra actualmente este vehículo?',
-        description: 'Especifica la ubicación actual para facilitar su localización',
-        type: 'input',
-        field: 'currentLocation',
-        placeholder: 'Ej: Almacén Central, Campo Norte, Taller Mecánico',
-        hint: '🗺️ Sé específico para facilitar la localización del vehículo',
-      },
-      {
-        id: 3,
+  // Encontrar la categoría seleccionada
+  const selectedCategory = categories.find((cat) => cat.id === formData.category);
+
+  // Verificar si la categoría incluye el campo hasHourMeter
+  const categoryHasHourMeter =
+    selectedCategory && selectedCategory.fields && selectedCategory.fields.includes('hasHourMeter');
+
+  // Si la categoría incluye horómetro, heredarlo automáticamente
+  React.useEffect(() => {
+    if (categoryHasHourMeter && formData.hasHourMeter === undefined) {
+      console.log('🔄 Heredando hasHourMeter=true de categoría:', selectedCategory.name);
+      updateFormData('hasHourMeter', true);
+    }
+  }, [categoryHasHourMeter, formData.hasHourMeter, updateFormData, selectedCategory]);
+
+  // Determinar si necesitamos mostrar la pregunta del horómetro
+  const shouldShowHourMeterQuestion = !categoryHasHourMeter;
+
+  const totalSubSteps = shouldShowHourMeterQuestion ? 4 : 3;
+
+  // Definir los subpasos dinámicamente según la categoría
+  const subSteps = useMemo(() => {
+    const steps = [];
+
+    // Siempre agregar estado operacional
+    steps.push({
+      id: steps.length + 1,
+      title: 'Estado Operacional',
+      question: '🚀 ¿Cuál es el estado operacional actual?',
+      description:
+        'Esta información nos ayudará a gestionar la disponibilidad y programar mantenimientos',
+      type: 'status-selection',
+      hint: '🔧 El estado determina si el vehículo puede ser asignado para operaciones',
+    });
+
+    // Siempre agregar ubicación
+    steps.push({
+      id: steps.length + 1,
+      title: 'Ubicación',
+      question: '📍 ¿Dónde se encuentra actualmente este vehículo?',
+      description: 'Especifica la ubicación actual para facilitar su localización',
+      type: 'input',
+      field: 'currentLocation',
+      placeholder: 'Ej: Almacén Central, Campo Norte, Taller Mecánico',
+      hint: '🗺️ Sé específico para facilitar la localización del vehículo',
+    });
+
+    // Solo agregar pregunta de horómetro si la categoría no lo define
+    if (shouldShowHourMeterQuestion) {
+      steps.push({
+        id: steps.length + 1,
         title: 'Horómetro',
         question: '⏱️ ¿Este vehículo tiene horómetro?',
         description: 'El horómetro nos ayuda a programar mantenimientos preventivos',
         type: 'hour-meter',
         hint: '📊 Las horas de operación son clave para el mantenimiento preventivo',
-      },
-      {
-        id: 4,
-        title: 'Fechas y Observaciones',
-        question: '📅 Información adicional del vehículo',
-        description: 'Fechas importantes y cualquier observación relevante',
-        type: 'dates-and-notes',
-        hint: '📝 Esta información nos ayuda con el historial y planificación',
-      },
-    ],
-    []
-  );
+      });
+    } else {
+      // Si la categoría tiene horómetro, preguntar directamente por las horas
+      steps.push({
+        id: steps.length + 1,
+        title: 'Horas del Horómetro',
+        question: '⏰ ¿Cuántas horas marca actualmente el horómetro?',
+        description: `La categoría "${selectedCategory?.name}" incluye horómetro. Ingresa las horas actuales.`,
+        type: 'hour-meter-value',
+        hint: '📊 Las horas actuales son importantes para el programa de mantenimiento',
+      });
+    }
+
+    // Siempre agregar fechas y observaciones
+    steps.push({
+      id: steps.length + 1,
+      title: 'Fechas y Observaciones',
+      question: '📅 Información adicional del vehículo',
+      description: 'Fechas importantes y cualquier observación relevante',
+      type: 'dates-and-notes',
+      hint: '📝 Esta información nos ayuda con el historial y planificación',
+    });
+
+    return steps;
+  }, [shouldShowHourMeterQuestion, selectedCategory]);
 
   // Resetear subpasos cuando el paso se activa
   useEffect(() => {
@@ -96,6 +136,9 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive }) => {
       case 'hour-meter':
         // Si tiene horómetro y se marcó, debe tener horas, si no, es válido
         return !formData.hasHourMeter || (formData.hasHourMeter && formData.currentHours);
+      case 'hour-meter-value':
+        // Para horómetro heredado, las horas son opcionales pero recomendadas
+        return true; // Permitir continuar aunque no haya horas
       case 'dates-and-notes':
         // Todo es opcional en este paso
         return true;
@@ -342,6 +385,62 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive }) => {
                   )}
 
                   <div className="input-hint sap-theme">{subStep.hint}</div>
+                </div>
+              )}
+
+              {subStep.type === 'hour-meter-value' && (
+                <div className="typeform-section sap-theme">
+                  {/* Mensaje informativo sobre horómetro heredado */}
+                  <div
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: 'white',
+                      padding: '16px',
+                      borderRadius: '8px',
+                      marginBottom: '20px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '20px' }}>⏰</span>
+                      <div>
+                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                          Horómetro incluido automáticamente
+                        </div>
+                        <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                          La categoría "{selectedCategory?.name}" incluye horómetro por defecto
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Campo para ingresar horas */}
+                  <div className="typeform-input-group sap-theme">
+                    <label className="typeform-label sap-theme">
+                      Horas actuales del horómetro (opcional)
+                    </label>
+                    <div className="input-with-icon sap-theme">
+                      <span className="input-icon sap-theme">⏰</span>
+                      <input
+                        type="number"
+                        className="typeform-input substep-input sap-theme"
+                        placeholder="1250.5"
+                        min="0"
+                        step="0.1"
+                        value={formData.currentHours || ''}
+                        onChange={handleInputChange('currentHours')}
+                        autoFocus={index + 1 === currentSubStep}
+                      />
+                    </div>
+                    {errors.currentHours && (
+                      <div className="input-error sap-theme">
+                        <span className="error-icon sap-theme">⚠️</span>
+                        {errors.currentHours}
+                      </div>
+                    )}
+                    <div className="input-hint sap-theme">{subStep.hint}</div>
+                  </div>
                 </div>
               )}
 

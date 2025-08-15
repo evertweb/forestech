@@ -19,6 +19,17 @@ import {
 import './VehicleCategoryModal.css';
 
 const VehicleCategoryModal = ({ isOpen, onClose, category = null, onSuccess }) => {
+  // Debug inmediato de props
+  console.log('🎭 VehicleCategoryModal PROPS RECIBIDAS:', {
+    isOpen,
+    isOpenType: typeof isOpen,
+    isOpenValue: isOpen,
+    category,
+    hasOnClose: typeof onClose === 'function',
+    hasOnSuccess: typeof onSuccess === 'function',
+    timestamp: new Date().toISOString(),
+  });
+
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -377,7 +388,12 @@ const VehicleCategoryModal = ({ isOpen, onClose, category = null, onSuccess }) =
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('🚫 VehicleCategoryModal: isOpen es false, no renderizando');
+    return null;
+  }
+
+  console.log('✅ VehicleCategoryModal: Renderizando modal');
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>

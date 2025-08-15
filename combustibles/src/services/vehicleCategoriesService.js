@@ -3,26 +3,26 @@
  * Permite crear, modificar y eliminar categorías dinámicamente
  */
 
-import { 
-  collection, 
+import {
+  collection,
   addDoc,
-  updateDoc, 
+  updateDoc,
   deleteDoc,
-  doc, 
-  getDocs, 
+  doc,
+  getDocs,
   getDoc,
-  query, 
+  query,
   orderBy,
   onSnapshot,
   serverTimestamp,
   // where
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { 
-  DEFAULT_VEHICLE_CATEGORIES, 
-  validateCategory, 
-  generateCategoryId, 
-  getAllCategories 
+import {
+  DEFAULT_VEHICLE_CATEGORIES,
+  validateCategory,
+  generateCategoryId,
+  getAllCategories,
 } from '../data/vehicleCategories';
 
 const COLLECTION_NAME = 'combustibles_vehicle_categories';
@@ -34,46 +34,58 @@ const COLLECTION_NAME = 'combustibles_vehicle_categories';
  */
 export const createCategory = async (categoryData) => {
   try {
-    // Validar datos
-    const validation = validateCategory(categoryData);
-    if (!validation.isValid) {
-      throw new Error(`Datos inválidos: ${validation.errors.join(', ')}`);
-    }
+    console.log('🔥 createCategory SERVICE iniciado con datos:', categoryData);
 
-    // Verificar si ya existe
+    // Verificar si ya existe y obtener categorías existentes primero
+    console.log('📋 Obteniendo categorías existentes...');
     const existingCategories = await getCustomCategories();
-    const categoryExists = existingCategories.some(cat => 
-      cat.id === categoryData.id || cat.name.toLowerCase() === categoryData.name.toLowerCase()
+    console.log('📋 Categorías existentes:', existingCategories.length);
+
+    const categoryExists = existingCategories.some(
+      (cat) => cat.name.toLowerCase() === categoryData.name.toLowerCase()
     );
 
     if (categoryExists) {
-      throw new Error('Ya existe una categoría con ese nombre o ID');
+      throw new Error('Ya existe una categoría con ese nombre');
     }
 
     // Generar ID si no se proporciona
     if (!categoryData.id) {
+      console.log('🆔 Generando ID automático...');
       categoryData.id = generateCategoryId(categoryData.name, existingCategories);
+      console.log('🆔 ID generado:', categoryData.id);
     }
+
+    // Validar datos DESPUÉS de generar el ID
+    console.log('✅ Validando datos completos...');
+    const validation = validateCategory(categoryData);
+    if (!validation.isValid) {
+      console.error('❌ Errores de validación:', validation.errors);
+      throw new Error(`Datos inválidos: ${validation.errors.join(', ')}`);
+    }
+    console.log('✅ Validación exitosa');
 
     const categoryToCreate = {
       ...categoryData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       isCustom: true,
-      vehicleCount: 0
+      vehicleCount: 0,
     };
 
+    console.log('💾 Enviando a Firebase con datos:', categoryToCreate);
+    console.log('💾 Colección:', COLLECTION_NAME);
     const docRef = await addDoc(collection(db, COLLECTION_NAME), categoryToCreate);
-    
+    console.log('💾 Documento creado en Firebase con ID:', docRef.id);
+
     console.log('✅ Categoría creada:', categoryData.name);
-    
+
     return {
       id: docRef.id,
       ...categoryToCreate,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-
   } catch (error) {
     console.error('❌ Error al crear categoría:', error);
     throw new Error(`Error al crear categoría: ${error.message}`);
@@ -88,19 +100,18 @@ export const getCustomCategories = async () => {
   try {
     const q = query(collection(db, COLLECTION_NAME), orderBy('name', 'asc'));
     const querySnapshot = await getDocs(q);
-    
+
     const categories = [];
     querySnapshot.forEach((doc) => {
       categories.push({
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-        updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt
+        updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
       });
     });
 
     return categories;
-
   } catch (error) {
     console.error('❌ Error al obtener categorías personalizadas:', error);
     throw new Error(`Error al obtener categorías: ${error.message}`);
@@ -143,7 +154,7 @@ export const updateCategory = async (categoryId, updates) => {
 
     const updateData = {
       ...updates,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     };
 
     const docRef = doc(db, COLLECTION_NAME, categoryId);
@@ -157,9 +168,8 @@ export const updateCategory = async (categoryId, updates) => {
       id: updatedDoc.id,
       ...updatedDoc.data(),
       createdAt: updatedDoc.data().createdAt?.toDate?.() || updatedDoc.data().createdAt,
-      updatedAt: updatedDoc.data().updatedAt?.toDate?.() || updatedDoc.data().updatedAt
+      updatedAt: updatedDoc.data().updatedAt?.toDate?.() || updatedDoc.data().updatedAt,
     };
-
   } catch (error) {
     console.error('❌ Error al actualizar categoría:', error);
     throw new Error(`Error al actualizar categoría: ${error.message}`);
@@ -174,7 +184,7 @@ export const updateCategory = async (categoryId, updates) => {
 export const deleteCategory = async (categoryId) => {
   try {
     console.log('🔍 Iniciando eliminación de categoría:', categoryId);
-    
+
     if (!categoryId) {
       throw new Error('ID de categoría requerido');
     }
@@ -189,7 +199,6 @@ export const deleteCategory = async (categoryId) => {
 
     console.log('✅ Categoría eliminada exitosamente:', categoryId);
     return true;
-
   } catch (error) {
     console.error('❌ Error al eliminar categoría:', error);
     throw new Error(`Error al eliminar categoría: ${error.message}`);
@@ -204,26 +213,29 @@ export const deleteCategory = async (categoryId) => {
 export const subscribeToCategories = (callback) => {
   try {
     const q = query(collection(db, COLLECTION_NAME), orderBy('name', 'asc'));
-    
-    return onSnapshot(q, (querySnapshot) => {
-      const categories = [];
-      querySnapshot.forEach((doc) => {
-        categories.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-          updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt
+
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
+        const categories = [];
+        querySnapshot.forEach((doc) => {
+          categories.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
+            updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
+          });
         });
-      });
 
-      // Combinar con categorías predeterminadas
-      const allCategories = getAllCategories(categories);
-      callback(allCategories);
-    }, (error) => {
-      console.error('❌ Error en suscripción a categorías:', error);
-      callback(DEFAULT_VEHICLE_CATEGORIES); // Fallback
-    });
-
+        // Combinar con categorías predeterminadas
+        const allCategories = getAllCategories(categories);
+        callback(allCategories);
+      },
+      (error) => {
+        console.error('❌ Error en suscripción a categorías:', error);
+        callback(DEFAULT_VEHICLE_CATEGORIES); // Fallback
+      }
+    );
   } catch (error) {
     console.error('❌ Error al suscribirse a categorías:', error);
     callback(DEFAULT_VEHICLE_CATEGORIES); // Fallback
@@ -241,20 +253,23 @@ export const getCategoryStats = async () => {
     const vehicles = await getAllVehicles();
     const categories = await getAllVehicleCategories();
 
-    return categories.map(category => {
-      const vehiclesInCategory = vehicles.filter(v => v.category === category.id);
-      
-      return {
-        ...category,
-        vehicleCount: vehiclesInCategory.length,
-        activeVehicles: vehiclesInCategory.filter(v => v.status === 'activo').length,
-        totalFuelCapacity: vehiclesInCategory.reduce((sum, v) => sum + (v.fuelCapacity || 0), 0),
-        avgEnginepower: vehiclesInCategory.length > 0 
-          ? vehiclesInCategory.reduce((sum, v) => sum + (v.enginePower || 0), 0) / vehiclesInCategory.length
-          : 0
-      };
-    }).sort((a, b) => b.vehicleCount - a.vehicleCount);
+    return categories
+      .map((category) => {
+        const vehiclesInCategory = vehicles.filter((v) => v.category === category.id);
 
+        return {
+          ...category,
+          vehicleCount: vehiclesInCategory.length,
+          activeVehicles: vehiclesInCategory.filter((v) => v.status === 'activo').length,
+          totalFuelCapacity: vehiclesInCategory.reduce((sum, v) => sum + (v.fuelCapacity || 0), 0),
+          avgEnginepower:
+            vehiclesInCategory.length > 0
+              ? vehiclesInCategory.reduce((sum, v) => sum + (v.enginePower || 0), 0) /
+                vehiclesInCategory.length
+              : 0,
+        };
+      })
+      .sort((a, b) => b.vehicleCount - a.vehicleCount);
   } catch (error) {
     console.error('❌ Error al obtener estadísticas de categorías:', error);
     return [];
@@ -268,5 +283,5 @@ export default {
   updateCategory,
   deleteCategory,
   subscribeToCategories,
-  getCategoryStats
+  getCategoryStats,
 };
