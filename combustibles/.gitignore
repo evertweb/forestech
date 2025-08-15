@@ -31,3 +31,14 @@ temp-test-image.js
 
 # Env files (local)
 .env.local
+
+# Generated directories and files
+coverage/
+test-results/
+stats.html
+playwright-report/
+
+# Temporary and backup files
+*.tmp
+*.backup
+*.bak
