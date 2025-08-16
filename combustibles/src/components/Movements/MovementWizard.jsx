@@ -25,6 +25,7 @@ import Step5_Vehicle from './WizardSteps/Step5_Vehicle';
 import Step6_Destination from './WizardSteps/Step6_Destination';
 import Step7_Details from './WizardSteps/Step7_Details';
 import Step8_Summary from './WizardSteps/Step8_Summary';
+import Step9_Maintenance from './WizardSteps/Step9_Maintenance';
 
 import './WizardSteps.css';
 import './WizardSteps-SAP.css';
@@ -212,6 +213,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     else if (formData.type === MOVEMENT_TYPES.ENTRADA) {
       steps = 7;
     }
+    // Para mantenimiento: tipo, fecha, producto, vehículo, cantidad, mantenimiento, resumen (1,2,3,4,5,9,8) = 7 pasos
+    else if (formData.type === MOVEMENT_TYPES.MANTENIMIENTO) {
+      steps = 7;
+    }
     // Para ajustes: sin vehículo ni destino (1,2,3,4,7,8) = 6 pasos
     else {
       steps = 6;
@@ -368,6 +373,16 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         // Flujo directo: 1→2→3→4→5→6→7
         nextStepNumber = currentStep + 1;
       }
+      // ✅ NUEVA LÓGICA PARA MANTENIMIENTO: flujo con paso específico
+      else if (formData.type === MOVEMENT_TYPES.MANTENIMIENTO) {
+        if (currentStep === 5) {
+          nextStepNumber = 9; // Del paso 5 (cantidad) al paso 9 (mantenimiento)
+        } else if (currentStep === 9) {
+          nextStepNumber = 8; // Del paso 9 (mantenimiento) al paso 8 (resumen)
+        } else {
+          nextStepNumber = currentStep + 1; // Flujo normal para otros pasos
+        }
+      }
       // Lógica especial para entradas (agregar paso 3b)
       else if (currentStep === 3 && formData.type === MOVEMENT_TYPES.ENTRADA) {
         nextStepNumber = '3b'; // Ir al paso de destino para entradas
@@ -436,6 +451,16 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       if (formData.type === MOVEMENT_TYPES.SALIDA) {
         // Flujo directo hacia atrás: 7→6→5→4→3→2→1
         prevStepNumber = currentStep - 1;
+      }
+      // ✅ NUEVA LÓGICA PARA MANTENIMIENTO: navegación hacia atrás
+      else if (formData.type === MOVEMENT_TYPES.MANTENIMIENTO) {
+        if (currentStep === 8) {
+          prevStepNumber = 9; // Del paso 8 (resumen) al paso 9 (mantenimiento)
+        } else if (currentStep === 9) {
+          prevStepNumber = 5; // Del paso 9 (mantenimiento) al paso 5 (cantidad)
+        } else {
+          prevStepNumber = currentStep - 1; // Flujo normal para otros pasos
+        }
       }
       // Lógica especial para navegación hacia atrás en otros tipos
       else if (currentStep === 4 && formData.type === MOVEMENT_TYPES.ENTRADA) {
@@ -563,6 +588,29 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         ),
       };
       return exitStepComponents[currentStep] || <div>Paso no encontrado</div>;
+    }
+
+    // ✅ NUEVA LÓGICA DE RENDERIZADO PARA MANTENIMIENTO
+    if (formData.type === MOVEMENT_TYPES.MANTENIMIENTO) {
+      const maintenanceStepComponents = {
+        1: <Step1_MovementType {...commonProps} />, // PASO 1: Tipo
+        2: <Step2_Date {...commonProps} />, // PASO 2: Fecha
+        3: <Step2_FuelType {...commonProps} />, // PASO 3: Producto (reutiliza Step2_FuelType)
+        4: <Step5_Vehicle {...commonProps} />, // PASO 4: Vehículo (reutiliza Step5_Vehicle)
+        5: <Step4_Quantity {...commonProps} />, // PASO 5: Cantidad (reutiliza Step4_Quantity)
+        9: <Step9_Maintenance {...commonProps} />, // PASO 9: Datos de Mantenimiento
+        8: (
+          <Step8_Summary // PASO 8: Resumen
+            {...commonProps}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            onCommentsChange={(comments) => updateFormData('additionalComments', comments)}
+            confirmChecked={confirmChecked}
+            onConfirmChange={setConfirmChecked}
+          />
+        ),
+      };
+      return maintenanceStepComponents[currentStep] || <div>Paso no encontrado</div>;
     }
 
     // Lógica original para otros tipos de movimientos

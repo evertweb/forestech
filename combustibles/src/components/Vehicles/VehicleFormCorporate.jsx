@@ -156,6 +156,17 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
     }
   };
 
+  // Opciones para selects - Calcular antes de validateStep
+  // Encontrar la categoría seleccionada
+  const selectedCategory = categories.find((cat) => cat.id === formData.category);
+
+  // Determinar si mostrar el campo de combustible (solo si categoría tiene múltiples o no está definida)
+  const shouldShowFuelField = useMemo(() => {
+    return (
+      !selectedCategory || !selectedCategory.fuelTypes || selectedCategory.fuelTypes.length !== 1
+    );
+  }, [selectedCategory]);
+
   // Validación de campos
   const validateStep = useCallback(
     (stepIndex) => {
@@ -357,14 +368,6 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
-
-  // Opciones para selects
-  // Encontrar la categoría seleccionada
-  const selectedCategory = categories.find((cat) => cat.id === formData.category);
-
-  // Determinar si mostrar el campo de combustible (solo si categoría tiene múltiples o no está definida)
-  const shouldShowFuelField =
-    !selectedCategory || !selectedCategory.fuelTypes || selectedCategory.fuelTypes.length !== 1;
 
   // Heredar combustible automáticamente si la categoría tiene exactamente uno
   useEffect(() => {

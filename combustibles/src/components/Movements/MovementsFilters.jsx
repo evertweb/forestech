@@ -88,6 +88,12 @@ const MovementsFilters = ({
               📤 Salidas
             </button>
             <button
+              className={`quick-filter sap-theme ${filters.type === MOVEMENT_TYPES.MANTENIMIENTO ? 'active' : ''}`}
+              onClick={() => handleQuickFilter({ type: MOVEMENT_TYPES.MANTENIMIENTO })}
+            >
+              🔧 Mantenimiento
+            </button>
+            <button
               className={`quick-filter sap-theme ${filters.status === MOVEMENT_STATUS.PENDIENTE ? 'active' : ''}`}
               onClick={() => handleQuickFilter({ status: MOVEMENT_STATUS.PENDIENTE })}
             >
@@ -130,6 +136,7 @@ const MovementsFilters = ({
                 <option value={MOVEMENT_TYPES.SALIDA}>📤 Salida</option>
                 <option value={MOVEMENT_TYPES.TRANSFERENCIA}>🔄 Transferencia</option>
                 <option value={MOVEMENT_TYPES.AJUSTE}>⚖️ Ajuste</option>
+                <option value={MOVEMENT_TYPES.MANTENIMIENTO}>🔧 Mantenimiento</option>
               </select>
             </div>
 

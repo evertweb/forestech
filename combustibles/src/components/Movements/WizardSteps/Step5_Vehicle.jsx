@@ -19,10 +19,19 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
   // Función para determinar si requiere horómetro
   const checkIfRequiresHourMeter = useCallback((vehicle) => {
     if (!vehicle) return false;
+
+    // Verificar primero si el vehículo tiene el campo hasHourMeter explícito
+    if (vehicle.hasHourMeter !== undefined) {
+      return vehicle.hasHourMeter;
+    }
+
+    // Fallback: detectar por tipo y categoría (lógica anterior)
     return (
       vehicle.type === 'heavy' ||
       vehicle.type === 'construction' ||
-      vehicle.category === 'maquinaria'
+      vehicle.category === 'maquinaria' ||
+      vehicle.category === 'tractor' ||
+      vehicle.vehicleId?.toLowerCase().includes('tr') // Para tractores como TR-1, TR-2, etc.
     );
   }, []);
 

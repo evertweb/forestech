@@ -26,6 +26,10 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
         type: MOVEMENT_TYPES.AJUSTE,
         ...MOVEMENT_TYPES_UI.AJUSTE,
       },
+      {
+        type: MOVEMENT_TYPES.MANTENIMIENTO,
+        ...MOVEMENT_TYPES_UI.MANTENIMIENTO,
+      },
     ],
     []
   );
@@ -43,9 +47,9 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
     if (!isActive) return;
 
     const handleKeyPress = (e) => {
-      // Números 1-4 para seleccionar opciones
+      // Números 1-5 para seleccionar opciones
       const num = parseInt(e.key);
-      if (num >= 1 && num <= 4) {
+      if (num >= 1 && num <= 5) {
         const selectedOption = movementOptions[num - 1];
         handleSelection(selectedOption.type);
       }

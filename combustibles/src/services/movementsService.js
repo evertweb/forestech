@@ -29,6 +29,7 @@ export const MOVEMENT_TYPES = {
   SALIDA: 'salida', // Consumo por vehículos
   TRANSFERENCIA: 'transferencia', // Entre tanques/ubicaciones
   AJUSTE: 'ajuste', // Mermas, pérdidas, calibraciones
+  MANTENIMIENTO: 'mantenimiento', // Mantenimiento de vehículos con combustible
 };
 
 // Estados de movimiento
@@ -606,6 +607,13 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
           // ✅ IMPLEMENTAR SUMA AL DESTINO
           await handleTransferToDestination(transaction, movement, movementId);
           break;
+        case MOVEMENT_TYPES.MANTENIMIENTO:
+          // Para mantenimiento, funciona como una salida
+          newQuantity = preciseSubtract(newQuantity, movement.quantity);
+          if (newQuantity < 0) {
+            throw new Error('Stock insuficiente para realizar el mantenimiento');
+          }
+          break;
       }
 
       // Redondear resultado a 2 decimales para consistencia
@@ -624,14 +632,18 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
       });
     }
 
-    // Actualizar horómetro del vehículo si es una salida y tiene datos del horómetro
-    if (movement.type === MOVEMENT_TYPES.SALIDA && movement.vehicleId && movement.currentHours) {
+    // Actualizar horómetro del vehículo para salidas y mantenimientos
+    if (
+      (movement.type === MOVEMENT_TYPES.SALIDA || movement.type === MOVEMENT_TYPES.MANTENIMIENTO) &&
+      movement.vehicleId &&
+      movement.currentHours
+    ) {
       await updateVehicleHourMeter(transaction, movement.vehicleId, movement.currentHours);
     }
 
-    // Actualizar horómetro del vehículo si es una salida y tiene datos del horómetro
-    if (movement.type === MOVEMENT_TYPES.SALIDA && movement.vehicleId && movement.currentHours) {
-      await updateVehicleHourMeter(transaction, movement.vehicleId, movement.currentHours);
+    // Guardar datos específicos de mantenimiento si aplica
+    if (movement.type === MOVEMENT_TYPES.MANTENIMIENTO) {
+      await saveMaintenanceData(transaction, movement, movementId);
     }
   } catch (error) {
     console.error('❌ Error al actualizar inventario:', error);
@@ -1007,6 +1019,82 @@ const updateVehicleHourMeter = async (transaction, vehicleId, currentHours) => {
     console.error('❌ Error al actualizar horómetro del vehículo:', error);
     // No hacer throw para no afectar el movimiento principal
     console.warn('⚠️ Continuando con el movimiento sin actualización de horómetro');
+  }
+};
+
+/**
+ * Guardar datos específicos de mantenimiento en una colección separada
+ * @param {Transaction} transaction - Transacción Firestore
+ * @param {Object} movement - Datos del movimiento de mantenimiento
+ * @param {string} movementId - ID del movimiento
+ */
+const saveMaintenanceData = async (transaction, movement, movementId) => {
+  try {
+    console.log(`🔧 Guardando datos de mantenimiento para movimiento ${movementId}`);
+
+    // Crear un documento en la colección de mantenimiento
+    const maintenanceRef = doc(collection(db, 'combustibles_maintenance'));
+
+    const maintenanceData = {
+      // Referencia al movimiento
+      movementId,
+      movementType: movement.type,
+
+      // Datos del vehículo
+      vehicleId: movement.vehicleId,
+      vehicleName: movement.vehicleName,
+
+      // Datos básicos del mantenimiento
+      type: movement.maintenanceType || 'preventivo',
+      priority: movement.maintenancePriority || 'media',
+      title: movement.maintenanceTitle || 'Mantenimiento con combustible',
+      description: movement.maintenanceDescription || '',
+      notes: movement.maintenanceNotes || '',
+
+      // Costos y tiempo
+      hours: movement.maintenanceHours || 0,
+      laborCost: movement.maintenanceCost || 0,
+      technician: movement.maintenanceTechnician || '',
+
+      // Partes y repuestos
+      parts: movement.maintenanceParts || [],
+      totalPartsCost: (movement.maintenanceParts || []).reduce(
+        (sum, part) => sum + (part.total || 0),
+        0
+      ),
+
+      // Combustible utilizado
+      fuelType: movement.fuelType,
+      fuelQuantity: movement.quantity,
+      fuelCost: (movement.quantity || 0) * (movement.unitPrice || 0),
+
+      // Horómetro
+      currentHours: movement.currentHours,
+
+      // Fechas
+      scheduledDate: movement.effectiveDate || new Date(),
+      completedDate: movement.effectiveDate || new Date(),
+
+      // Metadatos
+      status: 'completado', // Como se registra después del hecho
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      createdBy: movement.createdBy || 'system',
+    };
+
+    // Calcular costo total
+    maintenanceData.totalCost =
+      (maintenanceData.laborCost || 0) +
+      (maintenanceData.totalPartsCost || 0) +
+      (maintenanceData.fuelCost || 0);
+
+    transaction.set(maintenanceRef, maintenanceData);
+
+    console.log(`✅ Datos de mantenimiento guardados exitosamente`);
+  } catch (error) {
+    console.error('❌ Error al guardar datos de mantenimiento:', error);
+    // No hacer throw para no afectar el movimiento principal
+    console.warn('⚠️ Continuando con el movimiento sin guardar datos de mantenimiento');
   }
 };
 

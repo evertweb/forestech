@@ -457,6 +457,13 @@ export const MOVEMENT_TYPES_UI = {
     icon: '⚖️',
     color: 'ajuste',
   },
+  MANTENIMIENTO: {
+    title: 'Mantenimiento de Vehículo',
+    description: 'Registrar mantenimiento con combustible asociado',
+    details: 'Para cambios de aceite, filtros y servicios preventivos',
+    icon: '🔧',
+    color: 'mantenimiento',
+  },
 };
 
 // ===================================================================
