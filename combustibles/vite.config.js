@@ -50,11 +50,10 @@ export default defineConfig({
     // 🚀 Build cache para builds incrementales
     rollupOptions: {
       treeshake: 'recommended', // Tree-shaking agresivo para LCP
-      // Cache de dependencias para builds más rápidos
-      cache: {
-        buildDependencies: {
-          config: ['vite.config.js'],
-        },
+      // Configuración de external para evitar bundling de módulos faltantes
+      external: (id) => {
+        // No externalizar nada en producción para evitar errores de carga
+        return false;
       },
       output: {
         // Chunk estable para mejor cache del navegador
@@ -74,6 +73,21 @@ export default defineConfig({
           'firebase-db': ['firebase/firestore', 'firebase/storage'],
           // Utils and smaller libraries (only installed ones)
           utils: ['clsx', 'tailwind-merge', 'xlsx'],
+          // Services comunes para evitar duplicación
+          services: [
+            './src/services/productsService.js',
+            './src/services/inventoryService.js',
+            './src/services/movementsService.js',
+            './src/services/vehiclesService.js',
+            './src/services/locationsService.js',
+          ],
+          // Contextos y hooks compartidos
+          contexts: [
+            './src/contexts/CombustiblesContext.jsx',
+            './src/contexts/FirebaseProgressContext.jsx',
+            './src/hooks/useFormData.js',
+            './src/hooks/useStatusColors.js',
+          ],
         },
       },
     },

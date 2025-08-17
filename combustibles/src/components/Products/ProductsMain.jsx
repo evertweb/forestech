@@ -11,7 +11,7 @@ import {
   deleteProduct,
 } from '../../services/productsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
-import { PRODUCT_INFO, PRODUCT_CATEGORIES, getAllProducts } from '../../constants/productTypes';
+import { PRODUCT_INFO, PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
 import ProductCategoriesManager from './ProductCategoriesManager';

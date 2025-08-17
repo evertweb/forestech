@@ -30,6 +30,7 @@ import { cardsService } from '../../services/cardsService';
 import UnifiedCardsGrid from '../shared/UnifiedCards';
 import { useCardDetails } from '../../hooks/useCardDetails.jsx';
 import '../../styles/sap-inventory.css';
+import '../../styles/inventory-header.css';
 
 const InventoryMain = () => {
   const { hasPermission } = useCombustibles();
@@ -232,16 +233,34 @@ const InventoryMain = () => {
 
   // Componentes para PageLayout
   const headerActions = (
-    <div
-      style={{
-        background: 'var(--sap-blue-light)',
-        padding: 'var(--sap-spacing-md)',
-        borderRadius: 'var(--sap-border-radius-sm)',
-        border: '1px solid var(--sap-blue-primary)',
-        fontSize: '0.875rem',
-      }}
-    >
-      💡 Los combustibles se agregan automáticamente desde la pestaña <strong>Movimientos</strong>
+    <div className="inventory-header-actions">
+      <button
+        className="btn btn-primary sap-theme"
+        onClick={() => {
+          if (!hasPermission('canManageInventory')) {
+            alert('No tienes permisos para agregar items de inventario');
+            return;
+          }
+          setEditingItem(null);
+          setShowModal(true);
+        }}
+        style={{ marginRight: 'var(--sap-spacing-sm)' }}
+      >
+        ➕ Agregar Combustible
+      </button>
+      <div
+        style={{
+          background: 'var(--sap-blue-light)',
+          padding: 'var(--sap-spacing-md)',
+          borderRadius: 'var(--sap-border-radius-sm)',
+          border: '1px solid var(--sap-blue-primary)',
+          fontSize: '0.875rem',
+          flex: 1,
+        }}
+      >
+        💡 También puedes agregar combustibles automáticamente desde la pestaña{' '}
+        <strong>Movimientos</strong>
+      </div>
     </div>
   );
 
@@ -372,17 +391,29 @@ const InventoryMain = () => {
             <p style={{ margin: 0 }}>
               {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
                 ? 'No se encontraron items con los filtros aplicados'
-                : 'Ve a la pestaña Movimientos para crear una ENTRADA de combustible'}
+                : 'Agrega tu primer combustible al inventario'}
             </p>
-            {(searchTerm || filterStatus !== 'all' || filterCategory !== 'all') && (
-              <button
-                className="btn btn-primary sap-theme"
-                onClick={clearFilters}
-                style={{ marginTop: 'var(--sap-spacing-lg)' }}
-              >
-                Limpiar Filtros
-              </button>
-            )}
+            <div style={{ marginTop: 'var(--sap-spacing-lg)' }}>
+              {searchTerm || filterStatus !== 'all' || filterCategory !== 'all' ? (
+                <button className="btn btn-primary sap-theme" onClick={clearFilters}>
+                  Limpiar Filtros
+                </button>
+              ) : (
+                <button
+                  className="btn btn-primary sap-theme"
+                  onClick={() => {
+                    if (!hasPermission('canManageInventory')) {
+                      alert('No tienes permisos para agregar items de inventario');
+                      return;
+                    }
+                    setEditingItem(null);
+                    setShowModal(true);
+                  }}
+                >
+                  ➕ Agregar Primer Combustible
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -400,6 +431,20 @@ const InventoryMain = () => {
                 </div>
               </div>
               <div className="sap-table-actions-section">
+                <button
+                  className="sap-btn sap-btn-emphasized"
+                  onClick={() => {
+                    if (!hasPermission('canManageInventory')) {
+                      alert('No tienes permisos para agregar items de inventario');
+                      return;
+                    }
+                    setEditingItem(null);
+                    setShowModal(true);
+                  }}
+                >
+                  <span className="sap-btn-icon">➕</span>
+                  Agregar Combustible
+                </button>
                 <button className="sap-btn sap-btn-transparent">
                   <span className="sap-btn-icon">🔍</span>
                   Filtros Avanzados
