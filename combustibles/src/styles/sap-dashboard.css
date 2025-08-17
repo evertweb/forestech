@@ -771,3 +771,47 @@
   border-radius: 50%;
   animation: sapSpin 1s linear infinite;
 }
+
+/* ==== OVERRIDE PARA CARDS DASHBOARD CON TEMA SAP FIORI AMARILLO SUAVE Y TEXTURA ARENA ==== */
+.unified-card {
+  background:
+    radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.1) 0%, transparent 50%),
+    linear-gradient(
+      135deg,
+      var(--sap-fiori-yellow, #f5e6a3) 0%,
+      var(--sap-fiori-yellow-sand, #f2e19c) 100%
+    ) !important;
+  border-color: var(--sap-fiori-yellow-dark, #e6d078) !important;
+}
+
+.unified-card:hover {
+  background:
+    radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.2) 0%, transparent 50%),
+    linear-gradient(
+      135deg,
+      var(--sap-fiori-yellow-light, #faf0c4) 0%,
+      var(--sap-fiori-yellow, #f5e6a3) 100%
+    ) !important;
+  border-color: var(--sap-fiori-yellow-dark, #e6d078) !important;
+}
+
+.unified-card .card-title {
+  color: var(--sap-neutral-800, #333333) !important;
+}
+
+.unified-card .card-value {
+  color: var(--sap-neutral-900, #000000) !important;
+}
+
+.unified-card .card-subtitle {
+  color: var(--sap-neutral-700, #666666) !important;
+}
+
+.unified-card .card-icon-container {
+  background: var(--sap-neutral-100, #ffffff) !important;
+  border: 1px solid var(--sap-neutral-300, #cccccc) !important;
+}

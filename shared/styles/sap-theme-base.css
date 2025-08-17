@@ -20,6 +20,12 @@
   --sap-error: #dc0d0e;
   --sap-information: #0070f2;
 
+  /* SAP Fiori Yellow (Yema) - Color suave con textura de arena */
+  --sap-fiori-yellow: #f5e6a3;
+  --sap-fiori-yellow-light: #faf0c4;
+  --sap-fiori-yellow-dark: #e6d078;
+  --sap-fiori-yellow-sand: #f2e19c;
+
   /* SAP Neutral Colors */
   --sap-neutral-100: #ffffff;
   --sap-neutral-200: #f7f7f7;

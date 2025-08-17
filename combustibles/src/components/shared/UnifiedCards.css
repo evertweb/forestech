@@ -4,6 +4,34 @@
  */
 
 /* ============================================================================
+   TEXTURA DE ARENA SAP FIORI - MIXIN BASE
+   ============================================================================ */
+
+.sand-texture-base {
+  background:
+    radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.1) 0%, transparent 50%),
+    linear-gradient(
+      135deg,
+      var(--sap-fiori-yellow, #f5e6a3) 0%,
+      var(--sap-fiori-yellow-sand, #f2e19c) 100%
+    );
+}
+
+.sand-texture-hover {
+  background:
+    radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.2) 0%, transparent 50%),
+    linear-gradient(
+      135deg,
+      var(--sap-fiori-yellow-light, #faf0c4) 0%,
+      var(--sap-fiori-yellow, #f5e6a3) 100%
+    );
+}
+
+/* ============================================================================
    GRID PRINCIPAL DE CARDS
    ============================================================================ */
 
@@ -59,8 +87,16 @@
    ============================================================================ */
 
 .unified-card {
-  background: var(--sap-card-background, #ffffff);
-  border: 1px solid var(--sap-card-border, #e5e5e5);
+  background:
+    radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.1) 0%, transparent 50%),
+    linear-gradient(
+      135deg,
+      var(--sap-fiori-yellow, #f5e6a3) 0%,
+      var(--sap-fiori-yellow-sand, #f2e19c) 100%
+    );
+  border: 1px solid var(--sap-fiori-yellow-dark, #e6d078);
   border-radius: var(--sap-border-radius-md, 8px);
   padding: var(--sap-spacing-lg, 1.5rem);
   box-shadow: var(--sap-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
@@ -76,6 +112,16 @@
 .unified-card:hover {
   box-shadow: var(--sap-shadow-md, 0 4px 8px rgba(0, 0, 0, 0.15));
   transform: translateY(-2px);
+  background:
+    radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.2) 0%, transparent 50%),
+    linear-gradient(
+      135deg,
+      var(--sap-fiori-yellow-light, #faf0c4) 0%,
+      var(--sap-fiori-yellow, #f5e6a3) 100%
+    );
+  border-color: var(--sap-fiori-yellow-dark, #e6d078);
 }
 
 .unified-card.clickable {
@@ -117,7 +163,8 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--sap-border-radius-sm, 6px);
-  background: var(--sap-icon-background, rgba(0, 112, 243, 0.1));
+  background: var(--sap-neutral-100, #ffffff);
+  border: 1px solid var(--sap-neutral-300, #cccccc);
   position: relative;
 }
 
@@ -135,7 +182,7 @@
   margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--sap-text-primary, #1a202c);
+  color: var(--sap-neutral-800, #333333);
   line-height: 1.4;
   word-wrap: break-word;
 }
@@ -154,14 +201,14 @@
 .card-value {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--sap-text-primary, #1a202c);
+  color: var(--sap-neutral-900, #000000);
   line-height: 1;
   word-break: break-all;
 }
 
 .card-subtitle {
   font-size: 0.75rem;
-  color: var(--sap-text-secondary, #64748b);
+  color: var(--sap-neutral-700, #666666);
   font-weight: 500;
   line-height: 1.3;
 }
@@ -176,7 +223,7 @@
   gap: var(--sap-spacing-xs, 0.5rem);
   margin-top: var(--sap-spacing-sm, 0.75rem);
   padding-top: var(--sap-spacing-sm, 0.75rem);
-  border-top: 1px solid var(--sap-border-light, #f1f5f9);
+  border-top: 1px solid var(--sap-neutral-400, #cccccc);
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -221,11 +268,12 @@
 }
 
 .card-financial .card-icon-container {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .card-financial .card-icon {
-  color: #10b981;
+  color: #0d7559;
 }
 
 /* Inventory */
@@ -234,11 +282,12 @@
 }
 
 .card-inventory .card-icon-container {
-  background: rgba(14, 165, 233, 0.1);
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.3);
 }
 
 .card-inventory .card-icon {
-  color: #0ea5e9;
+  color: #0c7bb3;
 }
 
 /* Operations */
@@ -247,11 +296,12 @@
 }
 
 .card-operations .card-icon-container {
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 .card-operations .card-icon {
-  color: #8b5cf6;
+  color: #6d44c7;
 }
 
 /* Alerts */
@@ -260,11 +310,12 @@
 }
 
 .card-alerts .card-icon-container {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .card-alerts .card-icon {
-  color: #ef4444;
+  color: #c73333;
 }
 
 /* Locations */
@@ -273,11 +324,12 @@
 }
 
 .card-locations .card-icon-container {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .card-locations .card-icon {
-  color: #f59e0b;
+  color: #d17a09;
 }
 
 /* Maintenance */
@@ -286,11 +338,12 @@
 }
 
 .card-maintenance .card-icon-container {
-  background: rgba(132, 204, 22, 0.1);
+  background: rgba(132, 204, 22, 0.15);
+  border: 1px solid rgba(132, 204, 22, 0.3);
 }
 
 .card-maintenance .card-icon {
-  color: #84cc16;
+  color: #6ba212;
 }
 
 /* Trends */
@@ -299,11 +352,12 @@
 }
 
 .card-trends .card-icon-container {
-  background: rgba(6, 182, 212, 0.1);
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
 .card-trends .card-icon {
-  color: #06b6d4;
+  color: #0590a3;
 }
 
 /* Efficiency */
@@ -312,11 +366,12 @@
 }
 
 .card-efficiency .card-icon-container {
-  background: rgba(236, 72, 153, 0.1);
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
 .card-efficiency .card-icon {
-  color: #ec4899;
+  color: #be3a7a;
 }
 
 /* Default */
@@ -325,11 +380,12 @@
 }
 
 .card-default .card-icon-container {
-  background: rgba(100, 116, 139, 0.1);
+  background: rgba(100, 116, 139, 0.15);
+  border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 .card-default .card-icon {
-  color: #64748b;
+  color: #4a5568;
 }
 
 /* ============================================================================
@@ -583,38 +639,46 @@
 }
 
 /* ============================================================================
-   MODO OSCURO
+   MODO OSCURO - DESHABILITADO PARA MANTENER TEMA SAP FIORI AMARILLO
    ============================================================================ */
 
 @media (prefers-color-scheme: dark) {
   .unified-card {
-    background: var(--sap-card-background-dark, #1e293b);
-    border-color: var(--sap-card-border-dark, #374151);
+    background:
+      radial-gradient(circle at 20% 80%, rgba(242, 225, 156, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(230, 208, 120, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(245, 230, 163, 0.1) 0%, transparent 50%),
+      linear-gradient(
+        135deg,
+        var(--sap-fiori-yellow, #f5e6a3) 0%,
+        var(--sap-fiori-yellow-sand, #f2e19c) 100%
+      ) !important;
+    border-color: var(--sap-fiori-yellow-dark, #e6d078) !important;
   }
 
   .card-title {
-    color: var(--sap-text-primary-dark, #f8fafc);
+    color: var(--sap-neutral-800, #333333) !important;
   }
 
   .card-value {
-    color: var(--sap-text-primary-dark, #f8fafc);
+    color: var(--sap-neutral-900, #000000) !important;
   }
 
   .card-subtitle {
-    color: var(--sap-text-secondary-dark, #cbd5e1);
+    color: var(--sap-neutral-700, #666666) !important;
   }
 
   .card-trend {
-    border-top-color: var(--sap-border-dark, #374151);
+    border-top-color: var(--sap-neutral-400, #cccccc) !important;
   }
 
   .card-details-modal {
-    background: var(--sap-card-background-dark, #1e293b);
+    background: var(--sap-fiori-yellow, #f5e6a3) !important;
   }
 
   .modal-header {
-    background: var(--sap-background-subtle-dark, #0f172a);
-    border-bottom-color: var(--sap-border-dark, #374151);
+    background: var(--sap-fiori-yellow-light, #faf0c4) !important;
+    border-bottom-color: var(--sap-neutral-400, #cccccc) !important;
   }
 }
 
