@@ -257,7 +257,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         clearTimeout(fallbackTimer);
       }
     };
-  }, [isOpen, inventory, vehicles, subscribeToSuppliers, localVehicles]); // ✅ FIXED: agregado 'localVehicles' en dependencias
+  }, [isOpen, inventory, vehicles, subscribeToSuppliers]); // ✅ FIXED: removido 'localVehicles' para evitar bucle infinito
 
   // NOTA: systemData.suppliers se actualiza directamente en los callbacks de suscripción
   // para evitar dependencias circulares y bucles infinitos
@@ -267,10 +267,16 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     console.log(`🔄 useEffect localVehicles: ${localVehicles.length} vehículos`);
     if (localVehicles.length > 0) {
       console.log(`📊 systemData.vehicles actualizado: ${localVehicles.length} vehículos`);
-      setSystemData((prev) => ({
-        ...prev,
-        vehicles: localVehicles,
-      }));
+      setSystemData((prev) => {
+        // Solo actualizar si realmente cambió para evitar re-renders innecesarios
+        if (prev.vehicles !== localVehicles) {
+          return {
+            ...prev,
+            vehicles: localVehicles,
+          };
+        }
+        return prev;
+      });
     } else {
       console.log(`⚠️ localVehicles está vacío, no actualizando systemData.vehicles`);
     }
