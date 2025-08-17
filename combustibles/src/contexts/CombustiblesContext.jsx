@@ -55,15 +55,120 @@ export const CombustiblesProvider = ({ children, overrides }) => {
   // Hook para operaciones CRUD
   const crud = useCombustiblesCRUD();
 
-  // Datos básicos (eliminamos useEssentialData por performance tracking)
+  // Estados para datos de Firebase
+  const [inventory, setInventory] = useState([]);
+  const [movements, setMovements] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [vehicleCategories, setVehicleCategories] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState(null);
+
+  // Suscripciones a Firebase
+  useEffect(() => {
+    // TEMPORAL: Cargar datos incluso sin usuario para debugging
+    // TODO: Restaurar verificación de auth cuando se resuelva el problema de autenticación
+    const forceLoadData = import.meta.env.DEV || !auth?.user;
+
+    if (!auth?.user && !forceLoadData) {
+      // Reset data when no user (solo en producción)
+      setInventory([]);
+      setMovements([]);
+      setVehicles([]);
+      setSuppliers([]);
+      setVehicleCategories([]);
+      setDataLoading(false);
+      return;
+    }
+
+    console.log('🔥 CombustiblesContext: Iniciando suscripciones a Firebase...');
+    console.log('👤 Usuario autenticado:', !!auth?.user, auth?.user?.email);
+
+    let loadingCount = 5;
+    setDataLoading(true);
+    setDataError(null);
+
+    const updateLoading = () => {
+      loadingCount--;
+      if (loadingCount === 0) {
+        setDataLoading(false);
+      }
+    };
+
+    // Suscripción a inventario
+    const unsubInventory = subscribeToInventory((data, error) => {
+      if (error) {
+        console.error('Error en suscripción de inventario:', error);
+        setDataError('Error al cargar el inventario.');
+      } else {
+        console.log('🔥 CombustiblesContext - Inventario actualizado:', data?.length, 'items');
+        setInventory(data || []);
+      }
+      updateLoading();
+    });
+
+    // Suscripción a vehículos
+    const unsubVehicles = subscribeToVehicles((data, error) => {
+      if (error) {
+        console.error('Error en suscripción de vehículos:', error);
+        setDataError('Error al cargar los vehículos.');
+      } else {
+        setVehicles(data || []);
+      }
+      updateLoading();
+    });
+
+    // Suscripción a proveedores
+    const unsubSuppliers = subscribeToSuppliers((data, error) => {
+      if (error) {
+        console.error('Error en suscripción de proveedores:', error);
+        setDataError('Error al cargar los proveedores.');
+      } else {
+        setSuppliers(data || []);
+      }
+      updateLoading();
+    });
+
+    // Suscripción a categorías de vehículos
+    const unsubCategories = subscribeToCategories((data, error) => {
+      if (error) {
+        console.error('Error en suscripción de categorías:', error);
+        setDataError('Error al cargar las categorías.');
+      } else {
+        setVehicleCategories(data || []);
+      }
+      updateLoading();
+    });
+
+    // Suscripción a movimientos
+    const unsubMovements = movementsService.subscribeToMovements((data, error) => {
+      if (error) {
+        console.error('Error en suscripción de movimientos:', error);
+        setDataError('Error al cargar los movimientos.');
+      } else {
+        setMovements(data || []);
+      }
+      updateLoading();
+    });
+
+    return () => {
+      if (typeof unsubInventory === 'function') unsubInventory();
+      if (typeof unsubVehicles === 'function') unsubVehicles();
+      if (typeof unsubSuppliers === 'function') unsubSuppliers();
+      if (typeof unsubCategories === 'function') unsubCategories();
+      if (typeof unsubMovements === 'function') unsubMovements();
+    };
+  }, [auth?.user]);
+
+  // Datos estructurados
   const data = {
-    inventory: [],
-    movements: [],
-    vehicles: [],
-    suppliers: [],
-    vehicleCategories: [],
-    dataLoading: false,
-    dataError: null,
+    inventory,
+    movements,
+    vehicles,
+    suppliers,
+    vehicleCategories,
+    dataLoading,
+    dataError,
   };
 
   // Memoizar el userProfile para evitar re-renders innecesarios

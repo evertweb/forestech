@@ -105,7 +105,14 @@ const UnifiedCardsGrid = ({
   size = 'normal',
   showEmpty = true,
 }) => {
+  console.log('🃏 UnifiedCardsGrid renderizado con:', cards.length, 'cards');
+  console.log(
+    '📋 Cards recibidas:',
+    cards.map((c) => ({ id: c.id, title: c.title, value: c.value }))
+  );
+
   if (!Array.isArray(cards) || cards.length === 0) {
+    console.log('⚠️ UnifiedCardsGrid: No hay cards para mostrar');
     if (!showEmpty) return null;
 
     return (

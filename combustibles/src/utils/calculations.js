@@ -30,12 +30,18 @@ import {
  * @returns {number} Valor total en COP
  */
 export const calculateTotalInventoryValue = (inventoryItems = []) => {
+  console.log('💰 calculateTotalInventoryValue llamado con:', inventoryItems.length, 'items');
+
   if (!Array.isArray(inventoryItems)) return 0;
 
   return inventoryItems.reduce((total, item) => {
     const quantity = parseFloat(item.currentStock) || 0;
     const price = parseFloat(item.pricePerUnit) || 0;
-    return total + quantity * price;
+    const itemValue = quantity * price;
+
+    console.log(`  - ${item.name || item.fuelType}: ${quantity} × ${price} = ${itemValue}`);
+
+    return total + itemValue;
   }, 0);
 };
 
@@ -114,7 +120,11 @@ export const calculateLowStockAlerts = (inventoryItems = [], threshold = 0.15) =
  * @returns {Object} Estadísticas completas
  */
 export const calculateInventoryStats = (inventoryItems = []) => {
+  console.log('🧮 calculateInventoryStats llamado con:', inventoryItems.length, 'items');
+  console.log('📦 Items recibidos:', inventoryItems);
+
   if (!Array.isArray(inventoryItems)) {
+    console.log('❌ inventoryItems no es un array');
     return {
       totalValue: 0,
       totalItems: 0,
@@ -127,8 +137,11 @@ export const calculateInventoryStats = (inventoryItems = []) => {
   }
 
   const totalValue = calculateTotalInventoryValue(inventoryItems);
+  console.log('💰 Valor total calculado:', totalValue);
+
   const totalItems = inventoryItems.length;
   const activeItems = inventoryItems.filter((item) => item.status === 'active').length;
+  console.log('📊 Items activos encontrados:', activeItems, 'de', totalItems);
   const lowStockAlerts = calculateLowStockAlerts(inventoryItems);
   const criticalItems = lowStockAlerts.filter(
     (item) => item.stockLevel === STOCK_LEVELS.CRITICAL

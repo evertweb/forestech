@@ -155,11 +155,24 @@ const DashboardMainSAP = () => {
 
   // Generar cards unificadas para dashboard
   const dashboardCards = useMemo(() => {
-    return cardsService.getCardsForTab('dashboard', {
+    console.log('🎯 DashboardMain-SAP - Generando cards con datos:');
+    console.log('  - Inventory:', inventory.length, 'items');
+    console.log('  - Vehicles:', vehicles.length, 'items');
+    console.log('  - Movements:', movements.length, 'items');
+
+    const cards = cardsService.getCardsForTab('dashboard', {
       inventory,
       vehicles,
       movements,
     });
+
+    console.log('🃏 DashboardMain-SAP - Cards generadas:', cards.length);
+    console.log(
+      '📋 Cards:',
+      cards.map((c) => ({ id: c.id, title: c.title, value: c.value }))
+    );
+
+    return cards;
   }, [inventory, vehicles, movements]);
 
   const statsComponent = (

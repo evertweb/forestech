@@ -57,6 +57,8 @@ export class CardsService {
   constructor() {
     this.cache = new Map();
     this.cacheExpiry = 5 * 60 * 1000; // 5 minutos
+    // Limpiar cache al inicializar para evitar datos obsoletos
+    this.clearCache();
   }
 
   // --------------------------------------------------------------------------
@@ -64,7 +66,12 @@ export class CardsService {
   // --------------------------------------------------------------------------
 
   getCacheKey(cardType, params = {}) {
-    return `${cardType}_${JSON.stringify(params)}`;
+    // Incluir el length de los datos en la cache key para evitar cache con datos vacíos
+    const dataLength =
+      (params.inventory?.length || 0) +
+      (params.vehicles?.length || 0) +
+      (params.movements?.length || 0);
+    return `${cardType}_${dataLength}_${JSON.stringify(params)}`;
   }
 
   getFromCache(key) {
@@ -86,16 +93,54 @@ export class CardsService {
     this.cache.clear();
   }
 
+  // Invalidar cache cuando cambien los datos
+  invalidateCache() {
+    console.log('🗑️ CardsService: Cache invalidado');
+    this.clearCache();
+  }
+
   // --------------------------------------------------------------------------
   // CARDS COMUNES
   // --------------------------------------------------------------------------
 
   getValorTotalInventarioCard(inventory) {
-    const cacheKey = this.getCacheKey(CARD_TYPES.VALOR_TOTAL_INVENTARIO);
+    console.log(
+      '🔍 CardsService - getValorTotalInventarioCard llamado con:',
+      inventory.length,
+      'items'
+    );
+
+    // No usar cache si no hay datos
+    if (inventory.length === 0) {
+      console.log('⚠️ No hay datos de inventario, no usar cache');
+      const stats = calculateInventoryStats(inventory);
+      return {
+        id: CARD_TYPES.VALOR_TOTAL_INVENTARIO,
+        title: 'Valor Total Inventario',
+        icon: '💰',
+        value: formatCurrency(stats.totalValue),
+        subtitle: `${stats.totalItems} productos activos`,
+        trend: {
+          type: 'neutral',
+          text: 'Cargando datos...',
+          icon: '⏳',
+        },
+        rawValue: stats.totalValue,
+        category: 'financial',
+      };
+    }
+
+    const cacheKey = this.getCacheKey(CARD_TYPES.VALOR_TOTAL_INVENTARIO, { inventory });
     const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      console.log('⚡ Retornando card desde cache:', cached.value);
+      return cached;
+    }
+
+    console.log('🆕 Generando nueva card (no encontrada en cache)');
 
     const stats = calculateInventoryStats(inventory);
+    console.log('📊 Stats calculadas:', stats);
 
     const card = {
       id: CARD_TYPES.VALOR_TOTAL_INVENTARIO,
@@ -117,7 +162,25 @@ export class CardsService {
   }
 
   getVehiculosActivosCard(vehicles, movements) {
-    const cacheKey = this.getCacheKey(CARD_TYPES.VEHICULOS_ACTIVOS);
+    // No usar cache si no hay datos
+    if (vehicles.length === 0) {
+      return {
+        id: CARD_TYPES.VEHICULOS_ACTIVOS,
+        title: 'Vehículos Activos',
+        icon: '🚜',
+        value: '0',
+        subtitle: 'Cargando vehículos...',
+        trend: {
+          type: 'neutral',
+          text: 'Cargando...',
+          icon: '⏳',
+        },
+        rawValue: 0,
+        category: 'operations',
+      };
+    }
+
+    const cacheKey = this.getCacheKey(CARD_TYPES.VEHICULOS_ACTIVOS, { vehicles, movements });
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
 
@@ -170,7 +233,25 @@ export class CardsService {
   }
 
   getCombustibleTotalCard(inventory) {
-    const cacheKey = this.getCacheKey(CARD_TYPES.COMBUSTIBLE_TOTAL);
+    // No usar cache si no hay datos
+    if (inventory.length === 0) {
+      return {
+        id: CARD_TYPES.COMBUSTIBLE_TOTAL,
+        title: 'Combustible Total',
+        icon: '🛢️',
+        value: '0,00',
+        subtitle: 'galones disponibles',
+        trend: {
+          type: 'neutral',
+          text: 'Cargando...',
+          icon: '⏳',
+        },
+        rawValue: 0,
+        category: 'inventory',
+      };
+    }
+
+    const cacheKey = this.getCacheKey(CARD_TYPES.COMBUSTIBLE_TOTAL, { inventory });
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
 
@@ -891,6 +972,12 @@ export class CardsService {
 
   getCardsForTab(tabName, data) {
     const { inventory = [], vehicles = [], movements = [] } = data;
+
+    console.log('🎯 CardsService - getCardsForTab llamado:');
+    console.log('  - Tab:', tabName);
+    console.log('  - Inventory items:', inventory.length);
+    console.log('  - Vehicles items:', vehicles.length);
+    console.log('  - Movements items:', movements.length);
 
     switch (tabName) {
       case 'dashboard':
