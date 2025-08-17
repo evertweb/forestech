@@ -14,7 +14,7 @@ import { ensureEnv } from './ssr/env.js';
 
 ensureEnv();
 
-// Inicializar sistema de alertas automáticas - Fase 4
+// Inicializar sistema de alertas automáticas - Fase 4 (Updated)
 if (process.env.NODE_ENV === 'production') {
   startAlertingSystem();
   console.info('SSR Alerting System initialized for production');

@@ -74,6 +74,22 @@
           "function": "ssrCombustibles"
         },
         {
+          "source": "/ssr-reports",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/ssr-alerts",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/ssr-optimization",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/ssr-coverage",
+          "function": "ssrCombustibles"
+        },
+        {
           "source": "/movement-wizard-popup",
           "destination": "/combustibles/index.html"
         },

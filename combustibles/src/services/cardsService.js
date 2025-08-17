@@ -299,9 +299,31 @@ export class CardsService {
 
     const locations = Object.keys(stockByLocation);
     const totalLocations = locations.length;
+
+    // Si no hay ubicaciones, mostrar mensaje por defecto
+    if (totalLocations === 0) {
+      const card = {
+        id: CARD_TYPES.STOCK_POR_UBICACION,
+        title: 'Stock por Ubicación',
+        icon: '📍',
+        value: '0',
+        subtitle: 'Sin ubicaciones activas',
+        trend: {
+          type: 'warning',
+          text: 'Verificar datos de inventario',
+          icon: '⚠️',
+        },
+        rawValue: {},
+        category: 'locations',
+        details: {},
+      };
+      this.setCache(cacheKey, card);
+      return card;
+    }
+
     const mainLocation = locations.reduce(
       (a, b) => (stockByLocation[a] > stockByLocation[b] ? a : b),
-      locations[0] || ''
+      locations[0]
     );
 
     const card = {
