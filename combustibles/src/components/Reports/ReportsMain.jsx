@@ -22,6 +22,9 @@ import VehicleReports from './VehicleReports';
 import FinancialReports from './FinancialReports';
 import MovementReports from './MovementReports';
 import { PageLayout } from '../shared';
+import { cardsService } from '../../services/cardsService';
+import UnifiedCardsGrid from '../shared/UnifiedCards';
+import { useCardDetails } from '../../hooks/useCardDetails.jsx';
 
 import './ReportsMain-SAP.css';
 
@@ -32,8 +35,13 @@ const ReportsMain = () => {
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), // Últimos 30 días
     end: new Date().toISOString().slice(0, 10),
   });
+  const { openCardDetails, CardDetailsModal } = useCardDetails();
 
-  // Calcular estadísticas principales (hooks antes del return condicional)
+  // Verificar permisos primero
+  const canViewReports =
+    userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
+
+  // Calcular estadísticas principales (hooks siempre se ejecutan)
   const inventoryStats = useMemo(() => calculateInventoryStats(inventory), [inventory]);
   const movementsStats = useMemo(() => calculateMovementsStats(movements), [movements]);
   const vehiclesStats = useMemo(
@@ -43,9 +51,26 @@ const ReportsMain = () => {
   const lowStockAlerts = useMemo(() => calculateLowStockAlerts(inventory), [inventory]);
   const projections = useMemo(() => calculateConsumptionProjections(movements), [movements]);
 
-  // Verificar permisos
-  const canViewReports =
-    userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
+  // Generar cards unificadas para reportes dashboard
+  const reportsCards = useMemo(() => {
+    return cardsService.getCardsForTab('reports', {
+      inventory,
+      vehicles,
+      movements,
+      suppliers,
+    });
+  }, [inventory, vehicles, movements, suppliers]);
+
+  const statsComponent = useMemo(() => {
+    return (
+      <UnifiedCardsGrid
+        cards={activeTab === 'dashboard' ? reportsCards : []}
+        onCardClick={openCardDetails}
+        columns={4}
+        className="reports-cards-grid"
+      />
+    );
+  }, [activeTab, reportsCards, openCardDetails]);
 
   if (!canViewReports) {
     return (
@@ -280,63 +305,6 @@ const ReportsMain = () => {
   // Componentes para PageLayout
   const headerActions = null; // No hay acciones específicas en el header para reportes
 
-  const statsComponent =
-    activeTab === 'dashboard' ? (
-      <div className="kpis-grid sap-theme">
-        {/* Inventario */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon inventory sap-theme">🛢️</div>
-          <div className="kpi-value sap-theme sap-text-primary">
-            {formatCurrency(inventoryStats.totalValue)}
-          </div>
-          <div className="kpi-label sap-theme sap-text-secondary">Valor Total Inventario</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📦</span>
-            <span className="sap-text">{inventoryStats.totalItems} productos activos</span>
-          </div>
-        </div>
-
-        {/* Vehículos */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon vehicles sap-theme">🚜</div>
-          <div className="kpi-value sap-theme sap-text-primary">{vehiclesStats.activeVehicles}</div>
-          <div className="kpi-label sap-theme sap-text-secondary">Vehículos Activos</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">⏱️</span>
-            <span className="sap-text">
-              {formatNumber(vehiclesStats.totalHours)} horas trabajadas
-            </span>
-          </div>
-        </div>
-
-        {/* Movimientos */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon movements sap-theme">📈</div>
-          <div className="kpi-value sap-theme sap-text-primary">
-            {movementsStats.totalMovements}
-          </div>
-          <div className="kpi-label sap-theme sap-text-secondary">Movimientos del Mes</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">✅</span>
-            <span className="sap-text">{movementsStats.completedMovements} completados</span>
-          </div>
-        </div>
-
-        {/* Eficiencia */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon financial sap-theme">💰</div>
-          <div className="kpi-value sap-theme sap-text-primary">
-            {formatNumber(vehiclesStats.averageEfficiency, 1)}
-          </div>
-          <div className="kpi-label sap-theme sap-text-secondary">Consumo Promedio (L/h)</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📊</span>
-            <span className="sap-text">{formatNumber(vehiclesStats.totalConsumption)} L total</span>
-          </div>
-        </div>
-      </div>
-    ) : null;
-
   const filtersComponent = (
     <>
       {/* Filtros globales */}
@@ -410,18 +378,23 @@ const ReportsMain = () => {
   const mainContent = renderActiveContent();
 
   return (
-    <PageLayout
-      title="Reportes y Análisis"
-      subtitle="Dashboard ejecutivo con análisis en tiempo real del sistema de combustibles"
-      actions={headerActions}
-      stats={statsComponent}
-      filters={filtersComponent}
-      showStats={activeTab === 'dashboard'}
-      showFilters={true}
-      className="reports-main"
-    >
-      {mainContent}
-    </PageLayout>
+    <>
+      {/* Modal de detalles de cards */}
+      {CardDetailsModal}
+
+      <PageLayout
+        title="Reportes y Análisis"
+        subtitle="Dashboard ejecutivo con análisis en tiempo real del sistema de combustibles"
+        actions={headerActions}
+        stats={statsComponent}
+        filters={filtersComponent}
+        showStats={activeTab === 'dashboard'}
+        showFilters={true}
+        className="reports-main"
+      >
+        {mainContent}
+      </PageLayout>
+    </>
   );
 };
 

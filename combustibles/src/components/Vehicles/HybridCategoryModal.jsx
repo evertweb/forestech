@@ -165,10 +165,8 @@ const HybridCategoryModal = ({ isOpen, onClose, onSave, category = null }) => {
                 onfocus="this.style.borderColor='#3b82f6'"
                 onblur="this.style.borderColor='#d1d5db'"
               >
-                <option value="ACPM" ${category?.fuelType === 'ACPM' ? 'selected' : ''}>ACPM (Diésel)</option>
-                <option value="GASOLINA_CORRIENTE" ${category?.fuelType === 'GASOLINA_CORRIENTE' ? 'selected' : ''}>Gasolina Corriente</option>
-                <option value="GASOLINA_EXTRA" ${category?.fuelType === 'GASOLINA_EXTRA' ? 'selected' : ''}>Gasolina Extra</option>
-                <option value="JET_A1" ${category?.fuelType === 'JET_A1' ? 'selected' : ''}>Jet A1</option>
+                <option value="DIESEL" ${category?.fuelType === 'DIESEL' ? 'selected' : ''}>DIESEL</option>
+                <option value="GASOLINE" ${category?.fuelType === 'GASOLINE' ? 'selected' : ''}>GASOLINE</option>
               </select>
             </div>
             

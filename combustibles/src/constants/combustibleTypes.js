@@ -20,7 +20,7 @@ export const FUEL_TYPES = {
 // -------------------------------------------------------------------
 export const FUEL_INFO = {
   [FUEL_TYPES.DIESEL]: {
-    name: 'Diésel',
+    name: 'DIESEL',
     description: 'Combustible para maquinaria pesada',
     unit: 'galones',
     category: 'Combustible',

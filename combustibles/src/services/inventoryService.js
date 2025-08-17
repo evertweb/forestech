@@ -1,21 +1,21 @@
 // combustibles/src/services/inventoryService.js
 // Servicio completo para operaciones CRUD de inventario de combustibles
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
   onSnapshot,
-  writeBatch
-} from "firebase/firestore";
-import { db } from "../firebase/config";
-import { FUEL_INFO, getStockLevel } from "../constants/combustibleTypes";
+  writeBatch,
+} from 'firebase/firestore';
+import { db } from '../firebase/config';
+import { FUEL_INFO, getStockLevel } from '../constants/combustibleTypes';
 
 // Rutas de colecciones
 const INVENTORY_COLLECTION = 'combustibles_inventory';
@@ -31,6 +31,11 @@ const INVENTORY_COLLECTION = 'combustibles_inventory';
  */
 export const createInventoryItem = async (inventoryData, createdBy) => {
   try {
+    // 🔧 Normalizar fuelType a mayúsculas
+    if (inventoryData.fuelType) {
+      inventoryData.fuelType = inventoryData.fuelType.toUpperCase();
+    }
+
     const fuelInfo = FUEL_INFO[inventoryData.fuelType];
     if (!fuelInfo) {
       return { success: false, error: 'Tipo de combustible no válido' };
@@ -39,15 +44,15 @@ export const createInventoryItem = async (inventoryData, createdBy) => {
     // Verificar que no exista duplicado del mismo tipo en la misma ubicación
     const existingQuery = query(
       collection(db, INVENTORY_COLLECTION),
-      where("fuelType", "==", inventoryData.fuelType),
-      where("location", "==", inventoryData.location.toLowerCase())
+      where('fuelType', '==', inventoryData.fuelType),
+      where('location', '==', inventoryData.location.toLowerCase())
     );
-    
+
     const existingDocs = await getDocs(existingQuery);
     if (!existingDocs.empty) {
-      return { 
-        success: false, 
-        error: `Ya existe ${fuelInfo.name} en ${inventoryData.location}` 
+      return {
+        success: false,
+        error: `Ya existe ${fuelInfo.name} en ${inventoryData.location}`,
       };
     }
 
@@ -57,29 +62,29 @@ export const createInventoryItem = async (inventoryData, createdBy) => {
       description: inventoryData.description || fuelInfo.description,
       currentStock: Number(inventoryData.currentStock) || 0,
       maxCapacity: Number(inventoryData.maxCapacity),
-      minThreshold: Number(inventoryData.minThreshold) || (inventoryData.maxCapacity * 0.15), // 15% por defecto
+      minThreshold: Number(inventoryData.minThreshold) || inventoryData.maxCapacity * 0.15, // 15% por defecto
       unit: fuelInfo.unit,
       location: inventoryData.location.toLowerCase(), // Convertir a minúsculas al guardar
       pricePerUnit: Number(inventoryData.pricePerUnit) || 0,
       supplier: inventoryData.supplier || '',
       status: inventoryData.status || 'active',
-      
+
       // Metadatos
       createdAt: new Date(),
       createdBy: createdBy,
       lastUpdated: new Date(),
-      updatedBy: createdBy
+      updatedBy: createdBy,
     };
 
     const docRef = await addDoc(collection(db, INVENTORY_COLLECTION), newItem);
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       data: { id: docRef.id, ...newItem },
-      message: `${fuelInfo.name} agregado al inventario exitosamente`
+      message: `${fuelInfo.name} agregado al inventario exitosamente`,
     };
   } catch (error) {
-    console.error("Error creating inventory item:", error);
+    console.error('Error creating inventory item:', error);
     return { success: false, error: error.message };
   }
 };
@@ -94,16 +99,13 @@ export const createInventoryItem = async (inventoryData, createdBy) => {
  */
 export const getAllInventoryItems = async () => {
   try {
-    const q = query(
-      collection(db, INVENTORY_COLLECTION),
-      orderBy("fuelType", "asc")
-    );
-    
+    const q = query(collection(db, INVENTORY_COLLECTION), orderBy('fuelType', 'asc'));
+
     // ✅ Track Firebase read
     // Firebase read tracked
     const querySnapshot = await getDocs(q);
     const items = [];
-    
+
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       items.push({
@@ -114,13 +116,13 @@ export const getAllInventoryItems = async () => {
         // Calcular porcentaje
         stockPercentage: Math.round((data.currentStock / data.maxCapacity) * 100),
         // Verificar si necesita restock
-        needsRestock: data.currentStock <= data.minThreshold
+        needsRestock: data.currentStock <= data.minThreshold,
       });
     });
-    
+
     return { success: true, data: items };
   } catch (error) {
-    console.error("Error fetching inventory items:", error);
+    console.error('Error fetching inventory items:', error);
     return { success: false, error: error.message };
   }
 };
@@ -136,7 +138,7 @@ export const getInventoryItem = async (itemId) => {
     // ✅ Track Firebase read
     // Firebase read tracked
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       const data = docSnap.data();
       return {
@@ -146,14 +148,14 @@ export const getInventoryItem = async (itemId) => {
           ...data,
           stockLevel: getStockLevel(data.currentStock, data.maxCapacity),
           stockPercentage: Math.round((data.currentStock / data.maxCapacity) * 100),
-          needsRestock: data.currentStock <= data.minThreshold
-        }
+          needsRestock: data.currentStock <= data.minThreshold,
+        },
       };
     } else {
       return { success: false, error: 'Item no encontrado' };
     }
   } catch (error) {
-    console.error("Error fetching inventory item:", error);
+    console.error('Error fetching inventory item:', error);
     return { success: false, error: error.message };
   }
 };
@@ -166,12 +168,12 @@ export const getLowStockItems = async () => {
   try {
     const allItems = await getAllInventoryItems();
     if (!allItems.success) return allItems;
-    
-    const lowStockItems = allItems.data.filter(item => item.needsRestock);
-    
+
+    const lowStockItems = allItems.data.filter((item) => item.needsRestock);
+
     return { success: true, data: lowStockItems };
   } catch (error) {
-    console.error("Error fetching low stock items:", error);
+    console.error('Error fetching low stock items:', error);
     return { success: false, error: error.message };
   }
 };
@@ -190,7 +192,7 @@ export const getLowStockItems = async () => {
 export const updateInventoryItem = async (itemId, updateData, updatedBy) => {
   try {
     const docRef = doc(db, INVENTORY_COLLECTION, itemId);
-    
+
     // Verificar que el item existe
     const currentDoc = await getDoc(docRef);
     if (!currentDoc.exists()) {
@@ -200,7 +202,7 @@ export const updateInventoryItem = async (itemId, updateData, updatedBy) => {
     const updates = {
       ...updateData,
       lastUpdated: new Date(),
-      updatedBy: updatedBy
+      updatedBy: updatedBy,
     };
 
     // Remover campos que no deben actualizarse directamente
@@ -209,14 +211,14 @@ export const updateInventoryItem = async (itemId, updateData, updatedBy) => {
     delete updates.createdBy;
 
     await updateDoc(docRef, updates);
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       message: 'Item actualizado exitosamente',
-      data: { id: itemId, ...updates }
+      data: { id: itemId, ...updates },
     };
   } catch (error) {
-    console.error("Error updating inventory item:", error);
+    console.error('Error updating inventory item:', error);
     return { success: false, error: error.message };
   }
 };
@@ -239,19 +241,22 @@ export const updateStock = async (itemId, newStock, updatedBy) => {
     // const currentStock = currentDoc.data().currentStock; // No se usa actualmente
     // Validar que no se intente dejar el stock en negativo
     if (Number(newStock) < 0) {
-      return { success: false, error: 'No hay suficiente stock disponible para realizar esta salida.' };
+      return {
+        success: false,
+        error: 'No hay suficiente stock disponible para realizar esta salida.',
+      };
     }
     await updateDoc(docRef, {
       currentStock: Number(newStock),
       lastUpdated: new Date(),
-      updatedBy: updatedBy
+      updatedBy: updatedBy,
     });
     return {
-      success: true, 
-      message: 'Stock actualizado exitosamente'
+      success: true,
+      message: 'Stock actualizado exitosamente',
     };
   } catch (error) {
-    console.error("Error updating stock:", error);
+    console.error('Error updating stock:', error);
     return { success: false, error: error.message };
   }
 };
@@ -268,7 +273,7 @@ export const updateStock = async (itemId, newStock, updatedBy) => {
 export const deleteInventoryItem = async (itemId) => {
   try {
     const docRef = doc(db, INVENTORY_COLLECTION, itemId);
-    
+
     // Verificar que el item existe
     const currentDoc = await getDoc(docRef);
     if (!currentDoc.exists()) {
@@ -276,13 +281,13 @@ export const deleteInventoryItem = async (itemId) => {
     }
 
     await deleteDoc(docRef);
-    
-    return { 
-      success: true, 
-      message: 'Item eliminado exitosamente'
+
+    return {
+      success: true,
+      message: 'Item eliminado exitosamente',
     };
   } catch (error) {
-    console.error("Error deleting inventory item:", error);
+    console.error('Error deleting inventory item:', error);
     return { success: false, error: error.message };
   }
 };
@@ -297,29 +302,30 @@ export const deleteInventoryItem = async (itemId) => {
  * @returns {Function} - Función para cancelar la suscripción
  */
 export const subscribeToInventory = (callback) => {
-  const q = query(
-    collection(db, INVENTORY_COLLECTION),
-    orderBy("fuelType", "asc")
-  );
-  
-  return onSnapshot(q, (querySnapshot) => {
-    const items = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      items.push({
-        id: doc.id,
-        ...data,
-        stockLevel: getStockLevel(data.currentStock, data.maxCapacity),
-        stockPercentage: Math.round((data.currentStock / data.maxCapacity) * 100),
-        needsRestock: data.currentStock <= data.minThreshold
+  const q = query(collection(db, INVENTORY_COLLECTION), orderBy('fuelType', 'asc'));
+
+  return onSnapshot(
+    q,
+    (querySnapshot) => {
+      const items = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        items.push({
+          id: doc.id,
+          ...data,
+          stockLevel: getStockLevel(data.currentStock, data.maxCapacity),
+          stockPercentage: Math.round((data.currentStock / data.maxCapacity) * 100),
+          needsRestock: data.currentStock <= data.minThreshold,
+        });
       });
-    });
-    
-    callback(items);
-  }, (error) => {
-    console.error("Error in inventory subscription:", error);
-    callback(null, error);
-  });
+
+      callback(items);
+    },
+    (error) => {
+      console.error('Error in inventory subscription:', error);
+      callback(null, error);
+    }
+  );
 };
 
 /**
@@ -335,24 +341,24 @@ export const subscribeToInventory = (callback) => {
 export const batchUpdateInventory = async (updates, updatedBy) => {
   try {
     const batch = writeBatch(db);
-    
-    updates.forEach(update => {
+
+    updates.forEach((update) => {
       const docRef = doc(db, INVENTORY_COLLECTION, update.id);
       batch.update(docRef, {
         ...update.data,
         lastUpdated: new Date(),
-        updatedBy: updatedBy
+        updatedBy: updatedBy,
       });
     });
-    
+
     await batch.commit();
-    
-    return { 
-      success: true, 
-      message: `${updates.length} items actualizados exitosamente`
+
+    return {
+      success: true,
+      message: `${updates.length} items actualizados exitosamente`,
     };
   } catch (error) {
-    console.error("Error in batch update:", error);
+    console.error('Error in batch update:', error);
     return { success: false, error: error.message };
   }
 };
@@ -369,39 +375,40 @@ export const getInventoryStats = async () => {
   try {
     const result = await getAllInventoryItems();
     if (!result.success) return result;
-    
+
     const items = result.data;
     const stats = {
       totalItems: items.length,
-      activeItems: items.filter(item => item.status === 'active').length,
-      lowStockItems: items.filter(item => item.needsRestock).length,
-      totalValue: items.reduce((sum, item) => sum + (item.currentStock * item.pricePerUnit), 0),
-      averageStockLevel: items.length > 0 
-        ? Math.round(items.reduce((sum, item) => sum + item.stockPercentage, 0) / items.length)
-        : 0,
-      byFuelType: {}
+      activeItems: items.filter((item) => item.status === 'active').length,
+      lowStockItems: items.filter((item) => item.needsRestock).length,
+      totalValue: items.reduce((sum, item) => sum + item.currentStock * item.pricePerUnit, 0),
+      averageStockLevel:
+        items.length > 0
+          ? Math.round(items.reduce((sum, item) => sum + item.stockPercentage, 0) / items.length)
+          : 0,
+      byFuelType: {},
     };
-    
+
     // Estadísticas por tipo de combustible
-    items.forEach(item => {
+    items.forEach((item) => {
       if (!stats.byFuelType[item.fuelType]) {
         stats.byFuelType[item.fuelType] = {
           count: 0,
           totalStock: 0,
           totalCapacity: 0,
-          totalValue: 0
+          totalValue: 0,
         };
       }
-      
+
       stats.byFuelType[item.fuelType].count++;
       stats.byFuelType[item.fuelType].totalStock += item.currentStock;
       stats.byFuelType[item.fuelType].totalCapacity += item.maxCapacity;
-      stats.byFuelType[item.fuelType].totalValue += (item.currentStock * item.pricePerUnit);
+      stats.byFuelType[item.fuelType].totalValue += item.currentStock * item.pricePerUnit;
     });
-    
+
     return { success: true, data: stats };
   } catch (error) {
-    console.error("Error calculating inventory stats:", error);
+    console.error('Error calculating inventory stats:', error);
     return { success: false, error: error.message };
   }
 };

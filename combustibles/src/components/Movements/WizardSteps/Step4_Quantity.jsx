@@ -53,7 +53,7 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
         const availableStock = inventory
           .filter(
             (item) =>
-              item.fuelType === formData.fuelType &&
+              item.fuelType?.toUpperCase() === formData.fuelType?.toUpperCase() &&
               item.location?.toLowerCase() === formData.location?.toLowerCase() &&
               item.status === 'active'
           )
@@ -212,17 +212,17 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
               <span className="unit-text">galones</span>
               <div className="unit-divider"></div>
               <div className="fuel-type-indicator">
-                {formData.fuelType === 'ACPM' && (
+                {formData.fuelType === 'DIESEL' && (
                   <span className="fuel-badge diesel">🛢️ DIESEL</span>
                 )}
-                {formData.fuelType === 'GASOLINA_CORRIENTE' && (
-                  <span className="fuel-badge gasoline">⛽ GASOLINA</span>
+                {formData.fuelType === 'GASOLINE' && (
+                  <span className="fuel-badge gasoline">⛽ GASOLINE</span>
                 )}
-                {formData.fuelType === 'GASOLINA_EXTRA' && (
-                  <span className="fuel-badge gasoline-extra">🏎️ EXTRA</span>
+                {formData.fuelType === 'LUBRICANTS' && (
+                  <span className="fuel-badge lubricants">🛢️ LUBRICANTES</span>
                 )}
-                {formData.fuelType === 'JET_A1' && (
-                  <span className="fuel-badge jet">✈️ JET A1</span>
+                {formData.fuelType === 'TWO_STROKE' && (
+                  <span className="fuel-badge two-stroke">🪚 MEZCLA 2T</span>
                 )}
               </div>
             </div>

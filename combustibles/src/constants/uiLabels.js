@@ -338,8 +338,8 @@ export const UI_PLACEHOLDERS = {
   ADDITIONAL_NOTES: 'Observaciones adicionales...',
 
   // Placeholders específicos para productos
-  INTERNAL_NAME: 'Ej: ACPM, GASOLINA',
-  DISPLAY_NAME: 'Ej: ACPM 🚛, Gasolina 🚗',
+  INTERNAL_NAME: 'Ej: DIESEL, GASOLINE',
+  DISPLAY_NAME: 'Ej: DIESEL 🚛, GASOLINE 🚗',
   PRODUCT_DESCRIPTION: 'Descripción del producto...',
 
   // Placeholders específicos para VehicleFormSmart

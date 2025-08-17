@@ -21,8 +21,11 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
         // Simular carga de precios actualizados
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        console.log('🔄 [Step2] Seleccionando combustible:', fuelType, product);
-        updateFormData('fuelType', fuelType);
+        // 🔧 Normalizar fuelType a mayúsculas antes de guardar
+        const normalizedFuelType = fuelType?.toUpperCase() || fuelType;
+
+        console.log('🔄 [Step2] Seleccionando combustible:', normalizedFuelType, product);
+        updateFormData('fuelType', normalizedFuelType);
         setSelectedProduct(product);
 
         // Auto-completar precio
@@ -32,7 +35,7 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
 
         console.log(
           '🔄 [Step2] Combustible seleccionado:',
-          fuelType,
+          normalizedFuelType,
           'Precio:',
           product.defaultPrice
         );
@@ -49,9 +52,19 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
   // Actualizar producto seleccionado cuando cambia el combustible
   useEffect(() => {
     if (formData.fuelType && products.length > 0) {
-      const product = products.find(
-        (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+      console.log('🔍 [Step2 useEffect] Buscando producto para fuelType:', formData.fuelType);
+      console.log(
+        '🔍 [Step2 useEffect] Productos disponibles:',
+        products.map((p) => ({ name: p.name, displayName: p.displayName }))
       );
+
+      const product = products.find(
+        (p) =>
+          p.name?.toUpperCase() === formData.fuelType?.toUpperCase() ||
+          p.displayName?.toUpperCase() === formData.fuelType?.toUpperCase()
+      );
+
+      console.log('🔍 [Step2 useEffect] Producto encontrado:', product);
       setSelectedProduct(product);
 
       // Auto-completar precio si existe
@@ -133,8 +146,10 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
         {products.map((product) => (
           <div
             key={product.id}
-            className={`fuel-option sap-theme ${formData.fuelType === product.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
-            onClick={() => !loading && handleFuelSelection(product.name, product)}
+            className={`fuel-option sap-theme ${formData.fuelType?.toUpperCase() === product.name?.toUpperCase() ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+            onClick={() =>
+              !loading && handleFuelSelection(product.name?.toUpperCase() || product.name, product)
+            }
           >
             <div className="option-icon sap-theme sap-theme">{product.icon || '🛢️'}</div>
             <div className="option-content sap-theme sap-theme">

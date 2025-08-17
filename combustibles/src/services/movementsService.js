@@ -125,6 +125,11 @@ export const getAllMovements = async (filters = {}) => {
   try {
     let q = collection(db, COLLECTION_NAME);
 
+    // 🔧 Normalizar fuelType en filtros a mayúsculas
+    if (filters.fuelType) {
+      filters.fuelType = filters.fuelType.toUpperCase();
+    }
+
     // Aplicar filtros
     if (filters.type) {
       q = query(q, where('type', '==', filters.type));
@@ -443,6 +448,11 @@ const validateMovementData = (movementData) => {
     if (!movementData[field]) {
       throw new Error(`Campo requerido: ${field}`);
     }
+  }
+
+  // 🔧 Normalizar fuelType a mayúsculas para consistencia
+  if (movementData.fuelType) {
+    movementData.fuelType = movementData.fuelType.toUpperCase();
   }
 
   // Validar tipo de movimiento

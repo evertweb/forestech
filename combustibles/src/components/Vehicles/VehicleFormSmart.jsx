@@ -363,7 +363,6 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       <option value="">{UI_PLACEHOLDERS.SELECT_FUEL}</option>
                       <option value="DIESEL">🛢️ Diésel</option>
                       <option value="GASOLINE">⛽ Gasolina</option>
-                      <option value="ACPM">🚛 ACPM</option>
                       <option value="ELECTRIC">⚡ Eléctrico</option>
                     </select>
                     {errors.fuelType && <span className="field-error">{errors.fuelType}</span>}

@@ -5,15 +5,54 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
-import { OPERATIONAL_LOCATIONS, formatLocationName } from '../../../constants/locations';
+import {
+  getAllLocations,
+  getLocationStock,
+  formatLocationName,
+} from '../../../services/locationsService';
 
 const Step3_Location = ({ formData, updateFormData, systemData, setError, isActive }) => {
   const [loading, setLoading] = useState(false);
   const [stockInfo, setStockInfo] = useState({});
   const [validatingStock, setValidatingStock] = useState(false);
+  const [availableLocations, setAvailableLocations] = useState([]);
+  const [, setLoadingLocations] = useState(true);
 
   const { suppliers, inventory } = systemData;
   const isEntrada = formData.type === MOVEMENT_TYPES.ENTRADA;
+
+  // Cargar ubicaciones dinámicamente desde Firebase
+  useEffect(() => {
+    const loadLocations = async () => {
+      if (isEntrada) {
+        setLoadingLocations(false);
+        return; // Para entradas usamos proveedores, no ubicaciones
+      }
+
+      try {
+        setLoadingLocations(true);
+        const result = await getAllLocations();
+
+        if (result.success && result.data.length > 0) {
+          setAvailableLocations(result.data);
+          console.log(`🏗️ Ubicaciones cargadas dinámicamente: ${result.data.length}`, result.data);
+        } else {
+          console.warn('⚠️ No se encontraron ubicaciones en Firebase, usando fallback');
+          // Fallback a ubicaciones básicas si no hay datos
+          setAvailableLocations(['bodega austria']);
+          setError('No se encontraron ubicaciones configuradas. Contacta al administrador.');
+        }
+      } catch (error) {
+        console.error('❌ Error cargando ubicaciones:', error);
+        setAvailableLocations(['bodega austria']); // Fallback
+        setError('Error al cargar ubicaciones. Usando ubicación por defecto.');
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+
+    loadLocations();
+  }, [isEntrada, setError]);
 
   const handleLocationSelection = useCallback(
     async (location) => {
@@ -53,8 +92,8 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
           handleLocationSelection(selectedSupplier.name);
         }
       } else {
-        if (num >= 1 && num <= OPERATIONAL_LOCATIONS.length) {
-          const selectedLocation = OPERATIONAL_LOCATIONS[num - 1];
+        if (num >= 1 && num <= availableLocations.length) {
+          const selectedLocation = availableLocations[num - 1];
           handleLocationSelection(selectedLocation);
         }
       }
@@ -62,7 +101,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, suppliers, isEntrada, handleLocationSelection]);
+  }, [isActive, suppliers, isEntrada, handleLocationSelection, availableLocations]);
 
   // Validar stock disponible en tiempo real para salidas/transferencias
   useEffect(() => {
@@ -74,43 +113,62 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
         const stockByLocation = {};
 
-        OPERATIONAL_LOCATIONS.forEach((location) => {
-          const itemsEncontrados = inventory.filter(
-            (item) =>
-              item.fuelType === formData.fuelType &&
-              item.location?.toLowerCase() === location.toLowerCase() &&
-              item.status === 'active'
-          );
+        // Usar ubicaciones dinámicas en lugar de hardcodeadas
+        for (const location of availableLocations) {
+          try {
+            const stockResult = await getLocationStock(location, formData.fuelType);
 
-          const availableStock = itemsEncontrados.reduce(
-            (total, item) => total + (parseFloat(item.currentStock) || 0),
-            0
-          );
+            if (stockResult.success) {
+              stockByLocation[location] = stockResult.data;
+            } else {
+              // Fallback manual si el servicio falla
+              const itemsEncontrados = inventory.filter(
+                (item) =>
+                  item.fuelType?.toUpperCase() === formData.fuelType?.toUpperCase() &&
+                  item.location?.toLowerCase() === location.toLowerCase() &&
+                  item.status === 'active'
+              );
 
-          const maxCapacity = itemsEncontrados.reduce(
-            (total, item) => total + (parseFloat(item.maxCapacity) || 0),
-            0
-          );
+              const availableStock = itemsEncontrados.reduce(
+                (total, item) => total + (parseFloat(item.currentStock) || 0),
+                0
+              );
 
-          let status = 'available';
-          let message = `${availableStock.toFixed(0)} galones disponibles`;
+              const maxCapacity = itemsEncontrados.reduce(
+                (total, item) => total + (parseFloat(item.maxCapacity) || 0),
+                0
+              );
 
-          if (availableStock === 0) {
-            status = 'empty';
-            message = 'Sin combustible disponible';
-          } else if (availableStock < maxCapacity * 0.2) {
-            status = 'low';
-            message = `${availableStock.toFixed(0)} gal (stock bajo)`;
+              let status = 'available';
+              let message = `${availableStock.toFixed(0)} galones disponibles`;
+
+              if (availableStock === 0) {
+                status = 'empty';
+                message = 'Sin combustible disponible';
+              } else if (availableStock < maxCapacity * 0.2) {
+                status = 'low';
+                message = `${availableStock.toFixed(0)} gal (stock bajo)`;
+              }
+
+              stockByLocation[location] = {
+                available: availableStock,
+                maxCapacity,
+                status,
+                message,
+                percentage: maxCapacity > 0 ? (availableStock / maxCapacity) * 100 : 0,
+              };
+            }
+          } catch (error) {
+            console.error(`❌ Error verificando stock en ${location}:`, error);
+            stockByLocation[location] = {
+              available: 0,
+              maxCapacity: 0,
+              status: 'error',
+              message: 'Error al verificar stock',
+              percentage: 0,
+            };
           }
-
-          stockByLocation[location] = {
-            available: availableStock,
-            maxCapacity,
-            status,
-            message,
-            percentage: maxCapacity > 0 ? (availableStock / maxCapacity) * 100 : 0,
-          };
-        });
+        }
 
         setStockInfo(stockByLocation);
         setValidatingStock(false);
@@ -118,7 +176,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
     };
 
     validateLocationStock();
-  }, [formData.fuelType, isEntrada, inventory]);
+  }, [formData.fuelType, isEntrada, inventory, availableLocations]);
 
   const getLocationIcon = (location) => {
     switch (location.toLowerCase()) {
@@ -241,7 +299,7 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
       )}
 
       <div className="location-options sap-theme sap-theme">
-        {OPERATIONAL_LOCATIONS.map((location) => {
+        {availableLocations.map((location) => {
           const stockData = stockInfo[location] || {};
           const isLocationSelected = formData.location === location;
 

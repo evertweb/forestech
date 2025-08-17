@@ -11,6 +11,7 @@ import {
   VEHICLE_STATUS,
   FUEL_COMPATIBILITY,
 } from '../../services/vehiclesService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 
 // Componentes de la pestaña Vehículos
 import VehiclesStats from './VehiclesStats';
@@ -36,6 +37,9 @@ const VehiclesMain = () => {
   const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'categories'
   // Context y estado
   const { user, userProfile } = useCombustibles();
+
+  // Hook para progreso transparente de Firebase (disponible para uso futuro)
+  const { executeWithProgress: _executeWithProgress } = useFirebaseProgressContext();
   const [vehicles, setVehicles] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

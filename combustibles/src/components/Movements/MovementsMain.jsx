@@ -13,6 +13,7 @@ import {
   MOVEMENT_TYPES,
   MOVEMENT_STATUS,
 } from '../../services/movementsService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
@@ -27,6 +28,9 @@ import { POPUP_EVENTS } from '../../services/popupCommunication';
 const MovementsMain = () => {
   // Context y estado
   const { user, userProfile, deleteMovement, inventory, vehicles } = useCombustibles();
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
   const [movements, setMovements] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -190,9 +194,18 @@ const MovementsMain = () => {
     ) {
       return;
     }
+
     try {
-      await approveMovement(movementId);
-      alert('Movimiento aprobado y stock actualizado.');
+      const progressDescription = `Aprobando movimiento ${movementId}`;
+
+      await executeWithProgress(
+        'updateMovement',
+        progressDescription,
+        () => approveMovement(movementId),
+        { movementId, action: 'approve' }
+      );
+
+      console.log('✅ Movimiento aprobado y stock actualizado');
     } catch (error) {
       console.error('Error al aprobar movimiento:', error);
       alert(`Error al aprobar movimiento: ${error.message}`);
@@ -213,10 +226,26 @@ const MovementsMain = () => {
   };
 
   const handleDeleteMovement = async (movementId) => {
+    if (
+      !window.confirm(
+        '¿Estás seguro de que quieres eliminar este movimiento? Esta acción revertirá cambios en el inventario.'
+      )
+    ) {
+      return;
+    }
+
     try {
-      const result = await deleteMovement(movementId);
+      const progressDescription = `Eliminando movimiento ${movementId}`;
+
+      const result = await executeWithProgress(
+        'deleteMovement',
+        progressDescription,
+        () => deleteMovement(movementId),
+        { movementId }
+      );
+
       if (result.success) {
-        alert('Movimiento eliminado exitosamente.');
+        console.log('✅ Movimiento eliminado exitosamente');
       } else {
         throw new Error(result.error);
       }
@@ -356,16 +385,18 @@ const MovementsMain = () => {
   );
 
   return (
-    <PageLayout
-      title="📊 Movimientos de Combustibles"
-      subtitle="Gestiona entradas, salidas, transferencias y ajustes de inventario"
-      actions={headerActions}
-      stats={statsComponent}
-      filters={filtersComponent}
-      loading={loading}
-    >
-      {mainContent}
-    </PageLayout>
+    <>
+      <PageLayout
+        title="📊 Movimientos de Combustibles"
+        subtitle="Gestiona entradas, salidas, transferencias y ajustes de inventario"
+        actions={headerActions}
+        stats={statsComponent}
+        filters={filtersComponent}
+        loading={loading}
+      >
+        {mainContent}
+      </PageLayout>
+    </>
   );
 };
 

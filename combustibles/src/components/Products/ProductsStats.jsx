@@ -32,9 +32,14 @@ const ProductsStats = ({ products }) => {
   // Calcular estadísticas por producto
   const calculateProductStats = () => {
     const stats = products.map((product) => {
-      const productMovements = movements.filter(
-        (mov) => mov.fuelType === product.name || mov.fuelType === product.displayName
-      );
+      // 🔧 Normalizar comparaciones de fuelType
+      const normalizedProductName = product.name?.toUpperCase();
+      const normalizedDisplayName = product.displayName?.toUpperCase();
+
+      const productMovements = movements.filter((mov) => {
+        const movFuelType = mov.fuelType?.toUpperCase();
+        return movFuelType === normalizedProductName || movFuelType === normalizedDisplayName;
+      });
 
       const entries = productMovements.filter((mov) => mov.type === 'entrada');
       const exits = productMovements.filter((mov) => mov.type === 'salida');

@@ -8,6 +8,7 @@ import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
 import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import useFormData from '../../hooks/useFormData';
@@ -18,6 +19,9 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const isEditing = !!item;
   const { userProfile } = useCombustibles();
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
 
   // Estado inicial y validación con useFormData
   const getInitialFormData = useCallback(
@@ -76,44 +80,41 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
       return;
     }
 
-    setLoading(true);
-
     try {
-      let result;
+      // Preparar datos para la operación
+      const inventoryData = {
+        fuelType: isEditing ? item.fuelType : formData.fuelType,
+        location: formData.location,
+        currentStock: Number(formData.currentStock) || 0,
+        maxCapacity: Number(formData.maxCapacity),
+        minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
+        pricePerUnit: Number(formData.pricePerUnit) || 0,
+        supplier: formData.supplier,
+        description: formData.description,
+        status: formData.status,
+      };
 
-      if (isEditing) {
-        // Update existing item
-        result = await updateInventoryItem(
-          item.id,
-          {
-            location: formData.location,
-            currentStock: Number(formData.currentStock) || 0,
-            maxCapacity: Number(formData.maxCapacity),
-            minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
-            pricePerUnit: Number(formData.pricePerUnit) || 0,
-            supplier: formData.supplier,
-            description: formData.description,
-            status: formData.status,
-          },
-          userProfile.uid
-        );
-      } else {
-        // Create new item
-        result = await createInventoryItem(
-          {
-            fuelType: formData.fuelType,
-            location: formData.location,
-            currentStock: Number(formData.currentStock) || 0,
-            maxCapacity: Number(formData.maxCapacity),
-            minThreshold: Number(formData.minThreshold) || Number(formData.maxCapacity) * 0.15,
-            pricePerUnit: Number(formData.pricePerUnit) || 0,
-            supplier: formData.supplier,
-            description: formData.description,
-            status: formData.status,
-          },
-          userProfile.uid
-        );
-      }
+      // Generar descripción para el progreso
+      const progressDescription = isEditing
+        ? `Actualizando inventario de ${item.fuelType} en ${formData.location}`
+        : `Creando inventario de ${formData.fuelType} en ${formData.location}`;
+
+      const operationType = isEditing ? 'updateInventory' : 'createInventory';
+
+      // Ejecutar con progreso transparente
+      const result = await executeWithProgress(
+        operationType,
+        progressDescription,
+        () =>
+          isEditing
+            ? updateInventoryItem(item.id, inventoryData, userProfile.uid)
+            : createInventoryItem(inventoryData, userProfile.uid),
+        {
+          fuelType: inventoryData.fuelType,
+          location: inventoryData.location,
+          isUpdate: isEditing,
+        }
+      );
 
       if (result.success) {
         alert(result.message);

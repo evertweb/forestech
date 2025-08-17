@@ -13,6 +13,7 @@ import {
   MAINTENANCE_TYPES,
   MAINTENANCE_STATUS,
 } from '../../services/maintenanceService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import MaintenanceStats from './MaintenanceStats';
 import MaintenanceFilters from './MaintenanceFilters';
 import MaintenanceList from './MaintenanceList';
@@ -23,6 +24,9 @@ import './MaintenanceMain-SAP.css';
 const MaintenanceMain = () => {
   // Context y estado
   const { user, userProfile } = useCombustibles();
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
   const [maintenanceRecords, setMaintenanceRecords] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -159,8 +163,15 @@ const MaintenanceMain = () => {
 
     if (window.confirm('¿Estás seguro de que quieres eliminar este mantenimiento?')) {
       try {
-        // Usar la función importada estáticamente
-        await deleteMaintenanceRecord(maintenanceId);
+        const progressDescription = `Eliminando registro de mantenimiento ${maintenanceId}`;
+
+        await executeWithProgress(
+          'deleteMaintenance',
+          progressDescription,
+          () => deleteMaintenanceRecord(maintenanceId),
+          { maintenanceId }
+        );
+
         console.log('✅ Mantenimiento eliminado exitosamente');
       } catch (error) {
         console.error('❌ Error al eliminar mantenimiento:', error);

@@ -28,7 +28,11 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
     }
 
     if (selectedFuelType !== 'all') {
-      filtered = filtered.filter((vehicle) => vehicle.fuelType === selectedFuelType);
+      // 🔧 Normalizar comparación de fuelType
+      const normalizedSelectedType = selectedFuelType.toUpperCase();
+      filtered = filtered.filter(
+        (vehicle) => vehicle.fuelType?.toUpperCase() === normalizedSelectedType
+      );
     }
 
     return filtered;
@@ -140,7 +144,11 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
   const fuelAnalysis = useMemo(() => {
     const analysis = {};
     fuelTypes.forEach((fuelType) => {
-      const vehiclesOfType = vehicleAnalysis.filter((v) => v.fuelType === fuelType);
+      // 🔧 Normalizar comparación de fuelType
+      const normalizedFuelType = fuelType.toUpperCase();
+      const vehiclesOfType = vehicleAnalysis.filter(
+        (v) => v.fuelType?.toUpperCase() === normalizedFuelType
+      );
       const totalConsumption = vehiclesOfType.reduce(
         (sum, v) => sum + v.consumption.totalConsumption,
         0

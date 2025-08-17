@@ -18,6 +18,9 @@ import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
 import { PageLayout } from '../shared';
+import { cardsService } from '../../services/cardsService';
+import UnifiedCardsGrid from '../shared/UnifiedCards';
+import { useCardDetails } from '../../hooks/useCardDetails.jsx';
 
 const DashboardMainSAP = () => {
   // ==================================================================================================
@@ -30,6 +33,7 @@ const DashboardMainSAP = () => {
   const [dataError, setDataError] = useState(null);
 
   const { subscribeToInventory, subscribeToMovements, subscribeToVehicles } = useCombustibles();
+  const { openCardDetails, CardDetailsModal } = useCardDetails();
 
   // ==================================================================================================
   // EFECTOS
@@ -98,40 +102,8 @@ const DashboardMainSAP = () => {
     }
   }, [dataLoading, inventory]);
 
-  // ==================================================================================================
-  // CÁLCULOS MEMOIZADOS
-  // ==================================================================================================
-  const stats = useMemo(() => {
-    const activeVehicles = vehicles.filter((v) => v.status === 'activo').length;
-    const pendingMovements = movements.filter((m) => m.status === 'pendiente').length;
-
-    const totalFuel = inventory
-      .filter((item) => item.status === 'active')
-      .reduce((sum, item) => sum + (parseFloat(item.currentStock) || 0), 0);
-
-    const totalValue = inventory
-      .filter((item) => item.isActive !== false)
-      .reduce((sum, item) => {
-        const stock = parseFloat(item.currentStock) || 0;
-        const price = parseFloat(item.pricePerUnit || item.unitPrice) || 0;
-        return sum + stock * price;
-      }, 0);
-
-    const lowStockAlerts = inventory.filter((item) => {
-      const stock = parseFloat(item.currentStock) || 0;
-      const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
-      return item.isActive !== false && stock <= minStock;
-    }).length;
-
-    return {
-      totalFuel,
-      totalValue,
-      lowStockAlerts,
-      activeInventoryItems: inventory.filter((item) => item.isActive !== false).length,
-      activeVehicles,
-      pendingMovements,
-    };
-  }, [inventory, vehicles, movements]);
+  // Estadísticas calculadas (removidas ya que usamos cards unificadas)
+  // const stats = useMemo(() => { ... }, [inventory, vehicles, movements]);
 
   // Helper para fechas
   const safeDateHelper = (date) => {
@@ -181,64 +153,31 @@ const DashboardMainSAP = () => {
     </div>
   );
 
+  // Generar cards unificadas para dashboard
+  const dashboardCards = useMemo(() => {
+    return cardsService.getCardsForTab('dashboard', {
+      inventory,
+      vehicles,
+      movements,
+    });
+  }, [inventory, vehicles, movements]);
+
   const statsComponent = (
-    <div className="stats-grid sap-theme">
-      <div className="stat-card sap-theme">
-        <div className="stat-card-header sap-theme">
-          <h3 className="stat-card-title sap-theme">Combustible Total</h3>
-          <div className="stat-card-icon sap-theme">🛢️</div>
-        </div>
-        <div className="stat-card-value sap-theme">{formatNumber(stats.totalFuel)}</div>
-        <div
-          className={`stat-card-change sap-theme ${stats.totalFuel > 1000 ? 'positive' : 'negative'}`}
-        >
-          {stats.totalFuel > 1000 ? 'Suficiente' : 'Revisar stock'} galones
-        </div>
-      </div>
-
-      <div className="stat-card sap-theme success">
-        <div className="stat-card-header sap-theme">
-          <h3 className="stat-card-title sap-theme">Valor Inventario</h3>
-          <div className="stat-card-icon sap-theme">💰</div>
-        </div>
-        <div className="stat-card-value sap-theme">{formatCurrency(stats.totalValue)}</div>
-        <div className="stat-card-change sap-theme positive">
-          Activo - {stats.activeInventoryItems} productos
-        </div>
-      </div>
-
-      <div className="stat-card sap-theme">
-        <div className="stat-card-header sap-theme">
-          <h3 className="stat-card-title sap-theme">Vehículos Activos</h3>
-          <div className="stat-card-icon sap-theme">🚜</div>
-        </div>
-        <div className="stat-card-value sap-theme">{stats.activeVehicles}</div>
-        <div
-          className={`stat-card-change sap-theme ${stats.activeVehicles > 0 ? 'positive' : 'negative'}`}
-        >
-          {stats.activeVehicles > 0 ? 'Operativos' : 'Sin actividad'}
-        </div>
-      </div>
-
-      <div className={`stat-card sap-theme ${stats.lowStockAlerts > 0 ? 'error' : 'success'}`}>
-        <div className="stat-card-header sap-theme">
-          <h3 className="stat-card-title sap-theme">Alertas de Stock</h3>
-          <div className="stat-card-icon sap-theme">⚠️</div>
-        </div>
-        <div className="stat-card-value sap-theme">{stats.lowStockAlerts}</div>
-        <div
-          className={`stat-card-change sap-theme ${stats.lowStockAlerts === 0 ? 'positive' : 'negative'}`}
-        >
-          {stats.lowStockAlerts === 0 ? 'Todo normal' : 'Requiere atención'}
-        </div>
-      </div>
-    </div>
+    <UnifiedCardsGrid
+      cards={dashboardCards}
+      onCardClick={openCardDetails}
+      columns={4}
+      className="dashboard-cards-grid"
+    />
   );
 
   const filtersComponent = null; // Dashboard no necesita filtros complejos
 
   const mainContent = (
     <>
+      {/* Modal de detalles de cards */}
+      {CardDetailsModal}
+
       {/* Error Display */}
       {dataError && (
         <div className="error-banner sap-theme">

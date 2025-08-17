@@ -1,20 +1,20 @@
 // combustibles/src/services/suppliersService.js
 // Servicio completo para operaciones CRUD de proveedores de combustibles
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot
-} from "firebase/firestore";
-import { db } from "../firebase/config";
-import { FUEL_TYPES } from "../constants/combustibleTypes";
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from 'firebase/firestore';
+import { db } from '../firebase/config';
+import { FUEL_TYPES } from '../constants/combustibleTypes';
 
 // Rutas de colecciones
 const SUPPLIERS_COLLECTION = 'combustibles_suppliers';
@@ -34,14 +34,14 @@ export const createSupplier = async (supplierData, createdBy) => {
     // Verificar que no exista duplicado con el mismo nombre
     const existingQuery = query(
       collection(db, SUPPLIERS_COLLECTION),
-      where("name", "==", supplierData.name.trim())
+      where('name', '==', supplierData.name.trim())
     );
-    
+
     const existingDocs = await getDocs(existingQuery);
     if (!existingDocs.empty) {
-      return { 
-        success: false, 
-        error: `Ya existe un proveedor con el nombre "${supplierData.name}"` 
+      return {
+        success: false,
+        error: `Ya existe un proveedor con el nombre "${supplierData.name}"`,
       };
     }
 
@@ -49,14 +49,14 @@ export const createSupplier = async (supplierData, createdBy) => {
     if (supplierData.taxId) {
       const existingTaxQuery = query(
         collection(db, SUPPLIERS_COLLECTION),
-        where("taxId", "==", supplierData.taxId.trim())
+        where('taxId', '==', supplierData.taxId.trim())
       );
-      
+
       const existingTaxDocs = await getDocs(existingTaxQuery);
       if (!existingTaxDocs.empty) {
-        return { 
-          success: false, 
-          error: `Ya existe un proveedor con el NIT/Documento "${supplierData.taxId}"` 
+        return {
+          success: false,
+          error: `Ya existe un proveedor con el NIT/Documento "${supplierData.taxId}"`,
         };
       }
     }
@@ -67,7 +67,7 @@ export const createSupplier = async (supplierData, createdBy) => {
       taxId: supplierData.taxId?.trim() || '',
       type: supplierData.type || 'proveedor', // proveedor, distribuidor, mayorista
       category: supplierData.category || 'combustibles', // combustibles, lubricantes, aditivos
-      
+
       // Información de contacto
       contactPerson: supplierData.contactPerson?.trim() || '',
       phone: supplierData.phone?.trim() || '',
@@ -75,45 +75,45 @@ export const createSupplier = async (supplierData, createdBy) => {
       address: supplierData.address?.trim() || '',
       city: supplierData.city?.trim() || '',
       state: supplierData.state?.trim() || 'Colombia',
-      
+
       // Productos que suministra
       fuelTypes: supplierData.fuelTypes || [], // Array de tipos de combustible
-      
+
       // Información comercial
       paymentTerms: supplierData.paymentTerms || 'contado', // contado, 30dias, 60dias, 90dias
       creditLimit: Number(supplierData.creditLimit) || 0,
       priceList: supplierData.priceList || {}, // Objeto con precios por tipo combustible
-      
+
       // Evaluación y rating
       rating: Number(supplierData.rating) || 5, // 1-5 estrellas
       evaluationNotes: supplierData.evaluationNotes || '',
-      
+
       // Estados y configuración
       status: supplierData.status || 'active', // active, inactive, suspended
       isPreferred: supplierData.isPreferred || false,
-      
+
       // Estadísticas (calculadas)
       totalOrders: 0,
       totalPurchased: 0,
       lastOrderDate: null,
       averageDeliveryTime: 0, // en días
-      
+
       // Metadatos
       createdAt: new Date(),
       createdBy: createdBy,
       lastUpdated: new Date(),
-      updatedBy: createdBy
+      updatedBy: createdBy,
     };
 
     const docRef = await addDoc(collection(db, SUPPLIERS_COLLECTION), newSupplier);
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       data: { id: docRef.id, ...newSupplier },
-      message: `Proveedor "${newSupplier.name}" creado exitosamente`
+      message: `Proveedor "${newSupplier.name}" creado exitosamente`,
     };
   } catch (error) {
-    console.error("Error creating supplier:", error);
+    console.error('Error creating supplier:', error);
     return { success: false, error: error.message };
   }
 };
@@ -128,20 +128,17 @@ export const createSupplier = async (supplierData, createdBy) => {
  */
 export const getAllSuppliers = async () => {
   try {
-    const q = query(
-      collection(db, SUPPLIERS_COLLECTION),
-      orderBy("name", "asc")
-    );
-    
+    const q = query(collection(db, SUPPLIERS_COLLECTION), orderBy('name', 'asc'));
+
     const querySnapshot = await getDocs(q);
-    const suppliers = querySnapshot.docs.map(doc => ({
+    const suppliers = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
-    
+
     return { success: true, data: suppliers };
   } catch (error) {
-    console.error("Error getting suppliers:", error);
+    console.error('Error getting suppliers:', error);
     return { success: false, error: error.message };
   }
 };
@@ -155,17 +152,17 @@ export const getSupplierById = async (supplierId) => {
   try {
     const docRef = doc(db, SUPPLIERS_COLLECTION, supplierId);
     const docSnap = await getDoc(docRef);
-    
+
     if (!docSnap.exists()) {
       return { success: false, error: 'Proveedor no encontrado' };
     }
-    
-    return { 
-      success: true, 
-      data: { id: docSnap.id, ...docSnap.data() } 
+
+    return {
+      success: true,
+      data: { id: docSnap.id, ...docSnap.data() },
     };
   } catch (error) {
-    console.error("Error getting supplier:", error);
+    console.error('Error getting supplier:', error);
     return { success: false, error: error.message };
   }
 };
@@ -177,22 +174,27 @@ export const getSupplierById = async (supplierId) => {
  */
 export const getSuppliersByFuelType = async (fuelType) => {
   try {
+    // 🔧 Normalizar fuelType a mayúsculas
+    if (fuelType) {
+      fuelType = fuelType.toUpperCase();
+    }
+
     const q = query(
       collection(db, SUPPLIERS_COLLECTION),
-      where("fuelTypes", "array-contains", fuelType),
-      where("status", "==", "active"),
-      orderBy("rating", "desc")
+      where('fuelTypes', 'array-contains', fuelType),
+      where('status', '==', 'active'),
+      orderBy('rating', 'desc')
     );
-    
+
     const querySnapshot = await getDocs(q);
-    const suppliers = querySnapshot.docs.map(doc => ({
+    const suppliers = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
-    
+
     return { success: true, data: suppliers };
   } catch (error) {
-    console.error("Error getting suppliers by fuel type:", error);
+    console.error('Error getting suppliers by fuel type:', error);
     return { success: false, error: error.message };
   }
 };
@@ -204,21 +206,22 @@ export const getSuppliersByFuelType = async (fuelType) => {
  */
 export const subscribeToSuppliers = (callback) => {
   try {
-    const q = query(
-      collection(db, SUPPLIERS_COLLECTION),
-      orderBy("name", "asc")
+    const q = query(collection(db, SUPPLIERS_COLLECTION), orderBy('name', 'asc'));
+
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const suppliers = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        callback(suppliers);
+      },
+      (error) => {
+        console.error('❌ Error en suscripción de suppliers:', error);
+        callback([]); // Devolver array vacío en caso de error
+      }
     );
-    
-    return onSnapshot(q, (snapshot) => {
-      const suppliers = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      callback(suppliers);
-    }, (error) => {
-      console.error('❌ Error en suscripción de suppliers:', error);
-      callback([]); // Devolver array vacío en caso de error
-    });
   } catch (error) {
     console.error('❌ Error configurando suscripción de suppliers:', error);
     return () => {}; // Devolver función vacía para evitar errores
@@ -248,14 +251,14 @@ export const updateSupplier = async (supplierId, updateData, updatedBy) => {
     if (updateData.name && updateData.name.trim() !== supplierDoc.data().name) {
       const existingQuery = query(
         collection(db, SUPPLIERS_COLLECTION),
-        where("name", "==", updateData.name.trim())
+        where('name', '==', updateData.name.trim())
       );
-      
+
       const existingDocs = await getDocs(existingQuery);
       if (!existingDocs.empty) {
-        return { 
-          success: false, 
-          error: `Ya existe un proveedor con el nombre "${updateData.name}"` 
+        return {
+          success: false,
+          error: `Ya existe un proveedor con el nombre "${updateData.name}"`,
         };
       }
     }
@@ -264,14 +267,14 @@ export const updateSupplier = async (supplierId, updateData, updatedBy) => {
     if (updateData.taxId && updateData.taxId.trim() !== supplierDoc.data().taxId) {
       const existingTaxQuery = query(
         collection(db, SUPPLIERS_COLLECTION),
-        where("taxId", "==", updateData.taxId.trim())
+        where('taxId', '==', updateData.taxId.trim())
       );
-      
+
       const existingTaxDocs = await getDocs(existingTaxQuery);
       if (!existingTaxDocs.empty) {
-        return { 
-          success: false, 
-          error: `Ya existe un proveedor con el NIT/Documento "${updateData.taxId}"` 
+        return {
+          success: false,
+          error: `Ya existe un proveedor con el NIT/Documento "${updateData.taxId}"`,
         };
       }
     }
@@ -279,24 +282,25 @@ export const updateSupplier = async (supplierId, updateData, updatedBy) => {
     const updatePayload = {
       ...updateData,
       lastUpdated: new Date(),
-      updatedBy: updatedBy
+      updatedBy: updatedBy,
     };
 
     // Limpiar campos de texto si existen
     if (updatePayload.name) updatePayload.name = updatePayload.name.trim();
     if (updatePayload.taxId) updatePayload.taxId = updatePayload.taxId.trim();
-    if (updatePayload.contactPerson) updatePayload.contactPerson = updatePayload.contactPerson.trim();
+    if (updatePayload.contactPerson)
+      updatePayload.contactPerson = updatePayload.contactPerson.trim();
     if (updatePayload.phone) updatePayload.phone = updatePayload.phone.trim();
     if (updatePayload.email) updatePayload.email = updatePayload.email.trim();
 
     await updateDoc(doc(db, SUPPLIERS_COLLECTION, supplierId), updatePayload);
-    
-    return { 
-      success: true, 
-      message: 'Proveedor actualizado exitosamente' 
+
+    return {
+      success: true,
+      message: 'Proveedor actualizado exitosamente',
     };
   } catch (error) {
-    console.error("Error updating supplier:", error);
+    console.error('Error updating supplier:', error);
     return { success: false, error: error.message };
   }
 };
@@ -319,15 +323,15 @@ export const updateSupplierRating = async (supplierId, rating, evaluationNotes, 
       rating: Number(rating),
       evaluationNotes: evaluationNotes || '',
       lastUpdated: new Date(),
-      updatedBy: updatedBy
+      updatedBy: updatedBy,
     });
-    
-    return { 
-      success: true, 
-      message: 'Evaluación de proveedor actualizada exitosamente' 
+
+    return {
+      success: true,
+      message: 'Evaluación de proveedor actualizada exitosamente',
     };
   } catch (error) {
-    console.error("Error updating supplier rating:", error);
+    console.error('Error updating supplier rating:', error);
     return { success: false, error: error.message };
   }
 };
@@ -344,15 +348,15 @@ export const updateSupplierPrices = async (supplierId, priceList, updatedBy) => 
     await updateDoc(doc(db, SUPPLIERS_COLLECTION, supplierId), {
       priceList: priceList,
       lastUpdated: new Date(),
-      updatedBy: updatedBy
+      updatedBy: updatedBy,
     });
-    
-    return { 
-      success: true, 
-      message: 'Precios de proveedor actualizados exitosamente' 
+
+    return {
+      success: true,
+      message: 'Precios de proveedor actualizados exitosamente',
     };
   } catch (error) {
-    console.error("Error updating supplier prices:", error);
+    console.error('Error updating supplier prices:', error);
     return { success: false, error: error.message };
   }
 };
@@ -373,15 +377,15 @@ export const deleteSupplier = async (supplierId, deletedBy) => {
     await updateDoc(doc(db, SUPPLIERS_COLLECTION, supplierId), {
       status: 'inactive',
       lastUpdated: new Date(),
-      updatedBy: deletedBy
+      updatedBy: deletedBy,
     });
-    
-    return { 
-      success: true, 
-      message: 'Proveedor desactivado exitosamente' 
+
+    return {
+      success: true,
+      message: 'Proveedor desactivado exitosamente',
     };
   } catch (error) {
-    console.error("Error deleting supplier:", error);
+    console.error('Error deleting supplier:', error);
     return { success: false, error: error.message };
   }
 };
@@ -394,13 +398,13 @@ export const deleteSupplier = async (supplierId, deletedBy) => {
 export const permanentDeleteSupplier = async (supplierId) => {
   try {
     await deleteDoc(doc(db, SUPPLIERS_COLLECTION, supplierId));
-    
-    return { 
-      success: true, 
-      message: 'Proveedor eliminado permanentemente' 
+
+    return {
+      success: true,
+      message: 'Proveedor eliminado permanentemente',
     };
   } catch (error) {
-    console.error("Error permanently deleting supplier:", error);
+    console.error('Error permanently deleting supplier:', error);
     return { success: false, error: error.message };
   }
 };
@@ -423,32 +427,33 @@ export const getSuppliersStats = async () => {
     const suppliers = allSuppliers.data;
     const stats = {
       total: suppliers.length,
-      active: suppliers.filter(s => s.status === 'active').length,
-      inactive: suppliers.filter(s => s.status === 'inactive').length,
-      suspended: suppliers.filter(s => s.status === 'suspended').length,
-      preferred: suppliers.filter(s => s.isPreferred).length,
-      averageRating: suppliers.length > 0 
-        ? suppliers.reduce((sum, s) => sum + (s.rating || 0), 0) / suppliers.length 
-        : 0,
+      active: suppliers.filter((s) => s.status === 'active').length,
+      inactive: suppliers.filter((s) => s.status === 'inactive').length,
+      suspended: suppliers.filter((s) => s.status === 'suspended').length,
+      preferred: suppliers.filter((s) => s.isPreferred).length,
+      averageRating:
+        suppliers.length > 0
+          ? suppliers.reduce((sum, s) => sum + (s.rating || 0), 0) / suppliers.length
+          : 0,
       byCategory: {},
-      byType: {}
+      byType: {},
     };
 
     // Estadísticas por categoría
-    suppliers.forEach(supplier => {
+    suppliers.forEach((supplier) => {
       const category = supplier.category || 'sin_categoria';
       stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
     });
 
     // Estadísticas por tipo
-    suppliers.forEach(supplier => {
+    suppliers.forEach((supplier) => {
       const type = supplier.type || 'sin_tipo';
       stats.byType[type] = (stats.byType[type] || 0) + 1;
     });
 
     return { success: true, data: stats };
   } catch (error) {
-    console.error("Error getting suppliers stats:", error);
+    console.error('Error getting suppliers stats:', error);
     return { success: false, error: error.message };
   }
 };
@@ -466,22 +471,23 @@ export const searchSuppliers = async (searchTerm) => {
 
     const term = searchTerm.toLowerCase().trim();
     const allSuppliers = await getAllSuppliers();
-    
+
     if (!allSuppliers.success) {
       return allSuppliers;
     }
 
-    const filteredSuppliers = allSuppliers.data.filter(supplier => 
-      supplier.name?.toLowerCase().includes(term) ||
-      supplier.taxId?.toLowerCase().includes(term) ||
-      supplier.contactPerson?.toLowerCase().includes(term) ||
-      supplier.email?.toLowerCase().includes(term) ||
-      supplier.city?.toLowerCase().includes(term)
+    const filteredSuppliers = allSuppliers.data.filter(
+      (supplier) =>
+        supplier.name?.toLowerCase().includes(term) ||
+        supplier.taxId?.toLowerCase().includes(term) ||
+        supplier.contactPerson?.toLowerCase().includes(term) ||
+        supplier.email?.toLowerCase().includes(term) ||
+        supplier.city?.toLowerCase().includes(term)
     );
 
     return { success: true, data: filteredSuppliers };
   } catch (error) {
-    console.error("Error searching suppliers:", error);
+    console.error('Error searching suppliers:', error);
     return { success: false, error: error.message };
   }
 };
@@ -500,20 +506,20 @@ export const compareSupplierPrices = async (fuelType) => {
 
     const suppliers = suppliersResult.data;
     const priceComparison = suppliers
-      .filter(supplier => supplier.priceList && supplier.priceList[fuelType])
-      .map(supplier => ({
+      .filter((supplier) => supplier.priceList && supplier.priceList[fuelType])
+      .map((supplier) => ({
         supplierId: supplier.id,
         supplierName: supplier.name,
         price: supplier.priceList[fuelType],
         rating: supplier.rating,
         paymentTerms: supplier.paymentTerms,
-        isPreferred: supplier.isPreferred
+        isPreferred: supplier.isPreferred,
       }))
       .sort((a, b) => a.price - b.price); // Ordenar por precio ascendente
 
     return { success: true, data: priceComparison };
   } catch (error) {
-    console.error("Error comparing supplier prices:", error);
+    console.error('Error comparing supplier prices:', error);
     return { success: false, error: error.message };
   }
 };

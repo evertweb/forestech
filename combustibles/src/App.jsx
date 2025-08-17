@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContextLazy';
 import { CombustiblesProvider, useCombustibles } from './contexts/CombustiblesContext';
+import { FirebaseProgressProvider } from './contexts/FirebaseProgressContext';
 import './App.css';
 // Rutas de los popups cargadas de forma perezosa
 const MovementWizardPopup = lazy(() => import('./components/Popups/MovementWizardPopup'));
@@ -36,7 +37,9 @@ function App() {
   return (
     <AuthProvider>
       <CombustiblesProvider>
-        <AppContent />
+        <FirebaseProgressProvider>
+          <AppContent />
+        </FirebaseProgressProvider>
       </CombustiblesProvider>
     </AuthProvider>
   );

@@ -10,7 +10,7 @@ import vehiclesService from './vehiclesService';
 import { createProduct } from './productsService';
 import { OPERATIONAL_LOCATIONS } from '../constants/locations';
 import { PRODUCT_TYPES } from '../constants/productTypes';
-import { /* preciseAdd, preciseSubtract, preciseRound */ } from '../utils/calculations';
+import {} from /* preciseAdd, preciseSubtract, preciseRound */ '../utils/calculations';
 
 /**
  * Estados del wizard de migración
@@ -20,7 +20,7 @@ export const MIGRATION_STEPS = {
   COLUMN_MAPPING: 2,
   VALUE_MAPPING: 3,
   VALIDATION: 4,
-  EXECUTION: 5
+  EXECUTION: 5,
 };
 
 /**
@@ -30,7 +30,7 @@ export const REQUIRED_FIELDS = {
   fecha: { required: true, type: 'date', description: 'Fecha del movimiento' },
   cantidad: { required: true, type: 'number', description: 'Cantidad de combustible' },
   vehiculo: { required: true, type: 'string', description: 'Vehículo o equipo' },
-  producto: { required: true, type: 'string', description: 'Tipo de combustible/producto' }
+  producto: { required: true, type: 'string', description: 'Tipo de combustible/producto' },
 };
 
 /**
@@ -42,7 +42,7 @@ export const OPTIONAL_FIELDS = {
   ubicacion: { required: false, type: 'string', description: 'Ubicación origen' },
   destino: { required: false, type: 'string', description: 'Ubicación destino' },
   descripcion: { required: false, type: 'string', description: 'Notas adicionales' },
-  proveedor: { required: false, type: 'string', description: 'Proveedor (para entradas)' }
+  proveedor: { required: false, type: 'string', description: 'Proveedor (para entradas)' },
 };
 
 /**
@@ -63,8 +63,8 @@ export const createMigrationContext = () => ({
     totalRows: 0,
     processedRows: 0,
     successfulRows: 0,
-    failedRows: 0
-  }
+    failedRows: 0,
+  },
 });
 
 /**
@@ -78,12 +78,12 @@ export const processFile = async (file, options = {}) => {
     console.log('🔄 Iniciando procesamiento de archivo:', file.name);
 
     const parsingResult = await fileParsingService.parseFile(file, options);
-    
+
     if (!parsingResult.success) {
       return {
         success: false,
         error: parsingResult.error,
-        data: null
+        data: null,
       };
     }
 
@@ -96,15 +96,14 @@ export const processFile = async (file, options = {}) => {
       metadata: parsingResult.metadata,
       preview: preview,
       columnSuggestions: columnSuggestions,
-      error: null
+      error: null,
     };
-
   } catch (error) {
     console.error('❌ Error procesando archivo:', error);
     return {
       success: false,
       error: error.message,
-      data: null
+      data: null,
     };
   }
 };
@@ -129,14 +128,14 @@ export const configureColumnMapping = (headers, userMappings) => {
     });
 
     // Verificar campos requeridos
-    Object.keys(REQUIRED_FIELDS).forEach(field => {
+    Object.keys(REQUIRED_FIELDS).forEach((field) => {
       if (!mapping[field]) {
         missingRequiredFields.push(field);
       }
     });
 
     // Identificar columnas no mapeadas
-    headers.forEach(header => {
+    headers.forEach((header) => {
       if (!Object.values(mapping).includes(header)) {
         unmappedColumns.push(header);
       }
@@ -149,17 +148,15 @@ export const configureColumnMapping = (headers, userMappings) => {
       mapping: mapping,
       unmappedColumns: unmappedColumns,
       missingRequiredFields: missingRequiredFields,
-      warnings: unmappedColumns.length > 0 
-        ? [`${unmappedColumns.length} columnas no fueron mapeadas`] 
-        : []
+      warnings:
+        unmappedColumns.length > 0 ? [`${unmappedColumns.length} columnas no fueron mapeadas`] : [],
     };
-
   } catch (error) {
     console.error('❌ Error configurando mapeo de columnas:', error);
     return {
       success: false,
       error: error.message,
-      mapping: {}
+      mapping: {},
     };
   }
 };
@@ -182,23 +179,23 @@ export const configureValueMapping = async (data, columnMapping) => {
     const productColumn = columnMapping.producto;
 
     if (vehicleColumn) {
-      const uniqueVehicles = [...new Set(data.map(row => row[vehicleColumn]).filter(Boolean))];
+      const uniqueVehicles = [...new Set(data.map((row) => row[vehicleColumn]).filter(Boolean))];
       const vehicleSuggestions = await aliasService.getSuggestedMappings(
-        ALIAS_TYPES.VEHICLE, 
+        ALIAS_TYPES.VEHICLE,
         uniqueVehicles
       );
-      
+
       valueMapping.vehiculos = {};
       suggestions.vehiculos = vehicleSuggestions;
     }
 
     if (productColumn) {
-      const uniqueProducts = [...new Set(data.map(row => row[productColumn]).filter(Boolean))];
+      const uniqueProducts = [...new Set(data.map((row) => row[productColumn]).filter(Boolean))];
       const productSuggestions = await aliasService.getSuggestedMappings(
-        ALIAS_TYPES.PRODUCT, 
+        ALIAS_TYPES.PRODUCT,
         uniqueProducts
       );
-      
+
       valueMapping.productos = {};
       suggestions.productos = productSuggestions;
     }
@@ -206,12 +203,12 @@ export const configureValueMapping = async (data, columnMapping) => {
     // Mapear ubicaciones si existe la columna
     const locationColumn = columnMapping.ubicacion;
     if (locationColumn) {
-      const uniqueLocations = [...new Set(data.map(row => row[locationColumn]).filter(Boolean))];
+      const uniqueLocations = [...new Set(data.map((row) => row[locationColumn]).filter(Boolean))];
       const locationSuggestions = await aliasService.getSuggestedMappings(
-        ALIAS_TYPES.LOCATION, 
+        ALIAS_TYPES.LOCATION,
         uniqueLocations
       );
-      
+
       valueMapping.ubicaciones = {};
       suggestions.ubicaciones = locationSuggestions;
     }
@@ -220,16 +217,15 @@ export const configureValueMapping = async (data, columnMapping) => {
       success: true,
       valueMapping: valueMapping,
       suggestions: suggestions,
-      error: null
+      error: null,
     };
-
   } catch (error) {
     console.error('❌ Error configurando mapeo de valores:', error);
     return {
       success: false,
       error: error.message,
       valueMapping: {},
-      suggestions: {}
+      suggestions: {},
     };
   }
 };
@@ -255,9 +251,9 @@ export const validateData = async (data, columnMapping, valueMapping) => {
         invalidRows: 0,
         newVehicles: new Set(),
         newProducts: new Set(),
-        dateRange: { min: null, max: null }
+        dateRange: { min: null, max: null },
       },
-      preview: []
+      preview: [],
     };
 
     const processedData = [];
@@ -271,7 +267,7 @@ export const validateData = async (data, columnMapping, valueMapping) => {
         original: row,
         mapped: {},
         errors: [],
-        warnings: []
+        warnings: [],
       };
 
       try {
@@ -285,7 +281,7 @@ export const validateData = async (data, columnMapping, valueMapping) => {
 
           const value = row[fileColumn];
           const validatedValue = validateField(value, fieldConfig, systemField, rowNumber);
-          
+
           if (validatedValue.error) {
             validationRow.errors.push(validatedValue.error);
           } else {
@@ -299,7 +295,7 @@ export const validateData = async (data, columnMapping, valueMapping) => {
           if (fileColumn && row[fileColumn] !== undefined && row[fileColumn] !== '') {
             const value = row[fileColumn];
             const validatedValue = validateField(value, fieldConfig, systemField, rowNumber);
-            
+
             if (validatedValue.error) {
               validationRow.warnings.push(validatedValue.error);
             } else {
@@ -311,9 +307,10 @@ export const validateData = async (data, columnMapping, valueMapping) => {
         // Resolver alias de vehículos
         if (validationRow.mapped.vehiculo) {
           const originalVehicle = validationRow.mapped.vehiculo;
-          const resolvedVehicle = valueMapping.vehiculos?.[originalVehicle] || 
-                                await aliasService.resolveAlias(ALIAS_TYPES.VEHICLE, originalVehicle);
-          
+          const resolvedVehicle =
+            valueMapping.vehiculos?.[originalVehicle] ||
+            (await aliasService.resolveAlias(ALIAS_TYPES.VEHICLE, originalVehicle));
+
           if (resolvedVehicle) {
             validationRow.mapped.vehiculoId = resolvedVehicle;
           } else {
@@ -326,9 +323,10 @@ export const validateData = async (data, columnMapping, valueMapping) => {
         // Resolver alias de productos
         if (validationRow.mapped.producto) {
           const originalProduct = validationRow.mapped.producto;
-          const resolvedProduct = valueMapping.productos?.[originalProduct] || 
-                                await aliasService.resolveAlias(ALIAS_TYPES.PRODUCT, originalProduct);
-          
+          const resolvedProduct =
+            valueMapping.productos?.[originalProduct] ||
+            (await aliasService.resolveAlias(ALIAS_TYPES.PRODUCT, originalProduct));
+
           if (resolvedProduct) {
             validationRow.mapped.productoId = resolvedProduct;
           } else {
@@ -341,10 +339,16 @@ export const validateData = async (data, columnMapping, valueMapping) => {
         // Estadísticas de fechas
         if (validationRow.mapped.fecha) {
           const fecha = validationRow.mapped.fecha;
-          if (!validationResult.statistics.dateRange.min || fecha < validationResult.statistics.dateRange.min) {
+          if (
+            !validationResult.statistics.dateRange.min ||
+            fecha < validationResult.statistics.dateRange.min
+          ) {
             validationResult.statistics.dateRange.min = fecha;
           }
-          if (!validationResult.statistics.dateRange.max || fecha > validationResult.statistics.dateRange.max) {
+          if (
+            !validationResult.statistics.dateRange.max ||
+            fecha > validationResult.statistics.dateRange.max
+          ) {
             validationResult.statistics.dateRange.max = fecha;
           }
         }
@@ -359,9 +363,8 @@ export const validateData = async (data, columnMapping, valueMapping) => {
 
         validationResult.errors.push(...validationRow.errors);
         validationResult.warnings.push(...validationRow.warnings);
-        
-        processedData.push(validationRow);
 
+        processedData.push(validationRow);
       } catch (error) {
         validationRow.errors.push(`Error procesando fila: ${error.message}`);
         validationResult.statistics.invalidRows++;
@@ -378,20 +381,21 @@ export const validateData = async (data, columnMapping, valueMapping) => {
     validationResult.statistics.newVehicles = Array.from(validationResult.statistics.newVehicles);
     validationResult.statistics.newProducts = Array.from(validationResult.statistics.newProducts);
 
-    console.log(`✅ Validación completada: ${validationResult.statistics.validRows}/${validationResult.statistics.totalRows} filas válidas`);
+    console.log(
+      `✅ Validación completada: ${validationResult.statistics.validRows}/${validationResult.statistics.totalRows} filas válidas`
+    );
 
     return {
       success: true,
       validationResult: validationResult,
-      error: null
+      error: null,
     };
-
   } catch (error) {
     console.error('❌ Error en validación:', error);
     return {
       success: false,
       error: error.message,
-      validationResult: null
+      validationResult: null,
     };
   }
 };
@@ -416,12 +420,12 @@ export const executeMigration = async (validationResult, valueMapping, progressC
         failedRows: 0,
         newVehiclesCreated: 0,
         newProductsCreated: 0,
-        movementsCreated: 0
+        movementsCreated: 0,
       },
       errors: [],
       warnings: [],
       migrationId: `migration_${Date.now()}`,
-      startedAt: new Date()
+      startedAt: new Date(),
     };
 
     // Guardar alias antes de comenzar
@@ -440,17 +444,19 @@ export const executeMigration = async (validationResult, valueMapping, progressC
           vehicleId: vehicleId,
           name: vehicleName,
           type: inferVehicleType(vehicleName),
-          fuelType: 'GASOLINA', // Default basado en datos del sheets
+          fuelType: 'GASOLINE', // Default basado en datos del sheets, unificado
           status: 'activo',
           hasHourMeter: isTrackedVehicle(vehicleName),
           currentHours: 0,
-          description: `Creado automáticamente durante migración ${executionResult.migrationId}`
+          description: `Creado automáticamente durante migración ${executionResult.migrationId}`,
         });
         executionResult.statistics.newVehiclesCreated++;
         console.log(`✅ Vehículo creado: ${vehicleId} - ${vehicleName}`);
       } catch (error) {
         console.error(`❌ Error creando vehículo ${vehicleName}:`, error);
-        executionResult.warnings.push(`No se pudo crear vehículo '${vehicleName}': ${error.message}`);
+        executionResult.warnings.push(
+          `No se pudo crear vehículo '${vehicleName}': ${error.message}`
+        );
       }
     }
 
@@ -466,32 +472,33 @@ export const executeMigration = async (validationResult, valueMapping, progressC
             unit: 'gal',
             defaultPrice: 0,
             isActive: true,
-            description: `Creado automáticamente durante migración ${executionResult.migrationId}`
+            description: `Creado automáticamente durante migración ${executionResult.migrationId}`,
           });
           executionResult.statistics.newProductsCreated++;
           console.log(`✅ Producto creado: ${productName}`);
         }
       } catch (error) {
         console.error(`❌ Error creando producto ${productName}:`, error);
-        executionResult.warnings.push(`No se pudo crear producto '${productName}': ${error.message}`);
+        executionResult.warnings.push(
+          `No se pudo crear producto '${productName}': ${error.message}`
+        );
       }
     }
 
     // Procesar movimientos en lotes
     const BATCH_SIZE = 100;
-    const validRows = validationResult.processedData.filter(row => row.errors.length === 0);
-    
+    const validRows = validationResult.processedData.filter((row) => row.errors.length === 0);
+
     for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
       const batch = validRows.slice(i, i + BATCH_SIZE);
-      
+
       for (const row of batch) {
         try {
           const movementData = createMovementFromRow(row.mapped);
           await movementsService.createMovement(movementData);
-          
+
           executionResult.statistics.successfulRows++;
           executionResult.statistics.movementsCreated++;
-
         } catch (error) {
           console.error(`❌ Error creando movimiento fila ${row.rowNumber}:`, error);
           executionResult.errors.push(`Fila ${row.rowNumber}: ${error.message}`);
@@ -507,29 +514,30 @@ export const executeMigration = async (validationResult, valueMapping, progressC
             progress: Math.round(progress),
             processedRows: executionResult.statistics.processedRows,
             totalRows: validRows.length,
-            currentStep: `Procesando lote ${Math.floor(i / BATCH_SIZE) + 1}...`
+            currentStep: `Procesando lote ${Math.floor(i / BATCH_SIZE) + 1}...`,
           });
         }
       }
     }
 
     executionResult.completedAt = new Date();
-    executionResult.success = executionResult.statistics.failedRows < (validRows.length * 0.1); // Tolerar hasta 10% de fallos
+    executionResult.success = executionResult.statistics.failedRows < validRows.length * 0.1; // Tolerar hasta 10% de fallos
 
-    console.log(`🎉 Migración completada: ${executionResult.statistics.successfulRows}/${validRows.length} movimientos creados`);
+    console.log(
+      `🎉 Migración completada: ${executionResult.statistics.successfulRows}/${validRows.length} movimientos creados`
+    );
 
     return {
       success: true,
       executionResult: executionResult,
-      error: null
+      error: null,
     };
-
   } catch (error) {
     console.error('❌ Error en ejecución de migración:', error);
     return {
       success: false,
       error: error.message,
-      executionResult: null
+      executionResult: null,
     };
   }
 };
@@ -587,7 +595,7 @@ const parseDate = (dateValue) => {
   }
 
   const dateString = dateValue.toString().trim();
-  
+
   // Formatos comunes
   const formats = [
     /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, // DD/MM/YYYY
@@ -599,7 +607,7 @@ const parseDate = (dateValue) => {
     const match = dateString.match(format);
     if (match) {
       let day, month, year;
-      
+
       if (format.source.includes('YYYY')) {
         if (format.source.startsWith('^(\\d{4})')) {
           [, year, month, day] = match;
@@ -607,7 +615,7 @@ const parseDate = (dateValue) => {
           [, day, month, year] = match;
         }
       }
-      
+
       const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       return isValidDate(date) ? date : null;
     }
@@ -630,7 +638,7 @@ const isValidDate = (date) => {
  */
 const generateVehicleId = (vehicleName) => {
   const normalized = vehicleName.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  
+
   // Patrones conocidos
   if (normalized.includes('TR') && normalized.match(/\d/)) {
     const number = normalized.match(/\d+/)?.[0];
@@ -644,7 +652,7 @@ const generateVehicleId = (vehicleName) => {
   if (normalized.includes('CARRO')) return 'CR-001';
   if (normalized.includes('VOLQUETA')) return 'VQ-001';
   if (normalized.includes('MOTO')) return `MT-${Math.floor(Math.random() * 100)}`;
-  
+
   // Fallback: usar primeras letras + número aleatorio
   const prefix = normalized.substring(0, 2) || 'EQ';
   return `${prefix}-${Math.floor(Math.random() * 1000)}`;
@@ -655,7 +663,7 @@ const generateVehicleId = (vehicleName) => {
  */
 const inferVehicleType = (vehicleName) => {
   const name = vehicleName.toLowerCase();
-  
+
   if (name.includes('tractor') || name.includes('tr-')) return 'tractor';
   if (name.includes('camioneta')) return 'pickup_truck';
   if (name.includes('carro')) return 'car';
@@ -666,7 +674,7 @@ const inferVehicleType = (vehicleName) => {
   if (name.includes('fumigadora')) return 'fumigadora';
   if (name.includes('guadaña')) return 'guadana';
   if (name.includes('hidrolavadora')) return 'hidrolavadora';
-  
+
   return 'otros';
 };
 
@@ -683,12 +691,12 @@ const isTrackedVehicle = (vehicleName) => {
  */
 const mapProductType = (productName) => {
   const name = productName.toLowerCase().trim();
-  
-  if (name.includes('gasolina')) return PRODUCT_TYPES.GASOLINA;
-  if (name.includes('acpm')) return PRODUCT_TYPES.ACPM;
-  if (name.includes('diesel')) return PRODUCT_TYPES.ACPM;
-  
-  return PRODUCT_TYPES.GASOLINA; // Default basado en datos del sheets
+
+  if (name.includes('gasolina')) return PRODUCT_TYPES.GASOLINE;
+  if (name.includes('acpm')) return PRODUCT_TYPES.DIESEL; // ACPM migrado a DIESEL
+  if (name.includes('diesel')) return PRODUCT_TYPES.DIESEL;
+
+  return PRODUCT_TYPES.GASOLINE; // Default basado en datos del sheets
 };
 
 /**
@@ -697,7 +705,7 @@ const mapProductType = (productName) => {
 const createMovementFromRow = (mappedRow) => {
   return {
     type: MOVEMENT_TYPES.SALIDA, // Todos los datos del sheets son consumos
-    fuelType: mappedRow.productoId || PRODUCT_TYPES.GASOLINA,
+    fuelType: mappedRow.productoId || PRODUCT_TYPES.GASOLINE, // Unificado
     quantity: mappedRow.cantidad,
     unitPrice: mappedRow.precio || 0,
     vehicleId: mappedRow.vehiculoId,
@@ -707,7 +715,7 @@ const createMovementFromRow = (mappedRow) => {
     description: mappedRow.descripcion || `Migrado desde archivo histórico`,
     effectiveDate: mappedRow.fecha,
     reference: `MIGRACION_${Date.now()}`,
-    status: MOVEMENT_STATUS.COMPLETADO
+    status: MOVEMENT_STATUS.COMPLETADO,
   };
 };
 
@@ -720,5 +728,5 @@ export default {
   executeMigration,
   MIGRATION_STEPS,
   REQUIRED_FIELDS,
-  OPTIONAL_FIELDS
+  OPTIONAL_FIELDS,
 };

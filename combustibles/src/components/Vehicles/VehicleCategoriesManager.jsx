@@ -341,22 +341,12 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
                           " class="fuel-option" data-fuel="GASOLINE">
                             <input type="checkbox" style="margin-right: 8px;">
                             <span style="font-size: 18px; margin-right: 8px;">⛽</span>
-                            <span style="font-weight: 500;">GASOLINA</span>
+                            <span style="font-weight: 500;">GASOLINE</span>
                           </label>
                           
-                          <label style="
-                            display: flex; 
-                            align-items: center; 
-                            padding: 12px; 
-                            border: 2px solid #e5e7eb; 
-                            border-radius: 8px; 
-                            cursor: pointer;
-                            transition: all 0.2s;
-                          " class="fuel-option" data-fuel="MIXTO">
-                            <input type="checkbox" style="margin-right: 8px;">
-                            <span style="font-size: 18px; margin-right: 8px;">🔄</span>
-                            <span style="font-weight: 500;">MIXTO</span>
-                          </label>
+                          " class="fuel-option" data-fuel="MIXED">
+                            <span class="fuel-icon">🔄</span>
+                            <span style="font-weight: 500;">MIXED</span>
                         </div>
                       </div>
                       

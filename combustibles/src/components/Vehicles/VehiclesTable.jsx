@@ -44,8 +44,8 @@ const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {
         return '🚛';
       case FUEL_COMPATIBILITY.GASOLINE:
         return '🚗';
-      case FUEL_COMPATIBILITY.MIXTO:
-        return '⛽';
+      case FUEL_COMPATIBILITY.MIXED:
+        return '🔄';
       default:
         return '⛽';
     }

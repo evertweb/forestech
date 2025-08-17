@@ -43,7 +43,7 @@ describe('InventoryModal (integration)', () => {
     // Completar campos mínimos
     await userEvent.selectOptions(
       fuelType,
-      screen.getByRole('option', { name: /gasolina|acpm|diesel/i })
+      screen.getByRole('option', { name: /gasolina|diesel/i })
     );
     await userEvent.type(location, 'Tanque Principal');
     await userEvent.clear(maxCapacity);

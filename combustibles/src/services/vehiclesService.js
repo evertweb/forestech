@@ -28,11 +28,11 @@ const MOVEMENTS_COLLECTION = 'combustibles_movements';
 // Re-exportar constantes desde vehicleCategories
 export { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories';
 
-// Tipos de combustible compatibles (mantener compatibilidad)
+// Tipos de combustible compatibles (unificados con combustibleTypes.js)
 export const FUEL_COMPATIBILITY = {
   DIESEL: 'DIESEL',
-  GASOLINE: 'GASOLINE', // Actualizado para consistencia
-  MIXTO: 'MIXTO', // Para equipos que usan múltiples combustibles
+  GASOLINE: 'GASOLINE', // Unificado, antes era GASOLINA
+  MIXED: 'MIXED', // Unificado, antes era MIXTO
 };
 
 /**
@@ -42,6 +42,11 @@ export const FUEL_COMPATIBILITY = {
  */
 export const createVehicle = async (vehicleData) => {
   try {
+    // 🔧 Normalizar fuelType a mayúsculas
+    if (vehicleData.fuelType) {
+      vehicleData.fuelType = vehicleData.fuelType.toUpperCase();
+    }
+
     // Validar datos requeridos
     validateVehicleData(vehicleData);
 
@@ -96,6 +101,11 @@ export const getAllVehicles = async (filters = {}) => {
   try {
     let q = collection(db, COLLECTION_NAME);
 
+    // 🔧 Normalizar fuelType en filtros a mayúsculas
+    if (filters.fuelType) {
+      filters.fuelType = filters.fuelType.toUpperCase();
+    }
+
     // Aplicar filtros
     if (filters.type) {
       q = query(q, where('type', '==', filters.type));
@@ -117,15 +127,17 @@ export const getAllVehicles = async (filters = {}) => {
     const vehicles = [];
 
     querySnapshot.forEach((doc) => {
+      const rawData = doc.data();
       vehicles.push({
         id: doc.id,
-        ...doc.data(),
+        ...rawData,
+        // 🔧 Normalizar fuelType cuando se lee de Firebase
+        fuelType: rawData.fuelType?.toUpperCase() || rawData.fuelType,
         // Convertir timestamps
-        createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-        updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
-        lastMovementDate: doc.data().lastMovementDate?.toDate?.() || doc.data().lastMovementDate,
-        lastMaintenanceDate:
-          doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate,
+        createdAt: rawData.createdAt?.toDate?.() || rawData.createdAt,
+        updatedAt: rawData.updatedAt?.toDate?.() || rawData.updatedAt,
+        lastMovementDate: rawData.lastMovementDate?.toDate?.() || rawData.lastMovementDate,
+        lastMaintenanceDate: rawData.lastMaintenanceDate?.toDate?.() || rawData.lastMaintenanceDate,
       });
     });
 
@@ -154,15 +166,16 @@ export const getVehicle = async (vehicleId) => {
       return null;
     }
 
+    const rawData = docSnap.data();
     return {
       id: docSnap.id,
-      ...docSnap.data(),
-      createdAt: docSnap.data().createdAt?.toDate?.() || docSnap.data().createdAt,
-      updatedAt: docSnap.data().updatedAt?.toDate?.() || docSnap.data().updatedAt,
-      lastMovementDate:
-        docSnap.data().lastMovementDate?.toDate?.() || docSnap.data().lastMovementDate,
-      lastMaintenanceDate:
-        docSnap.data().lastMaintenanceDate?.toDate?.() || docSnap.data().lastMaintenanceDate,
+      ...rawData,
+      // 🔧 Normalizar fuelType cuando se lee de Firebase
+      fuelType: rawData.fuelType?.toUpperCase() || rawData.fuelType,
+      createdAt: rawData.createdAt?.toDate?.() || rawData.createdAt,
+      updatedAt: rawData.updatedAt?.toDate?.() || rawData.updatedAt,
+      lastMovementDate: rawData.lastMovementDate?.toDate?.() || rawData.lastMovementDate,
+      lastMaintenanceDate: rawData.lastMaintenanceDate?.toDate?.() || rawData.lastMaintenanceDate,
     };
   } catch (error) {
     console.error('❌ Error al obtener vehículo:', error);
@@ -185,15 +198,17 @@ export const getVehicleByCode = async (vehicleCode) => {
       return null;
     }
 
-    const doc = querySnapshot.docs[0];
+    const docSnap = querySnapshot.docs[0];
+    const rawData = docSnap.data();
     return {
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-      updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
-      lastMovementDate: doc.data().lastMovementDate?.toDate?.() || doc.data().lastMovementDate,
-      lastMaintenanceDate:
-        doc.data().lastMaintenanceDate?.toDate?.() || doc.data().lastMaintenanceDate,
+      id: docSnap.id,
+      ...rawData,
+      // 🔧 Normalizar fuelType cuando se lee de Firebase
+      fuelType: rawData.fuelType?.toUpperCase() || rawData.fuelType,
+      createdAt: rawData.createdAt?.toDate?.() || rawData.createdAt,
+      updatedAt: rawData.updatedAt?.toDate?.() || rawData.updatedAt,
+      lastMovementDate: rawData.lastMovementDate?.toDate?.() || rawData.lastMovementDate,
+      lastMaintenanceDate: rawData.lastMaintenanceDate?.toDate?.() || rawData.lastMaintenanceDate,
     };
   } catch (error) {
     console.error('❌ Error al buscar vehículo por código:', error);
@@ -211,6 +226,11 @@ export const updateVehicle = async (vehicleId, updateData) => {
   try {
     if (!vehicleId) {
       throw new Error('ID de vehículo requerido');
+    }
+
+    // 🔧 Normalizar fuelType a mayúsculas si se está actualizando
+    if (updateData.fuelType) {
+      updateData.fuelType = updateData.fuelType.toUpperCase();
     }
 
     // Si se está cambiando el vehicleId, verificar que no esté duplicado
@@ -306,6 +326,11 @@ export const subscribeToVehicles = (callback, filters = {}) => {
   try {
     let q = collection(db, COLLECTION_NAME);
 
+    // 🔧 Normalizar fuelType en filtros a mayúsculas
+    if (filters.fuelType) {
+      filters.fuelType = filters.fuelType.toUpperCase();
+    }
+
     // Aplicar filtros de manera eficiente
     const whereFilters = [];
 
@@ -328,7 +353,8 @@ export const subscribeToVehicles = (callback, filters = {}) => {
     });
 
     // Ordenar por fecha de actualización (más recientes primero) para mejor UX
-    q = query(q, orderBy('updatedAt', 'desc'));
+    // TEMPORALMENTE DESHABILITADO para debug - puede requerir índice compuesto
+    // q = query(q, orderBy('updatedAt', 'desc'));
 
     let lastUpdateTime = null;
 
@@ -353,11 +379,14 @@ export const subscribeToVehicles = (callback, filters = {}) => {
 
         // Procesar cambios de manera eficiente
         querySnapshot.docChanges().forEach((change) => {
+          const rawData = change.doc.data();
           const vehicleData = {
             id: change.doc.id,
-            ...change.doc.data(),
-            createdAt: change.doc.data().createdAt?.toDate?.() || change.doc.data().createdAt,
-            updatedAt: change.doc.data().updatedAt?.toDate?.() || change.doc.data().updatedAt,
+            ...rawData,
+            // 🔧 Normalizar fuelType cuando se lee de Firebase
+            fuelType: rawData.fuelType?.toUpperCase() || rawData.fuelType,
+            createdAt: rawData.createdAt?.toDate?.() || rawData.createdAt,
+            updatedAt: rawData.updatedAt?.toDate?.() || rawData.updatedAt,
             lastMovementDate:
               change.doc.data().lastMovementDate?.toDate?.() || change.doc.data().lastMovementDate,
             lastMaintenanceDate:
@@ -402,8 +431,9 @@ export const subscribeToVehicles = (callback, filters = {}) => {
       }
     );
   } catch (error) {
-    console.error('❌ Error al configurar suscripción:', error);
-    throw new Error(`Error en suscripción: ${error.message}`);
+    console.error('❌ Error FATAL configurando suscripción vehículos:', error);
+    callback([], error);
+    return () => {};
   }
 };
 
@@ -886,7 +916,7 @@ const calculateEstimatedConsumption = (vehicleData) => {
   const fuelFactors = {
     [FUEL_COMPATIBILITY.DIESEL]: 1.0,
     [FUEL_COMPATIBILITY.GASOLINE]: 1.2,
-    [FUEL_COMPATIBILITY.MIXTO]: 1.1,
+    [FUEL_COMPATIBILITY.MIXED]: 1.1, // Unificado
   };
 
   const baseFactor = consumptionFactors[type] || 0.03;

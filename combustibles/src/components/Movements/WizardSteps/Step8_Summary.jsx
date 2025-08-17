@@ -58,8 +58,30 @@ const Step8_Summary = ({
 
   const getProductInfo = () => {
     return products.find(
-      (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+      (p) =>
+        p.name?.toUpperCase() === formData.fuelType?.toUpperCase() ||
+        p.displayName?.toUpperCase() === formData.fuelType?.toUpperCase()
     );
+  };
+
+  const getDisplayFuelType = () => {
+    const product = getProductInfo();
+    if (product?.displayName) {
+      return product.displayName;
+    }
+
+    // Normalizar el fuelType a mayúsculas para consistencia
+    const normalizedFuelType = formData.fuelType?.toUpperCase();
+
+    // Mapeo de fallback para tipos conocidos
+    const fuelTypeMap = {
+      DIESEL: 'DIESEL 🚛',
+      GASOLINE: 'GASOLINE 🚗',
+      GASOLINE_CORRIENTE: 'Gasolina Corriente 🚗',
+      GASOLINE_EXTRA: 'Gasolina Extra 🚗⭐',
+    };
+
+    return fuelTypeMap[normalizedFuelType] || normalizedFuelType || 'Combustible';
   };
 
   const getVehicleInfo = () => {
@@ -68,7 +90,7 @@ const Step8_Summary = ({
 
   const getSummaryDescription = () => {
     const quantity = parseFloat(formData.quantity).toLocaleString('es-CO');
-    const fuel = getProductInfo()?.displayName || formData.fuelType;
+    const fuel = getDisplayFuelType();
     const vehicle = getVehicleInfo();
 
     switch (formData.type) {
@@ -87,7 +109,6 @@ const Step8_Summary = ({
 
   const totalValue = (parseFloat(formData.quantity) || 0) * (parseFloat(formData.unitPrice) || 0);
   const movementType = getMovementTypeInfo();
-  const product = getProductInfo();
   const vehicle = getVehicleInfo();
 
   const handleComments = (e) => {
@@ -121,9 +142,7 @@ const Step8_Summary = ({
           <h4>Detalles del Combustible</h4>
           <div className="summary-item sap-theme sap-theme">
             <span className="summary-label sap-theme sap-theme">Tipo:</span>
-            <span className="summary-value sap-theme sap-theme">
-              {product?.displayName || formData.fuelType}
-            </span>
+            <span className="summary-value sap-theme sap-theme">{getDisplayFuelType()}</span>
           </div>
           <div className="summary-item highlight sap-theme">
             <span className="summary-label sap-theme">Cantidad:</span>

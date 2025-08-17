@@ -67,9 +67,9 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
       color: 'fuel-gasoline',
     },
     {
-      type: 'MIXTO',
+      type: 'MIXED',
       icon: '🔄',
-      title: 'Mixto',
+      title: 'Mixed',
       description: 'Compatible con múltiples combustibles',
       color: 'fuel-mixed',
     },

@@ -385,7 +385,7 @@ const VehicleFormCorporate = ({ isOpen, onClose, vehicle = null, onSuccess }) =>
   const allFuelTypeOptions = [
     { value: FUEL_TYPES.DIESEL, label: 'Diésel' },
     { value: FUEL_TYPES.GASOLINE, label: 'Gasolina' },
-    { value: FUEL_TYPES.MIXTO, label: 'Mixto' },
+    { value: FUEL_TYPES.MIXED, label: 'Mixed' },
   ];
 
   const fuelTypeOptions =

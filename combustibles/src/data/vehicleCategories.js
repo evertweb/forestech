@@ -20,8 +20,8 @@ import { FUEL_TYPES as COMBUSTIBLE_FUEL_TYPES } from '../constants/combustibleTy
 
 export const FUEL_TYPES = {
   DIESEL: COMBUSTIBLE_FUEL_TYPES.DIESEL,
-  GASOLINE: COMBUSTIBLE_FUEL_TYPES.GASOLINE, // Antes era GASOLINA
-  MIXTO: COMBUSTIBLE_FUEL_TYPES.MIXED,
+  GASOLINE: COMBUSTIBLE_FUEL_TYPES.GASOLINE, // Unificado
+  MIXED: COMBUSTIBLE_FUEL_TYPES.MIXED, // Unificado, antes era MIXTO
 };
 
 // Campos esenciales disponibles para categorías (simplificados)

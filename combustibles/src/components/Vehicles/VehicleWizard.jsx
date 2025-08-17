@@ -8,6 +8,7 @@ import { createVehicle, updateVehicle, VEHICLE_STATUS } from '../../services/veh
 import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
 import { FUEL_TYPES } from '../../data/vehicleCategories';
 import ForestechFormWizard from '../Shared/ForestechFormWizard';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import CategoryWizard from './CategoryWizard';
 import './WizardSteps-SAP.css';
 
@@ -21,6 +22,9 @@ import Step5_Summary from './WizardSteps/Step5_Summary';
 const VehicleWizard = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
 
   // Datos iniciales del formulario
   const getInitialData = useCallback(
@@ -258,14 +262,24 @@ const VehicleWizard = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
         console.log('⏰ HasHourMeter final:', hasHourMeter);
         console.log('🔄 Datos finales del vehículo:', vehicleData);
 
-        let result;
-        if (vehicle) {
-          // Actualizar vehículo existente
-          result = await updateVehicle(vehicle.id, vehicleData);
-        } else {
-          // Crear nuevo vehículo
-          result = await createVehicle(vehicleData);
-        }
+        // Generar descripción para el progreso
+        const progressDescription = vehicle
+          ? `Actualizando vehículo ${vehicleData.vehicleId} - ${vehicleData.name}`
+          : `Creando vehículo ${vehicleData.vehicleId} - ${vehicleData.name}`;
+
+        const operationType = vehicle ? 'updateVehicle' : 'createVehicle';
+
+        // Ejecutar con progreso transparente
+        const result = await executeWithProgress(
+          operationType,
+          progressDescription,
+          () => (vehicle ? updateVehicle(vehicle.id, vehicleData) : createVehicle(vehicleData)),
+          {
+            vehicleId: vehicleData.vehicleId,
+            vehicleName: vehicleData.name,
+            isUpdate: !!vehicle,
+          }
+        );
 
         if (result.success) {
           console.log('✅ Vehículo guardado exitosamente');
@@ -280,7 +294,7 @@ const VehicleWizard = ({ isOpen, onClose, vehicle = null, onSuccess }) => {
         throw error;
       }
     },
-    [vehicle, categories, onSuccess]
+    [vehicle, categories, onSuccess, executeWithProgress]
   );
 
   if (loadingCategories) {

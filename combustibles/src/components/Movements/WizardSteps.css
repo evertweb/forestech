@@ -116,7 +116,7 @@
 }
 
 .wizard-overlay {
-  /* Overlay con blur y gradiente forestal */
+  /* Overlay con efecto cristal glass */
   position: fixed;
   top: 0;
   left: 0;
@@ -124,13 +124,9 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(
-    135deg,
-    rgba(5, 150, 105, 0.15) 0%,
-    rgba(16, 185, 129, 0.25) 50%,
-    rgba(52, 211, 153, 0.15) 100%
-  );
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 10000; /* Aumentado para consistencia */
   animation: overlayFadeIn 0.6s ease-out;
   display: flex;
@@ -139,14 +135,14 @@
 }
 
 @keyframes overlayFadeIn {
-  /* Animación de aparición del overlay */
+  /* Animación de aparición del overlay glass */
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px) saturate(100%);
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px) saturate(180%);
   }
 }
 
@@ -3816,4 +3812,424 @@
   opacity: 0;
   transform: translateX(-50px);
   transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ============ PANTALLA DE ÉXITO ============ */
+.wizard-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  animation: successFadeIn 0.8s ease-out;
+}
+
+@keyframes successFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.success-animation {
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: successBounce 1s ease-out;
+}
+
+@keyframes successBounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.wizard-success h2 {
+  color: #10b981;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.success-details {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.success-details p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.success-details strong {
+  color: #1f2937;
+}
+
+.success-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.btn-new-movement,
+.btn-close-modal {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-new-movement {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-new-movement:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.btn-close-modal {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-close-modal:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.success-tip {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+}
+
+.success-tip p {
+  margin: 0;
+  color: #3b82f6;
+}
+
+/* ============ STEP 3B - INVENTORY PREVIEW ============ */
+.step-inventory-preview .inventory-preview-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.main-stock-summary {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.fuel-type-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.fuel-icon {
+  font-size: 3rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fuel-info h4 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.fuel-info p {
+  margin: 0.25rem 0 0 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.stock-overview {
+  text-align: center;
+}
+
+.stock-main-number {
+  margin-bottom: 1.5rem;
+}
+
+.stock-value {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.stock-unit {
+  font-size: 1.2rem;
+  color: #6b7280;
+  margin-left: 0.5rem;
+}
+
+.stock-bar-large {
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.stock-fill-large {
+  height: 100%;
+  transition: width 0.8s ease-out;
+  border-radius: 6px;
+}
+
+.stock-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.stock-status-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.status-indicator {
+  font-size: 1.2rem;
+}
+
+/* Tanques detallados */
+.tanks-detail {
+  margin: 2rem 0;
+}
+
+.tanks-detail h5 {
+  color: #374151;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.tanks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.tank-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.tank-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.tank-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tank-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tank-status {
+  font-size: 0.75rem;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.tank-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tank-numbers .current {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tank-numbers .separator {
+  color: #9ca3af;
+}
+
+.tank-numbers .capacity {
+  color: #6b7280;
+}
+
+.tank-bar {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.tank-fill {
+  height: 100%;
+  transition: width 0.6s ease-out;
+  border-radius: 3px;
+}
+
+.tank-supplier,
+.tank-price {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* Recomendaciones */
+.stock-recommendations {
+  background: rgba(249, 250, 251, 0.8);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stock-recommendations h5 {
+  color: #374151;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recommendation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.recommendation.good {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.recommendation.medium {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.recommendation.warning {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.recommendation.critical {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.recommendation.info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.rec-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.recommendation strong {
+  color: #1f2937;
+}
+
+.recommendation small {
+  color: #6b7280;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Continuar */
+.continue-prompt {
+  margin-top: 2rem;
+}
+
+.continue-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.continue-card p {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.continue-card small {
+  color: #6b7280;
+  font-size: 0.85rem;
 }

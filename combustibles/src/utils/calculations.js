@@ -1,9 +1,9 @@
 /**
  * CALCULATIONS.JS - Sistema Centralizado de Cálculos para Combustibles
- * 
+ *
  * Centraliza todas las operaciones matemáticas y lógica de negocio
  * para el módulo de gestión de combustibles de Forestech.
- * 
+ *
  * Incluye:
  * - Cálculos de inventario (stock, valor, alertas)
  * - Métricas de movimientos (costos, validaciones)
@@ -12,7 +12,13 @@
  * - Funciones preparatorias para módulos futuros (Proveedores, Reportes)
  */
 
-import { FUEL_TYPES, FUEL_INFO, STOCK_LEVELS, STOCK_ALERTS, getStockLevel } from '../constants/combustibleTypes';
+import {
+  FUEL_TYPES,
+  FUEL_INFO,
+  STOCK_LEVELS,
+  STOCK_ALERTS,
+  getStockLevel,
+} from '../constants/combustibleTypes';
 
 // ============================================================================
 // 📊 CÁLCULOS DE INVENTARIO
@@ -25,11 +31,11 @@ import { FUEL_TYPES, FUEL_INFO, STOCK_LEVELS, STOCK_ALERTS, getStockLevel } from
  */
 export const calculateTotalInventoryValue = (inventoryItems = []) => {
   if (!Array.isArray(inventoryItems)) return 0;
-  
+
   return inventoryItems.reduce((total, item) => {
     const quantity = parseFloat(item.currentStock) || 0;
     const price = parseFloat(item.pricePerUnit) || 0;
-    return total + (quantity * price);
+    return total + quantity * price;
   }, 0);
 };
 
@@ -41,21 +47,24 @@ export const calculateTotalInventoryValue = (inventoryItems = []) => {
  */
 export const calculateAvailableStock = (inventoryItems = [], fuelType = null) => {
   if (!Array.isArray(inventoryItems)) return fuelType ? 0 : {};
-  
+
   if (fuelType) {
+    // 🔧 Normalizar comparación de fuelType
+    const normalizedFuelType = fuelType.toUpperCase();
     return inventoryItems
-      .filter(item => item.fuelType === fuelType)
+      .filter((item) => item.fuelType?.toUpperCase() === normalizedFuelType)
       .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
   }
 
   // Retorna stock por cada tipo de combustible
   const stockByType = {};
-  Object.values(FUEL_TYPES).forEach(type => {
+  Object.values(FUEL_TYPES).forEach((type) => {
+    const normalizedType = type.toUpperCase();
     stockByType[type] = inventoryItems
-      .filter(item => item.fuelType === type)
+      .filter((item) => item.fuelType?.toUpperCase() === normalizedType)
       .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
   });
-  
+
   return stockByType;
 };
 
@@ -79,23 +88,23 @@ export const calculateCapacityPercentage = (currentStock, maxCapacity) => {
  */
 export const calculateLowStockAlerts = (inventoryItems = [], threshold = 0.15) => {
   if (!Array.isArray(inventoryItems)) return [];
-  
+
   return inventoryItems
-    .map(item => {
+    .map((item) => {
       const currentStock = parseFloat(item.currentStock) || 0;
       const maxCapacity = parseFloat(item.maxCapacity) || 0;
       const percentage = maxCapacity > 0 ? currentStock / maxCapacity : 0;
       const stockLevel = getStockLevel(currentStock, maxCapacity);
-      
+
       return {
         ...item,
         percentage: percentage * 100,
         stockLevel,
         isLowStock: percentage <= threshold,
-        stockInfo: STOCK_ALERTS[stockLevel]
+        stockInfo: STOCK_ALERTS[stockLevel],
       };
     })
-    .filter(item => item.isLowStock)
+    .filter((item) => item.isLowStock)
     .sort((a, b) => a.percentage - b.percentage); // Los más críticos primero
 };
 
@@ -113,25 +122,28 @@ export const calculateInventoryStats = (inventoryItems = []) => {
       lowStockItems: 0,
       criticalItems: 0,
       averageStockLevel: 0,
-      stockByType: {}
+      stockByType: {},
     };
   }
-  
+
   const totalValue = calculateTotalInventoryValue(inventoryItems);
   const totalItems = inventoryItems.length;
-  const activeItems = inventoryItems.filter(item => item.status === 'active').length;
+  const activeItems = inventoryItems.filter((item) => item.status === 'active').length;
   const lowStockAlerts = calculateLowStockAlerts(inventoryItems);
-  const criticalItems = lowStockAlerts.filter(item => item.stockLevel === STOCK_LEVELS.CRITICAL).length;
+  const criticalItems = lowStockAlerts.filter(
+    (item) => item.stockLevel === STOCK_LEVELS.CRITICAL
+  ).length;
   const stockByType = calculateAvailableStock(inventoryItems);
-  
+
   // Promedio de nivel de stock
-  const averageStockLevel = inventoryItems.length > 0 
-    ? inventoryItems.reduce((sum, item) => {
-        const percentage = calculateCapacityPercentage(item.currentStock, item.maxCapacity);
-        return sum + percentage;
-      }, 0) / inventoryItems.length
-    : 0;
-  
+  const averageStockLevel =
+    inventoryItems.length > 0
+      ? inventoryItems.reduce((sum, item) => {
+          const percentage = calculateCapacityPercentage(item.currentStock, item.maxCapacity);
+          return sum + percentage;
+        }, 0) / inventoryItems.length
+      : 0;
+
   return {
     totalValue,
     totalItems,
@@ -139,7 +151,7 @@ export const calculateInventoryStats = (inventoryItems = []) => {
     lowStockItems: lowStockAlerts.length,
     criticalItems,
     averageStockLevel,
-    stockByType
+    stockByType,
   };
 };
 
@@ -159,45 +171,47 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
       isValid: false,
       error: 'Datos de movimiento incompletos',
       availableStock: 0,
-      requiredStock: 0
+      requiredStock: 0,
     };
   }
-  
+
   const { fuelType, quantity, type, sourceLocation } = movement;
   const requiredStock = parseFloat(quantity) || 0;
-  
+
   // Solo validar stock para movimientos de SALIDA y TRANSFERENCIA
-  if (type !== 'outbound' && type !== 'transfer') {
+  if (type !== 'salida' && type !== 'transferencia') {
     return {
       isValid: true,
       message: 'Movimiento no requiere validación de stock',
       availableStock: 0,
-      requiredStock
+      requiredStock,
     };
   }
-  
+
   // Calcular stock disponible en la ubicación específica
   const availableStock = inventoryItems
-    .filter(item => 
-      item.fuelType === fuelType && 
-      item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
-      item.status === 'active'
+    .filter(
+      (item) =>
+        item.fuelType === fuelType &&
+        item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
+        item.status === 'active'
     )
     .reduce((total, item) => total + (parseFloat(item.currentStock) || 0), 0);
-  
+
   const isValid = availableStock >= requiredStock;
   const remainingStock = availableStock - requiredStock;
-  
+
   // Log para diagnóstico de problemas de stock
   console.log(`Validación de stock - Tipo: ${fuelType}, Ubicación: ${sourceLocation}`, {
-    itemsEncontrados: inventoryItems.filter(item => 
-      item.fuelType === fuelType && 
-      item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
-      item.status === 'active'
+    itemsEncontrados: inventoryItems.filter(
+      (item) =>
+        item.fuelType === fuelType &&
+        item.location?.toLowerCase() === sourceLocation?.toLowerCase() &&
+        item.status === 'active'
     ).length,
     disponible: availableStock,
     requerido: requiredStock,
-    valido: availableStock >= requiredStock
+    valido: availableStock >= requiredStock,
   });
 
   return {
@@ -207,9 +221,13 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
     remainingStock,
     fuelType,
     location: sourceLocation,
-    error: !isValid ? `Stock insuficiente. Disponible: ${availableStock}, Requerido: ${requiredStock}` : null,
-    warning: remainingStock < (availableStock * 0.2) && remainingStock >= 0 
-      ? 'Stock quedará bajo después del movimiento' : null
+    error: !isValid
+      ? `Stock insuficiente. Disponible: ${availableStock}, Requerido: ${requiredStock}`
+      : null,
+    warning:
+      remainingStock < availableStock * 0.2 && remainingStock >= 0
+        ? 'Stock quedará bajo después del movimiento'
+        : null,
   };
 };
 
@@ -222,13 +240,13 @@ export const validateStockAvailability = (movement, inventoryItems = []) => {
 export const calculateResultingStock = (currentStock, movement) => {
   const current = parseFloat(currentStock) || 0;
   const quantity = parseFloat(movement.quantity) || 0;
-  
+
   switch (movement.type) {
-    case 'inbound':
-    case 'adjustment':
+    case 'entrada':
+    case 'ajuste':
       return current + quantity;
-    case 'outbound':
-    case 'transfer':
+    case 'salida':
+    case 'transferencia':
       return Math.max(0, current - quantity); // Evitar stock negativo
     default:
       return current;
@@ -243,36 +261,36 @@ export const calculateResultingStock = (currentStock, movement) => {
  */
 export const calculateMovementCosts = (movements = [], fuelPrices = {}) => {
   if (!Array.isArray(movements)) return { totalCost: 0, costsByType: {}, costsByLocation: {} };
-  
+
   let totalCost = 0;
   const costsByType = {};
   const costsByLocation = {};
-  
-  movements.forEach(movement => {
+
+  movements.forEach((movement) => {
     const quantity = parseFloat(movement.quantity) || 0;
     const fuelType = movement.fuelType;
     const location = movement.sourceLocation || movement.location;
     const price = fuelPrices[fuelType] || parseFloat(movement.pricePerUnit) || 0;
     const cost = quantity * price;
-    
+
     totalCost += cost;
-    
+
     // Agrupar por tipo de combustible
     if (!costsByType[fuelType]) costsByType[fuelType] = 0;
     costsByType[fuelType] += cost;
-    
+
     // Agrupar por ubicación
     if (location) {
       if (!costsByLocation[location]) costsByLocation[location] = 0;
       costsByLocation[location] += cost;
     }
   });
-  
+
   return {
     totalCost,
     costsByType,
     costsByLocation,
-    averageCostPerMovement: movements.length > 0 ? totalCost / movements.length : 0
+    averageCostPerMovement: movements.length > 0 ? totalCost / movements.length : 0,
   };
 };
 
@@ -289,24 +307,24 @@ export const calculateMovementsStats = (movements = []) => {
       completedMovements: 0,
       cancelledMovements: 0,
       movementsByType: {},
-      totalQuantity: 0
+      totalQuantity: 0,
     };
   }
-  
+
   const stats = {
     totalMovements: movements.length,
-    pendingMovements: movements.filter(m => m.status === 'pending').length,
-    completedMovements: movements.filter(m => m.status === 'completed').length,
-    cancelledMovements: movements.filter(m => m.status === 'cancelled').length,
+    pendingMovements: movements.filter((m) => m.status === 'pendiente').length,
+    completedMovements: movements.filter((m) => m.status === 'completado').length,
+    cancelledMovements: movements.filter((m) => m.status === 'cancelado').length,
     movementsByType: {
-      inbound: movements.filter(m => m.type === 'inbound').length,
-      outbound: movements.filter(m => m.type === 'outbound').length,
-      transfer: movements.filter(m => m.type === 'transfer').length,
-      adjustment: movements.filter(m => m.type === 'adjustment').length
+      entrada: movements.filter((m) => m.type === 'entrada').length,
+      salida: movements.filter((m) => m.type === 'salida').length,
+      transferencia: movements.filter((m) => m.type === 'transferencia').length,
+      ajuste: movements.filter((m) => m.type === 'ajuste').length,
     },
-    totalQuantity: movements.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0)
+    totalQuantity: movements.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0),
   };
-  
+
   return stats;
 };
 
@@ -322,20 +340,19 @@ export const calculateMovementsStats = (movements = []) => {
  */
 export const calculateVehicleConsumption = (vehicle, movements = []) => {
   if (!vehicle) return { averageConsumption: 0, totalConsumption: 0, movementsCount: 0 };
-  
-  const vehicleMovements = movements.filter(m => 
-    m.vehicleId === vehicle.id && 
-    m.type === 'outbound' && 
-    m.status === 'completed'
+
+  const vehicleMovements = movements.filter(
+    (m) => m.vehicleId === vehicle.vehicleId && m.type === 'salida' && m.status === 'completado'
   );
-  
-  const totalConsumption = vehicleMovements.reduce((sum, m) => 
-    sum + (parseFloat(m.quantity) || 0), 0
+
+  const totalConsumption = vehicleMovements.reduce(
+    (sum, m) => sum + (parseFloat(m.quantity) || 0),
+    0
   );
-  
+
   const movementsCount = vehicleMovements.length;
   const averageConsumption = movementsCount > 0 ? totalConsumption / movementsCount : 0;
-  
+
   return {
     averageConsumption,
     totalConsumption,
@@ -345,7 +362,7 @@ export const calculateVehicleConsumption = (vehicle, movements = []) => {
       if (!acc[fuelType]) acc[fuelType] = 0;
       acc[fuelType] += parseFloat(m.quantity) || 0;
       return acc;
-    }, {})
+    }, {}),
   };
 };
 
@@ -357,24 +374,34 @@ export const calculateVehicleConsumption = (vehicle, movements = []) => {
  */
 export const calculateFuelEfficiency = (vehicle, movements = []) => {
   if (!vehicle) return { efficiency: 0, unit: 'L/h' };
-  
+
   const consumption = calculateVehicleConsumption(vehicle, movements);
   const hoursWorked = parseFloat(vehicle.hoursWorked) || 0;
-  
+
   if (hoursWorked === 0 || consumption.totalConsumption === 0) {
-    return { efficiency: 0, unit: 'L/h', hoursWorked, totalConsumption: consumption.totalConsumption };
+    return {
+      efficiency: 0,
+      unit: 'L/h',
+      hoursWorked,
+      totalConsumption: consumption.totalConsumption,
+    };
   }
-  
+
   const efficiency = consumption.totalConsumption / hoursWorked;
-  
+
   return {
     efficiency,
     unit: 'L/h',
     hoursWorked,
     totalConsumption: consumption.totalConsumption,
-    efficiencyRating: efficiency < 10 ? 'Excelente' : 
-                     efficiency < 20 ? 'Buena' : 
-                     efficiency < 30 ? 'Regular' : 'Necesita revisión'
+    efficiencyRating:
+      efficiency < 10
+        ? 'Excelente'
+        : efficiency < 20
+          ? 'Buena'
+          : efficiency < 30
+            ? 'Regular'
+            : 'Necesita revisión',
   };
 };
 
@@ -387,22 +414,20 @@ export const calculateFuelEfficiency = (vehicle, movements = []) => {
  */
 export const calculateOperationalCosts = (vehicle, movements = [], fuelPrices = {}) => {
   if (!vehicle) return { totalCost: 0, costPerHour: 0, costPerMovement: 0 };
-  
-  const vehicleMovements = movements.filter(m => 
-    m.vehicleId === vehicle.id && 
-    m.type === 'outbound' && 
-    m.status === 'completed'
+
+  const vehicleMovements = movements.filter(
+    (m) => m.vehicleId === vehicle.vehicleId && m.type === 'salida' && m.status === 'completado'
   );
-  
+
   const costs = calculateMovementCosts(vehicleMovements, fuelPrices);
   const hoursWorked = parseFloat(vehicle.hoursWorked) || 0;
-  
+
   return {
     totalCost: costs.totalCost,
     costPerHour: hoursWorked > 0 ? costs.totalCost / hoursWorked : 0,
     costPerMovement: costs.averageCostPerMovement,
     costsByFuelType: costs.costsByType,
-    movementsCount: vehicleMovements.length
+    movementsCount: vehicleMovements.length,
   };
 };
 
@@ -421,45 +446,48 @@ export const calculateVehiclesStats = (vehicles = [], movements = []) => {
       totalConsumption: 0,
       averageEfficiency: 0,
       vehiclesByType: {},
-      vehiclesByStatus: {}
+      vehiclesByStatus: {},
     };
   }
-  
+
   const totalVehicles = vehicles.length;
-  const activeVehicles = vehicles.filter(v => v.status === 'active').length;
-  const totalHours = vehicles.reduce((sum, v) => sum + (parseFloat(v.hoursWorked) || 0), 0);
-  
+  const activeVehicles = vehicles.filter((v) => v.status === 'activo').length;
+  const totalHours = vehicles.reduce(
+    (sum, v) => sum + (parseFloat(v.totalHoursWorked) || parseFloat(v.currentHours) || 0),
+    0
+  );
+
   // Calcular consumo total y eficiencia promedio
   let totalConsumption = 0;
   let totalEfficiency = 0;
   let vehiclesWithData = 0;
-  
-  vehicles.forEach(vehicle => {
+
+  vehicles.forEach((vehicle) => {
     const consumption = calculateVehicleConsumption(vehicle, movements);
     const efficiency = calculateFuelEfficiency(vehicle, movements);
-    
+
     totalConsumption += consumption.totalConsumption;
     if (efficiency.efficiency > 0) {
       totalEfficiency += efficiency.efficiency;
       vehiclesWithData++;
     }
   });
-  
+
   const averageEfficiency = vehiclesWithData > 0 ? totalEfficiency / vehiclesWithData : 0;
-  
+
   // Estadísticas por tipo y estado
   const vehiclesByType = vehicles.reduce((acc, v) => {
     const type = v.type || 'unknown';
     acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});
-  
+
   const vehiclesByStatus = vehicles.reduce((acc, v) => {
     const status = v.status || 'unknown';
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
-  
+
   return {
     totalVehicles,
     activeVehicles,
@@ -467,7 +495,7 @@ export const calculateVehiclesStats = (vehicles = [], movements = []) => {
     totalConsumption,
     averageEfficiency,
     vehiclesByType,
-    vehiclesByStatus
+    vehiclesByStatus,
   };
 };
 
@@ -484,29 +512,29 @@ export const calculateVehiclesStats = (vehicles = [], movements = []) => {
  */
 export const calculatePeriodValue = (movements = [], dateRange = {}, fuelPrices = {}) => {
   if (!Array.isArray(movements)) return { totalValue: 0, movementsInPeriod: 0 };
-  
+
   const { start, end } = dateRange;
   let filteredMovements = movements;
-  
+
   // Filtrar por rango de fechas si se proporciona
   if (start || end) {
-    filteredMovements = movements.filter(movement => {
+    filteredMovements = movements.filter((movement) => {
       const movementDate = new Date(movement.createdAt || movement.date);
       const startDate = start ? new Date(start) : new Date(0);
       const endDate = end ? new Date(end) : new Date();
-      
+
       return movementDate >= startDate && movementDate <= endDate;
     });
   }
-  
+
   const costs = calculateMovementCosts(filteredMovements, fuelPrices);
-  
+
   return {
     totalValue: costs.totalCost,
     movementsInPeriod: filteredMovements.length,
     averageValuePerMovement: costs.averageCostPerMovement,
     valueByType: costs.costsByType,
-    valueByLocation: costs.costsByLocation
+    valueByLocation: costs.costsByLocation,
   };
 };
 
@@ -519,19 +547,19 @@ export const calculatePeriodValue = (movements = [], dateRange = {}, fuelPrices 
  */
 export const calculateLocationCosts = (movements = [], location, fuelPrices = {}) => {
   if (!Array.isArray(movements) || !location) return { totalCost: 0, movementsCount: 0 };
-  
-  const locationMovements = movements.filter(m => 
-    m.sourceLocation === location || m.targetLocation === location || m.location === location
+
+  const locationMovements = movements.filter(
+    (m) => m.sourceLocation === location || m.targetLocation === location || m.location === location
   );
-  
+
   const costs = calculateMovementCosts(locationMovements, fuelPrices);
-  
+
   return {
     location,
     totalCost: costs.totalCost,
     movementsCount: locationMovements.length,
     averageCostPerMovement: costs.averageCostPerMovement,
-    costsByType: costs.costsByType
+    costsByType: costs.costsByType,
   };
 };
 
@@ -545,22 +573,22 @@ export const calculateConsumptionProjections = (movements = [], projectionDays =
   if (!Array.isArray(movements) || movements.length === 0) {
     return { projectedConsumption: {}, recommendedPurchases: {}, confidence: 0 };
   }
-  
+
   // Calcular consumo promedio diario por tipo de combustible
-  const outboundMovements = movements.filter(m => 
-    m.type === 'outbound' && m.status === 'completed'
+  const outboundMovements = movements.filter(
+    (m) => m.type === 'salida' && m.status === 'completado'
   );
-  
+
   if (outboundMovements.length === 0) {
     return { projectedConsumption: {}, recommendedPurchases: {}, confidence: 0 };
   }
-  
+
   // Obtener rango de fechas para calcular promedio diario
-  const dates = outboundMovements.map(m => new Date(m.createdAt || m.date));
+  const dates = outboundMovements.map((m) => new Date(m.createdAt || m.date));
   const oldestDate = new Date(Math.min(...dates));
   const newestDate = new Date(Math.max(...dates));
   const totalDays = Math.max(1, (newestDate - oldestDate) / (1000 * 60 * 60 * 24));
-  
+
   // Calcular consumo por tipo de combustible
   const consumptionByType = outboundMovements.reduce((acc, m) => {
     const fuelType = m.fuelType;
@@ -568,36 +596,36 @@ export const calculateConsumptionProjections = (movements = [], projectionDays =
     acc[fuelType] += parseFloat(m.quantity) || 0;
     return acc;
   }, {});
-  
+
   // Calcular proyecciones
   const projectedConsumption = {};
   const recommendedPurchases = {};
-  
+
   Object.entries(consumptionByType).forEach(([fuelType, totalConsumption]) => {
     const dailyAverage = totalConsumption / totalDays;
     const projectedTotal = dailyAverage * projectionDays;
-    
+
     projectedConsumption[fuelType] = {
       dailyAverage,
       projectedTotal,
       projectionDays,
       historicalTotal: totalConsumption,
-      historicalDays: totalDays
+      historicalDays: totalDays,
     };
-    
+
     // Recomendar compras con 20% de buffer
     recommendedPurchases[fuelType] = Math.ceil(projectedTotal * 1.2);
   });
-  
+
   // Calcular nivel de confianza basado en cantidad de datos
   const confidence = Math.min(100, (outboundMovements.length / 10) * 100);
-  
+
   return {
     projectedConsumption,
     recommendedPurchases,
     confidence,
     dataPoints: outboundMovements.length,
-    projectionDays
+    projectionDays,
   };
 };
 
@@ -612,36 +640,37 @@ export const calculateConsumptionProjections = (movements = [], projectionDays =
  * @returns {Object} Análisis de precios
  */
 export const calculatePriceComparisons = (suppliers = [], fuelType) => {
-  if (!Array.isArray(suppliers) || !fuelType) return { bestPrice: null, priceRange: {}, savings: 0 };
-  
-  const relevantSuppliers = suppliers.filter(s => 
-    s.fuelTypes && s.fuelTypes.includes(fuelType) && s.currentPrice
+  if (!Array.isArray(suppliers) || !fuelType)
+    return { bestPrice: null, priceRange: {}, savings: 0 };
+
+  const relevantSuppliers = suppliers.filter(
+    (s) => s.fuelTypes && s.fuelTypes.includes(fuelType) && s.currentPrice
   );
-  
+
   if (relevantSuppliers.length === 0) return { bestPrice: null, priceRange: {}, savings: 0 };
-  
-  const prices = relevantSuppliers.map(s => parseFloat(s.currentPrice) || 0);
+
+  const prices = relevantSuppliers.map((s) => parseFloat(s.currentPrice) || 0);
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-  
-  const bestSupplier = relevantSuppliers.find(s => parseFloat(s.currentPrice) === minPrice);
+
+  const bestSupplier = relevantSuppliers.find((s) => parseFloat(s.currentPrice) === minPrice);
   const savings = maxPrice - minPrice;
   const savingsPercentage = maxPrice > 0 ? (savings / maxPrice) * 100 : 0;
-  
+
   return {
     bestPrice: {
       supplier: bestSupplier,
-      price: minPrice
+      price: minPrice,
     },
     priceRange: {
       min: minPrice,
       max: maxPrice,
-      average: avgPrice
+      average: avgPrice,
     },
     savings,
     savingsPercentage,
-    suppliersCount: relevantSuppliers.length
+    suppliersCount: relevantSuppliers.length,
   };
 };
 
@@ -656,12 +685,12 @@ export const calculatePriceComparisons = (suppliers = [], fuelType) => {
  */
 export const formatCurrency = (amount) => {
   if (typeof amount !== 'number' || isNaN(amount)) return '$0';
-  
+
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 
@@ -673,10 +702,10 @@ export const formatCurrency = (amount) => {
  */
 export const formatNumber = (number, decimals = 2) => {
   if (typeof number !== 'number' || isNaN(number)) return '0';
-  
+
   return new Intl.NumberFormat('es-CO', {
     minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    maximumFractionDigits: decimals,
   }).format(number);
 };
 
@@ -688,7 +717,7 @@ export const formatNumber = (number, decimals = 2) => {
  */
 export const formatPercentage = (value, decimals = 1) => {
   if (typeof value !== 'number' || isNaN(value)) return '0%';
-  
+
   return `${(value * 100).toFixed(decimals)}%`;
 };
 
@@ -779,37 +808,37 @@ export default {
   calculateCapacityPercentage,
   calculateLowStockAlerts,
   calculateInventoryStats,
-  
+
   // Movimientos
   validateStockAvailability,
   calculateResultingStock,
   calculateMovementCosts,
   calculateMovementsStats,
-  
+
   // Vehículos
   calculateVehicleConsumption,
   calculateFuelEfficiency,
   calculateOperationalCosts,
   calculateVehiclesStats,
-  
+
   // Financiero y Reportes
   calculatePeriodValue,
   calculateLocationCosts,
   calculateConsumptionProjections,
-  
+
   // Proveedores (futuro)
   calculatePriceComparisons,
-  
+
   // Utilidades
   formatCurrency,
   formatNumber,
   formatPercentage,
   isValidPositiveNumber,
-  
+
   // Aritmética precisa
   preciseAdd,
   preciseSubtract,
   preciseMultiply,
   preciseDivide,
-  preciseRound
+  preciseRound,
 };

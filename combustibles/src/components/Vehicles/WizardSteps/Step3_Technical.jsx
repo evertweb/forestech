@@ -208,9 +208,9 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
       color: 'fuel-gasoline',
     },
     {
-      type: FUEL_TYPES.MIXTO,
+      type: FUEL_TYPES.MIXED,
       icon: '🔄',
-      title: 'Mixto',
+      title: 'Mixed',
       description: 'Puede usar tanto DIESEL como gasolina',
       color: 'fuel-mixed',
     },

@@ -180,7 +180,7 @@ const VehiclesFilters = ({
                 <option value="">Todos los combustibles</option>
                 <option value={FUEL_COMPATIBILITY.DIESEL}>🚛 DIESEL</option>
                 <option value={FUEL_COMPATIBILITY.GASOLINE}>🚗 Gasolina</option>
-                <option value={FUEL_COMPATIBILITY.MIXTO}>⛽ Mixto</option>
+                <option value={FUEL_COMPATIBILITY.MIXED}>🔄 Mixed</option>
               </select>
             </div>
 

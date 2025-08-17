@@ -19,16 +19,24 @@ import {
   deleteInventoryItem,
   getInventoryStats,
 } from '../../services/inventoryService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import InventoryTable from './InventoryTable';
 import InventoryCards from './InventoryCards';
 // Lazy load del modal pesado para dividir el bundle
 const InventoryModal = lazy(() => import('./InventoryModal'));
 import InventoryStats from './InventoryStats';
 import { PageLayout } from '../shared';
+import { cardsService } from '../../services/cardsService';
+import UnifiedCardsGrid from '../shared/UnifiedCards';
+import { useCardDetails } from '../../hooks/useCardDetails.jsx';
 import '../../styles/sap-inventory.css';
 
 const InventoryMain = () => {
   const { hasPermission } = useCombustibles();
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
+  const { openCardDetails, CardDetailsModal } = useCardDetails();
   const [inventoryItems, setInventoryItems] = useState([]);
   const [inventoryStats, setInventoryStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -179,17 +187,32 @@ const InventoryMain = () => {
 
     if (!confirmed) return;
 
-    setLoading(true);
-    const result = await deleteInventoryItem(item.id);
+    try {
+      const progressDescription = `Eliminando ${item.name} de inventario en ${item.location}`;
 
-    if (result.success) {
-      // El item se actualizará automáticamente vía subscription
-      alert('Item eliminado exitosamente');
-    } else {
-      setError(result.error);
-      alert(`Error al eliminar: ${result.error}`);
+      const result = await executeWithProgress(
+        'deleteInventory',
+        progressDescription,
+        () => deleteInventoryItem(item.id),
+        {
+          itemId: item.id,
+          itemName: item.name,
+          location: item.location,
+          fuelType: item.fuelType,
+        }
+      );
+
+      if (result.success) {
+        // El item se actualizará automáticamente vía subscription
+        console.log('✅ Item eliminado exitosamente');
+      } else {
+        setError(result.error);
+        alert(`Error al eliminar: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('❌ Error al eliminar item:', error);
+      alert(`Error al eliminar: ${error.message}`);
     }
-    setLoading(false);
   };
 
   const handleModalClose = () => {
@@ -222,30 +245,22 @@ const InventoryMain = () => {
     </div>
   );
 
+  // Generar cards unificadas para inventario
+  const inventoryCards = React.useMemo(() => {
+    return cardsService.getCardsForTab('inventory', {
+      inventory: inventoryItems,
+      movements: [], // Los movimientos los podríamos obtener del contexto si fuera necesario
+      vehicles: [],
+    });
+  }, [inventoryItems]);
+
   const statsComponent = (
-    <div className="inventory-stats sap-theme">
-      <div className="inventory-stat-card sap-theme in-stock">
-        <div className="inventory-stat-value sap-theme">{enhancedStats.inStockItems}</div>
-        <div className="inventory-stat-label sap-theme">En Stock</div>
-      </div>
-
-      <div className="inventory-stat-card sap-theme low-stock">
-        <div className="inventory-stat-value sap-theme">{enhancedStats.lowStockItems}</div>
-        <div className="inventory-stat-label sap-theme">Stock Bajo</div>
-      </div>
-
-      <div className="inventory-stat-card sap-theme out-of-stock">
-        <div className="inventory-stat-value sap-theme">{enhancedStats.outOfStockItems}</div>
-        <div className="inventory-stat-label sap-theme">Sin Stock</div>
-      </div>
-
-      <div className="inventory-stat-card sap-theme">
-        <div className="inventory-stat-value sap-theme">
-          ${enhancedStats.totalValue.toLocaleString('es-CO')}
-        </div>
-        <div className="inventory-stat-label sap-theme">Valor Total</div>
-      </div>
-    </div>
+    <UnifiedCardsGrid
+      cards={inventoryCards}
+      onCardClick={openCardDetails}
+      columns={4}
+      className="inventory-cards-grid"
+    />
   );
 
   const filtersComponent = (
@@ -321,6 +336,9 @@ const InventoryMain = () => {
 
   const mainContent = (
     <>
+      {/* Modal de detalles de cards */}
+      {CardDetailsModal}
+
       {/* Error Display */}
       {error && (
         <div className="error-banner sap-theme">

@@ -16,6 +16,13 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
   const { vehicles } = systemData;
 
+  // Debug crítico: Solo log cuando NO hay vehículos (problema)
+  if (isActive && formData.fuelType && (!vehicles || vehicles.length === 0)) {
+    console.log(
+      `❌ Step5_Vehicle SIN VEHÍCULOS: fuelType="${formData.fuelType}", vehicles=${vehicles?.length || 0}`
+    );
+  }
+
   // Función para determinar si requiere horómetro
   const checkIfRequiresHourMeter = useCallback((vehicle) => {
     if (!vehicle) return false;
@@ -45,7 +52,8 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
       return [];
     }
 
-    const requiredFuelType = formData.fuelType.toUpperCase();
+    // 🔧 Normalizar el tipo de combustible requerido a mayúsculas
+    const requiredFuelType = formData.fuelType?.toUpperCase() || '';
     console.log('🔍 [Step5] Buscando vehículos para:', requiredFuelType);
     console.log('🔍 [Step5] Total vehículos disponibles:', vehicles.length);
 
@@ -58,32 +66,26 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
     console.log('🔍 [Step5] Tipos de combustible en vehículos:', fuelTypes);
 
     const filtered = vehicles.filter((vehicle) => {
+      // 🔧 Normalizar ambos lados de la comparación a mayúsculas
       const vehicleFuelType = vehicle.fuelType?.toUpperCase() || '';
+      const requiredFuelTypeNormalized = requiredFuelType?.toUpperCase() || '';
       const isActive = vehicle.status === 'activo';
 
-      // Lógica robusta de compatibilidad de combustibles
+      // Lógica robusta de compatibilidad de combustibles (unificada)
       const isFuelCompatible =
-        // DIESEL es compatible con DIESEL, ACPM
-        (requiredFuelType === 'DIESEL' &&
-          (vehicleFuelType === 'DIESEL' || vehicleFuelType === 'ACPM')) ||
-        // ACPM es compatible con DIESEL y ACPM
-        (requiredFuelType === 'ACPM' &&
-          (vehicleFuelType === 'DIESEL' || vehicleFuelType === 'ACPM')) ||
-        // GASOLINE es compatible con GASOLINE, GASOLINA (variantes legacy)
-        (requiredFuelType === 'GASOLINE' &&
-          (vehicleFuelType === 'GASOLINE' || vehicleFuelType === 'GASOLINA')) ||
-        // GASOLINA (legacy) es compatible con GASOLINE
-        (requiredFuelType === 'GASOLINA' &&
-          (vehicleFuelType === 'GASOLINE' || vehicleFuelType === 'GASOLINA')) ||
-        // MIXTO es compatible con cualquier combustible
-        (requiredFuelType === 'MIXTO' &&
+        // DIESEL es compatible con DIESEL (unificado, ACPM migrado a DIESEL)
+        (requiredFuelTypeNormalized === 'DIESEL' && vehicleFuelType === 'DIESEL') ||
+        // GASOLINE es compatible con GASOLINE (unificado, GASOLINA migrado a GASOLINE)
+        (requiredFuelTypeNormalized === 'GASOLINE' && vehicleFuelType === 'GASOLINE') ||
+        // MIXED es compatible con cualquier combustible
+        (requiredFuelTypeNormalized === 'MIXED' &&
           (vehicleFuelType === 'DIESEL' ||
             vehicleFuelType === 'GASOLINE' ||
-            vehicleFuelType === 'GASOLINA' ||
-            vehicleFuelType === 'ACPM'));
+            vehicleFuelType === 'LUBRICANTS' ||
+            vehicleFuelType === 'TWO_STROKE'));
 
       console.log(
-        `🔍 [Step5] Vehículo ${vehicle.name || vehicle.plateNumber}: fuelType=${vehicleFuelType}, status=${vehicle.status}, compatible=${isFuelCompatible}`
+        `🔍 [Step5] Vehículo ${vehicle.name || vehicle.plateNumber}: fuelType=${vehicleFuelType}, required=${requiredFuelTypeNormalized}, status=${vehicle.status}, compatible=${isFuelCompatible}`
       );
 
       return isActive && isFuelCompatible;

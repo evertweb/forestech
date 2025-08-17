@@ -9,6 +9,7 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import {
   validationSchemas,
   validateForm as runValidation,
@@ -41,6 +42,9 @@ const MaintenanceModal = ({
   mode = 'create',
   userRole,
 }) => {
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
+
   // Estado inicial del formulario
   const getInitialFormData = useCallback(
     () => ({
@@ -191,14 +195,30 @@ const MaintenanceModal = ({
         createdBy: userRole || 'user',
       };
 
-      if (mode === 'create') {
-        await createMaintenanceRecord(maintenanceData);
-        console.log('✅ Mantenimiento creado exitosamente');
-      } else if (mode === 'edit') {
-        await updateMaintenanceRecord(maintenance.id, maintenanceData);
-        console.log('✅ Mantenimiento actualizado exitosamente');
-      }
+      // Generar descripción para el progreso
+      const progressDescription =
+        mode === 'create'
+          ? `Creando mantenimiento de ${formData.vehicleId}`
+          : `Actualizando mantenimiento de ${formData.vehicleId}`;
 
+      const operationType = mode === 'create' ? 'createMaintenance' : 'updateMaintenance';
+
+      // Ejecutar con progreso transparente
+      await executeWithProgress(
+        operationType,
+        progressDescription,
+        () =>
+          mode === 'create'
+            ? createMaintenanceRecord(maintenanceData)
+            : updateMaintenanceRecord(maintenance.id, maintenanceData),
+        {
+          vehicleId: formData.vehicleId,
+          maintenanceType: formData.type,
+          isUpdate: mode === 'edit',
+        }
+      );
+
+      console.log(`✅ Mantenimiento ${mode === 'create' ? 'creado' : 'actualizado'} exitosamente`);
       onSuccess();
     } catch (error) {
       console.error('❌ Error al guardar mantenimiento:', error);

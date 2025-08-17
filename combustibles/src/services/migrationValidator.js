@@ -346,7 +346,7 @@ export class MigrationValidator {
       }
 
       // Validar combustible
-      const validFuels = ['DIESEL', 'GASOLINA'];
+      const validFuels = ['DIESEL', 'GASOLINE']; // Unificado
       if (vehicle.combustible && !validFuels.includes(vehicle.combustible)) {
         this.warnings.push(
           `⚠️ Vehículos fila ${rowNumber}: Combustible "${vehicle.combustible}" no estándar. Recomendados: ${validFuels.join(', ')}`

@@ -702,10 +702,10 @@ class MigrationManager extends CRUDService {
     const lowerValue = value.toLowerCase();
 
     if (lowerValue.includes('acpm') || lowerValue.includes('diesel')) {
-      return PRODUCT_TYPES.ACPM;
+      return PRODUCT_TYPES.DIESEL; // ACPM migrado a DIESEL
     }
     if (lowerValue.includes('gasolina') || lowerValue.includes('gasoline')) {
-      return PRODUCT_TYPES.GASOLINA_CORRIENTE;
+      return PRODUCT_TYPES.GASOLINE; // Unificado
     }
     if (lowerValue.includes('aceite') || lowerValue.includes('oil')) {
       return PRODUCT_TYPES.ACEITE_MOTOR;

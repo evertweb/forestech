@@ -46,7 +46,7 @@ const Step6_Destination = ({
             const currentStock = inventory
               .filter(
                 (item) =>
-                  item.fuelType === formData.fuelType &&
+                  item.fuelType?.toUpperCase() === formData.fuelType?.toUpperCase() &&
                   item.location?.toLowerCase() === location.toLowerCase() &&
                   item.status === 'active'
               )
@@ -56,7 +56,7 @@ const Step6_Destination = ({
             const maxCapacity = inventory
               .filter(
                 (item) =>
-                  item.fuelType === formData.fuelType &&
+                  item.fuelType?.toUpperCase() === formData.fuelType?.toUpperCase() &&
                   item.location?.toLowerCase() === location.toLowerCase() &&
                   item.status === 'active'
               )

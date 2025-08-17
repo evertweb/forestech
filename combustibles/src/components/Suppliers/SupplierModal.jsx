@@ -14,6 +14,7 @@ import {
 } from '../../utils/validators';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/suppliersService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
 import {
   MODAL_PRESETS,
@@ -28,6 +29,9 @@ import {
 const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
   const { userProfile } = useCombustibles();
   const isEditing = !!supplier;
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('basic'); // 'basic', 'contact', 'products', 'commercial'
@@ -154,12 +158,28 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
           )
         ),
       };
-      let result;
-      if (isEditing) {
-        result = await updateSupplier(supplier.id, supplierData, userProfile?.email);
-      } else {
-        result = await createSupplier(supplierData, userProfile?.email);
-      }
+
+      // Generar descripción para el progreso
+      const progressDescription = isEditing
+        ? `Actualizando proveedor ${formData.name}`
+        : `Creando proveedor ${formData.name}`;
+
+      const operationType = isEditing ? 'updateSupplier' : 'createSupplier';
+
+      // Ejecutar con progreso transparente
+      const result = await executeWithProgress(
+        operationType,
+        progressDescription,
+        () =>
+          isEditing
+            ? updateSupplier(supplier.id, supplierData, userProfile?.email)
+            : createSupplier(supplierData, userProfile?.email),
+        {
+          supplierName: formData.name,
+          isUpdate: isEditing,
+        }
+      );
+
       if (result.success) {
         onSuccess();
       } else {

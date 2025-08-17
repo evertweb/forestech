@@ -15,7 +15,9 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
   useEffect(() => {
     if (formData.fuelType && !formData.unitPrice && products.length > 0) {
       const product = products.find(
-        (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+        (p) =>
+          p.name?.toUpperCase() === formData.fuelType?.toUpperCase() ||
+          p.displayName?.toUpperCase() === formData.fuelType?.toUpperCase()
       );
       if (product && product.defaultPrice) {
         updateFormData('unitPrice', product.defaultPrice.toString());
@@ -66,7 +68,9 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
 
   const getCurrentProduct = () => {
     return products.find(
-      (p) => p.name === formData.fuelType || p.displayName === formData.fuelType
+      (p) =>
+        p.name?.toUpperCase() === formData.fuelType?.toUpperCase() ||
+        p.displayName?.toUpperCase() === formData.fuelType?.toUpperCase()
     );
   };
 

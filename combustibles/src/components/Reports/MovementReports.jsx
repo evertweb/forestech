@@ -40,7 +40,11 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
 
     // Filtro por tipo de combustible
     if (selectedFuelType !== 'all') {
-      filtered = filtered.filter((movement) => movement.fuelType === selectedFuelType);
+      // 🔧 Normalizar ambos lados de la comparación a mayúsculas
+      const normalizedSelectedType = selectedFuelType.toUpperCase();
+      filtered = filtered.filter(
+        (movement) => movement.fuelType?.toUpperCase() === normalizedSelectedType
+      );
     }
 
     // Filtro por ubicación
@@ -115,7 +119,11 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
   const fuelTypeAnalysis = useMemo(() => {
     const analysis = {};
     uniqueValues.fuelTypes.forEach((fuelType) => {
-      const fuelMovements = filteredMovements.filter((m) => m.fuelType === fuelType);
+      // 🔧 Normalizar comparación de fuelType
+      const normalizedFuelType = fuelType.toUpperCase();
+      const fuelMovements = filteredMovements.filter(
+        (m) => m.fuelType?.toUpperCase() === normalizedFuelType
+      );
       const totalQuantity = fuelMovements.reduce(
         (sum, m) => sum + (parseFloat(m.quantity) || 0),
         0

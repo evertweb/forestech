@@ -39,9 +39,9 @@ export const SuppliersFilters = ({
   const fuelTypeOptions = [
     { value: 'all', label: 'Todos los Combustibles' },
     { value: 'DIESEL', label: 'Diésel' },
-    { value: 'gasoline', label: 'Gasolina' },
-    { value: 'acpm', label: 'ACPM' },
-    { value: 'lubricants', label: 'Lubricantes' },
+    { value: 'GASOLINE', label: 'Gasolina' },
+    { value: 'LUBRICANTS', label: 'Lubricantes' },
+    { value: 'TWO_STROKE', label: 'Mezcla 2T' },
     { value: 'other', label: 'Otros' },
   ];
 

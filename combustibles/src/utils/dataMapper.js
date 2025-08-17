@@ -58,7 +58,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Camioneta Amarilla',
     type: 'camioneta',
     category: 'transporte_liviano',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE', // Unificado
     hasHourMeter: false,
     estimatedConsumptionPerHour: 1.5,
     location: 'Campo',
@@ -68,7 +68,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Camioneta Burbuja',
     type: 'camioneta',
     category: 'transporte_liviano',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 1.5,
     location: 'Campo',
@@ -78,7 +78,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Carro Azul',
     type: 'automovil',
     category: 'transporte_liviano',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 1.2,
     location: 'Campo',
@@ -90,7 +90,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Moto XTZ Negra',
     type: 'motocicleta',
     category: 'transporte_personal',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 0.8,
     location: 'Campo',
@@ -100,7 +100,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Moto XR150 Blanca',
     type: 'motocicleta',
     category: 'transporte_personal',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 0.8,
     location: 'Campo',
@@ -112,7 +112,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Fumigadora a Motor',
     type: 'fumigadora',
     category: 'equipos_agricolas',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 0.5,
     location: 'Campo',
@@ -122,7 +122,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Hidrolavadora',
     type: 'hidrolavadora',
     category: 'equipos_limpieza',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 0.8,
     location: 'Taller',
@@ -142,7 +142,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Guadañas',
     type: 'guadana',
     category: 'herramientas_motor',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 0.3,
     location: 'Vivero',
@@ -152,7 +152,7 @@ export const HISTORICAL_VEHICLE_MAPPING = {
     name: 'Motosierra',
     type: 'motosierra',
     category: 'herramientas_motor',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     hasHourMeter: false,
     estimatedConsumptionPerHour: 0.4,
     location: 'Campo',
@@ -164,19 +164,19 @@ export const HISTORICAL_VEHICLE_MAPPING = {
  */
 export const HISTORICAL_PRODUCT_MAPPING = {
   A: {
-    code: 'ACPM',
-    name: 'ACPM (Diesel)',
+    code: 'DIESEL', // Migrado de ACPM a DIESEL
+    name: 'DIESEL',
     category: 'combustibles',
     unit: 'Galón',
     fuelType: 'DIESEL',
     priority: 'high',
   },
   G: {
-    code: 'GASOLINA',
-    name: 'Gasolina',
+    code: 'GASOLINE', // Unificado
+    name: 'GASOLINE',
     category: 'combustibles',
     unit: 'Galón',
-    fuelType: 'Gasolina',
+    fuelType: 'GASOLINE',
     priority: 'high',
   },
   AO: {
@@ -366,17 +366,17 @@ export const generateAutoVehicleMapping = (vehicleName) => {
 
   // Determinar tipo y combustible basándose en el nombre
   let type = 'otros';
-  let fuelType = 'Gasolina';
+  let fuelType = 'GASOLINE'; // Unificado
   let category = 'general';
 
   if (vehicleName.toLowerCase().includes('motobomba')) {
     type = 'motobomba';
     category = 'equipos_agua';
-    fuelType = 'Gasolina';
+    fuelType = 'GASOLINE'; // Unificado
   } else if (vehicleName.toLowerCase().includes('campamento')) {
     type = 'equipo_campamento';
     category = 'infraestructura';
-    fuelType = 'Gasolina';
+    fuelType = 'GASOLINE'; // Unificado
   }
 
   return {
@@ -482,8 +482,8 @@ export const parseHistoricalDate = (dateString) => {
  */
 export const mapProductCode = (articulo) => {
   const reverseMapping = {
-    GASOLINA: 'GASOLINA',
-    ACPM: 'ACPM',
+    GASOLINA: 'GASOLINE', // Unificado
+    ACPM: 'DIESEL', // Migrado de ACPM a DIESEL
     'Aceite Hidraulico': 'ACEITE_HIDRAULICO',
     'Aceite Motor 20w50': 'ACEITE_MOTOR_20W50',
     GRASA: 'GRASA',

@@ -10,6 +10,7 @@ import {
   updateProduct,
   deleteProduct,
 } from '../../services/productsService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { PRODUCT_INFO, PRODUCT_CATEGORIES, getAllProducts } from '../../constants/productTypes';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
@@ -18,6 +19,9 @@ import { PageLayout } from '../shared';
 import './ProductsMain-SAP.css';
 
 const ProductsMain = ({ userProfile }) => {
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -124,7 +128,16 @@ const ProductsMain = ({ userProfile }) => {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
       try {
-        await deleteProduct(productId);
+        const progressDescription = `Eliminando producto ${productId}`;
+
+        await executeWithProgress(
+          'deleteProduct',
+          progressDescription,
+          () => deleteProduct(productId),
+          { productId }
+        );
+
+        console.log('✅ Producto eliminado exitosamente');
       } catch (error) {
         console.error('Error deleting product:', error);
         alert('Error al eliminar el producto');
@@ -134,12 +147,30 @@ const ProductsMain = ({ userProfile }) => {
 
   const handleModalSave = async (productData) => {
     try {
-      if (modalMode === 'create') {
-        await createProduct(productData);
-      } else if (modalMode === 'edit') {
-        await updateProduct(selectedProduct.id, productData);
-      }
+      // Generar descripción para el progreso
+      const progressDescription =
+        modalMode === 'create'
+          ? `Creando producto ${productData.name}`
+          : `Actualizando producto ${productData.name}`;
+
+      const operationType = modalMode === 'create' ? 'createProduct' : 'updateProduct';
+
+      // Ejecutar con progreso transparente
+      await executeWithProgress(
+        operationType,
+        progressDescription,
+        () =>
+          modalMode === 'create'
+            ? createProduct(productData)
+            : updateProduct(selectedProduct.id, productData),
+        {
+          productName: productData.name,
+          isUpdate: modalMode === 'edit',
+        }
+      );
+
       setIsModalOpen(false);
+      console.log(`✅ Producto ${modalMode === 'create' ? 'creado' : 'actualizado'} exitosamente`);
     } catch (error) {
       console.error('Error saving product:', error);
       throw error;

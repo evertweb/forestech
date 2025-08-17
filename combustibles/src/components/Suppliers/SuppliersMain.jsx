@@ -7,6 +7,7 @@ import {
   deleteSupplier,
   getSuppliersStats,
 } from '../../services/suppliersService';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { updateUserPermissions } from '../../firebase/userService';
 import SuppliersTable from './SuppliersTable';
 import SuppliersCards from './SuppliersCards';
@@ -18,6 +19,9 @@ import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
   const { hasPermission, userProfile, user } = useCombustibles();
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
 
   const [suppliers, setSuppliers] = useState([]);
   const [suppliersStats, setSuppliersStats] = useState(null);
@@ -127,10 +131,23 @@ const SuppliersMain = () => {
 
     try {
       setError(null); // Clear any existing errors
-      const result = await deleteSupplier(supplierId, userProfile?.email);
+
+      const progressDescription = `Eliminando proveedor ${supplierName}`;
+
+      const result = await executeWithProgress(
+        'deleteSupplier',
+        progressDescription,
+        () => deleteSupplier(supplierId, userProfile?.email),
+        {
+          supplierId,
+          supplierName,
+        }
+      );
+
       if (result.success) {
         // Show success message briefly
         setError(null);
+        console.log('✅ Proveedor eliminado exitosamente');
         // The real-time subscription will update the list automatically
       } else {
         setError(result.error || 'Error al desactivar proveedor');

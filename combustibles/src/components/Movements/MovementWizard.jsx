@@ -8,18 +8,21 @@ import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService'
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/productsService';
 import { getAllSuppliers } from '../../services/suppliersService';
+import { subscribeToVehicles, getAllVehicles } from '../../services/vehiclesService';
 import { MODAL_PRESETS, UI_ACTIONS, UI_MESSAGES } from '../../constants';
 import {
   validators,
   validateForm as runValidation,
   validationSchemas,
 } from '../../utils/validators';
+import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 
 // Importar pasos del wizard
 import Step1_MovementType from './WizardSteps/Step1_MovementType';
 import Step2_Date from './WizardSteps/Step2_Date';
 import Step2_FuelType from './WizardSteps/Step2_FuelType';
 import Step3_Location from './WizardSteps/Step3_Location';
+import Step3b_InventoryPreview from './WizardSteps/Step3b_InventoryPreview';
 import Step4_Quantity from './WizardSteps/Step4_Quantity';
 import Step5_Vehicle from './WizardSteps/Step5_Vehicle';
 import Step6_Destination from './WizardSteps/Step6_Destination';
@@ -34,16 +37,26 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   // Usar datos en tiempo real del contexto
   const { inventory, vehicles, subscribeToSuppliers } = useCombustibles();
 
+  // (Debug logs removidos para reducir spam)
+
+  // Hook para progreso transparente de Firebase
+  const { executeWithProgress } = useFirebaseProgressContext();
+
   // Estados del wizard
   const [currentStep, setCurrentStep] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [confirmChecked, setConfirmChecked] = useState(false); // Estado para el checkbox de confirmación
+  const [movementCreated, setMovementCreated] = useState(false); // Estado para mostrar éxito sin cerrar modal
 
   // Estado local para suppliers (fix para el error)
   const [_suppliersData, setSuppliersData] = useState([]);
   const [_suppliersLoading, setSuppliersLoading] = useState(false);
+
+  // Estado local para vehículos (fix para el problema de vehículos vacíos)
+  const [localVehicles, setLocalVehicles] = useState([]);
+  const [_vehiclesLoading, setVehiclesLoading] = useState(false);
 
   // Datos del formulario
   const [formData, setFormData] = useState({
@@ -75,6 +88,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     setCurrentStep(1);
     setError('');
     setConfirmChecked(false); // Resetear el checkbox
+    setMovementCreated(false); // Resetear estado de éxito
     setFormData({
       type: '',
       fuelType: '',
@@ -93,10 +107,13 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Cargar datos del sistema y resetear el wizard cuando se abre
   useEffect(() => {
+    console.log('🔥 useEffect PRINCIPAL ejecutado - isOpen:', isOpen);
     let suppliersUnsubscribe = null;
+    let vehiclesUnsubscribe = null;
     let fallbackTimer = null;
 
     if (isOpen) {
+      console.log('🔥 ENTRANDO en isOpen=true...');
       document.body.classList.add('modal-open');
 
       // Resetear estado antes de cargar nuevos datos
@@ -104,6 +121,52 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
       setSystemData((prev) => ({ ...prev, loadingData: true }));
       setSuppliersLoading(true);
+      setVehiclesLoading(true);
+
+      // Verificar vehículos en Firebase (una sola vez al abrir)
+      getAllVehicles()
+        .then((allVehiclesResult) => {
+          const dieselActivos =
+            allVehiclesResult?.filter(
+              (v) => v.fuelType?.toUpperCase() === 'DIESEL' && v.status === 'activo'
+            )?.length || 0;
+          console.log(`✅ Vehículos DIESEL activos en Firebase: ${dieselActivos}`);
+        })
+        .catch((getAllError) => {
+          console.error('❌ Error verificando vehículos:', getAllError);
+        });
+
+      // Suscribirse a vehículos
+      console.log('🔥 INTENTANDO suscribirse a vehículos...');
+      try {
+        console.log('🔥 Ejecutando subscribeToVehicles...');
+        vehiclesUnsubscribe = subscribeToVehicles((vehiclesData, error) => {
+          console.log('🔥 CALLBACK EJECUTADO!', { vehiclesData, error });
+          if (error) {
+            console.error('❌ Error suscripción vehículos:', error);
+            setVehiclesLoading(false);
+            return;
+          }
+          const newVehicles = vehiclesData || [];
+          setLocalVehicles(newVehicles);
+          setVehiclesLoading(false);
+          console.log(`🚛 Vehículos cargados en wizard: ${newVehicles.length}`);
+
+          // 🔧 FIX TEMPORAL: Actualizar systemData.vehicles inmediatamente
+          if (newVehicles.length > 0) {
+            console.log(
+              `🔧 FIX: Actualizando systemData.vehicles inmediatamente con ${newVehicles.length} vehículos`
+            );
+            setSystemData((prev) => ({
+              ...prev,
+              vehicles: newVehicles,
+            }));
+          }
+        });
+      } catch (subscriptionError) {
+        console.error('❌ Error FATAL suscripción vehículos:', subscriptionError);
+        setVehiclesLoading(false);
+      }
 
       // Suscribirse a suppliers inmediatamente
       if (subscribeToSuppliers) {
@@ -155,12 +218,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           // Actualizar systemData sin sobrescribir los suppliers que se están cargando
           setSystemData((prev) => ({
             ...prev,
-            vehicles: vehicles || [],
+            vehicles: localVehicles.length > 0 ? localVehicles : prev.vehicles || [],
             inventory: inventory || [],
             products: productsData || [],
             loadingData: false,
             // NO sobrescribir suppliers aquí - se actualizan en el callback de suscripción
           }));
+
+          console.log(`🔧 loadProducts() usando vehicles: localVehicles=${localVehicles.length}`);
 
           console.log(
             '✅ Datos sincronizados para wizard - inventario en tiempo real:',
@@ -185,14 +250,31 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       if (suppliersUnsubscribe) {
         suppliersUnsubscribe();
       }
+      if (vehiclesUnsubscribe) {
+        vehiclesUnsubscribe();
+      }
       if (fallbackTimer) {
         clearTimeout(fallbackTimer);
       }
     };
-  }, [isOpen, inventory, vehicles, subscribeToSuppliers]); // ✅ FIXED: removido 'suppliers' de dependencias
+  }, [isOpen, inventory, vehicles, subscribeToSuppliers, localVehicles]); // ✅ FIXED: agregado 'localVehicles' en dependencias
 
   // NOTA: systemData.suppliers se actualiza directamente en los callbacks de suscripción
   // para evitar dependencias circulares y bucles infinitos
+
+  // Actualizar systemData.vehicles cuando localVehicles cambie
+  useEffect(() => {
+    console.log(`🔄 useEffect localVehicles: ${localVehicles.length} vehículos`);
+    if (localVehicles.length > 0) {
+      console.log(`📊 systemData.vehicles actualizado: ${localVehicles.length} vehículos`);
+      setSystemData((prev) => ({
+        ...prev,
+        vehicles: localVehicles,
+      }));
+    } else {
+      console.log(`⚠️ localVehicles está vacío, no actualizando systemData.vehicles`);
+    }
+  }, [localVehicles]);
 
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {
@@ -204,10 +286,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
     if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
       steps = 8;
     }
-    // Para salidas: nuevo flujo optimizado (1,2,3,4,5,6,7) = 7 pasos
-    // 1=tipo, 2=fecha, 3=producto, 4=vehículo, 5=cantidad, 6=precio, 7=resumen
+    // Para salidas: nuevo flujo con ubicación y preview (1,2,3,4,4b,5,6,7,8) = 9 pasos
+    // 1=tipo, 2=fecha, 3=producto, 4=ubicación, 4b=preview inventario, 5=vehículo, 6=cantidad, 7=precio, 8=resumen
     else if (formData.type === MOVEMENT_TYPES.SALIDA) {
-      steps = 7;
+      steps = 9;
     }
     // Para entradas: proveedor + destino + detalles (1,2,3,3b,4,7,8) = 7 pasos
     else if (formData.type === MOVEMENT_TYPES.ENTRADA) {
@@ -280,7 +362,22 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       }
       case 4: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          // vehículo obligatorio; si requiere horómetro, validar horas requeridas y no negativas
+          // Paso 4: Ubicación de origen - validar que se haya seleccionado
+          result = runValidation(formData, { location: [validators.required] });
+        } else {
+          // cantidad positiva
+          result = runValidation(formData, pick(['quantity']));
+        }
+        break;
+      }
+      case '4b': {
+        // Paso 4b: Preview de inventario - siempre válido (solo informativo)
+        result = { isValid: true, errors: {} };
+        break;
+      }
+      case 5: {
+        if (formData.type === MOVEMENT_TYPES.SALIDA) {
+          // Paso 5: Vehículo - validar vehículo y horómetro si requiere
           const base = runValidation(formData, { vehicleId: [validators.required] });
           if (!base.isValid) {
             result = base;
@@ -304,15 +401,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
             result = { isValid: true, errors: {} };
           }
         } else {
-          // cantidad positiva
-          result = runValidation(formData, pick(['quantity']));
-        }
-        break;
-      }
-      case 5: {
-        if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          result = runValidation(formData, pick(['quantity']));
-        } else {
           // otros tipos: sin validación en este paso
           result = { isValid: true, errors: {} };
         }
@@ -320,7 +408,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       }
       case 6: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          result = runValidation(formData, pick(['unitPrice']));
+          // Paso 6: Cantidad
+          result = runValidation(formData, pick(['quantity']));
         } else if (formData.type === MOVEMENT_TYPES.TRANSFERENCIA) {
           result = runValidation(formData, { destinationLocation: [validators.required] });
         } else {
@@ -330,8 +419,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       }
       case 7: {
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          // Resumen
-          result = { isValid: true, errors: {} };
+          // Paso 7: Precio
+          result = runValidation(formData, pick(['unitPrice']));
         } else {
           result = runValidation(formData, pick(['unitPrice']));
         }
@@ -368,10 +457,15 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       // Determinar el siguiente paso basado en tipo de movimiento
       let nextStepNumber = currentStep + 1;
 
-      // ✅ NUEVA LÓGICA PARA SALIDAS: flujo directo sin saltos
+      // ✅ NUEVA LÓGICA PARA SALIDAS: flujo con preview de inventario
       if (formData.type === MOVEMENT_TYPES.SALIDA) {
-        // Flujo directo: 1→2→3→4→5→6→7
-        nextStepNumber = currentStep + 1;
+        if (currentStep === 4) {
+          nextStepNumber = '4b'; // Del paso 4 (ubicación) al paso 4b (preview inventario)
+        } else if (currentStep === '4b') {
+          nextStepNumber = 5; // Del paso 4b (preview) al paso 5 (vehículo)
+        } else {
+          nextStepNumber = currentStep + 1; // Flujo normal para otros pasos
+        }
       }
       // ✅ NUEVA LÓGICA PARA MANTENIMIENTO: flujo con paso específico
       else if (formData.type === MOVEMENT_TYPES.MANTENIMIENTO) {
@@ -411,9 +505,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
       // Mapear pasos lógicos a números para navegación
       const getLogicalStepNumber = (step) => {
-        // ✅ Mapeo específico para SALIDAS: 1→2→3→4→5→6→7 (7 pasos lineales)
+        // ✅ Mapeo específico para SALIDAS: 1→2→3→4→4b→5→6→7→8 (9 pasos)
         if (formData.type === MOVEMENT_TYPES.SALIDA) {
-          return step; // Sin mapeo especial, flujo directo
+          const exitMapping = { 1: 1, 2: 2, 3: 3, 4: 4, '4b': 5, 5: 6, 6: 7, 7: 8, 8: 9 };
+          return exitMapping[step] || step;
         }
 
         // Mapeo específico para entradas: 1→2→3→3b→4→7→8 (7 pasos)
@@ -444,13 +539,18 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const prevStep = () => {
     setIsTransitioning(true);
 
-    if (currentStep > 1 && currentStep !== '3b') {
+    if (currentStep > 1 && currentStep !== '3b' && currentStep !== '4b') {
       let prevStepNumber = currentStep - 1;
 
-      // ✅ NUEVA LÓGICA PARA SALIDAS: navegación lineal hacia atrás
+      // ✅ NUEVA LÓGICA PARA SALIDAS: navegación con preview hacia atrás
       if (formData.type === MOVEMENT_TYPES.SALIDA) {
-        // Flujo directo hacia atrás: 7→6→5→4→3→2→1
-        prevStepNumber = currentStep - 1;
+        if (currentStep === 5) {
+          prevStepNumber = '4b'; // Del paso 5 (vehículo) al paso 4b (preview inventario)
+        } else if (currentStep === '4b') {
+          prevStepNumber = 4; // Del paso 4b (preview) al paso 4 (ubicación)
+        } else {
+          prevStepNumber = currentStep - 1; // Flujo normal para otros pasos
+        }
       }
       // ✅ NUEVA LÓGICA PARA MANTENIMIENTO: navegación hacia atrás
       else if (formData.type === MOVEMENT_TYPES.MANTENIMIENTO) {
@@ -482,6 +582,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       setCurrentStep(prevStepNumber);
     } else if (currentStep === '3b') {
       setCurrentStep(3); // Del paso 3b al paso 3
+    } else if (currentStep === '4b') {
+      setCurrentStep(4); // Del paso 4b al paso 4
     }
 
     setTimeout(() => setIsTransitioning(false), 300);
@@ -489,15 +591,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
   // Enviar formulario final
   const handleSubmit = async () => {
-    // No necesita argumentos
-    setIsLoading(true);
+    console.log('🎯 MovementWizard handleSubmit INICIADO');
+    console.log('🎯 executeWithProgress function:', executeWithProgress);
     setError('');
 
     try {
       // Validación final: tipo, producto, cantidad, precio, fecha
       const baseValidation = runValidation(formData, validationSchemas.movement);
       if (!baseValidation.isValid) {
-        setIsLoading(false);
         setError('Revisa los campos requeridos: tipo, combustible, cantidad, precio y fecha.');
         return;
       }
@@ -507,7 +608,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       if (formData.type === MOVEMENT_TYPES.SALIDA) {
         const v1 = runValidation(formData, { vehicleId: [validators.required] });
         if (!v1.isValid) {
-          setIsLoading(false);
           setError('Selecciona un vehículo válido.');
           return;
         }
@@ -525,16 +625,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
             currentHours: [validators.required, validators.nonNegative],
           });
           if (!v2.isValid) {
-            setIsLoading(false);
             setError('Ingresa las horas actuales del horómetro.');
             return;
           }
         }
       }
 
-      // Usar directamente el estado 'formData' que ya tiene los comentarios
+      // Preparar datos del movimiento
       const dataToSubmit = { ...formData };
-
       const movementData = {
         ...dataToSubmit,
         quantity: parseFloat(dataToSubmit.quantity),
@@ -542,18 +640,51 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         effectiveDate: new Date(dataToSubmit.effectiveDate),
       };
 
-      console.log('🔍 [SUBMIT] MovementData enviado a createMovement:', movementData);
-      await createMovement(movementData);
+      // Generar descripción detallada para el progreso
+      const progressDescription = `Creando movimiento de ${formData.type}: ${formData.quantity} gal de ${formData.fuelType}`;
 
-      // Notificar éxito y resetear para el próximo uso
-      onSuccess();
-      resetWizard();
+      console.log('🎯 ANTES de executeWithProgress:', { progressDescription, movementData });
+      console.log('🎯 executeWithProgress disponible:', typeof executeWithProgress);
+
+      // Ejecutar con progreso transparente
+      await executeWithProgress(
+        'createMovement',
+        progressDescription,
+        () => createMovement(movementData),
+        {
+          movementType: formData.type,
+          fuelType: formData.fuelType,
+          quantity: formData.quantity,
+          vehicleId: formData.vehicleId || null,
+        }
+      );
+
+      console.log('🎯 DESPUÉS de executeWithProgress - ÉXITO');
+      console.log('🔍 [SUBMIT] MovementData enviado a createMovement:', movementData);
+
+      // NO cerrar modal automáticamente - mostrar estado de éxito
+      setMovementCreated(true);
+
+      // Notificar éxito pero NO llamar onSuccess() (que cierra el modal)
+      // onSuccess(); // Comentado para evitar que se cierre
     } catch (error) {
+      console.log('🎯 DESPUÉS de executeWithProgress - ERROR');
       console.error('Error al crear movimiento:', error);
       setError(error.message || `${UI_MESSAGES.ERROR.GENERAL} al crear el movimiento`);
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  // Función para crear nuevo movimiento (resetear wizard sin cerrar modal)
+  const handleNewMovement = () => {
+    console.log('🎯 Iniciando nuevo movimiento');
+    resetWizard();
+  };
+
+  // Función para cerrar modal completamente
+  const handleCloseModal = () => {
+    console.log('🎯 Cerrando modal completamente');
+    onSuccess(); // Llamar onSuccess para cerrar el modal
+    resetWizard();
   };
 
   // Renderizar paso actual
@@ -567,17 +698,29 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       isActive: !isTransitioning,
     };
 
+    // Debug crítico: Solo log cuando Step5 (vehículos) no tiene datos
+    if (formData.type === MOVEMENT_TYPES.SALIDA && currentStep === 5) {
+      const vehiclesCount = systemData.vehicles?.length || 0;
+      if (vehiclesCount === 0) {
+        console.log(
+          `❌ PROBLEMA: Step5 renderizando SIN vehículos - systemData.vehicles: ${vehiclesCount}, localVehicles: ${localVehicles?.length || 0}`
+        );
+      }
+    }
+
     // ✅ NUEVA LÓGICA DE RENDERIZADO PARA SALIDAS
     if (formData.type === MOVEMENT_TYPES.SALIDA) {
       const exitStepComponents = {
         1: <Step1_MovementType {...commonProps} />,
         2: <Step2_Date {...commonProps} />, // PASO 2: Fecha
         3: <Step2_FuelType {...commonProps} />, // PASO 3: Producto (reutiliza Step2_FuelType)
-        4: <Step5_Vehicle {...commonProps} />, // PASO 4: Vehículo (reutiliza Step5_Vehicle)
-        5: <Step4_Quantity {...commonProps} />, // PASO 5: Cantidad (reutiliza Step4_Quantity)
-        6: <Step7_Details {...commonProps} />, // PASO 6: Precio (reutiliza Step7_Details)
-        7: (
-          <Step8_Summary // PASO 7: Resumen
+        4: <Step3_Location {...commonProps} />, // PASO 4: Ubicación de origen
+        '4b': <Step3b_InventoryPreview {...commonProps} />, // PASO 4B: Preview del inventario
+        5: <Step5_Vehicle {...commonProps} />, // PASO 5: Vehículo (reutiliza Step5_Vehicle)
+        6: <Step4_Quantity {...commonProps} />, // PASO 6: Cantidad (reutiliza Step4_Quantity)
+        7: <Step7_Details {...commonProps} />, // PASO 7: Precio (reutiliza Step7_Details)
+        8: (
+          <Step8_Summary // PASO 8: Resumen
             {...commonProps}
             onSubmit={handleSubmit}
             isLoading={isLoading}
@@ -643,9 +786,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const totalSteps = getTotalSteps();
   // Mapear pasos para la barra de progreso
   const getLogicalStepNumber = (step) => {
-    // ✅ Mapeo específico para SALIDAS: 1→2→3→4→5→6→7 (7 pasos lineales)
+    // ✅ Mapeo específico para SALIDAS: 1→2→3→4→4b→5→6→7→8 (9 pasos)
     if (formData.type === MOVEMENT_TYPES.SALIDA) {
-      return step; // Sin mapeo especial, flujo directo
+      const exitMapping = { 1: 1, 2: 2, 3: 3, 4: 4, '4b': 5, 5: 6, 6: 7, 7: 8, 8: 9 };
+      return exitMapping[step] || step;
     }
 
     // Mapeo específico para entradas: 1→2→3→3b→4→7→8 (7 pasos)
@@ -689,7 +833,54 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
         {/* Contenido del paso */}
         <div className="wizard-body typeform-mode sap-theme">
-          {systemData.loadingData ? (
+          {movementCreated ? (
+            /* Pantalla de éxito - movimiento creado */
+            <div className="wizard-success sap-theme">
+              <div className="success-animation">
+                <div className="success-icon">✅</div>
+                <h2>¡Movimiento Creado Exitosamente!</h2>
+                <div className="success-details">
+                  <p>
+                    <strong>Tipo:</strong> {formData.type}
+                  </p>
+                  <p>
+                    <strong>Combustible:</strong> {formData.fuelType}
+                  </p>
+                  <p>
+                    <strong>Cantidad:</strong> {formData.quantity} galones
+                  </p>
+                  <p>
+                    <strong>Precio:</strong> ${formData.unitPrice} por galón
+                  </p>
+                  {formData.vehicleId && (
+                    <p>
+                      <strong>Vehículo:</strong> {formData.vehicleId}
+                    </p>
+                  )}
+                  {formData.location && (
+                    <p>
+                      <strong>Ubicación:</strong> {formData.location}
+                    </p>
+                  )}
+                </div>
+                <div className="success-actions">
+                  <button className="btn-new-movement sap-theme" onClick={handleNewMovement}>
+                    🔄 Nuevo Movimiento
+                  </button>
+                  <button className="btn-close-modal sap-theme" onClick={handleCloseModal}>
+                    ❌ Cerrar
+                  </button>
+                </div>
+                <div className="success-tip">
+                  <p>
+                    <small>
+                      💡 El modal se mantiene abierto para que puedas ver los logs en la consola
+                    </small>
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : systemData.loadingData ? (
             <div className="wizard-loading sap-theme">
               <div className="loading-spinner sap-theme"></div>
               <p>🔄 Cargando datos del sistema...</p>
@@ -707,50 +898,56 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           </div>
         )}
 
-        {/* Navegación flotante estilo Typeform */}
-        <div className={`typeform-navigation sap-theme ${isLastStep ? 'centered-final-step' : ''}`}>
-          {(currentStep > 1 || currentStep === '3b') && (
-            <button
-              className="typeform-nav-btn sap-theme"
-              onClick={prevStep}
-              disabled={isTransitioning}
-              aria-label="Paso anterior"
-            >
-              ←
-            </button>
-          )}
+        {/* Navegación flotante estilo Typeform - ocultar si movimiento creado */}
+        {!movementCreated && (
+          <div
+            className={`typeform-navigation sap-theme ${isLastStep ? 'centered-final-step' : ''}`}
+          >
+            {(currentStep > 1 || currentStep === '3b') && (
+              <button
+                className="typeform-nav-btn sap-theme"
+                onClick={prevStep}
+                disabled={isTransitioning}
+                aria-label="Paso anterior"
+              >
+                ←
+              </button>
+            )}
 
-          {!isLastStep ? (
-            <button
-              className="typeform-nav-btn sap-theme"
-              onClick={nextStep}
-              disabled={!isCurrentStepValid || isTransitioning}
-              aria-label="Siguiente paso"
-            >
-              →
-            </button>
-          ) : (
-            <button
-              className="typeform-nav-btn sap-theme confirm-button"
-              onClick={handleSubmit}
-              disabled={isLoading || !confirmChecked || isTransitioning}
-              aria-label="Confirmar movimiento"
-            >
-              <span className="confirm-icon">
-                {isLoading ? <span className="loading-spinner small sap-theme"></span> : '✓'}
-              </span>
-              <span className="confirm-text">
-                {isLoading ? 'Guardando...' : 'Confirmar movimiento'}
-              </span>
-            </button>
-          )}
-        </div>
+            {!isLastStep ? (
+              <button
+                className="typeform-nav-btn sap-theme"
+                onClick={nextStep}
+                disabled={!isCurrentStepValid || isTransitioning}
+                aria-label="Siguiente paso"
+              >
+                →
+              </button>
+            ) : (
+              <button
+                className="typeform-nav-btn sap-theme confirm-button"
+                onClick={handleSubmit}
+                disabled={isLoading || !confirmChecked || isTransitioning}
+                aria-label="Confirmar movimiento"
+              >
+                <span className="confirm-icon">
+                  {isLoading ? <span className="loading-spinner small sap-theme"></span> : '✓'}
+                </span>
+                <span className="confirm-text">
+                  {isLoading ? 'Guardando...' : 'Confirmar movimiento'}
+                </span>
+              </button>
+            )}
+          </div>
+        )}
 
-        {/* Indicador de paso actual */}
-        <div className="typeform-step-indicator sap-theme">
-          <div className="step-number sap-theme">{currentLogicalStep}</div>
-          <span>de {totalSteps}</span>
-        </div>
+        {/* Indicador de paso actual - ocultar si movimiento creado */}
+        {!movementCreated && (
+          <div className="typeform-step-indicator sap-theme">
+            <div className="step-number sap-theme">{currentLogicalStep}</div>
+            <span>de {totalSteps}</span>
+          </div>
+        )}
       </div>
     </div>
   );

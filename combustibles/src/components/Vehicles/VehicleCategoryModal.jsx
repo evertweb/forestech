@@ -276,7 +276,7 @@ const VehicleCategoryModal = ({ isOpen, onClose, category = null, onSuccess }) =
                     <span className="fuel-icon">
                       {fuelType === 'DIESEL' && '🛢️'}
                       {fuelType === 'GASOLINE' && '⛽'}
-                      {fuelType === 'MIXTO' && '🔄'}
+                      {fuelType === 'MIXED' && '🔄'}
                     </span>
                     <span className="fuel-name">{fuelType}</span>
                   </div>
