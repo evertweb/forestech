@@ -238,7 +238,7 @@ const DashboardLayout = React.memo(({ children }) => {
     };
 
     prefetchCommonRoutes();
-  }, [handlePrefetch, hasPermission, navigationItems]);
+  }, []); // Solo ejecutar una vez al montar el componente
 
   // Filtra los ítems de navegación para mostrar solo aquellos para los que el usuario tiene permiso.
   const visibleItems = useMemo(

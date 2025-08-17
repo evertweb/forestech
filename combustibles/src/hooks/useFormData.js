@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { validateForm as runValidation } from '../utils/validators';
 
 /**
@@ -12,7 +12,9 @@ import { validateForm as runValidation } from '../utils/validators';
 // Soporta validación por función (validate) o por schema centralizado (options.validationSchema)
 // y validadores cruzados (options.crossValidators)
 export const useFormData = (initialValues = {}, validate, options = {}) => {
-  const [values, setValues] = useState(initialValues);
+  // Usar useMemo para estabilizar initialValues y evitar bucles infinitos
+  const stableInitialValues = useMemo(() => initialValues, [JSON.stringify(initialValues)]);
+  const [values, setValues] = useState(stableInitialValues);
   const [errors, setErrors] = useState({});
 
   // Maneja cambios de input para cualquier campo
@@ -71,14 +73,14 @@ export const useFormData = (initialValues = {}, validate, options = {}) => {
       // 3) Sin validación configurada
       return true;
     },
-    [validate, options, values]
+    [validate, options] // Eliminado 'values' para evitar bucle infinito
   );
 
   // Resetear formulario
   const resetForm = useCallback(() => {
-    setValues(initialValues);
+    setValues(stableInitialValues);
     setErrors({});
-  }, [initialValues]);
+  }, [stableInitialValues]);
 
   return {
     values,

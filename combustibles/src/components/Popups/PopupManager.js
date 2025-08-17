@@ -207,3 +207,13 @@ export const openVehicleWizardPopup = (initialData, onMessage) => {
   const res = manager.open(initialData, onMessage);
   return { ...res, manager };
 };
+
+export const openProductWizardPopup = (initialData, onMessage) => {
+  const manager = new PopupManager('/combustibles/product-wizard-popup', {
+    ...DEFAULT_FEATURES,
+    width: 900,
+    height: 700,
+  });
+  const res = manager.open(initialData, onMessage);
+  return { ...res, manager };
+};

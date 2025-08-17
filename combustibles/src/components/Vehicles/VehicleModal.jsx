@@ -104,9 +104,10 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
   // Reinicializar formulario cuando cambie el vehículo
   useEffect(() => {
     if (isOpen) {
-      resetForm();
+      setFormData(getInitialFormData());
+      setErrors({});
     }
-  }, [isOpen, vehicle, getInitialFormData, resetForm]);
+  }, [isOpen, vehicle, getInitialFormData, setFormData, setErrors]);
 
   // Manejar envío del formulario
   const handleSubmit = async (e) => {

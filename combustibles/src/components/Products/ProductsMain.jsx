@@ -11,16 +11,22 @@ import {
   deleteProduct,
 } from '../../services/productsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
-import { PRODUCT_INFO, PRODUCT_CATEGORIES } from '../../constants/productTypes';
+import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { PRODUCT_INFO, PRODUCT_CATEGORIES, getAllProducts } from '../../constants/productTypes';
+import { openProductWizardPopup } from '../Popups/PopupManager';
+import { POPUP_EVENTS } from '../../services/popupCommunication';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
 import ProductCategoriesManager from './ProductCategoriesManager';
 import { PageLayout } from '../shared';
 import './ProductsMain-SAP.css';
 
-const ProductsMain = ({ userProfile }) => {
+const ProductsMain = () => {
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
+
+  // Obtener información del usuario desde el contexto
+  const { userProfile } = useCombustibles();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +39,18 @@ const ProductsMain = ({ userProfile }) => {
   const [showStats, setShowStats] = useState(true);
   const [showCategoriesManager, setShowCategoriesManager] = useState(false);
 
-  // Permisos de usuario
-  const canManageProducts = ['admin', 'supervisor'].includes(userProfile?.role);
+  // Permisos de usuario - permitir más roles para gestionar productos
+  const canManageProducts = ['admin', 'supervisor', 'manager', 'operator'].includes(
+    userProfile?.role
+  );
+
+  // Debug: Mostrar información del usuario y permisos en consola
+  console.log('🔍 ProductsMain Debug:', {
+    userProfile,
+    userRole: userProfile?.role,
+    canManageProducts,
+    allRoles: ['admin', 'supervisor', 'manager', 'operator'],
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -108,9 +124,37 @@ const ProductsMain = ({ userProfile }) => {
   }, [products.length, loading, canManageProducts]);
 
   const handleCreateProduct = () => {
-    setSelectedProduct(null);
-    setModalMode('create');
-    setIsModalOpen(true);
+    // Datos iniciales para el popup
+    const initialData = {
+      theme: 'sap-fiori',
+      user: userProfile,
+      inventory: [], // No necesario para productos
+      vehicles: [], // No necesario para productos
+      suppliers: [], // No necesario para productos
+    };
+
+    // Abrir popup de wizard para crear producto
+    const result = openProductWizardPopup(initialData, ({ type, payload }) => {
+      switch (type) {
+        case POPUP_EVENTS.WIZARD_SUCCESS:
+          console.log('✅ Producto creado exitosamente:', payload);
+          // El producto se agregará automáticamente por la suscripción a Firestore
+          break;
+        case POPUP_EVENTS.WIZARD_CANCEL:
+        case POPUP_EVENTS.WIZARD_CLOSED:
+          console.log('❌ Creación de producto cancelada');
+          break;
+        case POPUP_EVENTS.WIZARD_ERROR:
+          console.error('💥 Error en wizard de producto:', payload);
+          break;
+        default:
+          break;
+      }
+    });
+
+    if (!result.success) {
+      alert(result.error || 'No se pudo abrir el popup. Verifica que no esté bloqueado.');
+    }
   };
 
   const handleEditProduct = (product) => {

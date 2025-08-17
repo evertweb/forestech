@@ -7,6 +7,7 @@ import './App.css';
 // Rutas de los popups cargadas de forma perezosa
 const MovementWizardPopup = lazy(() => import('./components/Popups/MovementWizardPopup'));
 const VehicleWizardPopup = lazy(() => import('./components/Popups/VehicleWizardPopup'));
+const ProductWizardPopup = lazy(() => import('./components/Popups/ProductWizardPopup'));
 
 // Lazy load CRÍTICO - dividir componentes pesados para LCP
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
@@ -70,6 +71,7 @@ function AppContent() {
             {/* Rutas dedicadas para los popups de wizards */}
             <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
             <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+            <Route path="/product-wizard-popup" element={<ProductWizardPopup />} />
             <Route path="/" element={<Dashboard />}>
               <Route index element={<DashboardMain />} />
               <Route path="inventario" element={<InventoryMain />} />
