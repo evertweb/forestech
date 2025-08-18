@@ -83,6 +83,7 @@ export const useFormData = (initialValues = {}, validate, options = {}) => {
       // 3) Sin validación configurada
       return true;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [validate, options] // Removemos 'values' para evitar bucles infinitos
   );
 

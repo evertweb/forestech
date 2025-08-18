@@ -238,6 +238,7 @@ const DashboardLayout = React.memo(({ children }) => {
     };
 
     prefetchCommonRoutes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo ejecutar una vez al montar el componente
 
   // Filtra los ítems de navegación para mostrar solo aquellos para los que el usuario tiene permiso.

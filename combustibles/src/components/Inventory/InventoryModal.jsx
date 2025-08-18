@@ -1,6 +1,6 @@
 /**
  * InventoryModal - Modal para crear y editar items de inventario
- * Refactorizado para usar BaseModal
+ * Refactorizado para usar BaseModal y tipos de combustibles dinámicos
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import BaseModal from '../shared/BaseModal';
@@ -9,7 +9,7 @@ import ModalFooter from '../shared/ModalFooter';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
-import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
+import useFuelTypes from '../../hooks/useFuelTypes';
 import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import useFormData from '../../hooks/useFormData';
 import { validationSchemas, crossFieldValidators } from '../../utils/validators';
@@ -19,6 +19,9 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const isEditing = !!item;
   const { userProfile } = useCombustibles();
+
+  // Hook para tipos de combustibles dinámicos
+  const { fuelTypes, loading: fuelTypesLoading, error: fuelTypesError } = useFuelTypes();
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
@@ -130,7 +133,9 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
     }
   };
 
-  const selectedFuelInfo = FUEL_INFO[formData.fuelType];
+  // Obtener información del combustible seleccionado usando el hook dinámico
+  const { getFuelInfo } = useFuelTypes();
+  const selectedFuelInfo = getFuelInfo(formData.fuelType);
 
   const getModalTitle = () => {
     return isEditing ? `${UI_ACTIONS.EDIT} Combustible` : `${UI_ACTIONS.ADD} Nuevo Combustible`;
@@ -167,14 +172,21 @@ const InventoryModal = ({ item, onClose, onSuccess }) => {
                 required
               >
                 <option value="">Seleccionar tipo...</option>
-                {Object.entries(FUEL_TYPES).map(([key, value]) => {
-                  const info = FUEL_INFO[value];
-                  return (
-                    <option key={key} value={value}>
-                      {info.icon} {info.name} ({info.unit})
+                {fuelTypesLoading ? (
+                  <option value="" disabled>
+                    Cargando tipos de combustibles...
+                  </option>
+                ) : fuelTypesError ? (
+                  <option value="" disabled>
+                    Error cargando tipos
+                  </option>
+                ) : (
+                  fuelTypes.map((fuelType) => (
+                    <option key={fuelType.id} value={fuelType.value}>
+                      {fuelType.icon} {fuelType.label} ({fuelType.unit})
                     </option>
-                  );
-                })}
+                  ))
+                )}
               </select>
               {errors.fuelType && <span className="error-text sap-theme">{errors.fuelType}</span>}
             </div>

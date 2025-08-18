@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import InventoryModal from '../InventoryModal';
 import { withProviders } from '../../../test/TestProviders.jsx';
+import { mockUseFuelTypes } from '../../../test/mockData.js';
 
 // Mock services to avoid Firebase calls
 vi.mock('../../../services/inventoryService', () => ({
@@ -13,6 +14,11 @@ vi.mock('../../../services/inventoryService', () => ({
     cb([]);
     return () => {};
   },
+}));
+
+// Mock useFuelTypes hook
+vi.mock('../../../hooks/useFuelTypes', () => ({
+  default: vi.fn(() => mockUseFuelTypes),
 }));
 
 vi.mock('../../../contexts/CombustiblesContext', async () => {
@@ -40,10 +46,10 @@ describe('InventoryModal (integration)', () => {
     // Debe mostrar errores de validación
     expect(await screen.findAllByText(/requerido|inválido/i)).toBeTruthy();
 
-    // Completar campos mínimos
+    // Completar campos mínimos - seleccionar la primera opción específica
     await userEvent.selectOptions(
       fuelType,
-      screen.getByRole('option', { name: /gasolina|diesel/i })
+      screen.getByRole('option', { name: /ACPM \(Diesel\)/i })
     );
     await userEvent.type(location, 'Tanque Principal');
     await userEvent.clear(maxCapacity);

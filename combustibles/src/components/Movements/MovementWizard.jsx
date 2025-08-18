@@ -257,6 +257,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         clearTimeout(fallbackTimer);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, inventory, vehicles, subscribeToSuppliers]); // ✅ FIXED: removido 'localVehicles' para evitar bucle infinito
 
   // NOTA: systemData.suppliers se actualiza directamente en los callbacks de suscripción

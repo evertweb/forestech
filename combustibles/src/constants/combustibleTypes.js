@@ -1,21 +1,63 @@
 /**
  * Tipos de combustibles y constantes para la gestión de inventario forestal
- * Incluye información detallada para cada tipo de combustible usado en operaciones forestales en Colombia.
+ * IMPORTANTE: Los tipos de combustibles ahora se obtienen dinámicamente de Firebase
+ * usando el hook useFuelTypes(). Estas constantes son solo fallbacks para tests
+ * y compatibilidad cuando no hay conexión a Firebase.
  */
 
 // -------------------------------------------------------------------
-// Tipos principales de combustibles - estructura vacía para personalización
+// FALLBACK: Tipos principales de combustibles - solo para tests y emergencias
 // -------------------------------------------------------------------
-export const FUEL_TYPES = {
-  // Los tipos se definirán cuando se agreguen combustibles desde la interfaz
+export const FUEL_TYPES_FALLBACK = {
+  ACPM: 'ACPM',
+  GASOLINA_CORRIENTE: 'GASOLINA_CORRIENTE',
+  GASOLINA_EXTRA: 'GASOLINA_EXTRA',
+  JET_A1: 'JET_A1',
 };
 
+// Para compatibilidad temporal (DEPRECATED - usar useFuelTypes() hook)
+export const FUEL_TYPES = FUEL_TYPES_FALLBACK;
+
 // -------------------------------------------------------------------
-// Información detallada por tipo de combustible - estructura vacía
+// FALLBACK: Información detallada por tipo de combustible - solo para tests
 // -------------------------------------------------------------------
-export const FUEL_INFO = {
-  // La información se llenará cuando se agreguen combustibles desde la interfaz
+export const FUEL_INFO_FALLBACK = {
+  ACPM: {
+    name: 'ACPM (Diesel)',
+    icon: '⛽',
+    unit: 'gal',
+    density: 0.84,
+    description: 'Aceite Combustible Para Motor - Diesel',
+    color: '#2563EB',
+  },
+  GASOLINA_CORRIENTE: {
+    name: 'Gasolina Corriente',
+    icon: '⛽',
+    unit: 'gal',
+    density: 0.75,
+    description: 'Gasolina Corriente - Octanaje 87',
+    color: '#DC2626',
+  },
+  GASOLINA_EXTRA: {
+    name: 'Gasolina Extra',
+    icon: '⛽',
+    unit: 'gal',
+    density: 0.75,
+    description: 'Gasolina Extra - Octanaje 95',
+    color: '#7C3AED',
+  },
+  JET_A1: {
+    name: 'Jet A-1',
+    icon: '✈️',
+    unit: 'gal',
+    density: 0.8,
+    description: 'Combustible para aeronaves',
+    color: '#059669',
+  },
 };
+
+// Para compatibilidad temporal (DEPRECATED - usar useFuelTypes() hook)
+export const FUEL_INFO = FUEL_INFO_FALLBACK;
 
 // Niveles de alerta de stock
 export const STOCK_LEVELS = {
