@@ -20,7 +20,9 @@ import {
 } from '../../constants';
 
 import { useFormData } from '../../hooks/useFormData';
+import { useAutomaticPricing } from '../../hooks/useAutomaticPricing';
 import { validators, validateForm as runValidation } from '../../utils/validators';
+import './ProductPricing.css';
 const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userRole }) => {
   const initialValues = {
     name: '',
@@ -37,6 +39,19 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
     maxCapacity: 1000,
   };
   const [loading] = useState(false);
+
+  // Hook para precios automáticos
+  const {
+    automaticPricing,
+    priceLoading,
+    priceError,
+    lastPriceUpdate,
+    syncPrice,
+    canUseAutomatic,
+    getFuelType,
+    toggleAutomaticPricing,
+    clearPriceError,
+  } = useAutomaticPricing(product);
 
   // Validación centralizada: requeridos básicos y reglas numéricas comunes
   const validationSchema = {
@@ -62,7 +77,7 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
     validateForm,
   } = useFormData(initialValues, validate);
   // Colores predefinidos usando design tokens
-  const colorOptions = PRODUCT_COLORS.DEFAULT_PALETTE;
+  const colorOptions = PRODUCT_COLORS;
 
   // Opciones de unidades
   const unitOptions = [
@@ -104,6 +119,17 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
       resetForm();
     }
   }, [product, mode, setFormData, resetForm]);
+
+  // Función para sincronizar precio automáticamente
+  const handleSyncPrice = async () => {
+    const result = await syncPrice(formData);
+    if (result.success) {
+      setFormData((prev) => ({
+        ...prev,
+        defaultPrice: result.price,
+      }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -228,19 +254,92 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
               {errors.unit && <span className="error sap-theme">{errors.unit}</span>}
             </div>
 
+            {/* Control de precios automáticos */}
+            {canUseAutomatic(formData) && (
+              <div className="automatic-pricing-section sap-theme">
+                <div className="form-group pricing-toggle sap-theme">
+                  <label className="toggle-label sap-theme">
+                    <input
+                      type="checkbox"
+                      checked={automaticPricing}
+                      onChange={(e) => toggleAutomaticPricing(e.target.checked)}
+                      className="toggle-input sap-theme"
+                      disabled={!canEdit}
+                    />
+                    <span className="toggle-switch sap-theme"></span>
+                    <span className="toggle-text sap-theme">
+                      🔄 Sincronización automática de precios
+                    </span>
+                  </label>
+                  <small className="pricing-help sap-theme">
+                    Actualiza automáticamente desde la API del gobierno colombiano
+                  </small>
+                </div>
+
+                {automaticPricing && (
+                  <div className="automatic-pricing-info sap-theme">
+                    <div className="pricing-status sap-theme">
+                      <span className="status-icon sap-theme">🇨🇴</span>
+                      <span className="status-text sap-theme">
+                        Disponible para {getFuelType(formData)}
+                      </span>
+                      {lastPriceUpdate && (
+                        <span className="last-update sap-theme">
+                          Última actualización: {new Date(lastPriceUpdate).toLocaleString('es-CO')}
+                        </span>
+                      )}
+                    </div>
+                    {priceError && (
+                      <div className="pricing-error sap-theme">
+                        <span className="error-icon sap-theme">⚠️</span>
+                        <span className="error-text sap-theme">{priceError}</span>
+                        <button
+                          type="button"
+                          onClick={clearPriceError}
+                          className="btn-clear-error sap-theme"
+                          disabled={!canEdit}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.DEFAULT_PRICE}</label>
+              <div className="price-input-header sap-theme">
+                <label>{UI_FORM_LABELS.DEFAULT_PRICE}</label>
+                {automaticPricing && canUseAutomatic(formData) && canEdit && (
+                  <button
+                    type="button"
+                    className="btn-sync-price sap-theme"
+                    onClick={handleSyncPrice}
+                    disabled={priceLoading}
+                    title="Sincronizar precio ahora"
+                  >
+                    {priceLoading ? '🔄' : '🔄'} Sincronizar
+                  </button>
+                )}
+              </div>
               <input
                 type="number"
                 name="defaultPrice"
                 value={formData.defaultPrice}
                 onChange={handleInputChange}
-                disabled={!canEdit}
+                disabled={!canEdit || priceLoading}
                 min="0"
                 step="0.01"
               />
               {errors.defaultPrice && (
                 <span className="error sap-theme">{errors.defaultPrice}</span>
+              )}
+              {priceLoading && (
+                <div className="price-loading sap-theme">
+                  <span className="loading-icon sap-theme">⏳</span>
+                  <span className="loading-text sap-theme">Obteniendo precio actualizado...</span>
+                </div>
               )}
             </div>
 

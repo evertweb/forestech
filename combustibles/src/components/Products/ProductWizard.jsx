@@ -3,12 +3,17 @@
  * Diseño estilo SAP con validaciones y preview en tiempo real
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useFormData } from '../../hooks/useFormData';
 import { createProduct } from '../../services/productsService';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { PRODUCT_COLORS } from '../../constants/designTokens';
 import { postMessageSafe, POPUP_EVENTS } from '../../services/popupCommunication';
+import {
+  detectFuelType,
+  canUseAutomaticPricing,
+  getCurrentFuelPrice,
+} from '../../services/fuelPricesService';
 import {
   UI_ACTIONS,
   UI_FORM_LABELS,
@@ -18,11 +23,18 @@ import {
   UI_TITLES,
 } from '../../constants';
 import './ProductWizard.css';
+import './ProductPricing.css';
 
 const ProductWizard = () => {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
+
+  // Estados para precios automáticos
+  const [automaticPricing, setAutomaticPricing] = useState(true);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceError, setPriceError] = useState(null);
+  const [lastPriceUpdate, setLastPriceUpdate] = useState(null);
 
   // Valores iniciales del formulario
   const initialValues = {
@@ -82,6 +94,81 @@ const ProductWizard = () => {
     handleInputChange,
     validateForm,
   } = useFormData(initialValues, validate);
+
+  // Función para sincronizar precio manualmente
+  const handleSyncPrice = useCallback(async () => {
+    const fuelType = detectFuelType(formData.name, formData.category);
+    if (!fuelType) {
+      setPriceError('No se pudo detectar el tipo de combustible');
+      return;
+    }
+
+    setPriceLoading(true);
+    setPriceError(null);
+
+    try {
+      const priceData = await getCurrentFuelPrice(fuelType, 'LA PRIMAVERA');
+
+      if (priceData.success) {
+        setFormData((prev) => ({
+          ...prev,
+          defaultPrice: priceData.data.price,
+        }));
+        setLastPriceUpdate(new Date().toISOString());
+        setPriceError(null);
+      } else {
+        // Usar precio de respaldo
+        if (priceData.fallbackPrice) {
+          setFormData((prev) => ({
+            ...prev,
+            defaultPrice: priceData.fallbackPrice,
+          }));
+          setLastPriceUpdate(new Date().toISOString());
+          setPriceError(
+            `API no disponible. Usando precio estimado: $${priceData.fallbackPrice.toLocaleString('es-CO')}`
+          );
+        } else {
+          setPriceError(priceData.error || 'Error obteniendo precio');
+        }
+      }
+    } catch (error) {
+      console.error('Error sincronizando precio:', error);
+      setPriceError('Error de conexión. Verifique su internet.');
+    } finally {
+      setPriceLoading(false);
+    }
+  }, [formData.name, formData.category, setFormData]);
+
+  // Sincronización automática de precios cuando cambia el nombre o categoría
+  useEffect(() => {
+    const syncPriceAutomatically = async () => {
+      if (!automaticPricing) return;
+
+      const fuelType = detectFuelType(formData.name, formData.category);
+      if (!fuelType) return;
+
+      // Solo sincronizar si el precio actual es 0 o si ha pasado más de 1 hora desde la última actualización
+      const shouldSync =
+        formData.defaultPrice === 0 ||
+        !lastPriceUpdate ||
+        Date.now() - new Date(lastPriceUpdate).getTime() > 3600000; // 1 hora
+
+      if (shouldSync) {
+        await handleSyncPrice();
+      }
+    };
+
+    // Debounce para evitar múltiples llamadas
+    const timeoutId = setTimeout(syncPriceAutomatically, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [
+    formData.name,
+    formData.category,
+    formData.defaultPrice,
+    automaticPricing,
+    lastPriceUpdate,
+    handleSyncPrice,
+  ]);
 
   // Manejar cambio de paso
   const handleNextStep = () => {
@@ -241,8 +328,81 @@ const ProductWizard = () => {
           <div className="wizard-step sap-theme">
             <h3 className="step-title sap-theme">💰 Precios y Configuración</h3>
 
+            {/* Control de precios automáticos */}
+            <div className="automatic-pricing-section sap-theme">
+              <div className="form-group pricing-toggle sap-theme">
+                <label className="toggle-label sap-theme">
+                  <input
+                    type="checkbox"
+                    checked={automaticPricing}
+                    onChange={(e) => setAutomaticPricing(e.target.checked)}
+                    className="toggle-input sap-theme"
+                  />
+                  <span className="toggle-switch sap-theme"></span>
+                  <span className="toggle-text sap-theme">
+                    🔄 Sincronización automática de precios
+                  </span>
+                </label>
+                <small className="pricing-help sap-theme">
+                  Precios actualizados desde datos oficiales del gobierno (datos.gov.co optimizado)
+                </small>
+              </div>
+
+              {automaticPricing &&
+                canUseAutomaticPricing({ name: formData.name, category: formData.category }) && (
+                  <div className="automatic-pricing-info sap-theme">
+                    <div className="pricing-status sap-theme">
+                      <span className="status-icon sap-theme">🇨🇴</span>
+                      <span className="status-text sap-theme">
+                        Precio automático para {detectFuelType(formData.name, formData.category)}{' '}
+                        (La Primavera)
+                      </span>
+                      <small className="status-details sap-theme">
+                        Datos oficiales con ajuste por inflación 2025
+                      </small>
+                      {lastPriceUpdate && (
+                        <span className="last-update sap-theme">
+                          Última actualización: {new Date(lastPriceUpdate).toLocaleString('es-CO')}
+                        </span>
+                      )}
+                    </div>
+                    {priceError && (
+                      <div className="pricing-error sap-theme">
+                        <span className="error-icon sap-theme">⚠️</span>
+                        <span className="error-text sap-theme">{priceError}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              {automaticPricing &&
+                !canUseAutomaticPricing({ name: formData.name, category: formData.category }) && (
+                  <div className="automatic-pricing-unavailable sap-theme">
+                    <span className="unavailable-icon sap-theme">ℹ️</span>
+                    <span className="unavailable-text sap-theme">
+                      La sincronización automática no está disponible para este tipo de producto.
+                      Ingrese el precio manualmente.
+                    </span>
+                  </div>
+                )}
+            </div>
+
             <div className="form-group sap-theme">
-              <label className="sap-label">Precio por defecto (COP)</label>
+              <div className="price-input-header sap-theme">
+                <label className="sap-label">Precio por defecto (COP)</label>
+                {automaticPricing &&
+                  canUseAutomaticPricing({ name: formData.name, category: formData.category }) && (
+                    <button
+                      type="button"
+                      className="btn-sync-price sap-theme"
+                      onClick={handleSyncPrice}
+                      disabled={priceLoading}
+                      title="Sincronizar precio ahora"
+                    >
+                      {priceLoading ? '🔄' : '🔄'} Sincronizar
+                    </button>
+                  )}
+              </div>
               <input
                 type="number"
                 name="defaultPrice"
@@ -251,9 +411,16 @@ const ProductWizard = () => {
                 className={`sap-input ${errors.defaultPrice ? 'error' : ''}`}
                 min="0"
                 step="100"
+                disabled={priceLoading}
               />
               {errors.defaultPrice && (
                 <span className="error-text sap-theme">{errors.defaultPrice}</span>
+              )}
+              {priceLoading && (
+                <div className="price-loading sap-theme">
+                  <span className="loading-icon sap-theme">⏳</span>
+                  <span className="loading-text sap-theme">Obteniendo precio actualizado...</span>
+                </div>
               )}
             </div>
 

@@ -10,6 +10,7 @@ import {
 import { ROLES } from '../../constants/roles';
 import DataReset from './DataReset';
 import BackgroundImageManager from './BackgroundImageManager';
+import PriceServiceControl from '../Services/PriceServiceControl';
 import { PageLayout } from '../shared';
 import './Admin.css';
 
@@ -160,6 +161,12 @@ const AdminMain = () => {
         ⚙️ Configuración
       </button>
       <button
+        className={`tab-button ${activeTab === 'prices' ? 'active' : ''}`}
+        onClick={() => setActiveTab('prices')}
+      >
+        💰 Precios Automáticos
+      </button>
+      <button
         className={`tab-button ${activeTab === 'background' ? 'active' : ''}`}
         onClick={() => setActiveTab('background')}
       >
@@ -267,6 +274,12 @@ const AdminMain = () => {
               Próximamente: Configuraciones generales, notificaciones, y parámetros del sistema.
             </p>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'prices' && (
+        <div className="prices-section sap-theme">
+          <PriceServiceControl userRole={userProfile?.role} />
         </div>
       )}
 

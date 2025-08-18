@@ -67,6 +67,22 @@ export const COLORS = {
 };
 
 // ===================================================================
+// COLORES PARA PRODUCTOS
+// ===================================================================
+export const PRODUCT_COLORS = [
+  '#FF6B35', // Naranja
+  '#4CAF50', // Verde
+  '#2196F3', // Azul
+  '#FF9800', // Ámbar
+  '#F44336', // Rojo
+  '#9C27B0', // Púrpura
+  '#E91E63', // Rosa
+  '#795548', // Marrón
+  '#607D8B', // Azul gris
+  '#FFC107', // Amarillo
+];
+
+// ===================================================================
 // ESPACIADO Y DIMENSIONES
 // ===================================================================
 export const SPACING = {
@@ -399,35 +415,19 @@ export const CSS_VARIABLES = {
 };
 
 // ===================================================================
-// COLORES ESPECÍFICOS DE PRODUCTOS (migrando hardcodeados)
+// COLORES ESPECÍFICOS DE PRODUCTOS (consolidado)
 // ===================================================================
-export const PRODUCT_COLORS = {
-  // Colores predefinidos para productos
-  DEFAULT_PALETTE: [
-    '#FF6B35', // Naranja Forestech (actual)
-    '#4CAF50', // Verde
-    '#2196F3', // Azul
-    '#FF9800', // Naranja claro
-    '#F44336', // Rojo
-    '#9C27B0', // Púrpura
-    '#E91E63', // Rosa
-    '#795548', // Café
-    '#607D8B', // Azul gris
-    '#3F51B5', // Índigo
-  ],
-
+export const PRODUCT_CATEGORY_COLORS = {
   // Mapeo de categorías a colores sugeridos
-  CATEGORY_COLORS: {
-    COMBUSTIBLE: '#FF6B35', // Naranja Forestech
-    ACEITE: '#795548', // Café
-    LUBRICANTE: '#9C27B0', // Púrpura
-    FLUIDO: '#2196F3', // Azul
-  },
+  COMBUSTIBLE: '#FF6B35', // Naranja Forestech
+  ACEITE: '#795548', // Café
+  LUBRICANTE: '#9C27B0', // Púrpura
+  FLUIDO: '#2196F3', // Azul
+};
 
-  // Función para obtener color por categoría
-  getColorByCategory: (category) => {
-    return PRODUCT_COLORS.CATEGORY_COLORS[category] || PRODUCT_COLORS.DEFAULT_PALETTE[0];
-  },
+// Función para obtener color por categoría
+export const getColorByCategory = (category) => {
+  return PRODUCT_CATEGORY_COLORS[category] || PRODUCT_COLORS[0];
 };
 
 // ===================================================================
@@ -501,6 +501,8 @@ export const DESIGN_TOKENS = {
   THEME_TOKENS,
   CSS_VARIABLES,
   PRODUCT_COLORS,
+  PRODUCT_CATEGORY_COLORS,
+  getColorByCategory,
   CHART_COLORS,
   CATEGORY_COLORS,
   RESPONSIVE_UTILS,

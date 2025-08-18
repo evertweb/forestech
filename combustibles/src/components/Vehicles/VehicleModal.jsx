@@ -97,7 +97,6 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
     errors,
     setErrors,
     handleInputChange,
-    resetForm,
     validateForm,
   } = useFormData(getInitialFormData(), validate);
 

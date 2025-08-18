@@ -2,7 +2,7 @@
 // Wrapper que vive en la ruta dedicada y monta ProductWizard usando los providers globales
 
 import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { CombustiblesProvider, useCombustibles } from '../../contexts/CombustiblesContext';
+import { CombustiblesProvider } from '../../contexts/CombustiblesContext';
 import { subscribeToProducts } from '../../services/productsService';
 import {
   addMessageListener,
@@ -63,7 +63,7 @@ const PopupInner = () => {
       );
       return () => unsubscribe();
     }
-  }, [showWizard, subscribeToProducts]);
+  }, [showWizard]);
 
   if (!showWizard) {
     return (

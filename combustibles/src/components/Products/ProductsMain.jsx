@@ -12,7 +12,7 @@ import {
 } from '../../services/productsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { PRODUCT_INFO, PRODUCT_CATEGORIES, getAllProducts } from '../../constants/productTypes';
+import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { openProductWizardPopup } from '../Popups/PopupManager';
 import { POPUP_EVENTS } from '../../services/popupCommunication';
 import ProductModal from './ProductModal';
@@ -70,57 +70,14 @@ const ProductsMain = () => {
     return () => unsubscribe();
   }, []);
 
-  // Inicializar productos predefinidos si no existen
+  // Inicialización automática de productos DESHABILITADA
+  // La app comienza sin productos predefinidos - se crean desde la interfaz
   useEffect(() => {
-    const initializePredefinedProducts = async () => {
-      console.log('🔍 Debug - Inicializando productos:', {
-        productsLength: products.length,
-        loading,
-        canManageProducts,
-      });
-
-      if (products.length === 0 && !loading && canManageProducts) {
-        try {
-          console.log('🚀 Creando productos predefinidos...');
-          const predefinedProducts = getAllProducts();
-          console.log('📦 Productos predefinidos:', predefinedProducts);
-
-          for (const productInfo of predefinedProducts) {
-            console.log('➕ Creando producto:', productInfo.name);
-            await createProduct({
-              name: productInfo.name,
-              displayName: productInfo.displayName,
-              category: productInfo.category,
-              unit: productInfo.unit,
-              defaultPrice: productInfo.defaultPrice,
-              color: productInfo.color,
-              icon: productInfo.icon,
-              description: productInfo.description,
-              isActive: true,
-              currentStock: 0,
-              minThreshold: 10,
-              maxCapacity: 1000,
-            });
-          }
-          console.log('✅ Productos predefinidos creados exitosamente');
-        } catch (error) {
-          console.error('❌ Error inicializando productos:', error);
-        }
-      } else {
-        console.log('ℹ️ No se inicializan productos:', {
-          reason:
-            products.length > 0
-              ? 'Ya existen productos'
-              : loading
-                ? 'Está cargando'
-                : !canManageProducts
-                  ? 'Sin permisos'
-                  : 'Otra razón',
-        });
-      }
-    };
-
-    initializePredefinedProducts();
+    console.log('ℹ️ App iniciada sin productos predefinidos - estado limpio:', {
+      productsLength: products.length,
+      loading,
+      canManageProducts,
+    });
   }, [products.length, loading, canManageProducts]);
 
   const handleCreateProduct = () => {
@@ -245,38 +202,6 @@ const ProductsMain = () => {
         style={{ marginLeft: '10px' }}
       >
         🏷️ Gestionar Categorías
-      </button>
-      <button
-        className="btn-secondary sap-theme sap-button sap-button-secondary"
-        onClick={async () => {
-          try {
-            console.log('🧪 Forzando creación de productos predefinidos...');
-            const predefinedProducts = getAllProducts();
-            for (const productInfo of predefinedProducts) {
-              await createProduct({
-                name: productInfo.name,
-                displayName: productInfo.displayName,
-                category: productInfo.category,
-                unit: productInfo.unit,
-                defaultPrice: productInfo.defaultPrice,
-                color: productInfo.color,
-                icon: productInfo.icon,
-                description: productInfo.description,
-                isActive: true,
-                currentStock: 0,
-                minThreshold: 10,
-                maxCapacity: 1000,
-              });
-            }
-            alert('Productos predefinidos creados exitosamente');
-          } catch (error) {
-            console.error('Error:', error);
-            alert('Error creando productos: ' + error.message);
-          }
-        }}
-        style={{ marginLeft: '10px' }}
-      >
-        🧪 Crear Predefinidos
       </button>
     </div>
   ) : null;

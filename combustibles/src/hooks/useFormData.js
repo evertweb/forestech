@@ -13,7 +13,7 @@ import { validateForm as runValidation } from '../utils/validators';
 // y validadores cruzados (options.crossValidators)
 export const useFormData = (initialValues = {}, validate, options = {}) => {
   // Usar useMemo para estabilizar initialValues y evitar bucles infinitos
-  const stableInitialValues = useMemo(() => initialValues, [JSON.stringify(initialValues)]);
+  const stableInitialValues = useMemo(() => initialValues, [initialValues]);
   const [values, setValues] = useState(stableInitialValues);
   const [errors, setErrors] = useState({});
 
@@ -73,7 +73,7 @@ export const useFormData = (initialValues = {}, validate, options = {}) => {
       // 3) Sin validación configurada
       return true;
     },
-    [validate, options] // Eliminado 'values' para evitar bucle infinito
+    [validate, options, values] // Agregamos 'values' a las dependencias
   );
 
   // Resetear formulario

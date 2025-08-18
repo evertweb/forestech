@@ -4,71 +4,17 @@
  */
 
 // -------------------------------------------------------------------
-// Tipos principales de combustibles utilizados en la app
+// Tipos principales de combustibles - estructura vacía para personalización
 // -------------------------------------------------------------------
 export const FUEL_TYPES = {
-  DIESEL: 'DIESEL',
-  GASOLINE: 'GASOLINE',
-  LUBRICANTS: 'LUBRICANTS',
-  TWO_STROKE: 'TWO_STROKE',
-  MIXED: 'MIXED', // Agregado desde vehicleTypes.js para compatibilidad
+  // Los tipos se definirán cuando se agreguen combustibles desde la interfaz
 };
 
 // -------------------------------------------------------------------
-// Información detallada por tipo de combustible
-// Incluye nombre, descripción, unidad, categoría, color, ícono, densidad y unidad de precio
+// Información detallada por tipo de combustible - estructura vacía
 // -------------------------------------------------------------------
 export const FUEL_INFO = {
-  [FUEL_TYPES.DIESEL]: {
-    name: 'DIESEL',
-    description: 'Combustible para maquinaria pesada',
-    unit: 'galones',
-    category: 'Combustible',
-    color: '#fbbf24', // amber-400
-    icon: '🚛',
-    density: 0.85, // kg/L aproximado
-    priceUnit: 'COP/galón',
-  },
-  [FUEL_TYPES.GASOLINE]: {
-    name: 'Gasolina',
-    description: 'Combustible para vehículos livianos',
-    unit: 'galones',
-    category: 'Combustible',
-    color: '#ef4444', // red-500
-    icon: '⛽',
-    density: 0.75, // kg/L aproximado
-    priceUnit: 'COP/galón',
-  },
-  [FUEL_TYPES.LUBRICANTS]: {
-    name: 'Lubricantes',
-    description: 'Aceites y lubricantes para mantenimiento',
-    unit: 'litros',
-    category: 'Mantenimiento',
-    color: '#06b6d4', // cyan-500
-    icon: '🛢️',
-    density: 0.9, // kg/L aproximado
-    priceUnit: 'COP/litro',
-  },
-  [FUEL_TYPES.TWO_STROKE]: {
-    name: 'Mezcla 2T',
-    description: 'Mezcla para motores de 2 tiempos (motosierras)',
-    unit: 'litros',
-    category: 'Especializado',
-    color: '#10b981', // emerald-500
-    icon: '🪚',
-    density: 0.78, // kg/L aproximado
-    priceUnit: 'COP/litro',
-  },
-  [FUEL_TYPES.MIXED]: {
-    name: 'Mixto',
-    description: 'Compatible con múltiples tipos de combustible',
-    unit: 'galones',
-    category: 'Flexible',
-    color: '#64748b', // slate-500
-    icon: '🔄',
-    density: 0.8, // kg/L promedio
-    priceUnit: 'COP/galón',
-  },
+  // La información se llenará cuando se agreguen combustibles desde la interfaz
 };
 
 // Niveles de alerta de stock
