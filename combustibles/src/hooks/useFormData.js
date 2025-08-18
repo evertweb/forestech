@@ -13,7 +13,14 @@ import { validateForm as runValidation } from '../utils/validators';
 // y validadores cruzados (options.crossValidators)
 export const useFormData = (initialValues = {}, validate, options = {}) => {
   // Usar useMemo para estabilizar initialValues y evitar bucles infinitos
-  const stableInitialValues = useMemo(() => initialValues, [initialValues]);
+  const stableInitialValues = useMemo(() => {
+    // Si initialValues es una constante (referencia estable), usar directamente
+    if (typeof initialValues === 'object' && initialValues !== null) {
+      return initialValues;
+    }
+    return {};
+  }, [initialValues]);
+
   const [values, setValues] = useState(stableInitialValues);
   const [errors, setErrors] = useState({});
 
@@ -38,10 +45,13 @@ export const useFormData = (initialValues = {}, validate, options = {}) => {
 
   // Validación individual o global
   const validateForm = useCallback(
-    (fieldValues = values) => {
+    (fieldValues) => {
+      // Usar los valores actuales si no se proporcionan valores específicos
+      const valuesToValidate = fieldValues || values;
+
       // 1) Prioridad: función validate personalizada si se provee
       if (typeof validate === 'function') {
-        const validation = validate(fieldValues);
+        const validation = validate(valuesToValidate);
         setErrors(validation.errors || {});
         return validation.isValid;
       }
@@ -50,14 +60,14 @@ export const useFormData = (initialValues = {}, validate, options = {}) => {
       const { validationSchema, crossValidators } = options || {};
       if (validationSchema) {
         // Validación por schema
-        const schemaResult = runValidation(fieldValues, validationSchema);
+        const schemaResult = runValidation(valuesToValidate, validationSchema);
         let combinedErrors = { ...schemaResult.errors };
 
         // Validaciones cross-field (acumular errores)
         if (Array.isArray(crossValidators) && crossValidators.length > 0) {
           for (const cross of crossValidators) {
             try {
-              const crossErrors = cross(fieldValues) || {};
+              const crossErrors = cross(valuesToValidate) || {};
               combinedErrors = { ...combinedErrors, ...crossErrors };
             } catch {
               // Ignorar errores de validadores cruzados para no romper flujo
@@ -73,7 +83,7 @@ export const useFormData = (initialValues = {}, validate, options = {}) => {
       // 3) Sin validación configurada
       return true;
     },
-    [validate, options, values] // Agregamos 'values' a las dependencias
+    [validate, options] // Removemos 'values' para evitar bucles infinitos
   );
 
   // Resetear formulario

@@ -23,21 +23,24 @@ import { useFormData } from '../../hooks/useFormData';
 import { useAutomaticPricing } from '../../hooks/useAutomaticPricing';
 import { validators, validateForm as runValidation } from '../../utils/validators';
 import './ProductPricing.css';
+
+// Valores iniciales definidos fuera del componente para evitar recreación
+const INITIAL_VALUES = {
+  name: '',
+  displayName: '',
+  category: PRODUCT_CATEGORIES.COMBUSTIBLE,
+  unit: 'gal',
+  defaultPrice: 0,
+  color: '#FF6B35',
+  icon: '🛢️',
+  description: '',
+  isActive: true,
+  currentStock: 0,
+  minThreshold: 10,
+  maxCapacity: 1000,
+};
+
 const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userRole }) => {
-  const initialValues = {
-    name: '',
-    displayName: '',
-    category: PRODUCT_CATEGORIES.COMBUSTIBLE,
-    unit: 'gal',
-    defaultPrice: 0,
-    color: '#FF6B35',
-    icon: '🛢️',
-    description: '',
-    isActive: true,
-    currentStock: 0,
-    minThreshold: 10,
-    maxCapacity: 1000,
-  };
   const [loading] = useState(false);
 
   // Hook para precios automáticos
@@ -75,7 +78,7 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
     handleInputChange,
     resetForm,
     validateForm,
-  } = useFormData(initialValues, validate);
+  } = useFormData(INITIAL_VALUES, validate);
   // Colores predefinidos usando design tokens
   const colorOptions = PRODUCT_COLORS;
 
