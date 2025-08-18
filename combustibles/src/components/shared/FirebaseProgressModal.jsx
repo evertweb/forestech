@@ -6,70 +6,76 @@
 import React, { useState, useEffect } from 'react';
 import './FirebaseProgressModal.css';
 
-const FirebaseProgressModal = ({ isOpen, operation, onComplete, onError, showLogs = true }) => {
+const FirebaseProgressModal = ({
+  isOpen,
+  operation,
+  onComplete,
+  onError, // eslint-disable-line no-unused-vars
+  showLogs = true,
+}) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [logs, setLogs] = useState([]);
   const [status, setStatus] = useState('processing'); // processing, success, error
   const [progress, setProgress] = useState(0);
 
-  // Definir pasos según el tipo de operación
+  // Definir pasos según el tipo de operación (estilo terminal)
   const getOperationSteps = (operation) => {
     const baseSteps = {
       createMovement: [
-        { key: 'validating', text: '🔍 Validando datos del movimiento...', duration: 800 },
-        { key: 'checking', text: '📋 Verificando inventario disponible...', duration: 600 },
-        { key: 'creating', text: '💾 Creando movimiento en base de datos...', duration: 1000 },
-        { key: 'updating', text: '🔄 Actualizando inventario automáticamente...', duration: 900 },
-        { key: 'syncing', text: '⚡ Sincronizando datos en tiempo real...', duration: 400 },
-        { key: 'complete', text: '✅ Movimiento creado exitosamente', duration: 500 },
+        { key: 'validating', text: 'validating movement data...', duration: 800 },
+        { key: 'checking', text: 'checking inventory availability...', duration: 600 },
+        { key: 'creating', text: 'creating movement record...', duration: 1000 },
+        { key: 'updating', text: 'updating inventory database...', duration: 900 },
+        { key: 'syncing', text: 'syncing real-time data...', duration: 400 },
+        { key: 'complete', text: 'movement created successfully', duration: 500 },
       ],
       updateMovement: [
-        { key: 'validating', text: '🔍 Validando cambios...', duration: 600 },
-        { key: 'reverting', text: '🔄 Revirtiendo cambios anteriores...', duration: 800 },
-        { key: 'updating', text: '💾 Aplicando nuevos cambios...', duration: 900 },
-        { key: 'syncing', text: '⚡ Sincronizando actualizaciones...', duration: 400 },
-        { key: 'complete', text: '✅ Movimiento actualizado exitosamente', duration: 500 },
+        { key: 'validating', text: 'validating changes...', duration: 600 },
+        { key: 'reverting', text: 'reverting previous changes...', duration: 800 },
+        { key: 'updating', text: 'applying new changes...', duration: 900 },
+        { key: 'syncing', text: 'syncing updates...', duration: 400 },
+        { key: 'complete', text: 'movement updated successfully', duration: 500 },
       ],
       deleteMovement: [
-        { key: 'validating', text: '🔍 Verificando permisos de eliminación...', duration: 500 },
-        { key: 'reverting', text: '🔄 Revirtiendo impacto en inventario...', duration: 900 },
-        { key: 'deleting', text: '🗑️ Eliminando movimiento de la base de datos...', duration: 700 },
-        { key: 'syncing', text: '⚡ Sincronizando cambios...', duration: 400 },
-        { key: 'complete', text: '✅ Movimiento eliminado exitosamente', duration: 500 },
+        { key: 'validating', text: 'checking deletion permissions...', duration: 500 },
+        { key: 'reverting', text: 'reverting inventory impact...', duration: 900 },
+        { key: 'deleting', text: 'deleting from database...', duration: 700 },
+        { key: 'syncing', text: 'syncing changes...', duration: 400 },
+        { key: 'complete', text: 'movement deleted successfully', duration: 500 },
       ],
       createVehicle: [
-        { key: 'validating', text: '🔍 Validando datos del vehículo...', duration: 700 },
-        { key: 'checking', text: '🚗 Verificando ID único...', duration: 600 },
-        { key: 'creating', text: '💾 Registrando vehículo en el sistema...', duration: 800 },
-        { key: 'configuring', text: '⚙️ Configurando parámetros operacionales...', duration: 600 },
-        { key: 'complete', text: '✅ Vehículo registrado exitosamente', duration: 500 },
+        { key: 'validating', text: 'validating vehicle data...', duration: 700 },
+        { key: 'checking', text: 'checking unique ID...', duration: 600 },
+        { key: 'creating', text: 'registering vehicle...', duration: 800 },
+        { key: 'configuring', text: 'configuring parameters...', duration: 600 },
+        { key: 'complete', text: 'vehicle registered successfully', duration: 500 },
       ],
       createInventory: [
-        { key: 'validating', text: '🔍 Validando datos de inventario...', duration: 600 },
-        { key: 'checking', text: '📦 Verificando duplicados en ubicación...', duration: 700 },
-        { key: 'creating', text: '💾 Creando item de inventario...', duration: 800 },
-        { key: 'initializing', text: '🔧 Configurando umbrales y alertas...', duration: 600 },
-        { key: 'complete', text: '✅ Item de inventario creado exitosamente', duration: 500 },
+        { key: 'validating', text: 'validating inventory data...', duration: 600 },
+        { key: 'checking', text: 'checking location duplicates...', duration: 700 },
+        { key: 'creating', text: 'creating inventory item...', duration: 800 },
+        { key: 'initializing', text: 'setting up thresholds...', duration: 600 },
+        { key: 'complete', text: 'inventory item created successfully', duration: 500 },
       ],
       createSupplier: [
-        { key: 'validating', text: '🔍 Validando datos del proveedor...', duration: 600 },
-        { key: 'checking', text: '🏢 Verificando NIT y documentos...', duration: 700 },
-        { key: 'creating', text: '💾 Registrando proveedor en el sistema...', duration: 800 },
-        { key: 'complete', text: '✅ Proveedor registrado exitosamente', duration: 500 },
+        { key: 'validating', text: 'validating supplier data...', duration: 600 },
+        { key: 'checking', text: 'checking tax ID and documents...', duration: 700 },
+        { key: 'creating', text: 'registering supplier...', duration: 800 },
+        { key: 'complete', text: 'supplier registered successfully', duration: 500 },
       ],
       createMaintenance: [
-        { key: 'validating', text: '🔍 Validando datos de mantenimiento...', duration: 600 },
-        { key: 'checking', text: '🔧 Verificando horómetro del vehículo...', duration: 700 },
-        { key: 'creating', text: '💾 Registrando mantenimiento...', duration: 800 },
-        { key: 'updating', text: '📊 Actualizando historial del vehículo...', duration: 600 },
-        { key: 'complete', text: '✅ Mantenimiento registrado exitosamente', duration: 500 },
+        { key: 'validating', text: 'validating maintenance data...', duration: 600 },
+        { key: 'checking', text: 'checking vehicle odometer...', duration: 700 },
+        { key: 'creating', text: 'creating maintenance record...', duration: 800 },
+        { key: 'updating', text: 'updating vehicle history...', duration: 600 },
+        { key: 'complete', text: 'maintenance recorded successfully', duration: 500 },
       ],
     };
 
     return (
       baseSteps[operation?.type] || [
-        { key: 'processing', text: '⚡ Procesando solicitud...', duration: 1000 },
-        { key: 'complete', text: '✅ Operación completada', duration: 500 },
+        { key: 'processing', text: 'processing request...', duration: 1000 },
+        { key: 'complete', text: 'operation completed', duration: 500 },
       ]
     );
   };
@@ -152,95 +158,99 @@ const FirebaseProgressModal = ({ isOpen, operation, onComplete, onError, showLog
     };
   }, [isOpen, operation, onComplete, showLogs]); // ✅ FIXED: usar operation completo en lugar de propiedades específicas
 
-  // Simular error (para testing)
-  const simulateError = () => {
-    setStatus('error');
-    addLog('❌ Error al procesar la operación', 'error');
-    onError?.('Error simulado durante la operación Firebase');
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="firebase-progress-overlay">
-      <div className="firebase-progress-modal">
-        {/* Header */}
-        <div className="progress-header">
-          <div className="operation-icon">
-            {status === 'processing' && '⚡'}
-            {status === 'success' && '✅'}
-            {status === 'error' && '❌'}
-          </div>
-          <h3 className="operation-title">
-            {operation?.description || 'Procesando operación Firebase...'}
-          </h3>
-          <div className="operation-subtitle">
-            {status === 'processing' && 'En progreso...'}
-            {status === 'success' && 'Completado exitosamente'}
-            {status === 'error' && 'Error en la operación'}
+    <div className="firebase-progress-overlay-terminal">
+      <div className="firebase-progress-terminal">
+        {/* Header estilo terminal */}
+        <div className="terminal-header">
+          <div className="terminal-title">
+            $ firebase-operation --type={operation?.type || 'unknown'}
           </div>
         </div>
 
-        {/* Barra de progreso */}
-        <div className="progress-bar-container">
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+        {/* Contenido de la terminal */}
+        <div className="terminal-content">
+          {/* Información de la operación */}
+          <div className="terminal-line">
+            <span className="terminal-prompt">$</span>
+            <span className="terminal-text">
+              {operation?.description || 'Procesando operación...'}
+            </span>
           </div>
-          <div className="progress-text">{Math.round(progress)}% completado</div>
-        </div>
 
-        {/* Paso actual */}
-        <div className="current-step">
-          {operation
-            ? getOperationSteps(operation)[currentStep]?.text || 'Procesando...'
-            : 'Cargando...'}
-        </div>
+          {/* Línea de separación */}
+          <div className="terminal-line">
+            <span className="terminal-prompt">&gt;</span>
+            <span className="terminal-text">{'─'.repeat(60)}</span>
+          </div>
 
-        {/* Logs detallados */}
-        {showLogs && (
-          <div className="logs-container">
-            <div className="logs-header">
-              <span>📋 Logs detallados</span>
-              <span className="logs-count">{logs.length} eventos</span>
-            </div>
-            <div className="logs-list">
+          {/* Progreso actual */}
+          <div className="terminal-line">
+            <span className="terminal-prompt">[{Math.round(progress)}%]</span>
+            <span className="terminal-text">
+              {operation
+                ? getOperationSteps(operation)[currentStep]?.text || 'Procesando...'
+                : 'Cargando...'}
+            </span>
+          </div>
+
+          {/* Logs detallados estilo terminal */}
+          {showLogs && logs.length > 0 && (
+            <>
+              <div className="terminal-line">
+                <span className="terminal-prompt">&gt;</span>
+                <span className="terminal-text">Logs de ejecución:</span>
+              </div>
               {logs.map((log) => (
-                <div key={log.id} className={`log-entry ${log.type}`}>
-                  <span className="log-timestamp">[{log.timestamp}]</span>
-                  <span className="log-message">{log.message}</span>
+                <div key={log.id} className="terminal-line">
+                  <span className="terminal-timestamp">[{log.timestamp}]</span>
+                  <span className={`terminal-message ${log.type}`}>{log.message}</span>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Botones de acción */}
-        <div className="progress-actions">
-          {status === 'processing' && (
-            <button className="btn-simulate-error" onClick={simulateError}>
-              Simular Error
-            </button>
+            </>
           )}
+
+          {/* Estado final */}
+          {status === 'success' && (
+            <div className="terminal-line success">
+              <span className="terminal-prompt">✓</span>
+              <span className="terminal-text">Operación completada exitosamente</span>
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="terminal-line error">
+              <span className="terminal-prompt">✗</span>
+              <span className="terminal-text">Error en la operación</span>
+            </div>
+          )}
+
+          {/* Botón de cierre estilo terminal */}
           {(status === 'success' || status === 'error') && (
-            <button
-              className="btn-close"
-              onClick={() => {
-                console.log('🎭 Usuario clickeó cerrar modal');
-                onComplete?.(operation);
-              }}
-            >
-              Cerrar Manual
-            </button>
+            <div className="terminal-line">
+              <span className="terminal-prompt">$</span>
+              <button
+                className="terminal-button"
+                onClick={() => {
+                  console.log('🎭 Usuario clickeó cerrar modal');
+                  onComplete?.(operation);
+                }}
+              >
+                exit
+              </button>
+            </div>
+          )}
+
+          {/* Cursor parpadeante */}
+          {status === 'processing' && (
+            <div className="terminal-line">
+              <span className="terminal-prompt">$</span>
+              <span className="terminal-cursor">_</span>
+            </div>
           )}
         </div>
-
-        {/* Indicador de tiempo estimado */}
-        {status === 'processing' && operation && (
-          <div className="time-estimate">
-            ⏱️ Tiempo estimado:{' '}
-            {Math.ceil((getOperationSteps(operation).length - currentStep) * 0.7)} segundos
-          </div>
-        )}
       </div>
     </div>
   );

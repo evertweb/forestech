@@ -841,49 +841,170 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         {/* Contenido del paso */}
         <div className="wizard-body typeform-mode sap-theme">
           {movementCreated ? (
-            /* Pantalla de éxito - movimiento creado */
-            <div className="wizard-success sap-theme">
-              <div className="success-animation">
-                <div className="success-icon">✅</div>
-                <h2>¡Movimiento Creado Exitosamente!</h2>
-                <div className="success-details">
-                  <p>
-                    <strong>Tipo:</strong> {formData.type}
-                  </p>
-                  <p>
-                    <strong>Combustible:</strong> {formData.fuelType}
-                  </p>
-                  <p>
-                    <strong>Cantidad:</strong> {formData.quantity} galones
-                  </p>
-                  <p>
-                    <strong>Precio:</strong> ${formData.unitPrice} por galón
-                  </p>
+            /* Pantalla de confirmación institucional - estilo gubernamental */
+            <div className="official-confirmation-container">
+              {/* Header institucional */}
+              <div className="official-header">
+                <div className="official-seal">
+                  <div className="seal-icon">✓</div>
+                </div>
+                <div className="official-title">
+                  <h1>CONFIRMACIÓN DE TRANSACCIÓN</h1>
+                  <div className="document-number">
+                    Doc. No. MOV-{new Date().getFullYear()}-{String(Date.now()).slice(-6)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status banner */}
+              <div className="status-banner success">
+                <div className="status-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                  </svg>
+                </div>
+                <span className="status-text">TRANSACCIÓN PROCESADA EXITOSAMENTE</span>
+              </div>
+
+              {/* Detalles del movimiento en formato oficial */}
+              <div className="official-form-section">
+                <div className="section-header">
+                  <h2>DETALLES DE LA TRANSACCIÓN</h2>
+                  <div className="section-code">SECCIÓN A-001</div>
+                </div>
+
+                <div className="form-grid">
+                  <div className="form-row">
+                    <div className="field-label">TIPO DE OPERACIÓN:</div>
+                    <div className="field-value">{formData.type}</div>
+                    <div className="field-code">A01</div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="field-label">PRODUCTO:</div>
+                    <div className="field-value">{formData.fuelType}</div>
+                    <div className="field-code">A02</div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="field-label">CANTIDAD AUTORIZADA:</div>
+                    <div className="field-value">{formData.quantity} GALONES</div>
+                    <div className="field-code">A03</div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="field-label">PRECIO UNITARIO:</div>
+                    <div className="field-value">
+                      $ {parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP
+                    </div>
+                    <div className="field-code">A04</div>
+                  </div>
+
+                  <div className="form-row total-row">
+                    <div className="field-label">VALOR TOTAL:</div>
+                    <div className="field-value">
+                      ${' '}
+                      {(
+                        parseFloat(formData.quantity) * parseFloat(formData.unitPrice)
+                      ).toLocaleString('es-CO')}{' '}
+                      COP
+                    </div>
+                    <div className="field-code">A05</div>
+                  </div>
+
                   {formData.vehicleId && (
-                    <p>
-                      <strong>Vehículo:</strong> {formData.vehicleId}
-                    </p>
+                    <div className="form-row">
+                      <div className="field-label">VEHÍCULO ASIGNADO:</div>
+                      <div className="field-value">
+                        {(() => {
+                          // Buscar el vehículo por ID para obtener su información completa
+                          const selectedVehicle = vehicles?.find(
+                            (v) => v.vehicleId === formData.vehicleId
+                          );
+                          if (selectedVehicle) {
+                            // Construir nombre oficial del vehículo
+                            let vehicleDisplay = '';
+
+                            // Prioridad: name > brand + model > vehicleId
+                            if (selectedVehicle.name) {
+                              vehicleDisplay = selectedVehicle.name.toUpperCase();
+                            } else if (selectedVehicle.brand && selectedVehicle.model) {
+                              vehicleDisplay =
+                                `${selectedVehicle.brand} ${selectedVehicle.model}`.toUpperCase();
+                            } else if (selectedVehicle.brand) {
+                              vehicleDisplay = selectedVehicle.brand.toUpperCase();
+                            } else {
+                              vehicleDisplay = selectedVehicle.vehicleId;
+                            }
+
+                            // Agregar código entre paréntesis para referencia oficial
+                            return `${vehicleDisplay} (${selectedVehicle.vehicleId})`;
+                          }
+                          // Fallback si no se encuentra el vehículo
+                          return formData.vehicleId;
+                        })()}
+                      </div>
+                      <div className="field-code">A06</div>
+                    </div>
                   )}
+
                   {formData.location && (
-                    <p>
-                      <strong>Ubicación:</strong> {formData.location}
-                    </p>
+                    <div className="form-row">
+                      <div className="field-label">UBICACIÓN:</div>
+                      <div className="field-value">{formData.location}</div>
+                      <div className="field-code">A07</div>
+                    </div>
                   )}
                 </div>
-                <div className="success-actions">
-                  <button className="btn-new-movement sap-theme" onClick={handleNewMovement}>
-                    🔄 Nuevo Movimiento
-                  </button>
-                  <button className="btn-close-modal sap-theme" onClick={handleCloseModal}>
-                    ❌ Cerrar
-                  </button>
+              </div>
+
+              {/* Información de procesamiento */}
+              <div className="processing-info">
+                <div className="info-grid">
+                  <div className="info-item">
+                    <div className="info-label">FECHA DE PROCESAMIENTO:</div>
+                    <div className="info-value">
+                      {new Date()
+                        .toLocaleDateString('es-CO', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                        .toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="info-item">
+                    <div className="info-label">HORA:</div>
+                    <div className="info-value">{new Date().toLocaleTimeString('es-CO')} COT</div>
+                  </div>
+                  <div className="info-item">
+                    <div className="info-label">ESTADO:</div>
+                    <div className="info-value status-approved">APROBADO</div>
+                  </div>
                 </div>
-                <div className="success-tip">
-                  <p>
-                    <small>
-                      💡 El modal se mantiene abierto para que puedas ver los logs en la consola
-                    </small>
-                  </p>
+              </div>
+
+              {/* Acciones oficiales */}
+              <div className="official-actions">
+                <button className="official-btn primary" onClick={handleNewMovement}>
+                  <span className="btn-icon">⊕</span>
+                  NUEVA TRANSACCIÓN
+                </button>
+                <button className="official-btn secondary" onClick={handleCloseModal}>
+                  <span className="btn-icon">✕</span>
+                  CERRAR DOCUMENTO
+                </button>
+              </div>
+
+              {/* Footer oficial */}
+              <div className="official-footer">
+                <div className="footer-text">
+                  DOCUMENTO GENERADO AUTOMÁTICAMENTE - FORESTECH COLOMBIA
+                </div>
+                <div className="footer-timestamp">
+                  Generado el {new Date().toISOString().split('T')[0]} a las{' '}
+                  {new Date().toLocaleTimeString('es-CO')}
                 </div>
               </div>
             </div>
