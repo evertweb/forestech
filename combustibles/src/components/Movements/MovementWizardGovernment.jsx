@@ -6,11 +6,9 @@
 import React, { useState } from 'react';
 import './WizardSteps-Government.css';
 
-const MovementWizardGovernment = ({ isOpen, onClose }) => {
-  // eslint-disable-line no-unused-vars
+const MovementWizardGovernment = ({ isOpen }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    // eslint-disable-line no-unused-vars
+  const [formData, _setFormData] = useState({
     movementType: '',
     date: '',
     fuelType: '',
