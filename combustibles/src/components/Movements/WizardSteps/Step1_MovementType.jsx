@@ -7,7 +7,14 @@ import React, { useEffect, useCallback, useMemo } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { MOVEMENT_TYPES_UI } from '../../../constants';
 
-const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) => {
+const Step1_MovementType = ({ formData, updateFormData, setError, isActive, theme = 'modern' }) => {
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
   const movementOptions = useMemo(
     () => [
       {
@@ -60,35 +67,37 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive }) =>
   }, [isActive, handleSelection, movementOptions]);
 
   return (
-    <div className={`wizard-step step-movement-type sap-theme ${isActive ? 'active' : ''}`}>
-      <div className="step-question sap-theme sap-theme">
+    <div
+      className={`wizard-step step-movement-type ${getThemeClass('')} ${isActive ? 'active' : ''}`}
+    >
+      <div className={getThemeClass('step-question')}>
         <h3>📋 ¿Qué tipo de movimiento vas a registrar?</h3>
         <p>Selecciona la operación que necesitas realizar hoy</p>
       </div>
 
-      <div className="movement-options sap-theme sap-theme">
+      <div className={getThemeClass('movement-options')}>
         {movementOptions.map((option) => (
           <div
             key={option.type}
-            className={`movement-option sap-theme ${formData.type === option.type ? 'selected' : ''}`}
+            className={`${getThemeClass('movement-option')} ${formData.type === option.type ? 'selected' : ''}`}
             onClick={() => handleSelection(option.type)}
           >
-            <div className="option-icon sap-theme sap-theme">{option.icon}</div>
-            <div className="option-content sap-theme sap-theme">
-              <h4 className="option-title sap-theme sap-theme">{option.title}</h4>
-              <p className="option-description sap-theme sap-theme">{option.description}</p>
+            <div className={getThemeClass('option-icon')}>{option.icon}</div>
+            <div className={getThemeClass('option-content')}>
+              <h4 className={getThemeClass('option-title')}>{option.title}</h4>
+              <p className={getThemeClass('option-description')}>{option.description}</p>
             </div>
           </div>
         ))}
       </div>
 
       {formData.type && (
-        <div className="selection-confirmation sap-theme sap-theme">
-          <div className="confirmation-card sap-theme sap-theme">
-            <span className="confirmation-icon sap-theme sap-theme">
+        <div className={getThemeClass('selection-confirmation')}>
+          <div className={getThemeClass('confirmation-card')}>
+            <span className={getThemeClass('confirmation-icon')}>
               {movementOptions.find((opt) => opt.type === formData.type)?.icon}
             </span>
-            <div className="confirmation-text sap-theme sap-theme">
+            <div className={getThemeClass('confirmation-text')}>
               <strong>Perfecto! Has seleccionado:</strong>{' '}
               {movementOptions.find((opt) => opt.type === formData.type)?.title}
               <br />

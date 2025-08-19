@@ -18,10 +18,19 @@ const Step6_Destination = ({
   setError,
   isEntryDestination = false,
   isActive,
+  theme = 'modern',
 }) => {
   const [loading, setLoading] = useState(false);
   const [destinationInfo, setDestinationInfo] = useState({});
   const [validatingCapacity, setValidatingCapacity] = useState(false);
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const { inventory } = systemData;
 
@@ -143,8 +152,8 @@ const Step6_Destination = ({
 
   return (
     <div className={`wizard-step step-destination ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
-        <div className="typeform-question sap-theme">
+      <div className={getThemeClass('typeform-layout')}>
+        <div className={getThemeClass('typeform-question')}>
           <h3>
             🎯{' '}
             {isEntryDestination
@@ -155,13 +164,13 @@ const Step6_Destination = ({
         </div>
 
         {validatingCapacity && (
-          <div className="loading-overlay sap-theme">
-            <div className="loading-spinner sap-theme"></div>
+          <div className={getThemeClass('loading-overlay')}>
+            <div className={getThemeClass('loading-spinner')}></div>
             <p>🔍 Verificando capacidad disponible...</p>
           </div>
         )}
 
-        <div className="typeform-options sap-theme">
+        <div className={getThemeClass('typeform-options')}>
           {availableDestinations.map((location) => {
             const destInfo = destinationInfo[location];
             const isSelectable = !destInfo || destInfo.canAcceptTransfer;
@@ -169,29 +178,29 @@ const Step6_Destination = ({
             return (
               <div
                 key={location}
-                className={`typeform-option ${formData.destinationLocation === location ? 'selected' : ''} ${destInfo?.status || 'unknown'} ${!isSelectable || loading ? 'disabled' : ''}`}
+                className={`${getThemeClass('typeform-option')} ${formData.destinationLocation === location ? 'selected' : ''} ${destInfo?.status || 'unknown'} ${!isSelectable || loading ? 'disabled' : ''}`}
                 onClick={() => isSelectable && !loading && handleDestinationSelection(location)}
               >
-                <div className="typeform-option-icon sap-theme">🎯</div>
-                <div className="typeform-option-content sap-theme">
+                <div className={getThemeClass('typeform-option-icon')}>🎯</div>
+                <div className={getThemeClass('typeform-option-content')}>
                   <h4>{formatLocationName(location)}</h4>
 
                   {destInfo && (
-                    <div className="capacity-info sap-theme">
-                      <p className="capacity-message sap-theme">{destInfo.message}</p>
+                    <div className={getThemeClass('capacity-info')}>
+                      <p className={getThemeClass('capacity-message')}>{destInfo.message}</p>
 
                       {destInfo.maxCapacity > 0 && (
                         <>
-                          <div className="capacity-bar-mini sap-theme">
+                          <div className={getThemeClass('capacity-bar-mini')}>
                             <div
-                              className="capacity-current-mini sap-theme"
+                              className={getThemeClass('capacity-current-mini')}
                               style={{
                                 width: `${Math.min(100, (destInfo.currentStock / destInfo.maxCapacity) * 100)}%`,
                               }}
                             ></div>
                             {destInfo.canAcceptTransfer && (
                               <div
-                                className="capacity-after-mini sap-theme"
+                                className={getThemeClass('capacity-after-mini')}
                                 style={{
                                   width: `${Math.min(100, destInfo.occupancyAfter)}%`,
                                   left: `${Math.min(100, (destInfo.currentStock / destInfo.maxCapacity) * 100)}%`,
@@ -199,7 +208,7 @@ const Step6_Destination = ({
                               ></div>
                             )}
                           </div>
-                          <small className="capacity-details sap-theme">
+                          <small className={getThemeClass('capacity-details')}>
                             Actual: {destInfo.currentStock.toFixed(1)}/
                             {destInfo.maxCapacity.toFixed(1)} gal
                           </small>
@@ -208,9 +217,9 @@ const Step6_Destination = ({
                     </div>
                   )}
                 </div>
-                <div className="typeform-option-selector sap-theme">
-                  <div className="typeform-check sap-theme">
-                    <span className="typeform-check-icon sap-theme">✓</span>
+                <div className={getThemeClass('typeform-option-selector')}>
+                  <div className={getThemeClass('typeform-check')}>
+                    <span className={getThemeClass('typeform-check-icon')}>✓</span>
                   </div>
                 </div>
               </div>
@@ -220,24 +229,24 @@ const Step6_Destination = ({
 
         {/* Información de la transferencia */}
         {formData.location && formData.quantity && (
-          <div className="transfer-summary sap-theme">
-            <div className="transfer-flow sap-theme">
-              <div className="transfer-origin sap-theme">
-                <span className="transfer-icon sap-theme">📍</span>
-                <div className="transfer-info sap-theme">
+          <div className={getThemeClass('transfer-summary')}>
+            <div className={getThemeClass('transfer-flow')}>
+              <div className={getThemeClass('transfer-origin')}>
+                <span className={getThemeClass('transfer-icon')}>📍</span>
+                <div className={getThemeClass('transfer-info')}>
                   <strong>{formatLocationName(formData.location)}</strong>
                   <small>Origen</small>
                 </div>
               </div>
 
-              <div className="transfer-arrow sap-theme">
+              <div className={getThemeClass('transfer-arrow')}>
                 <span>→</span>
                 <small>{parseFloat(formData.quantity).toFixed(1)} gal</small>
               </div>
 
-              <div className="transfer-destination sap-theme">
-                <span className="transfer-icon sap-theme">🎯</span>
-                <div className="transfer-info sap-theme">
+              <div className={getThemeClass('transfer-destination')}>
+                <span className={getThemeClass('transfer-icon')}>🎯</span>
+                <div className={getThemeClass('transfer-info')}>
                   <strong>
                     {formData.destinationLocation
                       ? formatLocationName(formData.destinationLocation)
@@ -252,33 +261,33 @@ const Step6_Destination = ({
 
         {/* Confirmación de destino */}
         {formData.destinationLocation && destinationInfo[formData.destinationLocation] && (
-          <div className="selection-confirmation sap-theme">
-            <div className="confirmation-card destination-confirmation sap-theme">
-              <div className="confirmation-header sap-theme">
-                <span className="confirmation-icon sap-theme">🎯</span>
-                <div className="confirmation-text sap-theme">
+          <div className={getThemeClass('selection-confirmation')}>
+            <div className={`${getThemeClass('confirmation-card')} destination-confirmation`}>
+              <div className={getThemeClass('confirmation-header')}>
+                <span className={getThemeClass('confirmation-icon')}>🎯</span>
+                <div className={getThemeClass('confirmation-text')}>
                   <strong>{formatLocationName(formData.destinationLocation)}</strong>
                   <br />
                   <small>Ubicación de destino confirmada</small>
                 </div>
               </div>
 
-              <div className="capacity-confirmation sap-theme">
-                <div className="capacity-detail sap-theme">
-                  <span className="capacity-label sap-theme">📊 Después de transferir:</span>
-                  <span className="capacity-value sap-theme">
+              <div className={getThemeClass('capacity-confirmation')}>
+                <div className={getThemeClass('capacity-detail')}>
+                  <span className={getThemeClass('capacity-label')}>📊 Después de transferir:</span>
+                  <span className={getThemeClass('capacity-value')}>
                     {destinationInfo[formData.destinationLocation].afterTransfer.toFixed(1)} gal
                   </span>
                 </div>
-                <div className="occupancy-bar sap-theme">
+                <div className={getThemeClass('occupancy-bar')}>
                   <div
-                    className="occupancy-fill sap-theme"
+                    className={getThemeClass('occupancy-fill')}
                     style={{
                       width: `${destinationInfo[formData.destinationLocation].occupancyAfter}%`,
                     }}
                   ></div>
                 </div>
-                <small className="occupancy-text sap-theme">
+                <small className={getThemeClass('occupancy-text')}>
                   {destinationInfo[formData.destinationLocation].occupancyAfter.toFixed(1)}% de
                   capacidad ocupada
                 </small>

@@ -1,0 +1,3370 @@
+/**
+ * WizardSteps-Government.css - Estilo Gubernamental para Formulario de Movimientos
+ * Diseño formal inspirado en documentos oficiales colombianos
+ * 
+ * Beneficios del Nuevo Diseño:
+ * ✅ Profesional y formal: Como documentos gubernamentales reales
+ * ✅ Información estructurada: Códigos, referencias, timestamps
+ * ✅ Responsive: Se adapta a móviles manteniendo formalidad
+ * ✅ Accesible: Colores de alto contraste, tipografía clara
+ * ✅ Imprimible: El diseño se ve bien en PDF/impresión
+ */
+
+/* ============ VARIABLES GUBERNAMENTALES ============ */
+:root {
+  /* Colores oficiales del gobierno colombiano */
+  --gov-primary-blue: #003366;
+  --gov-secondary-blue: #336699;
+  --gov-accent-gold: #ffd700;
+  --gov-dark-gray: #333333;
+  --gov-medium-gray: #666666;
+  --gov-light-gray: #f5f5f5;
+  --gov-border-gray: #cccccc;
+  --gov-white: #ffffff;
+
+  /* Colores de estado oficiales */
+  --gov-success-green: #228b22;
+  --gov-warning-orange: #ff8c00;
+  --gov-error-red: #dc143c;
+  --gov-info-blue: #4169e1;
+
+  /* Tipografía oficial */
+  --gov-font-family: 'Times New Roman', 'Liberation Serif', serif;
+  --gov-font-family-mono: 'Courier New', 'Liberation Mono', monospace;
+  --gov-font-family-sans: 'Arial', 'Liberation Sans', sans-serif;
+
+  /* Espaciado oficial */
+  --gov-spacing-xs: 0.25rem;
+  --gov-spacing-sm: 0.5rem;
+  --gov-spacing-md: 1rem;
+  --gov-spacing-lg: 1.5rem;
+  --gov-spacing-xl: 2rem;
+
+  /* Sombras oficiales */
+  --gov-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --gov-shadow-medium: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --gov-shadow-heavy: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  /* NUEVAS VARIABLES PARA MODAL Y SCROLL */
+  --gov-scroll-track: #f1f5f9;
+  --gov-scroll-thumb: var(--gov-secondary-blue);
+  --gov-scroll-thumb-hover: var(--gov-primary-blue);
+  --gov-z-modal: 1000;
+  --gov-z-modal-backdrop: 999;
+
+  /* VARIABLES COMPACTAS PARA MODAL */
+  --gov-compact-spacing-xs: 0.125rem; /* 2px */
+  --gov-compact-spacing-sm: 0.25rem; /* 4px */
+  --gov-compact-spacing-md: 0.5rem; /* 8px */
+  --gov-compact-spacing-lg: 0.75rem; /* 12px */
+  --gov-compact-spacing-xl: 1rem; /* 16px */
+
+  /* TAMAÑOS DE FUENTE COMPACTOS */
+  --gov-compact-font-xs: 0.625rem; /* 10px */
+  --gov-compact-font-sm: 0.75rem; /* 12px */
+  --gov-compact-font-md: 0.875rem; /* 14px */
+  --gov-compact-font-lg: 1rem; /* 16px */
+  --gov-compact-font-xl: 1.125rem; /* 18px */
+
+  /* MODAL COMPACTO - Tamaños reducidos */
+  --gov-modal-max-height: 80vh; /* Reducido de 85vh */
+  --gov-modal-max-width: 85vw; /* Reducido de 90vw */
+
+  /* VERSIÓN 10% MÁS COMPACTA - NUEVAS VARIABLES */
+  --gov-compact-10-spacing-xs: 0.225rem; /* 3.6px - 10% menos que 4px */
+  --gov-compact-10-spacing-sm: 0.45rem; /* 7.2px - 10% menos que 8px */
+  --gov-compact-10-spacing-md: 0.9rem; /* 14.4px - 10% menos que 16px */
+  --gov-compact-10-spacing-lg: 1.35rem; /* 21.6px - 10% menos que 24px */
+  --gov-compact-10-spacing-xl: 1.8rem; /* 28.8px - 10% menos que 32px */
+
+  /* FUENTES 10% MÁS PEQUEÑAS */
+  --gov-compact-10-font-xs: 0.5625rem; /* 9px - 10% menos que 10px */
+  --gov-compact-10-font-sm: 0.675rem; /* 10.8px - 10% menos que 12px */
+  --gov-compact-10-font-md: 0.7875rem; /* 12.6px - 10% menos que 14px */
+  --gov-compact-10-font-lg: 0.9rem; /* 14.4px - 10% menos que 16px */
+  --gov-compact-10-font-xl: 1.0125rem; /* 16.2px - 10% menos que 18px */
+  --gov-compact-10-font-xxl: 1.215rem; /* 19.44px - 10% menos que 21.6px */
+}
+
+/* ============ SISTEMA DE SCROLL GUBERNAMENTAL ============ */
+
+/* Scroll personalizado para tema gubernamental */
+.government-override ::-webkit-scrollbar {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.government-override ::-webkit-scrollbar-track {
+  background: var(--gov-scroll-track) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--gov-border-gray) !important;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.government-override ::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--gov-scroll-thumb) 0%,
+    var(--gov-primary-blue) 100%
+  ) !important;
+  border-radius: 8px !important;
+  border: 2px solid var(--gov-white) !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.government-override ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    var(--gov-scroll-thumb-hover) 0%,
+    var(--gov-primary-blue) 100%
+  ) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1.05) !important;
+}
+
+.government-override ::-webkit-scrollbar-corner {
+  background: var(--gov-scroll-track) !important;
+}
+
+/* Scroll para Firefox */
+.government-override * {
+  scrollbar-width: auto !important;
+  scrollbar-color: var(--gov-scroll-thumb) var(--gov-scroll-track) !important;
+}
+
+/* ============ MODAL CONTAINER CON SCROLL GUBERNAMENTAL ============ */
+
+/* CRÍTICO: Contenedor principal del modal con scroll funcional - PANTALLA COMPLETA */
+.government-override .modal-overlay,
+.modal-overlay.government-override {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 51, 102, 0.85) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: var(--gov-z-modal) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Modal principal con estructura de scroll - PANTALLA COMPLETA */
+.government-override .movement-wizard-government,
+.movement-wizard-government {
+  background: var(--gov-white) !important;
+  border: 4px solid var(--gov-primary-blue) !important;
+  border-radius: 0 !important; /* Sin bordes redondeados para pantalla completa */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Header del modal gubernamental - fijo */
+.government-override .government-header,
+.movement-wizard-government .government-header {
+  background: linear-gradient(
+    135deg,
+    var(--gov-primary-blue) 0%,
+    var(--gov-secondary-blue) 100%
+  ) !important;
+  color: var(--gov-white) !important;
+  padding: var(--gov-spacing-lg) !important;
+  border-bottom: 4px solid var(--gov-accent-gold) !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  text-align: center !important;
+}
+
+/* Header compacto específico para modal */
+.modal-overlay .government-override .government-header,
+.modal-overlay .movement-wizard-government .government-header {
+  padding: var(--gov-compact-spacing-md) !important;
+  border-bottom: 2px solid var(--gov-accent-gold) !important;
+  min-height: auto !important;
+}
+
+/* Logo compacto en modal */
+.modal-overlay .government-override .government-logo {
+  width: 2rem !important;
+  height: 2rem !important;
+  margin-right: var(--gov-compact-spacing-sm) !important;
+}
+
+/* Títulos compactos en modal header */
+.modal-overlay .government-override .government-header h1 {
+  font-size: var(--gov-compact-font-lg) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.modal-overlay .government-override .government-header h2 {
+  font-size: var(--gov-compact-font-sm) !important;
+  margin: var(--gov-compact-spacing-xs) 0 0 0 !important;
+  line-height: 1.3 !important;
+  opacity: 0.9 !important;
+}
+
+/* Botón cerrar compacto */
+.modal-overlay .government-override .close-button {
+  position: absolute !important;
+  top: var(--gov-compact-spacing-sm) !important;
+  right: var(--gov-compact-spacing-sm) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.modal-overlay .government-override .close-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Progreso gubernamental - fijo */
+.government-override .government-progress,
+.movement-wizard-government .government-progress {
+  background: var(--gov-white) !important;
+  border-bottom: 2px solid var(--gov-border-gray) !important;
+  padding: var(--gov-spacing-md) !important;
+  flex-shrink: 0 !important;
+}
+
+/* Progress compacto específico para modal */
+.modal-overlay .government-override .government-progress,
+.modal-overlay .movement-wizard-government .government-progress {
+  padding: var(--gov-compact-spacing-md) !important;
+  border-bottom: 1px solid var(--gov-border-gray) !important;
+  min-height: auto !important;
+}
+
+/* Step indicators compactos en modal */
+.modal-overlay .government-override .step-indicator {
+  padding: var(--gov-compact-spacing-sm) var(--gov-compact-spacing-md) !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  min-height: auto !important;
+  margin: var(--gov-compact-spacing-xs) !important;
+  border-radius: 4px !important;
+}
+
+.modal-overlay .government-override .step-indicator.active {
+  min-height: auto !important;
+}
+
+.modal-overlay .government-override .progress-line {
+  height: 2px !important;
+  margin: var(--gov-compact-spacing-xs) 0 !important;
+}
+
+/* Step numbers compactos */
+.modal-overlay .government-override .step-number {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  line-height: 1.5rem !important;
+  border-radius: 50% !important;
+}
+
+/* ============ HEADER ESTÁTICO DEL DOCUMENTO ============ */
+.government-document-static-header {
+  background: var(--gov-accent-gold) !important;
+  border-bottom: 2px solid var(--gov-primary-blue) !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  z-index: 50 !important;
+}
+
+.document-official-banner {
+  background: var(--gov-accent-gold) !important;
+  color: var(--gov-dark-gray) !important;
+  padding: var(--gov-spacing-sm) var(--gov-spacing-md) !important;
+  text-align: center !important;
+  font-size: 0.875rem !important;
+  font-weight: bold !important;
+  font-family: var(--gov-font-family-mono) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  border-bottom: 1px solid var(--gov-border-gray) !important;
+  animation: governmentPulse 2s infinite !important;
+}
+
+/* CRÍTICO: Área de contenido scrollable */
+.government-override .government-step-content,
+.movement-wizard-government .government-step-content {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: var(--gov-spacing-lg) !important;
+  background: var(--gov-light-gray) !important;
+  /* Esencial para que funcione el scroll en flex */
+  min-height: 0 !important;
+  position: relative !important;
+}
+
+/* REMOVIDO: El indicador visual de scroll ya que ahora es estático */
+/* REMOVIDO: Indicador visual de scroll movido a header estático */
+/*
+.government-override .government-step-content::before,
+.movement-wizard-government .government-step-content::before {
+  content: "📜 DOCUMENTO OFICIAL - DESPLÁCESE PARA VER MÁS CONTENIDO" !important;
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: var(--gov-accent-gold) !important;
+  color: var(--gov-dark-gray) !important;
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm) !important;
+  text-align: center !important;
+  font-size: 0.75rem !important;
+  font-weight: bold !important;
+  font-family: var(--gov-font-family-mono) !important;
+  z-index: 10 !important;
+  opacity: 0.9 !important;
+  border-bottom: 1px solid var(--gov-border-gray) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+*/
+
+/* Estilo especial para contenido largo */
+.government-override .government-step-content[data-long='true']::after,
+.movement-wizard-government .government-step-content[data-long='true']::after {
+  content: '⬇️ CONTINÚA EN LA SIGUIENTE SECCIÓN ⬇️' !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: linear-gradient(180deg, transparent 0%, var(--gov-accent-gold) 100%) !important;
+  text-align: center !important;
+  padding: var(--gov-spacing-sm) !important;
+  font-size: 0.8rem !important;
+  color: var(--gov-dark-gray) !important;
+  font-weight: 600 !important;
+  animation: governmentPulse 2s infinite !important;
+  font-family: var(--gov-font-family-mono) !important;
+  text-transform: uppercase !important;
+}
+
+@keyframes governmentPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    background-color: var(--gov-accent-gold);
+  }
+  50% {
+    opacity: 1;
+    background-color: #fbbf24;
+  }
+}
+
+/* Botón cerrar gubernamental mejorado */
+.government-override .government-close-btn,
+.movement-wizard-government .government-close-btn {
+  position: absolute !important;
+  top: var(--gov-spacing-sm) !important;
+  right: var(--gov-spacing-md) !important;
+  background: rgba(220, 38, 38, 0.9) !important;
+  border: 2px solid var(--gov-white) !important;
+  color: var(--gov-white) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.8rem !important;
+  font-weight: bold !important;
+  font-family: var(--gov-font-family-sans) !important;
+  z-index: 1001 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.government-override .government-close-btn:hover,
+.movement-wizard-government .government-close-btn:hover {
+  background: #dc2626 !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ============ OPTIMIZACIONES RESPONSIVAS PARA MODAL ============ */
+
+/* ===== ESTILOS COMPACTOS PARA MODAL GOVERNMENT - PANTALLA COMPLETA ===== */
+
+/* Modal overlay compacto - pantalla completa */
+.modal-overlay .movement-wizard-government {
+  max-height: none !important;
+  max-width: none !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* ============ ELEMENTOS 10% MÁS COMPACTOS ============ */
+.government-override .wizard-step,
+.government-override .step-movement-type,
+.government-override .step-fuel-type,
+.government-override .step-location,
+.government-override .step-quantity,
+.government-override .step-vehicle,
+.government-override .step-destination,
+.government-override .step-details,
+.government-override .step-summary {
+  padding: var(--gov-compact-10-spacing-md) !important;
+  font-size: var(--gov-compact-10-font-lg) !important;
+}
+
+/* Títulos más compactos */
+.government-override .step-question h2,
+.government-override .step-question h3 {
+  font-size: var(--gov-compact-10-font-xl) !important;
+  margin-bottom: var(--gov-compact-10-spacing-sm) !important;
+}
+
+.government-override .step-question p {
+  font-size: var(--gov-compact-10-font-md) !important;
+  margin-bottom: var(--gov-compact-10-spacing-md) !important;
+}
+
+/* Inputs y selects más compactos */
+.government-override input,
+.government-override select,
+.government-override textarea {
+  padding: var(--gov-compact-10-spacing-sm) !important;
+  font-size: var(--gov-compact-10-font-md) !important;
+}
+
+/* Labels más compactos */
+.government-override label {
+  font-size: var(--gov-compact-10-font-md) !important;
+  margin-bottom: var(--gov-compact-10-spacing-xs) !important;
+}
+
+/* Botones más compactos */
+.government-override .btn,
+.government-override button:not(.typeform-nav-btn) {
+  padding: var(--gov-compact-10-spacing-sm) var(--gov-compact-10-spacing-md) !important;
+  font-size: var(--gov-compact-10-font-md) !important;
+}
+
+/* Opciones de formulario más compactas */
+.government-override .fuel-option,
+.government-override .vehicle-option,
+.government-override .supplier-option,
+.government-override .location-option {
+  padding: var(--gov-compact-10-spacing-sm) !important;
+  font-size: var(--gov-compact-10-font-md) !important;
+}
+
+/* Iconos más compactos */
+.government-override .fuel-option-icon,
+.government-override .vehicle-icon,
+.government-override .option-icon {
+  font-size: var(--gov-compact-10-font-xl) !important;
+  width: var(--gov-compact-10-spacing-xl) !important;
+  height: var(--gov-compact-10-spacing-xl) !important;
+}
+
+/* Cards de confirmación más compactas */
+.government-override .confirmation-card {
+  padding: var(--gov-compact-10-spacing-md) !important;
+  margin: var(--gov-compact-10-spacing-sm) 0 !important;
+}
+
+.government-override .confirmation-icon {
+  font-size: var(--gov-compact-10-font-xl) !important;
+}
+
+/* Header compacto */
+.modal-overlay .government-override .government-header {
+  padding: var(--gov-compact-spacing-md) !important;
+  min-height: auto !important;
+}
+
+.modal-overlay .government-override .government-header h1 {
+  font-size: var(--gov-compact-font-lg) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.modal-overlay .government-override .government-header h2 {
+  font-size: var(--gov-compact-font-sm) !important;
+  margin: var(--gov-compact-spacing-xs) 0 0 0 !important;
+  line-height: 1.3 !important;
+}
+
+/* Progress section compacta */
+.modal-overlay .government-override .government-progress {
+  padding: var(--gov-compact-spacing-md) !important;
+  min-height: auto !important;
+}
+
+.modal-overlay .government-override .step-indicator {
+  padding: var(--gov-compact-spacing-sm) var(--gov-compact-spacing-md) !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  min-height: auto !important;
+  margin: var(--gov-compact-spacing-xs) !important;
+}
+
+.modal-overlay .government-override .progress-line {
+  height: 2px !important;
+  margin: var(--gov-compact-spacing-xs) 0 !important;
+}
+
+/* Contenido del paso compacto */
+.modal-overlay .government-override .government-step-content {
+  padding: var(--gov-compact-spacing-md) !important;
+  gap: var(--gov-compact-spacing-md) !important;
+}
+
+/* Formularios compactos */
+.modal-overlay .government-override .government-form-group {
+  margin-bottom: var(--gov-compact-spacing-md) !important;
+  gap: var(--gov-compact-spacing-sm) !important;
+}
+
+.modal-overlay .government-override .government-form-group label {
+  font-size: var(--gov-compact-font-sm) !important;
+  margin-bottom: var(--gov-compact-spacing-xs) !important;
+  font-weight: 600 !important;
+}
+
+.modal-overlay .government-override .government-input,
+.modal-overlay .government-override .government-select,
+.modal-overlay .government-override .government-textarea {
+  padding: var(--gov-compact-spacing-sm) var(--gov-compact-spacing-md) !important;
+  font-size: var(--gov-compact-font-md) !important;
+  min-height: 2rem !important;
+}
+
+/* Botones compactos */
+.modal-overlay .government-override .government-button {
+  padding: var(--gov-compact-spacing-sm) var(--gov-compact-spacing-lg) !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  min-height: 2rem !important;
+  gap: var(--gov-compact-spacing-sm) !important;
+}
+
+.modal-overlay .government-override .government-button svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Iconos compactos */
+.modal-overlay .government-override .step-number {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  line-height: 1.5rem !important;
+}
+
+/* Acordeones compactos */
+.modal-overlay .government-override .government-accordion-header {
+  padding: var(--gov-compact-spacing-md) !important;
+  font-size: var(--gov-compact-font-md) !important;
+  gap: var(--gov-compact-spacing-sm) !important;
+}
+
+.modal-overlay .government-override .government-accordion-content {
+  padding: var(--gov-compact-spacing-md) !important;
+  gap: var(--gov-compact-spacing-sm) !important;
+}
+
+/* Cards compactas */
+.modal-overlay .government-override .government-card {
+  padding: var(--gov-compact-spacing-md) !important;
+  margin-bottom: var(--gov-compact-spacing-md) !important;
+  gap: var(--gov-compact-spacing-sm) !important;
+}
+
+/* Grid compacto */
+.modal-overlay .government-override .government-grid {
+  gap: var(--gov-compact-spacing-md) !important;
+}
+
+.modal-overlay .government-override .government-grid-item {
+  padding: var(--gov-compact-spacing-md) !important;
+}
+
+/* Alerts compactos */
+.modal-overlay .government-override .government-alert {
+  padding: var(--gov-compact-spacing-md) !important;
+  margin: var(--gov-compact-spacing-md) 0 !important;
+  font-size: var(--gov-compact-font-sm) !important;
+  gap: var(--gov-compact-spacing-sm) !important;
+}
+
+.modal-overlay .government-override .government-alert svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Navigation compacta */
+.modal-overlay .government-override .navigation-buttons {
+  padding: var(--gov-compact-spacing-md) !important;
+  gap: var(--gov-compact-spacing-md) !important;
+  margin-top: var(--gov-compact-spacing-md) !important;
+}
+
+/* Reducir spacing general en modal */
+.modal-overlay .government-override * + * {
+  margin-top: var(--gov-compact-spacing-sm) !important;
+}
+
+.modal-overlay .government-override .government-form-row {
+  gap: var(--gov-compact-spacing-md) !important;
+  margin-bottom: var(--gov-compact-spacing-md) !important;
+}
+
+/* Optimización ULTRA COMPACTA para laptops */
+@media screen and (max-width: 1366px) and (max-height: 768px) {
+  .modal-overlay .movement-wizard-government {
+    max-height: 90vh !important;
+    max-width: 95vw !important;
+    padding: var(--gov-compact-spacing-sm) !important;
+  }
+
+  .modal-overlay .government-override .government-header,
+  .modal-overlay .government-override .government-progress,
+  .modal-overlay .government-override .government-step-content {
+    padding: var(--gov-compact-spacing-sm) !important;
+  }
+
+  .modal-overlay .government-override .government-form-group {
+    margin-bottom: var(--gov-compact-spacing-sm) !important;
+  }
+
+  .modal-overlay .government-override .government-button {
+    padding: var(--gov-compact-spacing-xs) var(--gov-compact-spacing-md) !important;
+    min-height: 1.75rem !important;
+  }
+
+  .modal-overlay .government-override .government-input,
+  .modal-overlay .government-override .government-select {
+    min-height: 1.75rem !important;
+    padding: var(--gov-compact-spacing-xs) var(--gov-compact-spacing-sm) !important;
+  }
+}
+
+/* Optimizaciones generales para portátiles (1366px y menores) */
+@media screen and (max-width: 1366px) {
+  .government-override.typeform-layout {
+    padding: var(--gov-spacing-md) !important;
+    max-width: 100% !important;
+  }
+
+  .government-override.typeform-question h2,
+  .government-override.typeform-question h3 {
+    font-size: 1.4rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override.typeform-question p {
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: var(--gov-spacing-md) !important;
+  }
+
+  /* Opciones más compactas */
+  .government-override.typeform-options {
+    gap: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .typeform-option {
+    padding: var(--gov-spacing-md) !important;
+    min-height: auto !important;
+  }
+
+  .government-override .option-title,
+  .government-override .typeform-option h4 {
+    font-size: 1rem !important;
+    margin-bottom: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .option-description,
+  .government-override .typeform-option p {
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Inputs más compactos */
+  .government-override .typeform-input,
+  .government-override .professional-quantity-input {
+    padding: var(--gov-spacing-sm) var(--gov-spacing-md) !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Grid responsivo */
+  .government-override .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--gov-spacing-sm) !important;
+  }
+}
+
+/* Optimizaciones para pantallas de portátil más pequeñas */
+@media screen and (max-width: 1280px) {
+  .government-override.typeform-layout {
+    padding: var(--gov-spacing-sm) !important;
+  }
+
+  /* Reducir márgenes y espaciados */
+  .government-override .wizard-step {
+    margin: 0 !important;
+    padding: var(--gov-spacing-sm) !important;
+  }
+
+  /* Confirmaciones más compactas */
+  .government-override .confirmation-card {
+    padding: var(--gov-spacing-md) !important;
+    margin: var(--gov-spacing-sm) 0 !important;
+  }
+
+  .government-override .confirmation-icon {
+    font-size: 1.5rem !important;
+    min-width: 40px !important;
+  }
+
+  /* Step específicos compactos */
+  .government-override .fuel-option,
+  .government-override .vehicle-option,
+  .government-override .supplier-option,
+  .government-override .location-option {
+    padding: var(--gov-spacing-sm) var(--gov-spacing-md) !important;
+  }
+
+  .government-override .fuel-option-icon,
+  .government-override .vehicle-icon,
+  .government-override .option-icon {
+    font-size: 1.5rem !important;
+    min-width: 40px !important;
+  }
+}
+
+/* Variables de espaciado compactas para portátiles */
+@media screen and (max-width: 1366px) {
+  .government-override {
+    --gov-spacing-xs: 0.25rem;
+    --gov-spacing-sm: 0.5rem;
+    --gov-spacing-md: 0.75rem;
+    --gov-spacing-lg: 1rem;
+    --gov-spacing-xl: 1.25rem;
+    --gov-spacing-xxl: 1.5rem;
+  }
+}
+
+/* ============ FORMULARIO PRINCIPAL GUBERNAMENTAL ============ */
+.movement-wizard-government {
+  background: var(--gov-white);
+  border: 2px solid var(--gov-primary-blue);
+  border-radius: 0; /* Sin bordes redondeados - estilo oficial */
+  font-family: var(--gov-font-family);
+  color: var(--gov-dark-gray);
+  box-shadow: var(--gov-shadow-heavy);
+  min-height: 600px;
+  position: relative;
+}
+
+/* ============ ENCABEZADO OFICIAL ============ */
+.government-header {
+  background: linear-gradient(135deg, var(--gov-primary-blue) 0%, var(--gov-secondary-blue) 100%);
+  color: var(--gov-white);
+  padding: var(--gov-spacing-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.government-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gov-accent-gold);
+}
+
+.government-logo {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--gov-spacing-sm);
+  background: var(--gov-accent-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--gov-primary-blue);
+  font-weight: bold;
+}
+
+.government-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0 0 var(--gov-spacing-sm) 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.government-subtitle {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.9;
+  font-weight: normal;
+}
+
+.government-reference {
+  position: absolute;
+  top: var(--gov-spacing-sm);
+  right: var(--gov-spacing-md);
+  background: var(--gov-accent-gold);
+  color: var(--gov-primary-blue);
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm);
+  font-family: var(--gov-font-family-mono);
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 0;
+}
+
+/* ============ INDICADOR DE PROGRESO OFICIAL ============ */
+.government-progress {
+  background: var(--gov-light-gray);
+  border-bottom: 1px solid var(--gov-border-gray);
+  padding: var(--gov-spacing-md);
+}
+
+.progress-bar-government {
+  width: 100%;
+  height: 8px;
+  background: var(--gov-border-gray);
+  border: 1px solid var(--gov-medium-gray);
+  margin-bottom: var(--gov-spacing-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill-government {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gov-primary-blue) 0%, var(--gov-secondary-blue) 100%);
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progress-fill-government::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gov-accent-gold);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--gov-medium-gray);
+}
+
+.progress-step {
+  font-weight: bold;
+  color: var(--gov-primary-blue);
+}
+
+.progress-timestamp {
+  font-family: var(--gov-font-family-mono);
+  font-size: 0.75rem;
+}
+
+/* ============ CONTENIDO DEL PASO ============ */
+.government-step-content {
+  padding: var(--gov-spacing-xl);
+  min-height: 400px;
+  background: var(--gov-white);
+  position: relative;
+}
+
+.step-header-government {
+  border-bottom: 2px solid var(--gov-primary-blue);
+  padding-bottom: var(--gov-spacing-md);
+  margin-bottom: var(--gov-spacing-xl);
+}
+
+.step-number {
+  display: inline-block;
+  background: var(--gov-primary-blue);
+  color: var(--gov-white);
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: var(--gov-spacing-sm);
+}
+
+.step-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--gov-primary-blue);
+  margin: 0 0 var(--gov-spacing-sm) 0;
+  text-transform: uppercase;
+}
+
+.step-description {
+  font-size: 1rem;
+  color: var(--gov-medium-gray);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.step-reference {
+  position: absolute;
+  top: var(--gov-spacing-md);
+  right: var(--gov-spacing-md);
+  font-family: var(--gov-font-family-mono);
+  font-size: 0.75rem;
+  color: var(--gov-medium-gray);
+  background: var(--gov-light-gray);
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm);
+  border: 1px solid var(--gov-border-gray);
+}
+
+/* ============ FORMULARIOS OFICIALES ============ */
+.government-form-section {
+  background: var(--gov-light-gray);
+  border: 1px solid var(--gov-border-gray);
+  padding: var(--gov-spacing-lg);
+  margin-bottom: var(--gov-spacing-lg);
+}
+
+.form-section-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--gov-primary-blue);
+  margin: 0 0 var(--gov-spacing-md) 0;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--gov-border-gray);
+  padding-bottom: var(--gov-spacing-sm);
+}
+
+.government-field-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--gov-spacing-lg);
+  margin-bottom: var(--gov-spacing-lg);
+}
+
+.government-field {
+  position: relative;
+}
+
+.government-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--gov-dark-gray);
+  margin-bottom: var(--gov-spacing-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.government-label .required {
+  color: var(--gov-error-red);
+  margin-left: var(--gov-spacing-xs);
+}
+
+.government-input,
+.government-select,
+.government-textarea {
+  width: 100%;
+  padding: var(--gov-spacing-sm) var(--gov-spacing-md);
+  border: 2px solid var(--gov-border-gray);
+  border-radius: 0;
+  font-family: var(--gov-font-family-sans);
+  font-size: 1rem;
+  background: var(--gov-white);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.government-input:focus,
+.government-select:focus,
+.government-textarea:focus {
+  outline: none;
+  border-color: var(--gov-primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.government-input.error,
+.government-select.error,
+.government-textarea.error {
+  border-color: var(--gov-error-red);
+}
+
+.field-code {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--gov-medium-gray);
+  color: var(--gov-white);
+  padding: 2px 6px;
+  font-family: var(--gov-font-family-mono);
+  font-size: 0.7rem;
+  transform: translateY(-50%);
+}
+
+.field-help {
+  font-size: 0.8rem;
+  color: var(--gov-medium-gray);
+  margin-top: var(--gov-spacing-xs);
+  font-style: italic;
+}
+
+.field-error {
+  font-size: 0.8rem;
+  color: var(--gov-error-red);
+  margin-top: var(--gov-spacing-xs);
+  font-weight: bold;
+}
+
+/* ============ BOTONES OFICIALES ============ */
+.government-actions {
+  background: var(--gov-light-gray);
+  border-top: 1px solid var(--gov-border-gray);
+  padding: var(--gov-spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.government-btn {
+  padding: var(--gov-spacing-sm) var(--gov-spacing-xl);
+  border: 2px solid;
+  border-radius: 0;
+  font-family: var(--gov-font-family-sans);
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.government-btn-primary {
+  background: var(--gov-primary-blue);
+  border-color: var(--gov-primary-blue);
+  color: var(--gov-white);
+}
+
+.government-btn-primary:hover {
+  background: var(--gov-secondary-blue);
+  border-color: var(--gov-secondary-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--gov-shadow-medium);
+}
+
+.government-btn-secondary {
+  background: var(--gov-white);
+  border-color: var(--gov-medium-gray);
+  color: var(--gov-medium-gray);
+}
+
+.government-btn-secondary:hover {
+  background: var(--gov-light-gray);
+  border-color: var(--gov-dark-gray);
+  color: var(--gov-dark-gray);
+}
+
+.government-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-icon {
+  margin-right: var(--gov-spacing-xs);
+}
+
+/* ============ DOCUMENTACIÓN OFICIAL ============ */
+.government-document-info {
+  background: var(--gov-white);
+  border: 1px solid var(--gov-border-gray);
+  padding: var(--gov-spacing-md);
+  margin-bottom: var(--gov-spacing-lg);
+  position: relative;
+}
+
+.document-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--gov-spacing-md);
+  margin-bottom: var(--gov-spacing-md);
+  padding-bottom: var(--gov-spacing-sm);
+  border-bottom: 1px solid var(--gov-border-gray);
+}
+
+.document-code {
+  font-family: var(--gov-font-family-mono);
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--gov-primary-blue);
+}
+
+.document-timestamp {
+  font-family: var(--gov-font-family-mono);
+  font-size: 0.8rem;
+  color: var(--gov-medium-gray);
+}
+
+.document-classification {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--gov-accent-gold);
+  color: var(--gov-primary-blue);
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm);
+  font-size: 0.7rem;
+  font-weight: bold;
+  transform: translateY(-50%);
+}
+
+/* ============ TABLA DE DATOS OFICIALES ============ */
+.government-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--gov-spacing-lg);
+  background: var(--gov-white);
+}
+
+.government-data-table th,
+.government-data-table td {
+  padding: var(--gov-spacing-sm) var(--gov-spacing-md);
+  text-align: left;
+  border: 1px solid var(--gov-border-gray);
+  font-size: 0.9rem;
+}
+
+.government-data-table th {
+  background: var(--gov-primary-blue);
+  color: var(--gov-white);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.government-data-table tr:nth-child(even) {
+  background: var(--gov-light-gray);
+}
+
+.government-data-table tr:hover {
+  background: rgba(0, 51, 102, 0.05);
+}
+
+/* ============ ALERTAS OFICIALES ============ */
+.government-alert {
+  padding: var(--gov-spacing-md);
+  margin-bottom: var(--gov-spacing-lg);
+  border-left: 4px solid;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.government-alert-success {
+  background: rgba(34, 139, 34, 0.1);
+  border-color: var(--gov-success-green);
+  color: var(--gov-success-green);
+}
+
+.government-alert-warning {
+  background: rgba(255, 140, 0, 0.1);
+  border-color: var(--gov-warning-orange);
+  color: var(--gov-warning-orange);
+}
+
+.government-alert-error {
+  background: rgba(220, 20, 60, 0.1);
+  border-color: var(--gov-error-red);
+  color: var(--gov-error-red);
+}
+
+.government-alert-info {
+  background: rgba(65, 105, 225, 0.1);
+  border-color: var(--gov-info-blue);
+  color: var(--gov-info-blue);
+}
+
+.alert-title {
+  font-weight: bold;
+  margin-bottom: var(--gov-spacing-xs);
+  text-transform: uppercase;
+}
+
+/* ============ FIRMAS Y SELLOS ============ */
+.government-signature-section {
+  margin-top: var(--gov-spacing-xl);
+  padding-top: var(--gov-spacing-lg);
+  border-top: 2px solid var(--gov-primary-blue);
+}
+
+.signature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--gov-spacing-xl);
+  margin-top: var(--gov-spacing-lg);
+}
+
+.signature-box {
+  text-align: center;
+  padding: var(--gov-spacing-lg);
+  border: 1px solid var(--gov-border-gray);
+  background: var(--gov-light-gray);
+}
+
+.signature-line {
+  border-bottom: 2px solid var(--gov-dark-gray);
+  margin-bottom: var(--gov-spacing-sm);
+  height: 60px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  font-style: italic;
+  color: var(--gov-medium-gray);
+}
+
+.signature-title {
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--gov-dark-gray);
+}
+
+/* ============ RESPONSIVE DESIGN GUBERNAMENTAL ============ */
+@media (max-width: 768px) {
+  .movement-wizard-government {
+    border-radius: 0;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  .government-header {
+    padding: var(--gov-spacing-md);
+  }
+
+  .government-title {
+    font-size: 1.4rem;
+  }
+
+  .government-step-content {
+    padding: var(--gov-spacing-md);
+  }
+
+  .government-field-group {
+    grid-template-columns: 1fr;
+    gap: var(--gov-spacing-md);
+  }
+
+  .government-actions {
+    flex-direction: column;
+    gap: var(--gov-spacing-md);
+  }
+
+  .government-btn {
+    width: 100%;
+  }
+
+  .signature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============ IMPRESIÓN ============ */
+@media print {
+  .movement-wizard-government {
+    box-shadow: none;
+    border: 2px solid var(--gov-primary-blue);
+  }
+
+  .government-header {
+    background: var(--gov-white) !important;
+    color: var(--gov-primary-blue) !important;
+    border-bottom: 2px solid var(--gov-primary-blue);
+  }
+
+  .government-actions {
+    display: none;
+  }
+
+  .government-alert {
+    border: 1px solid currentColor;
+  }
+
+  * {
+    print-color-adjust: exact;
+  }
+}
+
+/* ============ ACCESIBILIDAD ============ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-high-contrast: high) {
+  :root {
+    --gov-primary-blue: #000080;
+    --gov-border-gray: #000000;
+    --gov-medium-gray: #404040;
+  }
+}
+
+/* ============ FOCUS STATES ACCESIBLES ============ */
+.government-input:focus,
+.government-select:focus,
+.government-textarea:focus,
+.government-btn:focus {
+  outline: 3px solid var(--gov-accent-gold);
+  outline-offset: 2px;
+}
+
+/* ============ MODO OSCURO GUBERNAMENTAL ============ */
+@media (prefers-color-scheme: dark) {
+  .movement-wizard-government {
+    background: #1a1a1a;
+    color: #e0e0e0;
+  }
+
+  .government-step-content {
+    background: #1a1a1a;
+  }
+
+  .government-input,
+  .government-select,
+  .government-textarea {
+    background: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #555555;
+  }
+}
+
+/* ============ OVERRIDES GUBERNAMENTALES ============ */
+/* Estas clases overridean los estilos SAP cuando se usa theme='government' */
+
+.government-override.typeform-escape {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  border: 2px solid var(--gov-secondary-blue) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  border-radius: 4px !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+}
+
+.government-override.typeform-progress {
+  background: var(--gov-border-gray) !important;
+  border: 1px solid var(--gov-medium-gray) !important;
+  border-radius: 0 !important;
+  height: 6px !important;
+}
+
+.government-override.typeform-progress-fill {
+  background: linear-gradient(90deg, var(--gov-primary-blue), var(--gov-secondary-blue)) !important;
+  border-radius: 0 !important;
+}
+
+.government-override.wizard-header {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  border-bottom: 3px solid var(--gov-accent-gold) !important;
+  font-family: var(--gov-font-family) !important;
+  padding: var(--gov-spacing-lg) !important;
+  text-align: center !important;
+}
+
+.government-override.wizard-title {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.government-override.wizard-body {
+  background: var(--gov-light-gray) !important;
+  padding: var(--gov-spacing-xl) !important;
+  border: 1px solid var(--gov-border-gray) !important;
+}
+
+.government-override.wizard-step-container {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-primary-blue) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+}
+
+.government-override.wizard-error {
+  background: #ffebee !important;
+  border: 2px solid var(--gov-error-red) !important;
+  color: var(--gov-error-red) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-md) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+}
+
+.government-override.error-icon {
+  color: var(--gov-error-red) !important;
+  font-size: 1.2rem !important;
+}
+
+.government-override.typeform-navigation {
+  background: var(--gov-white) !important;
+  border-top: 3px solid var(--gov-primary-blue) !important;
+  padding: var(--gov-spacing-md) !important;
+  box-shadow: var(--gov-shadow-heavy) !important;
+}
+
+.government-override.typeform-nav-btn {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  border: 2px solid var(--gov-secondary-blue) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-sm) var(--gov-spacing-lg) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s ease !important;
+  box-shadow: var(--gov-shadow-light) !important;
+}
+
+.government-override.typeform-nav-btn:hover {
+  background: var(--gov-secondary-blue) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+  transform: translateY(-1px) !important;
+}
+
+.government-override.typeform-nav-btn:disabled {
+  background: var(--gov-medium-gray) !important;
+  border-color: var(--gov-border-gray) !important;
+  color: var(--gov-light-gray) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.government-override.wizard-loading {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-primary-blue) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-xl) !important;
+  text-align: center !important;
+}
+
+.government-override.loading-spinner {
+  border: 4px solid var(--gov-border-gray) !important;
+  border-top: 4px solid var(--gov-primary-blue) !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin: 0 auto var(--gov-spacing-md) !important;
+}
+
+/* Override para spinner pequeño */
+.government-override.loading-spinner.small {
+  width: 20px !important;
+  height: 20px !important;
+  border-width: 2px !important;
+}
+
+/* Confirmar button especial */
+.government-override.typeform-nav-btn.confirm-button {
+  background: var(--gov-success-green) !important;
+  border-color: var(--gov-success-green) !important;
+  font-size: 1.1rem !important;
+  padding: var(--gov-spacing-md) var(--gov-spacing-xl) !important;
+}
+
+.government-override.typeform-nav-btn.confirm-button:hover {
+  background: #1e7b1e !important;
+  border-color: #1e7b1e !important;
+}
+
+/* ============ OVERRIDES PARA COMPONENTES DE PASOS ============ */
+
+/* Step1 - Movement Type */
+.government-override.step-question h3 {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.8rem !important;
+  text-align: center !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.government-override.step-question p {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  text-align: center !important;
+  font-size: 1.1rem !important;
+  margin-bottom: var(--gov-spacing-xl) !important;
+}
+
+.government-override.movement-options {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-xl) 0 !important;
+}
+
+.government-override.movement-option {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: var(--gov-shadow-light) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override.movement-option:hover {
+  border-color: var(--gov-secondary-blue) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+  transform: translateY(-2px) !important;
+}
+
+.government-override.movement-option.selected {
+  border-color: var(--gov-primary-blue) !important;
+  background: linear-gradient(135deg, #f8f9ff, #e6f0ff) !important;
+  box-shadow: var(--gov-shadow-heavy) !important;
+  transform: translateY(-2px) !important;
+}
+
+.government-override.option-icon {
+  font-size: 2.5rem !important;
+  min-width: 60px !important;
+  text-align: center !important;
+}
+
+.government-override.option-content {
+  flex: 1 !important;
+}
+
+.government-override.option-title {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.3rem !important;
+  font-weight: bold !important;
+  margin-bottom: var(--gov-spacing-xs) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.government-override.option-description {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+}
+
+.government-override.selection-confirmation {
+  margin-top: var(--gov-spacing-xl) !important;
+  padding: var(--gov-spacing-lg) !important;
+  background: linear-gradient(135deg, #e8f5e8, #d4edda) !important;
+  border: 2px solid var(--gov-success-green) !important;
+  border-radius: 8px !important;
+  animation: fadeIn 0.5s ease-in !important;
+}
+
+.government-override.confirmation-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override.confirmation-icon {
+  font-size: 2rem !important;
+  color: var(--gov-success-green) !important;
+}
+
+.government-override.confirmation-text {
+  color: var(--gov-dark-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+}
+
+.government-override.confirmation-text strong {
+  color: var(--gov-success-green) !important;
+  font-weight: bold !important;
+}
+
+.government-override.confirmation-text small {
+  color: var(--gov-medium-gray) !important;
+  font-style: italic !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ CLASES GENERALES PARA TODOS LOS PASOS ============ */
+
+/* Contenedores generales */
+.government-override.wizard-step {
+  font-family: var(--gov-font-family-sans) !important;
+  background: var(--gov-white) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-xl) !important;
+}
+
+/* Títulos de pasos */
+.government-override.step-question h2,
+.government-override.step-question h3 {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+}
+
+.government-override.step-question p {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  text-align: center !important;
+  margin-bottom: var(--gov-spacing-xl) !important;
+}
+
+/* Inputs y selects gubernamentales */
+.government-override input,
+.government-override select,
+.government-override textarea {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-md) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 1rem !important;
+  color: var(--gov-dark-gray) !important;
+  box-shadow: var(--gov-shadow-light) !important;
+  transition: all 0.3s ease !important;
+}
+
+.government-override input:focus,
+.government-override select:focus,
+.government-override textarea:focus {
+  border-color: var(--gov-primary-blue) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1) !important;
+}
+
+/* Labels gubernamentales */
+.government-override label {
+  color: var(--gov-dark-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  margin-bottom: var(--gov-spacing-sm) !important;
+  display: block !important;
+}
+
+/* Botones secundarios en pasos */
+.government-override .btn,
+.government-override button:not(.typeform-nav-btn) {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-primary-blue) !important;
+  color: var(--gov-primary-blue) !important;
+  padding: var(--gov-spacing-md) var(--gov-spacing-lg) !important;
+  border-radius: 4px !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.government-override .btn:hover,
+.government-override button:not(.typeform-nav-btn):hover {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+}
+
+/* Cards y contenedores */
+.government-override .card,
+.government-override .info-card,
+.government-override .option-card {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  box-shadow: var(--gov-shadow-light) !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+}
+
+/* Alertas y mensajes */
+.government-override .alert,
+.government-override .message {
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-md) !important;
+  margin: var(--gov-spacing-md) 0 !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+}
+
+.government-override .alert-success,
+.government-override .message-success {
+  background: #e8f5e8 !important;
+  border: 2px solid var(--gov-success-green) !important;
+  color: var(--gov-success-green) !important;
+}
+
+.government-override .alert-warning,
+.government-override .message-warning {
+  background: #fff8e1 !important;
+  border: 2px solid var(--gov-warning-orange) !important;
+  color: var(--gov-warning-orange) !important;
+}
+
+.government-override .alert-error,
+.government-override .message-error {
+  background: #ffebee !important;
+  border: 2px solid var(--gov-error-red) !important;
+  color: var(--gov-error-red) !important;
+}
+
+/* Listas y opciones */
+.government-override .options-list,
+.government-override .selection-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--gov-spacing-md) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .option-item {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-md) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.government-override .option-item:hover {
+  border-color: var(--gov-secondary-blue) !important;
+  box-shadow: var(--gov-shadow-light) !important;
+}
+
+.government-override .option-item.selected {
+  border-color: var(--gov-primary-blue) !important;
+  background: linear-gradient(135deg, #f8f9ff, #e6f0ff) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+}
+
+/* Tablas */
+.government-override table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+  font-family: var(--gov-font-family-sans) !important;
+}
+
+.government-override th,
+.government-override td {
+  border: 1px solid var(--gov-border-gray) !important;
+  padding: var(--gov-spacing-md) !important;
+  text-align: left !important;
+}
+
+.government-override th {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.government-override tr:nth-child(even) {
+  background: var(--gov-light-gray) !important;
+}
+
+/* ============ STEP2 - FUEL TYPE ESPECÍFICO ============ */
+
+.government-override.fuel-options {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-xl) 0 !important;
+}
+
+.government-override.fuel-option {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: var(--gov-shadow-light) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override.fuel-option:hover {
+  border-color: var(--gov-secondary-blue) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+  transform: translateY(-2px) !important;
+}
+
+.government-override.fuel-option.selected {
+  border-color: var(--gov-primary-blue) !important;
+  background: linear-gradient(135deg, #f8f9ff, #e6f0ff) !important;
+  box-shadow: var(--gov-shadow-heavy) !important;
+  transform: translateY(-2px) !important;
+}
+
+.government-override.fuel-option.disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.government-override.fuel-price {
+  margin-top: var(--gov-spacing-sm) !important;
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm) !important;
+  background: linear-gradient(135deg, #e8f5e8, #d4edda) !important;
+  border: 1px solid var(--gov-success-green) !important;
+  border-radius: 4px !important;
+}
+
+.government-override.price-value {
+  color: var(--gov-success-green) !important;
+  font-weight: bold !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-size: 0.9rem !important;
+}
+
+.government-override.price-confirmation {
+  margin-top: var(--gov-spacing-md) !important;
+  padding: var(--gov-spacing-md) !important;
+  background: linear-gradient(135deg, #fff8e1, #f3e5ab) !important;
+  border: 2px solid var(--gov-accent-gold) !important;
+  border-radius: 8px !important;
+}
+
+.government-override.price-info {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: var(--gov-spacing-xs) !important;
+}
+
+.government-override.price-label {
+  color: var(--gov-dark-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+}
+
+.government-override.price-amount {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+}
+
+.government-override.price-note {
+  color: var(--gov-medium-gray) !important;
+  font-style: italic !important;
+  font-size: 0.85rem !important;
+}
+
+.government-override.confirmation-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+}
+
+/* ============ STEP4 - QUANTITY ESPECÍFICO ============ */
+
+.government-override.typeform-layout {
+  max-width: 600px !important;
+  margin: 0 auto !important;
+}
+
+.government-override.typeform-question h2 {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 2rem !important;
+  text-align: center !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.government-override.typeform-question p {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  text-align: center !important;
+  font-size: 1.1rem !important;
+  margin-bottom: var(--gov-spacing-xl) !important;
+}
+
+/* Input de cantidad gubernamental */
+.government-override .professional-quantity-section {
+  background: var(--gov-white) !important;
+  border: 3px solid var(--gov-primary-blue) !important;
+  border-radius: 12px !important;
+  padding: var(--gov-spacing-xl) !important;
+  margin: var(--gov-spacing-xl) 0 !important;
+  box-shadow: var(--gov-shadow-heavy) !important;
+}
+
+.government-override .quantity-input-container-enhanced {
+  display: flex !important;
+  align-items: center !important;
+  background: var(--gov-light-gray) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-md) !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+}
+
+.government-override .quantity-input-icon {
+  font-size: 1.5rem !important;
+  margin-right: var(--gov-spacing-md) !important;
+  color: var(--gov-primary-blue) !important;
+}
+
+.government-override .professional-quantity-input {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  font-family: var(--gov-font-family-mono) !important;
+  color: var(--gov-primary-blue) !important;
+  text-align: center !important;
+  outline: none !important;
+}
+
+.government-override .professional-quantity-input::placeholder {
+  color: var(--gov-border-gray) !important;
+}
+
+.government-override .quantity-unit-enhanced {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-sm) !important;
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+}
+
+.government-override .unit-text {
+  color: var(--gov-primary-blue) !important;
+  font-size: 1.1rem !important;
+}
+
+.government-override .fuel-badge {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  padding: var(--gov-spacing-xs) var(--gov-spacing-sm) !important;
+  border-radius: 4px !important;
+  font-size: 0.8rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Indicador visual gubernamental */
+.government-override .quantity-visual-indicator {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-secondary-blue) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .quantity-bar {
+  background: var(--gov-border-gray) !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+}
+
+.government-override .quantity-fill {
+  background: linear-gradient(90deg, var(--gov-success-green), var(--gov-primary-blue)) !important;
+  height: 100% !important;
+  transition: width 0.3s ease !important;
+}
+
+.government-override .quantity-labels {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.government-override .quantity-value {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-weight: bold !important;
+  font-size: 1.2rem !important;
+}
+
+.government-override .quantity-stock {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+}
+
+/* Sugerencias gubernamentales */
+.government-override .professional-suggestions {
+  background: linear-gradient(135deg, #f8f9ff, #e6f0ff) !important;
+  border: 2px solid var(--gov-secondary-blue) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .suggestions-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-sm) !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+}
+
+.government-override .suggestions-title {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+}
+
+.government-override .suggestions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+  gap: var(--gov-spacing-sm) !important;
+}
+
+.government-override .professional-suggestion-btn {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-primary-blue) !important;
+  border-radius: 6px !important;
+  padding: var(--gov-spacing-md) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-align: center !important;
+}
+
+.government-override .professional-suggestion-btn:hover {
+  background: var(--gov-primary-blue) !important;
+  color: var(--gov-white) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+}
+
+.government-override .suggestion-value {
+  display: block !important;
+  font-weight: bold !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-size: 1.1rem !important;
+  margin-bottom: var(--gov-spacing-xs) !important;
+}
+
+.government-override .suggestion-action {
+  display: block !important;
+  font-size: 0.8rem !important;
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+}
+
+/* ============ STEP5 - VEHICLE ESPECÍFICO ============ */
+
+.government-override.typeform-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--gov-spacing-md) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .vehicle-option,
+.government-override .typeform-option {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override .vehicle-option:hover,
+.government-override .typeform-option:hover {
+  border-color: var(--gov-secondary-blue) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+  transform: translateY(-1px) !important;
+}
+
+.government-override .vehicle-option.selected,
+.government-override .typeform-option.selected {
+  border-color: var(--gov-primary-blue) !important;
+  background: linear-gradient(135deg, #f8f9ff, #e6f0ff) !important;
+  box-shadow: var(--gov-shadow-heavy) !important;
+}
+
+.government-override .vehicle-icon,
+.government-override .option-vehicle-icon {
+  font-size: 2rem !important;
+  min-width: 50px !important;
+  text-align: center !important;
+  color: var(--gov-primary-blue) !important;
+}
+
+.government-override .vehicle-info,
+.government-override .option-vehicle-info {
+  flex: 1 !important;
+}
+
+.government-override .vehicle-name,
+.government-override .vehicle-title {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  margin-bottom: var(--gov-spacing-xs) !important;
+  text-transform: uppercase !important;
+}
+
+.government-override .vehicle-details,
+.government-override .vehicle-description {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+}
+
+/* ============ STEP8 - SUMMARY ESPECÍFICO ============ */
+
+.government-override.summary-sections {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-xl) 0 !important;
+}
+
+.government-override.summary-section {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-primary-blue) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+}
+
+.government-override.summary-section h4 {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.3rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+  border-bottom: 2px solid var(--gov-accent-gold) !important;
+  padding-bottom: var(--gov-spacing-sm) !important;
+}
+
+.government-override.summary-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: var(--gov-spacing-sm) 0 !important;
+  border-bottom: 1px solid var(--gov-light-gray) !important;
+}
+
+.government-override.summary-item:last-child {
+  border-bottom: none !important;
+}
+
+.government-override.summary-label {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  font-size: 0.95rem !important;
+}
+
+.government-override.summary-value {
+  color: var(--gov-dark-gray) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  text-align: right !important;
+}
+
+/* Confirmación checkbox gubernamental */
+.government-override .confirmation-section,
+.government-override .confirm-section {
+  background: linear-gradient(135deg, #e8f5e8, #d4edda) !important;
+  border: 2px solid var(--gov-success-green) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-xl) 0 !important;
+}
+
+.government-override .confirmation-checkbox,
+.government-override .confirm-checkbox {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+  cursor: pointer !important;
+}
+
+.government-override .confirmation-checkbox input,
+.government-override .confirm-checkbox input {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid var(--gov-success-green) !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+}
+
+.government-override .confirmation-text,
+.government-override .confirm-text {
+  color: var(--gov-dark-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+}
+
+/* Comentarios gubernamentales */
+.government-override .comments-section {
+  background: var(--gov-light-gray) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .comments-section label {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+  text-transform: uppercase !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+  display: block !important;
+}
+
+.government-override .comments-section textarea {
+  width: 100% !important;
+  min-height: 80px !important;
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-md) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 1rem !important;
+  color: var(--gov-dark-gray) !important;
+  resize: vertical !important;
+}
+
+.government-override .comments-section textarea:focus {
+  border-color: var(--gov-primary-blue) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1) !important;
+}
+
+/* ============ STEP3 - LOCATION ESPECÍFICO ============ */
+
+.government-override .supplier-options,
+.government-override .location-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--gov-spacing-md) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .supplier-option,
+.government-override .location-option {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override .supplier-option:hover,
+.government-override .location-option:hover {
+  border-color: var(--gov-secondary-blue) !important;
+  box-shadow: var(--gov-shadow-medium) !important;
+  transform: translateY(-1px) !important;
+}
+
+.government-override .supplier-option.selected,
+.government-override .location-option.selected {
+  border-color: var(--gov-primary-blue) !important;
+  background: linear-gradient(135deg, #f8f9ff, #e6f0ff) !important;
+  box-shadow: var(--gov-shadow-heavy) !important;
+}
+
+.government-override .option-title {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  margin-bottom: var(--gov-spacing-xs) !important;
+  text-transform: uppercase !important;
+}
+
+.government-override .option-description {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+}
+
+.government-override .supplier-contact {
+  color: var(--gov-secondary-blue) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-size: 0.8rem !important;
+  margin-top: var(--gov-spacing-xs) !important;
+}
+
+.government-override .stock-indicator {
+  margin-top: var(--gov-spacing-sm) !important;
+}
+
+.government-override .stock-bar-mini {
+  width: 100% !important;
+  height: 6px !important;
+  background: var(--gov-light-gray) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.government-override .stock-fill-mini {
+  height: 100% !important;
+  background: var(--gov-success-green) !important;
+  transition: width 0.3s ease !important;
+}
+
+/* ============ STEP6 - DESTINATION ESPECÍFICO ============ */
+
+.government-override .capacity-info {
+  margin-top: var(--gov-spacing-sm) !important;
+}
+
+.government-override .capacity-message {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+  margin-bottom: var(--gov-spacing-xs) !important;
+}
+
+.government-override .capacity-bar-mini {
+  width: 100% !important;
+  height: 8px !important;
+  background: var(--gov-light-gray) !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  margin: var(--gov-spacing-xs) 0 !important;
+}
+
+.government-override .capacity-current-mini {
+  height: 100% !important;
+  background: var(--gov-secondary-blue) !important;
+  transition: width 0.3s ease !important;
+}
+
+.government-override .capacity-after-mini {
+  height: 100% !important;
+  background: var(--gov-primary-blue) !important;
+  position: absolute !important;
+  top: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.government-override .capacity-details {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-size: 0.8rem !important;
+}
+
+.government-override .transfer-summary {
+  background: var(--gov-light-gray) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .transfer-flow {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override .transfer-origin,
+.government-override .transfer-destination {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-sm) !important;
+  flex: 1 !important;
+}
+
+.government-override .transfer-icon {
+  font-size: 1.5rem !important;
+  color: var(--gov-primary-blue) !important;
+}
+
+.government-override .transfer-info strong {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-weight: bold !important;
+}
+
+.government-override .transfer-info small {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  display: block !important;
+}
+
+.government-override .transfer-arrow {
+  text-align: center !important;
+  color: var(--gov-accent-gold) !important;
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+}
+
+.government-override .transfer-arrow small {
+  display: block !important;
+  font-size: 0.8rem !important;
+  color: var(--gov-medium-gray) !important;
+  margin-top: var(--gov-spacing-xs) !important;
+}
+
+/* ============ STEP7 - DETAILS ESPECÍFICO ============ */
+
+.government-override .calculating-price {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-sm) !important;
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+  margin-top: var(--gov-spacing-sm) !important;
+}
+
+.government-override .price-suggestion {
+  color: var(--gov-secondary-blue) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+  margin-top: var(--gov-spacing-sm) !important;
+  display: block !important;
+}
+
+.government-override .total-value-section {
+  margin: var(--gov-spacing-lg) 0 !important;
+}
+
+.government-override .total-value-card {
+  background: linear-gradient(135deg, #e8f5e8, #d4edda) !important;
+  border: 2px solid var(--gov-success-green) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override .total-icon {
+  font-size: 2rem !important;
+  color: var(--gov-success-green) !important;
+}
+
+.government-override .total-content h4 {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-weight: bold !important;
+  margin-bottom: var(--gov-spacing-sm) !important;
+}
+
+.government-override .total-calculation {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--gov-spacing-xs) !important;
+}
+
+.government-override .calculation-details {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-size: 0.9rem !important;
+}
+
+.government-override .total-amount {
+  color: var(--gov-success-green) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+}
+
+.government-override .description-counter {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-mono) !important;
+  font-size: 0.8rem !important;
+  text-align: right !important;
+  margin-top: var(--gov-spacing-xs) !important;
+}
+
+/* ============ STEP9 - MAINTENANCE ESPECÍFICO ============ */
+
+.government-override .step-header h3 {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.8rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  margin-bottom: var(--gov-spacing-sm) !important;
+}
+
+.government-override .step-header p {
+  color: var(--gov-medium-gray) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.government-override .section-title {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-size: 1.3rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+  border-bottom: 2px solid var(--gov-accent-gold) !important;
+  padding-bottom: var(--gov-spacing-sm) !important;
+}
+
+.government-override .form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: var(--gov-spacing-md) !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+}
+
+.government-override .form-grid .form-group.full-width {
+  grid-column: 1 / -1 !important;
+}
+
+.government-override .form-group label {
+  color: var(--gov-primary-blue) !important;
+  font-family: var(--gov-font-family) !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  margin-bottom: var(--gov-spacing-sm) !important;
+  display: block !important;
+}
+
+.government-override .form-group input,
+.government-override .form-group select,
+.government-override .form-group textarea {
+  width: 100% !important;
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 4px !important;
+  padding: var(--gov-spacing-md) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 1rem !important;
+  color: var(--gov-dark-gray) !important;
+  transition: border-color 0.3s ease !important;
+}
+
+.government-override .form-group input:focus,
+.government-override .form-group select:focus,
+.government-override .form-group textarea:focus {
+  border-color: var(--gov-primary-blue) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1) !important;
+}
+
+.government-override .error-text {
+  color: var(--gov-error-red) !important;
+  font-family: var(--gov-font-family-sans) !important;
+  font-size: 0.9rem !important;
+  margin-top: var(--gov-spacing-xs) !important;
+  display: block !important;
+}
+
+/* ============ STEP 9 - MAINTENANCE (GOBIERNO) ============ */
+
+/* Contenedor principal del step de mantenimiento */
+.government-override.step-maintenance {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 12px !important;
+  padding: var(--gov-spacing-xl) !important;
+  margin: var(--gov-spacing-lg) 0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Header del step de mantenimiento */
+.government-override .step-maintenance .step-header h3 {
+  color: var(--gov-blue) !important;
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
+  margin-bottom: var(--gov-spacing-sm) !important;
+  padding-bottom: var(--gov-spacing-sm) !important;
+  border-bottom: 3px solid var(--gov-gold) !important;
+}
+
+.government-override .step-maintenance .step-header p {
+  color: var(--gov-text-gray) !important;
+  font-size: 1rem !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+  line-height: 1.5 !important;
+}
+
+/* Secciones de formulario de mantenimiento */
+.government-override .step-maintenance .form-section {
+  background: var(--gov-light-gray) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+}
+
+.government-override .step-maintenance .section-title {
+  color: var(--gov-blue) !important;
+  font-size: 1.3rem !important;
+  font-weight: 600 !important;
+  margin-bottom: var(--gov-spacing-md) !important;
+  padding-bottom: var(--gov-spacing-sm) !important;
+  border-bottom: 2px solid var(--gov-gold) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--gov-spacing-sm) !important;
+}
+
+/* Grid de formulario de mantenimiento */
+.government-override .step-maintenance .form-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: var(--gov-spacing-lg) !important;
+  margin-top: var(--gov-spacing-md) !important;
+}
+
+.government-override .step-maintenance .form-grid .full-width {
+  grid-column: 1 / -1 !important;
+}
+
+/* Formulario de partes */
+.government-override .step-maintenance .parts-form {
+  background: var(--gov-white) !important;
+  border: 2px solid var(--gov-blue) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+}
+
+/* Botón agregar parte */
+.government-override .step-maintenance .btn-add-part {
+  background: var(--gov-blue) !important;
+  color: var(--gov-white) !important;
+  border: none !important;
+  padding: var(--gov-spacing-md) var(--gov-spacing-lg) !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-size: 1rem !important;
+  width: 100% !important;
+  height: fit-content !important;
+  align-self: end !important;
+}
+
+.government-override .step-maintenance .btn-add-part:hover:not(:disabled) {
+  background: var(--gov-blue-dark) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3) !important;
+}
+
+.government-override .step-maintenance .btn-add-part:disabled {
+  background: var(--gov-border-gray) !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Tabla de partes */
+.government-override .step-maintenance .parts-list {
+  margin-top: var(--gov-spacing-lg) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  border: 2px solid var(--gov-border-gray) !important;
+}
+
+.government-override .step-maintenance .parts-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: var(--gov-white) !important;
+}
+
+.government-override .step-maintenance .parts-table th {
+  background: var(--gov-blue) !important;
+  color: var(--gov-white) !important;
+  padding: var(--gov-spacing-md) !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+  border-bottom: 2px solid var(--gov-blue-dark) !important;
+}
+
+.government-override .step-maintenance .parts-table td {
+  padding: var(--gov-spacing-md) !important;
+  border-bottom: 1px solid var(--gov-border-gray) !important;
+  color: var(--gov-text-dark) !important;
+}
+
+.government-override .step-maintenance .parts-table tbody tr:hover {
+  background: var(--gov-light-gray) !important;
+}
+
+.government-override .step-maintenance .parts-table tfoot .total-row {
+  background: var(--gov-light-gray) !important;
+  font-weight: 600 !important;
+  border-top: 2px solid var(--gov-blue) !important;
+}
+
+/* Botón eliminar parte */
+.government-override .step-maintenance .btn-remove-part {
+  background: #dc2626 !important;
+  color: var(--gov-white) !important;
+  border: none !important;
+  padding: var(--gov-spacing-sm) !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-size: 1rem !important;
+}
+
+.government-override .step-maintenance .btn-remove-part:hover {
+  background: #b91c1c !important;
+  transform: scale(1.1) !important;
+}
+
+/* Resumen de costos */
+.government-override .step-maintenance .cost-summary {
+  background: linear-gradient(135deg, var(--gov-light-gray) 0%, var(--gov-white) 100%) !important;
+  border: 3px solid var(--gov-gold) !important;
+  border-radius: 12px !important;
+  padding: var(--gov-spacing-xl) !important;
+  margin-top: var(--gov-spacing-lg) !important;
+}
+
+.government-override .step-maintenance .cost-summary h4 {
+  color: var(--gov-blue) !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+  text-align: center !important;
+}
+
+.government-override .step-maintenance .cost-grid {
+  display: grid !important;
+  gap: var(--gov-spacing-md) !important;
+}
+
+.government-override .step-maintenance .cost-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: var(--gov-spacing-md) !important;
+  background: var(--gov-white) !important;
+  border: 1px solid var(--gov-border-gray) !important;
+  border-radius: 6px !important;
+}
+
+.government-override .step-maintenance .cost-item.total-cost {
+  background: var(--gov-blue) !important;
+  color: var(--gov-white) !important;
+  border: 2px solid var(--gov-blue-dark) !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+}
+
+.government-override .step-maintenance .cost-label {
+  font-weight: 600 !important;
+  color: var(--gov-text-dark) !important;
+}
+
+.government-override .step-maintenance .cost-item.total-cost .cost-label {
+  color: var(--gov-white) !important;
+}
+
+.government-override .step-maintenance .cost-value {
+  font-weight: 700 !important;
+  color: var(--gov-blue) !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+.government-override .step-maintenance .cost-item.total-cost .cost-value {
+  color: var(--gov-gold) !important;
+}
+
+/* Contador de caracteres */
+.government-override .step-maintenance .char-count {
+  font-size: 0.85rem !important;
+  color: var(--gov-text-gray) !important;
+  text-align: right !important;
+  margin-top: var(--gov-spacing-xs) !important;
+  display: block !important;
+}
+
+/* Hint del step */
+.government-override .step-maintenance .step-hint {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+  border: 2px solid var(--gov-gold) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin-top: var(--gov-spacing-xl) !important;
+  color: #92400e !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  font-style: italic !important;
+}
+
+/* ============ OPTIMIZACIONES RESPONSIVAS PARA STEP9 MAINTENANCE ============ */
+
+/* Portátiles (1366px y menor) */
+@media screen and (max-width: 1366px) {
+  .government-override.step-maintenance {
+    padding: var(--gov-spacing-md) !important;
+    margin: var(--gov-spacing-md) 0 !important;
+  }
+
+  .government-override .step-maintenance .step-header h3 {
+    font-size: 1.4rem !important;
+  }
+
+  .government-override .step-maintenance .section-title {
+    font-size: 1.2rem !important;
+  }
+
+  .government-override .step-maintenance .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .step-maintenance .parts-form {
+    padding: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .step-maintenance .parts-table th,
+  .government-override .step-maintenance .parts-table td {
+    padding: var(--gov-spacing-sm) !important;
+    font-size: 0.9rem !important;
+  }
+
+  .government-override .step-maintenance .cost-summary {
+    padding: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .step-maintenance .cost-summary h4 {
+    font-size: 1.2rem !important;
+  }
+
+  .government-override .step-maintenance .cost-item {
+    padding: var(--gov-spacing-sm) !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Pantallas medianas (1280px y menor) */
+@media screen and (max-width: 1280px) {
+  .government-override .step-maintenance .parts-table {
+    font-size: 0.85rem !important;
+  }
+
+  .government-override .step-maintenance .parts-table th,
+  .government-override .step-maintenance .parts-table td {
+    padding: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .step-maintenance .btn-add-part {
+    padding: var(--gov-spacing-sm) !important;
+    font-size: 0.9rem !important;
+  }
+
+  .government-override .step-maintenance .btn-remove-part {
+    padding: var(--gov-spacing-xs) !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+/* Pantallas pequeñas (1200px y menor) */
+@media screen and (max-width: 1200px) {
+  .government-override .step-maintenance .cost-grid {
+    gap: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .step-maintenance .cost-item {
+    flex-direction: column !important;
+    gap: var(--gov-spacing-xs) !important;
+    text-align: center !important;
+  }
+
+  .government-override .step-maintenance .parts-table th:nth-child(3),
+  .government-override .step-maintenance .parts-table td:nth-child(3) {
+    display: none !important;
+  }
+
+  .government-override .step-maintenance .step-hint {
+    padding: var(--gov-spacing-md) !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* ============ OPTIMIZACIONES RESPONSIVAS ESPECÍFICAS PARA MODAL ============ */
+
+/* Tablet y pantallas medianas (1024px y menor) */
+@media screen and (max-width: 1024px) {
+  :root {
+    --gov-modal-max-width: 95vw;
+    --gov-modal-max-height: 90vh;
+  }
+
+  .government-override .movement-wizard-government,
+  .movement-wizard-government {
+    border-width: 3px !important;
+  }
+
+  .government-override .government-header,
+  .movement-wizard-government .government-header {
+    padding: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .government-progress,
+  .movement-wizard-government .government-progress {
+    padding: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .government-step-content,
+  .movement-wizard-government .government-step-content {
+    padding: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .government-header h1,
+  .movement-wizard-government .government-header h1 {
+    font-size: 1.2rem !important;
+  }
+
+  .government-override .government-close-btn,
+  .movement-wizard-government .government-close-btn {
+    font-size: 0.7rem !important;
+    padding: var(--gov-spacing-xs) !important;
+  }
+}
+
+/* Móviles (768px y menor) */
+@media screen and (max-width: 768px) {
+  :root {
+    --gov-modal-max-width: 98vw;
+    --gov-modal-max-height: 95vh;
+  }
+
+  .government-override .modal-overlay,
+  .modal-overlay.government-override {
+    padding: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .government-header,
+  .movement-wizard-government .government-header {
+    padding: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .government-progress,
+  .movement-wizard-government .government-progress {
+    padding: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .government-step-content,
+  .movement-wizard-government .government-step-content {
+    padding: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .government-header h1,
+  .movement-wizard-government .government-header h1 {
+    font-size: 1rem !important;
+  }
+
+  .government-override .government-header h2,
+  .movement-wizard-government .government-header h2 {
+    font-size: 0.9rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .government-override .government-close-btn,
+  .movement-wizard-government .government-close-btn {
+    font-size: 0.6rem !important;
+    padding: 2px 4px !important;
+    top: var(--gov-spacing-xs) !important;
+    right: var(--gov-spacing-xs) !important;
+  }
+
+  /* Ocultar indicador de scroll en móviles para ahorrar espacio */
+  .government-override .government-step-content::before,
+  .movement-wizard-government .government-step-content::before {
+    display: none !important;
+  }
+}
+
+/* Pantallas muy pequeñas (480px y menor) */
+@media screen and (max-width: 480px) {
+  :root {
+    --gov-modal-max-width: 100vw;
+    --gov-modal-max-height: 100vh;
+  }
+
+  .government-override .modal-overlay,
+  .modal-overlay.government-override {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .government-override .movement-wizard-government,
+  .movement-wizard-government {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+  }
+
+  .government-override .government-header h1,
+  .movement-wizard-government .government-header h1 {
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .government-override .government-header h2,
+  .movement-wizard-government .government-header h2 {
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Ocultar todos los indicadores en pantallas muy pequeñas */
+  .government-override .government-step-content::before,
+  .government-override .government-step-content::after,
+  .movement-wizard-government .government-step-content::before,
+  .movement-wizard-government .government-step-content::after {
+    display: none !important;
+  }
+}
+
+/* ============ MEJORAS ADICIONALES DE USABILIDAD ============ */
+
+/* Efecto de enfoque en el área de scroll */
+.government-override .government-step-content:focus-within,
+.movement-wizard-government .government-step-content:focus-within {
+  box-shadow: inset 0 0 0 3px var(--gov-accent-gold) !important;
+}
+
+/* Smooth scroll para navegación gubernamental */
+.government-override .government-step-content,
+.movement-wizard-government .government-step-content {
+  scroll-behavior: smooth !important;
+}
+
+/* Focus trap para accesibilidad */
+.government-override .movement-wizard-government:focus-within,
+.movement-wizard-government:focus-within {
+  outline: 4px solid var(--gov-accent-gold) !important;
+  outline-offset: -4px !important;
+}
+
+/* Asegurar que todos los steps tengan scroll cuando sea necesario */
+.government-override .wizard-step,
+.government-override .step-maintenance,
+.government-override .step-movement-type,
+.government-override .step-fuel-type,
+.government-override .step-location,
+.government-override .step-quantity,
+.government-override .step-vehicle,
+.government-override .step-destination,
+.government-override .step-details,
+.government-override .step-summary {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Asegurar que el contenido largo se muestre correctamente */
+.government-override .government-step-content > *,
+.movement-wizard-government .government-step-content > * {
+  flex-shrink: 0 !important;
+}
+
+/* Scrollbar styling para contenido gubernamental */
+.government-override .government-step-content::-webkit-scrollbar,
+.movement-wizard-government .government-step-content::-webkit-scrollbar {
+  width: 16px !important;
+}
+
+.government-override .government-step-content::-webkit-scrollbar-track,
+.movement-wizard-government .government-step-content::-webkit-scrollbar-track {
+  background: var(--gov-light-gray) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+}
+
+.government-override .government-step-content::-webkit-scrollbar-thumb,
+.movement-wizard-government .government-step-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--gov-secondary-blue) 0%,
+    var(--gov-primary-blue) 100%
+  ) !important;
+  border: 3px solid var(--gov-white) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.government-override .government-step-content::-webkit-scrollbar-thumb:hover,
+.movement-wizard-government .government-step-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--gov-primary-blue) 0%, #002244 100%) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.government-override .parts-form {
+  background: var(--gov-light-gray) !important;
+  border: 2px solid var(--gov-border-gray) !important;
+  border-radius: 8px !important;
+  padding: var(--gov-spacing-lg) !important;
+  margin-bottom: var(--gov-spacing-lg) !important;
+}
+
+/* ============ OPTIMIZACIONES ESPECÍFICAS PARA PORTÁTILES ============ */
+
+/* STEP4 QUANTITY - Versión compacta */
+@media screen and (max-width: 1366px) {
+  .government-override .professional-quantity-section {
+    margin: var(--gov-spacing-md) 0 !important;
+  }
+
+  .government-override .quantity-input-container-enhanced {
+    max-width: 100% !important;
+  }
+
+  .government-override .quantity-unit-enhanced {
+    padding: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .fuel-type-indicator {
+    flex-direction: column !important;
+    gap: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .fuel-badge {
+    font-size: 0.8rem !important;
+    padding: var(--gov-spacing-xs) var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .professional-suggestions {
+    margin: var(--gov-spacing-md) 0 !important;
+  }
+
+  .government-override .suggestions-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .professional-suggestion-btn {
+    padding: var(--gov-spacing-sm) !important;
+    font-size: 0.9rem !important;
+  }
+
+  .government-override .confirmation-card-enhanced {
+    padding: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .main-quantity {
+    font-size: 1.2rem !important;
+  }
+}
+
+/* STEP8 SUMMARY - Versión compacta */
+@media screen and (max-width: 1366px) {
+  .government-override.summary-sections {
+    gap: var(--gov-spacing-md) !important;
+    margin: var(--gov-spacing-md) 0 !important;
+  }
+
+  .government-override.summary-section {
+    padding: var(--gov-spacing-md) !important;
+  }
+
+  .government-override.summary-section h4 {
+    font-size: 1.1rem !important;
+    margin-bottom: var(--gov-spacing-sm) !important;
+    padding-bottom: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override.summary-item {
+    padding: var(--gov-spacing-xs) 0 !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override.summary-label {
+    font-size: 0.9rem !important;
+  }
+
+  .government-override.summary-value {
+    font-size: 0.95rem !important;
+    text-align: left !important;
+  }
+
+  .government-override .comments-section {
+    padding: var(--gov-spacing-md) !important;
+    margin: var(--gov-spacing-md) 0 !important;
+  }
+
+  .government-override .comments-section textarea {
+    min-height: 60px !important;
+    padding: var(--gov-spacing-sm) !important;
+  }
+}
+
+/* TRANSFER FLOW - Layout responsivo */
+@media screen and (max-width: 1366px) {
+  .government-override .transfer-flow {
+    flex-direction: column !important;
+    gap: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .transfer-origin,
+  .government-override .transfer-destination {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .government-override .transfer-arrow {
+    transform: rotate(90deg) !important;
+    font-size: 1.2rem !important;
+  }
+
+  .government-override .transfer-arrow small {
+    transform: rotate(-90deg) !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* FORMULARIOS - Versión compacta */
+@media screen and (max-width: 1366px) {
+  .government-override .form-section {
+    margin-bottom: var(--gov-spacing-md) !important;
+  }
+
+  .government-override .section-title {
+    font-size: 1.1rem !important;
+    margin-bottom: var(--gov-spacing-sm) !important;
+    padding-bottom: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .form-group label {
+    font-size: 0.9rem !important;
+    margin-bottom: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .form-group input,
+  .government-override .form-group select,
+  .government-override .form-group textarea {
+    padding: var(--gov-spacing-sm) !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Total value card más compacta */
+  .government-override .total-value-card {
+    padding: var(--gov-spacing-md) !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .total-icon {
+    font-size: 1.5rem !important;
+  }
+
+  .government-override .total-amount {
+    font-size: 1.2rem !important;
+  }
+}
+
+/* Layout horizontal para pantallas muy pequeñas */
+@media screen and (max-width: 1200px) {
+  .government-override .confirmation-card {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: var(--gov-spacing-sm) !important;
+  }
+
+  .government-override .fuel-price-info {
+    flex-direction: column !important;
+    gap: var(--gov-spacing-xs) !important;
+  }
+
+  .government-override .capacity-confirmation {
+    display: block !important;
+  }
+
+  .government-override .capacity-detail {
+    flex-direction: column !important;
+    gap: var(--gov-spacing-xs) !important;
+    margin-bottom: var(--gov-spacing-sm) !important;
+  }
+}

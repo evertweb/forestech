@@ -21,8 +21,16 @@ const MAINTENANCE_PRIORITY = {
   CRITICA: 'critica',
 };
 
-const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
+const Step9_Maintenance = ({ formData, updateFormData, errors, isActive, theme = 'modern' }) => {
   const [newPart, setNewPart] = useState({ name: '', quantity: 1, cost: 0 });
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   // Handlers para campos de mantenimiento
   const handleInputChange = useCallback(
@@ -95,19 +103,19 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
   if (!isActive) return null;
 
   return (
-    <div className="wizard-step step-maintenance sap-theme">
-      <div className="step-header sap-theme">
+    <div className={`wizard-step step-maintenance ${getThemeClass('')}`}>
+      <div className={getThemeClass('step-header')}>
         <h3>🔧 Datos del Mantenimiento</h3>
         <p>Registra los detalles del mantenimiento realizado con este combustible</p>
       </div>
 
-      <div className="step-content sap-theme">
+      <div className={getThemeClass('step-content')}>
         {/* Información básica del mantenimiento */}
-        <div className="form-section sap-theme">
-          <h4 className="section-title sap-theme">📋 Información del Mantenimiento</h4>
+        <div className={getThemeClass('form-section')}>
+          <h4 className={getThemeClass('section-title')}>📋 Información del Mantenimiento</h4>
 
-          <div className="form-grid sap-theme">
-            <div className="form-group sap-theme">
+          <div className={getThemeClass('form-grid')}>
+            <div className={getThemeClass('form-group')}>
               <label htmlFor="maintenanceType">Tipo de Mantenimiento *</label>
               <select
                 id="maintenanceType"
@@ -123,11 +131,11 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                 ))}
               </select>
               {errors.maintenanceType && (
-                <span className="error-text sap-theme">{errors.maintenanceType}</span>
+                <span className={getThemeClass('error-text')}>{errors.maintenanceType}</span>
               )}
             </div>
 
-            <div className="form-group sap-theme">
+            <div className={getThemeClass('form-group')}>
               <label htmlFor="maintenancePriority">Prioridad</label>
               <select
                 id="maintenancePriority"
@@ -143,7 +151,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
               </select>
             </div>
 
-            <div className="form-group full-width sap-theme">
+            <div className={`${getThemeClass('form-group')} full-width`}>
               <label htmlFor="maintenanceTitle">Título del Mantenimiento *</label>
               <input
                 type="text"
@@ -156,18 +164,18 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                 maxLength={100}
               />
               {errors.maintenanceTitle && (
-                <span className="error-text sap-theme">{errors.maintenanceTitle}</span>
+                <span className={getThemeClass('error-text')}>{errors.maintenanceTitle}</span>
               )}
             </div>
           </div>
         </div>
 
         {/* Costos y tiempo */}
-        <div className="form-section sap-theme">
-          <h4 className="section-title sap-theme">💰 Costos y Tiempo</h4>
+        <div className={getThemeClass('form-section')}>
+          <h4 className={getThemeClass('section-title')}>💰 Costos y Tiempo</h4>
 
-          <div className="form-grid sap-theme">
-            <div className="form-group sap-theme">
+          <div className={getThemeClass('form-grid')}>
+            <div className={getThemeClass('form-group')}>
               <label htmlFor="maintenanceHours">Horas de Trabajo</label>
               <input
                 type="number"
@@ -181,7 +189,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
               />
             </div>
 
-            <div className="form-group sap-theme">
+            <div className={getThemeClass('form-group')}>
               <label htmlFor="maintenanceCost">Costo Mano de Obra (COP)</label>
               <input
                 type="number"
@@ -195,7 +203,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
               />
             </div>
 
-            <div className="form-group sap-theme">
+            <div className={getThemeClass('form-group')}>
               <label htmlFor="maintenanceTechnician">Técnico Responsable</label>
               <input
                 type="text"
@@ -211,13 +219,13 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
         </div>
 
         {/* Partes y repuestos */}
-        <div className="form-section sap-theme">
-          <h4 className="section-title sap-theme">🔧 Partes y Repuestos</h4>
+        <div className={getThemeClass('form-section')}>
+          <h4 className={getThemeClass('section-title')}>🔧 Partes y Repuestos</h4>
 
           {/* Formulario para agregar partes */}
-          <div className="parts-form sap-theme">
-            <div className="form-grid sap-theme">
-              <div className="form-group sap-theme">
+          <div className={getThemeClass('parts-form')}>
+            <div className={getThemeClass('form-grid')}>
+              <div className={getThemeClass('form-group')}>
                 <label htmlFor="partName">Nombre de la Parte</label>
                 <input
                   type="text"
@@ -230,7 +238,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                 />
               </div>
 
-              <div className="form-group sap-theme">
+              <div className={getThemeClass('form-group')}>
                 <label htmlFor="partQuantity">Cantidad</label>
                 <input
                   type="number"
@@ -243,7 +251,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                 />
               </div>
 
-              <div className="form-group sap-theme">
+              <div className={getThemeClass('form-group')}>
                 <label htmlFor="partCost">Costo Unitario (COP)</label>
                 <input
                   type="number"
@@ -256,10 +264,10 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                 />
               </div>
 
-              <div className="form-group sap-theme">
+              <div className={getThemeClass('form-group')}>
                 <button
                   type="button"
-                  className="btn-add-part sap-theme"
+                  className={getThemeClass('btn-add-part')}
                   onClick={addPart}
                   disabled={!newPart.name.trim()}
                 >
@@ -271,8 +279,8 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
 
           {/* Lista de partes agregadas */}
           {formData.maintenanceParts && formData.maintenanceParts.length > 0 && (
-            <div className="parts-list sap-theme">
-              <table className="parts-table sap-theme">
+            <div className={getThemeClass('parts-list')}>
+              <table className={getThemeClass('parts-table')}>
                 <thead>
                   <tr>
                     <th>Parte</th>
@@ -292,7 +300,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                       <td>
                         <button
                           type="button"
-                          className="btn-remove-part sap-theme"
+                          className={getThemeClass('btn-remove-part')}
                           onClick={() => removePart(part.id)}
                           title="Eliminar parte"
                         >
@@ -303,7 +311,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="total-row sap-theme">
+                  <tr className={getThemeClass('total-row')}>
                     <td colSpan="3">
                       <strong>Total Partes:</strong>
                     </td>
@@ -319,10 +327,10 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
         </div>
 
         {/* Descripción del trabajo */}
-        <div className="form-section sap-theme">
-          <h4 className="section-title sap-theme">📝 Descripción del Trabajo</h4>
+        <div className={getThemeClass('form-section')}>
+          <h4 className={getThemeClass('section-title')}>📝 Descripción del Trabajo</h4>
 
-          <div className="form-group sap-theme">
+          <div className={getThemeClass('form-group')}>
             <label htmlFor="maintenanceDescription">Descripción del Trabajo *</label>
             <textarea
               id="maintenanceDescription"
@@ -335,11 +343,11 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
               className={errors.maintenanceDescription ? 'error' : ''}
             />
             {errors.maintenanceDescription && (
-              <span className="error-text sap-theme">{errors.maintenanceDescription}</span>
+              <span className={getThemeClass('error-text')}>{errors.maintenanceDescription}</span>
             )}
           </div>
 
-          <div className="form-group sap-theme">
+          <div className={getThemeClass('form-group')}>
             <label htmlFor="maintenanceNotes">Notas Adicionales</label>
             <textarea
               id="maintenanceNotes"
@@ -350,7 +358,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
               rows="2"
               maxLength="300"
             />
-            <span className="char-count sap-theme">
+            <span className={getThemeClass('char-count')}>
               {(formData.maintenanceNotes || '').length}/300 caracteres
             </span>
           </div>
@@ -358,24 +366,24 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
 
         {/* Resumen de costos */}
         {(formData.maintenanceCost || getTotalPartsCost() > 0) && (
-          <div className="cost-summary sap-theme">
+          <div className={getThemeClass('cost-summary')}>
             <h4>💰 Resumen de Costos</h4>
-            <div className="cost-grid sap-theme">
-              <div className="cost-item sap-theme">
-                <span className="cost-label sap-theme">Mano de Obra:</span>
-                <span className="cost-value sap-theme">
+            <div className={getThemeClass('cost-grid')}>
+              <div className={getThemeClass('cost-item')}>
+                <span className={getThemeClass('cost-label')}>Mano de Obra:</span>
+                <span className={getThemeClass('cost-value')}>
                   ${(formData.maintenanceCost || 0).toLocaleString('es-CO')}
                 </span>
               </div>
-              <div className="cost-item sap-theme">
-                <span className="cost-label sap-theme">Partes:</span>
-                <span className="cost-value sap-theme">
+              <div className={getThemeClass('cost-item')}>
+                <span className={getThemeClass('cost-label')}>Partes:</span>
+                <span className={getThemeClass('cost-value')}>
                   ${getTotalPartsCost().toLocaleString('es-CO')}
                 </span>
               </div>
-              <div className="cost-item total-cost sap-theme">
-                <span className="cost-label sap-theme">Total:</span>
-                <span className="cost-value sap-theme">
+              <div className={`${getThemeClass('cost-item')} ${getThemeClass('total-cost')}`}>
+                <span className={getThemeClass('cost-label')}>Total:</span>
+                <span className={getThemeClass('cost-value')}>
                   ${((formData.maintenanceCost || 0) + getTotalPartsCost()).toLocaleString('es-CO')}
                 </span>
               </div>
@@ -384,7 +392,7 @@ const Step9_Maintenance = ({ formData, updateFormData, errors, isActive }) => {
         )}
       </div>
 
-      <div className="step-hint sap-theme">
+      <div className={getThemeClass('step-hint')}>
         💡 Este mantenimiento se registrará junto con el movimiento de combustible
       </div>
     </div>

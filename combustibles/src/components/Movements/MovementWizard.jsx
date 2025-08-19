@@ -32,8 +32,9 @@ import Step9_Maintenance from './WizardSteps/Step9_Maintenance';
 
 import './WizardSteps.css';
 import './WizardSteps-SAP.css';
+import './WizardSteps-Government.css';
 
-const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
+const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
   // Usar datos en tiempo real del contexto
   const { inventory, vehicles, subscribeToSuppliers } = useCombustibles();
 
@@ -102,6 +103,31 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       reference: '',
       effectiveDate: new Date().toISOString().slice(0, 16),
       currentHours: '',
+    });
+  };
+
+  // Funciones helper para tema gubernamental
+  const generateDocumentCode = () => {
+    const year = new Date().getFullYear();
+    const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    const day = String(new Date().getDate()).padStart(2, '0');
+    const random = String(Date.now()).slice(-4);
+    return `FORESTECH-MOV-${year}${month}${day}-${random}`;
+  };
+
+  const generateStepCode = (step) => {
+    return `PASO-${step.toString().padStart(2, '0')}`;
+  };
+
+  const getCurrentTimestamp = () => {
+    return new Date().toLocaleString('es-CO', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
     });
   };
 
@@ -703,6 +729,99 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       error,
       setError,
       isActive: !isTransitioning,
+      theme, // Agregamos el theme a las props comunes
+    };
+
+    // Función para envolver pasos con información gubernamental
+    const wrapWithGovernmentInfo = (stepComponent, stepNumber, stepTitle, stepDescription) => {
+      if (theme !== 'government') {
+        return stepComponent;
+      }
+
+      return (
+        <>
+          {/* Información del Documento Gubernamental */}
+          <div className="government-document-info">
+            <div className="document-classification">OFICIAL</div>
+            <div className="document-header">
+              <div className="document-code">DOC: {generateDocumentCode()}</div>
+              <div className="document-timestamp">FECHA: {getCurrentTimestamp()}</div>
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--gov-medium-gray)' }}>
+              Este documento constituye un registro oficial del Sistema Integrado de Gestión de
+              Combustibles de Forestech de Colombia S.A.S. Su llenado es obligatorio para el control
+              y trazabilidad de los movimientos de combustibles según las normas internas de la
+              compañía.
+            </div>
+          </div>
+
+          {/* Header del Paso Gubernamental */}
+          <div className="step-header-government">
+            <div className="step-reference">REF: {generateStepCode(stepNumber)}</div>
+            <div className="step-number">{stepNumber}</div>
+            <h3 className="step-title">{stepTitle}</h3>
+            <p className="step-description">{stepDescription}</p>
+          </div>
+
+          {/* Contenido del paso envuelto en sección gubernamental */}
+          <div className="government-form-section">
+            <h4 className="form-section-title">Información Requerida - Paso {stepNumber}</h4>
+            {stepComponent}
+          </div>
+
+          {/* Alerta informativa gubernamental */}
+          <div className="government-alert government-alert-info">
+            <div className="alert-title">Información Importante</div>
+            <p>
+              Los datos ingresados son validados automáticamente contra el inventario actual del
+              sistema. Todos los movimientos quedan registrados en el sistema de trazabilidad.
+            </p>
+          </div>
+        </>
+      );
+    };
+
+    // Obtener títulos y descripciones para cada paso
+    const getStepInfo = (stepKey) => {
+      const stepMap = {
+        1: {
+          title: 'Tipo de Movimiento',
+          description: 'Seleccione el tipo de operación a registrar en el sistema',
+        },
+        2: { title: 'Fecha y Hora', description: 'Especifique la fecha y hora del movimiento' },
+        3: {
+          title: 'Tipo de Combustible',
+          description: 'Seleccione el tipo de combustible involucrado',
+        },
+        4: { title: 'Ubicación', description: 'Confirme la ubicación del movimiento' },
+        '4b': {
+          title: 'Verificación de Inventario',
+          description: 'Revise el inventario disponible',
+        },
+        5: {
+          title: 'Vehículo Asignado',
+          description: 'Asigne el vehículo correspondiente al movimiento',
+        },
+        6: { title: 'Cantidad', description: 'Indique la cantidad exacta del combustible' },
+        7: {
+          title: 'Detalles Adicionales',
+          description: 'Complete la información adicional y observaciones',
+        },
+        8: {
+          title: 'Resumen y Confirmación',
+          description: 'Revise todos los datos antes de la confirmación final',
+        },
+        9: {
+          title: 'Información de Mantenimiento',
+          description: 'Especifique los datos de mantenimiento del vehículo',
+        },
+      };
+      return (
+        stepMap[stepKey] || {
+          title: 'Información del Paso',
+          description: 'Complete la información requerida',
+        }
+      );
     };
 
     // Debug crítico: Solo log cuando Step5 (vehículos) no tiene datos
@@ -737,7 +856,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           />
         ),
       };
-      return exitStepComponents[currentStep] || <div>Paso no encontrado</div>;
+      const stepComponent = exitStepComponents[currentStep] || <div>Paso no encontrado</div>;
+      const stepInfo = getStepInfo(currentStep);
+      return wrapWithGovernmentInfo(
+        stepComponent,
+        currentStep,
+        stepInfo.title,
+        stepInfo.description
+      );
     }
 
     // ✅ NUEVA LÓGICA DE RENDERIZADO PARA MANTENIMIENTO
@@ -760,7 +886,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           />
         ),
       };
-      return maintenanceStepComponents[currentStep] || <div>Paso no encontrado</div>;
+      const stepComponent = maintenanceStepComponents[currentStep] || <div>Paso no encontrado</div>;
+      const stepInfo = getStepInfo(currentStep);
+      return wrapWithGovernmentInfo(
+        stepComponent,
+        currentStep,
+        stepInfo.title,
+        stepInfo.description
+      );
     }
 
     // Lógica original para otros tipos de movimientos
@@ -785,7 +918,9 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
       ),
     };
 
-    return stepComponents[currentStep] || <div>Paso no encontrado</div>;
+    const stepComponent = stepComponents[currentStep] || <div>Paso no encontrado</div>;
+    const stepInfo = getStepInfo(currentStep);
+    return wrapWithGovernmentInfo(stepComponent, currentStep, stepInfo.title, stepInfo.description);
   };
 
   if (!isOpen) return null;
@@ -813,33 +948,135 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
   const progress = (currentLogicalStep / totalSteps) * 100;
   const isLastStep = currentLogicalStep >= totalSteps;
 
+  // Clases según el theme
+  const getThemeClasses = () => {
+    if (theme === 'government') {
+      return {
+        overlay: 'modal-overlay',
+        content: 'movement-wizard-government',
+        theme: 'government-theme',
+      };
+    }
+    return {
+      overlay: `${MODAL_PRESETS.MOVEMENT_WIZARD.overlay} sap-theme`,
+      content: `${MODAL_PRESETS.MOVEMENT_WIZARD.content} sap-theme typeform-mode ${isLastStep ? 'is-last-step' : ''}`,
+      theme: 'sap-theme',
+    };
+  };
+
+  // Helper para clases específicas según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
+
+  const themeClasses = getThemeClasses();
+
   return (
-    <div className={`${MODAL_PRESETS.MOVEMENT_WIZARD.overlay} sap-theme`} onClick={onClose}>
-      <div
-        className={`${MODAL_PRESETS.MOVEMENT_WIZARD.content} sap-theme typeform-mode ${isLastStep ? 'is-last-step' : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Botón de escape global */}
-        <button
-          className="typeform-escape sap-theme"
-          onClick={onClose}
-          aria-label={UI_ACTIONS.CLOSE}
-        >
-          ✕
-        </button>
+    <div className={themeClasses.overlay} onClick={onClose}>
+      <div className={themeClasses.content} onClick={(e) => e.stopPropagation()}>
+        {/* Contenido condicional según theme */}
+        {theme === 'government' ? (
+          <>
+            {/* Encabezado Gubernamental */}
+            <div className="government-header">
+              <div className="government-reference">
+                FORESTECH-MOV-{new Date().getFullYear()}
+                {String(new Date().getMonth() + 1).padStart(2, '0')}
+                {String(new Date().getDate()).padStart(2, '0')}-{String(Date.now()).slice(-4)}
+              </div>
+              <button
+                className="government-close-btn"
+                onClick={onClose}
+                aria-label="Cerrar formulario"
+                style={{
+                  position: 'absolute',
+                  top: 'var(--gov-spacing-sm)',
+                  left: 'var(--gov-spacing-md)',
+                  background: 'var(--gov-white)',
+                  border: '1px solid var(--gov-medium-gray)',
+                  color: 'var(--gov-medium-gray)',
+                  padding: 'var(--gov-spacing-xs)',
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 'bold',
+                }}
+              >
+                ✕ CERRAR
+              </button>
+              <div className="government-logo">FC</div>
+              <h1 className="government-title">Forestech de Colombia S.A.S.</h1>
+              <h2 className="government-subtitle">
+                Sistema Integrado de Gestión de Combustibles
+                <br />
+                Formulario Oficial de Registro de Movimientos
+              </h2>
+            </div>
 
-        {/* Barra de progreso superior estilo Typeform */}
-        <div className="typeform-progress sap-theme">
-          <div className="typeform-progress-fill sap-theme" style={{ width: `${progress}%` }}></div>
-        </div>
+            {/* Indicador de Progreso Gubernamental */}
+            <div className="government-progress">
+              <div className="progress-bar-government">
+                <div className="progress-fill-government" style={{ width: `${progress}%` }}></div>
+              </div>
+              <div className="progress-info">
+                <span className="progress-step">
+                  Paso {currentLogicalStep} de {totalSteps}
+                </span>
+                <span className="progress-timestamp">
+                  {new Date().toLocaleString('es-CO', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                  })}
+                </span>
+              </div>
+            </div>
 
-        {/* Header con título */}
-        <div className="wizard-header typeform-mode sap-theme">
-          <div className="wizard-title sap-theme"></div>
-        </div>
+            {/* Header estático del documento */}
+            <div className="government-document-static-header">
+              <div className="document-official-banner">
+                📜 DOCUMENTO OFICIAL - DESPLÁCESE PARA VER MÁS CONTENIDO
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Botón de escape global */}
+            <button
+              className={getThemeClass('typeform-escape')}
+              onClick={onClose}
+              aria-label={UI_ACTIONS.CLOSE}
+            >
+              ✕
+            </button>
+
+            {/* Barra de progreso superior estilo Typeform */}
+            <div className={getThemeClass('typeform-progress')}>
+              <div
+                className={getThemeClass('typeform-progress-fill')}
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+
+            {/* Header con título */}
+            <div className={getThemeClass('wizard-header')}>
+              <div className={getThemeClass('wizard-title')}></div>
+            </div>
+          </>
+        )}
 
         {/* Contenido del paso */}
-        <div className="wizard-body typeform-mode sap-theme">
+        <div
+          className={
+            theme === 'government' ? 'government-step-content' : getThemeClass('wizard-body')
+          }
+        >
           {movementCreated ? (
             /* Pantalla de confirmación institucional - estilo gubernamental */
             <div className="official-confirmation-container">
@@ -1009,19 +1246,19 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               </div>
             </div>
           ) : systemData.loadingData ? (
-            <div className="wizard-loading sap-theme">
-              <div className="loading-spinner sap-theme"></div>
+            <div className={getThemeClass('wizard-loading')}>
+              <div className={getThemeClass('loading-spinner')}></div>
               <p>🔄 Cargando datos del sistema...</p>
             </div>
           ) : (
-            <div className="wizard-step-container sap-theme">{renderCurrentStep()}</div>
+            <div className={getThemeClass('wizard-step-container')}>{renderCurrentStep()}</div>
           )}
         </div>
 
         {/* Error global */}
         {error && (
-          <div className="wizard-error sap-theme">
-            <span className="error-icon sap-theme">⚠️</span>
+          <div className={getThemeClass('wizard-error')}>
+            <span className={getThemeClass('error-icon')}>⚠️</span>
             {error}
           </div>
         )}
@@ -1029,11 +1266,11 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
         {/* Navegación flotante estilo Typeform - ocultar si movimiento creado */}
         {!movementCreated && (
           <div
-            className={`typeform-navigation sap-theme ${isLastStep ? 'centered-final-step' : ''}`}
+            className={`${getThemeClass('typeform-navigation')} ${isLastStep ? 'centered-final-step' : ''}`}
           >
             {(currentStep > 1 || currentStep === '3b') && (
               <button
-                className="typeform-nav-btn sap-theme"
+                className={getThemeClass('typeform-nav-btn')}
                 onClick={prevStep}
                 disabled={isTransitioning}
                 aria-label="Paso anterior"
@@ -1044,7 +1281,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
 
             {!isLastStep ? (
               <button
-                className="typeform-nav-btn sap-theme"
+                className={getThemeClass('typeform-nav-btn')}
                 onClick={nextStep}
                 disabled={!isCurrentStepValid || isTransitioning}
                 aria-label="Siguiente paso"
@@ -1053,13 +1290,19 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
               </button>
             ) : (
               <button
-                className="typeform-nav-btn sap-theme confirm-button"
+                className={`${getThemeClass('typeform-nav-btn')} confirm-button`}
                 onClick={handleSubmit}
                 disabled={isLoading || !confirmChecked || isTransitioning}
                 aria-label="Confirmar movimiento"
               >
                 <span className="confirm-icon">
-                  {isLoading ? <span className="loading-spinner small sap-theme"></span> : '✓'}
+                  {isLoading ? (
+                    <span
+                      className={`loading-spinner small ${theme === 'government' ? 'government-spinner' : 'sap-theme'}`}
+                    ></span>
+                  ) : (
+                    '✓'
+                  )}
                 </span>
                 <span className="confirm-text">
                   {isLoading ? 'Guardando...' : 'Confirmar movimiento'}
@@ -1069,8 +1312,47 @@ const MovementWizard = ({ isOpen, onClose, onSuccess }) => {
           </div>
         )}
 
+        {/* Footer condicional según theme */}
+        {theme === 'government' && !movementCreated && (
+          <div className="government-actions">
+            <button
+              className="government-btn government-btn-secondary"
+              onClick={prevStep}
+              disabled={currentLogicalStep === 1 || isTransitioning}
+            >
+              <span className="btn-icon">◀</span>
+              Anterior
+            </button>
+
+            <div
+              style={{
+                fontSize: '0.8rem',
+                color: 'var(--gov-medium-gray)',
+                fontFamily: 'var(--gov-font-family-mono)',
+              }}
+            >
+              FORMULARIO: FORESTECH-MOV-{new Date().getFullYear()}
+              {String(new Date().getMonth() + 1).padStart(2, '0')}
+              {String(new Date().getDate()).padStart(2, '0')}-{String(Date.now()).slice(-4)}
+            </div>
+
+            <button
+              className="government-btn government-btn-primary"
+              onClick={!isLastStep ? nextStep : handleSubmit}
+              disabled={
+                !isCurrentStepValid ||
+                isTransitioning ||
+                (isLastStep && (!confirmChecked || isLoading))
+              }
+            >
+              {isLastStep ? (isLoading ? 'Procesando...' : 'Confirmar') : 'Siguiente'}
+              <span className="btn-icon">▶</span>
+            </button>
+          </div>
+        )}
+
         {/* Indicador de paso actual - ocultar si movimiento creado */}
-        {!movementCreated && (
+        {!movementCreated && theme !== 'government' && (
           <div className="typeform-step-indicator sap-theme">
             <div className="step-number sap-theme">{currentLogicalStep}</div>
             <span>de {totalSteps}</span>

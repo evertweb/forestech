@@ -11,12 +11,27 @@ import {
   formatLocationName,
 } from '../../../services/locationsService';
 
-const Step3_Location = ({ formData, updateFormData, systemData, setError, isActive }) => {
+const Step3_Location = ({
+  formData,
+  updateFormData,
+  systemData,
+  setError,
+  isActive,
+  theme = 'modern',
+}) => {
   const [loading, setLoading] = useState(false);
   const [stockInfo, setStockInfo] = useState({});
   const [validatingStock, setValidatingStock] = useState(false);
   const [availableLocations, setAvailableLocations] = useState([]);
   const [, setLoadingLocations] = useState(true);
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const { suppliers, inventory } = systemData;
   const isEntrada = formData.type === MOVEMENT_TYPES.ENTRADA;
@@ -217,47 +232,47 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
       : [];
 
     return (
-      <div className={`wizard-step step-location sap-theme ${isActive ? 'active' : ''}`}>
-        <div className="step-question sap-theme sap-theme">
+      <div className={`wizard-step step-location ${getThemeClass('')} ${isActive ? 'active' : ''}`}>
+        <div className={getThemeClass('step-question')}>
           <h3>🏪 {getMovementLocationQuestion()}</h3>
           <p>Selecciona el proveedor que está enviando el combustible</p>
         </div>
 
         {loading && (
-          <div className="wizard-loading sap-theme sap-theme">
-            <div className="loading-spinner sap-theme sap-theme"></div>
+          <div className={getThemeClass('wizard-loading')}>
+            <div className={getThemeClass('loading-spinner')}></div>
             <p>🔄 Validando proveedor...</p>
           </div>
         )}
 
         {!Array.isArray(suppliers) || suppliers.length === 0 ? (
-          <div className="wizard-loading sap-theme sap-theme">
-            <div className="loading-spinner sap-theme sap-theme"></div>
+          <div className={getThemeClass('wizard-loading')}>
+            <div className={getThemeClass('loading-spinner')}></div>
             <p>🔄 Cargando proveedores...</p>
           </div>
         ) : activeSuppliers.length === 0 ? (
-          <div className="empty-state sap-theme sap-theme">
-            <div className="empty-icon sap-theme sap-theme">🏪</div>
+          <div className={getThemeClass('empty-state')}>
+            <div className={getThemeClass('empty-icon')}>🏪</div>
             <h3>No hay proveedores disponibles</h3>
             <p>No se encontraron proveedores activos en el sistema.</p>
             <p>Contacta al administrador para agregar proveedores.</p>
           </div>
         ) : (
-          <div className="supplier-options sap-theme sap-theme">
+          <div className={getThemeClass('supplier-options')}>
             {activeSuppliers.map((supplier) => (
               <div
                 key={supplier.id}
-                className={`supplier-option sap-theme ${formData.supplierName === supplier.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+                className={`${getThemeClass('supplier-option')} ${formData.supplierName === supplier.name ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
                 onClick={() => !loading && handleLocationSelection(supplier.name)}
               >
-                <div className="option-icon sap-theme sap-theme">🏪</div>
-                <div className="option-content sap-theme sap-theme">
-                  <h4 className="option-title sap-theme sap-theme">{supplier.name}</h4>
-                  <p className="option-description sap-theme sap-theme">
+                <div className={getThemeClass('option-icon')}>🏪</div>
+                <div className={getThemeClass('option-content')}>
+                  <h4 className={getThemeClass('option-title')}>{supplier.name}</h4>
+                  <p className={getThemeClass('option-description')}>
                     {supplier.location || 'Proveedor de combustibles'}
                   </p>
                   {supplier.contact && (
-                    <small className="supplier-contact sap-theme sap-theme">
+                    <small className={getThemeClass('supplier-contact')}>
                       📞 {supplier.contact}
                     </small>
                   )}
@@ -268,10 +283,10 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
         )}
 
         {formData.supplierName && (
-          <div className="selection-confirmation sap-theme sap-theme">
-            <div className="confirmation-card sap-theme sap-theme">
-              <span className="confirmation-icon sap-theme sap-theme">🏪</span>
-              <div className="confirmation-text sap-theme sap-theme">
+          <div className={getThemeClass('selection-confirmation')}>
+            <div className={getThemeClass('confirmation-card')}>
+              <span className={getThemeClass('confirmation-icon')}>🏪</span>
+              <div className={getThemeClass('confirmation-text')}>
                 <strong>Genial! Recibirás combustible de {formData.supplierName}</strong>
                 <br />
                 <small>El combustible será registrado en el inventario</small>
@@ -285,20 +300,20 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
 
   // Renderizar opciones para salidas/transferencias (ubicaciones operativas)
   return (
-    <div className={`wizard-step step-location sap-theme ${isActive ? 'active' : ''}`}>
-      <div className="step-question sap-theme sap-theme">
+    <div className={`wizard-step step-location ${getThemeClass('')} ${isActive ? 'active' : ''}`}>
+      <div className={getThemeClass('step-question')}>
         <h3>📍 {getMovementLocationQuestion()}</h3>
         <p>Elige la ubicación donde está almacenado el combustible</p>
       </div>
 
       {validatingStock && (
-        <div className="wizard-loading sap-theme sap-theme">
-          <div className="loading-spinner sap-theme sap-theme"></div>
+        <div className={getThemeClass('wizard-loading')}>
+          <div className={getThemeClass('loading-spinner')}></div>
           <p>⚙️ Verificando stock por ubicación...</p>
         </div>
       )}
 
-      <div className="location-options sap-theme sap-theme">
+      <div className={getThemeClass('location-options')}>
         {availableLocations.map((location) => {
           const stockData = stockInfo[location] || {};
           const isLocationSelected = formData.location === location;
@@ -306,21 +321,21 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
           return (
             <div
               key={location}
-              className={`location-option sap-theme ${isLocationSelected ? 'selected' : ''} ${stockData.status || ''} ${loading ? 'disabled' : ''}`}
+              className={`${getThemeClass('location-option')} ${isLocationSelected ? 'selected' : ''} ${stockData.status || ''} ${loading ? 'disabled' : ''}`}
               onClick={() => !loading && handleLocationSelection(location)}
             >
-              <div className="option-icon sap-theme sap-theme">{getLocationIcon(location)}</div>
-              <div className="option-content sap-theme sap-theme">
-                <h4 className="option-title sap-theme sap-theme">{formatLocationName(location)}</h4>
-                <p className="option-description sap-theme sap-theme">
+              <div className={getThemeClass('option-icon')}>{getLocationIcon(location)}</div>
+              <div className={getThemeClass('option-content')}>
+                <h4 className={getThemeClass('option-title')}>{formatLocationName(location)}</h4>
+                <p className={getThemeClass('option-description')}>
                   {stockData.message || 'Verificando disponibilidad...'}
                 </p>
 
                 {stockData.available > 0 && (
-                  <div className="stock-indicator sap-theme sap-theme">
-                    <div className="stock-bar-mini sap-theme sap-theme">
+                  <div className={getThemeClass('stock-indicator')}>
+                    <div className={getThemeClass('stock-bar-mini')}>
                       <div
-                        className="stock-fill-mini sap-theme sap-theme"
+                        className={getThemeClass('stock-fill-mini')}
                         style={{ width: `${Math.min(stockData.percentage, 100)}%` }}
                       ></div>
                     </div>
@@ -333,12 +348,12 @@ const Step3_Location = ({ formData, updateFormData, systemData, setError, isActi
       </div>
 
       {formData.location && stockInfo[formData.location] && (
-        <div className="selection-confirmation sap-theme sap-theme">
-          <div className="confirmation-card sap-theme sap-theme">
-            <span className="confirmation-icon sap-theme sap-theme">
+        <div className={getThemeClass('selection-confirmation')}>
+          <div className={getThemeClass('confirmation-card')}>
+            <span className={getThemeClass('confirmation-icon')}>
               {getLocationIcon(formData.location)}
             </span>
-            <div className="confirmation-text sap-theme sap-theme">
+            <div className={getThemeClass('confirmation-text')}>
               <strong>Excelente! Usarás {formatLocationName(formData.location)}</strong>
               <br />
               <small>{stockInfo[formData.location].message}</small>

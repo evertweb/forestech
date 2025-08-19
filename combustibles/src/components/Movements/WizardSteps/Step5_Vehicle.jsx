@@ -7,12 +7,27 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { WIZARD_QUESTIONS } from '../../../constants';
 
-const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActive }) => {
+const Step5_Vehicle = ({
+  formData,
+  updateFormData,
+  systemData,
+  setError,
+  isActive,
+  theme = 'modern',
+}) => {
   const [loading, setLoading] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showHourMeter, setShowHourMeter] = useState(false);
   const [localError, setLocalError] = useState('');
   const hourMeterRef = useRef(null);
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const { vehicles } = systemData;
 
@@ -197,8 +212,8 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
   if (compatibleVehicles.length === 0) {
     return (
       <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
-        <div className="typeform-layout sap-theme">
-          <div className="typeform-question sap-theme">
+        <div className={getThemeClass('typeform-layout')}>
+          <div className={getThemeClass('typeform-question')}>
             <h2>🚫 No hay vehículos compatibles</h2>
             <p>No se encontraron vehículos activos que usen {formData.fuelType}</p>
           </div>
@@ -208,9 +223,9 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
   }
 
   return (
-    <div className={`wizard-step step-vehicle ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
-        <div className="typeform-question sap-theme">
+    <div className={`wizard-step step-vehicle ${getThemeClass('')} ${isActive ? 'active' : ''}`}>
+      <div className={getThemeClass('typeform-layout')}>
+        <div className={getThemeClass('typeform-question')}>
           <h2>{WIZARD_QUESTIONS.VEHICLE_SELECTION.title}</h2>
           <p>
             {WIZARD_QUESTIONS.VEHICLE_SELECTION.description.replace(
@@ -221,34 +236,34 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
         </div>
 
         {loading && (
-          <div className="loading-overlay sap-theme">
-            <div className="loading-spinner sap-theme"></div>
+          <div className={getThemeClass('loading-overlay')}>
+            <div className={getThemeClass('loading-spinner')}></div>
             <p>🔄 Validando vehículo...</p>
           </div>
         )}
 
-        <div className="typeform-options sap-theme">
+        <div className={getThemeClass('typeform-options')}>
           {compatibleVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
-              className={`typeform-option ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+              className={`${getThemeClass('typeform-option')} ${formData.vehicleId === vehicle.vehicleId ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
               onClick={() => !loading && handleVehicleSelection(vehicle)}
             >
-              <div className="typeform-option-icon sap-theme">{getVehicleIcon(vehicle)}</div>
-              <div className="typeform-option-content sap-theme">
+              <div className={getThemeClass('typeform-option-icon')}>{getVehicleIcon(vehicle)}</div>
+              <div className={getThemeClass('typeform-option-content')}>
                 <h4>
                   {vehicle.vehicleId} - {vehicle.brand || 'Vehículo'}
                 </h4>
                 <p>{vehicle.model || vehicle.type || 'Equipo de trabajo'}</p>
                 {vehicle.currentHours && (
-                  <small className="vehicle-hours sap-theme">
+                  <small className={getThemeClass('vehicle-hours')}>
                     🕐 {vehicle.currentHours} horas registradas
                   </small>
                 )}
               </div>
-              <div className="typeform-option-selector sap-theme">
-                <div className="typeform-check sap-theme">
-                  <span className="typeform-check-icon sap-theme">✓</span>
+              <div className={getThemeClass('typeform-option-selector')}>
+                <div className={getThemeClass('typeform-check')}>
+                  <span className={getThemeClass('typeform-check-icon')}>✓</span>
                 </div>
               </div>
             </div>
@@ -257,8 +272,8 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
 
         {/* Input de horómetro si es requerido */}
         {showHourMeter && selectedVehicle && (
-          <div className="typeform-input-section sap-theme">
-            <div className="typeform-question sap-theme">
+          <div className={getThemeClass('typeform-input-section')}>
+            <div className={getThemeClass('typeform-question')}>
               <h3>🕐 ¿Cuál es el horómetro actual?</h3>
               <p>Ingresa las horas actuales de {selectedVehicle.vehicleId}</p>
             </div>
@@ -271,21 +286,23 @@ const Step5_Vehicle = ({ formData, updateFormData, systemData, setError, isActiv
               value={formData.currentHours || ''}
               onChange={(e) => handleHourMeterChange(e.target.value)}
               placeholder="0"
-              className={`typeform-input ${localError ? 'error' : ''}`}
+              className={`${getThemeClass('typeform-input')} ${localError ? 'error' : ''}`}
               autoComplete="off"
             />
-            <span className="typeform-unit sap-theme">horas</span>
+            <span className={getThemeClass('typeform-unit')}>horas</span>
 
-            {localError && <div className="validation-warning sap-theme">{localError}</div>}
+            {localError && <div className={getThemeClass('validation-warning')}>{localError}</div>}
           </div>
         )}
 
         {/* Confirmación */}
         {selectedVehicle && formData.vehicleId && (
-          <div className="selection-confirmation sap-theme">
-            <div className="confirmation-card sap-theme">
-              <span className="confirmation-icon sap-theme">{getVehicleIcon(selectedVehicle)}</span>
-              <div className="confirmation-text sap-theme">
+          <div className={getThemeClass('selection-confirmation')}>
+            <div className={getThemeClass('confirmation-card')}>
+              <span className={getThemeClass('confirmation-icon')}>
+                {getVehicleIcon(selectedVehicle)}
+              </span>
+              <div className={getThemeClass('confirmation-text')}>
                 <strong>Perfecto! Combustible para {selectedVehicle.vehicleId}</strong>
                 <br />
                 <small>

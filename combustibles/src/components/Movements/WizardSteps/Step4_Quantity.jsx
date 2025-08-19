@@ -7,11 +7,26 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { validateStockAvailability } from '../../../utils/calculations';
 
-const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActive }) => {
+const Step4_Quantity = ({
+  formData,
+  updateFormData,
+  systemData,
+  setError,
+  isActive,
+  theme = 'modern',
+}) => {
   const [calculating, setCalculating] = useState(false);
   const [stockInfo, setStockInfo] = useState(null);
   const [validationWarning, setValidationWarning] = useState('');
   const inputRef = useRef(null);
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const { inventory } = systemData;
   const isStockRequired =
@@ -183,9 +198,9 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
   };
 
   return (
-    <div className={`wizard-step step-quantity ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
-        <div className="typeform-question sap-theme">
+    <div className={`wizard-step step-quantity ${getThemeClass('')} ${isActive ? 'active' : ''}`}>
+      <div className={getThemeClass('typeform-layout')}>
+        <div className={getThemeClass('typeform-question')}>
           <h2>
             {getMovementEmoji()} {getQuantityQuestion()}
           </h2>
@@ -193,9 +208,9 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
         </div>
 
         {/* Input de cantidad mejorado y profesional */}
-        <div className="professional-quantity-section">
-          <div className="quantity-input-container-enhanced">
-            <div className="quantity-input-icon">⛽</div>
+        <div className={getThemeClass('professional-quantity-section')}>
+          <div className={getThemeClass('quantity-input-container-enhanced')}>
+            <div className={getThemeClass('quantity-input-icon')}>⛽</div>
             <input
               ref={inputRef}
               id="quantity"
@@ -205,24 +220,26 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
               value={formData.quantity}
               onChange={(e) => handleQuantityChange(e.target.value)}
               placeholder="0.0"
-              className={`professional-quantity-input ${validationWarning ? 'error' : ''}`}
+              className={`${getThemeClass('professional-quantity-input')} ${validationWarning ? 'error' : ''}`}
               autoComplete="off"
             />
-            <div className="quantity-unit-enhanced">
-              <span className="unit-text">galones</span>
-              <div className="unit-divider"></div>
-              <div className="fuel-type-indicator">
+            <div className={getThemeClass('quantity-unit-enhanced')}>
+              <span className={getThemeClass('unit-text')}>galones</span>
+              <div className={getThemeClass('unit-divider')}></div>
+              <div className={getThemeClass('fuel-type-indicator')}>
                 {formData.fuelType === 'DIESEL' && (
-                  <span className="fuel-badge diesel">🛢️ DIESEL</span>
+                  <span className={`${getThemeClass('fuel-badge')} diesel`}>🛢️ DIESEL</span>
                 )}
                 {formData.fuelType === 'GASOLINE' && (
-                  <span className="fuel-badge gasoline">⛽ GASOLINE</span>
+                  <span className={`${getThemeClass('fuel-badge')} gasoline`}>⛽ GASOLINE</span>
                 )}
                 {formData.fuelType === 'LUBRICANTS' && (
-                  <span className="fuel-badge lubricants">🛢️ LUBRICANTES</span>
+                  <span className={`${getThemeClass('fuel-badge')} lubricants`}>
+                    🛢️ LUBRICANTES
+                  </span>
                 )}
                 {formData.fuelType === 'TWO_STROKE' && (
-                  <span className="fuel-badge two-stroke">🪚 MEZCLA 2T</span>
+                  <span className={`${getThemeClass('fuel-badge')} two-stroke`}>🪚 MEZCLA 2T</span>
                 )}
               </div>
             </div>
@@ -230,17 +247,17 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
 
           {/* Indicador visual del valor */}
           {formData.quantity && parseFloat(formData.quantity) > 0 && (
-            <div className="quantity-visual-indicator">
-              <div className="quantity-bar">
+            <div className={getThemeClass('quantity-visual-indicator')}>
+              <div className={getThemeClass('quantity-bar')}>
                 <div
-                  className="quantity-fill"
+                  className={getThemeClass('quantity-fill')}
                   style={{
                     width: `${Math.min((parseFloat(formData.quantity) / 100) * 100, 100)}%`,
                   }}
                 ></div>
               </div>
-              <div className="quantity-labels">
-                <span className="quantity-value">
+              <div className={getThemeClass('quantity-labels')}>
+                <span className={getThemeClass('quantity-value')}>
                   {parseFloat(formData.quantity).toLocaleString('es-CO', {
                     minimumFractionDigits: 1,
                     maximumFractionDigits: 2,
@@ -248,7 +265,7 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
                   galones
                 </span>
                 {stockInfo && isStockRequired && (
-                  <span className={`quantity-stock ${stockInfo.status}`}>
+                  <span className={`${getThemeClass('quantity-stock')} ${stockInfo.status}`}>
                     {stockInfo.icon} Stock: {stockInfo.available.toFixed(1)} gal
                   </span>
                 )}
@@ -259,21 +276,21 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
 
         {/* Sugerencias rápidas mejoradas */}
         {stockInfo && stockInfo.available > 0 && (
-          <div className="professional-suggestions">
-            <div className="suggestions-header">
-              <span className="suggestions-icon">💡</span>
-              <label className="suggestions-title">Cantidades frecuentes:</label>
+          <div className={getThemeClass('professional-suggestions')}>
+            <div className={getThemeClass('suggestions-header')}>
+              <span className={getThemeClass('suggestions-icon')}>💡</span>
+              <label className={getThemeClass('suggestions-title')}>Cantidades frecuentes:</label>
             </div>
-            <div className="suggestions-grid">
+            <div className={getThemeClass('suggestions-grid')}>
               {suggestQuantities().map((suggestion, index) => (
                 <button
                   key={index}
                   type="button"
-                  className="professional-suggestion-btn"
+                  className={getThemeClass('professional-suggestion-btn')}
                   onClick={() => handleQuantityChange(suggestion.value)}
                 >
-                  <span className="suggestion-value">{suggestion.label}</span>
-                  <span className="suggestion-action">Usar esta cantidad</span>
+                  <span className={getThemeClass('suggestion-value')}>{suggestion.label}</span>
+                  <span className={getThemeClass('suggestion-action')}>Usar esta cantidad</span>
                 </button>
               ))}
             </div>
@@ -282,11 +299,11 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
 
         {/* Indicador de cálculo mejorado */}
         {calculating && (
-          <div className="professional-calculating">
-            <div className="calculating-spinner"></div>
-            <div className="calculating-content">
-              <span className="calculating-text">Verificando disponibilidad</span>
-              <div className="calculating-dots">
+          <div className={getThemeClass('professional-calculating')}>
+            <div className={getThemeClass('calculating-spinner')}></div>
+            <div className={getThemeClass('calculating-content')}>
+              <span className={getThemeClass('calculating-text')}>Verificando disponibilidad</span>
+              <div className={getThemeClass('calculating-dots')}>
                 <span></span>
                 <span></span>
                 <span></span>
@@ -297,47 +314,49 @@ const Step4_Quantity = ({ formData, updateFormData, systemData, setError, isActi
 
         {/* Información de stock simplificada */}
         {stockInfo && isStockRequired && !calculating && (
-          <div className={`stock-info-container ${stockInfo.status}`}>
-            <div className="stock-info-header sap-theme">
-              <div className="stock-info-icon sap-theme">{stockInfo.icon}</div>
-              <h4 className="stock-info-title sap-theme">{stockInfo.title}</h4>
+          <div className={`${getThemeClass('stock-info-container')} ${stockInfo.status}`}>
+            <div className={getThemeClass('stock-info-header')}>
+              <div className={getThemeClass('stock-info-icon')}>{stockInfo.icon}</div>
+              <h4 className={getThemeClass('stock-info-title')}>{stockInfo.title}</h4>
             </div>
-            <div className="stock-info-message sap-theme">{stockInfo.message}</div>
+            <div className={getThemeClass('stock-info-message')}>{stockInfo.message}</div>
           </div>
         )}
 
         {/* Warning de validación */}
         {validationWarning && (
-          <div className="validation-warning sap-theme">{validationWarning}</div>
+          <div className={getThemeClass('validation-warning')}>{validationWarning}</div>
         )}
 
         {/* Confirmación visual mejorada */}
         {formData.quantity && parseFloat(formData.quantity) > 0 && (
-          <div className="professional-confirmation">
-            <div className="confirmation-card-enhanced">
-              <div className="confirmation-header">
-                <span className="confirmation-icon-enhanced">{getMovementEmoji()}</span>
-                <div className="confirmation-status">
-                  <span className="status-dot"></span>
+          <div className={getThemeClass('professional-confirmation')}>
+            <div className={getThemeClass('confirmation-card-enhanced')}>
+              <div className={getThemeClass('confirmation-header')}>
+                <span className={getThemeClass('confirmation-icon-enhanced')}>
+                  {getMovementEmoji()}
+                </span>
+                <div className={getThemeClass('confirmation-status')}>
+                  <span className={getThemeClass('status-dot')}></span>
                   Cantidad confirmada
                 </div>
               </div>
-              <div className="confirmation-details">
-                <div className="main-quantity">
+              <div className={getThemeClass('confirmation-details')}>
+                <div className={getThemeClass('main-quantity')}>
                   {parseFloat(formData.quantity).toLocaleString('es-CO', {
                     minimumFractionDigits: 1,
                     maximumFractionDigits: 2,
                   })}{' '}
                   galones
                 </div>
-                <div className="quantity-description">
+                <div className={getThemeClass('quantity-description')}>
                   {isStockRequired
                     ? `Se tomarán del inventario de ${formData.location}`
                     : `Se agregarán al inventario de combustible`}
                 </div>
               </div>
-              <div className="confirmation-action">
-                <span className="action-indicator">✓</span>
+              <div className={getThemeClass('confirmation-action')}>
+                <span className={getThemeClass('action-indicator')}>✓</span>
                 Listo para continuar
               </div>
             </div>

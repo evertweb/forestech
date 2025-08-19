@@ -6,9 +6,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { WIZARD_QUESTIONS } from '../../../constants';
 
-const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActive }) => {
+const Step2_FuelType = ({
+  formData,
+  updateFormData,
+  systemData,
+  setError,
+  isActive,
+  theme = 'modern',
+}) => {
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const { products } = systemData;
 
@@ -129,40 +144,40 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
   }
 
   return (
-    <div className={`wizard-step step-fuel-type sap-theme ${isActive ? 'active' : ''}`}>
-      <div className="step-question sap-theme sap-theme">
+    <div className={`wizard-step step-fuel-type ${getThemeClass('')} ${isActive ? 'active' : ''}`}>
+      <div className={getThemeClass('step-question')}>
         <h3>{WIZARD_QUESTIONS.FUEL_TYPE.title}</h3>
         <p>{WIZARD_QUESTIONS.FUEL_TYPE.description}</p>
       </div>
 
       {loading && (
-        <div className="wizard-loading sap-theme sap-theme">
-          <div className="loading-spinner sap-theme sap-theme"></div>
+        <div className={getThemeClass('wizard-loading')}>
+          <div className={getThemeClass('loading-spinner')}></div>
           <p>📡 Actualizando precios...</p>
         </div>
       )}
 
-      <div className="fuel-options sap-theme sap-theme">
+      <div className={getThemeClass('fuel-options')}>
         {products.map((product) => (
           <div
             key={product.id}
-            className={`fuel-option sap-theme ${formData.fuelType?.toUpperCase() === product.name?.toUpperCase() ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+            className={`${getThemeClass('fuel-option')} ${formData.fuelType?.toUpperCase() === product.name?.toUpperCase() ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
             onClick={() =>
               !loading && handleFuelSelection(product.name?.toUpperCase() || product.name, product)
             }
           >
-            <div className="option-icon sap-theme sap-theme">{product.icon || '🛢️'}</div>
-            <div className="option-content sap-theme sap-theme">
-              <h4 className="option-title sap-theme sap-theme">
+            <div className={getThemeClass('option-icon')}>{product.icon || '🛢️'}</div>
+            <div className={getThemeClass('option-content')}>
+              <h4 className={getThemeClass('option-title')}>
                 {product.displayName || product.name}
               </h4>
-              <p className="option-description sap-theme sap-theme">
+              <p className={getThemeClass('option-description')}>
                 {product.description || 'Combustible premium'}
               </p>
 
               {product.defaultPrice && (
-                <div className="fuel-price sap-theme sap-theme">
-                  <span className="price-value sap-theme sap-theme">
+                <div className={getThemeClass('fuel-price')}>
+                  <span className={getThemeClass('price-value')}>
                     ${product.defaultPrice.toLocaleString('es-CO')} COP/galón
                   </span>
                 </div>
@@ -173,13 +188,13 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
       </div>
 
       {selectedProduct && formData.fuelType && (
-        <div className="selection-confirmation sap-theme sap-theme">
-          <div className="confirmation-card sap-theme sap-theme">
-            <div className="confirmation-header sap-theme sap-theme">
-              <span className="confirmation-icon sap-theme sap-theme">
+        <div className={getThemeClass('selection-confirmation')}>
+          <div className={getThemeClass('confirmation-card')}>
+            <div className={getThemeClass('confirmation-header')}>
+              <span className={getThemeClass('confirmation-icon')}>
                 {selectedProduct.icon || '🛢️'}
               </span>
-              <div className="confirmation-text sap-theme sap-theme">
+              <div className={getThemeClass('confirmation-text')}>
                 <strong>
                   Excelente! Has elegido {selectedProduct.displayName || selectedProduct.name}
                 </strong>
@@ -189,14 +204,14 @@ const Step2_FuelType = ({ formData, updateFormData, systemData, setError, isActi
             </div>
 
             {selectedProduct.defaultPrice && (
-              <div className="price-confirmation sap-theme sap-theme">
-                <div className="price-info sap-theme sap-theme">
-                  <span className="price-label sap-theme sap-theme">💰 Precio actual:</span>
-                  <span className="price-amount sap-theme sap-theme">
+              <div className={getThemeClass('price-confirmation')}>
+                <div className={getThemeClass('price-info')}>
+                  <span className={getThemeClass('price-label')}>💰 Precio actual:</span>
+                  <span className={getThemeClass('price-amount')}>
                     ${selectedProduct.defaultPrice.toLocaleString('es-CO')} COP/galón
                   </span>
                 </div>
-                <small className="price-note sap-theme sap-theme">
+                <small className={getThemeClass('price-note')}>
                   ✨ Aplicamos el precio automáticamente (lo puedes ajustar después)
                 </small>
               </div>

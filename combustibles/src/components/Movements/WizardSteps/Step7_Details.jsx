@@ -5,9 +5,25 @@
 
 import React, { useState, useEffect } from 'react';
 
-const Step7_Details = ({ formData, updateFormData, systemData, error, setError, isActive }) => {
+const Step7_Details = ({
+  formData,
+  updateFormData,
+  systemData,
+  error,
+  setError,
+  isActive,
+  theme = 'modern',
+}) => {
   const [calculating, setCalculating] = useState(false);
   const [priceValidated, setPriceValidated] = useState(false);
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const { products } = systemData;
 
@@ -76,14 +92,14 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
 
   return (
     <div className={`wizard-step step-details ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
-        <div className="typeform-question sap-theme">
+      <div className={getThemeClass('typeform-layout')}>
+        <div className={getThemeClass('typeform-question')}>
           <h3>📋 Información adicional del movimiento</h3>
           <p>Completa los detalles restantes:</p>
         </div>
 
         {/* Precio unitario */}
-        <div className="typeform-input-section sap-theme">
+        <div className={getThemeClass('typeform-input-section')}>
           <label htmlFor="unitPrice">💰 Precio por galón (COP) *</label>
           <input
             id="unitPrice"
@@ -93,19 +109,19 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
             value={formData.unitPrice}
             onChange={(e) => handlePriceChange(e.target.value)}
             placeholder="0"
-            className={`typeform-input ${error ? 'error' : ''}`}
+            className={`${getThemeClass('typeform-input')} ${error ? 'error' : ''}`}
           />
-          <span className="typeform-unit sap-theme">COP</span>
+          <span className={getThemeClass('typeform-unit')}>COP</span>
 
           {calculating && (
-            <div className="calculating-price sap-theme">
-              <div className="loading-spinner small sap-theme"></div>
+            <div className={getThemeClass('calculating-price')}>
+              <div className={`${getThemeClass('loading-spinner')} small`}></div>
               <span>💰 Validando precio...</span>
             </div>
           )}
 
           {getCurrentProduct()?.defaultPrice && (
-            <small className="price-suggestion sap-theme">
+            <small className={getThemeClass('price-suggestion')}>
               💡 Precio sugerido: ${getCurrentProduct().defaultPrice.toLocaleString('es-CO')} COP
             </small>
           )}
@@ -115,17 +131,19 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
         {formData.quantity &&
           formData.unitPrice &&
           priceValidated && ( // Solo mostrar si hay cantidad y precio
-            <div className="total-value-section sap-theme">
-              <div className="total-value-card sap-theme">
-                <div className="total-icon sap-theme">📊</div>
-                <div className="total-content sap-theme">
+            <div className={getThemeClass('total-value-section')}>
+              <div className={getThemeClass('total-value-card')}>
+                <div className={getThemeClass('total-icon')}>📊</div>
+                <div className={getThemeClass('total-content')}>
                   <h4>Valor Total Calculado</h4>
-                  <div className="total-calculation sap-theme">
-                    <span className="calculation-details sap-theme">
+                  <div className={getThemeClass('total-calculation')}>
+                    <span className={getThemeClass('calculation-details')}>
                       {parseFloat(formData.quantity).toFixed(2)} gal × $
                       {parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP
                     </span>
-                    <div className="total-amount sap-theme">{formatCurrency(totalValue)}</div>
+                    <div className={getThemeClass('total-amount')}>
+                      {formatCurrency(totalValue)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -133,33 +151,33 @@ const Step7_Details = ({ formData, updateFormData, systemData, error, setError, 
           )}
 
         {/* Fecha efectiva */}
-        <div className="typeform-input-section sap-theme">
+        <div className={getThemeClass('typeform-input-section')}>
           <label htmlFor="effectiveDate">📅 ¿Cuándo ocurrió este movimiento?</label>
           <input
             id="effectiveDate"
             type="datetime-local"
             value={formData.effectiveDate}
             onChange={(e) => handleDateChange(e.target.value)}
-            className="typeform-input sap-theme"
+            className={getThemeClass('typeform-input')}
           />
-          <small className="typeform-unit sap-theme">
+          <small className={getThemeClass('typeform-unit')}>
             💡 Por defecto se usa la fecha y hora actual
           </small>
         </div>
 
         {/* Descripción */}
-        <div className="typeform-input-section sap-theme">
+        <div className={getThemeClass('typeform-input-section')}>
           <label htmlFor="description">📝 Detalles adicionales del movimiento (opcional)</label>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => handleDescriptionChange(e.target.value)}
             placeholder="Ej: Combustible para operación en sector norte, mantenimiento programado, etc."
-            className="typeform-input sap-theme"
+            className={getThemeClass('typeform-input')}
             rows="3"
             maxLength="500"
           />
-          <div className="description-counter sap-theme">
+          <div className={getThemeClass('description-counter')}>
             {formData.description.length}/500 caracteres
           </div>
         </div>

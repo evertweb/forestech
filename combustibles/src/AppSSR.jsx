@@ -30,6 +30,10 @@ const ReportsMain = lazy(() => import('./components/Reports/ReportsMain'));
 const MovementWizardPopup = lazy(() => import('./components/Popups/MovementWizardPopup'));
 const VehicleWizardPopup = lazy(() => import('./components/Popups/VehicleWizardPopup'));
 
+// Componentes legales para WhatsApp Business API
+const PrivacyPolicy = lazy(() => import('./components/Legal/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./components/Legal/TermsOfService'));
+
 // Componente de fallback para Suspense
 const LoadingFallback = () => (
   <div className="loading-container">
@@ -60,6 +64,10 @@ function AppContent() {
           {/* Rutas de popup SIEMPRE disponibles - tanto en SSR como CSR */}
           <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
           <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+
+          {/* Rutas legales para WhatsApp Business API - disponibles públicamente */}
+          <Route path="/politica-privacidad" element={<PrivacyPolicy />} />
+          <Route path="/terminos-servicio" element={<TermsOfService />} />
 
           {/* Resto de rutas según contexto SSR/CSR */}
           <Route

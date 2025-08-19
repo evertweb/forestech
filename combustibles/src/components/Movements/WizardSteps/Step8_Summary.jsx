@@ -30,8 +30,17 @@ const Step8_Summary = ({
   onCommentsChange,
   confirmChecked,
   onConfirmChange,
+  theme = 'modern',
 }) => {
   const { vehicles, products } = systemData;
+
+  // Helper para clases según el tema
+  const getThemeClass = (baseClass) => {
+    if (theme === 'government') {
+      return `${baseClass} government-override`;
+    }
+    return `${baseClass} sap-theme`;
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-CO', {
@@ -116,62 +125,62 @@ const Step8_Summary = ({
   };
 
   return (
-    <div className={`wizard-step step-summary sap-theme`}>
-      <div className="step-question sap-theme sap-theme">
+    <div className={`wizard-step step-summary ${getThemeClass('')}`}>
+      <div className={getThemeClass('step-question')}>
         <h3>📋 Resumen del Movimiento</h3>
         <p>Revisa que toda la información sea correcta antes de procesar</p>
       </div>
 
       {/* Resumen principal SAP */}
-      <div className="summary-sections sap-theme">
-        <div className={`summary-section sap-theme ${movementType.color}`}>
+      <div className={getThemeClass('summary-sections')}>
+        <div className={`${getThemeClass('summary-section')} ${movementType.color}`}>
           <h4>Tipo de Operación</h4>
-          <div className="summary-item sap-theme sap-theme">
-            <span className="summary-label sap-theme sap-theme">Operación:</span>
-            <span className="summary-value sap-theme sap-theme">
+          <div className={getThemeClass('summary-item')}>
+            <span className={getThemeClass('summary-label')}>Operación:</span>
+            <span className={getThemeClass('summary-value')}>
               {movementType.icon} {movementType.title}
             </span>
           </div>
-          <div className="summary-item sap-theme sap-theme">
-            <span className="summary-label sap-theme sap-theme">Descripción:</span>
-            <span className="summary-value sap-theme sap-theme">{getSummaryDescription()}</span>
+          <div className={getThemeClass('summary-item')}>
+            <span className={getThemeClass('summary-label')}>Descripción:</span>
+            <span className={getThemeClass('summary-value')}>{getSummaryDescription()}</span>
           </div>
         </div>
 
-        <div className="summary-section sap-theme sap-theme">
+        <div className={getThemeClass('summary-section')}>
           <h4>Detalles del Combustible</h4>
-          <div className="summary-item sap-theme sap-theme">
-            <span className="summary-label sap-theme sap-theme">Tipo:</span>
-            <span className="summary-value sap-theme sap-theme">{getDisplayFuelType()}</span>
+          <div className={getThemeClass('summary-item')}>
+            <span className={getThemeClass('summary-label')}>Tipo:</span>
+            <span className={getThemeClass('summary-value')}>{getDisplayFuelType()}</span>
           </div>
-          <div className="summary-item highlight sap-theme">
-            <span className="summary-label sap-theme">Cantidad:</span>
-            <span className="summary-value sap-theme">
+          <div className={`${getThemeClass('summary-item')} highlight`}>
+            <span className={getThemeClass('summary-label')}>Cantidad:</span>
+            <span className={getThemeClass('summary-value')}>
               {parseFloat(formData.quantity).toLocaleString('es-CO')} galones
             </span>
           </div>
-          <div className="summary-item sap-theme sap-theme">
-            <span className="summary-label sap-theme sap-theme">Precio unitario:</span>
-            <span className="summary-value sap-theme sap-theme">
+          <div className={getThemeClass('summary-item')}>
+            <span className={getThemeClass('summary-label')}>Precio unitario:</span>
+            <span className={getThemeClass('summary-value')}>
               {formatCurrency(parseFloat(formData.unitPrice))}
             </span>
           </div>
-          <div className="summary-item total sap-theme">
-            <span className="summary-label sap-theme">Valor total:</span>
-            <span className="summary-value sap-theme">{formatCurrency(totalValue)}</span>
+          <div className={`${getThemeClass('summary-item')} total`}>
+            <span className={getThemeClass('summary-label')}>Valor total:</span>
+            <span className={getThemeClass('summary-value')}>{formatCurrency(totalValue)}</span>
           </div>
         </div>
 
         {formData.type === MOVEMENT_TYPES.ENTRADA && (
-          <div className="summary-section sap-theme sap-theme">
+          <div className={getThemeClass('summary-section')}>
             <h4>Información del Proveedor</h4>
-            <div className="summary-item sap-theme sap-theme">
-              <span className="summary-label sap-theme sap-theme">Proveedor:</span>
-              <span className="summary-value sap-theme sap-theme">{formData.supplierName}</span>
+            <div className={getThemeClass('summary-item')}>
+              <span className={getThemeClass('summary-label')}>Proveedor:</span>
+              <span className={getThemeClass('summary-value')}>{formData.supplierName}</span>
             </div>
-            <div className="summary-item sap-theme sap-theme">
-              <span className="summary-label sap-theme sap-theme">Destino:</span>
-              <span className="summary-value sap-theme sap-theme">
+            <div className={getThemeClass('summary-item')}>
+              <span className={getThemeClass('summary-label')}>Destino:</span>
+              <span className={getThemeClass('summary-value')}>
                 {formatLocationName(formData.destinationLocation)}
               </span>
             </div>
@@ -179,16 +188,16 @@ const Step8_Summary = ({
         )}
 
         {formData.type === MOVEMENT_TYPES.SALIDA && vehicle && (
-          <div className="summary-section sap-theme sap-theme">
+          <div className={getThemeClass('summary-section')}>
             <h4>Información del Vehículo</h4>
-            <div className="summary-item sap-theme sap-theme">
-              <span className="summary-label sap-theme sap-theme">Vehículo:</span>
-              <span className="summary-value sap-theme sap-theme">{vehicle.vehicleId}</span>
+            <div className={getThemeClass('summary-item')}>
+              <span className={getThemeClass('summary-label')}>Vehículo:</span>
+              <span className={getThemeClass('summary-value')}>{vehicle.vehicleId}</span>
             </div>
             {formData.currentHours && (
-              <div className="summary-item sap-theme sap-theme">
-                <span className="summary-label sap-theme sap-theme">Horómetro:</span>
-                <span className="summary-value sap-theme sap-theme">
+              <div className={getThemeClass('summary-item')}>
+                <span className={getThemeClass('summary-label')}>Horómetro:</span>
+                <span className={getThemeClass('summary-value')}>
                   {formData.currentHours} horas
                 </span>
               </div>
@@ -197,17 +206,17 @@ const Step8_Summary = ({
         )}
 
         {formData.type === MOVEMENT_TYPES.TRANSFERENCIA && (
-          <div className="summary-section sap-theme sap-theme">
+          <div className={getThemeClass('summary-section')}>
             <h4>Información de Transferencia</h4>
-            <div className="summary-item sap-theme sap-theme">
-              <span className="summary-label sap-theme sap-theme">Origen:</span>
-              <span className="summary-value sap-theme sap-theme">
+            <div className={getThemeClass('summary-item')}>
+              <span className={getThemeClass('summary-label')}>Origen:</span>
+              <span className={getThemeClass('summary-value')}>
                 {formatLocationName(formData.location)}
               </span>
             </div>
-            <div className="summary-item sap-theme sap-theme">
-              <span className="summary-label sap-theme sap-theme">Destino:</span>
-              <span className="summary-value sap-theme sap-theme">
+            <div className={getThemeClass('summary-item')}>
+              <span className={getThemeClass('summary-label')}>Destino:</span>
+              <span className={getThemeClass('summary-value')}>
                 {formatLocationName(formData.destinationLocation)}
               </span>
             </div>
@@ -215,18 +224,18 @@ const Step8_Summary = ({
         )}
 
         {formData.description && (
-          <div className="summary-section sap-theme sap-theme">
+          <div className={getThemeClass('summary-section')}>
             <h4>Observaciones</h4>
-            <div className="summary-item sap-theme sap-theme">
-              <span className="summary-value sap-theme sap-theme">{formData.description}</span>
+            <div className={getThemeClass('summary-item')}>
+              <span className={getThemeClass('summary-value')}>{formData.description}</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Comentarios adicionales */}
-      <div className="form-group sap-theme sap-theme">
-        <label htmlFor="additional-comments" className="form-label sap-theme sap-theme">
+      <div className={getThemeClass('comments-section')}>
+        <label htmlFor="additional-comments" className={getThemeClass('form-label')}>
           Comentarios Adicionales (Opcional)
         </label>
         <textarea
@@ -234,13 +243,13 @@ const Step8_Summary = ({
           value={formData.additionalComments || ''}
           onChange={handleComments}
           placeholder="Escriba cualquier observación o detalle especial..."
-          className="form-textarea sap-theme sap-theme"
+          className={getThemeClass('form-textarea')}
           rows="3"
         />
       </div>
 
       {/* Confirmación final */}
-      <div className="confirmation-checkbox sap-theme sap-theme">
+      <div className={getThemeClass('confirmation-checkbox')}>
         <input
           type="checkbox"
           id="final-confirm"
@@ -253,8 +262,8 @@ const Step8_Summary = ({
       </div>
 
       {error && (
-        <div className="wizard-error sap-theme sap-theme">
-          <span className="error-icon sap-theme sap-theme">⚠️</span>
+        <div className={getThemeClass('wizard-error')}>
+          <span className={getThemeClass('error-icon')}>⚠️</span>
           {error}
         </div>
       )}

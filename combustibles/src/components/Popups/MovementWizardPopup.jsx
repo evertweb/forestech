@@ -15,7 +15,7 @@ const MovementWizard = lazy(() => import('../Movements/MovementWizard'));
 
 const PopupInner = () => {
   const { subscribeToSuppliers } = useCombustibles();
-  const [, setInitData] = useState(null);
+  const [initData, setInitData] = useState(null);
   const [showWizard, setShowWizard] = useState(false);
   const [, setSuppliers] = useState([]);
 
@@ -90,6 +90,7 @@ const PopupInner = () => {
           }
           window.close();
         }}
+        theme={initData?.theme || 'modern'}
         // MovementWizard usa contexto para data; initData conserva theme/config si se requiere.
       />
     </Suspense>
