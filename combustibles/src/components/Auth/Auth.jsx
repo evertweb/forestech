@@ -80,6 +80,7 @@ const Auth = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Notificación de login se maneja automáticamente en AuthContext
     } catch (error) {
       console.error('Error en login:', error);
       setError(getErrorMessage(error.code));
@@ -102,6 +103,7 @@ const Auth = () => {
       } else {
         await createUserProfile(result.user);
       }
+      // Notificación de login se maneja automáticamente en AuthContext
     } catch (error) {
       console.error('Error en login con Google:', error);
       setError('Error al iniciar sesión con Google');
@@ -172,6 +174,7 @@ const Auth = () => {
 
       if (profileResult.success) {
         setSuccess('¡Registro exitoso! Bienvenido al sistema.');
+        // Notificación de login se maneja automáticamente en AuthContext
       } else {
         setError(profileResult.error);
       }

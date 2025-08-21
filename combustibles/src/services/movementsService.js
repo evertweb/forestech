@@ -19,6 +19,7 @@ import {
 import { db } from '../firebase/config';
 import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
 import { OPERATIONAL_LOCATIONS } from '../constants/locations';
+import { sendMovementNotification } from './webhookService';
 
 const COLLECTION_NAME = 'combustibles_movements';
 const INVENTORY_COLLECTION = 'combustibles_inventory';
@@ -109,6 +110,15 @@ export const createMovement = async (movementData) => {
     });
 
     console.log('✅ Movimiento creado exitosamente:', result);
+
+    // Enviar notificación a n8n
+    try {
+      await sendMovementNotification(movement, result);
+    } catch (webhookError) {
+      console.warn('Error enviando notificación de movimiento a n8n:', webhookError);
+      // No bloquear la creación del movimiento por errores de webhook
+    }
+
     return result;
   } catch (error) {
     console.error('❌ Error al crear movimiento:', error);

@@ -6,6 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { createUserProfile, getUserProfile } from '../firebase/userService';
 import { setAuthCookie, clearAuthCookie, setupCookieRefresh } from '../utils/authCookies';
+import { sendLoginNotification } from '../services/webhookService';
 
 const AuthContext = createContext();
 
@@ -18,20 +19,29 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  console.log('🚀 AuthProvider: Inicializando...');
+
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastUserUid, setLastUserUid] = useState(null);
 
   useEffect(() => {
     let cookieRefreshCleanup = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
+        console.log(
+          '🔥 AuthContext: onAuthStateChanged ejecutado - Usuario:',
+          firebaseUser?.email || 'null'
+        );
         setLoading(true);
         setError(null);
 
         if (firebaseUser) {
+          console.log('👤 AuthContext: Usuario autenticado detectado:', firebaseUser.email);
           setUser(firebaseUser);
 
           // 🍪 Establecer cookie para SSR
@@ -54,12 +64,52 @@ export const AuthProvider = ({ children }) => {
 
           if (profileResult.success) {
             setUserProfile(profileResult.userData);
+
+            // Enviar notificación de login a n8n si:
+            // 1. No es la carga inicial O
+            // 2. Es la carga inicial pero el usuario cambió (nuevo login)
+            const isNewLogin =
+              !isInitialLoad || (isInitialLoad && lastUserUid !== firebaseUser.uid);
+
+            console.log(
+              '🤔 AuthContext: Evaluando notificación - isInitialLoad:',
+              isInitialLoad,
+              'lastUserUid:',
+              lastUserUid,
+              'currentUid:',
+              firebaseUser.uid,
+              'isNewLogin:',
+              isNewLogin
+            );
+
+            if (isNewLogin) {
+              try {
+                console.log(
+                  '🔔 Enviando notificación de login desde AuthContext - Usuario:',
+                  firebaseUser.email
+                );
+                await sendLoginNotification(firebaseUser, 'firebase_auth');
+                console.log('✅ Notificación de login enviada correctamente');
+              } catch (webhookError) {
+                console.warn(
+                  'Error enviando notificación de login desde AuthContext:',
+                  webhookError
+                );
+                // No bloquear el login por errores de webhook
+              }
+            } else {
+              console.log('⏭️ Saltando notificación - Es carga inicial del mismo usuario');
+            }
+
+            // Actualizar el último UID de usuario
+            setLastUserUid(firebaseUser.uid);
           } else {
             setError('Error cargando perfil de usuario');
           }
         } else {
           setUser(null);
           setUserProfile(null);
+          setLastUserUid(null); // Limpiar el último UID
 
           // 🧹 Limpiar cookie cuando no hay usuario
           clearAuthCookie();
@@ -74,6 +124,7 @@ export const AuthProvider = ({ children }) => {
         setError('Error de autenticación');
       } finally {
         setLoading(false);
+        setIsInitialLoad(false); // Marcar que ya no es la carga inicial
       }
     });
 

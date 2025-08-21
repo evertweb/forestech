@@ -3,6 +3,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { loadFirebase } from '../firebase/lazyFirebase';
+import { sendLoginNotification } from '../services/webhookService';
 
 const AuthContext = createContext();
 
@@ -15,9 +16,13 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  console.log('🚀 AuthProviderLazy: Inicializando...');
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastUserUid, setLastUserUid] = useState(null);
 
   useEffect(() => {
     let unsubscribe = null;
@@ -32,9 +37,57 @@ export const AuthProvider = ({ children }) => {
         setFirebaseLoaded(true);
 
         // Solo después de cargar Firebase, escuchar cambios de auth
-        unsubscribe = auth.onAuthStateChanged((user) => {
-          setUser(user);
+        unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+          console.log(
+            '🔥 AuthLazy: onAuthStateChanged ejecutado - Usuario:',
+            firebaseUser?.email || 'null'
+          );
+
+          if (firebaseUser) {
+            console.log('👤 AuthLazy: Usuario autenticado detectado:', firebaseUser.email);
+            setUser(firebaseUser);
+
+            // Determinar si es un login nuevo
+            const isNewLogin =
+              !isInitialLoad || (isInitialLoad && lastUserUid !== firebaseUser.uid);
+
+            console.log(
+              '🤔 AuthLazy: Evaluando notificación - isInitialLoad:',
+              isInitialLoad,
+              'lastUserUid:',
+              lastUserUid,
+              'currentUid:',
+              firebaseUser.uid,
+              'isNewLogin:',
+              isNewLogin
+            );
+
+            if (isNewLogin) {
+              try {
+                console.log(
+                  '🔔 Enviando notificación de login desde AuthLazy - Usuario:',
+                  firebaseUser.email
+                );
+                await sendLoginNotification(firebaseUser, 'firebase_auth_lazy');
+                console.log('✅ Notificación de login enviada correctamente desde AuthLazy');
+              } catch (webhookError) {
+                console.warn('Error enviando notificación de login desde AuthLazy:', webhookError);
+              }
+            } else {
+              console.log(
+                '⏭️ Saltando notificación - Es carga inicial del mismo usuario (AuthLazy)'
+              );
+            }
+
+            setLastUserUid(firebaseUser.uid);
+          } else {
+            console.log('🔓 AuthLazy: Usuario desconectado');
+            setUser(null);
+            setLastUserUid(null);
+          }
+
           setLoading(false);
+          setIsInitialLoad(false);
         });
       } catch (error) {
         console.error('Error inicializando Firebase Auth:', error);
