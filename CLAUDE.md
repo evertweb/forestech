@@ -1,6 +1,167 @@
 # CLAUDE.md
 
-Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con código en este repositorio.
+Este archivo proporciona orientación a **Claude en todos los entornos** (Claude Code, GitHub Copilot con Sonnet 4, y otros agentes) cuando trabaja con código en este repositorio.
+
+## 🤖 **COMPATIBILIDAD MULTI-AGENTE - SONNET 4 OPTIMIZADO**
+
+### 🎯 **ENTORNOS CLAUDE**
+
+**🖥️ Claude Code** (claude.ai/code):
+
+- **Contexto completo**: Este archivo + exploración activa de archivos
+- **Fortalezas**: Análisis profundo, debugging interactivo, desarrollo full-stack
+- **Comportamiento**: Usar herramientas paralelas, TodoWrite, agentes especializados
+
+**🧩 GitHub Copilot + Sonnet 4** (VS Code/IDE):
+
+- **Contexto limitado**: Este archivo + ventana actual del editor
+- **Fortalezas**: Code completion, sugerencias inline, quick fixes
+- **Comportamiento**: Patrones de código, convenciones, naming consistency
+
+**🔧 Claude API/Agents** (CI/CD/Automation):
+
+- **Contexto específico**: Este archivo + datos de entrada específicos
+- **Fortalezas**: Code review, documentación automática, testing
+- **Comportamiento**: Validaciones, generación de tests, análisis de calidad
+
+### ⚡ **PROMPTING STRATEGIES POR ENTORNO**
+
+**Claude Code - Prompts Extensos:**
+
+```
+"Analiza la app combustibles, identifica problemas de rendimiento en
+MovementWizard.jsx:150-200, implementa optimizaciones usando React.memo
+y useMemo, ejecuta tests, y documenta cambios en commit"
+```
+
+**GitHub Copilot - Prompts Cortos:**
+
+```
+// Crear función para validar combustible con density check
+// Implementar useCallback para evitar re-renders
+// Agregar error boundary para componente
+```
+
+**Claude API - Prompts Estructurados:**
+
+```json
+{
+  "task": "code_review",
+  "files": ["MovementWizard.jsx"],
+  "focus": ["performance", "security", "accessibility"],
+  "output": "markdown_report"
+}
+```
+
+### 🧠 **PATRONES DE CONSISTENCIA CROSS-ENVIRONMENT**
+
+**🔄 Naming Conventions:**
+
+- Variables: `camelCase` (userProfile, movementData)
+- Componentes: `PascalCase` (MovementWizard, AuthProvider)
+- Archivos: `kebab-case` para utils, `PascalCase` para componentes
+- Constants: `SCREAMING_SNAKE_CASE` (WEBHOOK_CONFIG, COLLECTIONS)
+
+**📦 Code Patterns:**
+
+```javascript
+// ✅ Patrón consistente - todos los agentes lo reconocen
+const useServiceHook = () => {
+  const [state, setState] = useState(initialState);
+  const [loading, setLoading] = useState(false);
+
+  const executeAction = useCallback(async (params) => {
+    setLoading(true);
+    try {
+      const result = await service.action(params);
+      setState(result);
+      return result;
+    } catch (error) {
+      console.error('Error in useServiceHook:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { state, loading, executeAction };
+};
+```
+
+**🔒 Security Patterns:**
+
+```javascript
+// ✅ Patrón seguro - reconocido por todos los agentes
+const validateUserPermissions = (user, action) => {
+  if (!user?.combustiblesPermissions) return false;
+  return user.combustiblesPermissions[action] === true;
+};
+```
+
+### 🎨 **CONTEXT MANAGEMENT STRATEGIES**
+
+**📁 Estructura de Referencias:**
+
+```
+// En cualquier entorno, referenciar así:
+// MovementWizard.jsx:150 (línea específica)
+// @see docs/project/STRUCTURE.md (documentación)
+// @implements webhookService.sendMovementNotification
+// @requires Firebase Auth, Firestore Rules
+```
+
+**🔗 Context Linking:**
+
+- **Short Context** (Copilot): `// @ref WEBHOOK_CONFIG en webhookService.js`
+- **Medium Context** (API): `Related to movement notifications system`
+- **Full Context** (Claude Code): Análisis completo de dependencias
+
+### 🚀 **ENVIRONMENT-SPECIFIC OPTIMIZATIONS**
+
+**🖥️ Claude Code Optimizations:**
+
+- Usar múltiples herramientas en paralelo SIEMPRE
+- TodoWrite para tracking completo
+- Agentes especializados para dominio específico
+- Análisis arquitectural profundo antes de implementar
+
+**🧩 Copilot Optimizations:**
+
+- Comentarios descriptivos para context triggers
+- Consistent indentation (2 spaces React, 4 spaces otros)
+- TypeScript interfaces cuando sea posible
+- Error handling patterns estándar
+
+**🔧 API/Automation Optimizations:**
+
+- Structured outputs (JSON, Markdown)
+- Atomic operations con rollback
+- Comprehensive logging patterns
+- Performance metrics collection
+
+### 📊 **MEMORY PATTERN CONSISTENCY**
+
+**🧠 Shared Knowledge Base:**
+
+- Soluciones exitosas → Documentation automática
+- Bug fixes → Prevention patterns
+- Architecture decisions → Design rationale
+- Performance optimizations → Benchmark data
+
+**🔄 Cross-Environment Learning:**
+
+```yaml
+pattern_id: 'firebase_progress_wrapper'
+environments: ['claude_code', 'copilot', 'api']
+description: 'Execute Firebase operations with user feedback'
+code_template: |
+  await executeWithProgress('operationType', 'description', async () => {
+    return await firebaseOperation();
+  });
+success_metrics: ['user_feedback', 'error_reduction', 'performance']
+```
+
+**IMPORTANTE:** Todos los agentes Claude deben seguir las mismas convenciones y usar el mismo contexto del proyecto para garantizar coherencia.
 
 ## ⚡ **EJECUTAR HERRAMIENTAS EN PARALELO - CRÍTICO**
 
@@ -473,6 +634,61 @@ return {
 - Siempre usar **Error Trigger** nodes
 - Configurar **retry logic** en HTTP nodes
 - Implementar **fallback notifications**
+
+### 🚀 **WORKFLOW PATTERNS & BEST PRACTICES**
+
+**🔄 Error Handling Pattern:**
+
+```javascript
+// En cada nodo, agregar error handling
+try {
+  // Operación principal
+} catch (error) {
+  // Log del error
+  return {
+    error: true,
+    message: error.message,
+    timestamp: new Date().toISOString(),
+  };
+}
+```
+
+**⚡ Performance Optimization:**
+
+```javascript
+// Usar filter nodes para reducir ejecuciones innecesarias
+// Expresión de filtro:
+={{$json.eventType === 'login' || $json.eventType === 'movement'}}
+
+// Timeout configurado en webhook (5s máximo)
+// Retry logic en aplicación cliente
+```
+
+**🔒 Security Considerations:**
+
+```javascript
+// Validar estructura de datos esperada
+={{$json.app === 'combustibles' && $json.eventType}}
+
+// No logear información sensible en n8n
+// Usar environment variables para tokens
+```
+
+**📊 Multi-Channel Support:**
+
+```yaml
+# Estructura para múltiples canales
+channels:
+  telegram:
+    enabled: true
+    chat_id: 6779034430
+  slack:
+    enabled: false
+    webhook_url: ''
+  email:
+    enabled: false
+    recipients: []
+```
 
 ---
 
