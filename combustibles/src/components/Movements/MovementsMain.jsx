@@ -19,7 +19,7 @@ import MovementsFilters from './MovementsFilters';
 import MovementsList from './MovementsList';
 // Lazy load del wizard para reducir el bundle inicial
 const MovementWizard = lazy(() => import('./MovementWizard'));
-import { PageLayout } from '../shared';
+import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import './Movements.css';
 import './MovementsMain-SAP.css';
 import { openMovementWizardPopup } from '../Popups/PopupManager';
@@ -296,7 +296,11 @@ const MovementsMain = () => {
     </div>
   );
 
-  const statsComponent = stats && <MovementsStats stats={stats} filters={filters} />;
+  const statsComponent = loading ? (
+    <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="movements-cards-grid" />
+  ) : (
+    stats && <MovementsStats stats={stats} filters={filters} />
+  );
 
   const filtersComponent = (
     <MovementsFilters
@@ -348,6 +352,14 @@ const MovementsMain = () => {
               </div>
             )}
           </div>
+        ) : loading ? (
+          <ShimmerTable
+            rows={10}
+            columns={6}
+            title={false}
+            actions={false}
+            className="shimmer-movements-table"
+          />
         ) : (
           <MovementsList
             movements={filteredMovements}

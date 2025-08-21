@@ -25,7 +25,7 @@ const MaintenanceModal = lazy(() => import('./MaintenanceModal'));
 const VehicleCategoriesManager = lazy(() => import('./VehicleCategoriesManager'));
 
 // PageLayout
-import { PageLayout } from '../shared';
+import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 
 import './Vehicles.css';
 import '../../styles/sap-vehicles.css';
@@ -260,11 +260,15 @@ const VehiclesMain = () => {
     [activeTab, canCreateVehicle, handleCreateVehicle, openingPopup]
   );
 
-  const statsComponent = useMemo(
-    () =>
-      activeTab === 'vehicles' && stats ? <VehiclesStats stats={stats} filters={filters} /> : null,
-    [activeTab, stats, filters]
-  );
+  const statsComponent = useMemo(() => {
+    if (activeTab !== 'vehicles') return null;
+
+    return loading ? (
+      <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="vehicles-cards-grid" />
+    ) : stats ? (
+      <VehiclesStats stats={stats} filters={filters} />
+    ) : null;
+  }, [activeTab, stats, filters, loading]);
 
   const filtersComponent = useMemo(
     () =>
@@ -309,7 +313,15 @@ const VehiclesMain = () => {
 
           {/* Lista de vehículos */}
           {!error &&
-            (filteredVehicles.length === 0 ? (
+            (loading ? (
+              <ShimmerTable
+                rows={8}
+                columns={6}
+                title={false}
+                actions={false}
+                className="shimmer-vehicles-table"
+              />
+            ) : filteredVehicles.length === 0 ? (
               <div className="empty-state sap-theme">
                 <div className="empty-icon sap-theme">🚜</div>
                 <h3>

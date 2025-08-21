@@ -25,7 +25,7 @@ import InventoryCards from './InventoryCards';
 // Lazy load del modal pesado para dividir el bundle
 const InventoryModal = lazy(() => import('./InventoryModal'));
 import InventoryStats from './InventoryStats';
-import { PageLayout } from '../shared';
+import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import { cardsService } from '../../services/cardsService';
 import UnifiedCardsGrid from '../shared/UnifiedCards';
 import { useCardDetails } from '../../hooks/useCardDetails.jsx';
@@ -273,7 +273,9 @@ const InventoryMain = () => {
     });
   }, [inventoryItems]);
 
-  const statsComponent = (
+  const statsComponent = loading ? (
+    <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="inventory-cards-grid" />
+  ) : (
     <UnifiedCardsGrid
       cards={inventoryCards}
       onCardClick={openCardDetails}
@@ -493,7 +495,15 @@ const InventoryMain = () => {
 
           {/* SAP Fiori Content Section */}
           <div className="sap-table-content">
-            {viewMode === 'table' ? (
+            {loading ? (
+              <ShimmerTable
+                rows={8}
+                columns={7}
+                title={false}
+                actions={false}
+                className="shimmer-inventory-table"
+              />
+            ) : viewMode === 'table' ? (
               <div className="sap-table-wrapper">
                 <InventoryTable
                   items={filteredItems}

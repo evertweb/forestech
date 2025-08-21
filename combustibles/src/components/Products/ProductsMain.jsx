@@ -18,7 +18,7 @@ import { POPUP_EVENTS } from '../../services/popupCommunication';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
 import ProductCategoriesManager from './ProductCategoriesManager';
-import { PageLayout } from '../shared';
+import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import './ProductsMain-SAP.css';
 
 const ProductsMain = () => {
@@ -339,7 +339,14 @@ const ProductsMain = () => {
       title="🛢️ Gestión de Productos"
       subtitle="Administra los tipos de combustibles y productos disponibles"
       actions={headerActions}
-      stats={showStats && <ProductsStats products={products} />}
+      stats={
+        showStats &&
+        (loading ? (
+          <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="products-cards-grid" />
+        ) : (
+          <ProductsStats products={products} />
+        ))
+      }
       filters={filtersComponent}
       loading={loading}
     >

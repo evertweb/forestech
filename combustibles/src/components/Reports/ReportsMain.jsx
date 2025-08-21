@@ -21,7 +21,7 @@ import InventoryReports from './InventoryReports';
 import VehicleReports from './VehicleReports';
 import FinancialReports from './FinancialReports';
 import MovementReports from './MovementReports';
-import { PageLayout } from '../shared';
+import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import { cardsService } from '../../services/cardsService';
 import UnifiedCardsGrid from '../shared/UnifiedCards';
 import { useCardDetails } from '../../hooks/useCardDetails.jsx';
@@ -62,7 +62,11 @@ const ReportsMain = () => {
   }, [inventory, vehicles, movements, suppliers]);
 
   const statsComponent = useMemo(() => {
-    return (
+    const isLoading = !inventory.length && !movements.length && !vehicles.length;
+
+    return activeTab === 'dashboard' && isLoading ? (
+      <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="reports-cards-grid" />
+    ) : (
       <UnifiedCardsGrid
         cards={activeTab === 'dashboard' ? reportsCards : []}
         onCardClick={openCardDetails}
@@ -70,7 +74,14 @@ const ReportsMain = () => {
         className="reports-cards-grid"
       />
     );
-  }, [activeTab, reportsCards, openCardDetails]);
+  }, [
+    activeTab,
+    reportsCards,
+    openCardDetails,
+    inventory.length,
+    movements.length,
+    vehicles.length,
+  ]);
 
   if (!canViewReports) {
     return (

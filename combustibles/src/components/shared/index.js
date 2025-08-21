@@ -10,3 +10,11 @@ export { default as PageHeader } from './PageHeader';
 export { default as StatsSection } from './StatsSection';
 export { default as FiltersSection } from './FiltersSection';
 export { default as TableSection } from './TableSection';
+export {
+  default as ShimmerLoader,
+  ShimmerBase,
+  ShimmerCard,
+  ShimmerTable,
+  ShimmerCardsGrid,
+  ShimmerDashboard,
+} from './ShimmerLoader';

@@ -17,7 +17,7 @@ import '../../styles/sap-dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
-import { PageLayout } from '../shared';
+import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import { cardsService } from '../../services/cardsService';
 import UnifiedCardsGrid from '../shared/UnifiedCards';
 import { useCardDetails } from '../../hooks/useCardDetails.jsx';
@@ -175,7 +175,9 @@ const DashboardMainSAP = () => {
     return cards;
   }, [inventory, vehicles, movements]);
 
-  const statsComponent = (
+  const statsComponent = dataLoading ? (
+    <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="dashboard-cards-grid" />
+  ) : (
     <UnifiedCardsGrid
       cards={dashboardCards}
       onCardClick={openCardDetails}
@@ -204,208 +206,239 @@ const DashboardMainSAP = () => {
       )}
 
       {/* Tabla de Inventario */}
-      <div className="dashboard-table-container sap-theme">
-        <div className="dashboard-table-header sap-theme">
-          <h2 className="dashboard-table-title sap-theme">Inventario Principal</h2>
-          <div className="dashboard-table-actions sap-theme">
-            <button className="btn btn-tertiary sap-theme">🔍 Filtrar</button>
-            <button className="btn btn-secondary sap-theme">📋 Ver Todo</button>
+      {dataLoading ? (
+        <ShimmerTable
+          rows={8}
+          columns={8}
+          title={true}
+          actions={true}
+          className="shimmer-inventory-table"
+        />
+      ) : (
+        <div className="dashboard-table-container sap-theme">
+          <div className="dashboard-table-header sap-theme">
+            <h2 className="dashboard-table-title sap-theme">Inventario Principal</h2>
+            <div className="dashboard-table-actions sap-theme">
+              <button className="btn btn-tertiary sap-theme">🔍 Filtrar</button>
+              <button className="btn btn-secondary sap-theme">📋 Ver Todo</button>
+            </div>
           </div>
-        </div>
 
-        <table className="sap-theme table">
-          <thead>
-            <tr>
-              <th role="columnheader">Producto</th>
-              <th role="columnheader">Ubicación</th>
-              <th role="columnheader">Stock Actual</th>
-              <th role="columnheader">Capacidad</th>
-              <th role="columnheader">Nivel</th>
-              <th role="columnheader">Valor</th>
-              <th role="columnheader">Estado</th>
-              <th role="columnheader">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inventoryTableData.length > 0 ? (
-              inventoryTableData.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.name}</strong>
-                  </td>
-                  <td>{item.location}</td>
-                  <td>{formatNumber(item.currentStock)} gal</td>
-                  <td>{formatNumber(item.maxCapacity)} gal</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>{item.percentage}%</span>
-                      <div
-                        style={{
-                          width: '60px',
-                          height: '8px',
-                          background: 'var(--sap-neutral-300)',
-                          borderRadius: '4px',
-                          overflow: 'hidden',
-                        }}
-                      >
+          <table className="sap-theme table">
+            <thead>
+              <tr>
+                <th role="columnheader">Producto</th>
+                <th role="columnheader">Ubicación</th>
+                <th role="columnheader">Stock Actual</th>
+                <th role="columnheader">Capacidad</th>
+                <th role="columnheader">Nivel</th>
+                <th role="columnheader">Valor</th>
+                <th role="columnheader">Estado</th>
+                <th role="columnheader">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inventoryTableData.length > 0 ? (
+                inventoryTableData.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <strong>{item.name}</strong>
+                    </td>
+                    <td>{item.location}</td>
+                    <td>{formatNumber(item.currentStock)} gal</td>
+                    <td>{formatNumber(item.maxCapacity)} gal</td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>{item.percentage}%</span>
                         <div
                           style={{
-                            width: `${item.percentage}%`,
-                            height: '100%',
-                            background:
-                              item.statusClass === 'error'
-                                ? 'var(--sap-error)'
-                                : item.statusClass === 'warning'
-                                  ? 'var(--sap-warning)'
-                                  : 'var(--sap-success)',
-                            transition: 'width 0.3s ease',
+                            width: '60px',
+                            height: '8px',
+                            background: 'var(--sap-neutral-300)',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
                           }}
-                        />
+                        >
+                          <div
+                            style={{
+                              width: `${item.percentage}%`,
+                              height: '100%',
+                              background:
+                                item.statusClass === 'error'
+                                  ? 'var(--sap-error)'
+                                  : item.statusClass === 'warning'
+                                    ? 'var(--sap-warning)'
+                                    : 'var(--sap-success)',
+                              transition: 'width 0.3s ease',
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{formatCurrency(item.value)}</td>
-                  <td>
-                    <span className={`status-badge sap-theme ${item.statusClass}`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="inventory-actions sap-theme">
-                      <button className="action-button sap-theme view" title="Ver detalles">
-                        👁️
-                      </button>
-                      <button className="action-button sap-theme edit" title="Editar">
-                        ✏️
-                      </button>
-                      <button className="action-button sap-theme restock" title="Reabastecer">
-                        📦
-                      </button>
-                    </div>
+                    </td>
+                    <td>{formatCurrency(item.value)}</td>
+                    <td>
+                      <span className={`status-badge sap-theme ${item.statusClass}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="inventory-actions sap-theme">
+                        <button className="action-button sap-theme view" title="Ver detalles">
+                          👁️
+                        </button>
+                        <button className="action-button sap-theme edit" title="Editar">
+                          ✏️
+                        </button>
+                        <button className="action-button sap-theme restock" title="Reabastecer">
+                          📦
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="8"
+                    style={{ textAlign: 'center', padding: '24px', color: 'var(--sap-text-muted)' }}
+                  >
+                    No hay datos de inventario disponibles
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="8"
-                  style={{ textAlign: 'center', padding: '24px', color: 'var(--sap-text-muted)' }}
-                >
-                  No hay datos de inventario disponibles
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Tabla de Actividad Reciente */}
-      <div className="dashboard-table-container sap-theme">
-        <div className="dashboard-table-header sap-theme">
-          <h2 className="dashboard-table-title sap-theme">Actividad Reciente</h2>
-          <div className="dashboard-table-actions sap-theme">
-            <button className="btn btn-tertiary sap-theme">📋 Ver Histórico</button>
+      {dataLoading ? (
+        <ShimmerTable
+          rows={5}
+          columns={5}
+          title={true}
+          actions={true}
+          className="shimmer-activity-table"
+        />
+      ) : (
+        <div className="dashboard-table-container sap-theme">
+          <div className="dashboard-table-header sap-theme">
+            <h2 className="dashboard-table-title sap-theme">Actividad Reciente</h2>
+            <div className="dashboard-table-actions sap-theme">
+              <button className="btn btn-tertiary sap-theme">📋 Ver Histórico</button>
+            </div>
           </div>
-        </div>
 
-        <table className="sap-theme table">
-          <thead>
-            <tr>
-              <th role="columnheader">Tipo</th>
-              <th role="columnheader">Descripción</th>
-              <th role="columnheader">Fecha</th>
-              <th role="columnheader">Estado</th>
-              <th role="columnheader">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentMovements.length > 0 ? (
-              recentMovements.map((mov) => (
-                <tr key={mov.id}>
-                  <td>
-                    <span
-                      className={`status-badge sap-theme ${mov.type === 'entrada' ? 'success' : mov.type === 'salida' ? 'warning' : ''}`}
-                    >
+          <table className="sap-theme table">
+            <thead>
+              <tr>
+                <th role="columnheader">Tipo</th>
+                <th role="columnheader">Descripción</th>
+                <th role="columnheader">Fecha</th>
+                <th role="columnheader">Estado</th>
+                <th role="columnheader">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentMovements.length > 0 ? (
+                recentMovements.map((mov) => (
+                  <tr key={mov.id}>
+                    <td>
+                      <span
+                        className={`status-badge sap-theme ${mov.type === 'entrada' ? 'success' : mov.type === 'salida' ? 'warning' : ''}`}
+                      >
+                        {mov.type === 'entrada'
+                          ? '📥'
+                          : mov.type === 'salida'
+                            ? '📤'
+                            : mov.type === 'transferencia'
+                              ? '🔄'
+                              : '🔧'}{' '}
+                        {mov.type}
+                      </span>
+                    </td>
+                    <td>
                       {mov.type === 'entrada'
-                        ? '📥'
+                        ? `Entrada de ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`
                         : mov.type === 'salida'
-                          ? '📤'
+                          ? `Salida de ${mov.quantity || 0} gal para vehículo ${mov.vehicleId || 'N/A'}`
                           : mov.type === 'transferencia'
-                            ? '🔄'
-                            : '🔧'}{' '}
-                      {mov.type}
-                    </span>
-                  </td>
-                  <td>
-                    {mov.type === 'entrada'
-                      ? `Entrada de ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`
-                      : mov.type === 'salida'
-                        ? `Salida de ${mov.quantity || 0} gal para vehículo ${mov.vehicleId || 'N/A'}`
-                        : mov.type === 'transferencia'
-                          ? `Transferencia de ${mov.quantity || 0} gal`
-                          : `Ajuste de inventario: ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`}
-                  </td>
-                  <td>{safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}</td>
-                  <td>
-                    <span
-                      className={`status-badge sap-theme ${mov.status === 'completado' ? 'active' : 'warning'}`}
-                    >
-                      {mov.status === 'completado' ? 'Completado' : 'Pendiente'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="inventory-actions sap-theme">
-                      <button className="action-button sap-theme view" title="Ver detalles">
-                        👁️
-                      </button>
-                    </div>
+                            ? `Transferencia de ${mov.quantity || 0} gal`
+                            : `Ajuste de inventario: ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`}
+                    </td>
+                    <td>{safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}</td>
+                    <td>
+                      <span
+                        className={`status-badge sap-theme ${mov.status === 'completado' ? 'active' : 'warning'}`}
+                      >
+                        {mov.status === 'completado' ? 'Completado' : 'Pendiente'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="inventory-actions sap-theme">
+                        <button className="action-button sap-theme view" title="Ver detalles">
+                          👁️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    style={{ textAlign: 'center', padding: '24px', color: 'var(--sap-text-muted)' }}
+                  >
+                    No hay movimientos recientes
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="5"
-                  style={{ textAlign: 'center', padding: '24px', color: 'var(--sap-text-muted)' }}
-                >
-                  No hay movimientos recientes
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Footer con estadísticas */}
-      <div
-        style={{
-          marginTop: 'var(--sap-spacing-xl)',
-          padding: 'var(--sap-spacing-lg)',
-          background: 'var(--sap-neutral-100)',
-          border: '1px solid var(--sap-neutral-300)',
-          borderRadius: 'var(--sap-border-radius-md)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 'var(--sap-spacing-md)',
-        }}
-      >
-        <div style={{ display: 'flex', gap: 'var(--sap-spacing-lg)', flexWrap: 'wrap' }}>
-          <span>
-            <strong>{inventory.length}</strong> productos en inventario
-          </span>
-          <span>
-            <strong>{vehicles.length}</strong> vehículos registrados
-          </span>
-          <span>
-            <strong>{movements.length}</strong> movimientos totales
-          </span>
+      {dataLoading ? (
+        <div className="shimmer-dashboard-footer">
+          <div className="shimmer-footer-stats">
+            <ShimmerLoader.Base width="120px" height="16px" />
+            <ShimmerLoader.Base width="140px" height="16px" />
+            <ShimmerLoader.Base width="130px" height="16px" />
+          </div>
+          <ShimmerLoader.Base width="180px" height="14px" className="shimmer-timestamp" />
         </div>
-        <div style={{ fontSize: '0.875rem', color: 'var(--sap-text-secondary)' }}>
-          Última actualización: {new Date().toLocaleString('es-CO')}
+      ) : (
+        <div
+          style={{
+            marginTop: 'var(--sap-spacing-xl)',
+            padding: 'var(--sap-spacing-lg)',
+            background: 'var(--sap-neutral-100)',
+            border: '1px solid var(--sap-neutral-300)',
+            borderRadius: 'var(--sap-border-radius-md)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 'var(--sap-spacing-md)',
+          }}
+        >
+          <div style={{ display: 'flex', gap: 'var(--sap-spacing-lg)', flexWrap: 'wrap' }}>
+            <span>
+              <strong>{inventory.length}</strong> productos en inventario
+            </span>
+            <span>
+              <strong>{vehicles.length}</strong> vehículos registrados
+            </span>
+            <span>
+              <strong>{movements.length}</strong> movimientos totales
+            </span>
+          </div>
+          <div style={{ fontSize: '0.875rem', color: 'var(--sap-text-secondary)' }}>
+            Última actualización: {new Date().toLocaleString('es-CO')}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 
