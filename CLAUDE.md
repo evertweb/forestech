@@ -277,6 +277,203 @@ docker logs -f n8n
 docker exec n8n n8n export:workflow --all --output=/tmp/backup/
 ```
 
+## 📘 **ESTRUCTURA JSON DE WEBHOOKS N8N - DOCUMENTACIÓN TÉCNICA**
+
+### 🔗 **Estructura Estándar de Input en n8n**
+
+Cuando n8n recibe un Webhook, el input se organiza en JSON con estas partes:
+
+```json
+[
+  {
+    "headers": {
+      "host": "n8n.forestechdecolombia.com.co",
+      "content-type": "application/json",
+      "user-agent": "Combustibles-App/1.0"
+    },
+    "params": {},
+    "query": {},
+    "body": {
+      // 👈 AQUÍ ESTÁN LOS DATOS IMPORTANTES
+      "eventType": "login|movement",
+      "timestamp": "2025-08-21T00:00:00Z",
+      "user": {
+        /* datos del usuario */
+      },
+      "app": "combustibles"
+    },
+    "webhookUrl": "https://n8n.forestechdecolombia.com.co/webhook/[endpoint]",
+    "executionMode": "production"
+  }
+]
+```
+
+### ⚡ **Expresiones para Acceder a Datos**
+
+**Login Events:**
+
+```javascript
+// Datos básicos del usuario
+Email: {{$json["body"]["user"]["email"]}}
+Nombre: {{$json["body"]["user"]["displayName"]}}
+Rol: {{$json["body"]["user"]["role"]}}
+UID: {{$json["body"]["user"]["uid"]}}
+
+// Permisos específicos
+Puede crear movimientos: {{$json["body"]["user"]["permissions"]["canCreateMovements"]}}
+Puede ver reportes: {{$json["body"]["user"]["permissions"]["canViewReports"]}}
+Es admin: {{$json["body"]["user"]["permissions"]["canModifySettings"]}}
+
+// Metadata
+Método de login: {{$json["body"]["loginMethod"]}}
+Email verificado: {{$json["body"]["user"]["emailVerified"]}}
+Timestamp: {{$json["body"]["timestamp"]}}
+App: {{$json["body"]["app"]}}
+```
+
+**Movement Events:**
+
+```javascript
+// Datos del movimiento
+ID: {{$json["body"]["movement"]["id"]}}
+Tipo: {{$json["body"]["movement"]["type"]}}
+Combustible: {{$json["body"]["movement"]["fuelType"]}}
+Cantidad: {{$json["body"]["movement"]["quantity"]}}
+Precio unitario: {{$json["body"]["movement"]["unitPrice"]}}
+Valor total: {{$json["body"]["movement"]["totalValue"]}}
+Vehículo: {{$json["body"]["movement"]["vehicleId"]}}
+Ubicación: {{$json["body"]["movement"]["location"]}}
+Descripción: {{$json["body"]["movement"]["description"]}}
+Fecha efectiva: {{$json["body"]["movement"]["effectiveDate"]}}
+
+// Usuario que creó el movimiento
+Creado por: {{$json["body"]["createdBy"]["email"]}}
+Nombre del creador: {{$json["body"]["createdBy"]["displayName"]}}
+Rol del creador: {{$json["body"]["createdBy"]["role"]}}
+UID del creador: {{$json["body"]["createdBy"]["uid"]}}
+```
+
+### 📱 **Plantillas de Mensajes Telegram**
+
+**Login Notification:**
+
+```
+🔐 ACCESO AL SISTEMA 🔐
+
+📧 Usuario: {{$json["body"]["user"]["email"]}}
+🙍 Nombre: {{$json["body"]["user"]["displayName"]}}
+👤 Rol: {{$json["body"]["user"]["role"]}}
+
+🕒 Hora: {{$json["body"]["timestamp"]}}
+🌐 Método: {{$json["body"]["loginMethod"]}}
+📲 App: {{$json["body"]["app"]}}
+
+✅ Permisos activos:
+{{#if $json["body"]["user"]["permissions"]["canManageInventory"]}}• Gestionar inventario{{/if}}
+{{#if $json["body"]["user"]["permissions"]["canCreateMovements"]}}• Crear movimientos{{/if}}
+{{#if $json["body"]["user"]["permissions"]["canViewReports"]}}• Ver reportes{{/if}}
+
+🟢 Estado: Acceso exitoso
+```
+
+**Movement Notification:**
+
+```
+🚛 MOVIMIENTO DE COMBUSTIBLE 🚛
+
+🆔 ID: {{$json["body"]["movement"]["id"]}}
+📋 Tipo: {{$json["body"]["movement"]["type"]}}
+⛽ Combustible: {{$json["body"]["movement"]["fuelType"]}}
+📊 Cantidad: {{$json["body"]["movement"]["quantity"]}} galones
+💵 Precio Unitario: ${{$json["body"]["movement"]["unitPrice"]}}
+💰 Valor Total: ${{$json["body"]["movement"]["totalValue"]}}
+📅 Fecha: {{$json["body"]["movement"]["effectiveDate"]}}
+🚗 Vehículo: {{$json["body"]["movement"]["vehicleId"]}}
+📍 Ubicación: {{$json["body"]["movement"]["location"]}}
+📝 Descripción: {{$json["body"]["movement"]["description"]}}
+
+👤 Registrado por: {{$json["body"]["createdBy"]["displayName"]}} ({{$json["body"]["createdBy"]["role"]}})
+📧 Correo: {{$json["body"]["createdBy"]["email"]}}
+
+✅ Movimiento registrado exitosamente en la app: {{$json["body"]["app"]}}
+```
+
+### 🛠️ **GUÍA PARA CREAR NUEVOS WORKFLOWS N8N**
+
+#### **Paso 1: Crear Webhook Node**
+
+1. Drag & Drop **Webhook** node
+2. **HTTP Method**: POST
+3. **Path**: `nombre-descriptivo-webhook`
+4. **Response Mode**: "Response Node" o "Last Node"
+
+#### **Paso 2: Agregar Switch Node para Eventos**
+
+```javascript
+// Configuración del Switch Node
+Data Type: String
+Value 1: ={{$json.eventType}}
+
+// Reglas:
+Output 0: eventType equals "login"
+Output 1: eventType equals "movement"
+Output 2: eventType equals "error"
+```
+
+#### **Paso 3: Configurar Telegram Nodes**
+
+1. **Chat ID**: `6779034430`
+2. **Bot Token**: `8440084966:AAEN19jaLhot2FAHPCmhbsjnDRaUb4RZQdA`
+3. **Message**: Usar plantillas de arriba
+
+#### **Paso 4: Testing**
+
+```bash
+# Test del webhook
+curl -X POST https://n8n.forestechdecolombia.com.co/webhook/[tu-endpoint] \
+-H "Content-Type: application/json" \
+-d '{"eventType":"test","timestamp":"2025-08-21T00:00:00Z","message":"Test workflow","app":"tu-app"}'
+```
+
+#### **Paso 5: Activar Workflow**
+
+1. Click en **"Active"** toggle
+2. Verificar que el webhook esté **"Listening"**
+3. Test con datos reales desde la app
+
+### 🔄 **PATRONES COMUNES N8N**
+
+**Conditional Logic:**
+
+```javascript
+// En Function Node para lógica compleja
+if ($json.body.user.role === 'admin') {
+  return [
+    {
+      message: 'Admin access detected',
+      priority: 'high',
+    },
+  ];
+}
+```
+
+**Data Transformation:**
+
+```javascript
+// En Set Node para transformar datos
+return {
+  username: $json.body.user.email.split('@')[0],
+  isVerified: $json.body.user.emailVerified,
+  roleLevel: $json.body.user.role === 'admin' ? 3 : 1,
+};
+```
+
+**Error Handling:**
+
+- Siempre usar **Error Trigger** nodes
+- Configurar **retry logic** en HTTP nodes
+- Implementar **fallback notifications**
+
 ---
 
 **📌 Reglas de comportamiento Claude Code - Agosto 2025**
