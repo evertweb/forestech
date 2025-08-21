@@ -11,7 +11,10 @@ const PrivacyPolicy = () => {
           content="Política de privacidad de Forestech Colombia. Conoce cómo protegemos y manejamos tu información personal."
         />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://forestech.co/legal/politica-privacidad.html" />
+        <link
+          rel="canonical"
+          href="https://forestechdecolombia.com.co/legal/politica-privacidad.html"
+        />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -164,7 +167,7 @@ const PrivacyPolicy = () => {
                   </p>
                   <ul className="space-y-1 text-gray-700">
                     <li>
-                      <strong>Email:</strong> privacidad@forestech.co
+                      <strong>Email:</strong> privacidad@forestechdecolombia.com.co
                     </li>
                     <li>
                       <strong>Teléfono:</strong> +57 (1) 123-4567

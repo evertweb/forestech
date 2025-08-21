@@ -11,7 +11,10 @@ const TermsOfService = () => {
           content="Términos y condiciones de servicio de Forestech Colombia. Conoce las condiciones de uso de nuestros servicios."
         />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://forestech.co/legal/terminos-servicio.html" />
+        <link
+          rel="canonical"
+          href="https://forestechdecolombia.com.co/legal/terminos-servicio.html"
+        />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">

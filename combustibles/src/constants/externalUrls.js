@@ -23,7 +23,7 @@ export const COMMUNICATION_URLS = {
     'https://wa.me/573124559869?text=Hola,%20tengo%20una%20sugerencia%20para%20mejorar%20el%20sistema%20de%20combustibles',
 
   // Otros canales de comunicación (si aplican en el futuro)
-  EMAIL_SUPPORT: 'mailto:soporte@forestech.com.co',
+  EMAIL_SUPPORT: 'mailto:soporte@forestechdecolombia.com.co',
   PHONE_SUPPORT: 'tel:+573124559869',
 };
 
@@ -93,7 +93,7 @@ export const DOCUMENTATION_URLS = {
     FIREBASE_DOCS: 'https://firebase.google.com/docs',
     REACT_DOCS: 'https://react.dev/learn',
     VITE_DOCS: 'https://vitejs.dev/guide',
-    FORESTECH_DOCS: 'https://docs.forestech.com.co', // URL hipotética
+    FORESTECH_DOCS: 'https://docs.forestechdecolombia.com.co', // URL hipotética
   },
 
   // Manuales de usuario
@@ -174,16 +174,16 @@ export const DEVELOPMENT_URLS = {
 export const ENVIRONMENT_URLS = {
   // Producción
   PRODUCTION: {
-    APP_URL: 'https://combustibles.forestech.com.co',
-    API_URL: 'https://api.forestech.com.co',
-    CDN_URL: 'https://cdn.forestech.com.co',
+    APP_URL: 'https://combustibles.forestechdecolombia.com.co',
+    API_URL: 'https://api.forestechdecolombia.com.co',
+    CDN_URL: 'https://cdn.forestechdecolombia.com.co',
   },
 
   // Staging/Pruebas
   STAGING: {
-    APP_URL: 'https://staging-combustibles.forestech.com.co',
-    API_URL: 'https://staging-api.forestech.com.co',
-    CDN_URL: 'https://staging-cdn.forestech.com.co',
+    APP_URL: 'https://staging-combustibles.forestechdecolombia.com.co',
+    API_URL: 'https://staging-api.forestechdecolombia.com.co',
+    CDN_URL: 'https://staging-cdn.forestechdecolombia.com.co',
   },
 
   // Desarrollo local
