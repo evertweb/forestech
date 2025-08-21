@@ -11,7 +11,7 @@ const TermsOfService = () => {
           content="Términos y condiciones de servicio de Forestech Colombia. Conoce las condiciones de uso de nuestros servicios."
         />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://forestech.co/terminos-servicio" />
+        <link rel="canonical" href="https://forestech.co/legal/terminos-servicio.html" />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -104,7 +104,7 @@ const TermsOfService = () => {
                 <p className="mb-4 text-gray-700">
                   El manejo de su información personal se rige por nuestra{' '}
                   <a
-                    href="/politica-privacidad"
+                    href="/legal/politica-privacidad.html"
                     className="text-emerald-600 underline hover:text-emerald-700"
                   >
                     Política de Privacidad

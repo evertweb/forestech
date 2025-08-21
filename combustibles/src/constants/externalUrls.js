@@ -103,7 +103,7 @@ export const DOCUMENTATION_URLS = {
     FAQ: '/docs/preguntas-frecuentes.html',
   },
 
-  // Legal y compliance
+  // Legal y compliance - URLs del dominio principal
   LEGAL: {
     TERMINOS_SERVICIO: '/legal/terminos-servicio.html',
     POLITICA_PRIVACIDAD: '/legal/politica-privacidad.html',

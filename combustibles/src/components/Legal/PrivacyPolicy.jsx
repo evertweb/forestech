@@ -11,7 +11,7 @@ const PrivacyPolicy = () => {
           content="Política de privacidad de Forestech Colombia. Conoce cómo protegemos y manejamos tu información personal."
         />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://forestech.co/politica-privacidad" />
+        <link rel="canonical" href="https://forestech.co/legal/politica-privacidad.html" />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">

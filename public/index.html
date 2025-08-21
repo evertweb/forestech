@@ -126,6 +126,76 @@
             opacity: 1;
         }
 
+        /* Dropdown para enlaces legales */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .legal-btn {
+            background: rgba(107, 153, 117, 0.2) !important;
+            border: 1px solid rgba(107, 153, 117, 0.3) !important;
+        }
+
+        .legal-btn:hover {
+            background: rgba(107, 153, 117, 0.3) !important;
+            border: 1px solid rgba(107, 153, 117, 0.4) !important;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 220px;
+            background: rgba(15, 35, 25, 0.95);
+            backdrop-filter: blur(25px) saturate(150%);
+            -webkit-backdrop-filter: blur(25px) saturate(150%);
+            border-radius: 12px;
+            border: 1px solid rgba(107, 153, 117, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 12px 16px;
+            margin: 0;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            text-align: left;
+            font-size: 0.9rem;
+            min-width: auto;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background: rgba(107, 153, 117, 0.2);
+            transform: none;
+            box-shadow: none;
+            border: none;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+            animation: dropdownFadeIn 0.3s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
         /* Hero section con animaciones - colores más suaves */
         .hero {
             height: 100vh;
@@ -356,12 +426,11 @@
             box-shadow: 0 8px 25px rgba(45, 90, 61, 0.3);
         }
 
-        /* Footer moderno */
+        /* Footer moderno con estructura completa */
         footer {
             background: #1a2e22;
             color: white;
-            text-align: center;
-            padding: 3rem 0;
+            padding: 3rem 0 1rem;
             position: relative;
         }
 
@@ -373,6 +442,90 @@
             right: 0;
             height: 4px;
             background: linear-gradient(to right, #2d5a3d, #4a7c59, #6b9975);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-brand h3 {
+            color: #6b9975;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .footer-brand p {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            color: #6b9975;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #e5e7eb;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .footer-section ul li a:hover {
+            color: #6b9975;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(107, 153, 117, 0.3);
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive footer */
+        @media (max-width: 768px) {
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-links {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .footer-content {
+                padding: 0 1rem;
+            }
         }
 
         /* Botón especial para liquidación */
@@ -431,6 +584,21 @@
                 gap: 1rem;
             }
 
+            /* Dropdown responsive */
+            .dropdown-content {
+                position: fixed;
+                top: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 0;
+                width: 90vw;
+                max-width: 300px;
+            }
+
+            .dropdown:hover .dropdown-content {
+                top: 60%;
+            }
+
             .hero h1 {
                 font-size: 2.5rem;
             }
@@ -470,6 +638,14 @@
                 <li><a href="#quienes-somos">Quiénes Somos</a></li>
                 <li><a href="#proyectos">Proyectos</a></li>
                 <li><a href="#contacto">Contacto</a></li>
+                <li class="dropdown">
+                    <a href="#" class="legal-btn">Legal ⚖️</a>
+                    <div class="dropdown-content">
+                        <a href="/legal/politica-privacidad.html" target="_blank">📋 Política de Privacidad</a>
+                        <a href="/legal/terminos-servicio.html" target="_blank">📄 Términos de Servicio</a>
+                        <a href="/legal/licencias.html" target="_blank">⚖️ Licencias</a>
+                    </div>
+                </li>
                 <li><a href="alimentacion" class="special-btn">Liquidación Comidas</a></li>
                 <li><a href="combustibles" class="fuel-btn">Gestión Combustibles</a></li>
             </ul>
@@ -536,8 +712,45 @@
 </main>
 
 <footer>
-    <p>&copy; 2025 Forestech de Colombia. Todos los derechos reservados.</p>
-    <p style="margin-top: 0.5rem; opacity: 0.8;">Comprometidos con un futuro sostenible 🌱</p>
+    <div class="footer-content">
+        <div class="footer-main">
+            <div class="footer-brand">
+                <h3>Forestech de Colombia</h3>
+                <p>Comprometidos con un futuro sostenible 🌱</p>
+            </div>
+            
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h4>Servicios</h4>
+                    <ul>
+                        <li><a href="/combustibles">Gestión de Combustibles</a></li>
+                        <li><a href="/alimentacion">Gestión de Alimentación</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="/legal/politica-privacidad.html" target="_blank">Política de Privacidad</a></li>
+                        <li><a href="/legal/terminos-servicio.html" target="_blank">Términos de Servicio</a></li>
+                        <li><a href="/legal/licencias.html" target="_blank">Licencias</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <ul>
+                        <li><a href="mailto:cardenasever072@gmail.com">cardenasever072@gmail.com</a></li>
+                        <li><a href="https://forestechdecolombia.com.co" target="_blank">forestechdecolombia.com.co</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Forestech de Colombia S.A.S. Todos los derechos reservados.</p>
+        </div>
+    </div>
 </footer>
 
 <script>

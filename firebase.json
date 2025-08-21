@@ -30,6 +30,26 @@
           "source": "/robots.txt",
           "destination": "/seo-robots",
           "type": 301
+        },
+        {
+          "source": "/combustibles/politica-privacidad",
+          "destination": "/legal/politica-privacidad.html",
+          "type": 301
+        },
+        {
+          "source": "/combustibles/terminos-servicio",
+          "destination": "/legal/terminos-servicio.html",
+          "type": 301
+        },
+        {
+          "source": "/politica-privacidad",
+          "destination": "/legal/politica-privacidad.html",
+          "type": 301
+        },
+        {
+          "source": "/terminos-servicio",
+          "destination": "/legal/terminos-servicio.html",
+          "type": 301
         }
       ],
       "rewrites": [
