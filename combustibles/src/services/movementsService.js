@@ -47,6 +47,7 @@ export const MOVEMENT_STATUS = {
  */
 export const createMovement = async (movementData) => {
   try {
+    console.log('🎬 INICIANDO createMovement - DEBUGGING ACTIVE');
     // Validar datos requeridos
     validateMovementData(movementData);
 
@@ -110,10 +111,77 @@ export const createMovement = async (movementData) => {
     });
 
     console.log('✅ Movimiento creado exitosamente:', result);
+    console.log('🔥 AHORA VAMOS A ENVIAR WEBHOOK...');
 
-    // Enviar notificación a n8n
+    // Enviar notificación a n8n con información del usuario actual
     try {
-      await sendMovementNotification(movement, result);
+      // Obtener información del usuario actual desde múltiples fuentes
+      let currentUserInfo = null;
+
+      console.log('🕵️ Buscando información del usuario...');
+      console.log(
+        '🕵️ window.combustiblesUserContext:',
+        typeof window !== 'undefined' ? window.combustiblesUserContext : 'window undefined'
+      );
+
+      // Intento 1: Contexto global establecido por AuthContextLazy
+      if (typeof window !== 'undefined' && window.combustiblesUserContext) {
+        currentUserInfo = window.combustiblesUserContext;
+        console.log('🔍 Usuario obtenido desde contexto global:', currentUserInfo);
+      }
+
+      // Intento 2: Firebase Auth actual si el contexto no está disponible
+      if (!currentUserInfo && typeof window !== 'undefined') {
+        try {
+          console.log('🔍 Intentando obtener usuario desde Firebase Auth...');
+          // Usar la instancia de auth que ya está importada
+          const { auth } = await import('../firebase/config');
+          const currentUser = auth.currentUser;
+
+          console.log('🔍 Firebase currentUser:', currentUser ? currentUser.email : 'null');
+
+          if (currentUser) {
+            currentUserInfo = {
+              uid: currentUser.uid,
+              email: currentUser.email,
+              displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario',
+              role: 'cliente', // Rol por defecto si no tenemos el perfil
+            };
+            console.log('🔍 Usuario obtenido desde Firebase Auth:', currentUserInfo);
+          }
+        } catch (authError) {
+          console.warn('⚠️ Error obteniendo usuario actual:', authError);
+        }
+      }
+
+      // Intento 3: Desde contexto React (último recurso)
+      if (!currentUserInfo && typeof window !== 'undefined' && window.authContextData) {
+        console.log('🔍 Intentando desde window.authContextData...');
+        const authData = window.authContextData;
+        if (authData.user) {
+          currentUserInfo = {
+            uid: authData.user.uid,
+            email: authData.user.email,
+            displayName:
+              authData.user.displayName || authData.user.email?.split('@')[0] || 'Usuario',
+            role: authData.userProfile?.role || 'cliente',
+          };
+          console.log('🔍 Usuario obtenido desde authContextData:', currentUserInfo);
+        }
+      }
+
+      console.log('🎯 USUARIO FINAL PARA WEBHOOK:', currentUserInfo);
+      console.log('🎯 TIPO DE USUARIO:', typeof currentUserInfo);
+      console.log(
+        '🎯 PARAMETROS PARA WEBHOOK - movement:',
+        typeof movement,
+        'result:',
+        result,
+        'userInfo:',
+        currentUserInfo
+      );
+
+      await sendMovementNotification(movement, result, currentUserInfo);
     } catch (webhookError) {
       console.warn('Error enviando notificación de movimiento a n8n:', webhookError);
       // No bloquear la creación del movimiento por errores de webhook

@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { loadFirebase } from '../firebase/lazyFirebase';
 import { sendLoginNotification } from '../services/webhookService';
+import { getUserProfile } from '../firebase/userService';
 
 const AuthContext = createContext();
 
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   console.log('🚀 AuthProviderLazy: Inicializando...');
 
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -47,6 +49,19 @@ export const AuthProvider = ({ children }) => {
             console.log('👤 AuthLazy: Usuario autenticado detectado:', firebaseUser.email);
             setUser(firebaseUser);
 
+            // Obtener perfil del usuario
+            let profile = null;
+            try {
+              const profileResult = await getUserProfile(firebaseUser.uid);
+              if (profileResult.success) {
+                profile = profileResult.userData;
+                setUserProfile(profile);
+                console.log('📋 AuthLazy: Perfil cargado:', profile.role);
+              }
+            } catch (error) {
+              console.warn('⚠️ AuthLazy: Error cargando perfil:', error);
+            }
+
             // Determinar si es un login nuevo
             const isNewLogin =
               !isInitialLoad || (isInitialLoad && lastUserUid !== firebaseUser.uid);
@@ -62,13 +77,41 @@ export const AuthProvider = ({ children }) => {
               isNewLogin
             );
 
+            // Establecer contexto de usuario global para webhooks
+            if (typeof window !== 'undefined') {
+              const userContext = {
+                uid: firebaseUser.uid,
+                email: firebaseUser.email,
+                displayName:
+                  firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario',
+                role: profile?.role || 'cliente',
+              };
+
+              // Múltiples estrategias para exponer el contexto
+              window.combustiblesUserContext = userContext;
+              window.authContextData = {
+                user: firebaseUser,
+                userProfile: profile,
+              };
+
+              console.log(
+                '🌐 Contexto global establecido:',
+                userContext.email,
+                'Rol:',
+                userContext.role
+              );
+              console.log('🌐 window.combustiblesUserContext:', window.combustiblesUserContext);
+            }
+
             if (isNewLogin) {
               try {
                 console.log(
                   '🔔 Enviando notificación de login desde AuthLazy - Usuario:',
-                  firebaseUser.email
+                  firebaseUser.email,
+                  'Rol:',
+                  profile?.role || 'cliente'
                 );
-                await sendLoginNotification(firebaseUser, 'firebase_auth_lazy');
+                await sendLoginNotification(firebaseUser, 'firebase_auth_lazy', profile);
                 console.log('✅ Notificación de login enviada correctamente desde AuthLazy');
               } catch (webhookError) {
                 console.warn('Error enviando notificación de login desde AuthLazy:', webhookError);
@@ -83,7 +126,15 @@ export const AuthProvider = ({ children }) => {
           } else {
             console.log('🔓 AuthLazy: Usuario desconectado');
             setUser(null);
+            setUserProfile(null);
             setLastUserUid(null);
+
+            // Limpiar contexto de usuario global
+            if (typeof window !== 'undefined') {
+              delete window.combustiblesUserContext;
+              delete window.authContextData;
+              console.log('🧹 Contextos globales limpiados');
+            }
           }
 
           setLoading(false);
@@ -127,6 +178,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    userProfile,
     loading,
     firebaseLoaded,
     signIn,

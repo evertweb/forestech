@@ -680,10 +680,14 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
       console.log('🎯 executeWithProgress disponible:', typeof executeWithProgress);
 
       // Ejecutar con progreso transparente
+      console.log('🎪 WIZARD: A punto de ejecutar createMovement con datos:', movementData);
       await executeWithProgress(
         'createMovement',
         progressDescription,
-        () => createMovement(movementData),
+        () => {
+          console.log('🎪 WIZARD: Ejecutando createMovement AHORA');
+          return createMovement(movementData);
+        },
         {
           movementType: formData.type,
           fuelType: formData.fuelType,

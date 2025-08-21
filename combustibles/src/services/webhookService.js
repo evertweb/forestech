@@ -1,6 +1,6 @@
 /**
- * WebhookService - Servicio para env�o de notificaciones a n8n
- * Env�a eventos de la app combustibles a workflows de n8n para notificaciones autom�ticas
+ * WebhookService - Servicio para envío de notificaciones a n8n
+ * Envía eventos de la app combustibles a workflows de n8n para notificaciones automáticas
  */
 
 const WEBHOOK_CONFIG = {
@@ -13,12 +13,13 @@ const WEBHOOK_CONFIG = {
 };
 
 /**
- * Enviar notificaci�n de login a n8n
- * @param {Object} user - Datos del usuario que se autentic�
- * @param {string} loginMethod - M�todo de login ('email', 'google')
- * @returns {Promise<boolean>} - true si se envi� correctamente
+ * Enviar notificación de login a n8n
+ * @param {Object} user - Datos del usuario que se autenticó
+ * @param {string} loginMethod - Método de login ('email', 'google')
+ * @param {Object} userProfile - Perfil del usuario con permisos (opcional)
+ * @returns {Promise<boolean>} - true si se envió correctamente
  */
-export const sendLoginNotification = async (user, loginMethod = 'email') => {
+export const sendLoginNotification = async (user, loginMethod = 'email', userProfile = null) => {
   try {
     console.log(
       '🚀 INICIANDO sendLoginNotification - Usuario:',
@@ -35,40 +36,57 @@ export const sendLoginNotification = async (user, loginMethod = 'email') => {
         email: user.email,
         displayName: user.displayName || user.email?.split('@')[0] || 'Usuario',
         photoURL: user.photoURL || null,
+        // Información adicional del perfil si está disponible
+        role: userProfile?.role || 'cliente',
+        permissions: userProfile?.combustiblesPermissions || {},
+        lastLogin: userProfile?.lastLogin || null,
+        emailVerified: user.emailVerified || false,
       },
       loginMethod,
       app: 'combustibles',
       metadata: {
         userAgent: navigator.userAgent,
         timestamp: Date.now(),
+        hasProfile: !!userProfile,
       },
     };
 
-    console.log('=� Enviando notificaci�n de login a n8n:', payload);
+    console.log('📤 Payload preparado para n8n (login):', payload);
 
     const success = await sendWebhook(payload);
 
     if (success) {
-      console.log(' Notificaci�n de login enviada exitosamente');
+      console.log('✅ Notificación de login enviada exitosamente');
     } else {
-      console.warn('� Error al enviar notificaci�n de login');
+      console.warn('⚠️ Error al enviar notificación de login');
     }
 
     return success;
   } catch (error) {
-    console.error('L Error en sendLoginNotification:', error);
+    console.error('❌ Error en sendLoginNotification:', error);
     return false;
   }
 };
 
 /**
- * Enviar notificaci�n de movimiento a n8n
+ * Enviar notificación de movimiento a n8n
  * @param {Object} movement - Datos del movimiento creado
  * @param {string} movementId - ID del movimiento en Firestore
- * @returns {Promise<boolean>} - true si se envi� correctamente
+ * @param {Object} userInfo - Información del usuario que creó el movimiento (opcional)
+ * @returns {Promise<boolean>} - true si se envió correctamente
  */
-export const sendMovementNotification = async (movement, movementId) => {
+export const sendMovementNotification = async (movement, movementId, userInfo = null) => {
   try {
+    console.log(
+      '🚀 INICIANDO sendMovementNotification - Movimiento ID:',
+      movementId,
+      'Tipo:',
+      movement.type
+    );
+    console.log('🚀 userInfo recibido:', userInfo);
+    console.log('🚀 userInfo es null?', userInfo === null);
+    console.log('🚀 userInfo es undefined?', userInfo === undefined);
+
     const payload = {
       eventType: 'movement',
       timestamp: new Date().toISOString(),
@@ -80,6 +98,7 @@ export const sendMovementNotification = async (movement, movementId) => {
         unitPrice: movement.unitPrice,
         totalValue: movement.totalValue || movement.quantity * movement.unitPrice,
         location: movement.location || movement.destinationLocation || 'principal',
+        destinationLocation: movement.destinationLocation || null,
         vehicleId: movement.vehicleId || null,
         supplierName: movement.supplierName || null,
         description: movement.description || null,
@@ -87,35 +106,46 @@ export const sendMovementNotification = async (movement, movementId) => {
           ? new Date(movement.effectiveDate).toISOString()
           : new Date().toISOString(),
         status: movement.status || 'completado',
+        reference: movement.reference || null,
       },
+      // Información del usuario que creó el movimiento
+      createdBy: userInfo
+        ? {
+            uid: userInfo.uid,
+            email: userInfo.email,
+            displayName: userInfo.displayName || userInfo.email?.split('@')[0] || 'Usuario',
+            role: userInfo.role || 'cliente',
+          }
+        : null,
       app: 'combustibles',
       metadata: {
         timestamp: Date.now(),
         source: 'movementsService',
+        hasUserInfo: !!userInfo,
       },
     };
 
-    console.log('=� Enviando notificaci�n de movimiento a n8n:', payload);
+    console.log('📤 Payload preparado para n8n (movement):', payload);
 
     const success = await sendWebhook(payload);
 
     if (success) {
-      console.log(' Notificaci�n de movimiento enviada exitosamente');
+      console.log('✅ Notificación de movimiento enviada exitosamente');
     } else {
-      console.warn('� Error al enviar notificaci�n de movimiento');
+      console.warn('⚠️ Error al enviar notificación de movimiento');
     }
 
     return success;
   } catch (error) {
-    console.error('L Error en sendMovementNotification:', error);
+    console.error('❌ Error en sendMovementNotification:', error);
     return false;
   }
 };
 
 /**
- * Funci�n principal para enviar webhook a n8n
+ * Función principal para enviar webhook a n8n
  * @param {Object} payload - Datos a enviar
- * @returns {Promise<boolean>} - true si se envi� correctamente
+ * @returns {Promise<boolean>} - true si se envió correctamente
  */
 const sendWebhook = async (payload) => {
   const url = `${WEBHOOK_CONFIG.baseUrl}/${WEBHOOK_CONFIG.endpoints.combustibles}`;
@@ -123,7 +153,7 @@ const sendWebhook = async (payload) => {
   for (let attempt = 1; attempt <= WEBHOOK_CONFIG.retryAttempts; attempt++) {
     try {
       console.log(
-        `= Intento ${attempt}/${WEBHOOK_CONFIG.retryAttempts} - Enviando webhook a: ${url}`
+        `🔄 Intento ${attempt}/${WEBHOOK_CONFIG.retryAttempts} - Enviando webhook a: ${url}`
       );
 
       const controller = new AbortController();
@@ -143,15 +173,15 @@ const sendWebhook = async (payload) => {
 
       if (response.ok) {
         const responseData = await response.text();
-        console.log(` Webhook enviado exitosamente (intento ${attempt}):`, responseData);
+        console.log(`✅ Webhook enviado exitosamente (intento ${attempt}):`, responseData);
         return true;
       } else {
         console.warn(
-          `� Webhook fall� (intento ${attempt}) - Status: ${response.status} ${response.statusText}`
+          `⚠️ Webhook falló (intento ${attempt}) - Status: ${response.status} ${response.statusText}`
         );
 
         if (attempt === WEBHOOK_CONFIG.retryAttempts) {
-          console.error('L Todos los intentos de webhook fallaron');
+          console.error('❌ Todos los intentos de webhook fallaron');
           return false;
         }
 
@@ -159,10 +189,10 @@ const sendWebhook = async (payload) => {
         await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     } catch (error) {
-      console.error(`L Error en intento ${attempt} de webhook:`, error.message);
+      console.error(`❌ Error en intento ${attempt} de webhook:`, error.message);
 
       if (attempt === WEBHOOK_CONFIG.retryAttempts) {
-        console.error('L Todos los intentos de webhook fallaron por errores de red');
+        console.error('❌ Todos los intentos de webhook fallaron por errores de red');
         return false;
       }
 
@@ -187,18 +217,18 @@ export const testWebhookConnectivity = async () => {
       app: 'combustibles',
     };
 
-    console.log('>� Probando conectividad con webhook...');
+    console.log('🧪 Probando conectividad con webhook...');
     const success = await sendWebhook(testPayload);
 
     if (success) {
-      console.log(' Test de conectividad exitoso');
+      console.log('✅ Test de conectividad exitoso');
     } else {
-      console.warn('� Test de conectividad fall�');
+      console.warn('⚠️ Test de conectividad falló');
     }
 
     return success;
   } catch (error) {
-    console.error('L Error en test de conectividad:', error);
+    console.error('❌ Error en test de conectividad:', error);
     return false;
   }
 };
