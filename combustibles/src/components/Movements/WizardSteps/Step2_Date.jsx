@@ -73,15 +73,60 @@ const Step2_Date = ({ formData, updateFormData, setError, isActive }) => {
         <label htmlFor="effective-date" className="form-label sap-theme sap-theme">
           Fecha y Hora del Movimiento
         </label>
+
+        {/* Selector de fecha y hora combinado */}
+        <div className="datetime-container sap-theme">
+          <div className="date-input-container">
+            <label className="input-sublabel">📅 Fecha</label>
+            <input
+              id="effective-date"
+              type="date"
+              value={
+                formData.effectiveDate
+                  ? formData.effectiveDate.split('T')[0]
+                  : getDefaultDate().split('T')[0]
+              }
+              onChange={(e) => {
+                const currentTime = formData.effectiveDate
+                  ? formData.effectiveDate.split('T')[1] || '08:00'
+                  : '08:00';
+                handleDateChange(`${e.target.value}T${currentTime}`);
+              }}
+              className={`form-input sap-theme date-input ${localError ? 'error' : ''}`}
+              max={new Date().toISOString().split('T')[0]}
+              autoComplete="off"
+            />
+          </div>
+
+          <div className="time-input-container">
+            <label className="input-sublabel">🕐 Hora</label>
+            <input
+              type="time"
+              value={
+                formData.effectiveDate ? formData.effectiveDate.split('T')[1] || '08:00' : '08:00'
+              }
+              onChange={(e) => {
+                const currentDate = formData.effectiveDate
+                  ? formData.effectiveDate.split('T')[0]
+                  : getDefaultDate().split('T')[0];
+                handleDateChange(`${currentDate}T${e.target.value}`);
+              }}
+              className={`form-input sap-theme time-input ${localError ? 'error' : ''}`}
+              autoComplete="off"
+            />
+          </div>
+        </div>
+
+        {/* Input datetime-local de respaldo (oculto) */}
         <input
           ref={dateInputRef}
-          id="effective-date"
           type="datetime-local"
           value={formData.effectiveDate || getDefaultDate()}
           onChange={(e) => handleDateChange(e.target.value)}
-          className={`form-input sap-theme ${localError ? 'error' : ''}`}
-          max={new Date().toISOString().slice(0, 16)} // No permitir fechas futuras
+          className="form-input sap-theme datetime-backup"
+          max={new Date().toISOString().slice(0, 16)}
           autoComplete="off"
+          style={{ display: 'none' }}
         />
 
         {localError && (

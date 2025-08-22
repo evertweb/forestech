@@ -279,16 +279,6 @@ const DashboardLayout = React.memo(({ children }) => {
 
           {/* Sección del usuario */}
           <div className="header-user">
-            {/* Toggle tema claro/oscuro */}
-            <button
-              className="theme-toggle"
-              onClick={toggleScheme}
-              title={scheme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-              aria-label="Cambiar tema"
-              data-testid="theme-toggle"
-            >
-              {scheme === 'dark' ? '🌙' : '☀️'}
-            </button>
             <div className="user-info">
               <span className="user-name">{userProfile?.displayName || userProfile?.email}</span>
               <span className="user-role">{userProfile?.role}</span>

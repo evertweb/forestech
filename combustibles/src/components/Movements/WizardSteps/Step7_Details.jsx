@@ -12,7 +12,7 @@ const Step7_Details = ({
   error,
   setError,
   isActive,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const [calculating, setCalculating] = useState(false);
   const [priceValidated, setPriceValidated] = useState(false);

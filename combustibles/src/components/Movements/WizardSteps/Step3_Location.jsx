@@ -17,7 +17,7 @@ const Step3_Location = ({
   systemData,
   setError,
   isActive,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const [loading, setLoading] = useState(false);
   const [stockInfo, setStockInfo] = useState({});
@@ -314,7 +314,7 @@ const Step3_Location = ({
       )}
 
       <div className={getThemeClass('location-options')}>
-        {availableLocations.map((location) => {
+        {availableLocations.map((location, index) => {
           const stockData = stockInfo[location] || {};
           const isLocationSelected = formData.location === location;
 
@@ -323,6 +323,10 @@ const Step3_Location = ({
               key={location}
               className={`${getThemeClass('location-option')} ${isLocationSelected ? 'selected' : ''} ${stockData.status || ''} ${loading ? 'disabled' : ''}`}
               onClick={() => !loading && handleLocationSelection(location)}
+              style={{
+                position: 'relative',
+                transition: 'all 0.3s ease',
+              }}
             >
               <div className={getThemeClass('option-icon')}>{getLocationIcon(location)}</div>
               <div className={getThemeClass('option-content')}>
@@ -342,6 +346,9 @@ const Step3_Location = ({
                   </div>
                 )}
               </div>
+
+              {/* Número de opción para navegación por teclado */}
+              <div className={getThemeClass('option-number')}>{index + 1}</div>
             </div>
           );
         })}

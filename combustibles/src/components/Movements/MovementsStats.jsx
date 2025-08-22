@@ -7,7 +7,6 @@ import React from 'react';
 import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 import { useMovementStatusColors } from '../../hooks/useStatusColors';
-import './MovementsStats-SAP.css';
 
 const MovementsStats = ({ stats, filters }) => {
   const { getStatusColor } = useMovementStatusColors();

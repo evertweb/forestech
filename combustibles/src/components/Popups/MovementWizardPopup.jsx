@@ -9,7 +9,7 @@ import {
   validateInitPayload,
   postMessageSafe,
 } from '../../services/popupCommunication';
-import '../../components/Movements/WizardSteps-SAP.css';
+import '../../components/Movements/WizardSteps-Government.css';
 
 const MovementWizard = lazy(() => import('../Movements/MovementWizard'));
 
@@ -90,7 +90,7 @@ const PopupInner = () => {
           }
           window.close();
         }}
-        theme={initData?.theme || 'modern'}
+        theme={initData?.theme || 'government'}
         // MovementWizard usa contexto para data; initData conserva theme/config si se requiere.
       />
     </Suspense>

@@ -10,7 +10,7 @@ import { FUEL_TYPES } from '../../data/vehicleCategories';
 import ForestechFormWizard from '../Shared/ForestechFormWizard';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import CategoryWizard from './CategoryWizard';
-import './WizardSteps-SAP.css';
+import '../Movements/WizardSteps-Government.css';
 
 // Importar pasos del wizard
 import Step1_BasicInfo from './WizardSteps/Step1_BasicInfo';

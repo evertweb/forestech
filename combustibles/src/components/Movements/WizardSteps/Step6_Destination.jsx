@@ -3,7 +3,7 @@
  * Valida capacidad disponible en destino y previene transferencias a la misma ubicación
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import {
   OPERATIONAL_LOCATIONS,
@@ -18,7 +18,7 @@ const Step6_Destination = ({
   setError,
   isEntryDestination = false,
   isActive,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const [loading, setLoading] = useState(false);
   const [destinationInfo, setDestinationInfo] = useState({});
@@ -114,32 +114,71 @@ const Step6_Destination = ({
     validateDestinationCapacity();
   }, [formData.fuelType, formData.quantity, formData.location, inventory, isEntryDestination]);
 
-  const handleDestinationSelection = async (destination) => {
-    const destInfo = destinationInfo[destination];
+  const handleDestinationSelection = useCallback(
+    async (destination) => {
+      const destInfo = destinationInfo[destination];
 
-    // Solo validar capacidad para transferencias, no para entradas
-    if (!isEntryDestination && !destInfo?.canAcceptTransfer) {
-      setError('Esta ubicación no puede recibir la cantidad solicitada');
-      return;
-    }
+      console.log('🎯 INICIO handleDestinationSelection:', destination);
+      console.log('📍 Valor actual destinationLocation:', formData.destinationLocation);
 
-    setLoading(true);
-    setError('');
+      // Prevenir doble selección
+      if (formData.destinationLocation === destination) {
+        console.log('⚠️ Ya está seleccionado, ignorando');
+        return;
+      }
 
-    try {
-      // Simular validación final
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Limpiar error previo
+      setError('');
 
-      updateFormData('destinationLocation', destination);
+      // Para entradas, no validar capacidad - permitir selección directa
+      if (isEntryDestination) {
+        setLoading(true);
 
-      console.log('🎯 Destino seleccionado:', destination);
-    } catch (err) {
-      console.error('Error al validar destino:', err);
-      setError('Error al validar el destino');
-    } finally {
-      setLoading(false);
-    }
-  };
+        try {
+          console.log('⏳ Iniciando selección para entrada...');
+
+          console.log('📝 Llamando updateFormData con:', destination);
+          // Actualizar inmediatamente
+          updateFormData('destinationLocation', destination);
+          console.log('✅ Bodega de destino seleccionada:', destination);
+        } catch (err) {
+          console.error('Error al seleccionar bodega:', err);
+          setError('Error al seleccionar la bodega de destino');
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // Solo validar capacidad para transferencias, no para entradas
+      if (!isEntryDestination && !destInfo?.canAcceptTransfer) {
+        setError('Esta ubicación no puede recibir la cantidad solicitada');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Simular validación final para transferencias
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        updateFormData('destinationLocation', destination);
+        console.log('🎯 Destino seleccionado:', destination);
+      } catch (err) {
+        console.error('Error al validar destino:', err);
+        setError('Error al validar el destino');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      formData.destinationLocation,
+      destinationInfo,
+      isEntryDestination,
+      updateFormData,
+      setError,
+      setLoading,
+    ]
+  );
 
   // Solo mostrar este paso para transferencias o entradas (con isEntryDestination)
   if (!isEntryDestination && formData.type !== MOVEMENT_TYPES.TRANSFERENCIA) {
@@ -149,6 +188,13 @@ const Step6_Destination = ({
   const availableDestinations = isEntryDestination
     ? STORAGE_LOCATIONS // Para entradas, solo bodegas de almacenamiento
     : OPERATIONAL_LOCATIONS.filter((loc) => loc !== formData.location); // Para transferencias, excluir origen
+
+  console.log('🔄 RENDERIZANDO Step6_Destination:', {
+    isEntryDestination,
+    isActive,
+    destinationLocation: formData.destinationLocation,
+    availableDestinations,
+  });
 
   return (
     <div className={`wizard-step step-destination ${isActive ? 'active' : ''}`}>
@@ -173,13 +219,46 @@ const Step6_Destination = ({
         <div className={getThemeClass('typeform-options')}>
           {availableDestinations.map((location) => {
             const destInfo = destinationInfo[location];
-            const isSelectable = !destInfo || destInfo.canAcceptTransfer;
+
+            // Para entradas, todas las bodegas son seleccionables
+            const isSelectable = isEntryDestination
+              ? true
+              : !destInfo || destInfo.canAcceptTransfer;
+
+            // Comparación exacta para evitar múltiples selecciones
+            const isSelected = formData.destinationLocation === location;
 
             return (
               <div
                 key={location}
-                className={`${getThemeClass('typeform-option')} ${formData.destinationLocation === location ? 'selected' : ''} ${destInfo?.status || 'unknown'} ${!isSelectable || loading ? 'disabled' : ''}`}
+                className={`${getThemeClass('typeform-option')} destination-option ${isSelected ? 'selected' : ''} ${destInfo?.status || 'available'} ${!isSelectable || loading ? 'disabled' : ''}`}
                 onClick={() => isSelectable && !loading && handleDestinationSelection(location)}
+                style={{
+                  cursor: isSelectable && !loading ? 'pointer' : 'not-allowed',
+                  border: isSelected
+                    ? '3px solid var(--cli-green)'
+                    : '2px solid var(--cli-green-dim)',
+                  borderRadius: '8px',
+                  margin: '8px 0',
+                  padding: '16px',
+                  background: isSelected ? 'var(--cli-bg-primary)' : 'var(--cli-bg-secondary)',
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                }}
+                onMouseEnter={(e) => {
+                  if (isSelectable && !loading && !isSelected) {
+                    e.target.style.borderColor = 'var(--cli-green)';
+                    e.target.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.3)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (isSelectable && !loading && !isSelected) {
+                    e.target.style.borderColor = 'var(--cli-green-dim)';
+                    e.target.style.boxShadow = 'none';
+                    e.target.style.transform = 'translateY(0)';
+                  }
+                }}
               >
                 <div className={getThemeClass('typeform-option-icon')}>🎯</div>
                 <div className={getThemeClass('typeform-option-content')}>
@@ -226,6 +305,67 @@ const Step6_Destination = ({
             );
           })}
         </div>
+
+        {/* Confirmación visual para movimientos de entrada */}
+        {isEntryDestination && formData.destinationLocation && (
+          <div className={getThemeClass('selection-confirmation')}>
+            <div
+              className={getThemeClass('confirmation-card')}
+              style={{
+                background: 'var(--cli-bg-primary)',
+                border: '2px solid var(--cli-green)',
+                borderRadius: '8px',
+                padding: '20px',
+                margin: '20px 0',
+                textAlign: 'center',
+                boxShadow: '0 0 20px rgba(0, 255, 0, 0.3)',
+              }}
+            >
+              <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🎯</div>
+              <h4
+                style={{
+                  color: 'var(--cli-green)',
+                  margin: '0 0 10px 0',
+                  textShadow: 'var(--cli-text-glow)',
+                }}
+              >
+                ✅ Destino Seleccionado
+              </h4>
+              <p
+                style={{
+                  color: 'var(--cli-text-secondary)',
+                  margin: '0 0 15px 0',
+                  fontSize: '1.1rem',
+                }}
+              >
+                El combustible será almacenado en:
+              </p>
+              <div
+                style={{
+                  background: 'var(--cli-bg-secondary)',
+                  border: '1px solid var(--cli-green-dim)',
+                  borderRadius: '6px',
+                  padding: '12px',
+                  color: 'var(--cli-green)',
+                  fontWeight: 'bold',
+                  fontSize: '1.2rem',
+                  textShadow: 'var(--cli-text-glow)',
+                }}
+              >
+                🏭 {formatLocationName(formData.destinationLocation)}
+              </div>
+              <small
+                style={{
+                  color: 'var(--cli-green-dim)',
+                  marginTop: '10px',
+                  display: 'block',
+                }}
+              >
+                📦 Tipo: {formData.fuelType} | 🛢️ Cantidad: {formData.quantity} gal
+              </small>
+            </div>
+          </div>
+        )}
 
         {/* Información de la transferencia */}
         {formData.location && formData.quantity && (
@@ -300,4 +440,4 @@ const Step6_Destination = ({
   );
 };
 
-export default Step6_Destination;
+export default memo(Step6_Destination);

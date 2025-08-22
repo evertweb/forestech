@@ -12,17 +12,14 @@ const Step2_FuelType = ({
   systemData,
   setError,
   isActive,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Helper para clases según el tema
   const getThemeClass = (baseClass) => {
-    if (theme === 'government') {
-      return `${baseClass} government-override`;
-    }
-    return `${baseClass} sap-theme`;
+    return `${baseClass} forestech-theme`;
   };
 
   const { products } = systemData;
@@ -89,34 +86,21 @@ const Step2_FuelType = ({
     }
   }, [formData.fuelType, formData.unitPrice, products, updateFormData]);
 
-  // Navegación por teclado
-  useEffect(() => {
-    if (!isActive) return;
-
-    const handleKeyPress = (e) => {
-      // Números 1-N para seleccionar productos
-      const num = parseInt(e.key);
-      if (num >= 1 && num <= products.length) {
-        const selectedProduct = products[num - 1];
-        handleFuelSelection(selectedProduct.name, selectedProduct);
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, products, handleFuelSelection]);
+  // Solo navegación por mouse
 
   if (products.length === 0) {
     return (
-      <div className={`wizard-step step-fuel-type sap-theme ${isActive ? 'active' : ''}`}>
-        <div className="step-question sap-theme sap-theme">
+      <div
+        className={`wizard-step step-fuel-type ${getThemeClass('')} ${isActive ? 'active' : ''}`}
+      >
+        <div className={getThemeClass('step-question')}>
           <h3>⛽ Crear producto DIESEL manualmente</h3>
           <p>No hay productos disponibles. Creemos uno temporalmente.</p>
         </div>
 
-        <div className="fuel-options sap-theme sap-theme">
+        <div className={getThemeClass('fuel-options')}>
           <div
-            className="fuel-option sap-theme sap-theme"
+            className={getThemeClass('fuel-option')}
             onClick={() =>
               handleFuelSelection('DIESEL', {
                 name: 'DIESEL',
@@ -127,14 +111,14 @@ const Step2_FuelType = ({
               })
             }
           >
-            <div className="option-icon sap-theme sap-theme">🚛</div>
-            <div className="option-content sap-theme sap-theme">
-              <h4 className="option-title sap-theme sap-theme">DIESEL 🚛</h4>
-              <p className="option-description sap-theme sap-theme">
+            <div className={getThemeClass('option-icon')}>🚛</div>
+            <div className={getThemeClass('option-content')}>
+              <h4 className={getThemeClass('option-title')}>DIESEL 🚛</h4>
+              <p className={getThemeClass('option-description')}>
                 Combustible DIESEL para vehículos pesados
               </p>
-              <div className="fuel-price sap-theme sap-theme">
-                <span className="price-value sap-theme sap-theme">$12,500 COP/galón</span>
+              <div className={getThemeClass('fuel-price')}>
+                <span className={getThemeClass('price-value')}>$12,500 COP/galón</span>
               </div>
             </div>
           </div>
