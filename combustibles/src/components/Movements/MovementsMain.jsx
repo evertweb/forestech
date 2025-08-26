@@ -21,7 +21,6 @@ import MovementsList from './MovementsList';
 const MovementWizard = lazy(() => import('./MovementWizard'));
 import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import './Movements.css';
-import './MovementsMain-SAP.css';
 import { openMovementWizardPopup } from '../Popups/PopupManager';
 import { POPUP_EVENTS } from '../../services/popupCommunication';
 
@@ -48,7 +47,6 @@ const MovementsMain = () => {
   // Estado de vista
   const [searchTerm, setSearchTerm] = useState('');
   const [showWizard, setShowWizard] = useState(false);
-  const [wizardTheme, setWizardTheme] = useState('modern'); // Estado para el theme del wizard
   const [openingPopup, setOpeningPopup] = useState(false);
   const [popupError, setPopupError] = useState(null);
   // Nota: no necesitamos mantener una referencia al manager por ahora
@@ -128,7 +126,7 @@ const MovementsMain = () => {
       inventory,
       vehicles,
       suppliers: [],
-      theme: wizardTheme,
+      theme: 'government',
     };
 
     const { success, error } = openMovementWizardPopup(initialData, ({ type, payload }) => {
@@ -147,7 +145,7 @@ const MovementsMain = () => {
       setPopupError(error || 'Popup bloqueado');
       setShowWizard(true);
     }
-  }, [user, inventory, vehicles, loadMovementsStats, wizardTheme]);
+  }, [user, inventory, vehicles, loadMovementsStats]);
 
   // Atajo de teclado Ctrl+Shift+N para abrir popup (debajo para evitar TDZ)
   useEffect(() => {
@@ -270,23 +268,6 @@ const MovementsMain = () => {
     >
       <button className="btn-create-movement sap-theme primary" onClick={handleCreateMovement}>
         ➕ Nuevo Movimiento
-      </button>
-      <button
-        className={`btn-theme-toggle sap-theme ${wizardTheme === 'government' ? 'active' : ''}`}
-        onClick={() => setWizardTheme(wizardTheme === 'modern' ? 'government' : 'modern')}
-        title={`Cambiar a estilo ${wizardTheme === 'modern' ? 'gubernamental' : 'moderno'}`}
-        style={{
-          background: wizardTheme === 'government' ? '#003366' : '#f0f0f0',
-          color: wizardTheme === 'government' ? '#fff' : '#666',
-          border: '1px solid #ccc',
-          padding: '8px 12px',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontSize: '0.85rem',
-          fontWeight: 'bold',
-        }}
-      >
-        {wizardTheme === 'modern' ? '🏛️ Estilo Gubernamental' : '💼 Estilo Moderno'}
       </button>
       {openingPopup && (
         <span className="opening-status" style={{ marginLeft: 12 }}>
@@ -411,7 +392,7 @@ const MovementsMain = () => {
             onSuccess={() => {
               handleWizardClose();
             }}
-            theme={wizardTheme}
+            theme="government"
           />
         </Suspense>
       )}

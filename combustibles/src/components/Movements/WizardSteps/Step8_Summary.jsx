@@ -30,7 +30,7 @@ const Step8_Summary = ({
   onCommentsChange,
   confirmChecked,
   onConfirmChange,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const { vehicles, products } = systemData;
 

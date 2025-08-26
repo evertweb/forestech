@@ -13,7 +13,7 @@ const Step4_Quantity = ({
   systemData,
   setError,
   isActive,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const [calculating, setCalculating] = useState(false);
   const [stockInfo, setStockInfo] = useState(null);

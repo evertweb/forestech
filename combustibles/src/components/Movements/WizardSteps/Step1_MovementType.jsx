@@ -3,17 +3,20 @@
  * Diseño estilo Typeform: conversacional, centrado y elegante
  */
 
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { MOVEMENT_TYPES_UI } from '../../../constants';
 
-const Step1_MovementType = ({ formData, updateFormData, setError, isActive, theme = 'modern' }) => {
+const Step1_MovementType = ({
+  formData,
+  updateFormData,
+  setError,
+  isActive,
+  theme = 'forestech',
+}) => {
   // Helper para clases según el tema
   const getThemeClass = (baseClass) => {
-    if (theme === 'government') {
-      return `${baseClass} government-override`;
-    }
-    return `${baseClass} sap-theme`;
+    return `${baseClass} ${theme}-theme`;
   };
   const movementOptions = useMemo(
     () => [
@@ -49,22 +52,7 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive, them
     [updateFormData, setError]
   );
 
-  // Navegación por teclado
-  useEffect(() => {
-    if (!isActive) return;
-
-    const handleKeyPress = (e) => {
-      // Números 1-5 para seleccionar opciones
-      const num = parseInt(e.key);
-      if (num >= 1 && num <= 5) {
-        const selectedOption = movementOptions[num - 1];
-        handleSelection(selectedOption.type);
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [isActive, handleSelection, movementOptions]);
+  // Solo navegación por mouse
 
   return (
     <div
@@ -79,8 +67,17 @@ const Step1_MovementType = ({ formData, updateFormData, setError, isActive, them
         {movementOptions.map((option) => (
           <div
             key={option.type}
-            className={`${getThemeClass('movement-option')} ${formData.type === option.type ? 'selected' : ''}`}
+            className={`${getThemeClass('movement-option')} ${option.type} ${formData.type === option.type ? 'selected' : ''}`}
             onClick={() => handleSelection(option.type)}
+            tabIndex={0}
+            role="button"
+            aria-label={`Seleccionar ${option.title}: ${option.description}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSelection(option.type);
+              }
+            }}
           >
             <div className={getThemeClass('option-icon')}>{option.icon}</div>
             <div className={getThemeClass('option-content')}>

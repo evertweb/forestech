@@ -13,7 +13,7 @@ const Step5_Vehicle = ({
   systemData,
   setError,
   isActive,
-  theme = 'modern',
+  theme = 'forestech',
 }) => {
   const [loading, setLoading] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);

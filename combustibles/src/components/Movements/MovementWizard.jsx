@@ -30,11 +30,9 @@ import Step7_Details from './WizardSteps/Step7_Details';
 import Step8_Summary from './WizardSteps/Step8_Summary';
 import Step9_Maintenance from './WizardSteps/Step9_Maintenance';
 
-import './WizardSteps.css';
-import './WizardSteps-SAP.css';
 import './WizardSteps-Government.css';
 
-const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
+const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) => {
   // Usar datos en tiempo real del contexto
   const { inventory, vehicles, subscribeToSuppliers } = useCombustibles();
 
@@ -309,8 +307,92 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
     }
   }, [localVehicles]);
 
+  // Solo mantener tecla Escape para cerrar modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [isOpen, onClose]);
+
+  // Función para obtener mensaje de carga específico por paso
+  const getStepLoadingMessage = (step) => {
+    const messages = {
+      1: '⚡ Inicializando módulo de movimientos',
+      2: '⛽ Cargando catálogo de combustibles disponibles',
+      3: '📍 Verificando ubicaciones y proveedores',
+      '3b': '🏭 Validando destinos de almacenamiento',
+      4: '🔢 Preparando calculadora de cantidades',
+      '4b': '📊 Consultando inventario en tiempo real',
+      5: '🚛 Accediendo a registro de vehículos',
+      6: '🗺️ Configurando rutas de destino',
+      7: '📝 Preparando formulario de detalles',
+      8: '📋 Generando resumen del movimiento',
+      9: '🔧 Cargando opciones de mantenimiento',
+    };
+    return messages[step] || `🔄 Procesando paso ${step}`;
+  };
+
+  // Helper functions for split-screen terminal - moveré getStepsList aquí
+  const getStepsList = () => {
+    const allSteps = [
+      { number: 1, title: 'TIPO', completed: !!formData.type },
+      { number: 2, title: 'COMBUSTIBLE', completed: !!formData.fuelType },
+      {
+        number: 3,
+        title: 'UBICACION',
+        completed: formData.type === 'ENTRADA' ? !!formData.supplierName : !!formData.location,
+      },
+    ];
+
+    if (formData.type === 'ENTRADA') {
+      allSteps.push({ number: '3b', title: 'DESTINO', completed: !!formData.destinationLocation });
+    }
+
+    allSteps.push({ number: 4, title: 'CANTIDAD', completed: !!formData.quantity });
+
+    if (formData.type === 'SALIDA') {
+      allSteps.push({ number: '4b', title: 'INVENTARIO', completed: true });
+    }
+
+    if (formData.type !== 'AJUSTE' && formData.type !== 'ENTRADA') {
+      allSteps.push({ number: 5, title: 'VEHICULO', completed: !!formData.vehicleId });
+    }
+
+    if (formData.type === 'TRANSFERENCIA') {
+      allSteps.push({ number: 6, title: 'DESTINO', completed: !!formData.destinationLocation });
+    }
+
+    if (formData.type === 'MANTENIMIENTO') {
+      allSteps.push({ number: 9, title: 'MANTENIMIENTO', completed: !!formData.maintenanceType });
+    }
+
+    allSteps.push(
+      { number: 7, title: 'DETALLES', completed: !!formData.description },
+      { number: 8, title: 'RESUMEN', completed: false }
+    );
+
+    return allSteps;
+  };
+
   // Determinar total de pasos según tipo de movimiento
   const getTotalSteps = () => {
+    if (theme === 'government') {
+      // Para split-screen, usar la lista de pasos dinámica
+      return getStepsList().length;
+    }
+
+    // Lógica original para otros temas
     if (!formData.type) return 8;
 
     let steps;
@@ -337,7 +419,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
       steps = 6;
     }
 
-    // 🔍 DEBUG: Log para verificar totalSteps
     return steps;
   };
 
@@ -564,8 +645,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
       setError('Por favor completa este paso antes de continuar');
     }
 
-    // Finalizar transición después de un breve retraso para la animación
-    setTimeout(() => setIsTransitioning(false), 300);
+    // Finalizar transición después de un breve retraso para la animación shimmer
+    setTimeout(() => setIsTransitioning(false), 800);
   };
 
   // Navegar al paso anterior
@@ -619,7 +700,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
       setCurrentStep(4); // Del paso 4b al paso 4
     }
 
-    setTimeout(() => setIsTransitioning(false), 300);
+    setTimeout(() => setIsTransitioning(false), 800);
   };
 
   // Enviar formulario final
@@ -952,13 +1033,13 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
   const progress = (currentLogicalStep / totalSteps) * 100;
   const isLastStep = currentLogicalStep >= totalSteps;
 
-  // Clases según el theme
+  // Sistema de clases completamente independiente por tema
   const getThemeClasses = () => {
     if (theme === 'government') {
       return {
-        overlay: 'modal-overlay',
-        content: 'movement-wizard-government',
-        theme: 'government-theme',
+        overlay: 'cli-modal-overlay',
+        content: 'cli-wizard-container',
+        theme: 'cli-theme',
       };
     }
     return {
@@ -968,12 +1049,46 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
     };
   };
 
-  // Helper para clases específicas según el tema
-  const getThemeClass = (baseClass) => {
+  // Helper para clases específicas - completamente independientes
+  const getThemeClass = (component) => {
     if (theme === 'government') {
-      return `${baseClass} government-override`;
+      // Mapeo único de componentes CLI - sin herencia del tema moderno
+      const cliComponents = {
+        'typeform-escape': 'cli-exit-btn',
+        'typeform-progress': 'cli-progress-bar',
+        'typeform-progress-fill': 'cli-progress-fill',
+        'wizard-header': 'cli-header',
+        'wizard-title': 'cli-title',
+        'wizard-body': 'cli-body',
+        'wizard-loading': 'cli-loading',
+        'loading-spinner': 'cli-spinner',
+        'wizard-step-container': 'cli-step-container',
+        'wizard-error': 'cli-error',
+        'error-icon': 'cli-error-icon',
+        'typeform-navigation': 'cli-navigation',
+        'typeform-nav-btn': 'cli-nav-btn',
+      };
+      return cliComponents[component] || `cli-${component}`;
     }
-    return `${baseClass} sap-theme`;
+    return `${component} sap-theme`;
+  };
+
+  // Helper functions for split-screen terminal
+  const getStepTitle = (step) => {
+    const titles = {
+      1: 'TIPO MOVIMIENTO',
+      2: 'COMBUSTIBLE',
+      3: 'UBICACION',
+      '3b': 'DESTINO',
+      4: 'CANTIDAD',
+      '4b': 'INVENTARIO',
+      5: 'VEHICULO',
+      6: 'DESTINO',
+      7: 'DETALLES',
+      8: 'RESUMEN',
+      9: 'MANTENIMIENTO',
+    };
+    return titles[step] || `PASO ${step}`;
   };
 
   const themeClasses = getThemeClasses();
@@ -1076,188 +1191,571 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
         )}
 
         {/* Contenido del paso */}
-        <div
-          className={
-            theme === 'government' ? 'government-step-content' : getThemeClass('wizard-body')
-          }
-        >
-          {movementCreated ? (
-            /* Pantalla de confirmación institucional - estilo gubernamental */
-            <div className="official-confirmation-container">
-              {/* Header institucional */}
-              <div className="official-header">
-                <div className="official-seal">
-                  <div className="seal-icon">✓</div>
-                </div>
-                <div className="official-title">
-                  <h1>CONFIRMACIÓN DE TRANSACCIÓN</h1>
-                  <div className="document-number">
-                    Doc. No. MOV-{new Date().getFullYear()}-{String(Date.now()).slice(-6)}
+        {theme === 'government' ? (
+          /* Split-screen terminal layout */
+          <div className="cli-split-container">
+            {/* Botón ESC minimalista */}
+            <button
+              onClick={onClose}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'transparent',
+                border: '1px solid white',
+                color: 'white',
+                padding: '5px 10px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontFamily: 'Courier New, monospace',
+                zIndex: 1001,
+              }}
+            >
+              [ESC]
+            </button>
+            {/* Left panel: Current step content */}
+            <div className="cli-left-panel">
+              <div className="cli-step-header">
+                <span className="cli-step-number">[{currentLogicalStep}]</span>
+                <span className="cli-step-title">{getStepTitle(currentStep)}</span>
+              </div>
+              <div className="cli-step-content">
+                {movementCreated ? (
+                  <div className="cli-success">
+                    <div className="cli-success-title">MOVIMIENTO CREADO EXITOSAMENTE</div>
+                    <div className="cli-success-details">
+                      <div>Tipo: {formData.type}</div>
+                      <div>Combustible: {formData.fuelType}</div>
+                      <div>Cantidad: {formData.quantity} galones</div>
+
+                      {/* Información de ubicación/bodega */}
+                      {formData.type === 'entrada' && formData.supplierName && (
+                        <div>Proveedor: {formData.supplierName}</div>
+                      )}
+                      {formData.type === 'entrada' && formData.destinationLocation && (
+                        <div>Bodega/Ubicación: {formData.destinationLocation}</div>
+                      )}
+                      {(formData.type === 'salida' ||
+                        formData.type === 'transferencia' ||
+                        formData.type === 'ajuste') &&
+                        formData.location && <div>Ubicación origen: {formData.location}</div>}
+                      {formData.type === 'transferencia' && formData.destinationLocation && (
+                        <div>Ubicación destino: {formData.destinationLocation}</div>
+                      )}
+
+                      {formData.vehicleId && <div>Vehiculo: {formData.vehicleId}</div>}
+
+                      {/* Stock actualizado - calculado dinámicamente */}
+                      {formData.type === 'entrada' && formData.destinationLocation && (
+                        <div className="cli-stock-update">
+                          <div>📊 Stock actualizado en {formData.destinationLocation}:</div>
+                          <div style={{ color: '#00ff41', fontWeight: 'bold' }}>
+                            {(() => {
+                              // Calcular stock actual dinámicamente
+                              const currentLocationStock =
+                                systemData.inventory
+                                  ?.filter(
+                                    (item) =>
+                                      item.location?.toLowerCase() ===
+                                        formData.destinationLocation?.toLowerCase() &&
+                                      item.fuelType?.toUpperCase() ===
+                                        formData.fuelType?.toUpperCase() &&
+                                      item.status === 'active'
+                                  )
+                                  ?.reduce(
+                                    (total, item) => total + (parseFloat(item.currentStock) || 0),
+                                    0
+                                  ) || 0;
+
+                              // Calcular capacidad máxima total de la ubicación
+                              const maxLocationCapacity =
+                                systemData.inventory
+                                  ?.filter(
+                                    (item) =>
+                                      item.location?.toLowerCase() ===
+                                        formData.destinationLocation?.toLowerCase() &&
+                                      item.fuelType?.toUpperCase() ===
+                                        formData.fuelType?.toUpperCase() &&
+                                      item.status === 'active'
+                                  )
+                                  ?.reduce(
+                                    (total, item) => total + (parseFloat(item.maxCapacity) || 0),
+                                    0
+                                  ) || 0;
+
+                              const newStock =
+                                currentLocationStock + (parseFloat(formData.quantity) || 0);
+                              const fillPercentage =
+                                maxLocationCapacity > 0
+                                  ? (newStock / maxLocationCapacity) * 100
+                                  : 0;
+
+                              return (
+                                <>
+                                  <div>
+                                    {Math.round(newStock)} / {Math.round(maxLocationCapacity)}{' '}
+                                    galones
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: '0.9em',
+                                      color:
+                                        fillPercentage > 90
+                                          ? '#ff6b6b'
+                                          : fillPercentage > 75
+                                            ? '#ffd93d'
+                                            : '#00ff41',
+                                    }}
+                                  >
+                                    {Math.round(fillPercentage)}% de capacidad{' '}
+                                    {fillPercentage > 90
+                                      ? '⚠️ CASI LLENO'
+                                      : fillPercentage > 75
+                                        ? '⚠️ ALTO'
+                                        : '✅'}
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Para otros tipos de movimiento también mostrar stock */}
+                      {formData.type !== 'entrada' && formData.location && (
+                        <div className="cli-stock-update">
+                          <div>📊 Stock actualizado en {formData.location}:</div>
+                          <div style={{ color: '#00ff41', fontWeight: 'bold' }}>
+                            {(() => {
+                              const currentLocationStock =
+                                systemData.inventory
+                                  ?.filter(
+                                    (item) =>
+                                      item.location?.toLowerCase() ===
+                                        formData.location?.toLowerCase() &&
+                                      item.fuelType?.toUpperCase() ===
+                                        formData.fuelType?.toUpperCase() &&
+                                      item.status === 'active'
+                                  )
+                                  ?.reduce(
+                                    (total, item) => total + (parseFloat(item.currentStock) || 0),
+                                    0
+                                  ) || 0;
+
+                              // Calcular capacidad máxima total de la ubicación
+                              const maxLocationCapacity =
+                                systemData.inventory
+                                  ?.filter(
+                                    (item) =>
+                                      item.location?.toLowerCase() ===
+                                        formData.location?.toLowerCase() &&
+                                      item.fuelType?.toUpperCase() ===
+                                        formData.fuelType?.toUpperCase() &&
+                                      item.status === 'active'
+                                  )
+                                  ?.reduce(
+                                    (total, item) => total + (parseFloat(item.maxCapacity) || 0),
+                                    0
+                                  ) || 0;
+
+                              let newStock = currentLocationStock;
+                              if (formData.type === 'salida' || formData.type === 'transferencia') {
+                                newStock =
+                                  currentLocationStock - (parseFloat(formData.quantity) || 0);
+                              } else if (formData.type === 'ajuste') {
+                                newStock = parseFloat(formData.quantity) || 0;
+                              }
+
+                              const fillPercentage =
+                                maxLocationCapacity > 0
+                                  ? (newStock / maxLocationCapacity) * 100
+                                  : 0;
+
+                              return (
+                                <>
+                                  <div>
+                                    {Math.round(newStock)} / {Math.round(maxLocationCapacity)}{' '}
+                                    galones
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: '0.9em',
+                                      color:
+                                        fillPercentage < 20
+                                          ? '#ff6b6b'
+                                          : fillPercentage < 40
+                                            ? '#ffd93d'
+                                            : '#00ff41',
+                                    }}
+                                  >
+                                    {Math.round(fillPercentage)}% de capacidad{' '}
+                                    {fillPercentage < 20
+                                      ? '⚠️ CRÍTICO'
+                                      : fillPercentage < 40
+                                        ? '⚠️ BAJO'
+                                        : '✅'}
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Stock en destino para transferencias */}
+                      {formData.type === 'transferencia' &&
+                        formData.destinationLocation &&
+                        formData.destinationLocation !== formData.location && (
+                          <div className="cli-stock-update">
+                            <div>
+                              📊 Stock actualizado en {formData.destinationLocation} (destino):
+                            </div>
+                            <div style={{ color: '#00ff41', fontWeight: 'bold' }}>
+                              {(() => {
+                                const currentDestStock =
+                                  systemData.inventory
+                                    ?.filter(
+                                      (item) =>
+                                        item.location?.toLowerCase() ===
+                                          formData.destinationLocation?.toLowerCase() &&
+                                        item.fuelType?.toUpperCase() ===
+                                          formData.fuelType?.toUpperCase() &&
+                                        item.status === 'active'
+                                    )
+                                    ?.reduce(
+                                      (total, item) => total + (parseFloat(item.currentStock) || 0),
+                                      0
+                                    ) || 0;
+
+                                const maxDestCapacity =
+                                  systemData.inventory
+                                    ?.filter(
+                                      (item) =>
+                                        item.location?.toLowerCase() ===
+                                          formData.destinationLocation?.toLowerCase() &&
+                                        item.fuelType?.toUpperCase() ===
+                                          formData.fuelType?.toUpperCase() &&
+                                        item.status === 'active'
+                                    )
+                                    ?.reduce(
+                                      (total, item) => total + (parseFloat(item.maxCapacity) || 0),
+                                      0
+                                    ) || 0;
+
+                                const newDestStock =
+                                  currentDestStock + (parseFloat(formData.quantity) || 0);
+                                const destFillPercentage =
+                                  maxDestCapacity > 0 ? (newDestStock / maxDestCapacity) * 100 : 0;
+
+                                return (
+                                  <>
+                                    <div>
+                                      {Math.round(newDestStock)} / {Math.round(maxDestCapacity)}{' '}
+                                      galones
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: '0.9em',
+                                        color:
+                                          destFillPercentage > 90
+                                            ? '#ff6b6b'
+                                            : destFillPercentage > 75
+                                              ? '#ffd93d'
+                                              : '#00ff41',
+                                      }}
+                                    >
+                                      {Math.round(destFillPercentage)}% de capacidad{' '}
+                                      {destFillPercentage > 90
+                                        ? '⚠️ CASI LLENO'
+                                        : destFillPercentage > 75
+                                          ? '⚠️ ALTO'
+                                          : '✅'}
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Botones de acción */}
+                    <div className="cli-success-actions">
+                      <button
+                        className="cli-success-btn primary"
+                        onClick={() => {
+                          // Resetear el wizard para nuevo movimiento
+                          setMovementCreated(false);
+                          setCurrentStep(1);
+                          setFormData({
+                            type: '',
+                            fuelType: '',
+                            quantity: '',
+                            unitPrice: '',
+                            vehicleId: '',
+                            location: '',
+                            destinationLocation: '',
+                            supplierName: '',
+                            description: '',
+                            additionalComments: '',
+                            currentHours: '',
+                            effectiveDate: new Date().toISOString().split('T')[0],
+                          });
+                          setError('');
+                          setConfirmChecked(false);
+                        }}
+                      >
+                        [NUEVO MOVIMIENTO]
+                      </button>
+                      <button
+                        className="cli-success-btn secondary"
+                        onClick={() => {
+                          setMovementCreated(false);
+                          onClose();
+                        }}
+                      >
+                        [CERRAR]
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : systemData.loadingData ? (
+                  <div className="cli-loading">
+                    <div>Cargando datos del sistema...</div>
+                  </div>
+                ) : (
+                  renderCurrentStep()
+                )}
+              </div>
+            </div>
+
+            {/* Right panel: Step navigation */}
+            <div className="cli-right-panel">
+              <div className="cli-nav-header">NAVEGACION</div>
+              <div className="cli-nav-steps">
+                {getStepsList().map((step, index) => (
+                  <div
+                    key={step.number}
+                    className={`cli-nav-step ${
+                      step.number === currentStep
+                        ? 'active'
+                        : step.completed
+                          ? 'completed'
+                          : 'pending'
+                    }`}
+                  >
+                    <span className="cli-nav-number">[{index + 1}]</span>
+                    <span className="cli-nav-label">{step.title}</span>
+                    <span className="cli-nav-status">
+                      {step.completed ? 'OK' : step.number === currentStep ? '>' : '-'}
+                    </span>
+                  </div>
+                ))}
               </div>
 
-              {/* Status banner */}
-              <div className="status-banner success">
-                <div className="status-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                  </svg>
-                </div>
-                <span className="status-text">TRANSACCIÓN PROCESADA EXITOSAMENTE</span>
+              {/* Navigation buttons */}
+              <div className="cli-nav-controls">
+                <button
+                  className="cli-nav-btn"
+                  onClick={prevStep}
+                  disabled={currentLogicalStep === 1 || isTransitioning}
+                >
+                  [ANTERIOR]
+                </button>
+                <button
+                  className="cli-nav-btn"
+                  onClick={!isLastStep ? nextStep : handleSubmit}
+                  disabled={
+                    !isCurrentStepValid ||
+                    isTransitioning ||
+                    (isLastStep && (!confirmChecked || isLoading))
+                  }
+                >
+                  {isLastStep ? (isLoading ? '[PROCESANDO]' : '[CONFIRMAR]') : '[SIGUIENTE]'}
+                </button>
               </div>
-
-              {/* Detalles del movimiento en formato oficial */}
-              <div className="official-form-section">
-                <div className="section-header">
-                  <h2>DETALLES DE LA TRANSACCIÓN</h2>
-                  <div className="section-code">SECCIÓN A-001</div>
+            </div>
+          </div>
+        ) : (
+          /* Original layout for other themes */
+          <div className={getThemeClass('wizard-body')}>
+            {movementCreated ? (
+              /* Pantalla de confirmación institucional - estilo gubernamental */
+              <div className="official-confirmation-container">
+                {/* Header institucional */}
+                <div className="official-header">
+                  <div className="official-seal">
+                    <div className="seal-icon">✓</div>
+                  </div>
+                  <div className="official-title">
+                    <h1>CONFIRMACIÓN DE TRANSACCIÓN</h1>
+                    <div className="document-number">
+                      Doc. No. MOV-{new Date().getFullYear()}-{String(Date.now()).slice(-6)}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="form-grid">
-                  <div className="form-row">
-                    <div className="field-label">TIPO DE OPERACIÓN:</div>
-                    <div className="field-value">{formData.type}</div>
-                    <div className="field-code">A01</div>
+                {/* Status banner */}
+                <div className="status-banner success">
+                  <div className="status-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                  </div>
+                  <span className="status-text">TRANSACCIÓN PROCESADA EXITOSAMENTE</span>
+                </div>
+
+                {/* Detalles del movimiento en formato oficial */}
+                <div className="official-form-section">
+                  <div className="section-header">
+                    <h2>DETALLES DE LA TRANSACCIÓN</h2>
+                    <div className="section-code">SECCIÓN A-001</div>
                   </div>
 
-                  <div className="form-row">
-                    <div className="field-label">PRODUCTO:</div>
-                    <div className="field-value">{formData.fuelType}</div>
-                    <div className="field-code">A02</div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="field-label">CANTIDAD AUTORIZADA:</div>
-                    <div className="field-value">{formData.quantity} GALONES</div>
-                    <div className="field-code">A03</div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="field-label">PRECIO UNITARIO:</div>
-                    <div className="field-value">
-                      $ {parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP
-                    </div>
-                    <div className="field-code">A04</div>
-                  </div>
-
-                  <div className="form-row total-row">
-                    <div className="field-label">VALOR TOTAL:</div>
-                    <div className="field-value">
-                      ${' '}
-                      {(
-                        parseFloat(formData.quantity) * parseFloat(formData.unitPrice)
-                      ).toLocaleString('es-CO')}{' '}
-                      COP
-                    </div>
-                    <div className="field-code">A05</div>
-                  </div>
-
-                  {formData.vehicleId && (
+                  <div className="form-grid">
                     <div className="form-row">
-                      <div className="field-label">VEHÍCULO ASIGNADO:</div>
+                      <div className="field-label">TIPO DE OPERACIÓN:</div>
+                      <div className="field-value">{formData.type}</div>
+                      <div className="field-code">A01</div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="field-label">PRODUCTO:</div>
+                      <div className="field-value">{formData.fuelType}</div>
+                      <div className="field-code">A02</div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="field-label">CANTIDAD AUTORIZADA:</div>
+                      <div className="field-value">{formData.quantity} GALONES</div>
+                      <div className="field-code">A03</div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="field-label">PRECIO UNITARIO:</div>
                       <div className="field-value">
-                        {(() => {
-                          // Buscar el vehículo por ID para obtener su información completa
-                          const selectedVehicle = vehicles?.find(
-                            (v) => v.vehicleId === formData.vehicleId
-                          );
-                          if (selectedVehicle) {
-                            // Construir nombre oficial del vehículo
-                            let vehicleDisplay = '';
-
-                            // Prioridad: name > brand + model > vehicleId
-                            if (selectedVehicle.name) {
-                              vehicleDisplay = selectedVehicle.name.toUpperCase();
-                            } else if (selectedVehicle.brand && selectedVehicle.model) {
-                              vehicleDisplay =
-                                `${selectedVehicle.brand} ${selectedVehicle.model}`.toUpperCase();
-                            } else if (selectedVehicle.brand) {
-                              vehicleDisplay = selectedVehicle.brand.toUpperCase();
-                            } else {
-                              vehicleDisplay = selectedVehicle.vehicleId;
-                            }
-
-                            // Agregar código entre paréntesis para referencia oficial
-                            return `${vehicleDisplay} (${selectedVehicle.vehicleId})`;
-                          }
-                          // Fallback si no se encuentra el vehículo
-                          return formData.vehicleId;
-                        })()}
+                        $ {parseFloat(formData.unitPrice).toLocaleString('es-CO')} COP
                       </div>
-                      <div className="field-code">A06</div>
+                      <div className="field-code">A04</div>
                     </div>
-                  )}
 
-                  {formData.location && (
-                    <div className="form-row">
-                      <div className="field-label">UBICACIÓN:</div>
-                      <div className="field-value">{formData.location}</div>
-                      <div className="field-code">A07</div>
+                    <div className="form-row total-row">
+                      <div className="field-label">VALOR TOTAL:</div>
+                      <div className="field-value">
+                        ${' '}
+                        {(
+                          parseFloat(formData.quantity) * parseFloat(formData.unitPrice)
+                        ).toLocaleString('es-CO')}{' '}
+                        COP
+                      </div>
+                      <div className="field-code">A05</div>
                     </div>
-                  )}
+
+                    {formData.vehicleId && (
+                      <div className="form-row">
+                        <div className="field-label">VEHÍCULO ASIGNADO:</div>
+                        <div className="field-value">
+                          {(() => {
+                            // Buscar el vehículo por ID para obtener su información completa
+                            const selectedVehicle = vehicles?.find(
+                              (v) => v.vehicleId === formData.vehicleId
+                            );
+                            if (selectedVehicle) {
+                              // Construir nombre oficial del vehículo
+                              let vehicleDisplay = '';
+
+                              // Prioridad: name > brand + model > vehicleId
+                              if (selectedVehicle.name) {
+                                vehicleDisplay = selectedVehicle.name.toUpperCase();
+                              } else if (selectedVehicle.brand && selectedVehicle.model) {
+                                vehicleDisplay =
+                                  `${selectedVehicle.brand} ${selectedVehicle.model}`.toUpperCase();
+                              } else if (selectedVehicle.brand) {
+                                vehicleDisplay = selectedVehicle.brand.toUpperCase();
+                              } else {
+                                vehicleDisplay = selectedVehicle.vehicleId;
+                              }
+
+                              // Agregar código entre paréntesis para referencia oficial
+                              return `${vehicleDisplay} (${selectedVehicle.vehicleId})`;
+                            }
+                            // Fallback si no se encuentra el vehículo
+                            return formData.vehicleId;
+                          })()}
+                        </div>
+                        <div className="field-code">A06</div>
+                      </div>
+                    )}
+
+                    {formData.location && (
+                      <div className="form-row">
+                        <div className="field-label">UBICACIÓN:</div>
+                        <div className="field-value">{formData.location}</div>
+                        <div className="field-code">A07</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Información de procesamiento */}
-              <div className="processing-info">
-                <div className="info-grid">
-                  <div className="info-item">
-                    <div className="info-label">FECHA DE PROCESAMIENTO:</div>
-                    <div className="info-value">
-                      {new Date()
-                        .toLocaleDateString('es-CO', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })
-                        .toUpperCase()}
+                {/* Información de procesamiento */}
+                <div className="processing-info">
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <div className="info-label">FECHA DE PROCESAMIENTO:</div>
+                      <div className="info-value">
+                        {new Date()
+                          .toLocaleDateString('es-CO', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                          .toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="info-item">
+                      <div className="info-label">HORA:</div>
+                      <div className="info-value">{new Date().toLocaleTimeString('es-CO')} COT</div>
+                    </div>
+                    <div className="info-item">
+                      <div className="info-label">ESTADO:</div>
+                      <div className="info-value status-approved">APROBADO</div>
                     </div>
                   </div>
-                  <div className="info-item">
-                    <div className="info-label">HORA:</div>
-                    <div className="info-value">{new Date().toLocaleTimeString('es-CO')} COT</div>
-                  </div>
-                  <div className="info-item">
-                    <div className="info-label">ESTADO:</div>
-                    <div className="info-value status-approved">APROBADO</div>
-                  </div>
                 </div>
-              </div>
 
-              {/* Acciones oficiales */}
-              <div className="official-actions">
-                <button className="official-btn primary" onClick={handleNewMovement}>
-                  <span className="btn-icon">⊕</span>
-                  NUEVA TRANSACCIÓN
-                </button>
-                <button className="official-btn secondary" onClick={handleCloseModal}>
-                  <span className="btn-icon">✕</span>
-                  CERRAR DOCUMENTO
-                </button>
-              </div>
+                {/* Acciones oficiales */}
+                <div className="official-actions">
+                  <button className="official-btn primary" onClick={handleNewMovement}>
+                    <span className="btn-icon">⊕</span>
+                    NUEVA TRANSACCIÓN
+                  </button>
+                  <button className="official-btn secondary" onClick={handleCloseModal}>
+                    <span className="btn-icon">✕</span>
+                    CERRAR DOCUMENTO
+                  </button>
+                </div>
 
-              {/* Footer oficial */}
-              <div className="official-footer">
-                <div className="footer-text">
-                  DOCUMENTO GENERADO AUTOMÁTICAMENTE - FORESTECH COLOMBIA
-                </div>
-                <div className="footer-timestamp">
-                  Generado el {new Date().toISOString().split('T')[0]} a las{' '}
-                  {new Date().toLocaleTimeString('es-CO')}
+                {/* Footer oficial */}
+                <div className="official-footer">
+                  <div className="footer-text">
+                    DOCUMENTO GENERADO AUTOMÁTICAMENTE - FORESTECH COLOMBIA
+                  </div>
+                  <div className="footer-timestamp">
+                    Generado el {new Date().toISOString().split('T')[0]} a las{' '}
+                    {new Date().toLocaleTimeString('es-CO')}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : systemData.loadingData ? (
-            <div className={getThemeClass('wizard-loading')}>
-              <div className={getThemeClass('loading-spinner')}></div>
-              <p>🔄 Cargando datos del sistema...</p>
-            </div>
-          ) : (
-            <div className={getThemeClass('wizard-step-container')}>{renderCurrentStep()}</div>
-          )}
-        </div>
+            ) : systemData.loadingData ? (
+              <div className={getThemeClass('wizard-loading')}>
+                <div className={getThemeClass('loading-spinner')}></div>
+                <p>🔄 Cargando datos del sistema...</p>
+              </div>
+            ) : (
+              <div className={getThemeClass('wizard-step-container')}>{renderCurrentStep()}</div>
+            )}
+          </div>
+        )}
 
         {/* Error global */}
         {error && (
@@ -1274,10 +1772,11 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
           >
             {(currentStep > 1 || currentStep === '3b') && (
               <button
-                className={getThemeClass('typeform-nav-btn')}
+                className={`${getThemeClass('typeform-nav-btn')} nav-button`}
                 onClick={prevStep}
                 disabled={isTransitioning}
                 aria-label="Paso anterior"
+                tabIndex={theme === 'government' ? 0 : -1}
               >
                 ←
               </button>
@@ -1285,19 +1784,21 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
 
             {!isLastStep ? (
               <button
-                className={getThemeClass('typeform-nav-btn')}
+                className={`${getThemeClass('typeform-nav-btn')} nav-button primary`}
                 onClick={nextStep}
                 disabled={!isCurrentStepValid || isTransitioning}
                 aria-label="Siguiente paso"
+                tabIndex={theme === 'government' ? 0 : -1}
               >
                 →
               </button>
             ) : (
               <button
-                className={`${getThemeClass('typeform-nav-btn')} confirm-button`}
+                className={`${getThemeClass('typeform-nav-btn')} nav-button primary confirm-button`}
                 onClick={handleSubmit}
                 disabled={isLoading || !confirmChecked || isTransitioning}
                 aria-label="Confirmar movimiento"
+                tabIndex={theme === 'government' ? 0 : -1}
               >
                 <span className="confirm-icon">
                   {isLoading ? (
@@ -1360,6 +1861,19 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'modern' }) => {
           <div className="typeform-step-indicator sap-theme">
             <div className="step-number sap-theme">{currentLogicalStep}</div>
             <span>de {totalSteps}</span>
+          </div>
+        )}
+
+        {/* Shimmer overlay para transiciones - solo tema Government */}
+        {theme === 'government' && (
+          <div className={`step-shimmer-overlay ${isTransitioning ? 'active' : ''}`}>
+            <div className="shimmer-container">
+              <div className="shimmer-message">{getStepLoadingMessage(currentStep)}</div>
+              <div className="shimmer-progress"></div>
+              <div className="shimmer-text">
+                Cargando<span className="shimmer-dots"></span>
+              </div>
+            </div>
           </div>
         )}
       </div>

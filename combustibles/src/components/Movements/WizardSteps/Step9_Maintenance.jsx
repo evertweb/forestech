@@ -21,7 +21,7 @@ const MAINTENANCE_PRIORITY = {
   CRITICA: 'critica',
 };
 
-const Step9_Maintenance = ({ formData, updateFormData, errors, isActive, theme = 'modern' }) => {
+const Step9_Maintenance = ({ formData, updateFormData, errors, isActive, theme = 'forestech' }) => {
   const [newPart, setNewPart] = useState({ name: '', quantity: 1, cost: 0 });
 
   // Helper para clases según el tema

@@ -10,7 +10,7 @@ import {
   postMessageSafe,
 } from '../../services/popupCommunication';
 import '../../styles/sap-vehicles.css';
-import '../Vehicles/WizardSteps-SAP.css';
+import '../Movements/WizardSteps-Government.css';
 
 const VehicleFormCorporate = lazy(() => import('../Vehicles/VehicleFormCorporate'));
 
