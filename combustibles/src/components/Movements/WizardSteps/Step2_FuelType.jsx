@@ -19,7 +19,7 @@ const Step2_FuelType = ({
 
   // Helper para clases según el tema
   const getThemeClass = (baseClass) => {
-    return `${baseClass} forestech-theme`;
+    return `${baseClass} ${theme}-theme`;
   };
 
   const { products } = systemData;

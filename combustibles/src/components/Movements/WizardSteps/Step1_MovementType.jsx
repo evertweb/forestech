@@ -16,7 +16,7 @@ const Step1_MovementType = ({
 }) => {
   // Helper para clases según el tema
   const getThemeClass = (baseClass) => {
-    return `${baseClass} forestech-theme`;
+    return `${baseClass} ${theme}-theme`;
   };
   const movementOptions = useMemo(
     () => [
@@ -64,7 +64,7 @@ const Step1_MovementType = ({
       </div>
 
       <div className={getThemeClass('movement-options')}>
-        {movementOptions.map((option, index) => (
+        {movementOptions.map((option) => (
           <div
             key={option.type}
             className={`${getThemeClass('movement-option')} ${option.type} ${formData.type === option.type ? 'selected' : ''}`}

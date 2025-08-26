@@ -22,15 +22,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import useColorScheme from '../../hooks/useColorScheme';
 import AdminSSRBanner from './AdminSSRBanner';
 import './AdminSSRBanner.css';
 
 const DashboardLayout = React.memo(({ children }) => {
   // Extrae el perfil de usuario y las funciones de verificación de permisos del contexto.
   const { userProfile, isAdmin, isCounterOrAbove } = useCombustibles();
-  // Esquema de color (light/dark)
-  const { scheme, toggleScheme } = useColorScheme();
 
   // Estado para controlar la visibilidad del sidebar en todos los dispositivos.
   const [sidebarOpen, setSidebarOpen] = useState(true);
