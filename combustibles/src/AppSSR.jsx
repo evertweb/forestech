@@ -69,6 +69,27 @@ function AppContent() {
           <Route path="/politica-privacidad" element={<LegalRedirect type="privacy" />} />
           <Route path="/terminos-servicio" element={<LegalRedirect type="terms" />} />
 
+          {/* Ruta directa para Integraciones/Telegram (asegura match absoluto) */}
+          <Route
+            path="/integraciones/telegram"
+            element={
+              isServer ? (
+                <AuthVisualEnhanced />
+              ) : loading ? (
+                <div className="loading-container">
+                  <div className="loader">
+                    <div className="spinner"></div>
+                    <p>Cargando...</p>
+                  </div>
+                </div>
+              ) : !user ? (
+                <AuthVisualEnhanced />
+              ) : (
+                <LinkTelegram />
+              )
+            }
+          />
+
           {/* Resto de rutas según contexto SSR/CSR */}
           <Route
             path="*"
