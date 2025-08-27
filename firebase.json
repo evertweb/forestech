@@ -141,7 +141,7 @@
     },
     {
       "target": "liquidacionapp-62962",
-      "public": "public-legacy",
+      "public": "public",
       "headers": [
         {
           "source": "**",
