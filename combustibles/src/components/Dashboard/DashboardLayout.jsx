@@ -162,6 +162,14 @@ const DashboardLayout = React.memo(({ children }) => {
         description: 'Gestión de usuarios',
         requiredPermission: 'admin',
       },
+      {
+        id: 'integrations-telegram',
+        path: '/integraciones/telegram',
+        name: 'Integraciones',
+        icon: '🤖',
+        description: 'Vincular bot de Telegram',
+        requiredPermission: null,
+      },
     ],
     []
   );
@@ -178,6 +186,7 @@ const DashboardLayout = React.memo(({ children }) => {
       suppliers: () => import('../../components/Suppliers/SuppliersMain'),
       reports: () => import('../../components/Reports/ReportsMain'),
       admin: () => import('../../components/Admin/AdminMain'),
+      'integrations-telegram': () => import('../../components/Integrations/LinkTelegram'),
     }),
     []
   );
