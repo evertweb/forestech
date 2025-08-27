@@ -1,5 +1,5 @@
 {
-  "name": "movebtradas",
+  "name": "ForeTech-Combustibles-Bot-Fase2-Simple",
   "nodes": [
     {
       "parameters": {
@@ -10,76 +10,72 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [-464, 48],
+      "position": [-460, 120],
       "webhookId": "telegram-combustibles",
-      "id": "a7d669ae-d849-4e63-ad82-98a9daa942ef"
+      "id": "webhook-telegram-combustibles"
     },
     {
       "parameters": {
-        "functionCode": "// PROCESADOR DE TELEGRAM PARA FORESTECH - VERSIÓN FASE 1\nconst update = $json.body || $json;\nconsole.log('🔔 Webhook recibido:', JSON.stringify(update, null, 2));\n\nconst msg = update.message;\nconst cbq = update.callback_query;\n\nif (!msg && !cbq) {\n  console.log('❌ No es un mensaje ni callback, ignorando');\n  return [];\n}\n\nconst text = (msg?.text || '').trim();\nconst chatId = msg?.chat?.id || cbq?.message?.chat?.id;\nconst from = msg?.from || cbq?.from || {};\nconst userId = from.id;\nconst username = from.username || from.first_name || 'user';\n\n// Comandos soportados\nconst command = text.startsWith('/') ? text.split(' ')[0].toLowerCase() : null;\n\n// /help\nif (command === '/help' || command === '/start') {\n  return [{ json: { action: 'send_message', chatId, message: `🤖 **ForeTech Combustibles Bot**\\n\\nComandos rápidos:\\n/entrada - Iniciar asistente de ENTRADA\\n/login - Vincular tu cuenta\\n/help - Ayuda\\n` } }];\n}\n\n// /login\nif (command === '/login') {\n  return [{ json: { action: 'login_init', telegramData: { chatId, userId, username } } }];\n}\n\n// /entrada\nif (command === '/entrada' || /entrada/i.test(text)) {\n  return [{ json: { action: 'start_wizard', telegramData: { chatId, userId, username }, session: { chatId } } }];\n}\n\n// Callback data (inline keyboards) → continuar flujo\nif (cbq?.data) {\n  return [{ json: { action: 'continue', telegramData: { chatId, userId, username }, session: { chatId }, input: { callback: cbq.data } } }];\n}\n\n// Entrada libre → continuar flujo (pasos que requieren texto)\nif (text) {\n  return [{ json: { action: 'continue', telegramData: { chatId, userId, username }, session: { chatId }, input: { text } } }];\n}\n\nreturn [{ json: { action: 'send_message', chatId, message: 'No entendí. Usa /help.' } }];\n"
+        "functionCode": "// PROCESADOR TELEGRAM - FASE 2 CONVERSACIONAL\nconst update = $json.body || $json;\nconst msg = update.message;\nconst cbq = update.callback_query;\n\nif (!msg && !cbq) {\n  return [];\n}\n\nconst text = (msg && msg.text ? msg.text : '').trim();\nconst chatId = (msg && msg.chat && msg.chat.id) || (cbq && cbq.message && cbq.message.chat && cbq.message.chat.id);\nconst from = (msg && msg.from) ? msg.from : (cbq && cbq.from ? cbq.from : {});\nconst userId = from.id;\nconst username = from.username || from.first_name || 'user';\n\nconst command = text.startsWith('/') ? text.split(' ')[0].toLowerCase() : null;\n\n// Comandos principales - AL ROUTER\nif (command === '/start' || command === '/help') {\n  return [{ json: { action: 'start_wizard', telegramData: { chatId: chatId, userId: userId, username: username }, session: { chatId: chatId } } }];\n}\n\n// Login - AL ROUTER\nif (command === '/login') {\n  return [{ json: { action: 'login_init', telegramData: { chatId: chatId, userId: userId, username: username } } }];\n}\n\n// Cancelar - AL ROUTER\nif (command === '/cancel' || command === '/logout') {\n  return [{ json: { action: 'cancel', telegramData: { chatId: chatId, userId: userId, username: username }, session: { chatId: chatId } } }];\n}\n\n// Entrada rápida - AL ROUTER\nif (command === '/entrada' || /entrada/i.test(text)) {\n  return [{ json: { action: 'start_wizard', movementType: 'ENTRADA', telegramData: { chatId: chatId, userId: userId, username: username }, session: { chatId: chatId, type: 'ENTRADA' } } }];\n}\n\n// Salida rápida - AL ROUTER\nif (command === '/salida' || /salida/i.test(text)) {\n  return [{ json: { action: 'start_wizard', movementType: 'SALIDA', telegramData: { chatId: chatId, userId: userId, username: username }, session: { chatId: chatId, type: 'SALIDA' } } }];\n}\n\n// Callbacks de botones - AL ROUTER\nif (cbq && cbq.data) {\n  return [{ json: { action: 'continue', telegramData: { chatId: chatId, userId: userId, username: username }, session: { chatId: chatId }, input: { callback: cbq.data } } }];\n}\n\n// Texto - AL ROUTER\nif (text) {\n  return [{ json: { action: 'continue', telegramData: { chatId: chatId, userId: userId, username: username }, session: { chatId: chatId }, input: { text: text } } }];\n}\n\n// Default - DIRECTO A TELEGRAM\nreturn [{ json: { action: 'send_message', chatId: chatId, message: 'No entendí. Usa /start para ver el menú principal.' } }];"
       },
       "name": "Procesar Telegram",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
-      "position": [-256, 48],
-      "id": "afaea46c-9ac0-48be-b2a5-1329d918eb80",
+      "position": [-260, 120],
+      "id": "procesar-telegram",
       "alwaysOutputData": false
     },
     {
       "parameters": {
-        "rules": {
-          "values": [
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "={{ $json.action }}",
+            "typeValidation": "strict"
+          },
+          "conditions": [
             {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "={{ $json.action }}",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.action }}",
-                    "rightValue": "create_movement",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "send_message",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "singleValue": true
               }
-            },
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "name": "IF Send Message",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-60, 120],
+      "id": "if-send-message"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ/sendMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
             {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "={{ $json.action }}",
-                  "typeValidation": "strict"
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.action }}",
-                    "rightValue": "send_message",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              }
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
-        "options": {
-          "fallbackOutput": true
-        }
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (function(){\n  const chatId = $json.chatId || ($json.telegramData && $json.telegramData.chatId) || $json.chat_id;\n  const message = $json.message || $json.text;\n  \n  const b = {\n    chat_id: chatId,\n    text: message,\n    parse_mode: 'Markdown'\n  };\n  \n  if ($json.reply_markup) {\n    b.reply_markup = $json.reply_markup;\n  }\n  \n  return b;\n})() }}",
+        "options": {}
       },
-      "name": "Switch",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3,
-      "position": [-16, 48],
-      "id": "9ece76c2-10e5-4c54-90ad-49a0977bbde9"
+      "name": "Mensaje",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [140, 80],
+      "id": "mensaje-telegram"
     },
     {
       "parameters": {
@@ -104,119 +100,14 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"action\": \"create_movement\",\n  \"movementData\": {\n    \"type\": \"entrada\",\n    \"fuelType\": \"{{ $json.movementData.fuelType }}\",\n    \"quantity\": {{ $json.movementData.quantity }},\n    \"unitPrice\": {{ $json.movementData.unitPrice }},\n    \"supplierName\": \"{{ $json.movementData.supplier }}\",\n    \"destinationLocation\": \"{{ $json.movementData.location }}\",\n    \"effectiveDate\": \"{{ $json.movementData.date }}\",\n    \"description\": \"Entrada desde Telegram por {{ $json.telegramData.username }} - Bot ForeTech\",\n    \"telegramUserId\": \"{{ $json.telegramData.userId }}\",\n    \"telegramUsername\": \"{{ $json.telegramData.username }}\"\n  },\n  \"source\": \"telegram\",\n  \"sourceServer\": \"digitalocean-n8n-forestech\",\n  \"botInfo\": {\n    \"botId\": \"8220750519\",\n    \"botUsername\": \"ForestechBot\",\n    \"webhookUrl\": \"https://n8n.forestechdecolombia.com.co/webhook/telegram-combustibles\"\n  },\n  \"n8nExecutionId\": \"{{ $execution.id }}\",\n  \"timestamp\": \"{{ $now }}\"\n}",
-        "options": {}
-      },
-      "name": "Firebase",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [192, -64],
-      "id": "c69b04ec-334e-47ae-aa1f-d42c1044dfc7"
-    },
-    {
-      "parameters": {
-        "functionCode": "// igual al tuyo de Procesar Respuesta\n"
-      },
-      "name": "Procesar Respuesta",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [416, -64],
-      "id": "6de25f55-7a5d-4ef1-b2eb-b95745ee9c50"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.telegram.org/bot8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ/sendMessage",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "name": "Responder",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [640, -64],
-      "id": "99bf41ac-3b89-4f41-98f4-afcc1e02049d"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.telegram.org/bot8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ/sendMessage",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ (function(){ const b = { chat_id: $json.chatId, text: $json.message, parse_mode: 'Markdown' }; if ($json.reply_markup) b.reply_markup = $json.reply_markup; return b; })() }}",
-        "options": {}
-      },
-      "name": "Mensaje",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [192, 112],
-      "id": "53cc699f-3b29-440c-a14d-0deb7200bb74"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://us-central1-liquidacionapp-62962.cloudfunctions.net/combustiblesWebhookReceiver",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Authorization", "value": "Bearer forestech_webhook_2024" },
-            { "name": "User-Agent", "value": "N8N-ForeTech-DigitalOcean/1.0" }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ ({ action: $json.action, telegramData: ($json.telegramData || { chatId: $json.chatId }), session: ($json.session || { chatId: $json.chatId }), input: ($json.input || { text: $json.text }) }) }}",
+        "jsonBody": "={{ ({\n  action: $json.action,\n  telegramData: ($json.telegramData || { chatId: $json.chatId }),\n  session: ($json.session || { chatId: $json.chatId }),\n  input: ($json.input || {}),\n  movementType: $json.movementType\n}) }}",
         "options": {}
       },
       "name": "Router",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [192, 304],
-      "id": "a1b2c3d4-router-node-telegram"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.telegram.org/bot8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ/sendMessage",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ ({ chat_id: ($json.chatId || ($json.telegramData && $json.telegramData.chatId)), text: '⚠️ Acción desconocida: ' + ($json.action || 'sin acción') + '\\nUsa /help para ver los comandos disponibles.', parse_mode: 'Markdown' }) }}",
-        "options": {}
-      },
-      "name": "Acción Desconocida",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [192, 304],
-      "id": "6097afa6-2194-4e3c-b6a2-338ee33c894b"
+      "position": [140, 160],
+      "id": "router-telegram"
     }
   ],
   "pinData": {},
@@ -236,15 +127,14 @@
       "main": [
         [
           {
-            "node": "Router",
+            "node": "IF Send Message",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-
-    "Router": {
+    "IF Send Message": {
       "main": [
         [
           {
@@ -252,25 +142,21 @@
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Firebase": {
-      "main": [
+        ],
         [
           {
-            "node": "Procesar Respuesta",
+            "node": "Router",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Procesar Respuesta": {
+    "Router": {
       "main": [
         [
           {
-            "node": "Responder",
+            "node": "Mensaje",
             "type": "main",
             "index": 0
           }
@@ -282,12 +168,22 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "cf0f9c58-3d3e-4a62-9149-2d6a88beba80",
+  "versionId": "fase2-simple-if-v1",
   "tags": [
-    { "name": "DigitalOcean" },
-    { "name": "ForeTech" },
-    { "name": "Telegram Bot" },
-    { "name": "Final" },
-    { "name": "Production" }
+    {
+      "name": "DigitalOcean"
+    },
+    {
+      "name": "ForeTech"
+    },
+    {
+      "name": "Telegram Bot"
+    },
+    {
+      "name": "Fase 2"
+    },
+    {
+      "name": "Production"
+    }
   ]
 }

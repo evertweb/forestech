@@ -156,6 +156,24 @@ export const linkTelegramAccount = onRequest({ cors: true, region: 'us-central1'
 
     await docRef.set({ used: true }, { merge: true });
 
+    // Notificar por Telegram al chat vinculado (si hay token configurado)
+    try {
+      const botToken = process.env.TELEGRAM_BOT_TOKEN || '8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ';
+      if (botToken && data.chatId) {
+        const msg = '✅ *Vinculación exitosa*\\n\\nYa puedes usar el bot ForeTech Combustibles.\\n\\n*Comandos disponibles:*\\n• `/help` - Ver ayuda\\n• `/entrada` - Registrar entrada\\n• `/salida` - Registrar salida\\n\\n¡Listo para usar! 🚀';
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        const body = { chat_id: String(data.chatId), text: msg, parse_mode: 'Markdown' };
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!response.ok) {
+          console.warn('Error enviando confirmación Telegram:', await response.text());
+        } else {
+          console.log('✅ Confirmación enviada a Telegram:', data.chatId);
+        }
+      }
+    } catch (notifyErr) {
+      console.warn('No se pudo enviar confirmación a Telegram:', notifyErr?.message);
+    }
+
     return res.json({ success: true, message: 'Cuenta de Telegram vinculada correctamente' });
   } catch (error) {
     console.error('Error en linkTelegramAccount:', error);

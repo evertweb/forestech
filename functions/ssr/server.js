@@ -159,13 +159,16 @@ export async function ssrHandler(req, res) {
             `ssr_total;dur=${totalDur}, ssr_render;dur=${renderDur}, data_fetch;dur=${dataFetchDuration}`
           );
           
-          // Crear HTML template completo con metadatos dinámicos
+          // Crear HTML template completo con metadatos dinámicos (sin await aquí)
+
           const html = createHtmlTemplate({
             metadata: validatedMetadata,
             initialState,
             appHtml: '', // Se llenará por pipe
             serverTiming: `ssr_total;dur=${totalDur}, ssr_render;dur=${renderDur}, data_fetch;dur=${dataFetchDuration}`,
-            currentUrl: req.path
+            currentUrl: req.path,
+            jsSrc,
+            cssHref
           });
           
           // Enviar template hasta el div root

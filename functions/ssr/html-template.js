@@ -19,7 +19,9 @@ export function createHtmlTemplate({
   serverTiming = '',
   currentUrl = '',
   route = '/',
-  app = 'combustibles'
+  app = 'combustibles',
+  jsSrc = '/combustibles/assets/index.js',
+  cssHref = '/combustibles/assets/index.css'
 }) {
   // Generar meta tags dinámicos usando la nueva configuración SEO
   const dynamicMetaTags = generateMetaTags(route, app);
@@ -101,8 +103,8 @@ export function createHtmlTemplate({
     <meta name="application-name" content="Combustibles" />
     
     <!-- Preload critical resources para mejor performance -->
-    <link rel="preload" href="/combustibles/assets/index.css" as="style" />
-    <link rel="preload" href="/combustibles/src/entry-client-ssr.jsx" as="script" />
+    ${cssHref ? `<link rel="preload" href="${cssHref}" as="style" />` : ''}
+    ${jsSrc ? `<link rel="preload" href="${jsSrc}" as="script" />` : ''}
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//firebaseapp.com" />
     
@@ -110,7 +112,7 @@ export function createHtmlTemplate({
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/combustibles/manifest.json" />
     
     <!-- CSS crítico inline para evitar FOUC y mejorar LCP -->
     <style>
@@ -164,14 +166,7 @@ export function createHtmlTemplate({
     </script>
     
     <!-- Hydration script - lazy load después del HTML inicial -->
-    <script type="module">
-        // Lazy load del bundle principal para mejor TTI
-        import('/combustibles/src/entry-client-ssr.jsx').catch(err => {
-            console.error('Failed to load hydration bundle:', err);
-            // Fallback: reload page
-            setTimeout(() => window.location.reload(), 2000);
-        });
-    </script>
+    ${jsSrc ? `<script type="module" src="${jsSrc}"></script>` : ''}
     
     <!-- Server timing para debugging y métricas -->
     ${serverTiming ? `<script>
