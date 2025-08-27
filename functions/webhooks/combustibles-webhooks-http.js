@@ -88,11 +88,19 @@ export const combustiblesWebhookReceiver = onRequest(
         case 'test_connection':
           return await handleTestConnection(req, res, payload);
         
+        // Telegram Router - Fase 1
+        case 'start_wizard':
+        case 'continue':
+          return await handleTelegramRoute(req, res, payload);
+        
+        case 'login_init':
+          return await handleLoginInit(req, res, payload);
+        
         default:
           return res.status(400).json({
             success: false,
             error: `Acción no reconocida: ${payload.action}`,
-            availableActions: ['create_movement', 'test_connection']
+            availableActions: ['create_movement', 'test_connection', 'start_wizard', 'continue', 'login_init']
           });
       }
 
@@ -107,6 +115,217 @@ export const combustiblesWebhookReceiver = onRequest(
     }
   }
 );
+
+/**
+ * Router Telegram - Manejo de sesión y pasos del asistente (Fase 1: ENTRADA)
+ */
+async function handleTelegramRoute(req, res, payload) {
+  const { telegramData = {}, session = {}, input = {} } = payload;
+  const chatId = telegramData.chatId || session.chatId;
+  if (!chatId) {
+    return res.status(400).json({ success: false, error: 'chatId requerido' });
+  }
+
+  // Cargar/crear sesión
+  const sessionRef = db.collection('telegram_sessions').doc(String(chatId));
+  const snap = await sessionRef.get();
+  const now = Date.now();
+  let state = snap.exists ? snap.data() : {
+    chatId,
+    user: telegramData.username || telegramData.userId || 'anon',
+    step: null,
+    type: null,
+    draft: {},
+    createdAt: new Date(now).toISOString(),
+  };
+
+  // Inicializar wizard
+  if (payload.action === 'start_wizard') {
+    // Fase 1: solo ENTRADA
+    state = { ...state, step: 1, type: 'ENTRADA', draft: {} };
+    await sessionRef.set(state, { merge: true });
+    return res.json(
+      buildTelegramMessage(chatId, 'Selecciona el combustible:', {
+        inline_keyboard: [[
+          { text: 'DIESEL', callback_data: 'fuel:DIESEL' },
+          { text: 'GASOLINA', callback_data: 'fuel:GASOLINA' },
+        ], [
+          { text: 'EXTRA', callback_data: 'fuel:EXTRA' },
+          { text: 'CORRIENTE', callback_data: 'fuel:CORRIENTE' },
+        ]]
+      })
+    );
+  }
+
+  // Continuar flujo
+  const text = (input.text || '').trim();
+  const callback = input.callback || '';
+  if (callback.startsWith('fuel:')) {
+    const fuel = callback.split(':')[1];
+    state.draft.fuelType = fuel;
+    state.step = 2;
+    await sessionRef.set(state, { merge: true });
+    return res.json(
+      buildTelegramMessage(chatId, 'Ingresa el proveedor (ej: Shell Colombia):')
+    );
+  }
+
+  // Paso 2: proveedor
+  if (state.step === 2 && text) {
+    state.draft.supplierName = text;
+    state.step = 3;
+    await sessionRef.set(state, { merge: true });
+    return res.json(
+      buildTelegramMessage(chatId, 'Selecciona la ubicación de destino:', {
+        inline_keyboard: [[
+          { text: 'principal', callback_data: 'dest:principal' },
+          { text: 'austria', callback_data: 'dest:austria' },
+        ], [
+          { text: 'ilusion', callback_data: 'dest:ilusion' },
+          { text: 'deposito', callback_data: 'dest:deposito' },
+        ]]
+      })
+    );
+  }
+
+  if (callback.startsWith('dest:')) {
+    const dest = callback.split(':')[1];
+    state.draft.destinationLocation = dest;
+    state.step = 4;
+    await sessionRef.set(state, { merge: true });
+    return res.json(buildTelegramMessage(chatId, 'Ingresa la cantidad en galones (ej: 500):'));
+  }
+
+  if (state.step === 4 && text) {
+    const q = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    if (!q || q <= 0) {
+      return res.json(buildTelegramMessage(chatId, 'Cantidad inválida. Ingresa un número > 0:'));
+    }
+    state.draft.quantity = q;
+    state.step = 5;
+    await sessionRef.set(state, { merge: true });
+    return res.json(buildTelegramMessage(chatId, 'Ingresa el precio unitario (ej: 15000):'));
+  }
+
+  if (state.step === 5 && text) {
+    const p = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    if (p < 0 || isNaN(p)) {
+      return res.json(buildTelegramMessage(chatId, 'Precio inválido. Ingresa un número >= 0:'));
+    }
+    state.draft.unitPrice = p;
+    state.step = 6;
+    await sessionRef.set(state, { merge: true });
+
+    // Resumen + confirmar
+    const d = state.draft;
+    const total = d.quantity * d.unitPrice;
+    const summary = [
+      'Revisa y confirma:',
+      `• Tipo: ENTRADA`,
+      `• Combustible: ${d.fuelType}`,
+      `• Proveedor: ${d.supplierName}`,
+      `• Destino: ${d.destinationLocation}`,
+      `• Cantidad: ${d.quantity} gal`,
+      `• Precio: $${p.toLocaleString('es-CO')}`,
+      `• Total: $${total.toLocaleString('es-CO')}`,
+    ].join('\n');
+
+    return res.json(
+      buildTelegramMessage(chatId, summary, {
+        inline_keyboard: [[
+          { text: '✅ Confirmar', callback_data: 'confirm:yes' },
+          { text: '❌ Cancelar', callback_data: 'confirm:no' },
+        ]]
+      })
+    );
+  }
+
+  if (callback === 'confirm:no') {
+    await sessionRef.delete();
+    return res.json(buildTelegramMessage(chatId, 'Operación cancelada. Usa /entrada para iniciar de nuevo.'));
+  }
+
+  if (callback === 'confirm:yes') {
+    // Validar y crear movimiento vía pipeline existente
+    const d = state.draft;
+    const payloadToCreate = {
+      action: 'create_movement',
+      movementData: {
+        type: 'entrada',
+        fuelType: d.fuelType,
+        quantity: d.quantity,
+        unitPrice: d.unitPrice,
+        supplierName: d.supplierName,
+        destinationLocation: d.destinationLocation,
+        description: `Entrada desde Telegram (@${state.user})`,
+      },
+      source: 'telegram',
+      telegramUserId: telegramData.userId,
+      telegramUsername: telegramData.username,
+      telegramChatId: chatId,
+    };
+
+    // Reutilizar validación y creación locales
+    const validation = validateMovementData(payloadToCreate.movementData);
+    if (!validation.isValid) {
+      return res.status(400).json({ success: false, error: 'Datos inválidos', details: validation.errors });
+    }
+
+    const movementId = await createMovementWithTransaction(
+      prepareMovementData(payloadToCreate.movementData, 'telegram')
+    );
+
+    await sessionRef.delete();
+
+    return res.json(
+      buildTelegramMessage(
+        chatId,
+        `✅ Movimiento creado: ${movementId.substring(0, 8)}...\nGracias. Usa /help para más opciones.`
+      )
+    );
+  }
+
+  // Entrada no reconocida
+  return res.json(buildTelegramMessage(chatId, 'No entendí. Usa /help o /entrada para iniciar.'));
+}
+
+/**
+ * Generar mensaje Telegram compatible con nodo N8N 'Mensaje'
+ */
+function buildTelegramMessage(chatId, text, replyMarkup) {
+  const body = { chatId, message: text };
+  if (replyMarkup) body.reply_markup = replyMarkup;
+  return { success: true, action: 'send_message', ...body };
+}
+
+/**
+ * Inicio de login: genera un one-time-code para vincular Telegram ↔ usuario
+ */
+async function handleLoginInit(req, res, payload) {
+  const { telegramData = {} } = payload;
+  const chatId = telegramData.chatId;
+  if (!chatId) return res.status(400).json({ success: false, error: 'chatId requerido' });
+
+  const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const docRef = db.collection('telegram_link_codes').doc(code);
+  await docRef.set({
+    chatId,
+    telegram: telegramData,
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+    used: false,
+  });
+
+  const instructions = [
+    '🔐 Vinculación de cuenta',
+    '1) Ve a la web y entra con tu usuario',
+    '2) Abre "Vincular Telegram"',
+    `3) Ingresa este código: ${code}`,
+    'El código expira en 10 minutos.'
+  ].join('\n');
+
+  return res.json(buildTelegramMessage(chatId, instructions));
+}
 
 /**
  * Manejar creación de movimientos

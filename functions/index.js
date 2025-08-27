@@ -115,3 +115,50 @@ export const ssrCombustibles = onRequest(
 
 // Webhook endpoint para recibir movimientos desde N8N/Telegram
 export { combustiblesWebhookReceiver };
+
+// Endpoint para vincular Telegram con un usuario autenticado en la web
+import { getFirestore } from 'firebase-admin/firestore';
+
+const db = getFirestore();
+
+export const linkTelegramAccount = onRequest({ cors: true, region: 'us-central1' }, async (req, res) => {
+  try {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ success: false, error: 'Método no permitido' });
+    }
+    const { code, userId, username } = req.body || {};
+    if (!code || !userId) {
+      return res.status(400).json({ success: false, error: 'code y userId son requeridos' });
+    }
+
+    const docRef = db.collection('telegram_link_codes').doc(String(code));
+    const snap = await docRef.get();
+    if (!snap.exists) {
+      return res.status(400).json({ success: false, error: 'Código inválido' });
+    }
+    const data = snap.data();
+    if (data.used) {
+      return res.status(400).json({ success: false, error: 'Código ya usado' });
+    }
+    if (new Date(data.expiresAt).getTime() < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Código expirado' });
+    }
+
+    // Guardar vínculo en perfil del usuario
+    await db.collection('users').doc(String(userId)).set({
+      telegram: {
+        chatId: data.chatId,
+        userId: data.telegram?.userId || null,
+        username: data.telegram?.username || null,
+        linkedAt: new Date().toISOString(),
+      }
+    }, { merge: true });
+
+    await docRef.set({ used: true }, { merge: true });
+
+    return res.json({ success: true, message: 'Cuenta de Telegram vinculada correctamente' });
+  } catch (error) {
+    console.error('Error en linkTelegramAccount:', error);
+    return res.status(500).json({ success: false, error: 'Error interno', message: error.message });
+  }
+});

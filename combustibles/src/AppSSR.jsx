@@ -22,6 +22,7 @@ const MovementsMain = lazy(() => import('./components/Movements/MovementsMain'))
 const VehiclesMain = lazy(() => import('./components/Vehicles/VehiclesMain'));
 const MaintenanceMain = lazy(() => import('./components/Maintenance/MaintenanceMain'));
 const ProductsMain = lazy(() => import('./components/Products/ProductsMain'));
+const LinkTelegram = lazy(() => import('./components/Integrations/LinkTelegram'));
 const SuppliersMain = lazy(() => import('./components/Suppliers/SuppliersMain'));
 const AdminMain = lazy(() => import('./components/Admin/AdminMain'));
 const ReportsMain = lazy(() => import('./components/Reports/ReportsMain'));
@@ -95,6 +96,7 @@ function AppContent() {
                     <Route path="proveedores" element={<SuppliersMain />} />
                     <Route path="reportes" element={<ReportsMain />} />
                     <Route path="admin" element={<AdminMain />} />
+                    <Route path="integraciones/telegram" element={<LinkTelegram />} />
                   </Route>
                 </Routes>
               )

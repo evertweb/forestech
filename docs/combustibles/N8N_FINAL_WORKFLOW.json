@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "functionCode": "// PROCESADOR DE TELEGRAM PARA FORESTECH - VERSIÓN FINAL\nconst update = $json.body || $json;\nconsole.log('🔔 Webhook recibido:', JSON.stringify(update, null, 2));\n\nif (!update.message) {\n  console.log('❌ No es un mensaje, ignorando');\n  return [];\n}\n\nconst message = update.message;\nconst text = message.text || '';\nconst userId = message.from.id;\nconst username = message.from.username || message.from.first_name;\nconst chatId = message.chat.id;\n\nconsole.log('📨 Mensaje:', text, 'Usuario:', username);\n\nconst commands = {\n  '/entrada': 'create_entry',\n  '/help': 'show_help',\n  '/start': 'show_help'\n};\n\nlet command = null;\nlet params = [];\n\nif (text.startsWith('/')) {\n  const parts = text.trim().split(' ');\n  command = parts[0].toLowerCase();\n  params = parts.slice(1);\n} else if (text.toLowerCase().includes('entrada')) {\n  command = '/entrada';\n  params = text.split(' ');\n}\n\nif (!commands[command]) {\n  return [{\n    json: {\n      action: 'send_message',\n      chatId: chatId,\n      message: `❌ Comando no reconocido\\n\\n🤖 **ForeTech Combustibles**\\n\\n/entrada - Registrar entrada\\n/help - Ayuda\\n\\n📝 Ejemplo:\\n/entrada DIESEL 500 15000 Proveedor principal\\n\\n🏢 ForeTech Colombia`\n    }\n  }];\n}\n\nif (commands[command] === 'create_entry') {\n  let fuelType, quantity, unitPrice, supplier, location;\n  \n  if (params.length >= 4) {\n    fuelType = params[0].toUpperCase();\n    quantity = parseFloat(params[1]);\n    unitPrice = parseFloat(params[2]);\n    supplier = params[3];\n    location = params[4] || 'principal';\n  } else {\n    const textLower = text.toLowerCase();\n    const quantityMatch = textLower.match(/(\\d+(?:\\.\\d+)?)\\s*(?:galones?|gal)/);\n    quantity = quantityMatch ? parseFloat(quantityMatch[1]) : null;\n    const priceMatch = textLower.match(/(?:a|precio|costo)\\s*(\\d+(?:\\.\\d+)?)/);\n    unitPrice = priceMatch ? parseFloat(priceMatch[1]) : null;\n    \n    if (textLower.includes('diesel')) fuelType = 'DIESEL';\n    else if (textLower.includes('gasolina')) fuelType = 'GASOLINA';\n    else if (textLower.includes('extra')) fuelType = 'EXTRA';\n    else if (textLower.includes('corriente')) fuelType = 'CORRIENTE';\n    \n    const supplierMatch = textLower.match(/proveedor\\s+([a-záéíóúñ\\s]+)/);\n    supplier = supplierMatch ? supplierMatch[1].trim() : 'Proveedor Telegram';\n    \n    if (textLower.includes('austria')) location = 'austria';\n    else if (textLower.includes('ilusion')) location = 'ilusion';\n    else if (textLower.includes('deposito')) location = 'deposito';\n    else location = 'principal';\n  }\n  \n  if (!fuelType || !quantity || !unitPrice || quantity <= 0 || unitPrice < 0) {\n    return [{\n      json: {\n        action: 'send_message',\n        chatId: chatId,\n        message: `❌ **Datos incompletos**\\n\\n📝 Formato:\\n/entrada DIESEL 500 15000 Proveedor principal\\n\\n**Tipos:** DIESEL, GASOLINA, EXTRA, CORRIENTE\\n**Ubicaciones:** principal, austria, ilusion, deposito\\n\\n🏢 ForeTech Colombia`\n      }\n    }];\n  }\n  \n  if (quantity > 5000) {\n    return [{\n      json: {\n        action: 'send_message',\n        chatId: chatId,\n        message: `⚠️ **Cantidad excesiva**\\nMáximo: 5,000 galones\\nSolicitado: ${quantity} galones\\n\\n🏢 ForeTech Colombia`\n      }\n    }];\n  }\n  \n  const totalValue = quantity * unitPrice;\n  if (totalValue > 50000000) {\n    return [{\n      json: {\n        action: 'send_message',\n        chatId: chatId,\n        message: `⚠️ **Valor excesivo**\\nMáximo: $50,000,000\\nCalculado: $${totalValue.toLocaleString('es-CO')}\\n\\n🏢 ForeTech Colombia`\n      }\n    }];\n  }\n  \n  return [{\n    json: {\n      action: 'create_movement',\n      movementData: {\n        fuelType: fuelType,\n        quantity: quantity,\n        unitPrice: unitPrice,\n        supplier: supplier,\n        location: location,\n        date: new Date().toISOString()\n      },\n      telegramData: {\n        userId: userId,\n        username: username,\n        chatId: chatId,\n        originalMessage: text\n      }\n    }\n  }];\n}\n\nif (commands[command] === 'show_help') {\n  return [{\n    json: {\n      action: 'send_message',\n      chatId: chatId,\n      message: `🤖 **ForeTech Combustibles Bot**\\n\\n📋 **Comandos:**\\n/entrada - Registrar entrada de combustible\\n/help - Mostrar esta ayuda\\n\\n📝 **Formato:**\\n/entrada COMBUSTIBLE CANTIDAD PRECIO PROVEEDOR [UBICACION]\\n\\n**Ejemplo:**\\n/entrada DIESEL 500 15000 \\\"Shell Colombia\\\" austria\\n\\n**Combustibles:** DIESEL, GASOLINA, EXTRA, CORRIENTE\\n**Ubicaciones:** principal, austria, ilusion, deposito\\n\\n**Límites:** 5,000 gal máx, $50M máx\\n\\n🌐 **Servidor:** DigitalOcean\\n🏢 **ForeTech Colombia**\\n✅ **Sistema Activo**`\n    }\n  }];\n}\n"
+        "functionCode": "// PROCESADOR DE TELEGRAM PARA FORESTECH - VERSIÓN FASE 1\nconst update = $json.body || $json;\nconsole.log('🔔 Webhook recibido:', JSON.stringify(update, null, 2));\n\nconst msg = update.message;\nconst cbq = update.callback_query;\n\nif (!msg && !cbq) {\n  console.log('❌ No es un mensaje ni callback, ignorando');\n  return [];\n}\n\nconst text = (msg?.text || '').trim();\nconst chatId = msg?.chat?.id || cbq?.message?.chat?.id;\nconst from = msg?.from || cbq?.from || {};\nconst userId = from.id;\nconst username = from.username || from.first_name || 'user';\n\n// Comandos soportados\nconst command = text.startsWith('/') ? text.split(' ')[0].toLowerCase() : null;\n\n// /help\nif (command === '/help' || command === '/start') {\n  return [{ json: { action: 'send_message', chatId, message: `🤖 **ForeTech Combustibles Bot**\\n\\nComandos rápidos:\\n/entrada - Iniciar asistente de ENTRADA\\n/login - Vincular tu cuenta\\n/help - Ayuda\\n` } }];\n}\n\n// /login\nif (command === '/login') {\n  return [{ json: { action: 'login_init', telegramData: { chatId, userId, username } } }];\n}\n\n// /entrada\nif (command === '/entrada' || /entrada/i.test(text)) {\n  return [{ json: { action: 'start_wizard', telegramData: { chatId, userId, username }, session: { chatId } } }];\n}\n\n// Callback data (inline keyboards) → continuar flujo\nif (cbq?.data) {\n  return [{ json: { action: 'continue', telegramData: { chatId, userId, username }, session: { chatId }, input: { callback: cbq.data } } }];\n}\n\n// Entrada libre → continuar flujo (pasos que requieren texto)\nif (text) {\n  return [{ json: { action: 'continue', telegramData: { chatId, userId, username }, session: { chatId }, input: { text } } }];\n}\n\nreturn [{ json: { action: 'send_message', chatId, message: 'No entendí. Usa /help.' } }];\n"
       },
       "name": "Procesar Telegram",
       "type": "n8n-nodes-base.function",
@@ -162,7 +162,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ ({ chat_id: $json.chatId, text: $json.message, parse_mode: 'Markdown' }) }}",
+        "jsonBody": "={{ (function(){ const b = { chat_id: $json.chatId, text: $json.message, parse_mode: 'Markdown' }; if ($json.reply_markup) b.reply_markup = $json.reply_markup; return b; })() }}",
         "options": {}
       },
       "name": "Mensaje",
@@ -170,6 +170,29 @@
       "typeVersion": 4.1,
       "position": [192, 112],
       "id": "53cc699f-3b29-440c-a14d-0deb7200bb74"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://us-central1-liquidacionapp-62962.cloudfunctions.net/combustiblesWebhookReceiver",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Authorization", "value": "Bearer forestech_webhook_2024" },
+            { "name": "User-Agent", "value": "N8N-ForeTech-DigitalOcean/1.0" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ action: $json.action, telegramData: ($json.telegramData || { chatId: $json.chatId }), session: ($json.session || { chatId: $json.chatId }), input: ($json.input || { text: $json.text }) }) }}",
+        "options": {}
+      },
+      "name": "Router",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [192, 304],
+      "id": "a1b2c3d4-router-node-telegram"
     },
     {
       "parameters": {
@@ -213,32 +236,19 @@
       "main": [
         [
           {
-            "node": "Switch",
+            "node": "Router",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Switch": {
+
+    "Router": {
       "main": [
         [
           {
-            "node": "Firebase",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
             "node": "Mensaje",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Acción Desconocida",
             "type": "main",
             "index": 0
           }
