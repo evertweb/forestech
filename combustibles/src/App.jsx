@@ -25,6 +25,7 @@ const ProductsMain = lazy(() => import('./components/Products/ProductsMain'));
 const SuppliersMain = lazy(() => import('./components/Suppliers/SuppliersMain'));
 const AdminMain = lazy(() => import('./components/Admin/AdminMain'));
 const ReportsMain = lazy(() => import('./components/Reports/ReportsMain'));
+const LinkTelegram = lazy(() => import('./components/Integrations/LinkTelegram'));
 
 // Componente de fallback para Suspense
 const LoadingFallback = () => (
@@ -87,6 +88,7 @@ function AppContent() {
               <Route path="proveedores" element={<SuppliersMain />} />
               <Route path="reportes" element={<ReportsMain />} />
               <Route path="admin" element={<AdminMain />} />
+              <Route path="integraciones/telegram" element={<LinkTelegram />} />
             </Route>
           </Routes>
         )}
