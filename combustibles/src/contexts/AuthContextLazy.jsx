@@ -1,7 +1,7 @@
 // combustibles/src/contexts/AuthContextLazy.jsx
 // AuthContext optimizado para LCP - no bloquea carga inicial
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { loadFirebase } from '../firebase/lazyFirebase';
 import { sendLoginNotification } from '../services/webhookService';
 import { getUserProfile } from '../firebase/userService';
@@ -23,8 +23,8 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [lastUserUid, setLastUserUid] = useState(null);
+  const isInitialLoadRef = useRef(true);
+  const lastUserUidRef = useRef(null);
 
   useEffect(() => {
     let unsubscribe = null;
@@ -64,13 +64,14 @@ export const AuthProvider = ({ children }) => {
 
             // Determinar si es un login nuevo
             const isNewLogin =
-              !isInitialLoad || (isInitialLoad && lastUserUid !== firebaseUser.uid);
+              !isInitialLoadRef.current ||
+              (isInitialLoadRef.current && lastUserUidRef.current !== firebaseUser.uid);
 
             console.log(
               '🤔 AuthLazy: Evaluando notificación - isInitialLoad:',
-              isInitialLoad,
+              isInitialLoadRef.current,
               'lastUserUid:',
-              lastUserUid,
+              lastUserUidRef.current,
               'currentUid:',
               firebaseUser.uid,
               'isNewLogin:',
@@ -122,12 +123,12 @@ export const AuthProvider = ({ children }) => {
               );
             }
 
-            setLastUserUid(firebaseUser.uid);
+            lastUserUidRef.current = firebaseUser.uid;
           } else {
             console.log('🔓 AuthLazy: Usuario desconectado');
             setUser(null);
             setUserProfile(null);
-            setLastUserUid(null);
+            lastUserUidRef.current = null;
 
             // Limpiar contexto de usuario global
             if (typeof window !== 'undefined') {
@@ -138,7 +139,7 @@ export const AuthProvider = ({ children }) => {
           }
 
           setLoading(false);
-          setIsInitialLoad(false);
+          isInitialLoadRef.current = false;
         });
       } catch (error) {
         console.error('Error inicializando Firebase Auth:', error);

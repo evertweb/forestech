@@ -11,6 +11,7 @@ import { performanceOptimizationHandler } from './ssr/performance-optimization.j
 import { coverageMonitoringHandler } from './ssr/coverage-monitoring.js';
 import { seoValidationHandler } from './ssr/seo-endpoint.js';
 import { ensureEnv } from './ssr/env.js';
+import { combustiblesWebhookReceiver } from './webhooks/combustibles-webhooks-http.js';
 
 ensureEnv();
 
@@ -111,3 +112,6 @@ export const ssrCombustibles = onRequest(
   },
   app
 );
+
+// Webhook endpoint para recibir movimientos desde N8N/Telegram
+export { combustiblesWebhookReceiver };

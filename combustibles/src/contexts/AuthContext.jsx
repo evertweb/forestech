@@ -1,7 +1,7 @@
 // combustibles/src/contexts/AuthContext.jsx
 // Context minimalista solo para autenticación - NIVEL 2 OPTIMIZACIÓN
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { createUserProfile, getUserProfile } from '../firebase/userService';
@@ -25,8 +25,8 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [lastUserUid, setLastUserUid] = useState(null);
+  const isInitialLoadRef = useRef(true);
+  const lastUserUidRef = useRef(null);
 
   useEffect(() => {
     let cookieRefreshCleanup = null;
@@ -69,13 +69,14 @@ export const AuthProvider = ({ children }) => {
             // 1. No es la carga inicial O
             // 2. Es la carga inicial pero el usuario cambió (nuevo login)
             const isNewLogin =
-              !isInitialLoad || (isInitialLoad && lastUserUid !== firebaseUser.uid);
+              !isInitialLoadRef.current ||
+              (isInitialLoadRef.current && lastUserUidRef.current !== firebaseUser.uid);
 
             console.log(
               '🤔 AuthContext: Evaluando notificación - isInitialLoad:',
-              isInitialLoad,
+              isInitialLoadRef.current,
               'lastUserUid:',
-              lastUserUid,
+              lastUserUidRef.current,
               'currentUid:',
               firebaseUser.uid,
               'isNewLogin:',
@@ -102,14 +103,14 @@ export const AuthProvider = ({ children }) => {
             }
 
             // Actualizar el último UID de usuario
-            setLastUserUid(firebaseUser.uid);
+            lastUserUidRef.current = firebaseUser.uid;
           } else {
             setError('Error cargando perfil de usuario');
           }
         } else {
           setUser(null);
           setUserProfile(null);
-          setLastUserUid(null); // Limpiar el último UID
+          lastUserUidRef.current = null;
 
           // 🧹 Limpiar cookie cuando no hay usuario
           clearAuthCookie();
@@ -124,7 +125,7 @@ export const AuthProvider = ({ children }) => {
         setError('Error de autenticación');
       } finally {
         setLoading(false);
-        setIsInitialLoad(false); // Marcar que ya no es la carga inicial
+        isInitialLoadRef.current = false;
       }
     });
 
