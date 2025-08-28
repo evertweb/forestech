@@ -24,6 +24,8 @@
     "lint": "npm run lint:check",
     "test": "echo 'Tests delegated to GitHub Actions' && exit 0",
     "test:ci": "npm run test --workspace=alimentacion --if-present && npm run test --workspace=combustibles --if-present",
+    "favicons:generate": "node scripts/generate-favicons.js && node scripts/generate-ico.js",
+    "favicons:copy": "npm run favicons:generate && npm run build:all && cp public/favicon-alimentacion.svg public/alimentacion/ && cp public/favicon-combustibles.svg public/combustibles/",
     "deploy": "npm run build:all && firebase deploy",
     "deploy:smart": "./scripts/deploy-smart.sh",
     "deploy:fast": "npm run build:incremental && firebase deploy --only hosting",
@@ -64,6 +66,8 @@
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.10",
+    "sharp": "^0.34.3",
+    "to-ico": "^1.1.5",
     "vite": "^6.3.5"
   },
   "lint-staged": {
