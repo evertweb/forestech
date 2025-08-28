@@ -41,7 +41,7 @@ describe('MovementWizard (integration)', () => {
     expect(screen.getByText(/cargando datos del sistema/i)).toBeInTheDocument();
 
     // Cerrar modal usando botón de escape
-    const escapeButton = screen.getByRole('button', { name: /cerrar/i });
+    const escapeButton = screen.getByRole('button', { name: /cerrar formulario/i });
     await userEvent.click(escapeButton);
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
