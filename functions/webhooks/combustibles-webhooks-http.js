@@ -189,7 +189,10 @@ async function handleTelegramRoute(req, res, payload) {
   // Cancelar sesión/proceso
   if (payload.action === 'cancel' || payload.action === 'logout' || input.callback === 'nav:cancel') {
     await sessionRef.delete();
-    return res.json(buildTelegramMessage(chatId, '👋 Operación cancelada.\n\nUsa /start para ver las opciones principales.'));
+    const message = payload.action === 'logout' 
+      ? '👋 Sesión cerrada correctamente.\n\nUsa /start para iniciar sesión nuevamente.'
+      : '👋 Operación cancelada.\n\nUsa /start para ver las opciones principales.';
+    return res.json(buildTelegramMessage(chatId, message));
   }
   
   // Verificar estado de login
@@ -203,8 +206,8 @@ async function handleTelegramRoute(req, res, payload) {
     step: null,
     type: null,
     draft: {},
-    isLoggedIn: loginStatus.isLoggedIn,
-    userInfo: loginStatus.user || null, // Evitar undefined
+    isLoggedIn: false, // 🔄 CAMBIO: Siempre empezar como no logueado en sesión nueva
+    userInfo: null,     // 🔄 CAMBIO: Sin información de usuario en sesión nueva
     createdAt: new Date(now).toISOString(),
   };
 
@@ -379,10 +382,10 @@ async function handleTelegramRoute(req, res, payload) {
     state.draft.destinationLocation = destinationLocation;
     console.log(`[DEBUG] Ubicación de destino seleccionada: ${destinationLocation}`);
     
-    // Continuar con siguiente paso (cantidad y precio)
+    // Continuar con siguiente paso (cantidad para ENTRADA)
     state.step = 3;
     await saveStateToFirestore(sessionRef, state);
-    return res.json(getStepMessage(chatId, 3, state));
+    return res.json(buildTelegramMessage(chatId, `✅ *Destino: ${destinationLocation}*\n\n📦 **Cantidad**\n\nIngresa la cantidad en galones (ej: 500):`, { inline_keyboard: [backRow()] }));
   }
 
   if (callback.startsWith('dest:')) {
@@ -1137,13 +1140,36 @@ function validateMovementData(data) {
     errors.push(`Tipo de combustible inválido. Permitidos: ${allowedFuelTypes.join(', ')}`);
   }
 
-  // Validar ubicaciones permitidas (ubicaciones operacionales conocidas)
-  const allowedLocations = ['principal', 'austria', 'ilusion', 'deposito'];
-  if (data.destinationLocation && !allowedLocations.includes(data.destinationLocation.toLowerCase())) {
-    errors.push(`Ubicación destino inválida. Permitidas: ${allowedLocations.join(', ')}`);
+  // 🔄 CAMBIO: Validación flexible de ubicaciones (sincronizada con frontend)
+  const knownLocationPatterns = [
+    'principal', 
+    'bodega austria', 
+    'austria',         // Para compatibilidad con entradas del usuario
+    'bodega ilusion', 
+    'ilusion',         // Para compatibilidad con entradas del usuario
+    'campo operativo',
+    'estación móvil',
+    'deposito'         // Mantenido para compatibilidad histórica
+  ];
+  
+  if (data.destinationLocation) {
+    const destLocation = data.destinationLocation.toLowerCase();
+    const isValidDestination = knownLocationPatterns.some(pattern => 
+      destLocation === pattern || destLocation.includes(pattern) || pattern.includes(destLocation)
+    );
+    if (!isValidDestination) {
+      errors.push(`Ubicación destino inválida: ${data.destinationLocation}. Debe contener alguno de: ${knownLocationPatterns.join(', ')}`);
+    }
   }
-  if (data.location && !allowedLocations.includes(data.location.toLowerCase())) {
-    errors.push(`Ubicación inválida. Permitidas: ${allowedLocations.join(', ')}`);
+  
+  if (data.location) {
+    const location = data.location.toLowerCase();
+    const isValidLocation = knownLocationPatterns.some(pattern => 
+      location === pattern || location.includes(pattern) || pattern.includes(location)
+    );
+    if (!isValidLocation) {
+      errors.push(`Ubicación inválida: ${data.location}. Debe contener alguno de: ${knownLocationPatterns.join(', ')}`);
+    }
   }
 
   return {
@@ -1226,18 +1252,21 @@ async function createMovementWithTransaction(movementData) {
 }
 
 /**
- * Obtener preview del inventario real
+ * Obtener preview del inventario real - LÓGICA UNIFICADA CON WEB
+ * Usa la misma estrategia que getLocationStock() en la aplicación web
  */
 async function fetchInventoryPreview(fuelType, location) {
   try {
+    console.log(`[UNIFIED] Fetching inventory for ${fuelType} in ${location}`);
+    
+    // 🔄 CAMBIO: Cargar todos los items activos (igual que la web)
     const inventoryQuery = db.collection('combustibles_inventory')
-      .where('fuelType', '==', fuelType.toUpperCase())
-      .where('location', '==', location.toLowerCase())
       .where('status', '==', 'active');
     
     const snapshot = await inventoryQuery.get();
     
     if (snapshot.empty) {
+      console.log('[UNIFIED] No inventory items found in database');
       return {
         found: false,
         currentStock: 0,
@@ -1246,14 +1275,78 @@ async function fetchInventoryPreview(fuelType, location) {
       };
     }
     
-    const doc = snapshot.docs[0];
-    const data = doc.data();
+    // 🔄 CAMBIO: Filtrar en memoria con normalización (igual que la web)
+    const matchingItems = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      
+      // Aplicar lógica de filtrado flexible para ubicaciones
+      const dataLocation = data.location?.toLowerCase()?.trim();
+      const searchLocation = location.toLowerCase().trim();
+      
+      // Búsqueda flexible: exact match o contains match para ubicaciones
+      const locationMatch = dataLocation === searchLocation || 
+                           dataLocation?.includes(searchLocation) ||
+                           searchLocation?.includes(dataLocation);
+      
+      const fuelTypeMatch = data.fuelType?.toUpperCase() === fuelType.toUpperCase();
+      
+      if (locationMatch && fuelTypeMatch) {
+        matchingItems.push(data);
+        console.log(`[UNIFIED] Found matching item: ${data.fuelType} in ${data.location}, stock: ${data.currentStock}`);
+      }
+    });
+    
+    if (matchingItems.length === 0) {
+      console.log(`[UNIFIED] No matching items found for ${fuelType} in ${location}`);
+      console.log(`[UNIFIED] Available locations: ${snapshot.docs.map(doc => doc.data().location).join(', ')}`);
+      return {
+        found: false,
+        currentStock: 0,
+        pricePerUnit: 0,
+        lastMovement: null
+      };
+    }
+    
+    // 🔄 CAMBIO: Sumar stock de todos los items que coinciden (igual que la web)
+    const totalStock = matchingItems.reduce((sum, item) => 
+      sum + (parseFloat(item.currentStock) || 0), 0
+    );
+    
+    // Calcular precio promedio ponderado
+    let totalValue = 0;
+    let totalQuantity = 0;
+    let mostRecentMovement = null;
+    
+    matchingItems.forEach(item => {
+      const stock = parseFloat(item.currentStock) || 0;
+      const price = parseFloat(item.pricePerUnit) || 0;
+      
+      totalValue += stock * price;
+      totalQuantity += stock;
+      
+      // Encontrar el movimiento más reciente
+      if (item.lastMovement && (!mostRecentMovement || 
+          (item.lastMovement.date && item.lastMovement.date > mostRecentMovement.date))) {
+        mostRecentMovement = item.lastMovement;
+      }
+    });
+    
+    const averagePrice = totalQuantity > 0 ? totalValue / totalQuantity : 0;
+    
+    console.log(`[UNIFIED] Found ${matchingItems.length} items, total stock: ${totalStock}, avg price: ${averagePrice}`);
     
     return {
       found: true,
-      currentStock: data.currentStock || 0,
-      pricePerUnit: data.pricePerUnit || 0,
-      lastMovement: data.lastMovement || null
+      currentStock: totalStock,
+      pricePerUnit: averagePrice,
+      lastMovement: mostRecentMovement,
+      itemsCount: matchingItems.length,
+      itemDetails: matchingItems.map(item => ({
+        id: item.id,
+        stock: item.currentStock,
+        price: item.pricePerUnit
+      }))
     };
   } catch (error) {
     console.error('❌ Error fetching inventory preview:', error);
@@ -1288,23 +1381,36 @@ function checkIfVehicleRequiresHourMeter(vehicle) {
  */
 async function fetchVehicleDetails(vehicleId) {
   try {
-    const vehicleDoc = await db.collection('combustibles_vehicles').doc(vehicleId).get();
-    if (!vehicleDoc.exists) {
+    console.log(`[DEBUG] Fetching vehicle details for vehicleId: ${vehicleId}`);
+    
+    // 🔄 CAMBIO: Buscar por campo vehicleId en lugar de ID del documento
+    const vehicleQuery = await db.collection('combustibles_vehicles')
+      .where('vehicleId', '==', vehicleId)
+      .where('status', 'in', ['active', 'activo'])
+      .get();
+    
+    if (vehicleQuery.empty) {
+      console.log(`[DEBUG] Vehicle not found: ${vehicleId}`);
       return { success: false, error: 'Vehículo no encontrado' };
     }
     
+    const vehicleDoc = vehicleQuery.docs[0];
     const vehicleData = vehicleDoc.data();
+    
+    console.log(`[DEBUG] Vehicle found: ${vehicleData.vehicleId}, fuelType: ${vehicleData.fuelType}`);
+    
     return {
       success: true,
       vehicle: {
-        vehicleId: vehicleDoc.id,
+        vehicleId: vehicleData.vehicleId,
         name: vehicleData.name,
         plateNumber: vehicleData.plateNumber,
         fuelType: vehicleData.fuelType,
         hasHourMeter: vehicleData.hasHourMeter,
         category: vehicleData.category,
         type: vehicleData.type,
-        status: vehicleData.status
+        status: vehicleData.status,
+        currentLocation: vehicleData.currentLocation
       }
     };
   } catch (error) {
@@ -1318,9 +1424,12 @@ async function fetchVehicleDetails(vehicleId) {
  */
 async function fetchAllActiveSuppliers() {
   try {
+    console.log(`[DEBUG] Fetching active suppliers...`);
+    
+    // 🔄 CAMBIO: Buscar con ambos status para compatibilidad (active/activo)
+    // Nota: Removido orderBy temporalmente para evitar necesidad de índice compuesto
     const suppliersQuery = db.collection('combustibles_suppliers')
-      .where('status', '==', 'active')
-      .orderBy('name', 'asc'); // Ordenar por nombre como en la web
+      .where('status', 'in', ['active', 'activo']);
     
     const snapshot = await suppliersQuery.get();
     const suppliers = [];
@@ -1337,7 +1446,22 @@ async function fetchAllActiveSuppliers() {
       });
     });
 
-    console.log(`[DEBUG] Proveedores activos encontrados:`, suppliers.length);
+    // Ordenar en memoria por nombre (ya que no podemos usar orderBy en la query)
+    suppliers.sort((a, b) => a.name.localeCompare(b.name));
+
+    console.log(`[DEBUG] Proveedores activos encontrados: ${suppliers.length}`);
+    
+    if (suppliers.length === 0) {
+      // DEBUG: Buscar todos los proveedores sin filtro para diagnosticar
+      const debugQuery = db.collection('combustibles_suppliers');
+      const debugSnapshot = await debugQuery.get();
+      console.log(`[DEBUG] Total suppliers in DB (any status): ${debugSnapshot.size}`);
+      debugSnapshot.forEach(doc => {
+        const data = doc.data();
+        console.log(`[DEBUG] Supplier: ${data.name}, status: "${data.status}", fuelTypes: ${JSON.stringify(data.fuelTypes)}`);
+      });
+    }
+    
     return { 
       success: true,
       suppliers, 
@@ -1398,58 +1522,81 @@ async function fetchSuppliersByFuelType(fuelType) {
  */
 async function fetchVehiclesPage({ fuelType, location, page = 0, pageSize = 8 }) {
   try {
-    // Construir query con filtros
+    console.log(`[UNIFIED] Fetching vehicles for ${fuelType} in ${location}`);
+    
+    // 🔄 CAMBIO: Usar lógica unificada igual que inventario - cargar todos y filtrar en memoria
+    // Buscar con ambos status para compatibilidad (active/activo)
     let query = db.collection('combustibles_vehicles')
-      .where('status', '==', 'active');
+      .where('status', 'in', ['active', 'activo']);
     
-    // Filtro por ubicación actual (vehículos en la ubicación de origen)
-    if (location) {
-      query = query.where('currentLocation', '==', location.toLowerCase());
-    }
-    
-    // Filtro de compatibilidad de combustible
-    // DIESEL → solo vehículos diesel, otros tipos → cualquier vehículo excepto diesel
+    // Filtro de compatibilidad de combustible mantenido
     if (fuelType === 'DIESEL') {
       query = query.where('fuelType', '==', 'DIESEL');
     } else {
       query = query.where('fuelType', 'in', ['GASOLINA', 'EXTRA', 'CORRIENTE']);
     }
     
-    // Ordenar y paginar
-    query = query.orderBy('vehicleId').offset(page * pageSize).limit(pageSize);
-    
     const snapshot = await query.get();
-    const vehicles = [];
+    const allVehicles = [];
     
+    console.log(`[UNIFIED] Query executed, found ${snapshot.size} vehicles with status=[active,activo] and fuelType=${fuelType}`);
+    
+    // Cargar todos los vehículos del tipo de combustible
     snapshot.forEach(doc => {
       const data = doc.data();
-      vehicles.push({
+      allVehicles.push({
         id: doc.id,
         vehicleId: data.vehicleId,
         brand: data.brand || 'N/A',
         model: data.model || 'N/A',
         fuelType: data.fuelType,
         currentLocation: data.currentLocation,
-        status: data.status
+        status: data.status,
+        _doc: doc
       });
     });
     
-    // Contar total para saber si hay más páginas
-    let totalQuery = db.collection('combustibles_vehicles')
-      .where('status', '==', 'active');
+    // 🔄 CAMBIO: Filtrar por ubicación en memoria con búsqueda flexible
+    let filteredVehicles = allVehicles;
     
     if (location) {
-      totalQuery = totalQuery.where('currentLocation', '==', location.toLowerCase());
+      filteredVehicles = allVehicles.filter(vehicle => {
+        const vehicleLocation = vehicle.currentLocation?.toLowerCase()?.trim();
+        const searchLocation = location.toLowerCase().trim();
+        
+        // Búsqueda flexible: exact match o contains match (igual que inventario)
+        const locationMatch = vehicleLocation === searchLocation || 
+                             vehicleLocation?.includes(searchLocation) ||
+                             searchLocation?.includes(vehicleLocation);
+        
+        if (locationMatch) {
+          console.log(`[UNIFIED] Found matching vehicle: ${vehicle.vehicleId} in ${vehicle.currentLocation}`);
+        }
+        
+        return locationMatch;
+      });
     }
     
-    if (fuelType === 'DIESEL') {
-      totalQuery = totalQuery.where('fuelType', '==', 'DIESEL');
-    } else {
-      totalQuery = totalQuery.where('fuelType', 'in', ['GASOLINA', 'EXTRA', 'CORRIENTE']);
+    if (filteredVehicles.length === 0) {
+      console.log(`[UNIFIED] No matching vehicles found for ${fuelType} in ${location}`);
+      console.log(`[UNIFIED] Available vehicles: ${allVehicles.map(v => `${v.vehicleId}(${v.fuelType}) in ${v.currentLocation}`).join(', ')}`);
+      
+      // DEBUG: Buscar todos los vehículos sin filtro para diagnosticar
+      const debugQuery = db.collection('combustibles_vehicles');
+      const debugSnapshot = await debugQuery.get();
+      console.log(`[DEBUG] Total vehicles in DB (any status): ${debugSnapshot.size}`);
+      debugSnapshot.forEach(doc => {
+        const data = doc.data();
+        console.log(`[DEBUG] Vehicle: ${data.vehicleId}, fuelType: "${data.fuelType}", location: "${data.currentLocation}", status: "${data.status}"`);
+      });
     }
     
-    const totalSnapshot = await totalQuery.get();
-    const total = totalSnapshot.size;
+    // Aplicar paginación a los resultados filtrados
+    const startIndex = page * pageSize;
+    const endIndex = startIndex + pageSize;
+    const vehicles = filteredVehicles.slice(startIndex, endIndex);
+    
+    const total = filteredVehicles.length;
     
     return {
       vehicles,
@@ -1478,28 +1625,49 @@ async function fetchVehiclesPage({ fuelType, location, page = 0, pageSize = 8 })
 }
 
 /**
- * Actualizar inventario desde movimiento (ENTRADA y SALIDA)
+ * Actualizar inventario desde movimiento (ENTRADA y SALIDA) - LÓGICA UNIFICADA CON WEB
+ * Usa la misma estrategia de búsqueda que la aplicación web
  */
 async function updateInventoryFromMovement(transaction, movement, movementId) {
   const targetLocation = movement.type === 'entrada' 
     ? movement.destinationLocation 
     : movement.location;
   
-  // Buscar inventario existente
+  console.log(`[UNIFIED] Updating inventory for ${movement.fuelType} in ${targetLocation}`);
+  
+  // 🔄 CAMBIO: Buscar inventario usando lógica unificada (igual que fetchInventoryPreview)
   const inventoryQuery = db.collection('combustibles_inventory')
-    .where('fuelType', '==', movement.fuelType)
-    .where('location', '==', targetLocation)
     .where('status', '==', 'active');
     
   const inventorySnapshot = await inventoryQuery.get();
   
-  if (inventorySnapshot.empty) {
+  // Filtrar en memoria para encontrar coincidencias con búsqueda flexible
+  const matchingItems = [];
+  inventorySnapshot.forEach(doc => {
+    const data = doc.data();
+    
+    // Aplicar lógica de filtrado flexible para ubicaciones (igual que fetchInventoryPreview)
+    const dataLocation = data.location?.toLowerCase()?.trim();
+    const searchLocation = targetLocation.toLowerCase().trim();
+    
+    const locationMatch = dataLocation === searchLocation || 
+                         dataLocation?.includes(searchLocation) ||
+                         searchLocation?.includes(dataLocation);
+    
+    const fuelTypeMatch = data.fuelType?.toUpperCase() === movement.fuelType.toUpperCase();
+    
+    if (locationMatch && fuelTypeMatch) {
+      matchingItems.push({ doc, data });
+    }
+  });
+  
+  if (matchingItems.length === 0) {
     if (movement.type === 'entrada') {
       // Crear nuevo inventario solo para entradas
       const inventoryRef = db.collection('combustibles_inventory').doc();
       const newInventoryData = {
-        fuelType: movement.fuelType,
-        location: targetLocation,
+        fuelType: movement.fuelType.toUpperCase(),
+        location: targetLocation.toLowerCase().trim(),
         name: movement.fuelType,
         maxCapacity: 1000,
         currentStock: movement.quantity,
@@ -1517,40 +1685,77 @@ async function updateInventoryFromMovement(transaction, movement, movementId) {
       };
       
       transaction.set(inventoryRef, newInventoryData);
-      console.log(`📦 [WEBHOOK] Inventario creado para ${movement.fuelType} en ${targetLocation}`);
+      console.log(`📦 [UNIFIED] Inventario creado para ${movement.fuelType} en ${targetLocation}`);
     } else {
+      console.log(`[UNIFIED] Available items in database:`);
+      inventorySnapshot.forEach(doc => {
+        const data = doc.data();
+        console.log(`  - ${data.fuelType} in ${data.location}, stock: ${data.currentStock}`);
+      });
       throw new Error(`No hay inventario disponible para ${movement.fuelType} en ${targetLocation}`);
     }
   } else {
-    // Actualizar inventario existente
-    const inventoryDoc = inventorySnapshot.docs[0];
-    const currentData = inventoryDoc.data();
-    const currentStock = parseFloat(currentData.currentStock) || 0;
-    
-    let newStock;
+    // 🔄 CAMBIO: Manejar múltiples items de inventario (igual que la web)
     if (movement.type === 'entrada') {
-      newStock = currentStock + movement.quantity;
+      // Para entradas, usar el primer item encontrado o crear uno nuevo si es necesario
+      const targetItem = matchingItems[0];
+      const currentStock = parseFloat(targetItem.data.currentStock) || 0;
+      const newStock = currentStock + movement.quantity;
+      
+      const updateData = {
+        currentStock: Math.round(newStock * 100) / 100,
+        pricePerUnit: movement.unitPrice,
+        updatedAt: new Date(),
+        lastMovement: {
+          movementId,
+          type: movement.type,
+          quantity: movement.quantity,
+          date: new Date(),
+        },
+      };
+      
+      transaction.update(targetItem.doc.ref, updateData);
+      console.log(`📦 [UNIFIED] Inventario entrada: ${currentStock} + ${movement.quantity} = ${newStock}`);
+      
     } else {
-      // Validar stock suficiente para salida
-      if (currentStock < movement.quantity) {
-        throw new Error(`Stock insuficiente. Disponible: ${currentStock}, Solicitado: ${movement.quantity}`);
+      // Para salidas, calcular stock total disponible y actualizar proporcionalmente
+      const totalAvailableStock = matchingItems.reduce((sum, item) => 
+        sum + (parseFloat(item.data.currentStock) || 0), 0
+      );
+      
+      console.log(`[UNIFIED] Total stock available: ${totalAvailableStock}, requested: ${movement.quantity}`);
+      
+      if (totalAvailableStock < movement.quantity) {
+        throw new Error(`Stock insuficiente. Disponible: ${totalAvailableStock}, Solicitado: ${movement.quantity}`);
       }
-      newStock = currentStock - movement.quantity;
+      
+      // Actualizar items proporcionalmente
+      let remainingQuantity = movement.quantity;
+      
+      for (const item of matchingItems) {
+        if (remainingQuantity <= 0) break;
+        
+        const currentStock = parseFloat(item.data.currentStock) || 0;
+        const quantityToDeduct = Math.min(currentStock, remainingQuantity);
+        const newStock = currentStock - quantityToDeduct;
+        
+        const updateData = {
+          currentStock: Math.round(newStock * 100) / 100,
+          pricePerUnit: movement.unitPrice,
+          updatedAt: new Date(),
+          lastMovement: {
+            movementId,
+            type: movement.type,
+            quantity: quantityToDeduct,
+            date: new Date(),
+          },
+        };
+        
+        transaction.update(item.doc.ref, updateData);
+        remainingQuantity -= quantityToDeduct;
+        
+        console.log(`📦 [UNIFIED] Inventario salida: ${currentStock} - ${quantityToDeduct} = ${newStock}`);
+      }
     }
-    
-    const updateData = {
-      currentStock: Math.round(newStock * 100) / 100, // Redondear a 2 decimales
-      pricePerUnit: movement.unitPrice,
-      updatedAt: new Date(),
-      lastMovement: {
-        movementId,
-        type: movement.type,
-        quantity: movement.quantity,
-        date: new Date(),
-      },
-    };
-    
-    transaction.update(inventoryDoc.ref, updateData);
-    console.log(`📦 [WEBHOOK] Inventario actualizado: ${currentStock} ${movement.type === 'entrada' ? '+' : '-'} ${movement.quantity} = ${newStock}`);
   }
 }
