@@ -24,6 +24,10 @@ import { sendMovementNotification } from './webhookService';
 const COLLECTION_NAME = 'combustibles_movements';
 const INVENTORY_COLLECTION = 'combustibles_inventory';
 
+// Helpers de normalización para evitar desalineaciones en consultas
+const normalizeFuelType = (fuel) => (fuel ? String(fuel).toUpperCase().trim() : fuel);
+const normalizeLocation = (loc) => (loc ? String(loc).toLowerCase().trim() : loc);
+
 // Tipos de movimientos
 export const MOVEMENT_TYPES = {
   ENTRADA: 'entrada', // Compras, reabastecimientos
@@ -338,10 +342,9 @@ export const deleteMovement = async (movementId) => {
     await runTransaction(db, async (transaction) => {
       const docRef = doc(db, COLLECTION_NAME, movementId);
 
-      // Si el movimiento ya había afectado el inventario, revertir los cambios.
-      if (movement.status === MOVEMENT_STATUS.COMPLETADO) {
-        await revertInventoryChanges(transaction, movement);
-      }
+      // Intentar revertir cambios de inventario de forma robusta.
+      // La función interna valida si realmente hay impacto que revertir.
+      await revertInventoryChanges(transaction, movement);
 
       // Finalmente, eliminar el documento del movimiento.
       transaction.delete(docRef);
@@ -619,11 +622,15 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
       targetLocation = movement.destinationLocation || 'principal';
     }
 
+    // Normalizar valores para evitar misses de consulta
+    const targetLocationNorm = normalizeLocation(targetLocation);
+    const fuelNorm = normalizeFuelType(movement.fuelType);
+
     // Buscar item de inventario por tipo de combustible y ubicación
     const inventoryQuery = query(
       collection(db, INVENTORY_COLLECTION),
-      where('fuelType', '==', movement.fuelType),
-      where('location', '==', targetLocation)
+      where('fuelType', '==', fuelNorm),
+      where('location', '==', targetLocationNorm)
     );
 
     const inventorySnapshot = await getDocs(inventoryQuery);
@@ -643,8 +650,8 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
 
       const inventoryRef = doc(collection(db, INVENTORY_COLLECTION));
       const newInventoryData = {
-        fuelType: movement.fuelType,
-        location: targetLocation,
+        fuelType: fuelNorm,
+        location: targetLocationNorm,
         name: movement.fuelType, // Asignar un nombre por defecto
         maxCapacity: 1000, // ✅ Capacidad ajustada para bodegas Austria e Ilusión
         currentStock: preciseRound(movement.quantity, 2), // Iniciar con la cantidad del movimiento usando precisión
@@ -748,6 +755,92 @@ const revertInventoryChanges = async (transaction, movement) => {
   try {
     console.log('🔄 Revirtiendo cambios de inventario para movimiento:', movement.id);
 
+    // 1) Ruta primaria: ubicar documentos de inventario impactados por movementId
+    try {
+      const impactedQuery = query(
+        collection(db, INVENTORY_COLLECTION),
+        where('lastMovement.movementId', '==', movement.id)
+      );
+      const impactedSnap = await getDocs(impactedQuery);
+
+      if (!impactedSnap.empty) {
+        console.log(`🔎 Encontrados ${impactedSnap.size} inventarios impactados por el movimiento`);
+
+        let revertedDestination = false;
+        for (const invDoc of impactedSnap.docs) {
+          const invData = invDoc.data();
+          const invRef = doc(db, INVENTORY_COLLECTION, invDoc.id);
+
+          let newQuantity = invData.currentStock;
+
+          // Si el último movimiento registrado en el inventario fue la parte de destino de una transferencia
+          if (invData?.lastMovement?.type === 'transferencia_entrada') {
+            // Revertir suma en destino
+            newQuantity = preciseSubtract(newQuantity, movement.quantity);
+            if (newQuantity < 0) newQuantity = 0;
+            revertedDestination = true;
+          } else {
+            // Revertir según el tipo original del movimiento
+            switch (movement.type) {
+              case MOVEMENT_TYPES.ENTRADA:
+                newQuantity = preciseSubtract(newQuantity, movement.quantity);
+                if (newQuantity < 0) newQuantity = 0;
+                break;
+              case MOVEMENT_TYPES.SALIDA:
+              case MOVEMENT_TYPES.MANTENIMIENTO:
+                newQuantity = preciseAdd(newQuantity, movement.quantity);
+                break;
+              case MOVEMENT_TYPES.AJUSTE:
+                newQuantity = preciseSubtract(newQuantity, movement.quantity);
+                if (newQuantity < 0) newQuantity = 0;
+                break;
+              case MOVEMENT_TYPES.TRANSFERENCIA:
+                // En el origen se había restado: ahora sumamos
+                newQuantity = preciseAdd(newQuantity, movement.quantity);
+                break;
+              default:
+                throw new Error(`Tipo de movimiento no soportado para reversión: ${movement.type}`);
+            }
+          }
+
+          newQuantity = preciseRound(newQuantity, 2);
+
+          transaction.update(invRef, {
+            currentStock: newQuantity,
+            lastMovement: {
+              movementId: null,
+              type: 'reversion',
+              quantity: movement.quantity,
+              originalType: movement.type,
+              date: serverTimestamp(),
+              note: `Reversión por eliminación de movimiento ${movement.id}`,
+            },
+            updatedAt: serverTimestamp(),
+          });
+        }
+
+        // Si era transferencia y no revertimos destino explícitamente en el loop (por ausencia de doc impactado),
+        // hacer reversión en destino como respaldo.
+        if (movement.type === MOVEMENT_TYPES.TRANSFERENCIA && !revertedDestination) {
+          await revertTransferFromDestination(transaction, movement);
+        }
+
+        return; // Reversión completa por ruta primaria
+      }
+    } catch (e) {
+      console.warn(
+        '⚠️ Falla al buscar por lastMovement.movementId, intentando ruta secundaria...',
+        e
+      );
+    }
+
+    // Si el movimiento no fue completado, no debería haber impactado inventario.
+    // Evitar reversiones incorrectas cuando no hay documentos impactados.
+    if (movement.status && movement.status !== MOVEMENT_STATUS.COMPLETADO) {
+      console.log('ℹ️ Movimiento no completado, no se aplican reversiones de inventario.');
+      return;
+    }
+
     // Determinar la ubicación correcta según el tipo de movimiento
     let targetLocation;
     switch (movement.type) {
@@ -770,11 +863,15 @@ const revertInventoryChanges = async (transaction, movement) => {
 
     console.log(`🔍 Buscando inventario: ${movement.fuelType} en ${targetLocation}`);
 
+    // Normalizar antes de consultar
+    const fuelNorm = normalizeFuelType(movement.fuelType);
+    const targetLocationNorm = normalizeLocation(targetLocation);
+
     // Buscar item de inventario por tipo de combustible y ubicación
     const inventoryQuery = query(
       collection(db, INVENTORY_COLLECTION),
-      where('fuelType', '==', movement.fuelType),
-      where('location', '==', targetLocation)
+      where('fuelType', '==', fuelNorm),
+      where('location', '==', targetLocationNorm)
     );
 
     const inventorySnapshot = await getDocs(inventoryQuery);
@@ -786,7 +883,7 @@ const revertInventoryChanges = async (transaction, movement) => {
       // Estrategia de fallback: buscar en cualquier ubicación para el mismo combustible
       const fallbackQuery = query(
         collection(db, INVENTORY_COLLECTION),
-        where('fuelType', '==', movement.fuelType)
+        where('fuelType', '==', fuelNorm)
       );
 
       const fallbackSnapshot = await getDocs(fallbackQuery);
@@ -845,6 +942,7 @@ const processInventoryReversion = async (transaction, inventoryRef, inventoryDat
         break;
 
       case MOVEMENT_TYPES.SALIDA:
+      case MOVEMENT_TYPES.MANTENIMIENTO:
         // Revertir salida: sumar la cantidad que se había restado
         newQuantity = preciseAdd(newQuantity, movement.quantity);
         break;
@@ -996,11 +1094,14 @@ const revertTransferFromDestination = async (transaction, movement) => {
 
     console.log(`🔄 Revirtiendo transferencia en destino: ${movement.destinationLocation}`);
 
+    const destLocNorm = normalizeLocation(movement.destinationLocation);
+    const fuelNorm = normalizeFuelType(movement.fuelType);
+
     // Buscar inventario destino
     const destinationQuery = query(
       collection(db, INVENTORY_COLLECTION),
-      where('fuelType', '==', movement.fuelType),
-      where('location', '==', movement.destinationLocation)
+      where('fuelType', '==', fuelNorm),
+      where('location', '==', destLocNorm)
     );
 
     const destinationSnapshot = await getDocs(destinationQuery);
