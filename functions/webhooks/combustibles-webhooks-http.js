@@ -22,7 +22,7 @@ const WEBHOOK_CONFIG = {
     'https://n8n.forestechdecolombia.com.co',
     'https://forestechdecolombia.com.co'
   ],
-  secretToken: process.env.WEBHOOK_SECRET_TOKEN || 'forestech_webhook_2024',
+  secretToken: process.env.WEBHOOK_SECRET_TOKEN,
   maxBodySize: 10 * 1024 * 1024, // 10MB
 };
 

@@ -1,0 +1,215 @@
+name: 🤖 Auto-Approve Safe PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_run:
+    workflows: ["CI/CD Pipeline", "Build and Test"]
+    types: [completed]
+
+jobs:
+  evaluate-pr-safety:
+    name: 🔍 Evaluate PR Safety
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'evertweb' || github.event.workflow_run.conclusion == 'success'
+    
+    outputs:
+      is-safe: ${{ steps.safety-check.outputs.is-safe }}
+      reason: ${{ steps.safety-check.outputs.reason }}
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 📊 Get PR details
+        id: pr-details
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PR_NUMBER=${{ github.event.pull_request.number }}
+          else
+            # Get PR from workflow_run event
+            PR_NUMBER=$(gh pr list --search "${{ github.event.workflow_run.head_sha }}" --json number --jq '.[0].number')
+          fi
+          
+          echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          
+          # Get PR files changed
+          gh pr view $PR_NUMBER --json files --jq '.files[].path' > changed_files.txt
+          echo "Files changed:"
+          cat changed_files.txt
+
+      - name: 🛡️ Safety evaluation
+        id: safety-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ steps.pr-details.outputs.pr-number }}
+          
+          # Initialize safety score
+          SAFETY_SCORE=0
+          REASONS=()
+          
+          echo "🔍 Evaluating PR #$PR_NUMBER safety..."
+          
+          # 1. Check if CI/CD checks are passing
+          CHECKS_STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[] | select(.state != "SUCCESS" and .state != "SKIPPED") | .state' | wc -l)
+          if [ "$CHECKS_STATUS" -eq 0 ]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 20))
+            REASONS+=("✅ All CI/CD checks passing")
+          else
+            REASONS+=("❌ Some CI/CD checks failing")
+          fi
+          
+          # 2. Check for critical file changes
+          CRITICAL_FILES=(
+            "firebase.json"
+            "firestore.rules" 
+            "storage.rules"
+            ".github/workflows/"
+            "package.json"
+            "vite.config.js"
+          )
+          
+          CRITICAL_CHANGED=false
+          for file in "${CRITICAL_FILES[@]}"; do
+            if grep -q "$file" changed_files.txt; then
+              CRITICAL_CHANGED=true
+              break
+            fi
+          done
+          
+          if [ "$CRITICAL_CHANGED" = false ]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 15))
+            REASONS+=("✅ No critical infrastructure files changed")
+          else
+            REASONS+=("⚠️ Critical files modified - requires manual review")
+          fi
+          
+          # 3. Check PR size (smaller PRs are safer)
+          FILES_CHANGED=$(wc -l < changed_files.txt)
+          if [ "$FILES_CHANGED" -le 10 ]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 15))
+            REASONS+=("✅ Small PR ($FILES_CHANGED files) - low risk")
+          elif [ "$FILES_CHANGED" -le 20 ]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 10))
+            REASONS+=("⚠️ Medium PR ($FILES_CHANGED files) - moderate risk")
+          else
+            REASONS+=("❌ Large PR ($FILES_CHANGED files) - high risk")
+          fi
+          
+          # 4. Check if it's feature branch (safer than hotfix)
+          BRANCH_NAME=$(gh pr view $PR_NUMBER --json headRefName --jq '.headRefName')
+          if [[ "$BRANCH_NAME" =~ ^feature/ ]]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 10))
+            REASONS+=("✅ Feature branch - standard workflow")
+          elif [[ "$BRANCH_NAME" =~ ^fix/ ]]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 5))
+            REASONS+=("⚠️ Fix branch - moderate risk")
+          else
+            REASONS+=("❌ Non-standard branch name")
+          fi
+          
+          # 5. Check for security-related keywords in description
+          PR_BODY=$(gh pr view $PR_NUMBER --json body --jq '.body')
+          if echo "$PR_BODY" | grep -qi -E "(security|vulnerability|fix|patch)"; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 5))
+            REASONS+=("✅ Security-aware description")
+          fi
+          
+          # 6. Check commit message patterns
+          COMMITS=$(gh pr view $PR_NUMBER --json commits --jq '.commits[].messageHeadline')
+          if echo "$COMMITS" | grep -q -E "^(feat|fix|docs|style|refactor|test|chore):"; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 10))
+            REASONS+=("✅ Conventional commit messages")
+          fi
+          
+          # 7. Bonus: Check if it's from owner
+          PR_AUTHOR=$(gh pr view $PR_NUMBER --json author --jq '.author.login')
+          if [ "$PR_AUTHOR" = "evertweb" ]; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 15))
+            REASONS+=("✅ PR from repository owner")
+          fi
+          
+          # 8. Check for test files
+          if grep -q -E "(test|spec)" changed_files.txt; then
+            SAFETY_SCORE=$((SAFETY_SCORE + 10))
+            REASONS+=("✅ Includes test changes")
+          fi
+          
+          echo "🔢 Final Safety Score: $SAFETY_SCORE/100"
+          
+          # Decision logic
+          IS_SAFE=false
+          if [ "$SAFETY_SCORE" -ge 75 ]; then
+            IS_SAFE=true
+            DECISION="🟢 SAFE - Auto-approval approved"
+          elif [ "$SAFETY_SCORE" -ge 50 ]; then
+            DECISION="🟡 MODERATE - Manual review recommended"
+          else
+            DECISION="🔴 RISKY - Manual review required"
+          fi
+          
+          echo "is-safe=$IS_SAFE" >> $GITHUB_OUTPUT
+          echo "reason<<EOF" >> $GITHUB_OUTPUT
+          echo "## 🤖 Auto-Approval Safety Assessment"
+          echo ""
+          echo "**Decision**: $DECISION"
+          echo "**Safety Score**: $SAFETY_SCORE/100"
+          echo ""
+          echo "### 📋 Evaluation Criteria:"
+          for reason in "${REASONS[@]}"; do
+            echo "- $reason"
+          done
+          echo ""
+          echo "### 🎯 Auto-Approval Conditions:"
+          echo "- ✅ All CI/CD checks must pass"
+          echo "- ✅ No critical infrastructure changes"
+          echo "- ✅ PR from repository owner"
+          echo "- ✅ Safety score ≥ 75/100"
+          echo ""
+          if [ "$IS_SAFE" = true ]; then
+            echo "**🚀 This PR meets all safety criteria and will be auto-approved.**"
+          else
+            echo "**⏸️ This PR requires manual review due to safety concerns.**"
+          fi
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  auto-approve:
+    name: 🚀 Auto-Approve Safe PR
+    needs: evaluate-pr-safety
+    runs-on: ubuntu-latest
+    if: needs.evaluate-pr-safety.outputs.is-safe == 'true'
+    
+    steps:
+      - name: 🤖 Auto-approve PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          # Add approval comment
+          gh pr review $PR_NUMBER --approve --body "${{ needs.evaluate-pr-safety.outputs.reason }}"
+          
+          echo "✅ PR #$PR_NUMBER auto-approved successfully!"
+
+  notify-manual-review:
+    name: 📢 Notify Manual Review Required  
+    needs: evaluate-pr-safety
+    runs-on: ubuntu-latest
+    if: needs.evaluate-pr-safety.outputs.is-safe == 'false'
+    
+    steps:
+      - name: 📢 Comment manual review needed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          gh pr comment $PR_NUMBER --body "${{ needs.evaluate-pr-safety.outputs.reason }}"
+          
+          echo "📢 Manual review notification posted for PR #$PR_NUMBER"

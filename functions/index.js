@@ -158,7 +158,7 @@ export const linkTelegramAccount = onRequest({ cors: true, region: 'us-central1'
 
     // Notificar por Telegram al chat vinculado (si hay token configurado)
     try {
-      const botToken = process.env.TELEGRAM_BOT_TOKEN || '8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ';
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
       if (botToken && data.chatId) {
         const msg = '✅ *Vinculación exitosa*\\n\\nYa puedes usar el bot ForeTech Combustibles.\\n\\n*Comandos disponibles:*\\n• `/help` - Ver ayuda\\n• `/entrada` - Registrar entrada\\n• `/salida` - Registrar salida\\n\\n¡Listo para usar! 🚀';
         const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
