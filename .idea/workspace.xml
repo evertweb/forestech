@@ -1,30 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AIAssistantCustomInstructionsStorage">
+    <option name="instructions">
+      <map>
+        <entry key="AIAssistant.General.ProjectPrompt">
+          <value>
+            <AIAssistantStoredInstruction>
+              <option name="actionId" value="AIAssistant.General.ProjectPrompt" />
+              <option name="content" value="# Forestech - Instrucciones para GitHub Copilot Agent&#10;&#10;##  CONFIGURACIÓN DE IDIOMA - OBLIGATORIO&#10;&#10;**REGLA FUNDAMENTAL: TODAS LAS RESPUESTAS, COMENTARIOS, COMMITS Y DOCUMENTACIÓN DEBEN SER EN ESPAÑOL COLOMBIANO**&#10;&#10;- ✅ **Respuestas**: Siempre en español profesional colombiano&#10;- ✅ **Comentarios de código**: Obligatorio en español  &#10;- ✅ **Mensajes de commit**: En español descriptivo&#10;- ✅ **Documentación**: Todo en español&#10;- ✅ **Variables/funciones**: Mantener nombres en inglés (estándar internacional)&#10;- ✅ **Terminología técnica**: En español cuando sea posible&#10;- ✅ **Timezone**: America/Bogota configurada&#10;- ✅ **Formato fecha**: DD/MM/YYYY HH:mm&#10;&#10;##  Contexto del Proyecto&#10;&#10;Forestech es una aplicación empresarial para la gestión de recursos operativos con dos módulos principales:&#10;- **Alimentación**: Sistema de liquidaciones de comidas para empleados&#10;- **Combustibles**: Sistema de gestión de inventario, vehículos y movimientos&#10;&#10;##  Estructura del Monorepo&#10;&#10;```&#10;forestech/&#10;├── alimentacion/           # ️ App liquidaciones (React + Vite)&#10;├── combustibles/          # ⛽ App combustibles (React + Vite)&#10;├── shared/               #  Recursos compartidos&#10;├── docs/                 #  Documentación modular&#10;└── .github/              #  Workflows y configuraciones&#10;```&#10;&#10;##  Backend y Servicios&#10;&#10;- **Firebase Project**: liquidacionapp-62962&#10;- **Database**: Cloud Firestore&#10;- **Authentication**: Firebase Auth con roles granulares&#10;- **Hosting**: Multi-site Firebase hosting&#10;- **Domain**: forestechdecolombia.com.co&#10;&#10;## ️ Stack Tecnológico&#10;&#10;- **Frontend**: React 18 + Vite + TailwindCSS&#10;- **State Management**: Context API + Custom Hooks&#10;- **UI Components**: Headless UI + Heroicons&#10;- **Forms**: React Hook Form + Zod validation&#10;- **Database**: Cloud Firestore&#10;- **Authentication**: Firebase Auth&#10;- **Notifications**: Firebase Cloud Messaging (FCM)&#10;- **Analytics**: Firebase Analytics&#10;&#10;##  Patrones de Código Obligatorios&#10;&#10;### Estructura de Componentes&#10;```jsx&#10;// Siempre usar hooks personalizados&#10;const useComponentName = () =&gt; {&#10;  // Lógica del componente&#10;  return { state, actions };&#10;};&#10;&#10;// Componentes funcionales con props tipadas&#10;const ComponentName = ({ prop1, prop2 }) =&gt; {&#10;  const { state, actions } = useComponentName();&#10;  &#10;  return (&#10;    &lt;div className=&quot;responsive-classes&quot;&gt;&#10;      {/* JSX */}&#10;    &lt;/div&gt;&#10;  );&#10;};&#10;```&#10;&#10;### Hooks Personalizados&#10;```jsx&#10;// Ubicación: src/hooks/useHookName.js&#10;import { useState, useEffect } from 'react';&#10;import { useAuth } from './useAuth';&#10;&#10;export const useHookName = () =&gt; {&#10;  const { user } = useAuth();&#10;  // Lógica del hook&#10;  return { data, loading, error, actions };&#10;};&#10;```&#10;&#10;### Servicios Firebase&#10;```jsx&#10;// Ubicación: src/services/&#10;import { db } from '../firebase/config';&#10;import { collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, where } from 'firebase/firestore';&#10;&#10;export const serviceName = {&#10;  create: async (data) =&gt; {&#10;    // Implementación con manejo de errores&#10;  },&#10;  update: async (id, data) =&gt; {&#10;    // Implementación con manejo de errores&#10;  },&#10;  // ... más métodos&#10;};&#10;```&#10;&#10;##  Estilos y Diseño&#10;&#10;### TailwindCSS Guidelines&#10;- **Responsive First**: Siempre usar `sm:`, `md:`, `lg:`, `xl:` para responsividad&#10;- **Colores**: Usar palette consistente (`blue-600`, `green-500`, `red-500`)&#10;- **Spacing**: Usar escala de Tailwind (`p-4`, `m-6`, `gap-4`)&#10;- **Typography**: Usar utilidades de texto (`text-lg`, `font-semibold`)&#10;&#10;### Componentes Reutilizables&#10;```jsx&#10;// Botones&#10;&lt;Button variant=&quot;primary&quot; size=&quot;md&quot; onClick={handleClick}&gt;&#10;  Texto del botón&#10;&lt;/Button&gt;&#10;&#10;// Inputs&#10;&lt;Input&#10;  label=&quot;Etiqueta&quot;&#10;  type=&quot;text&quot;&#10;  value={value}&#10;  onChange={handleChange}&#10;  error={error}&#10;/&gt;&#10;&#10;// Cards&#10;&lt;Card className=&quot;custom-classes&quot;&gt;&#10;  &lt;CardHeader&gt;Título&lt;/CardHeader&gt;&#10;  &lt;CardBody&gt;Contenido&lt;/CardBody&gt;&#10;&lt;/Card&gt;&#10;```&#10;&#10;##  Seguridad y Permisos&#10;&#10;### Roles de Usuario&#10;- **admin**: Acceso completo a todas las funcionalidades&#10;- **operator**: Acceso a operaciones básicas&#10;- **viewer**: Solo lectura&#10;&#10;### Validaciones&#10;```jsx&#10;// Siempre validar permisos&#10;const { hasPermission } = useAuth();&#10;&#10;if (!hasPermission('admin')) {&#10;  return &lt;UnauthorizedComponent /&gt;;&#10;}&#10;```&#10;&#10;### Firestore Rules&#10;```javascript&#10;// Ejemplo de reglas granulares&#10;allow read, write: if request.auth != null &#10;  &amp;&amp; request.auth.token.role in ['admin', 'operator'];&#10;```&#10;&#10;##  Flujo de Desarrollo&#10;&#10;### Comandos Esenciales&#10;```bash&#10;# Desarrollo&#10;npm run dev:alimentacion  # Puerto 5173&#10;npm run dev:combustibles  # Puerto 5174&#10;&#10;# Linting (OBLIGATORIO antes de commit)&#10;npm run lint:alimentacion&#10;npm run lint:combustibles&#10;```&#10;&#10;### GitHub Actions&#10;- **Deploy automático**: Solo commit + push&#10;- **Build y linting**: Automático en CI/CD&#10;- **Tests**: Ejecutar antes de merge&#10;&#10;##  Módulos Específicos&#10;&#10;### Combustibles&#10;**Colecciones Firestore:**&#10;- `products`: Productos de combustible&#10;- `vehicles`: Vehículos de la empresa&#10;- `movements`: Movimientos de inventario&#10;- `suppliers`: Proveedores&#10;- `maintenance`: Mantenimientos&#10;&#10;**Funcionalidades clave:**&#10;- Gestión de inventario en tiempo real&#10;- Tracking de horómetros&#10;- Reportes financieros&#10;- Alertas de stock mínimo&#10;&#10;### Alimentación&#10;**Colecciones Firestore:**&#10;- `employees`: Empleados&#10;- `liquidations`: Liquidaciones&#10;- `deductions`: Deducciones&#10;- `notifications`: Notificaciones FCM&#10;&#10;**Funcionalidades clave:**&#10;- Cálculo automático de liquidaciones&#10;- Sistema de notificaciones&#10;- Panel administrativo&#10;- Reportes de consumo&#10;&#10;##  Testing&#10;&#10;### Estructura de Tests&#10;```jsx&#10;// Ubicación: src/__tests__/&#10;import { render, screen, fireEvent } from '@testing-library/react';&#10;import ComponentName from '../ComponentName';&#10;&#10;describe('ComponentName', () =&gt; {&#10;  test('should render correctly', () =&gt; {&#10;    render(&lt;ComponentName /&gt;);&#10;    expect(screen.getByText('Expected text')).toBeInTheDocument();&#10;  });&#10;});&#10;```&#10;&#10;##  Integración con Claude Code&#10;&#10;Este proyecto está optimizado para trabajar con Claude Code que tiene acceso a:&#10;- **9 MCPs**: memory, gemini, filesystem, sequential-thinking, etc.&#10;- **Firebase MCP**: Para queries directas a producción&#10;- **Hooks automáticos**: Sistema de validación y limpieza&#10;&#10;##  Reglas Importantes&#10;&#10;1. **NUNCA** romper la estructura del monorepo&#10;2. **SIEMPRE** seguir los patrones de componentes establecidos&#10;3. **OBLIGATORIO** usar hooks personalizados para lógica compleja&#10;4. **REQUERIDO** responsive design en todos los componentes&#10;5. **CRÍTICO** validar permisos antes de operaciones sensibles&#10;6. **ESENCIAL** manejar errores en todas las operaciones Firebase&#10;&#10;##  Casos de Uso Típicos&#10;&#10;### Nuevo Componente&#10;1. Crear hook personalizado en `src/hooks/`&#10;2. Implementar componente siguiendo patrones&#10;3. Agregar validaciones de permisos&#10;4. Implementar responsive design&#10;5. Crear tests unitarios&#10;&#10;### Nueva Funcionalidad&#10;1. Analizar impacto en Firestore&#10;2. Implementar servicio Firebase&#10;3. Crear componentes necesarios&#10;4. Actualizar documentación&#10;5. Probar integración completa&#10;&#10;### Refactoring&#10;1. Mantener compatibilidad con código existente&#10;2. Seguir patrones establecidos&#10;3. Actualizar tests afectados&#10;4. Validar funcionamiento en ambos módulos&#10;&#10;---&#10;&#10;**Última actualización**: Julio 2025&#10;**Versión**: 1.0.0&#10;**Compatibilidad**: React 18, Firebase 10, Vite 5" />
+            </AIAssistantStoredInstruction>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.css" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/services/backgroundImageService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/backgroundImageService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/stats.html" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/stats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/vite.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/AdminMain-BCe7T_-a.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/DashboardMain-B0V9XRMF.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/InventoryMain-D2Sagz-n.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/MaintenanceMain-CVpb50a4.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/MovementsMain-BUG1T68C.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/ProductsMain-0mhjA01Z.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/ReportsMain-DyZheiKe.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/SuppliersMain-D9CTepiO.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/VehiclesMain-BIiYjVVO.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-B2lpu7OI.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/index-BwvgtFC7.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/assets/productsService-IIel_V29.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/setup-login-background.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/setup-login-background.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.junie/guidelines.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGljX3Rlc3Q.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mcp.json.backup" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.serena/cache/typescript/document_symbols_cache_v23-06-25.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vite-cache.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/consola-diagnostico.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/diagnostico-bd.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/diagnostico-inventario-admin.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/diagnostico-inventario.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/stats.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/vite.config.optimized.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/error-context.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/index-DIFxCyxO.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/utils-CKk1K9pC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/vendor-Csw2ODfV.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AdminMain-BlaT8wXy.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AdminMain-CZxwnY3R.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/App-BbW-M1ku.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/App-NKcmxgaD.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AuthVisualEnhanced-BHoRlHii.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AuthVisualEnhanced-BcN0BGmR.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/Dashboard-9pVpT5jy.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/Dashboard-CohQFRX1.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/DashboardMain-SAP-1QMM_kha.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/DashboardMain-SAP-YGIhl_SN.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/InventoryMain-BmLThUkt.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/InventoryMain-DPPgMAqX.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/InventoryModal-2iBQP91n.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MaintenanceMain-Xo3utyEd.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MaintenanceMain-ciS0cO2K.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MaintenanceModal-CxitrCrR.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementWizard-C4cRmmWc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementWizard-pJxH5h3w.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementWizardPopup-DUrBbnXC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementsMain-BkX8gGir.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementsMain-BxozfIDQ.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/PageLayout-BYkOX7gw.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/PopupManager-Dx0JEMSI.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ProductsMain-C17_-8VR.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ProductsMain-DR7HpkKN.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ReportsMain-CMviwJdW.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ReportsMain-W7dENUMA.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/SuppliersMain-DztohQaz.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/SuppliersMain-dlC1AS-j.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleCategoriesManager-BJpKQ0MR.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleCategoriesManager-tiXS7uNb.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleFormSmart-B_VSjSww.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleFormSmart-C39ZTzhz.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizard-B0vzTH12.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizard-QAGz2uff.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizardPopup-9chgSNge.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizardPopup-DDCyKLpd.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehiclesMain-CmJPz6Z1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehiclesMain-D3zvSKS4.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/WizardSteps-SAP-TXHD3uJy.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/background-forest.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/backgroundImageService-Nn9gTEuB.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/charts-CXXUxTk2.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/designTokens-DQejEmqA.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/firebase-auth-5gW5nVXC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/firebase-core-DPBV3M-Z.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/firebase-db-DaoSpHhY.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/iconUploadService-vpgor4TV.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/index-DpzGAKvJ.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/index-al3rMm3W.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/modalStyles-6rG51H1e.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/popupCommunication-N8-uaHv8.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/productsService-BpgYwiOb.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/sap-vehicles-DREJJg4D.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ui-hAo-FJVn.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/uiLabels-BirBlWk3.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/useFormData-Bq6T3ZMb.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/useStatusColors-CX8wGOYU.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/utils-l0sNRNKZ.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/validators-vosVUXaS.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/vendor-DJG_os-6.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,15 +114,12 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;evertweb&quot;
-  }
+  &quot;lastFilter&quot;: {}
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/evertweb/forestech.git&quot;,
-    &quot;accountId&quot;: &quot;a3c6e3c0-aeed-495c-932f-0327ba7a1ecd&quot;
+    &quot;accountId&quot;: &quot;34374c64-f0d3-4a19-b57f-799d89670421&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -77,11 +146,13 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHELLCHECK.PATH": "I do mind",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/evert/Documentos/appwebforestech",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -93,6 +164,7 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
     "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
@@ -100,8 +172,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.25557.131" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-IU-252.25557.131" />
       </set>
     </attachedChunks>
   </component>
@@ -141,11 +213,25 @@
       <workItem from="1752254187261" duration="279000" />
       <workItem from="1752254976452" duration="1322000" />
       <workItem from="1753471935284" duration="101000" />
+      <workItem from="1757004832120" duration="3190000" />
+      <workItem from="1757024160034" duration="1496000" />
+      <workItem from="1757025670575" duration="1504000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
