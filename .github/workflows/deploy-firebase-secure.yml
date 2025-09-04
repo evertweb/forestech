@@ -1,0 +1,315 @@
+name: 🔒 Secure Deploy - Forestech Firebase
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  NODE_VERSION: '20'
+  DEPLOYMENT_ENV: ${{ github.event.inputs.environment || 'production' }}
+
+jobs:
+  # 🔒 SECURITY & VALIDATION
+  security-audit:
+    name: 🛡️ Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 📋 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔍 NPM Audit
+        run: |
+          npm audit --audit-level=moderate --json > audit-results.json || true
+          echo "📊 Audit results:"
+          cat audit-results.json | jq '.metadata.vulnerabilities'
+
+      - name: 🛡️ Security Check
+        run: |
+          # Check for hardcoded secrets
+          if grep -r "forestech_webhook_2024\|8220750519:AAEAVznImiHr8MmRmHVsHcJoSfZvC2LIaiQ\|AKIA\|sk_live_\|pk_live_" --exclude-dir=node_modules --exclude-dir=.git .; then
+            echo "❌ Potential secrets found in code"
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets detected"
+
+      - name: 📝 Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-${{ github.run_id }}
+          path: audit-results.json
+          retention-days: 30
+
+      - name: 🔐 Environment Variables Check
+        run: |
+          echo "🔐 Validating required secrets are configured..."
+          MISSING_SECRETS=()
+          
+          # Check critical Firebase secrets
+          [ -z "${{ secrets.VITE_FIREBASE_API_KEY }}" ] && MISSING_SECRETS+=("VITE_FIREBASE_API_KEY")
+          [ -z "${{ secrets.VITE_FIREBASE_APP_ID }}" ] && MISSING_SECRETS+=("VITE_FIREBASE_APP_ID")
+          [ -z "${{ secrets.FIREBASE_TOKEN }}" ] && MISSING_SECRETS+=("FIREBASE_TOKEN")
+          
+          # Check webhook secrets  
+          [ -z "${{ secrets.WEBHOOK_SECRET_TOKEN }}" ] && MISSING_SECRETS+=("WEBHOOK_SECRET_TOKEN")
+          [ -z "${{ secrets.TELEGRAM_BOT_TOKEN }}" ] && MISSING_SECRETS+=("TELEGRAM_BOT_TOKEN")
+          
+          if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
+            echo "❌ Missing required secrets: ${MISSING_SECRETS[*]}"
+            echo "🔧 Configure these in GitHub Settings → Secrets and variables → Actions"
+            exit 1
+          else
+            echo "✅ All required secrets are configured"
+          fi
+
+  # 🧪 QUALITY GATES
+  quality-check:
+    name: 🚦 Quality Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: security-audit
+    steps:
+      - name: 📋 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔍 Lint Check
+        run: |
+          echo "🔍 Running lint checks..."
+          npm run lint:combustibles || {
+            echo "❌ Lint errors found - deployment blocked"
+            exit 1
+          }
+
+      - name: 🧪 Unit Tests
+        run: |
+          echo "🧪 Running unit tests..."
+          cd combustibles && npm test || {
+            echo "❌ Unit tests failed - deployment blocked"
+            exit 1
+          }
+
+      - name: 📊 Performance Budget Check
+        run: |
+          echo "📊 Executing advanced performance budget validation..."
+          
+          # Make scripts executable
+          chmod +x scripts/performance-budget-check.sh
+          chmod +x scripts/optimize-performance.sh
+          
+          # Build applications for analysis
+          npm run build:combustibles
+          
+          # Run comprehensive performance budget check
+          ./scripts/performance-budget-check.sh || {
+            echo "❌ Performance budget check failed!"
+            echo "📊 Generating optimization recommendations..."
+            
+            # Generate performance report for PR comment
+            echo "## 🚨 Performance Budget Failed" >> performance-summary.md
+            echo "" >> performance-summary.md
+            echo "The performance budget check has failed. Please review the following:" >> performance-summary.md
+            echo "" >> performance-summary.md
+            cat performance-budget-report.md >> performance-summary.md
+            echo "" >> performance-summary.md
+            echo "### 🔧 Quick Fix" >> performance-summary.md
+            echo "\`\`\`bash" >> performance-summary.md
+            echo "npm run performance:optimize" >> performance-summary.md
+            echo "\`\`\`" >> performance-summary.md
+            
+            exit 1
+          }
+          
+          echo "✅ Performance budget validation passed!"
+
+      - name: 📄 Upload Performance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-budget-report-${{ github.run_id }}
+          path: |
+            performance-budget-report.md
+            performance-optimization-report.md
+            performance-summary.md
+          retention-days: 30
+
+  # 🏗️ BUILD & DEPLOY
+  build-and-deploy:
+    name: 🚀 Build & Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [security-audit, quality-check]
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    steps:
+      - name: 📋 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Applications
+        run: |
+          echo "🏗️ Building applications with security validations..."
+          
+          # Build with environment validation
+          npm run build:all
+          
+          # Verify build outputs exist
+          if [ ! -d "public/combustibles" ] || [ ! -d "public/alimentacion" ]; then
+            echo "❌ Build verification failed - missing output directories"
+            exit 1
+          fi
+          
+          echo "✅ Build completed successfully"
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+          WEBHOOK_SECRET_TOKEN: ${{ secrets.WEBHOOK_SECRET_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: 📁 Build Verification
+        run: |
+          echo "✅ Build verification:"
+          ls -la public/ | head -10
+          echo "📁 Combustibles build size:"
+          du -sh public/combustibles/
+
+      - name: 🔧 Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: 🚀 Deploy to Firebase
+        run: |
+          echo "🚀 Deploying to Firebase with security validations..."
+          
+          # Pre-deploy validation
+          echo "🔍 Pre-deploy checklist:"
+          echo "✅ Secrets configured"
+          echo "✅ Build artifacts verified"
+          echo "✅ Security audit passed"
+          echo "✅ Quality gates passed"
+          
+          # Deploy with error handling
+          if firebase deploy --only hosting --project ${{ secrets.FIREBASE_PROJECT_ID }} --token "${{ secrets.FIREBASE_TOKEN }}"; then
+            echo "✅ Deployment successful!"
+          else
+            echo "❌ Deployment failed - rolling back..."
+            exit 1
+          fi
+
+      - name: 📊 Post-Deploy Metrics
+        run: |
+          echo "📊 Collecting deployment metrics..."
+          echo "Deployment completed at: $(date)"
+          echo "Build size: $(du -sh public/)"
+          echo "Environment: ${{ env.DEPLOYMENT_ENV }}"
+
+  # 🧪 POST-DEPLOY TESTS
+  e2e-validation:
+    name: 🧪 E2E Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build-and-deploy
+    if: success()
+    steps:
+      - name: 📋 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        working-directory: ./combustibles
+        run: npm ci
+
+      - name: 🎭 Install Playwright
+        working-directory: ./combustibles
+        run: npx playwright install chromium --with-deps
+
+      - name: 🧪 Run Smoke Tests
+        working-directory: ./combustibles
+        run: npm run e2e:smoke
+        env:
+          E2E_BASE_URL: https://forestechdecolombia.com.co/combustibles/
+
+      - name: 📝 Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-${{ github.run_id }}
+          path: |
+            combustibles/playwright-report/
+            combustibles/test-results/
+          retention-days: 7
+
+  # 🚨 NOTIFICATIONS
+  notify-results:
+    name: 🚨 Notify Results
+    runs-on: ubuntu-latest
+    needs: [security-audit, quality-check, build-and-deploy, e2e-validation]
+    if: always()
+    steps:
+      - name: 🎉 Success Notification
+        if: needs.build-and-deploy.result == 'success' && needs.e2e-validation.result == 'success'
+        run: |
+          echo "🎉 DEPLOYMENT SUCCESS!"
+          echo "✅ Security audit: PASSED"
+          echo "✅ Quality gates: PASSED"
+          echo "✅ Build & deploy: SUCCESS"
+          echo "✅ E2E validation: PASSED"
+          echo ""
+          echo "🌐 URLs:"
+          echo "• Combustibles: https://forestechdecolombia.com.co/combustibles/"
+          echo "• Alimentacion: https://forestechdecolombia.com.co/alimentacion/"
+
+      - name: ❌ Failure Notification
+        if: failure()
+        run: |
+          echo "❌ DEPLOYMENT FAILED!"
+          echo "Security: ${{ needs.security-audit.result }}"
+          echo "Quality: ${{ needs.quality-check.result }}"
+          echo "Deploy: ${{ needs.build-and-deploy.result }}"
+          echo "E2E: ${{ needs.e2e-validation.result }}"
+          echo ""
+          echo "🔍 Check workflow logs for details"

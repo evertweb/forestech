@@ -1,0 +1,84 @@
+📊 Iniciando verificación de Performance Budget...
+🚀 Performance Budget Check v1.0
+=======================================
+🔍 Verificando tamaño de bundles...
+📦 Tamaño total bundle: 2176KB
+[0;31m❌ Bundle size excedido: 2176KB > 800KB[0m
+[1;33m💡 Sugerencias:[0m
+  • Implementar code splitting
+  • Optimizar imágenes
+  • Remover dependencias no utilizadas
+  • Usar dynamic imports para rutas
+
+🔍 Verificando tamaño de chunks individuales...
+[0;32m✅ movements-pAhJwyiM.css: 28KB[0m
+[0;32m✅ suppliers-CGYxHQrG.js: 44KB[0m
+[0;32m✅ VehicleCategoriesManager-tiXS7uNb.css: 20KB[0m
+[0;32m✅ firebase-auth-DVkpf3XP.js: 196KB[0m
+[0;32m✅ vendor-other-BDqZLFLI.js: 92KB[0m
+[0;32m✅ suppliers-dlC1AS-j.css: 52KB[0m
+[0;32m✅ vehicles-CVJoQl04.js: 44KB[0m
+[0;32m✅ AuthVisualEnhanced-D-CPAQRM.js: 16KB[0m
+[0;32m✅ admin-i8y-1Hlz.css: 24KB[0m
+[0;32m✅ LinkTelegram-DHfZGLHm.js: 4KB[0m
+[0;32m✅ App-C59GiW9N.css: 8KB[0m
+[0;32m✅ products-D1KKXZ9d.js: 48KB[0m
+[0;32m✅ MovementWizard-B1fiK4W2.js: 92KB[0m
+[0;32m✅ ProductWizard-DOAtmdQe.css: 12KB[0m
+[0;32m✅ reports-DgjG5Teb.js: 60KB[0m
+[0;32m✅ Dashboard-D-J6vYon.css: 12KB[0m
+[0;32m✅ App-CFo7aJ2W.js: 8KB[0m
+[0;32m✅ ProductWizard-BiCM40AL.js: 16KB[0m
+[0;32m✅ reports-W7dENUMA.css: 16KB[0m
+[0;32m✅ firebase-core-BAuWcpB7.js: 20KB[0m
+[0;32m✅ VehicleCategoriesManager-mnGkl6Sx.js: 44KB[0m
+[0;32m✅ MaintenanceModal-DLtF26aw.js: 20KB[0m
+[0;32m✅ index-CzU4cF9C.css: 24KB[0m
+[0;32m✅ VehicleWizardPopup-CjZz-hRK.js: 4KB[0m
+[0;32m✅ ProductWizardPopup-CKSLhnjL.js: 4KB[0m
+[0;32m✅ InventoryModal-CM0QQzTj.js: 12KB[0m
+[0;32m✅ index-DleIwRfH.js: 4KB[0m
+[0;32m✅ AuthVisualEnhanced-BHoRlHii.css: 20KB[0m
+[0;32m✅ inventory-KdxuencG.css: 44KB[0m
+[0;32m✅ DashboardMain-SAP-CHgeAnCU.css: 20KB[0m
+[0;32m✅ vehicles-OCCx2Hdg.css: 48KB[0m
+[0;32m✅ inventory-DuzR36tN.js: 52KB[0m
+[0;32m✅ WizardSteps-Government-BewtBARV.css: 52KB[0m
+[0;32m✅ VehicleFormCorporate-Dgl-jMzS.js: 20KB[0m
+[0;32m✅ Dashboard-CKAgaHJj.js: 12KB[0m
+[0;31m❌ Chunk grande: firebase-db-Dp7mN9fh.js (440KB > 200KB)[0m
+[1;33m💡 Considera dividir este chunk o lazy loading[0m
+[0;32m✅ DashboardMain-SAP-BrW4QLjN.js: 12KB[0m
+[0;32m✅ MovementWizardPopup-LG8FekCz.js: 4KB[0m
+[0;32m✅ admin-BIq3j_SE.js: 112KB[0m
+[0;32m✅ maintenance-Dw2Nf0un.js: 60KB[0m
+[0;32m✅ VehicleFormCorporate-BheQbrdy.css: 20KB[0m
+[0;32m✅ maintenance-Xo3utyEd.css: 28KB[0m
+[0;32m✅ movements-CPvkPrkG.js: 32KB[0m
+[0;31m❌ Chunk grande: vendor-react-BhC6a-my.js (212KB > 200KB)[0m
+[1;33m💡 Considera dividir este chunk o lazy loading[0m
+[0;32m✅ products-DXo7BsU4.css: 24KB[0m
+
+🔍 Verificando tamaño de imágenes...
+[0;32m✅ vite.svg: 4KB[0m
+[0;32m✅ favicon.svg: 4KB[0m
+[0;32m✅ favicon-combustibles.svg: 4KB[0m
+[0;32m✅ background-forest.svg: 4KB[0m
+
+🔍 Analizando estructura de archivos...
+📊 Estadísticas de archivos:
+  • Total archivos: 51
+  • Archivos JS: 28
+  • Archivos CSS: 17
+  • Imágenes: 4
+
+📝 Generando reporte detallado...
+📄 Reporte guardado en: performance-budget-report.md
+
+[0;31m❌ Performance Budget: FAILED[0m
+[0;31m🚨 Algunos límites fueron excedidos[0m
+
+[1;33m🔧 Para optimizar el bundle:[0m
+  npm run analyze        # Analizar dependencias
+  npm run build:analyze  # Bundle analyzer
+  npm run optimize       # Optimización automática

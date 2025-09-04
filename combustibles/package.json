@@ -21,7 +21,11 @@
     "e2e:movement-flow": "playwright test movement-flow.spec.ts --project=chromium",
     "e2e:ci": "playwright test --project=chromium --reporter=github-actions",
     "seo:validate": "node scripts/seo-validation.js",
-    "seo:report": "node scripts/seo-validation.js && cat logs/seo-validation-report.md"
+    "seo:report": "node scripts/seo-validation.js && cat logs/seo-validation-report.md",
+    "performance:budget": "cd .. && ./scripts/performance-budget-check.sh",
+    "performance:optimize": "cd .. && ./scripts/optimize-performance.sh",
+    "performance:analyze": "npm run build && npx vite-bundle-analyzer ../public/combustibles",
+    "ci:performance": "npm run build && npm run performance:budget"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",
