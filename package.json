@@ -18,7 +18,7 @@
     "build:incremental": "./scripts/build-incremental.sh",
     "build:smart": "./scripts/build-incremental.sh",
     "lint:alimentacion": "npm run lint --workspace=alimentacion",
-    "lint:combustibles": "npm run lint --workspace=combustibles",
+    "lint:combustibles": "cd combustibles && npm run lint --if-present",
     "lint:all": "npm run lint:alimentacion && npm run lint:combustibles",
     "lint:check": "npm run lint:all",
     "lint": "npm run lint:check",
