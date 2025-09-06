@@ -19,84 +19,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.junie/guidelines.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGlj.cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.firebase/hosting.cHVibGljX3Rlc3Q.cache" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendariotarjetacreditp/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendariotarjetacreditp/script.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/calendariotarjetacreditp/styles.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/HourMeterDisplay.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/HourMeterHistory.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/HourMeterInput.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Test/HourMeterSystemTest.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/services/hourMeterService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/DATABASE_MIGRATION_PLAN.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/SQL_MIGRATION_NECESSITY_ANALYSIS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/combustibles/HOROMETER_SYSTEM_IMPLEMENTATION.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.mcp.json.backup" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.serena/cache/typescript/document_symbols_cache_v23-06-25.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vite-cache.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/consola-diagnostico.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/diagnostico-bd.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/diagnostico-inventario-admin.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/diagnostico-inventario.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/stats.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/vite.config.optimized.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/error-context.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/index-DIFxCyxO.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/utils-CKk1K9pC.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/alimentacion/assets/vendor-Csw2ODfV.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AdminMain-BlaT8wXy.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AdminMain-CZxwnY3R.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/App-BbW-M1ku.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/App-NKcmxgaD.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AuthVisualEnhanced-BHoRlHii.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/AuthVisualEnhanced-BcN0BGmR.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/Dashboard-9pVpT5jy.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/Dashboard-CohQFRX1.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/DashboardMain-SAP-1QMM_kha.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/DashboardMain-SAP-YGIhl_SN.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/InventoryMain-BmLThUkt.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/InventoryMain-DPPgMAqX.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/InventoryModal-2iBQP91n.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MaintenanceMain-Xo3utyEd.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MaintenanceMain-ciS0cO2K.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MaintenanceModal-CxitrCrR.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementWizard-C4cRmmWc.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementWizard-pJxH5h3w.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementWizardPopup-DUrBbnXC.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementsMain-BkX8gGir.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/MovementsMain-BxozfIDQ.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/PageLayout-BYkOX7gw.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/PopupManager-Dx0JEMSI.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ProductsMain-C17_-8VR.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ProductsMain-DR7HpkKN.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ReportsMain-CMviwJdW.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ReportsMain-W7dENUMA.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/SuppliersMain-DztohQaz.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/SuppliersMain-dlC1AS-j.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleCategoriesManager-BJpKQ0MR.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleCategoriesManager-tiXS7uNb.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleFormSmart-B_VSjSww.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleFormSmart-C39ZTzhz.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizard-B0vzTH12.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizard-QAGz2uff.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizardPopup-9chgSNge.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehicleWizardPopup-DDCyKLpd.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehiclesMain-CmJPz6Z1.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/VehiclesMain-D3zvSKS4.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/WizardSteps-SAP-TXHD3uJy.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/background-forest.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/backgroundImageService-Nn9gTEuB.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/charts-CXXUxTk2.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/designTokens-DQejEmqA.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/firebase-auth-5gW5nVXC.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/firebase-core-DPBV3M-Z.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/firebase-db-DaoSpHhY.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/iconUploadService-vpgor4TV.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/index-DpzGAKvJ.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/index-al3rMm3W.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/modalStyles-6rG51H1e.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/popupCommunication-N8-uaHv8.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/productsService-BpgYwiOb.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/sap-vehicles-DREJJg4D.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/ui-hAo-FJVn.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/uiLabels-BirBlWk3.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/useFormData-Bq6T3ZMb.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/useStatusColors-CX8wGOYU.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/utils-l0sNRNKZ.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/validators-vosVUXaS.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/combustibles-csr/assets/vendor-DJG_os-6.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step5_Vehicle.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step5_Vehicle.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesCards.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesCards.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/movementsService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/movementsService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,35 +80,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.index.html.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHELLCHECK.PATH": "I do mind",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/evert/Documentos/appwebforestech",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/hp/Documents/curso de platzi&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.AIAssistantPromptsLibrary&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -216,6 +156,9 @@
       <workItem from="1757004832120" duration="3190000" />
       <workItem from="1757024160034" duration="1496000" />
       <workItem from="1757025670575" duration="1504000" />
+      <workItem from="1757027183332" duration="348000" />
+      <workItem from="1757112338209" duration="75000" />
+      <workItem from="1757192303814" duration="2648000" />
     </task>
     <servers />
   </component>

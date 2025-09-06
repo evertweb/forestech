@@ -235,6 +235,17 @@ const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
             </div>
 
             {/* Especificaciones técnicas */}
+            {/* Horómetro compacto si aplica */}
+            {vehicle.hasHourMeter && (
+              <HourMeterDisplay
+                vehicleId={vehicle.id}
+                vehicle={vehicle}
+                compact={true}
+                showMetrics={false}
+                className="mt-3"
+              />
+            )}
+
             {(vehicle.enginePower || vehicle.fuelCapacity || vehicle.year) && (
               <div className="technical-specs sap-theme">
                 {vehicle.enginePower && (

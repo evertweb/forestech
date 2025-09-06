@@ -20,6 +20,7 @@ import { db } from '../firebase/config';
 import { preciseAdd, preciseSubtract, preciseRound } from '../utils/calculations';
 import { OPERATIONAL_LOCATIONS } from '../constants/locations';
 import { sendMovementNotification } from './webhookService';
+import { validateHourMeterForMovement } from './hourMeterService';
 
 const COLLECTION_NAME = 'combustibles_movements';
 const INVENTORY_COLLECTION = 'combustibles_inventory';
@@ -45,64 +46,81 @@ export const MOVEMENT_STATUS = {
 };
 
 /**
- * Crear un nuevo movimiento de combustible
+ * Crear nuevo movimiento de combustible con validación de horómetro
  * @param {Object} movementData - Datos del movimiento
+ * @param {Object} userInfo - Información del usuario actual
  * @returns {Promise<string>} - ID del movimiento creado
  */
-export const createMovement = async (movementData) => {
+export const createMovement = async (movementData, userInfo = null) => {
   try {
-    console.log('🎬 INICIANDO createMovement - DEBUGGING ACTIVE');
-    // Validar datos requeridos
+    console.log('🚀 Iniciando creación de movimiento:', movementData);
+
+    // 🔧 Normalizar fuelType a mayúsculas
+    if (movementData.fuelType) {
+      movementData.fuelType = movementData.fuelType.toUpperCase();
+    }
+
+    // Validar datos básicos
     validateMovementData(movementData);
 
-    // ✅ PREPARAR DATOS DEL MOVIMIENTO EN EL ORDEN OPTIMIZADO PARA SALIDAS
-    // Orden: fecha → tipo → producto → vehículo → cantidad → precio → detalles
+    // 🆕 VALIDAR HORÓMETRO SI ES NECESARIO
+    let hourMeterValidation = null;
+    if (movementData.vehicleId && movementData.type === MOVEMENT_TYPES.SALIDA) {
+      console.log('⏰ Validando horómetro para vehículo:', movementData.vehicleId);
+
+      hourMeterValidation = await validateHourMeterForMovement(
+        movementData.vehicleId,
+        movementData.hourMeterReading
+      );
+
+      if (!hourMeterValidation.valid) {
+        throw new Error(`Error de horómetro: ${hourMeterValidation.message}`);
+      }
+
+      console.log('✅ Validación de horómetro exitosa:', hourMeterValidation);
+    }
+
+    // Preparar datos del movimiento
     const movement = {
-      // 1. FECHA (efectiveDate) - Campo principal para ordenamiento
-      effectiveDate: movementData.effectiveDate || serverTimestamp(),
-
-      // 2. TIPO DE MOVIMIENTO
       type: movementData.type,
-
-      // 3. PRODUCTO (fuelType)
       fuelType: movementData.fuelType,
+      quantity: preciseRound(movementData.quantity),
+      unitPrice: preciseRound(movementData.unitPrice || 0),
+      totalValue: preciseRound(calculateMovementValue(movementData)),
+      vehicleId: movementData.vehicleId || null,
+      location: normalizeLocation(movementData.location || 'principal'),
+      destinationLocation: movementData.destinationLocation
+        ? normalizeLocation(movementData.destinationLocation)
+        : null,
+      description: movementData.description || '',
+      effectiveDate: movementData.effectiveDate || new Date(),
 
-      // 4. VEHÍCULO (para salidas)
-      ...(movementData.type === MOVEMENT_TYPES.SALIDA &&
-        movementData.vehicleId && {
-          vehicleId: movementData.vehicleId,
-          currentHours: movementData.currentHours || null,
-        }),
+      // 🆕 DATOS DE HORÓMETRO
+      hourMeterReading: hourMeterValidation?.newReading || null,
+      hoursWorked: hourMeterValidation?.hoursWorked || 0,
+      previousHourMeterReading: hourMeterValidation?.currentReading || null,
 
-      // 5. CANTIDAD
-      quantity: movementData.quantity,
-
-      // 6. PRECIO
-      unitPrice: movementData.unitPrice,
-      totalValue: calculateMovementValue(movementData),
-
-      // 7. UBICACIONES (según tipo de movimiento)
-      ...(movementData.location && { location: movementData.location }),
-      ...(movementData.destinationLocation && {
-        destinationLocation: movementData.destinationLocation,
-      }),
-      ...(movementData.supplierName && { supplierName: movementData.supplierName }),
-
-      // 8. DETALLES ADICIONALES
-      ...(movementData.description && { description: movementData.description }),
-      ...(movementData.reference && { reference: movementData.reference }),
-      ...(movementData.additionalComments && {
-        additionalComments: movementData.additionalComments,
+      // Metadatos específicos por tipo
+      ...(movementData.type === MOVEMENT_TYPES.ENTRADA && {
+        supplierName: movementData.supplierName,
+        invoiceNumber: movementData.invoiceNumber || null,
+        purchaseOrderNumber: movementData.purchaseOrderNumber || null,
       }),
 
-      // 9. METADATOS DEL SISTEMA (al final)
+      // Información del usuario
+      createdBy: userInfo?.email || 'unknown',
+      createdByUid: userInfo?.uid || null,
+      createdByName: userInfo?.displayName || userInfo?.email || 'Usuario',
+
+      // Timestamps
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      status: MOVEMENT_STATUS.COMPLETADO,
+      status: 'completed',
+      approvedBy: userInfo?.email || 'system',
       approvedAt: serverTimestamp(),
     };
 
-    // Crear movimiento en transacción para actualizar inventario
+    // Crear movimiento en transacción para actualizar inventario y horómetro
     const result = await runTransaction(db, async (transaction) => {
       // Crear el movimiento
       const movementRef = doc(collection(db, COLLECTION_NAME));
@@ -111,10 +129,69 @@ export const createMovement = async (movementData) => {
       // Actualizar inventario según el tipo de movimiento
       await updateInventoryFromMovement(transaction, movement, movementRef.id);
 
+      // 🆕 ACTUALIZAR HORÓMETRO SI APLICA - DENTRO DE LA TRANSACCIÓN
+      if (movement.vehicleId && movement.hourMeterReading && movement.hoursWorked > 0) {
+        console.log('⏰ Actualizando horómetro del vehículo dentro de la transacción...');
+
+        // Obtener el vehículo por vehicleId dentro de la transacción
+        const vehiclesQuery = query(
+          collection(db, 'combustibles_vehicles'),
+          where('vehicleId', '==', movement.vehicleId)
+        );
+        const vehiclesSnapshot = await getDocs(vehiclesQuery);
+
+        if (!vehiclesSnapshot.empty) {
+          const vehicleDoc = vehiclesSnapshot.docs[0];
+          const vehicleData = vehicleDoc.data();
+          const vehicleRef = doc(db, 'combustibles_vehicles', vehicleDoc.id);
+
+          // Crear registro en el historial de horómetro
+          const historyEntry = {
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+            reading: movement.hourMeterReading,
+            date: new Date(),
+            movementId: movementRef.id,
+            previousReading: movement.previousHourMeterReading,
+            hoursWorked: movement.hoursWorked,
+            recordedBy: userInfo?.email || 'sistema',
+            timestamp: serverTimestamp(),
+          };
+
+          const updatedHistory = [...(vehicleData.hourMeterHistory || []), historyEntry];
+          const newTotalHours = (vehicleData.totalHoursWorked || 0) + movement.hoursWorked;
+
+          // Calcular métricas actualizadas
+          const totalFuelConsumed = vehicleData.totalFuelConsumed || 0;
+          const fuelConsumptionPerHour = newTotalHours > 0 ? totalFuelConsumed / newTotalHours : 0;
+
+          // Actualizar vehículo dentro de la transacción
+          transaction.update(vehicleRef, {
+            currentHourMeter: movement.hourMeterReading,
+            totalHoursWorked: newTotalHours,
+            lastHourMeterUpdate: serverTimestamp(),
+            hourMeterHistory: updatedHistory,
+            fuelConsumptionPerHour: Number(fuelConsumptionPerHour.toFixed(3)),
+            updatedAt: serverTimestamp(),
+          });
+
+          console.log('✅ Horómetro actualizado dentro de la transacción exitosamente');
+        } else {
+          console.warn(`⚠️ Vehículo ${movement.vehicleId} no encontrado para actualizar horómetro`);
+        }
+      }
+
       return movementRef.id;
     });
 
     console.log('✅ Movimiento creado exitosamente:', result);
+
+    // 🆕 LOG ESPECÍFICO PARA HORÓMETROS
+    if (movement.hoursWorked > 0) {
+      console.log(
+        `⏰ Horas trabajadas registradas: ${movement.hoursWorked}h (${movement.previousHourMeterReading}h → ${movement.hourMeterReading}h)`
+      );
+    }
+
     console.log('🔥 AHORA VAMOS A ENVIAR WEBHOOK...');
 
     // Enviar notificación a n8n con información del usuario actual

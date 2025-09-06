@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { WIZARD_QUESTIONS } from '../../../constants';
+import { HourMeterInput } from '../../Shared';
 
 const Step5_Vehicle = ({
   formData,
@@ -278,20 +279,15 @@ const Step5_Vehicle = ({
               <p>Ingresa las horas actuales de {selectedVehicle.vehicleId}</p>
             </div>
 
-            <input
+            <HourMeterInput
               ref={hourMeterRef}
-              type="number"
-              step="0.1"
-              min="0"
-              value={formData.currentHours || ''}
-              onChange={(e) => handleHourMeterChange(e.target.value)}
-              placeholder="0"
-              className={`${getThemeClass('typeform-input')} ${localError ? 'error' : ''}`}
-              autoComplete="off"
+              value={formData.currentHours}
+              onChange={handleHourMeterChange}
+              error={localError}
+              disabled={loading}
             />
-            <span className={getThemeClass('typeform-unit')}>horas</span>
 
-            {localError && <div className={getThemeClass('validation-warning')}>{localError}</div>}
+            {/* {localError && <div className={getThemeClass('validation-warning')}>{localError}</div>} */}
           </div>
         )}
 

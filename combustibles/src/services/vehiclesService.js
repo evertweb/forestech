@@ -56,22 +56,60 @@ export const createVehicle = async (vehicleData) => {
       throw new Error(`El código de vehículo '${vehicleData.vehicleId}' ya existe`);
     }
 
+    // 🆕 PREPARAR DATOS DE HORÓMETRO
+    const hourMeterData = {};
+    if (vehicleData.hasHourMeter && vehicleData.initialHourMeter !== undefined) {
+      const initialReading = Number(vehicleData.initialHourMeter);
+      if (isNaN(initialReading) || initialReading < 0) {
+        throw new Error(
+          'La lectura inicial del horómetro debe ser un número válido mayor o igual a 0'
+        );
+      }
+
+      hourMeterData.hasHourMeter = true;
+      hourMeterData.initialHourMeter = initialReading;
+      hourMeterData.currentHourMeter = initialReading;
+      hourMeterData.totalHoursWorked = 0;
+      hourMeterData.averageHoursPerDay = 0;
+      hourMeterData.fuelConsumptionPerHour = 0;
+      hourMeterData.lastHourMeterUpdate = serverTimestamp();
+      hourMeterData.hourMeterHistory = [
+        {
+          id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+          reading: initialReading,
+          date: new Date(),
+          movementId: null,
+          previousReading: null,
+          hoursWorked: 0,
+          recordedBy: vehicleData.createdBy || 'sistema',
+          note: 'Lectura inicial al registrar vehículo',
+          timestamp: serverTimestamp(),
+        },
+      ];
+    } else if (vehicleData.hasHourMeter) {
+      // Si tiene horómetro pero no se especifica lectura inicial
+      hourMeterData.hasHourMeter = true;
+      hourMeterData.initialHourMeter = null; // Se inicializará después
+      hourMeterData.currentHourMeter = null;
+      hourMeterData.totalHoursWorked = 0;
+      hourMeterData.hourMeterHistory = [];
+    }
+
     // Preparar datos del vehículo con valores por defecto optimizados
     const vehicle = {
       ...vehicleData,
+      ...hourMeterData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       status: vehicleData.status || VEHICLE_STATUS.ACTIVO,
       // Inicializar métricas
       totalFuelConsumed: 0,
-      totalHoursWorked: 0,
       totalMovements: 0,
       lastMovementDate: null,
       // Calcular consumo estimado por hora
       estimatedConsumptionPerHour: calculateEstimatedConsumption(vehicleData),
       // Inicializar historial vacío
       maintenanceHistory: [],
-      hourMeterHistory: vehicleData.hasHourMeter ? [] : undefined,
       // Tags de búsqueda para mejorar rendimiento
       searchTags: [
         vehicleData.vehicleId?.toLowerCase(),
@@ -85,6 +123,12 @@ export const createVehicle = async (vehicleData) => {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), vehicle);
 
     console.log('✅ Vehículo creado exitosamente:', docRef.id);
+
+    // 🆕 Log específico para horómetros
+    if (vehicle.hasHourMeter && vehicle.initialHourMeter !== null) {
+      console.log(`⏰ Horómetro inicializado en ${vehicle.initialHourMeter} horas`);
+    }
+
     return { success: true, id: docRef.id, data: vehicle };
   } catch (error) {
     console.error('❌ Error al crear vehículo:', error);

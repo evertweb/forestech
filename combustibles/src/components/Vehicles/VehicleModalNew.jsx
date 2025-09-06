@@ -487,6 +487,33 @@ const VehicleModalNew = ({ isOpen, onClose, vehicle, onSave, mode = 'create' }) 
           </div>
 
           {/* Vista previa */}
+          {/* Sección de Horómetro - Solo en modo edición */}
+          {mode === 'edit' && vehicle && formData.hasHourMeter && (
+            <div className="form-section">
+              <h3>⏰ Información del Horómetro</h3>
+
+              {/* Display completo del horómetro */}
+              <HourMeterDisplay
+                vehicleId={vehicle.id}
+                vehicle={vehicle}
+                showMetrics={true}
+                showHistory={false}
+                className="mb-4"
+              />
+
+              {/* Historial del horómetro */}
+              <div className="hour-meter-history-section">
+                <HourMeterHistory
+                  vehicleId={vehicle.id}
+                  vehicle={vehicle}
+                  maxEntries={20}
+                  showExport={true}
+                  showFilters={true}
+                />
+              </div>
+            </div>
+          )}
+
           {selectedCategory && (
             <div className="form-section">
               <h3>👁️ Vista Previa</h3>
