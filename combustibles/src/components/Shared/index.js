@@ -15,3 +15,8 @@ export {
 
 // Page layout
 export { default as PageLayout } from '../shared/PageLayout';
+
+// Hour Meter components
+export { default as HourMeterInput } from './HourMeterInput';
+export { default as HourMeterDisplay } from './HourMeterDisplay';
+export { default as HourMeterHistory } from './HourMeterHistory';
