@@ -19,9 +19,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="implemente la funcionalidad completa de horometros">
-      <change beforePath="$PROJECT_DIR$/.firebaserc" beforeDir="false" afterPath="$PROJECT_DIR$/.firebaserc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.github/workflows/deploy-firebase-unified.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy-firebase-unified.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -173,7 +171,7 @@
       <workItem from="1757027183332" duration="348000" />
       <workItem from="1757112338209" duration="75000" />
       <workItem from="1757192303814" duration="2648000" />
-      <workItem from="1757195003953" duration="2198000" />
+      <workItem from="1757195003953" duration="3031000" />
     </task>
     <task id="LOCAL-00001" summary="implemente la funcionalidad completa de horometros">
       <option name="closed" value="true" />
