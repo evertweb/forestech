@@ -1,12 +1,17 @@
 /**
- * HourMeterInput - Componente para capturar lecturas de horómetro en movimientos
- * Integrado con el sistema de validación de horómetros
+ * Puente de compatibilidad: reexporta componentes desde la carpeta "shared" (minúsculas).
+ * Esto evita problemas de resolución en sistemas case-sensitive.
  */
-{
-  /* Campo de entrada principal */
-}
-// Exportar otros componentes compartidos existentes
-export { default as ShimmerLoader } from './ShimmerLoader';
-export { default as ShimmerCardsGrid } from './ShimmerCardsGrid';
-export { default as ShimmerTable } from './ShimmerTable';
-export { default as PageLayout } from './PageLayout';
+
+// Shimmer components
+export {
+  default as ShimmerLoader,
+  ShimmerBase,
+  ShimmerCard,
+  ShimmerTable,
+  ShimmerCardsGrid,
+  ShimmerDashboard,
+} from '../shared/ShimmerLoader';
+
+// Page layout
+export { default as PageLayout } from '../shared/PageLayout';

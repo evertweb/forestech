@@ -18,26 +18,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/calendariotarjetacreditp/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calendariotarjetacreditp/script.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calendariotarjetacreditp/styles.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/HourMeterDisplay.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/HourMeterHistory.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/HourMeterInput.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Shared/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/components/Test/HourMeterSystemTest.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/combustibles/src/services/hourMeterService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/DATABASE_MIGRATION_PLAN.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/SQL_MIGRATION_NECESSITY_ANALYSIS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/combustibles/HOROMETER_SYSTEM_IMPLEMENTATION.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step5_Vehicle.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Movements/WizardSteps/Step5_Vehicle.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehicleModalNew.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesCards.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Vehicles/VehiclesCards.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/services/movementsService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/movementsService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/services/vehiclesService.js" afterDir="false" />
-    </list>
+    <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="implemente la funcionalidad completa de horometros" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -159,7 +140,17 @@
       <workItem from="1757027183332" duration="348000" />
       <workItem from="1757112338209" duration="75000" />
       <workItem from="1757192303814" duration="2648000" />
+      <workItem from="1757195003953" duration="354000" />
     </task>
+    <task id="LOCAL-00001" summary="implemente la funcionalidad completa de horometros">
+      <option name="closed" value="true" />
+      <created>1757195212542</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757195212542</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -175,6 +166,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="implemente la funcionalidad completa de horometros" />
+    <option name="LAST_COMMIT_MESSAGE" value="implemente la funcionalidad completa de horometros" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
