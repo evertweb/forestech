@@ -9,156 +9,84 @@
   "storage": {
     "rules": "storage.rules"
   },
-  "hosting": [
-    {
-      "target": "forestechdecolombia",
-      "public": "public",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "headers": [
-        {
-          "source": "**",
-          "headers": [
-            {
-              "key": "X-Powered-By",
-              "value": "Forestech Colombia"
-            }
-          ]
-        }
-      ],
-      "redirects": [
-        {
-          "source": "/robots.txt",
-          "destination": "/seo-robots",
-          "type": 301
-        },
-        {
-          "source": "/combustibles/politica-privacidad",
-          "destination": "/legal/politica-privacidad.html",
-          "type": 301
-        },
-        {
-          "source": "/combustibles/terminos-servicio",
-          "destination": "/legal/terminos-servicio.html",
-          "type": 301
-        },
-        {
-          "source": "/politica-privacidad",
-          "destination": "/legal/politica-privacidad.html",
-          "type": 301
-        },
-        {
-          "source": "/terminos-servicio",
-          "destination": "/legal/terminos-servicio.html",
-          "type": 301
-        }
-      ],
-      "rewrites": [
-        {
-          "source": "/",
-          "destination": "/index.html"
-        },
-        {
-          "source": "/alimentacion/**",
-          "destination": "/alimentacion/index.html"
-        },
-        {
-          "source": "/sitemap.xml",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/sitemap-*.xml",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/seo-robots",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/test-robots-hosting",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/combustibles/ssr-health",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/ab-testing",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/health",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/seo-validation",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/ssr-reports",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/ssr-alerts",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/ssr-optimization",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/ssr-coverage",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/movement-wizard-popup",
-          "destination": "/combustibles/index.html"
-        },
-        {
-          "source": "/vehicle-wizard-popup",
-          "destination": "/combustibles/index.html"
-        },
-        {
-          "source": "/combustibles/movement-wizard-popup",
-          "destination": "/combustibles/index.html"
-        },
-        {
-          "source": "/combustibles/vehicle-wizard-popup",
-          "destination": "/combustibles/index.html"
-        },
-        {
-          "source": "/combustibles/assets/**",
-          "destination": "/combustibles/assets/:splat"
-        },
-        {
-          "source": "/combustibles/src/**",
-          "destination": "/combustibles/src/:splat"
-        },
-        {
-          "source": "/combustibles/**",
-          "function": "ssrCombustibles"
-        }
-      ]
-    },
-    {
-      "target": "liquidacionapp-62962",
-      "public": "public",
-      "headers": [
-        {
-          "source": "**",
-          "headers": [
-            {
-              "key": "X-Robots-Tag",
-              "value": "noindex, nofollow"
-            }
-          ]
-        }
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
-    }
-  ]
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Powered-By",
+            "value": "Forestech Colombia"
+          }
+        ]
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/robots.txt",
+        "destination": "/seo-robots",
+        "type": 301
+      },
+      {
+        "source": "/combustibles/politica-privacidad",
+        "destination": "/legal/politica-privacidad.html",
+        "type": 301
+      },
+      {
+        "source": "/combustibles/terminos-servicio",
+        "destination": "/legal/terminos-servicio.html",
+        "type": 301
+      },
+      {
+        "source": "/politica-privacidad",
+        "destination": "/legal/politica-privacidad.html",
+        "type": 301
+      },
+      {
+        "source": "/terminos-servicio",
+        "destination": "/legal/terminos-servicio.html",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/alimentacion/**",
+        "destination": "/alimentacion/index.html"
+      },
+      {
+        "source": "/sitemap.xml",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/sitemap-*.xml",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/seo-robots",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/test-robots-hosting",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/combustibles/ssr-health",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/combustibles/ssr-status",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/combustibles/**",
+        "function": "ssrCombustibles"
+      }
+    ]
+  }
 }

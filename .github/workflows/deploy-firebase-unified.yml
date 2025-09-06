@@ -155,13 +155,19 @@ jobs:
           echo "  ✅ Applications built"
           echo "  ✅ Firebase CLI ready"
 
-          # Deploy with proper error handling
+          # Deploy with proper error handling - using default hosting site
           firebase deploy --only hosting --project liquidacionapp-62962 --token "${{ secrets.FIREBASE_TOKEN }}" || {
             echo "❌ Firebase deploy failed!"
             echo "🔍 Debugging info:"
             echo "Project ID: liquidacionapp-62962"
             echo "Token length: ${#FIREBASE_TOKEN}"
             echo "Public folder exists: $([ -d 'public' ] && echo 'YES' || echo 'NO')"
+
+            # Try alternative authentication method
+            echo "🔄 Trying alternative deployment..."
+            firebase use liquidacionapp-62962
+            firebase deploy --only hosting --project liquidacionapp-62962 --token "${{ secrets.FIREBASE_TOKEN }}" --force
+
             exit 1
           }
         env:
@@ -173,8 +179,9 @@ jobs:
           echo "🎉 DEPLOYMENT SUCCESSFUL!"
           echo ""
           echo "🌐 URLs activas:"
-          echo "🍽️  Alimentacion: https://forestechdecolombia.com.co/alimentacion/"
-          echo "⛽  Combustibles: https://forestechdecolombia.com.co/combustibles/"
+          echo "🍽️  Alimentacion: https://liquidacionapp-62962.web.app/alimentacion/"
+          echo "⛽  Combustibles: https://liquidacionapp-62962.web.app/combustibles/"
+          echo "🏠  Main Site: https://liquidacionapp-62962.web.app/"
           echo ""
           echo "📊 Deploy stats:"
           echo "  • Build time: ~$(date -u +%M:%S)"
@@ -195,11 +202,11 @@ jobs:
         run: |
           echo "🧪 Running basic smoke tests..."
 
-          # Test main URLs
+          # Test main URLs with correct Firebase domain
           urls=(
-            "https://forestechdecolombia.com.co/"
-            "https://forestechdecolombia.com.co/alimentacion/"
-            "https://forestechdecolombia.com.co/combustibles/"
+            "https://liquidacionapp-62962.web.app/"
+            "https://liquidacionapp-62962.web.app/alimentacion/"
+            "https://liquidacionapp-62962.web.app/combustibles/"
           )
 
           for url in "${urls[@]}"; do

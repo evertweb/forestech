@@ -18,7 +18,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="implemente la funcionalidad completa de horometros" />
+    <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="implemente la funcionalidad completa de horometros">
+      <change beforePath="$PROJECT_DIR$/.firebaserc" beforeDir="false" afterPath="$PROJECT_DIR$/.firebaserc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy-firebase-unified.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy-firebase-unified.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,6 +41,35 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {}
 }</component>
+  <component name="GitToolBoxStore">
+    <option name="branchesCleanupHistory">
+      <BranchesCleanupHistory>
+        <option name="history">
+          <list>
+            <BranchCleanupEntry>
+              <option name="deletions">
+                <list>
+                  <BranchDeletion>
+                    <option name="hash" value="4e35bad9539eb0e4513e1f64fd2e78207735b011" />
+                    <option name="name" value="featuremultisalidas" />
+                  </BranchDeletion>
+                  <BranchDeletion>
+                    <option name="hash" value="bb7056abc874bb9a8d972a2a02d0c4ba22468041" />
+                    <option name="name" value="feature/test-auto-approval" />
+                  </BranchDeletion>
+                  <BranchDeletion>
+                    <option name="hash" value="3ee9740a28e1bba8254a65e9e31aaaffee59be36" />
+                    <option name="name" value="feature/cicd-security-performance-system" />
+                  </BranchDeletion>
+                </list>
+              </option>
+              <option name="timestamp" value="1757196824875" />
+            </BranchCleanupEntry>
+          </list>
+        </option>
+      </BranchesCleanupHistory>
+    </option>
+  </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/evertweb/forestech.git&quot;,
@@ -140,7 +173,7 @@
       <workItem from="1757027183332" duration="348000" />
       <workItem from="1757112338209" duration="75000" />
       <workItem from="1757192303814" duration="2648000" />
-      <workItem from="1757195003953" duration="1565000" />
+      <workItem from="1757195003953" duration="2198000" />
     </task>
     <task id="LOCAL-00001" summary="implemente la funcionalidad completa de horometros">
       <option name="closed" value="true" />

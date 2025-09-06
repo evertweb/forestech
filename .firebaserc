@@ -1,18 +1,5 @@
 {
   "projects": {
     "default": "liquidacionapp-62962"
-  },
-  "targets": {
-    "liquidacionapp-62962": {
-      "hosting": {
-        "forestechdecolombia": [
-          "forestechdecolombia"
-        ],
-        "liquidacionapp-62962": [
-          "liquidacionapp-62962"
-        ]
-      }
-    }
-  },
-  "etags": {}
+  }
 }
