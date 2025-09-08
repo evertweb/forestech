@@ -77,6 +77,38 @@
         "function": "ssrCombustibles"
       },
       {
+        "source": "/health",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/ab-testing",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/error-stats",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/ssr-reports",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/ssr-alerts",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/ssr-optimization",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/ssr-coverage",
+        "function": "ssrCombustibles"
+      },
+      {
+        "source": "/seo-validation",
+        "function": "ssrCombustibles"
+      },
+      {
         "source": "/combustibles/ssr-health",
         "function": "ssrCombustibles"
       },
