@@ -19,6 +19,15 @@ import {
 } from '../../services/backgroundImageService';
 import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import SEOContent from '../SEO/SEOContent';
+
+// NUEVO: Importar servicios de passkeys
+import {
+  signInWithWebAuthn,
+  createUserWithWebAuthn,
+  isWebAuthnSupported,
+  isPlatformAuthenticatorAvailable
+} from '../../firebase/firebaseWebAuthnService-native';
+
 import './AuthVisualEnhanced.css';
 
 // Componente de logo animado con efectos de energía
@@ -126,6 +135,11 @@ const AuthVisualEnhanced = () => {
   // Estado para footer scroll
   const [showScrollFooter, setShowScrollFooter] = useState(false);
 
+  // NUEVO: Estado para passkeys
+  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+
   // Cargar imagen de fondo al montar el componente
   useEffect(() => {
     const loadBackgroundImage = async () => {
@@ -146,6 +160,27 @@ const AuthVisualEnhanced = () => {
     };
 
     loadBackgroundImage();
+  }, []);
+
+  // NUEVO: Verificar soporte de passkeys al montar
+  useEffect(() => {
+    const checkPasskeySupport = async () => {
+      try {
+        const supported = isWebAuthnSupported();
+        setPasskeySupported(supported);
+
+        if (supported) {
+          const available = await isPlatformAuthenticatorAvailable();
+          setPasskeyAvailable(available);
+        }
+      } catch (error) {
+        console.warn('Error verificando soporte de passkeys:', error);
+        setPasskeySupported(false);
+        setPasskeyAvailable(false);
+      }
+    };
+
+    checkPasskeySupport();
   }, []);
 
   // Efecto de mousemove para interactividad
@@ -226,6 +261,51 @@ const AuthVisualEnhanced = () => {
       setError('Error al iniciar sesión con Google');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // NUEVO: Función para login con passkey
+  const handlePasskeyLogin = async () => {
+    setPasskeyLoading(true);
+    setError('');
+
+    try {
+      const result = await signInWithWebAuthn();
+
+      if (result.success) {
+        // Login exitoso - Firebase Auth se encarga del resto
+        console.log('✅ Login con passkey exitoso');
+      } else {
+        setError(result.error || 'Error al iniciar sesión con passkey');
+      }
+    } catch (error) {
+      console.error('Error en login con passkey:', error);
+      setError('Error inesperado con passkey. Intenta con email/password.');
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
+  // NUEVO: Función para crear cuenta con passkey
+  const handlePasskeyRegister = async () => {
+    setPasskeyLoading(true);
+    setError('');
+
+    try {
+      const result = await createUserWithWebAuthn('Usuario Combustibles');
+
+      if (result.success) {
+        // Crear perfil de usuario después del registro
+        await createUserProfile(result.user);
+        console.log('✅ Registro con passkey exitoso');
+      } else {
+        setError(result.error || 'Error al crear cuenta con passkey');
+      }
+    } catch (error) {
+      console.error('Error en registro con passkey:', error);
+      setError('Error inesperado creando cuenta con passkey.');
+    } finally {
+      setPasskeyLoading(false);
     }
   };
 
@@ -430,6 +510,22 @@ const AuthVisualEnhanced = () => {
               <span>o continúa con</span>
             </div>
 
+            {/* NUEVO: Botón de login con passkey */}
+            {passkeySupported && passkeyAvailable && (
+              <button
+                onClick={handlePasskeyLogin}
+                className="enhanced-button passkey"
+                disabled={loading || passkeyLoading}
+                title="Iniciar sesión con Passkey"
+              >
+                <span className="button-content">
+                  <span className="passkey-icon">🔐</span>
+                  {passkeyLoading ? 'Verificando...' : 'Iniciar con Passkey'}
+                </span>
+                <div className="button-ripple"></div>
+              </button>
+            )}
+
             <button
               onClick={handleGoogleLogin}
               className="enhanced-button google-icon-only"
@@ -469,6 +565,17 @@ const AuthVisualEnhanced = () => {
               >
                 ¿Tienes un código de invitación? Regístrate aquí
               </button>
+
+              {/* NUEVO: Enlace para crear cuenta con passkey */}
+              {passkeySupported && (
+                <button
+                  className="link-button enhanced passkey-register"
+                  onClick={handlePasskeyRegister}
+                  disabled={passkeyLoading}
+                >
+                  {passkeyLoading ? 'Creando cuenta...' : '🆕 Crear cuenta nueva con Passkey'}
+                </button>
+              )}
             </div>
           </div>
         );

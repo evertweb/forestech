@@ -26,6 +26,7 @@ const SuppliersMain = lazy(() => import('./components/Suppliers/SuppliersMain'))
 const AdminMain = lazy(() => import('./components/Admin/AdminMain'));
 const ReportsMain = lazy(() => import('./components/Reports/ReportsMain'));
 const LinkTelegram = lazy(() => import('./components/Integrations/LinkTelegram'));
+const PasskeyDemo = lazy(() => import('./pages/PasskeyDemo'));
 
 // Componente de fallback para Suspense
 const LoadingFallback = () => (
@@ -69,15 +70,19 @@ function AppContent() {
   return (
     <div className="App">
       <Suspense fallback={<LoadingFallback />}>
-        {/* Rutas según autenticación */}
-        {!user ? (
-          <AuthVisualEnhanced />
-        ) : (
-          <Routes>
-            {/* Rutas dedicadas para los popups de wizards */}
-            <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
-            <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
-            <Route path="/product-wizard-popup" element={<ProductWizardPopup />} />
+        <Routes>
+          {/* RUTA PÚBLICA PARA DEMO DE PASSKEYS */}
+          <Route path="/demo-passkeys" element={<PasskeyDemo />} />
+
+          {/* Rutas dedicadas para los popups de wizards */}
+          <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
+          <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+          <Route path="/product-wizard-popup" element={<ProductWizardPopup />} />
+
+          {/* Rutas según autenticación */}
+          {!user ? (
+            <Route path="/*" element={<AuthVisualEnhanced />} />
+          ) : (
             <Route path="/" element={<Dashboard />}>
               <Route index element={<DashboardMain />} />
               <Route path="inventario" element={<InventoryMain />} />
@@ -90,8 +95,8 @@ function AppContent() {
               <Route path="admin" element={<AdminMain />} />
               <Route path="integraciones/telegram" element={<LinkTelegram />} />
             </Route>
-          </Routes>
-        )}
+          )}
+        </Routes>
       </Suspense>
     </div>
   );

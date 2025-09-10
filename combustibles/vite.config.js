@@ -15,6 +15,44 @@ export default defineConfig({
     }),
   ],
   base: '/combustibles/',
+
+  // 🔧 PROXY PARA FIREBASE WEB AUTHN API - CORREGIDO PARA BASE PATH
+  server: {
+    port: 5174, // Puerto diferente al de alimentación (5173)
+    proxy: {
+      // Proxy para ruta directa (sin base path)
+      '^/firebase-web-authn-api': {
+        target: 'https://us-east1-liquidacionapp-62962.cloudfunctions.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/firebase-web-authn-api/, '/ext-firebase-web-authn-api'),
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('🔗 Proxying Web Authn request (direct):', req.url);
+          });
+          proxy.on('error', (err, req, res) => {
+            console.error('❌ Proxy error (direct):', err);
+          });
+        }
+      },
+      // Proxy para ruta con base path /combustibles/
+      '^/combustibles/firebase-web-authn-api': {
+        target: 'https://us-east1-liquidacionapp-62962.cloudfunctions.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/combustibles\/firebase-web-authn-api/, '/ext-firebase-web-authn-api'),
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('🔗 Proxying Web Authn request (combustibles):', req.url);
+          });
+          proxy.on('error', (err, req, res) => {
+            console.error('❌ Proxy error (combustibles):', err);
+          });
+        }
+      }
+    }
+  },
+
   // 🚀 Cache optimizations para builds incrementales
   cacheDir: 'node_modules/.vite', // Cache de Vite persistente
   optimizeDeps: {
@@ -101,8 +139,5 @@ export default defineConfig({
     reportCompressedSize: false,
     // Optimize CSS
     cssCodeSplit: true,
-  },
-  server: {
-    port: 5174, // Puerto diferente al de alimentación (5173)
   },
 });

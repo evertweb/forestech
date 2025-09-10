@@ -87,10 +87,208 @@ export const logout = async () => {
   }
 };
 
+/**
+ * Registrar una nueva passkey para el usuario actual
+ * @param {string} displayName - Nombre para mostrar de la passkey
+ * @returns {Promise<Object>} Resultado del registro
+ */
+export const registerPasskey = async (displayName = 'Passkey') => {
+  try {
+    // Verificar que el usuario esté autenticado
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('Usuario no autenticado. Inicia sesión primero.');
+    }
+
+    // Generar desafío aleatorio de 32 bytes
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+    // Generar ID único para el usuario basado en su UID
+    const userIdBytes = new TextEncoder().encode(user.uid.slice(0, 16).padEnd(16, '0'));
+
+    // Crear opciones para el registro de WebAuthn
+    const publicKeyCredentialCreationOptions = {
+      challenge: challenge,
+      rp: {
+        name: 'Forestech Combustibles',
+        id: window.location.hostname,
+      },
+      user: {
+        id: userIdBytes,
+        name: user.email,
+        displayName: displayName,
+      },
+      pubKeyCredParams: [
+        { alg: -7, type: 'public-key' }, // ES256
+        { alg: -257, type: 'public-key' }, // RS256
+      ],
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform', // Preferir autenticadores integrados (Touch ID, Face ID, Windows Hello)
+        userVerification: 'preferred',
+        requireResidentKey: true, // Para que funcione con gestores de contraseñas
+      },
+      timeout: 60000,
+      attestation: 'none', // No requerir attestation para simplificar
+    };
+
+    console.log('🔐 Iniciando registro de passkey con opciones:', publicKeyCredentialCreationOptions);
+
+    // Registrar la passkey
+    const credential = await navigator.credentials.create({
+      publicKey: publicKeyCredentialCreationOptions,
+    });
+
+    if (!credential) {
+      throw new Error('No se pudo crear la credencial');
+    }
+
+    // Convertir a formato serializable
+    const serializedCredential = {
+      id: credential.id,
+      rawId: Array.from(new Uint8Array(credential.rawId)),
+      type: credential.type,
+      response: {
+        clientDataJSON: Array.from(new Uint8Array(credential.response.clientDataJSON)),
+        attestationObject: Array.from(new Uint8Array(credential.response.attestationObject)),
+      },
+      userId: user.uid,
+      userEmail: user.email,
+      displayName: displayName,
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log('✅ Passkey registrada exitosamente:', credential.id);
+
+    // Aquí podrías almacenar la passkey en Firestore para asociarla al usuario
+    // await db.collection('userPasskeys').doc(credential.id).set(serializedCredential);
+
+    return { success: true, credential: serializedCredential };
+  } catch (error) {
+    console.error('❌ Error registrando passkey:', error);
+
+    // Manejo específico de errores comunes
+    if (error.name === 'NotSupportedError') {
+      throw new Error('Tu dispositivo no soporta passkeys. Intenta con otro método de autenticación.');
+    } else if (error.name === 'NotAllowedError') {
+      throw new Error('Registro de passkey cancelado por el usuario.');
+    } else if (error.name === 'InvalidStateError') {
+      throw new Error('Ya existe una passkey para este dispositivo.');
+    } else {
+      throw new Error(`Error al registrar passkey: ${error.message}`);
+    }
+  }
+};
+
+/**
+ * Autenticar usando una passkey existente
+ * @returns {Promise<Object>} Usuario autenticado
+ */
+export const signInWithPasskey = async () => {
+  try {
+    // Generar desafío aleatorio
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+    // Crear opciones para la autenticación WebAuthn
+    const publicKeyCredentialRequestOptions = {
+      challenge: challenge,
+      rpId: window.location.hostname,
+      userVerification: 'preferred',
+      timeout: 60000,
+      // No incluir allowCredentials para permitir que el gestor de contraseñas
+      // muestre todas las passkeys disponibles
+    };
+
+    console.log('🔐 Iniciando autenticación con passkey...');
+
+    // Obtener la passkey
+    const assertion = await navigator.credentials.get({
+      publicKey: publicKeyCredentialRequestOptions,
+    });
+
+    if (!assertion) {
+      throw new Error('No se pudo obtener la credencial');
+    }
+
+    // Convertir a formato serializable
+    const serializedAssertion = {
+      id: assertion.id,
+      rawId: Array.from(new Uint8Array(assertion.rawId)),
+      type: assertion.type,
+      response: {
+        clientDataJSON: Array.from(new Uint8Array(assertion.response.clientDataJSON)),
+        authenticatorData: Array.from(new Uint8Array(assertion.response.authenticatorData)),
+        signature: Array.from(new Uint8Array(assertion.response.signature)),
+        userHandle: assertion.response.userHandle ?
+          Array.from(new Uint8Array(assertion.response.userHandle)) : null,
+      },
+      authenticatedAt: new Date().toISOString(),
+    };
+
+    console.log('✅ Passkey autenticada exitosamente:', assertion.id);
+
+    // Aquí necesitarías validar la assertion en tu backend
+    // y obtener los datos del usuario para autenticarlo en Firebase
+
+    // Para implementación completa:
+    // 1. Enviar assertion al backend
+    // 2. Backend valida la signature
+    // 3. Backend busca el usuario asociado a la credencial
+    // 4. Backend genera custom token de Firebase
+    // 5. Frontend usa el custom token para autenticarse
+
+    return { success: true, assertion: serializedAssertion };
+  } catch (error) {
+    console.error('❌ Error autenticando con passkey:', error);
+
+    // Manejo específico de errores comunes
+    if (error.name === 'NotSupportedError') {
+      throw new Error('Tu dispositivo no soporta passkeys. Intenta con otro método de autenticación.');
+    } else if (error.name === 'NotAllowedError') {
+      throw new Error('Autenticación con passkey cancelada por el usuario.');
+    } else if (error.name === 'InvalidStateError') {
+      throw new Error('No se encontraron passkeys válidas para este sitio.');
+    } else {
+      throw new Error(`Error al autenticar con passkey: ${error.message}`);
+    }
+  }
+};
+
+/**
+ * Verificar si el navegador soporta WebAuthn
+ * @returns {boolean} True si está soportado
+ */
+export const isWebAuthnSupported = () => {
+  return (
+    window.PublicKeyCredential &&
+    window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable &&
+    typeof window.PublicKeyCredential === 'function'
+  );
+};
+
+/**
+ * Verificar si hay autenticadores disponibles
+ * @returns {Promise<boolean>} True si hay autenticadores
+ */
+export const isPlatformAuthenticatorAvailable = async () => {
+  if (!isWebAuthnSupported()) return false;
+
+  try {
+    const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    return available;
+  } catch (error) {
+    console.error('Error verificando autenticador:', error);
+    return false;
+  }
+};
+
 export default {
   getCurrentUser,
   getCurrentUserWithClaims,
   hasUserMigrationPermissions,
   logout,
-  MIGRATION_ROLES
+  MIGRATION_ROLES,
+  registerPasskey,
+  signInWithPasskey,
+  isWebAuthnSupported,
+  isPlatformAuthenticatorAvailable,
 };

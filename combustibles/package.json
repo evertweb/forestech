@@ -28,6 +28,7 @@
     "ci:performance": "npm run build && npm run performance:budget"
   },
   "dependencies": {
+    "@firebase-web-authn/browser": "^10.4.2",
     "@tailwindcss/postcss": "^4.1.11",
     "@untitledui/icons": "^0.0.19",
     "chart.js": "^4.5.0",

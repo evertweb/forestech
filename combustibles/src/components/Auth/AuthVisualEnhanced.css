@@ -706,22 +706,72 @@
   transform: none !important;
 }
 
-.button-ripple {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-  transform: scale(0);
-  opacity: 0;
-  transition: all 0.5s ease;
+/* NUEVO: Estilos para botón de Passkey */
+.enhanced-button.passkey {
+  background: linear-gradient(135deg, #1a365d 0%, #2d3748 50%, #1a365d 100%);
+  border: 2px solid #4a90e2;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 0.75rem;
 }
 
-.enhanced-button:active .button-ripple {
-  transform: scale(2);
-  opacity: 1;
-  transition: all 0.1s ease;
+.enhanced-button.passkey:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #2d3748 100%);
+  border-color: #63b3ed;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+}
+
+.enhanced-button.passkey:active:not(:disabled) {
+  transform: translateY(0px);
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.enhanced-button.passkey:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.passkey-icon {
+  font-size: 1.2em;
+  margin-right: 0.5rem;
+  animation: passkeyGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes passkeyGlow {
+  0% {
+    text-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 15px rgba(74, 144, 226, 0.8), 0 0 25px rgba(74, 144, 226, 0.4);
+  }
+}
+
+/* Enlace para registro con passkey */
+.link-button.passkey-register {
+  color: #4a90e2;
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.link-button.passkey-register:hover:not(:disabled) {
+  background: rgba(74, 144, 226, 0.2);
+  border-color: rgba(74, 144, 226, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.link-button.passkey-register:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* =================== DIVIDERS Y ACCIONES =================== */

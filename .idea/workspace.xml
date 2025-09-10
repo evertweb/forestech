@@ -19,8 +19,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="implemente la funcionalidad completa de horometros">
+      <change afterPath="$PROJECT_DIR$/combustibles/PASSKEY_DEBUGGING_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/PASSKEY_SETUP_COMPLETE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/components/PasskeyAuth.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/firebase/firebaseWebAuthnService-direct.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/firebase/firebaseWebAuthnService-hybrid.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/firebase/firebaseWebAuthnService-native.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/firebase/firebaseWebAuthnService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/combustibles/src/pages/PasskeyDemo.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cors-web-authn.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/configure-domains.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/setup-passkeys.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/test-passkeys.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.css" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Auth/Auth.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Auth/AuthVisualEnhanced.css" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Auth/AuthVisualEnhanced.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/components/Auth/AuthVisualEnhanced.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/components/Auth/AuthVisualEnhanced.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/firebase/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/firebase/authService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/vite.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firestore.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +139,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.AIAssistantPromptsLibrary&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -173,6 +196,11 @@
       <workItem from="1757112338209" duration="75000" />
       <workItem from="1757192303814" duration="2648000" />
       <workItem from="1757195003953" duration="3031000" />
+      <workItem from="1757364400267" duration="2591000" />
+      <workItem from="1757368372754" duration="11000" />
+      <workItem from="1757455001503" duration="48000" />
+      <workItem from="1757455060740" duration="862000" />
+      <workItem from="1757534256109" duration="11673000" />
     </task>
     <task id="LOCAL-00001" summary="implemente la funcionalidad completa de horometros">
       <option name="closed" value="true" />

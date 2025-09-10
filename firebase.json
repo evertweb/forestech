@@ -12,7 +12,11 @@
   "hosting": {
     "site": "forestechdecolombia",
     "public": "public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "headers": [
       {
         "source": "**",
@@ -55,6 +59,18 @@
       {
         "source": "/",
         "destination": "/index.html"
+      },
+      {
+        "source": "/firebase-web-authn-api",
+        "function": "ext-firebase-web-authn-api"
+      },
+      {
+        "source": "/combustibles/firebase-web-authn-api",
+        "function": "ext-firebase-web-authn-api"
+      },
+      {
+        "source": "/combustibles/**",
+        "destination": "/combustibles/index.html"
       },
       {
         "source": "/alimentacion/**",
@@ -115,11 +131,11 @@
       {
         "source": "/combustibles/ssr-status",
         "function": "ssrCombustibles"
-      },
-      {
-        "source": "/combustibles/**",
-        "function": "ssrCombustibles"
       }
     ]
+  },
+  "extensions": {
+    "firebase-web-authn": "gavinsawyer/firebase-web-authn@10.4.2",
+    "forestech": "gavinsawyer/firebase-web-authn@10.4.2"
   }
 }
