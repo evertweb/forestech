@@ -14,6 +14,10 @@
   --glass-border: rgba(255, 255, 255, 0.2);
   --mouse-x: 0px;
   --mouse-y: 0px;
+  /* NUEVO: Variables para passkeys */
+  --passkey-primary: #6366f1;
+  --passkey-hover: #4f46e5;
+  --passkey-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 }
 
 /* =================== CONTENEDOR PRINCIPAL =================== */
@@ -746,7 +750,9 @@
     text-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
   }
   100% {
-    text-shadow: 0 0 15px rgba(74, 144, 226, 0.8), 0 0 25px rgba(74, 144, 226, 0.4);
+    text-shadow:
+      0 0 15px rgba(74, 144, 226, 0.8),
+      0 0 25px rgba(74, 144, 226, 0.4);
   }
 }
 

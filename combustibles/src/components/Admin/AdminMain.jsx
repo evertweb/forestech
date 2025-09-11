@@ -11,6 +11,7 @@ import { ROLES } from '../../constants/roles';
 import DataReset from './DataReset';
 import BackgroundImageManager from './BackgroundImageManager';
 import PriceServiceControl from '../Services/PriceServiceControl';
+import PasskeyManager from './PasskeyManager';
 import { PageLayout } from '../shared';
 import './Admin.css';
 
@@ -155,6 +156,12 @@ const AdminMain = () => {
         👥 Usuarios
       </button>
       <button
+        className={`tab-button ${activeTab === 'passkeys' ? 'active' : ''}`}
+        onClick={() => setActiveTab('passkeys')}
+      >
+        🔐 Passkeys
+      </button>
+      <button
         className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
         onClick={() => setActiveTab('settings')}
       >
@@ -286,6 +293,8 @@ const AdminMain = () => {
       {activeTab === 'background' && <BackgroundImageManager />}
 
       {activeTab === 'reset' && <DataReset />}
+
+      {activeTab === 'passkeys' && <PasskeyManager />}
     </>
   );
 
