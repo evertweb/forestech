@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
-  onAuthStateChanged
+  // onAuthStateChanged
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from './config';
@@ -54,7 +54,7 @@ const arrayBufferToBase64 = (buffer) => {
 /**
  * Convertir Base64 URL-safe a ArrayBuffer
  */
-const base64ToArrayBuffer = (base64) => {
+// const base64ToArrayBuffer = (base64) => {
   const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -76,7 +76,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
     }
 
     // 2. Generar credencial única
-    const credentialId = generateCredentialId();
+    // const credentialId = generateCredentialId();
     const challenge = crypto.getRandomValues(new Uint8Array(32));
 
     // 3. Crear usuario temporal en Firebase (se vinculará con passkey)
