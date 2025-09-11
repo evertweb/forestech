@@ -71,7 +71,7 @@ function AppContent() {
     <div className="App">
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          {/* RUTA PÚBLICA PARA DEMO DE PASSKEYS */}
+          {/* RUTA PÚBLICA PARA DEMO DE PASSKEYS - ACCESO SIN LOGIN PARA PRUEBAS */}
           <Route path="/demo-passkeys" element={<PasskeyDemo />} />
 
           {/* Rutas dedicadas para los popups de wizards */}
@@ -79,10 +79,8 @@ function AppContent() {
           <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
           <Route path="/product-wizard-popup" element={<ProductWizardPopup />} />
 
-          {/* Rutas según autenticación */}
-          {!user ? (
-            <Route path="/*" element={<AuthVisualEnhanced />} />
-          ) : (
+          {/* Rutas autenticadas */}
+          {user ? (
             <Route path="/" element={<Dashboard />}>
               <Route index element={<DashboardMain />} />
               <Route path="inventario" element={<InventoryMain />} />
@@ -95,6 +93,8 @@ function AppContent() {
               <Route path="admin" element={<AdminMain />} />
               <Route path="integraciones/telegram" element={<LinkTelegram />} />
             </Route>
+          ) : (
+            <Route path="/*" element={<AuthVisualEnhanced />} />
           )}
         </Routes>
       </Suspense>
