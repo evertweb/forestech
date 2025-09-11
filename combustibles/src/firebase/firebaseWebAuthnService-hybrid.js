@@ -10,7 +10,7 @@ import {
   signInWithPasskey,
   linkWithPasskey,
   unlinkPasskey,
-  verifyUserWithPasskey
+  verifyUserWithPasskey,
 } from '@firebase-web-authn/browser';
 import { auth } from './config';
 
@@ -34,7 +34,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
     return {
       success: true,
       user: userCredential.user,
-      message: '¡Usuario creado exitosamente con passkey!'
+      message: '¡Usuario creado exitosamente con passkey!',
     };
   } catch (error) {
     console.error('❌ [HÍBRIDO] Error creando usuario:', error);
@@ -45,14 +45,14 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
         success: false,
         error: 'Error de CORS: Configurar dominios autorizados en Firebase Console o usar HTTPS',
         recommendation: 'Ve a Firebase Console → Authentication → Settings → Authorized domains',
-        originalError: error
+        originalError: error,
       };
     }
 
     return {
       success: false,
       error: `Error SDK: ${error.message}`,
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -71,7 +71,7 @@ export const signInWithWebAuthn = async () => {
     return {
       success: true,
       user: userCredential.user,
-      message: '¡Autenticación exitosa con passkey!'
+      message: '¡Autenticación exitosa con passkey!',
     };
   } catch (error) {
     console.error('❌ [HÍBRIDO] Error en autenticación:', error);
@@ -81,14 +81,14 @@ export const signInWithWebAuthn = async () => {
         success: false,
         error: 'Error de CORS: La extensión requiere configuración adicional para desarrollo local',
         recommendation: 'Usar HTTPS o configurar proxy inverso',
-        originalError: error
+        originalError: error,
       };
     }
 
     return {
       success: false,
       error: `Error SDK: ${error.message}`,
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -111,7 +111,7 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
     return {
       success: true,
       user: userCredential.user,
-      message: '¡Passkey vinculada exitosamente!'
+      message: '¡Passkey vinculada exitosamente!',
     };
   } catch (error) {
     console.error('❌ [HÍBRIDO] Error vinculando passkey:', error);
@@ -121,31 +121,33 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
         success: false,
         error: 'Error de CORS: Prueba en HTTPS o configura un proxy inverso',
         recommendation: 'Para desarrollo: usar ngrok o configurar HTTPS local',
-        originalError: error
+        originalError: error,
       };
     }
 
     return {
       success: false,
       error: `Error SDK: ${error.message}`,
-      originalError: error
+      originalError: error,
     };
   }
 };
 
 // Funciones auxiliares mantienen la misma implementación
 export const isWebAuthnSupported = () => {
-  return typeof window !== 'undefined' &&
-         'credentials' in navigator &&
-         'create' in navigator.credentials;
+  return (
+    typeof window !== 'undefined' && 'credentials' in navigator && 'create' in navigator.credentials
+  );
 };
 
 export const isPlatformAuthenticatorAvailable = async () => {
   if (!isWebAuthnSupported()) return false;
   try {
-    const available = await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
+    const available =
+      await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
     return !!available;
-  } catch (error) {
+  } catch (err) {
+    console.warn('Error verificando autenticador de plataforma:', err);
     return isWebAuthnSupported();
   }
 };
@@ -158,13 +160,14 @@ export const getWebAuthnCapabilities = async () => {
     userVerifyingPlatformAuthenticatorAvailable: false,
     secureContext: typeof window !== 'undefined' ? window.isSecureContext : false,
     https: typeof window !== 'undefined' ? window.location.protocol === 'https:' : false,
-    corsIssue: true // Indicar que hay problema CORS conocido
+    corsIssue: true, // Indicar que hay problema CORS conocido
   };
 
   if (window.PublicKeyCredential?.isConditionalMediationAvailable) {
     try {
-      capabilities.conditionalMediationSupported = await window.PublicKeyCredential.isConditionalMediationAvailable();
-    } catch (e) {
+      capabilities.conditionalMediationSupported =
+        await window.PublicKeyCredential.isConditionalMediationAvailable();
+    } catch {
       capabilities.conditionalMediationSupported = false;
     }
   }
@@ -206,7 +209,7 @@ export const checkWebAuthnReadiness = async () => {
     recommendations,
     summary: isReady
       ? '✅ [HÍBRIDO] WebAuthn ready - CORS issue conocido en desarrollo'
-      : `❌ Se encontraron ${issues.length} problema(s) que impiden usar passkeys`
+      : `❌ Se encontraron ${issues.length} problema(s) que impiden usar passkeys`,
   };
 };
 
@@ -224,7 +227,7 @@ export const unlinkPasskeyFromUser = async () => {
       success: false,
       error: error.message.includes('CORS')
         ? 'Error de CORS: Funcionalidad limitada en desarrollo local'
-        : `Error: ${error.message}`
+        : `Error: ${error.message}`,
     };
   }
 };
@@ -242,7 +245,7 @@ export const verifyUserWithWebAuthn = async () => {
       success: false,
       error: error.message.includes('CORS')
         ? 'Error de CORS: Funcionalidad limitada en desarrollo local'
-        : `Error: ${error.message}`
+        : `Error: ${error.message}`,
     };
   }
 };

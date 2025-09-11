@@ -16,7 +16,7 @@ const callWebAuthnFunction = async (functionName, data = {}) => {
     const callable = httpsCallable(functions, 'ext-firebase-web-authn-api');
     const result = await callable({
       action: functionName,
-      ...data
+      ...data,
     });
     return result.data;
   } catch (error) {
@@ -35,7 +35,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
     // Llamada directa a la Cloud Function
     const result = await callWebAuthnFunction('createUser', {
       displayName,
-      userId: auth.currentUser?.uid || 'anonymous'
+      userId: auth.currentUser?.uid || 'anonymous',
     });
 
     console.log('✅ [DIRECTO] Usuario creado exitosamente:', result);
@@ -43,7 +43,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
     return {
       success: true,
       user: result.user || auth.currentUser,
-      message: '¡Usuario creado exitosamente con passkey!'
+      message: '¡Usuario creado exitosamente con passkey!',
     };
   } catch (error) {
     console.error('❌ [DIRECTO] Error creando usuario:', error);
@@ -51,7 +51,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
     return {
       success: false,
       error: `Error directo: ${error.message}`,
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -70,7 +70,7 @@ export const signInWithWebAuthn = async () => {
     return {
       success: true,
       user: result.user || auth.currentUser,
-      message: '¡Autenticación exitosa con passkey!'
+      message: '¡Autenticación exitosa con passkey!',
     };
   } catch (error) {
     console.error('❌ [DIRECTO] Error en autenticación:', error);
@@ -78,7 +78,7 @@ export const signInWithWebAuthn = async () => {
     return {
       success: false,
       error: `Error directo: ${error.message}`,
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -96,7 +96,7 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
 
     const result = await callWebAuthnFunction('linkPasskey', {
       displayName,
-      userId: auth.currentUser.uid
+      userId: auth.currentUser.uid,
     });
 
     console.log('✅ [DIRECTO] Passkey vinculada exitosamente:', result);
@@ -104,7 +104,7 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
     return {
       success: true,
       user: result.user || auth.currentUser,
-      message: '¡Passkey vinculada exitosamente!'
+      message: '¡Passkey vinculada exitosamente!',
     };
   } catch (error) {
     console.error('❌ [DIRECTO] Error vinculando passkey:', error);
@@ -112,24 +112,26 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
     return {
       success: false,
       error: `Error directo: ${error.message}`,
-      originalError: error
+      originalError: error,
     };
   }
 };
 
 // Funciones auxiliares mantienen la misma implementación
 export const isWebAuthnSupported = () => {
-  return typeof window !== 'undefined' &&
-         'credentials' in navigator &&
-         'create' in navigator.credentials;
+  return (
+    typeof window !== 'undefined' && 'credentials' in navigator && 'create' in navigator.credentials
+  );
 };
 
 export const isPlatformAuthenticatorAvailable = async () => {
   if (!isWebAuthnSupported()) return false;
   try {
-    const available = await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
+    const available =
+      await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
     return !!available;
-  } catch (error) {
+  } catch (err) {
+    console.warn('Error verificando autenticador de plataforma:', err);
     return isWebAuthnSupported();
   }
 };
@@ -141,7 +143,7 @@ export const getWebAuthnCapabilities = async () => {
     conditionalMediationSupported: false,
     userVerifyingPlatformAuthenticatorAvailable: false,
     secureContext: typeof window !== 'undefined' ? window.isSecureContext : false,
-    https: typeof window !== 'undefined' ? window.location.protocol === 'https:' : false
+    https: typeof window !== 'undefined' ? window.location.protocol === 'https:' : false,
   };
 };
 
@@ -152,7 +154,7 @@ export const checkWebAuthnReadiness = async () => {
     capabilities,
     issues: [],
     recommendations: [],
-    summary: '✅ [DIRECTO] Configuración directa a Cloud Functions activa'
+    summary: '✅ [DIRECTO] Configuración directa a Cloud Functions activa',
   };
 };
 

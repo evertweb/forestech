@@ -24,19 +24,10 @@ const WEBAUTHN_CONFIG = {
   authenticatorSelection: {
     authenticatorAttachment: 'platform', // Touch ID, Face ID, Windows Hello
     userVerification: 'preferred',
-    requireResidentKey: false
+    requireResidentKey: false,
   },
   timeout: 60000,
-  attestation: 'direct'
-};
-
-/**
- * Generar ID único para credenciales
- */
-const generateCredentialId = () => {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return array;
+  attestation: 'direct',
 };
 
 /**
@@ -54,14 +45,15 @@ const arrayBufferToBase64 = (buffer) => {
 /**
  * Convertir Base64 URL-safe a ArrayBuffer
  */
+// Función comentada temporalmente - no utilizada actualmente
 // const base64ToArrayBuffer = (base64) => {
-  const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-};
+//   const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+//   const bytes = new Uint8Array(binaryString.length);
+//   for (let i = 0; i < binaryString.length; i++) {
+//     bytes[i] = binaryString.charCodeAt(i);
+//   }
+//   return bytes.buffer;
+// };
 
 /**
  * Crear nuevo usuario con passkey - IMPLEMENTACIÓN NATIVA
@@ -105,14 +97,14 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
       ],
       authenticatorSelection: WEBAUTHN_CONFIG.authenticatorSelection,
       timeout: WEBAUTHN_CONFIG.timeout,
-      attestation: WEBAUTHN_CONFIG.attestation
+      attestation: WEBAUTHN_CONFIG.attestation,
     };
 
     console.log('🔐 [NATIVO] Solicitando creación de credencial...');
 
     // 5. Crear credencial WebAuthn
     const credential = await navigator.credentials.create({
-      publicKey: publicKeyCredentialCreationOptions
+      publicKey: publicKeyCredentialCreationOptions,
     });
 
     if (!credential) {
@@ -129,7 +121,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
       transports: credential.response.getTransports ? credential.response.getTransports() : [],
       createdAt: new Date().toISOString(),
       lastUsed: new Date().toISOString(),
-      displayName
+      displayName,
     };
 
     await setDoc(doc(db, 'webauthn_credentials', user.uid), credentialData);
@@ -144,7 +136,7 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
       displayName,
       hasPasskey: true,
       passkeyCreatedAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString()
+      lastLogin: new Date().toISOString(),
     });
 
     console.log('✅ [NATIVO] Usuario creado exitosamente con passkey:', user.uid);
@@ -152,16 +144,15 @@ export const createUserWithWebAuthn = async (displayName = 'Usuario Forestech') 
     return {
       success: true,
       user: user,
-      message: '¡Usuario creado exitosamente con passkey nativo!'
+      message: '¡Usuario creado exitosamente con passkey nativo!',
     };
-
   } catch (error) {
     console.error('❌ [NATIVO] Error creando usuario con passkey:', error);
 
     return {
       success: false,
       error: getWebAuthnErrorMessage(error),
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -186,14 +177,14 @@ export const signInWithWebAuthn = async () => {
       challenge,
       timeout: WEBAUTHN_CONFIG.timeout,
       rpId: WEBAUTHN_CONFIG.rpId,
-      userVerification: WEBAUTHN_CONFIG.userVerification
+      userVerification: WEBAUTHN_CONFIG.userVerification,
     };
 
     console.log('🔐 [NATIVO] Solicitando autenticación...');
 
     // 4. Obtener credencial existente
     const assertion = await navigator.credentials.get({
-      publicKey: publicKeyCredentialRequestOptions
+      publicKey: publicKeyCredentialRequestOptions,
     });
 
     if (!assertion) {
@@ -234,11 +225,11 @@ export const signInWithWebAuthn = async () => {
     // 8. Actualizar último uso
     await updateDoc(doc(db, 'webauthn_credentials', userId), {
       lastUsed: new Date().toISOString(),
-      counter: (credentialData.counter || 0) + 1
+      counter: (credentialData.counter || 0) + 1,
     });
 
     await updateDoc(doc(db, 'webauthn_users', userId), {
-      lastLogin: new Date().toISOString()
+      lastLogin: new Date().toISOString(),
     });
 
     console.log('✅ [NATIVO] Autenticación exitosa:', userCredential.user.uid);
@@ -246,16 +237,15 @@ export const signInWithWebAuthn = async () => {
     return {
       success: true,
       user: userCredential.user,
-      message: '¡Autenticación exitosa con passkey nativo!'
+      message: '¡Autenticación exitosa con passkey nativo!',
     };
-
   } catch (error) {
     console.error('❌ [NATIVO] Error en autenticación:', error);
 
     return {
       success: false,
       error: getWebAuthnErrorMessage(error),
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -292,11 +282,11 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
       ],
       authenticatorSelection: WEBAUTHN_CONFIG.authenticatorSelection,
       timeout: WEBAUTHN_CONFIG.timeout,
-      attestation: WEBAUTHN_CONFIG.attestation
+      attestation: WEBAUTHN_CONFIG.attestation,
     };
 
     const credential = await navigator.credentials.create({
-      publicKey: publicKeyCredentialCreationOptions
+      publicKey: publicKeyCredentialCreationOptions,
     });
 
     if (!credential) {
@@ -313,7 +303,7 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
       createdAt: new Date().toISOString(),
       lastUsed: new Date().toISOString(),
       displayName,
-      isPrimary: false
+      isPrimary: false,
     };
 
     await setDoc(doc(db, 'webauthn_credentials', credentialId), credentialData);
@@ -323,16 +313,15 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
     return {
       success: true,
       user: user,
-      message: '¡Passkey adicional vinculada exitosamente!'
+      message: '¡Passkey adicional vinculada exitosamente!',
     };
-
   } catch (error) {
     console.error('❌ [NATIVO] Error vinculando passkey:', error);
 
     return {
       success: false,
       error: getWebAuthnErrorMessage(error),
-      originalError: error
+      originalError: error,
     };
   }
 };
@@ -341,17 +330,20 @@ export const linkPasskeyToUser = async (displayName = 'Passkey Secundaria') => {
  * Funciones auxiliares - mantienen compatibilidad
  */
 export const isWebAuthnSupported = () => {
-  return typeof window !== 'undefined' &&
-         'credentials' in navigator &&
-         'create' in navigator.credentials &&
-         typeof window.PublicKeyCredential !== 'undefined';
+  return (
+    typeof window !== 'undefined' &&
+    'credentials' in navigator &&
+    'create' in navigator.credentials &&
+    typeof window.PublicKeyCredential !== 'undefined'
+  );
 };
 
 export const isPlatformAuthenticatorAvailable = async () => {
   if (!isWebAuthnSupported()) return false;
 
   try {
-    const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    const available =
+      await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     return !!available;
   } catch (error) {
     console.warn('Error verificando autenticador de plataforma:', error);
@@ -367,13 +359,14 @@ export const getWebAuthnCapabilities = async () => {
     userVerifyingPlatformAuthenticatorAvailable: false,
     secureContext: typeof window !== 'undefined' ? window.isSecureContext : false,
     https: typeof window !== 'undefined' ? window.location.protocol === 'https:' : false,
-    nativeImplementation: true // Indicar que es implementación nativa
+    nativeImplementation: true, // Indicar que es implementación nativa
   };
 
   if (window.PublicKeyCredential?.isConditionalMediationAvailable) {
     try {
-      capabilities.conditionalMediationSupported = await window.PublicKeyCredential.isConditionalMediationAvailable();
-    } catch (e) {
+      capabilities.conditionalMediationSupported =
+        await window.PublicKeyCredential.isConditionalMediationAvailable();
+    } catch {
       capabilities.conditionalMediationSupported = false;
     }
   }
@@ -382,7 +375,7 @@ export const getWebAuthnCapabilities = async () => {
     try {
       capabilities.userVerifyingPlatformAuthenticatorAvailable =
         await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    } catch (e) {
+    } catch {
       capabilities.userVerifyingPlatformAuthenticatorAvailable = false;
     }
   }
@@ -419,7 +412,7 @@ export const checkWebAuthnReadiness = async () => {
     recommendations,
     summary: isReady
       ? '✅ [NATIVO] WebAuthn nativo listo - Sin dependencias externas'
-      : `❌ Se encontraron ${issues.length} problema(s) que impiden usar passkeys`
+      : `❌ Se encontraron ${issues.length} problema(s) que impiden usar passkeys`,
   };
 };
 
@@ -440,7 +433,7 @@ export const unlinkPasskeyFromUser = async () => {
   } catch (error) {
     return {
       success: false,
-      error: `Error: ${error.message}`
+      error: `Error: ${error.message}`,
     };
   }
 };
@@ -456,7 +449,7 @@ export const verifyUserWithWebAuthn = async () => {
   } catch (error) {
     return {
       success: false,
-      error: `Error: ${error.message}`
+      error: `Error: ${error.message}`,
     };
   }
 };
