@@ -8,21 +8,35 @@ import PasskeyAuth from '../components/PasskeyAuth';
 
 const PasskeyDemo = () => {
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div className="min-h-screen bg-gray-100 px-4 py-12">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-8 text-center">
+          <h1 className="mb-4 text-4xl font-bold text-gray-900">
             🔐 Demo de Passkeys - Forestech Combustibles
           </h1>
-          <p className="text-lg text-gray-600 mb-2">
+          <p className="mb-2 text-lg text-gray-600">
             Prueba la autenticación con passkeys usando Touch ID, Face ID o Windows Hello
           </p>
-          <p className="text-sm text-gray-500">
-            Esta página te permite probar todas las funcionalidades de passkeys antes de integrarlas en la app principal
+          <p className="mb-6 text-sm text-gray-500">
+            Esta página te permite probar todas las funcionalidades de passkeys antes de integrarlas
+            en la app principal
           </p>
+
+          {/* BOTÓN DE PRUEBA DEPLOY AUTOMÁTICO */}
+          <div className="mb-8">
+            <button
+              className="transform animate-pulse rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 px-12 py-6 text-2xl font-bold text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:via-pink-700 hover:to-red-700"
+              onClick={() => alert('🚀 DEPLOY AUTOMÁTICO FUNCIONANDO! ✅')}
+            >
+              🧪 BOTÓN DE PRUEBA DEPLOY
+              <div className="mt-1 text-sm font-normal">
+                Si ves este botón, el deploy automático funciona correctamente
+              </div>
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Componente de autenticación */}
           <div>
             <PasskeyAuth />
@@ -30,18 +44,17 @@ const PasskeyDemo = () => {
 
           {/* Información y guía */}
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                ℹ️ ¿Qué son las Passkeys?
-              </h3>
+            <div className="rounded-lg bg-white p-6 shadow-lg">
+              <h3 className="mb-4 text-xl font-bold text-gray-900">ℹ️ ¿Qué son las Passkeys?</h3>
               <div className="space-y-3 text-sm text-gray-600">
                 <p>
-                  Las passkeys son una forma moderna y segura de autenticación que reemplaza las contraseñas tradicionales.
+                  Las passkeys son una forma moderna y segura de autenticación que reemplaza las
+                  contraseñas tradicionales.
                 </p>
                 <p>
                   <strong>Ventajas:</strong>
                 </p>
-                <ul className="list-disc list-inside ml-4 space-y-1">
+                <ul className="ml-4 list-inside list-disc space-y-1">
                   <li>Más seguras que las contraseñas</li>
                   <li>No se pueden robar en ataques de phishing</li>
                   <li>Más rápidas y convenientes</li>
@@ -50,10 +63,8 @@ const PasskeyDemo = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                🛠️ Compatibilidad
-              </h3>
+            <div className="rounded-lg bg-white p-6 shadow-lg">
+              <h3 className="mb-4 text-xl font-bold text-gray-900">🛠️ Compatibilidad</h3>
               <div className="space-y-3 text-sm text-gray-600">
                 <div>
                   <h4 className="font-semibold text-gray-800">iOS/macOS:</h4>
@@ -74,35 +85,42 @@ const PasskeyDemo = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                🚀 Flujo de Trabajo
-              </h3>
+            <div className="rounded-lg bg-white p-6 shadow-lg">
+              <h3 className="mb-4 text-xl font-bold text-gray-900">🚀 Flujo de Trabajo</h3>
               <div className="space-y-3 text-sm text-gray-600">
                 <div className="flex items-start">
-                  <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded mr-3 mt-0.5">1</span>
+                  <span className="mt-0.5 mr-3 rounded bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                    1
+                  </span>
                   <div>
-                    <strong>Registrar:</strong> Crea una nueva cuenta usando tu dispositivo biométrico
+                    <strong>Registrar:</strong> Crea una nueva cuenta usando tu dispositivo
+                    biométrico
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded mr-3 mt-0.5">2</span>
+                  <span className="mt-0.5 mr-3 rounded bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
+                    2
+                  </span>
                   <div>
-                    <strong>Iniciar sesión:</strong> Autentica usando la passkey guardada en tu dispositivo
+                    <strong>Iniciar sesión:</strong> Autentica usando la passkey guardada en tu
+                    dispositivo
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <span className="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded mr-3 mt-0.5">3</span>
+                  <span className="mt-0.5 mr-3 rounded bg-purple-100 px-2 py-1 text-xs font-semibold text-purple-800">
+                    3
+                  </span>
                   <div>
-                    <strong>Gestionar:</strong> Agrega o elimina passkeys adicionales para múltiples dispositivos
+                    <strong>Gestionar:</strong> Agrega o elimina passkeys adicionales para múltiples
+                    dispositivos
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="font-semibold text-yellow-800 mb-2">⚠️ Requisitos importantes:</h4>
-              <ul className="text-sm text-yellow-700 space-y-1">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+              <h4 className="mb-2 font-semibold text-yellow-800">⚠️ Requisitos importantes:</h4>
+              <ul className="space-y-1 text-sm text-yellow-700">
                 <li>• Debes estar en HTTPS (o localhost para desarrollo)</li>
                 <li>• Tu dispositivo debe tener autenticación biométrica configurada</li>
                 <li>• El navegador debe soportar WebAuthn API</li>
@@ -114,9 +132,7 @@ const PasskeyDemo = () => {
 
         {/* Footer con enlaces útiles */}
         <div className="mt-12 text-center text-sm text-gray-500">
-          <p className="mb-2">
-            🔗 Enlaces útiles:
-          </p>
+          <p className="mb-2">🔗 Enlaces útiles:</p>
           <div className="space-x-4">
             <a
               href="https://console.firebase.google.com/project/liquidacionapp-62962"

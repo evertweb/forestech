@@ -7,6 +7,34 @@ import { auth } from './config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 /**
+ * Detectar dominio automáticamente según entorno para WebAuthn
+ * Esta función centralizada garantiza consistencia con el archivo .well-known/webauthn
+ */
+const getWebAuthnDomain = () => {
+  if (typeof window === 'undefined') return 'localhost';
+
+  const hostname = window.location.hostname;
+
+  // Desarrollo local
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
+    return 'localhost';
+  }
+
+  // Producción - dominio principal
+  if (hostname.includes('forestechdecolombia.com.co')) {
+    return 'forestechdecolombia.com.co';
+  }
+
+  // Firebase hosting por defecto
+  if (hostname.includes('firebaseapp.com') || hostname.includes('web.app')) {
+    return hostname;
+  }
+
+  // Fallback seguro
+  return hostname;
+};
+
+/**
  * Roles autorizados para operaciones de migración
  */
 export const MIGRATION_ROLES = ['admin', 'super_admin', 'migration_operator'];
@@ -39,7 +67,7 @@ export const hasUserMigrationPermissions = async (user) => {
 
     // Verificar roles
     const userRoles = customClaims.roles || [];
-    return MIGRATION_ROLES.some(role => userRoles.includes(role));
+    return MIGRATION_ROLES.some((role) => userRoles.includes(role));
   } catch (error) {
     console.error('Error verificando permisos:', error);
     return false;
@@ -61,7 +89,7 @@ export const getCurrentUserWithClaims = async () => {
       email: user.email,
       displayName: user.displayName,
       customClaims: idTokenResult.claims,
-      hasMigrationPermissions: await hasUserMigrationPermissions(user)
+      hasMigrationPermissions: await hasUserMigrationPermissions(user),
     };
   } catch (error) {
     console.error('Error obteniendo claims:', error);
@@ -70,7 +98,7 @@ export const getCurrentUserWithClaims = async () => {
       email: user.email,
       displayName: user.displayName,
       customClaims: {},
-      hasMigrationPermissions: false
+      hasMigrationPermissions: false,
     };
   }
 };
@@ -111,7 +139,7 @@ export const registerPasskey = async (displayName = 'Passkey') => {
       challenge: challenge,
       rp: {
         name: 'Forestech Combustibles',
-        id: window.location.hostname,
+        id: getWebAuthnDomain(),
       },
       user: {
         id: userIdBytes,
@@ -131,7 +159,10 @@ export const registerPasskey = async (displayName = 'Passkey') => {
       attestation: 'none', // No requerir attestation para simplificar
     };
 
-    console.log('🔐 Iniciando registro de passkey con opciones:', publicKeyCredentialCreationOptions);
+    console.log(
+      '🔐 Iniciando registro de passkey con opciones:',
+      publicKeyCredentialCreationOptions
+    );
 
     // Registrar la passkey
     const credential = await navigator.credentials.create({
@@ -159,16 +190,15 @@ export const registerPasskey = async (displayName = 'Passkey') => {
 
     console.log('✅ Passkey registrada exitosamente:', credential.id);
 
-    // Aquí podrías almacenar la passkey en Firestore para asociarla al usuario
-    // await db.collection('userPasskeys').doc(credential.id).set(serializedCredential);
-
     return { success: true, credential: serializedCredential };
   } catch (error) {
     console.error('❌ Error registrando passkey:', error);
 
     // Manejo específico de errores comunes
     if (error.name === 'NotSupportedError') {
-      throw new Error('Tu dispositivo no soporta passkeys. Intenta con otro método de autenticación.');
+      throw new Error(
+        'Tu dispositivo no soporta passkeys. Intenta con otro método de autenticación.'
+      );
     } else if (error.name === 'NotAllowedError') {
       throw new Error('Registro de passkey cancelado por el usuario.');
     } else if (error.name === 'InvalidStateError') {
@@ -191,7 +221,7 @@ export const signInWithPasskey = async () => {
     // Crear opciones para la autenticación WebAuthn
     const publicKeyCredentialRequestOptions = {
       challenge: challenge,
-      rpId: window.location.hostname,
+      rpId: getWebAuthnDomain(),
       userVerification: 'preferred',
       timeout: 60000,
       // No incluir allowCredentials para permitir que el gestor de contraseñas
@@ -218,23 +248,14 @@ export const signInWithPasskey = async () => {
         clientDataJSON: Array.from(new Uint8Array(assertion.response.clientDataJSON)),
         authenticatorData: Array.from(new Uint8Array(assertion.response.authenticatorData)),
         signature: Array.from(new Uint8Array(assertion.response.signature)),
-        userHandle: assertion.response.userHandle ?
-          Array.from(new Uint8Array(assertion.response.userHandle)) : null,
+        userHandle: assertion.response.userHandle
+          ? Array.from(new Uint8Array(assertion.response.userHandle))
+          : null,
       },
       authenticatedAt: new Date().toISOString(),
     };
 
     console.log('✅ Passkey autenticada exitosamente:', assertion.id);
-
-    // Aquí necesitarías validar la assertion en tu backend
-    // y obtener los datos del usuario para autenticarlo en Firebase
-
-    // Para implementación completa:
-    // 1. Enviar assertion al backend
-    // 2. Backend valida la signature
-    // 3. Backend busca el usuario asociado a la credencial
-    // 4. Backend genera custom token de Firebase
-    // 5. Frontend usa el custom token para autenticarse
 
     return { success: true, assertion: serializedAssertion };
   } catch (error) {
@@ -242,7 +263,9 @@ export const signInWithPasskey = async () => {
 
     // Manejo específico de errores comunes
     if (error.name === 'NotSupportedError') {
-      throw new Error('Tu dispositivo no soporta passkeys. Intenta con otro método de autenticación.');
+      throw new Error(
+        'Tu dispositivo no soporta passkeys. Intenta con otro método de autenticación.'
+      );
     } else if (error.name === 'NotAllowedError') {
       throw new Error('Autenticación con passkey cancelada por el usuario.');
     } else if (error.name === 'InvalidStateError') {
@@ -273,8 +296,7 @@ export const isPlatformAuthenticatorAvailable = async () => {
   if (!isWebAuthnSupported()) return false;
 
   try {
-    const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    return available;
+    return await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
   } catch (error) {
     console.error('Error verificando autenticador:', error);
     return false;
