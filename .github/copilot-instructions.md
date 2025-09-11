@@ -1,3 +1,57 @@
+# GITHUB COPILOT INSTRUCTIONS
+
+Este archivo proporciona orientación a **GitHub Copilot y Claude en todos los entornos** cuando trabaja con código en el repositorio Forestech.
+
+## 🚀 **FORESTECH DEPLOY MAESTRO - INFORMACIÓN CRÍTICA**
+
+### ⚡ **SCRIPT UNIFICADO PRINCIPAL**
+
+- **Archivo**: `scripts/deploy-forestech.sh`
+- **Comando principal**: `npm run deploy`
+- **Incluye**: Tests + Lint + Build inteligente + Deploy automático
+- **Tiempo**: ~40-60 segundos (vs 5-8 minutos anterior)
+
+### 🎯 **COMANDOS DISPONIBLES**
+
+```bash
+npm run deploy           # Deploy completo con tests + lint (RECOMENDADO)
+npm run deploy:fast      # Deploy rápido SIN tests/lint (emergencias)
+npm run deploy:force     # Rebuild completo ignorando cache
+npm run deploy:measure   # Deploy con métricas detalladas
+```
+
+### 🏗️ **ARQUITECTURA LOCAL vs GITHUB ACTIONS**
+
+**🏠 DESARROLLO LOCAL:**
+
+- Tests + Lint automáticos integrados
+- Deploy ocasional para pruebas
+- Cache inteligente local
+- Feedback inmediato
+
+**☁️ GITHUB ACTIONS:**
+
+- Deploy automático a producción
+- Validaciones exhaustivas
+- Cache distribuido
+- Monitoreo automático
+
+### 📦 **ESTRUCTURA DEL PROYECTO**
+
+```
+forestech/
+├── alimentacion/          # App de liquidaciones de comidas
+├── combustibles/          # App de gestión de combustibles
+├── shared/               # Recursos compartidos
+├── scripts/
+│   └── deploy-forestech.sh  # ← SCRIPT MAESTRO UNIFICADO
+├── .github/workflows/
+│   └── deploy-firebase-turbo.yml  # ← Workflow optimizado
+└── docs/
+    ├── LOCAL_vs_GITHUB_ARCHITECTURE.md  # ← Arquitectura completa
+    └── DEPLOY_MASTER_GUIDE.md           # ← Guía de uso
+```
+
 # CLAUDE.md
 
 Este archivo proporciona orientación a **Claude en todos los entornos** (Claude Code, GitHub Copilot con Sonnet 4, y otros agentes) cuando trabaja con código en este repositorio.

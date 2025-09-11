@@ -19,14 +19,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09f12162-4021-4149-a582-2fbcaad8dc56" name="Changes" comment="implemente la funcionalidad completa de horometros">
-      <change afterPath="$PROJECT_DIR$/.github/workflows/deploy-firebase-turbo.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/deploy-turbo-local.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/optimize-firebase-deploy.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/auto-approve-safe.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/auto-approve-safe.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/copilot-instructions.md" beforeDir="false" afterPath="$PROJECT_DIR$/.github/copilot-instructions.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firebase.json" beforeDir="false" afterPath="$PROJECT_DIR$/firebase.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/combustibles/src/firebase/firebaseWebAuthnService-native.js" beforeDir="false" afterPath="$PROJECT_DIR$/combustibles/src/firebase/firebaseWebAuthnService-native.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/DEPLOY_MASTER_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/DEPLOY_MASTER_GUIDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/LOCAL_vs_GITHUB_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/LOCAL_vs_GITHUB_ARCHITECTURE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/.well-known/webauthn" beforeDir="false" afterPath="$PROJECT_DIR$/public/.well-known/webauthn" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/combustibles/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/combustibles/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/build-incremental.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean-for-deploy.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/deploy-forestech.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/deploy-forestech.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/deploy-smart.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/deploy-turbo-local.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/measure-deploy-performance.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/optimize-firebase-deploy.sh" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

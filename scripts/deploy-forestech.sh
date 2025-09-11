@@ -186,7 +186,7 @@ intelligent_build() {
 
     # Esperar builds paralelos
     if [ ${#build_pids[@]} -gt 0 ]; then
-        print_info "⏳ Esperando builds paralelos..."
+        print_info "Esperando builds paralelos..."
         for pid in "${build_pids[@]}"; do
             if ! wait $pid; then
                 print_error "Build falló"
@@ -209,7 +209,7 @@ validate_builds() {
     # Verificar outputs esperados
     if [ "$ALIMENTACION_CHANGED" = true ] || [ "$BUILD_REASON" = "primer-deploy" ]; then
         if [ -d "public/alimentacion" ]; then
-            local size=$(du -sh public/alimentacion/ | cut -f1)
+            local size=$(du -sh public/alimentacion 2>/dev/null | cut -f1 || echo "N/A")
             print_success "Alimentacion build: $size"
         else
             print_error "Build de Alimentacion faltante"
@@ -219,7 +219,7 @@ validate_builds() {
 
     if [ "$COMBUSTIBLES_CHANGED" = true ] || [ "$BUILD_REASON" = "primer-deploy" ]; then
         if [ -d "public/combustibles" ]; then
-            local size=$(du -sh public/combustibles/ | cut -f1)
+            local size=$(du -sh public/combustibles 2>/dev/null | cut -f1 || echo "N/A")
             print_success "Combustibles build: $size"
         else
             print_error "Build de Combustibles faltante"
@@ -243,10 +243,10 @@ validate_builds() {
 optimize_for_deploy() {
     print_step 5 "Optimización Pre-Deploy"
 
-    print_info "Limpiando archivos innecesarios..."
+    # Crear directorio temporal si no existe
+    mkdir -p "$CACHE_DIR"
 
     # Remover archivos de desarrollo
-    find public/ -name "*.map" -delete 2>/dev/null || true
     find public/ -name "*.md" -delete 2>/dev/null || true
     find public/ -name "package.json" -delete 2>/dev/null || true
 
@@ -260,7 +260,7 @@ optimize_for_deploy() {
         done < <(find public/ -name "*.js" -size +10k -o -name "*.css" -size +5k 2>/dev/null)
 
         if [ $compressed -gt 0 ]; then
-            print_success "Pre-comprimidos $compressed archivos"
+            print_info "Comprimidos $compressed archivos"
         fi
     fi
 
@@ -288,8 +288,8 @@ intelligent_deploy() {
         deploy_targets="hosting"
     fi
 
-    # Ejecutar deploy
-    deploy_targets=$(echo $deploy_targets | tr ' ' ',')
+    # Limpiar espacios extras y convertir a formato CSV
+    deploy_targets=$(echo $deploy_targets | tr ' ' ',' | sed 's/^,//' | sed 's/,,*/,/g')
     print_info "Deployando servicios: $deploy_targets"
 
     if firebase deploy --only "$deploy_targets" --json 2>&1 | tee -a "$LOG_FILE"; then
@@ -309,7 +309,7 @@ generate_metrics() {
     local end_time=$(date +%s.%N)
     local total_time=$(echo "$end_time - $START_TIME" | bc -l 2>/dev/null || echo "N/A")
 
-    # Estadísticas de archivos
+    # Calcular métricas
     local total_files=$(find public/ -type f 2>/dev/null | wc -l)
     local total_size=$(du -sh public/ 2>/dev/null | cut -f1 || echo "N/A")
 
@@ -320,7 +320,7 @@ generate_metrics() {
   "version": "$SCRIPT_VERSION",
   "total_time": "$total_time",
   "build_reason": "$BUILD_REASON",
-  "apps_built": {
+  "apps_changed": {
     "alimentacion": $ALIMENTACION_CHANGED,
     "combustibles": $COMBUSTIBLES_CHANGED
   },
@@ -357,9 +357,9 @@ print_summary() {
     local total_time=$(echo "$end_time - $START_TIME" | bc -l 2>/dev/null || echo "N/A")
 
     echo -e "${GREEN}"
-    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "╔═══════════════��════════════════════════════════════════════════╗"
     echo "║                    🎉 DEPLOY COMPLETADO EXITOSAMENTE           ║"
-    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo "╚═══════════════════════════════════���════════════════════════════╝"
     echo -e "${NC}"
 
     echo -e "${CYAN}📊 RESUMEN DEL DEPLOY:${NC}"

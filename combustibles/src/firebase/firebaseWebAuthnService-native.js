@@ -15,11 +15,40 @@ import { auth, db } from './config';
 console.log('🔧 [NATIVO] Servicio WebAuthn nativo configurado - Sin dependencias externas');
 
 /**
- * Configuración WebAuthn nativa
+ * Detectar dominio automáticamente según entorno
+ */
+const getWebAuthnDomain = () => {
+  if (typeof window === 'undefined') return 'localhost';
+
+  const hostname = window.location.hostname;
+
+  // Desarrollo local
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
+    return 'localhost';
+  }
+
+  // Producción - dominio principal
+  if (hostname.includes('forestechdecolombia.com.co')) {
+    return 'forestechdecolombia.com.co';
+  }
+
+  // Firebase hosting por defecto
+  if (hostname.includes('firebaseapp.com') || hostname.includes('web.app')) {
+    return hostname;
+  }
+
+  // Fallback seguro
+  return hostname;
+};
+
+/**
+ * Configuración WebAuthn nativa con detección automática de dominio
  */
 const WEBAUTHN_CONFIG = {
   rpName: 'Forestech Colombia Combustibles',
-  rpId: 'localhost', // En producción: 'forestechdecolombia.com.co'
+  get rpId() {
+    return getWebAuthnDomain();
+  },
   userVerification: 'preferred',
   authenticatorSelection: {
     authenticatorAttachment: 'platform', // Touch ID, Face ID, Windows Hello
@@ -29,6 +58,9 @@ const WEBAUTHN_CONFIG = {
   timeout: 60000,
   attestation: 'direct',
 };
+
+// Log del dominio detectado
+console.log(`🌐 [NATIVO] Dominio WebAuthn detectado: ${WEBAUTHN_CONFIG.rpId}`);
 
 /**
  * Convertir ArrayBuffer a Base64 URL-safe
