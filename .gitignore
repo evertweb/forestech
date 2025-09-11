@@ -82,3 +82,16 @@ combustibles/coverage/
 performance-*.md
 security-audit-report.md
 scripts-cleanup-report.md
+
+# Firebase optimizations
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.cache-deploy/
+deploy-result.json
+firebase.json.backup
+
+# Build optimizations
+node_modules/.cache/
+.vite/
+.eslintcache

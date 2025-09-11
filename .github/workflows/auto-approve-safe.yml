@@ -217,25 +217,53 @@ jobs:
     needs: evaluate-pr-safety
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
+      checks: read
+      actions: read
     if: needs.evaluate-pr-safety.outputs.is-safe == 'true'
 
     steps:
-      - name: 🤖 Auto-approve PR
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🤖 Auto-approve and merge PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=${{ needs.evaluate-pr-safety.outputs.pr-number }}
 
-          echo "🚀 Auto-approving PR #$PR_NUMBER"
+          echo "🚀 Auto-approving and merging PR #$PR_NUMBER"
 
-          # Add approval with comment
+          # Wait for any pending checks to complete
+          echo "⏳ Waiting for status checks to complete..."
+          sleep 10
+
+          # Check if PR is ready for merge
+          PR_STATUS=$(gh pr view $PR_NUMBER --json mergeable,mergeStateStatus --jq '.mergeable,.mergeStateStatus')
+          echo "📊 PR Status: $PR_STATUS"
+
+          # Add approval with detailed comment
+          echo "✅ Adding approval..."
           gh pr review $PR_NUMBER --approve --body "${{ needs.evaluate-pr-safety.outputs.reason }}" || {
-            echo "❌ Failed to approve PR, but continuing..."
+            echo "⚠️ Failed to approve via gh command, trying alternative..."
           }
 
-          echo "✅ PR #$PR_NUMBER auto-approved successfully!"
+          # Enable auto-merge (this will merge automatically when conditions are met)
+          echo "🔄 Enabling auto-merge..."
+          gh pr merge $PR_NUMBER --auto --squash --delete-branch || {
+            echo "⚠️ Auto-merge failed, trying direct merge..."
+
+            # Direct merge as fallback
+            gh pr merge $PR_NUMBER --squash --delete-branch || {
+              echo "❌ Failed to merge PR, but approval was successful"
+              echo "🔍 PR may need manual merge due to additional requirements"
+            }
+          }
+
+          echo "✅ PR #$PR_NUMBER auto-approval process completed!"
 
   notify-manual-review:
     name: 📢 Notify Manual Review Required

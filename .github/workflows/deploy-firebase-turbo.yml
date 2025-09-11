@@ -1,0 +1,219 @@
+name: 🚀 Forestech Deploy TURBO
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_full_build:
+        description: 'Force full rebuild (ignore cache)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  # Cache keys basados en contenido de archivos críticos
+  CACHE_KEY_PREFIX: v2-forestech
+
+jobs:
+  # 🚀 SUPER FAST BUILD & DEPLOY
+  turbo-deploy:
+    name: ⚡ Turbo Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 8  # Reducido de 20 a 8 minutos
+    steps:
+      - name: 📋 Checkout (shallow)
+        uses: actions/checkout@v4
+        with:
+          # Solo los últimos 2 commits para detección de cambios
+          fetch-depth: 2
+
+      - name: ⚙️ Setup Node.js with aggressive caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            alimentacion/package-lock.json
+            combustibles/package-lock.json
+
+      # 🎯 CACHE INTELIGENTE MULTI-LAYER
+      - name: 🗄️ Restore build cache
+        id: cache-builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/alimentacion
+            public/combustibles
+            node_modules/.cache
+            alimentacion/dist
+            combustibles/dist
+          key: ${{ env.CACHE_KEY_PREFIX }}-builds-${{ hashFiles('alimentacion/**', 'combustibles/**', 'shared/**', '!**/node_modules/**') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-builds-
+
+      - name: 🗄️ Restore node_modules cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            alimentacion/node_modules
+            combustibles/node_modules
+          key: ${{ env.CACHE_KEY_PREFIX }}-deps-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-deps-
+
+      # 📦 INSTALL ULTRA RÁPIDO
+      - name: 📦 Install dependencies (if needed)
+        run: |
+          # Solo instalar si no hay cache válido
+          if [ ! -d "node_modules" ] || [ ! -f "node_modules/.package-lock.json" ]; then
+            echo "🔄 Installing fresh dependencies..."
+            npm ci --prefer-offline --no-audit --no-fund
+          else
+            echo "✅ Using cached dependencies"
+          fi
+
+      # 🔍 DETECCIÓN INTELIGENTE DE CAMBIOS
+      - name: 🔍 Detect changes
+        id: changes
+        run: |
+          echo "🔍 Analyzing changes since last commit..."
+
+          # Default: build todo si no hay cache o si es forzado
+          BUILD_ALIMENTACION=true
+          BUILD_COMBUSTIBLES=true
+
+          if [ "${{ steps.cache-builds.outputs.cache-hit }}" == "true" ] && [ "${{ github.event.inputs.force_full_build }}" != "true" ]; then
+            echo "📋 Cache found, analyzing specific changes..."
+
+            # Verificar cambios específicos por app
+            if ! git diff --name-only HEAD~1 HEAD | grep -E "^(alimentacion/|shared/)" > /dev/null; then
+              BUILD_ALIMENTACION=false
+              echo "✅ Alimentacion unchanged - using cache"
+            fi
+
+            if ! git diff --name-only HEAD~1 HEAD | grep -E "^(combustibles/|shared/)" > /dev/null; then
+              BUILD_COMBUSTIBLES=false
+              echo "✅ Combustibles unchanged - using cache"
+            fi
+          fi
+
+          echo "build_alimentacion=$BUILD_ALIMENTACION" >> $GITHUB_OUTPUT
+          echo "build_combustibles=$BUILD_COMBUSTIBLES" >> $GITHUB_OUTPUT
+
+          echo "📊 Build plan:"
+          echo "  🍽️ Alimentacion: $BUILD_ALIMENTACION"
+          echo "  ⛽ Combustibles: $BUILD_COMBUSTIBLES"
+
+      # 🏗️ BUILD PARALELO CONDICIONAL
+      - name: 🍽️ Build Alimentacion (if changed)
+        if: steps.changes.outputs.build_alimentacion == 'true'
+        run: |
+          echo "🍽️ Building Alimentacion..."
+          npm run build:alimentacion
+        env:
+          NODE_OPTIONS: "--max-old-space-size=2048"
+
+      - name: ⛽ Build Combustibles (if changed)
+        if: steps.changes.outputs.build_combustibles == 'true'
+        run: |
+          echo "⛽ Building Combustibles..."
+          npm run build:combustibles
+        env:
+          NODE_OPTIONS: "--max-old-space-size=2048"
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: liquidacionapp-62962.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: liquidacionapp-62962
+          VITE_FIREBASE_STORAGE_BUCKET: liquidacionapp-62962.firebasestorage.app
+          VITE_FIREBASE_MESSAGING_SENDER_ID: 851382130132
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+
+      # 🚀 DEPLOY ULTRA OPTIMIZADO
+      - name: 🔧 Setup Firebase CLI (cached)
+        run: |
+          # Usar versión específica para consistencia
+          npm install -g firebase-tools@13.0.0
+          firebase --version
+
+      - name: 🔑 Authenticate Firebase
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIQUIDACIONAPP_62962 }}' > /tmp/service-account.json
+          firebase use liquidacionapp-62962 --token ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: 🚀 Deploy to Firebase (hosting only)
+        run: |
+          echo "🚀 Deploying to Firebase Hosting..."
+
+          # Deploy solo hosting (más rápido que deploy completo)
+          firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }} --json | tee deploy-result.json
+
+          # Mostrar resultado
+          if grep -q '"status": "success"' deploy-result.json; then
+            echo "✅ Deploy successful!"
+          else
+            echo "❌ Deploy failed!"
+            cat deploy-result.json
+            exit 1
+          fi
+
+      # 📊 MÉTRICAS DE PERFORMANCE
+      - name: 📊 Performance metrics
+        if: always()
+        run: |
+          echo "📊 Build Performance Summary:"
+          echo "⏱️ Total job time: ${{ job.started_at }} to $(date)"
+          echo "📦 Build sizes:"
+          [ -d "public/alimentacion" ] && echo "  🍽️ Alimentacion: $(du -sh public/alimentacion/ | cut -f1)"
+          [ -d "public/combustibles" ] && echo "  ⛽ Combustibles: $(du -sh public/combustibles/ | cut -f1)"
+          echo "🗄️ Cache status:"
+          echo "  Build cache: ${{ steps.cache-builds.outputs.cache-hit == 'true' && '✅ HIT' || '❌ MISS' }}"
+          echo "📈 Changes detected:"
+          echo "  🍽️ Alimentacion: ${{ steps.changes.outputs.build_alimentacion }}"
+          echo "  ⛽ Combustibles: ${{ steps.changes.outputs.build_combustibles }}"
+
+  # 🧹 CLEANUP JOB (PARALLEL)
+  cleanup-old-caches:
+    name: 🧹 Cache Cleanup
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: github.event_name == 'push'  # Solo en push, no en manual
+    steps:
+      - name: 🧹 Clean old caches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            // Mantener solo los 5 caches más recientes por tipo
+            const cachesByKey = {};
+            caches.data.actions_caches.forEach(cache => {
+              const baseKey = cache.key.split('-').slice(0, 3).join('-');
+              if (!cachesByKey[baseKey]) cachesByKey[baseKey] = [];
+              cachesByKey[baseKey].push(cache);
+            });
+
+            for (const [baseKey, cachesForKey] of Object.entries(cachesByKey)) {
+              const sorted = cachesForKey.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+              const toDelete = sorted.slice(5); // Mantener solo 5
+
+              for (const cache of toDelete) {
+                try {
+                  await github.rest.actions.deleteActionsCacheById({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    cache_id: cache.id
+                  });
+                  console.log(`🗑️ Deleted cache: ${cache.key}`);
+                } catch (error) {
+                  console.log(`⚠️ Could not delete cache ${cache.key}: ${error.message}`);
+                }
+              }
+            }

@@ -15,9 +15,33 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/*.map",
+      "**/src/**",
+      "**/scripts/**",
+      "**/docs/**",
+      "**/tests/**",
+      "**/coverage/**"
     ],
     "headers": [
+      {
+        "source": "**/*.@(js|css|png|jpg|jpeg|webp|svg|ico|woff|woff2|ttf|eot)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(html|json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
+      },
       {
         "source": "**",
         "headers": [
@@ -57,85 +81,13 @@
     ],
     "rewrites": [
       {
-        "source": "/",
-        "destination": "/index.html"
-      },
-      {
-        "source": "/firebase-web-authn-api",
-        "function": "ext-firebase-web-authn-api"
-      },
-      {
-        "source": "/combustibles/firebase-web-authn-api",
-        "function": "ext-firebase-web-authn-api"
-      },
-      {
         "source": "/combustibles/**",
         "destination": "/combustibles/index.html"
       },
       {
         "source": "/alimentacion/**",
         "destination": "/alimentacion/index.html"
-      },
-      {
-        "source": "/sitemap.xml",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/sitemap-*.xml",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/seo-robots",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/test-robots-hosting",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/health",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/ab-testing",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/error-stats",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/ssr-reports",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/ssr-alerts",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/ssr-optimization",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/ssr-coverage",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/seo-validation",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/combustibles/ssr-health",
-        "function": "ssrCombustibles"
-      },
-      {
-        "source": "/combustibles/ssr-status",
-        "function": "ssrCombustibles"
       }
     ]
-  },
-  "extensions": {
-    "firebase-web-authn": "gavinsawyer/firebase-web-authn@10.4.2",
-    "forestech": "gavinsawyer/firebase-web-authn@10.4.2"
   }
 }
