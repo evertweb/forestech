@@ -1,6 +1,6 @@
 /**
  * AuthVisualEnhanced - Login con mejoras visuales avanzadas
- * Incluye: Logo animado, partículas, micro-interacciones, hero section
+ * Incluye: Logo animado, partículas, micro-interacciones, hero section, PASSKEYS
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -13,6 +13,12 @@ import {
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
+// ✅ NUEVO: Importar servicios de passkeys
+import {
+  signInWithWebAuthn,
+  checkWebAuthnReadiness,
+  getWebAuthnCapabilities,
+} from '../../firebase/firebaseWebAuthnService-native';
 import {
   getBackgroundImageUrl,
   preloadBackgroundImage,
@@ -95,6 +101,11 @@ const AuthVisualEnhanced = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // ✅ NUEVO: Estado para passkeys
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [checkingPasskeys, setCheckingPasskeys] = useState(true);
 
   // Estado para la imagen de fondo
   const [backgroundImage, setBackgroundImage] = useState('');
@@ -193,6 +204,36 @@ const AuthVisualEnhanced = () => {
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [isExpanded]);
+
+  // ✅ NUEVO: Verificar disponibilidad de passkeys al cargar el componente
+  useEffect(() => {
+    const checkPasskeyAvailability = async () => {
+      try {
+        setCheckingPasskeys(true);
+
+        // Verificar si el dispositivo soporta passkeys
+        const capabilities = await getWebAuthnCapabilities();
+        const readiness = await checkWebAuthnReadiness();
+
+        console.log('🔐 Verificando passkeys:', { capabilities, readiness });
+
+        // Solo mostrar botón si el dispositivo está listo Y es probable que tenga passkeys
+        if (readiness?.ready && capabilities?.supported) {
+          setPasskeyAvailable(true);
+          console.log('✅ Passkeys disponibles - mostrando botón');
+        } else {
+          console.log('❌ Passkeys no disponibles:', readiness?.summary);
+        }
+      } catch (error) {
+        console.warn('Error verificando passkeys:', error);
+        setPasskeyAvailable(false);
+      } finally {
+        setCheckingPasskeys(false);
+      }
+    };
+
+    checkPasskeyAvailability();
+  }, []);
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
@@ -300,6 +341,30 @@ const AuthVisualEnhanced = () => {
     }
   };
 
+  // ✅ NUEVO: Función para login con passkey
+  const handlePasskeyLogin = async () => {
+    setPasskeyLoading(true);
+    setError('');
+
+    try {
+      console.log('🔐 Iniciando login con passkey...');
+      const result = await signInWithWebAuthn();
+
+      if (result.success) {
+        console.log('✅ Login con passkey exitoso');
+        // El usuario ya está autenticado, Firebase Auth se encargará del resto
+      } else {
+        setError(result.error || 'Error al iniciar sesión con passkey');
+        console.error('❌ Error en login con passkey:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ Error inesperado con passkey:', error);
+      setError('Error al usar passkey. Intenta con email y contraseña.');
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
   const getErrorMessage = (errorCode) => {
     switch (errorCode) {
       case 'auth/invalid-email':
@@ -354,19 +419,51 @@ const AuthVisualEnhanced = () => {
                   <h2>Forestech Colombia</h2>
                   <p>Gestión inteligente de recursos energéticos</p>
                 </div>
+
+                {/* ✅ NUEVO: Botón de passkey prominente si está disponible */}
+                {passkeyAvailable && !checkingPasskeys && (
+                  <div className="passkey-section">
+                    <button
+                      onClick={handlePasskeyLogin}
+                      className="passkey-button primary"
+                      disabled={passkeyLoading || loading}
+                    >
+                      <span className="button-content">
+                        <span className="button-icon">🔐</span>
+                        <span className="button-text">
+                          {passkeyLoading ? 'Verificando...' : 'Continuar con Passkey'}
+                        </span>
+                      </span>
+                      <div className="button-shine"></div>
+                    </button>
+                    <div className="passkey-hint">Touch ID, Face ID o Windows Hello</div>
+                  </div>
+                )}
+
                 <button
                   onClick={handleExpandLogin}
-                  className="hero-cta-button"
+                  className={`hero-cta-button ${passkeyAvailable ? 'secondary' : 'primary'}`}
                   disabled={loading}
                   aria-busy={imageLoading ? 'true' : 'false'}
                   aria-describedby={imageLoading ? 'bg-loading-hint' : undefined}
                 >
                   <span className="button-content">
                     <span className="button-icon">🚀</span>
-                    <span className="button-text">Ingresar al Sistema</span>
+                    <span className="button-text">
+                      {passkeyAvailable ? 'Usar Email y Contraseña' : 'Ingresar al Sistema'}
+                    </span>
                   </span>
                   <div className="button-shine"></div>
                 </button>
+
+                {/* ✅ Indicador de verificación de passkeys */}
+                {checkingPasskeys && (
+                  <div className="passkey-checking">
+                    <DotsLoader />
+                    <span>Verificando métodos de autenticación...</span>
+                  </div>
+                )}
+
                 {imageLoading && (
                   <div id="bg-loading-hint" className="loading-hint">
                     Cargando fondo... puedes continuar sin esperar
@@ -382,6 +479,18 @@ const AuthVisualEnhanced = () => {
             <div className="form-header">
               <AnimatedLogo size={60} />
               <h3>Iniciar Sesión</h3>
+
+              {/* ✅ NUEVO: Botón de passkey en el formulario también */}
+              {passkeyAvailable && (
+                <button
+                  type="button"
+                  onClick={handlePasskeyLogin}
+                  className="passkey-button compact"
+                  disabled={passkeyLoading || loading}
+                >
+                  🔐 {passkeyLoading ? 'Verificando...' : 'Usar Passkey'}
+                </button>
+              )}
             </div>
 
             <form onSubmit={handleEmailLogin} className="enhanced-form">

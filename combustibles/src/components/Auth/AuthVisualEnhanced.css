@@ -14,10 +14,11 @@
   --glass-border: rgba(255, 255, 255, 0.2);
   --mouse-x: 0px;
   --mouse-y: 0px;
-  /* NUEVO: Variables para passkeys */
+  /* ✅ NUEVO: Variables para passkeys */
   --passkey-primary: #6366f1;
   --passkey-hover: #4f46e5;
   --passkey-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --passkey-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
 }
 
 /* =================== CONTENEDOR PRINCIPAL =================== */
@@ -1251,5 +1252,160 @@
 
   .whatsapp-float-button .whatsapp-icon {
     font-size: 1.1rem;
+  }
+}
+
+/* ✅ NUEVO: Estilos para sección de passkey */
+.passkey-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  animation: slideInUp 0.6s ease-out;
+}
+
+.passkey-button {
+  position: relative;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  min-width: 280px;
+  box-shadow: var(--passkey-shadow);
+  backdrop-filter: blur(10px);
+}
+
+.passkey-button.primary {
+  background: var(--passkey-gradient);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.passkey-button.compact {
+  padding: 12px 20px;
+  font-size: 14px;
+  min-width: 200px;
+  margin: 8px 0;
+}
+
+.passkey-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+}
+
+.passkey-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.passkey-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.passkey-button .button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.passkey-button .button-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.passkey-button .button-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.passkey-button:hover .button-shine {
+  left: 100%;
+}
+
+.passkey-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ✅ NUEVO: Indicador de verificación de passkeys */
+.passkey-checking {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+/* ✅ NUEVO: Ajustes al botón principal cuando hay passkey disponible */
+.hero-cta-button.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-cta-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ✅ NUEVO: Animaciones para elementos de passkey */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* ✅ NUEVO: Responsivo para passkeys */
+@media (max-width: 768px) {
+  .passkey-button {
+    min-width: 260px;
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+
+  .passkey-button.compact {
+    min-width: 180px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .passkey-hint {
+    font-size: 12px;
   }
 }
