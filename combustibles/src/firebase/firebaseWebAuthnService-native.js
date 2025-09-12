@@ -487,6 +487,254 @@ export const verifyUserWithWebAuthn = async () => {
 };
 
 /**
+ * ✅ NUEVA FUNCIÓN: Verificar si el usuario actual tiene passkeys registradas
+ */
+export const checkUserHasPasskeys = async () => {
+  try {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      console.log('🔐 [NATIVO] No hay usuario autenticado - no se pueden verificar passkeys');
+      return {
+        hasPasskeys: false,
+        reason: 'no_user',
+        message: 'Usuario no autenticado'
+      };
+    }
+
+    console.log('🔐 [NATIVO] Verificando passkeys para usuario:', currentUser.uid);
+
+    // Verificar en la colección webauthn_users si este usuario tiene passkeys
+    const userDoc = await getDoc(doc(db, 'webauthn_users', currentUser.uid));
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      console.log('✅ [NATIVO] Usuario tiene passkeys registradas:', userData);
+      return {
+        hasPasskeys: true,
+        userData: userData,
+        message: 'Usuario tiene passkeys registradas'
+      };
+    }
+
+    // También verificar en webauthn_credentials por si hay inconsistencia
+    const credentialDoc = await getDoc(doc(db, 'webauthn_credentials', currentUser.uid));
+
+    if (credentialDoc.exists()) {
+      console.log('✅ [NATIVO] Encontradas credenciales para usuario');
+      return {
+        hasPasskeys: true,
+        credentialData: credentialDoc.data(),
+        message: 'Usuario tiene credenciales registradas'
+      };
+    }
+
+    console.log('❌ [NATIVO] Usuario no tiene passkeys registradas');
+    return {
+      hasPasskeys: false,
+      reason: 'no_passkeys',
+      message: 'Usuario no tiene passkeys registradas'
+    };
+
+  } catch (error) {
+    console.error('❌ [NATIVO] Error verificando passkeys del usuario:', error);
+    return {
+      hasPasskeys: false,
+      reason: 'error',
+      message: 'Error verificando passkeys: ' + error.message,
+      error: error
+    };
+  }
+};
+
+/**
+ * ✅ NUEVA FUNCIÓN: Vincular passkey al usuario actual (no crear usuario nuevo)
+ */
+export const linkPasskeyToCurrentUser = async (displayName = 'Passkey Usuario') => {
+  try {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      throw new Error('Usuario no autenticado - no se puede vincular passkey');
+    }
+
+    console.log('🔐 [NATIVO] Vinculando passkey al usuario actual:', currentUser.uid);
+
+    // 1. Verificar soporte WebAuthn
+    if (!window.PublicKeyCredential) {
+      throw new Error('WebAuthn no está soportado en este navegador');
+    }
+
+    // 2. Generar challenge
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+    // 3. Configurar opciones de creación de credencial para usuario existente
+    const publicKeyCredentialCreationOptions = {
+      challenge,
+      rp: {
+        name: WEBAUTHN_CONFIG.rpName,
+        id: WEBAUTHN_CONFIG.rpId,
+      },
+      user: {
+        id: new TextEncoder().encode(currentUser.uid),
+        name: currentUser.email || 'usuario@forestech.com',
+        displayName: displayName,
+      },
+      pubKeyCredParams: [
+        { alg: -7, type: 'public-key' }, // ES256
+        { alg: -257, type: 'public-key' }, // RS256
+      ],
+      authenticatorSelection: WEBAUTHN_CONFIG.authenticatorSelection,
+      timeout: WEBAUTHN_CONFIG.timeout,
+      attestation: WEBAUTHN_CONFIG.attestation,
+    };
+
+    console.log('🔐 [NATIVO] Solicitando creación de credencial para usuario existente...');
+
+    // 4. Crear credencial WebAuthn
+    const credential = await navigator.credentials.create({
+      publicKey: publicKeyCredentialCreationOptions,
+    });
+
+    if (!credential) {
+      throw new Error('No se pudo crear la credencial WebAuthn');
+    }
+
+    console.log('✅ [NATIVO] Credencial WebAuthn creada exitosamente para usuario existente');
+
+    // 5. Guardar credencial vinculada al usuario actual
+    const credentialData = {
+      id: arrayBufferToBase64(credential.rawId),
+      publicKey: arrayBufferToBase64(credential.response.publicKey),
+      counter: 0,
+      transports: credential.response.getTransports ? credential.response.getTransports() : [],
+      createdAt: new Date().toISOString(),
+      lastUsed: new Date().toISOString(),
+      displayName,
+      userId: currentUser.uid, // ✅ Vincular al usuario actual
+      userEmail: currentUser.email
+    };
+
+    // Guardar usando el UID del usuario actual como key
+    await setDoc(doc(db, 'webauthn_credentials', currentUser.uid), credentialData);
+
+    // 6. Marcar al usuario como teniendo passkeys
+    await setDoc(doc(db, 'webauthn_users', currentUser.uid), {
+      uid: currentUser.uid,
+      email: currentUser.email,
+      displayName: displayName,
+      hasPasskey: true,
+      passkeyCreatedAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+    });
+
+    console.log('✅ [NATIVO] Passkey vinculada exitosamente al usuario:', currentUser.uid);
+
+    return {
+      success: true,
+      user: currentUser,
+      message: '¡Passkey vinculada exitosamente a tu cuenta!',
+    };
+
+  } catch (error) {
+    console.error('❌ [NATIVO] Error vinculando passkey al usuario:', error);
+
+    return {
+      success: false,
+      error: getWebAuthnErrorMessage(error),
+      originalError: error,
+    };
+  }
+};
+
+/**
+ * ✅ MEJORAR: Función de login con passkey para usuarios existentes
+ */
+export const signInCurrentUserWithPasskey = async () => {
+  try {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      throw new Error('Usuario no autenticado - inicia sesión primero');
+    }
+
+    console.log('🔐 [NATIVO] Autenticando con passkey usuario:', currentUser.uid);
+
+    // 1. Verificar que el usuario tiene passkeys
+    const userPasskeys = await checkUserHasPasskeys();
+
+    if (!userPasskeys.hasPasskeys) {
+      throw new Error('Usuario no tiene passkeys registradas');
+    }
+
+    // 2. Verificar soporte WebAuthn
+    if (!window.PublicKeyCredential) {
+      throw new Error('WebAuthn no está soportado en este navegador');
+    }
+
+    // 3. Generar challenge
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+    // 4. Configurar opciones de autenticación
+    const publicKeyCredentialRequestOptions = {
+      challenge,
+      timeout: WEBAUTHN_CONFIG.timeout,
+      rpId: WEBAUTHN_CONFIG.rpId,
+      userVerification: WEBAUTHN_CONFIG.userVerification,
+    };
+
+    console.log('🔐 [NATIVO] Solicitando autenticación con passkey...');
+
+    // 5. Obtener credencial existente
+    const assertion = await navigator.credentials.get({
+      publicKey: publicKeyCredentialRequestOptions,
+    });
+
+    if (!assertion) {
+      throw new Error('No se pudo obtener la credencial para autenticación');
+    }
+
+    console.log('✅ [NATIVO] Credencial obtenida, verificando...');
+
+    // 6. Verificar que la credencial pertenece al usuario actual
+    const credentialDoc = await getDoc(doc(db, 'webauthn_credentials', currentUser.uid));
+
+    if (!credentialDoc.exists()) {
+      throw new Error('Credencial no encontrada para este usuario');
+    }
+
+    const credentialData = credentialDoc.data();
+
+    // 7. Actualizar último uso
+    await updateDoc(doc(db, 'webauthn_credentials', currentUser.uid), {
+      lastUsed: new Date().toISOString(),
+      counter: (credentialData.counter || 0) + 1,
+    });
+
+    await updateDoc(doc(db, 'webauthn_users', currentUser.uid), {
+      lastLogin: new Date().toISOString(),
+    });
+
+    console.log('✅ [NATIVO] Autenticación con passkey exitosa para usuario:', currentUser.uid);
+
+    return {
+      success: true,
+      user: currentUser,
+      message: '¡Autenticación exitosa con passkey!',
+    };
+
+  } catch (error) {
+    console.error('❌ [NATIVO] Error en autenticación con passkey:', error);
+
+    return {
+      success: false,
+      error: getWebAuthnErrorMessage(error),
+      originalError: error,
+    };
+  }
+};
+
+/**
  * Convertir errores técnicos en mensajes amigables
  */
 const getWebAuthnErrorMessage = (error) => {

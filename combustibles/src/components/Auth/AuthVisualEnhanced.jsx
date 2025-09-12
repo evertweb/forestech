@@ -13,9 +13,10 @@ import {
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
-// ✅ NUEVO: Importar servicios de passkeys
+// ✅ NUEVO: Importar servicios de passkeys CORREGIDOS
 import {
-  signInWithWebAuthn,
+  signInCurrentUserWithPasskey,
+  checkUserHasPasskeys,
   checkWebAuthnReadiness,
   getWebAuthnCapabilities,
 } from '../../firebase/firebaseWebAuthnService-native';
@@ -205,25 +206,44 @@ const AuthVisualEnhanced = () => {
     }
   }, [isExpanded]);
 
-  // ✅ NUEVO: Verificar disponibilidad de passkeys al cargar el componente
+  // ✅ CORREGIDO: Verificar disponibilidad de passkeys de forma inteligente
   useEffect(() => {
     const checkPasskeyAvailability = async () => {
       try {
         setCheckingPasskeys(true);
 
-        // Verificar si el dispositivo soporta passkeys
+        // Verificar si el dispositivo soporta passkeys (siempre)
         const capabilities = await getWebAuthnCapabilities();
         const readiness = await checkWebAuthnReadiness();
 
         console.log('🔐 Verificando passkeys:', { capabilities, readiness });
 
-        // Solo mostrar botón si el dispositivo está listo Y es probable que tenga passkeys
-        if (readiness?.ready && capabilities?.supported) {
-          setPasskeyAvailable(true);
-          console.log('✅ Passkeys disponibles - mostrando botón');
-        } else {
-          console.log('❌ Passkeys no disponibles:', readiness?.summary);
+        // Si el dispositivo no soporta passkeys, no mostrar botón
+        if (!readiness?.ready || !capabilities?.supported) {
+          console.log('❌ Dispositivo no soporta passkeys:', readiness?.summary);
+          setPasskeyAvailable(false);
+          return;
         }
+
+        // Si hay un usuario autenticado, verificar si tiene passkeys registradas
+        if (auth.currentUser) {
+          console.log('🔐 Usuario autenticado, verificando passkeys registradas...');
+          const userPasskeys = await checkUserHasPasskeys();
+
+          if (userPasskeys.hasPasskeys) {
+            console.log('✅ Usuario tiene passkeys - mostrando botón');
+            setPasskeyAvailable(true);
+          } else {
+            console.log('❌ Usuario no tiene passkeys registradas');
+            setPasskeyAvailable(false);
+          }
+        } else {
+          // Sin usuario autenticado, mostrar botón si el dispositivo es compatible
+          // (el botón mostrará un mensaje apropiado si no hay passkeys registradas)
+          console.log('ℹ️ Sin usuario autenticado, mostrando botón si dispositivo es compatible');
+          setPasskeyAvailable(true);
+        }
+
       } catch (error) {
         console.warn('Error verificando passkeys:', error);
         setPasskeyAvailable(false);
@@ -233,6 +253,16 @@ const AuthVisualEnhanced = () => {
     };
 
     checkPasskeyAvailability();
+
+    // También escuchar cambios de autenticación para re-evaluar
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Cuando el usuario se autentica, re-verificar passkeys
+        setTimeout(() => checkPasskeyAvailability(), 1000);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleEmailLogin = async (e) => {
@@ -341,25 +371,39 @@ const AuthVisualEnhanced = () => {
     }
   };
 
-  // ✅ NUEVO: Función para login con passkey
+  // ✅ CORREGIDO: Función para login con passkey que maneja ambos casos
   const handlePasskeyLogin = async () => {
     setPasskeyLoading(true);
     setError('');
 
     try {
       console.log('🔐 Iniciando login con passkey...');
-      const result = await signInWithWebAuthn();
 
-      if (result.success) {
-        console.log('✅ Login con passkey exitoso');
-        // El usuario ya está autenticado, Firebase Auth se encargará del resto
+      // Si no hay usuario autenticado, usar el flujo original de WebAuthn
+      if (!auth.currentUser) {
+        console.log('🔐 No hay usuario autenticado, usando flujo completo de passkey...');
+        const { signInWithWebAuthn } = await import('../../firebase/firebaseWebAuthnService-native');
+        const result = await signInWithWebAuthn();
+
+        if (result.success) {
+          console.log('✅ Login con passkey exitoso (usuario nuevo)');
+        } else {
+          setError(result.error || 'No se encontraron passkeys registradas. Inicia sesión con email/contraseña primero.');
+        }
       } else {
-        setError(result.error || 'Error al iniciar sesión con passkey');
-        console.error('❌ Error en login con passkey:', result.error);
+        // Si hay usuario autenticado, usar el flujo para usuario actual
+        console.log('🔐 Usuario autenticado, usando passkey del usuario actual...');
+        const result = await signInCurrentUserWithPasskey();
+
+        if (result.success) {
+          console.log('✅ Verificación con passkey exitosa');
+        } else {
+          setError(result.error || 'Error al verificar con passkey');
+        }
       }
     } catch (error) {
       console.error('❌ Error inesperado con passkey:', error);
-      setError('Error al usar passkey. Intenta con email y contraseña.');
+      setError('Error al usar passkey. Si no tienes passkeys registradas, inicia sesión con email y contraseña primero.');
     } finally {
       setPasskeyLoading(false);
     }

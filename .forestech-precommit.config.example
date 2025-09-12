@@ -1,0 +1,30 @@
+# 📋 CONFIGURACIÓN PRE-COMMIT FORESTECH
+# Este archivo te permite personalizar el comportamiento del pre-commit hook
+# Copia este archivo a .forestech-precommit.config para activar configuraciones personalizadas
+
+# 🚀 CONTROL DE PROCESOS
+SKIP_DEPLOY=false          # true = No hacer deploy automático
+SKIP_TESTS=false          # true = Saltar tests en commits
+SKIP_LINT=false           # true = Saltar linting
+FORCE_FULL_BUILD=false    # true = Siempre hacer build completo
+AUTO_DEPLOY_ENABLED=true  # true = Deploy automático habilitado
+
+# ⚡ OPTIMIZACIONES
+PARALLEL_BUILD=true       # true = Build apps en paralelo
+CACHE_ENABLED=true        # true = Usar cache para builds
+FAST_MODE_DEFAULT=false   # true = Modo rápido por defecto
+
+# 🔧 CONFIGURACIÓN AVANZADA
+MAX_BUILD_TIME=300        # Tiempo máximo de build en segundos
+DEPLOY_TIMEOUT=180        # Tiempo máximo de deploy en segundos
+LOG_LEVEL="info"          # debug, info, warn, error
+
+# 🎯 REGLAS DE DEPLOY AUTOMÁTICO
+DEPLOY_ON_MAIN=true       # Deploy automático en rama main
+DEPLOY_ON_DEVELOP=false   # Deploy automático en rama develop
+DEPLOY_ON_FEATURE=false   # Deploy automático en ramas feature/*
+
+# 📊 NOTIFICACIONES (futuro)
+NOTIFY_ON_SUCCESS=true       # Notificar cuando el deploy sea exitoso
+NOTIFY_ON_ERROR=true         # Notificar cuando haya errores
+WEBHOOK_URL="https://n8n.forestechdecolombia.com.co/webhook/commit-notifications"  # URL para notificaciones webhook
