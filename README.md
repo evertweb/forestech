@@ -6,3 +6,4 @@
 # Test mensajes simples
 # Test mensajes expandidos
 # Test mensaje correcto
+# Test mensaje correcto post-commit
