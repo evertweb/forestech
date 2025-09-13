@@ -12,6 +12,7 @@ import { coverageMonitoringHandler } from './ssr/coverage-monitoring.js';
 import { seoValidationHandler } from './ssr/seo-endpoint.js';
 import { ensureEnv } from './ssr/env.js';
 import { combustiblesWebhookReceiver } from './webhooks/combustibles-webhooks-http.js';
+import { generatePasskeyToken, checkUserPasskeys } from './passkey-auth.js';
 
 ensureEnv();
 
@@ -180,3 +181,6 @@ export const linkTelegramAccount = onRequest({ cors: true, region: 'us-central1'
     return res.status(500).json({ success: false, error: 'Error interno', message: error.message });
   }
 });
+
+// Exportar funciones de passkey authentication
+export { generatePasskeyToken, checkUserPasskeys };

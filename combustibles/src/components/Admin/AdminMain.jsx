@@ -11,6 +11,7 @@ import { ROLES } from '../../constants/roles';
 import DataReset from './DataReset';
 import BackgroundImageManager from './BackgroundImageManager';
 import PriceServiceControl from '../Services/PriceServiceControl';
+import PasskeyManager from '../PasskeyManager';
 import { PageLayout } from '../shared';
 import './Admin.css';
 
@@ -294,6 +295,8 @@ const AdminMain = () => {
           <PriceServiceControl userRole={userProfile?.role} />
         </div>
       )}
+
+      {activeTab === 'passkeys' && <PasskeyManager />}
 
       {activeTab === 'background' && <BackgroundImageManager />}
 

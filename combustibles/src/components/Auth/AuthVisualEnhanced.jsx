@@ -13,6 +13,17 @@ import {
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
+// ✅ NUEVO: Importar servicios de passkeys con Firebase
+import {
+  authenticateWithPasskey,
+  checkUserHasPasskeys,
+  isWebAuthnSupported
+} from '../../services/firebasePasskeyService';
+import {
+  getBackgroundImageUrl,
+  preloadBackgroundImage,
+} from '../../services/backgroundImageService';
+import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import SEOContent from '../SEO/SEOContent';
 
 const AuthVisualEnhanced = () => {
@@ -21,6 +32,7 @@ const AuthVisualEnhanced = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState('');
@@ -34,12 +46,31 @@ const AuthVisualEnhanced = () => {
     invitationCode: '',
   });
 
-  // Verificar soporte WebAuthn
+  // Verificar soporte WebAuthn y disponibilidad de passkeys
   useEffect(() => {
-    const supported = typeof window !== 'undefined' &&
-                      'credentials' in navigator &&
-                      'create' in navigator.credentials;
-    setPasskeySupported(supported);
+    const checkPasskeyAvailability = async () => {
+      try {
+        // Verificar soporte básico
+        const supported = isWebAuthnSupported();
+        setPasskeySupported(supported);
+
+        if (!supported) {
+          setPasskeyAvailable(false);
+          return;
+        }
+
+        // TODO: Verificar si hay passkeys disponibles globalmente
+        // Por ahora, mostrar el botón si está soportado
+        setPasskeyAvailable(true);
+
+      } catch (error) {
+        console.error('Error verificando passkeys:', error);
+        setPasskeySupported(false);
+        setPasskeyAvailable(false);
+      }
+    };
+
+    checkPasskeyAvailability();
   }, []);
 
   // Limpiar mensajes
@@ -54,10 +85,27 @@ const AuthVisualEnhanced = () => {
     clearMessages();
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setError('Funcionalidad en desarrollo - Usa email/contraseña');
+      console.log('🔐 Iniciando autenticación con passkey...');
+      
+      const result = await authenticateWithPasskey();
+      
+      if (result.success) {
+        if (result.requiresEmailLogin && result.email) {
+          // Si necesita login con email después de verificar passkey
+          setSuccess('¡Passkey verificada! Completando autenticación...');
+          
+          // Aquí podríamos implementar autenticación silenciosa o mostrar un mensaje
+          // Por ahora, mostrar mensaje de éxito
+          setSuccess(`¡Passkey verificada para ${result.email}! La autenticación completa se implementará próximamente.`);
+        } else {
+          setSuccess(result.message);
+        }
+      } else {
+        setError(result.error || 'Error al autenticar con passkey');
+      }
     } catch (error) {
-      setError('Error con passkey. Intenta con email y contraseña.');
+      console.error('❌ Error inesperado con passkey:', error);
+      setError('Error al usar passkey. Si no tienes passkeys registradas, inicia sesión con email y contraseña primero.');
     } finally {
       setPasskeyLoading(false);
     }
@@ -356,7 +404,7 @@ const AuthVisualEnhanced = () => {
       {renderMessages()}
 
       {/* Botón Passkey */}
-      {passkeySupported && (
+      {passkeySupported && passkeyAvailable && (
         <div style={{ marginBottom: '16px' }}>
           <button
             onClick={handlePasskeyLogin}
