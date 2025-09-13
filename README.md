@@ -1,9 +1,186 @@
-<- Always require manual review for Test del workflow unificado - sáb 06 sep 2025 17:04:32 -05 -->
-# Test
-# Test notificaciones
-# Test notificacione1s
-# Test final notificaciones
-# Test mensajes simples
-# Test mensajes expandidos
-# Test mensaje correcto
-# Test mensaje correcto post-commit
+# 🚀 Forestech - Monorepo de Aplicaciones Web
+
+> **Suite de aplicaciones web para operaciones forestales en Colombia**
+> **Firebase Hosting + React 19 + WebAuthn**
+
+## 📋 Flujo de Trabajo Optimizado
+
+### 🎯 Nuevo Flujo (Septiembre 2025)
+
+```mermaid
+graph TD
+    A[Desarrollo Local] --> B[git add .]
+    B --> C[git commit -m 'tipo: descripción']
+    C --> D[git push origin main]
+    D --> E[🔍 GitHub Actions: Lint Check]
+    E --> F{Lint OK?}
+    F -->|❌ FAIL| G[Corregir errores de lint]
+    F -->|✅ PASS| H[Commit exitoso]
+    H --> I[🚀 Deploy Manual cuando sea necesario]
+    I --> J[Crear Release para deploy automático]
+```
+
+### 📝 1. Desarrollo y Commit (Lint Automático)
+
+Cuando haces commit, **solo se ejecuta validación de código**:
+
+```bash
+# Desarrollo normal
+git add .
+git commit -m "feat: nueva funcionalidad"
+git push origin main
+```
+
+**✅ Lo que sucede automáticamente:**
+- 🔍 **ESLint** en ambas aplicaciones
+- 🚫 **Bloquea el commit** si hay errores de lint
+- 📊 **Reporta resultados** en GitHub Actions
+
+### 🚀 2. Deploy Manual (Solo cuando lo decidas)
+
+El deploy ya **NO es automático** en cada commit. Para hacer deploy:
+
+#### Opción A: Deploy Manual desde GitHub
+1. Ve a **Actions** → **🚀 Forestech Manual Deploy TURBO**
+2. Click **"Run workflow"**
+3. Selecciona qué app desplegar:
+   - `all` - Ambas aplicaciones
+   - `combustibles` - Solo Combustibles
+   - `alimentacion` - Solo Alimentación
+
+#### Opción B: Deploy desde terminal local
+```bash
+# Deploy completo
+npm run deploy
+
+# Deploy rápido (solo cambios)
+npm run deploy:fast
+
+# Deploy con medición de performance
+npm run deploy:measure
+```
+
+### 🏷️ 3. Deploy Automático en Releases
+
+Para **deploy automático a producción**, crea un release:
+
+```bash
+# Crear tag y release
+git tag v1.2.3
+git push origin v1.2.3
+
+# O desde GitHub: Releases → "Create a new release"
+```
+
+**✅ Deploy automático cuando:**
+- Creas un **release** en GitHub
+- Haces push de un **tag** que empiece con `v` (ej: `v1.0.0`)
+
+## 🛠️ Comandos de Desarrollo
+
+### Desarrollo Local
+```bash
+# Iniciar desarrollo
+npm run dev:combustibles  # Puerto 5174
+npm run dev:alimentacion  # Puerto 5173
+
+# Build local
+npm run build:all
+npm run build:combustibles
+npm run build:alimentacion
+```
+
+### Validación de Código
+```bash
+# Lint completo
+npm run lint:all
+
+# Lint por aplicación
+npm run lint:combustibles
+npm run lint:alimentacion
+
+# Auto-fix lint issues
+npm run lint:fix  # En cada app
+```
+
+### Deploy
+```bash
+# Deploy manual completo
+npm run deploy
+
+# Deploy forzado (ignora cache)
+npm run deploy:force
+
+# Deploy rápido
+npm run deploy:fast
+
+# Limpiar cache y rebuild
+npm run clean:build
+```
+
+## 📊 Estados de los Workflows
+
+| Workflow | Trigger | Acción | Estado |
+|----------|---------|--------|--------|
+| 🔍 Lint & Code Quality | Push/PR | Valida ESLint | ✅ Automático |
+| 🚀 Manual Deploy TURBO | Manual | Deploy selectivo | ✅ Manual |
+| 🚀 Release Deploy | Release/Tag | Deploy producción | ✅ Automático |
+
+## 🎯 Beneficios del Nuevo Flujo
+
+### ✅ Ventajas
+- **🚫 Menos ruido**: No deploy automático en cada commit
+- **🔍 Calidad garantizada**: Lint siempre se ejecuta
+- **🎯 Control total**: Deploy solo cuando lo decides
+- **🏷️ Releases limpios**: Deploy automático solo en versiones oficiales
+- **⚡ Más rápido**: Commits más rápidos sin deploy
+
+### 📈 Mejoras de Performance
+- **Tiempo de commit**: ~30s (solo lint) vs ~8min (build + deploy)
+- **Control de costos**: Deploy solo cuando es necesario
+- **Mejor feedback**: Errores de lint inmediatos
+
+## 🚨 Solución de Problemas
+
+### Lint Errors
+```bash
+# Ver errores específicos
+npm run lint:combustibles
+npm run lint:alimentacion
+
+# Auto-fix donde sea posible
+cd combustibles && npm run lint:fix
+cd ../alimentacion && npm run lint:fix
+```
+
+### Deploy Issues
+```bash
+# Limpiar cache y retry
+npm run clean
+npm run deploy:force
+
+# Ver logs de Firebase
+firebase hosting:channel:list
+```
+
+### Workflow Failures
+- Revisa **Actions** tab en GitHub
+- Verifica **secrets** están configurados
+- Confirma **branch protection rules**
+
+## 📚 Documentación Adicional
+
+- [Guía de Desarrollo](./docs/)
+- [Configuración Firebase](./docs/firebase-setup.md)
+- [WebAuthn Setup](./combustibles/PASSKEY_IMPLEMENTATION.md)
+- [Performance Budget](./scripts/performance-budget-check.sh)
+
+---
+
+**Última actualización**: Septiembre 2025
+**Versión del flujo**: 2.0 - Lint First, Deploy Manual
+
+---
+
+## 🧪 Test Commit - Flujo Optimizado
+> Commit de prueba realizado el 13 de septiembre de 2025 para validar el nuevo workflow de lint automático.

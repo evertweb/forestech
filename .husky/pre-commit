@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# 🚀 PRE-COMMIT UNIFICADO - Test + Lint + Build + Deploy Automático
-echo "🔄 Ejecutando pre-commit unificado..."
+# 🚀 PRE-COMMIT OPTIMIZADO - Solo Lint (Sin Deploy Automático)
+echo "🔄 Ejecutando pre-commit optimizado (solo lint)..."
 
-# Ejecutar el script unificado
-./scripts/precommit-unified.sh
+# Ejecutar el script de lint-only
+./scripts/precommit-lint-only.sh
 
 # Si el script falla, el commit se cancela automáticamente
 if [ $? -ne 0 ]; then
@@ -14,3 +14,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "✅ Pre-commit completado. Continuando con commit..."
+echo "🎯 Recuerda: El deploy ahora es manual cuando lo decidas."

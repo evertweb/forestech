@@ -1,0 +1,80 @@
+name: 🔍 Lint & Code Quality
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'combustibles/src/**'
+      - 'alimentacion/src/**'
+      - 'shared/**'
+      - 'combustibles/eslint.config.js'
+      - 'alimentacion/eslint.config.js'
+      - 'eslint.config.js'
+      - 'package.json'
+      - 'combustibles/package.json'
+      - 'alimentacion/package.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'combustibles/src/**'
+      - 'alimentacion/src/**'
+      - 'shared/**'
+      - 'combustibles/eslint.config.js'
+      - 'alimentacion/eslint.config.js'
+      - 'eslint.config.js'
+      - 'package.json'
+      - 'combustibles/package.json'
+      - 'alimentacion/package.json'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  lint:
+    name: 🔍 Lint Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📋 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            alimentacion/package-lock.json
+            combustibles/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+
+      - name: 🔍 Run ESLint on Combustibles
+        run: |
+          echo "🔍 Linting Combustibles..."
+          npm run lint:combustibles
+        continue-on-error: false
+
+      - name: 🔍 Run ESLint on Alimentacion
+        run: |
+          echo "🔍 Linting Alimentacion..."
+          npm run lint:alimentacion
+        continue-on-error: false
+
+      - name: 📊 Lint Results Summary
+        if: always()
+        run: |
+          echo "📊 Lint Check Summary:"
+          echo "✅ Combustibles: $(npm run lint:combustibles > /dev/null 2>&1 && echo 'PASSED' || echo 'FAILED')"
+          echo "✅ Alimentacion: $(npm run lint:alimentacion > /dev/null 2>&1 && echo 'PASSED' || echo 'FAILED')"
+
+      - name: 🚫 Fail on Lint Errors
+        if: failure()
+        run: |
+          echo "❌ Lint errors found! Please fix them before committing."
+          echo "💡 Run 'npm run lint:fix' locally to auto-fix issues"
+          exit 1

@@ -1,8 +1,6 @@
-name: 🚀 Forestech Deploy TURBO
+name: 🚀 Forestech Manual Deploy TURBO
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       force_full_build:
@@ -10,6 +8,15 @@ on:
         required: false
         default: false
         type: boolean
+      target_app:
+        description: 'Target app to deploy (all, combustibles, alimentacion)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - combustibles
+          - alimentacion
 
 env:
   NODE_VERSION: '20'
@@ -77,34 +84,33 @@ jobs:
           fi
 
       # 🔍 DETECCIÓN INTELIGENTE DE CAMBIOS
-      - name: 🔍 Detect changes
+      - name: 🔍 Detect changes or use target selection
         id: changes
         run: |
-          echo "🔍 Analyzing changes since last commit..."
+          echo "🔍 Analyzing deployment target..."
 
-          # Default: build todo si no hay cache o si es forzado
-          BUILD_ALIMENTACION=true
-          BUILD_COMBUSTIBLES=true
+          # Check if specific target is selected
+          TARGET_APP="${{ github.event.inputs.target_app }}"
 
-          if [ "${{ steps.cache-builds.outputs.cache-hit }}" == "true" ] && [ "${{ github.event.inputs.force_full_build }}" != "true" ]; then
-            echo "📋 Cache found, analyzing specific changes..."
-
-            # Verificar cambios específicos por app
-            if ! git diff --name-only HEAD~1 HEAD | grep -E "^(alimentacion/|shared/)" > /dev/null; then
-              BUILD_ALIMENTACION=false
-              echo "✅ Alimentacion unchanged - using cache"
-            fi
-
-            if ! git diff --name-only HEAD~1 HEAD | grep -E "^(combustibles/|shared/)" > /dev/null; then
-              BUILD_COMBUSTIBLES=false
-              echo "✅ Combustibles unchanged - using cache"
-            fi
+          if [ "$TARGET_APP" == "combustibles" ]; then
+            BUILD_ALIMENTACION=false
+            BUILD_COMBUSTIBLES=true
+            echo "🎯 Deploying only Combustibles"
+          elif [ "$TARGET_APP" == "alimentacion" ]; then
+            BUILD_ALIMENTACION=true
+            BUILD_COMBUSTIBLES=false
+            echo "🎯 Deploying only Alimentacion"
+          else
+            # Default: build both if no specific target or "all" selected
+            BUILD_ALIMENTACION=true
+            BUILD_COMBUSTIBLES=true
+            echo "🎯 Deploying both apps"
           fi
 
           echo "build_alimentacion=$BUILD_ALIMENTACION" >> $GITHUB_OUTPUT
           echo "build_combustibles=$BUILD_COMBUSTIBLES" >> $GITHUB_OUTPUT
 
-          echo "📊 Build plan:"
+          echo "📊 Deploy plan:"
           echo "  🍽️ Alimentacion: $BUILD_ALIMENTACION"
           echo "  ⛽ Combustibles: $BUILD_COMBUSTIBLES"
 

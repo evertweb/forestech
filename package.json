@@ -40,10 +40,10 @@
     "prepare": "husky || exit 0",
     "lint-staged": "lint-staged",
     "precommit:full": "./scripts/precommit-unified.sh",
-    "precommit:fast": "./scripts/precommit-unified.sh --fast",
+    "precommit:fast": "./scripts/precommit-lint-only.sh",
     "precommit:test": "npm run lint && npm run test:ci && npm run build",
-    "precommit:no-deploy": "./scripts/precommit-unified.sh --no-deploy",
-    "commit:safe": "npm run precommit:full && git commit",
+    "precommit:no-deploy": "./scripts/precommit-lint-only.sh",
+    "commit:safe": "npm run precommit:fast && git commit",
     "commit:fast": "npm run precommit:fast && git commit",
     "commit:dev": "SKIP_DEPLOY=true npm run precommit:fast && git commit"
   },
