@@ -16,13 +16,8 @@ import { validateInvitationCode } from '../../firebase/invitationService';
 // ✅ NUEVO: Importar servicios de passkeys con Firebase
 import {
   authenticateWithPasskey,
-  checkUserHasPasskeys,
   isWebAuthnSupported
 } from '../../services/firebasePasskeyService';
-import {
-  getBackgroundImageUrl,
-  preloadBackgroundImage,
-} from '../../services/backgroundImageService';
 import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import SEOContent from '../SEO/SEOContent';
 
@@ -141,7 +136,7 @@ const AuthVisualEnhanced = () => {
       }
       
       setSuccess('¡Inicio de sesión con Google exitoso!');
-    } catch (error) {
+    } catch (_error) {
       setError('Error al iniciar sesión con Google');
     } finally {
       setLoading(false);
@@ -167,7 +162,7 @@ const AuthVisualEnhanced = () => {
       } else {
         setError(result.error);
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error validando código de invitación');
     } finally {
       setLoading(false);

@@ -22,8 +22,6 @@ import { createUserProfileWithInvitation, createUserProfile } from '../../fireba
 import { validateInvitationCode } from '../../firebase/invitationService';
 import {
   isWebAuthnSupported,
-  signInCurrentUserWithPasskey,
-  checkUserHasPasskeys,
 } from '../../firebase/firebaseWebAuthnService';
 import {
   getBackgroundImageUrl,

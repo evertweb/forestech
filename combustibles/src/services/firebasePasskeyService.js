@@ -5,10 +5,7 @@
 
 import { auth, db } from '../firebase/config';
 import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  signInWithCustomToken,
-  updateProfile 
+  signInWithCustomToken
 } from 'firebase/auth';
 import { 
   doc, 
@@ -33,7 +30,6 @@ import {
 // Inicializar Firebase Functions
 const functions = getFunctions();
 const generatePasskeyTokenFn = httpsCallable(functions, 'generatePasskeyToken');
-const checkUserPasskeysFn = httpsCallable(functions, 'checkUserPasskeys');
 
 /**
  * Colecciones de Firestore para passkeys

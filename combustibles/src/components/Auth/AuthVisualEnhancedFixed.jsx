@@ -56,7 +56,7 @@ const AuthVisualEnhanced = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       setError('Funcionalidad en desarrollo - Usa email/contraseña');
-    } catch (error) {
+    } catch (_error) {
       setError('Error con passkey. Intenta con email y contraseña.');
     } finally {
       setPasskeyLoading(false);
@@ -93,7 +93,7 @@ const AuthVisualEnhanced = () => {
       }
       
       setSuccess('¡Inicio de sesión con Google exitoso!');
-    } catch (error) {
+    } catch (_error) {
       setError('Error al iniciar sesión con Google');
     } finally {
       setLoading(false);
@@ -119,7 +119,7 @@ const AuthVisualEnhanced = () => {
       } else {
         setError(result.error);
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error validando código de invitación');
     } finally {
       setLoading(false);

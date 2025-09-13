@@ -8,7 +8,6 @@ import {
   registerPasskeyForUser,
   removeUserPasskeys,
   getUserPasskeyInfo,
-  checkUserHasPasskeys,
   isWebAuthnSupported
 } from '../services/firebasePasskeyService';
 

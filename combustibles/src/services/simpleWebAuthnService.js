@@ -27,15 +27,6 @@ const arrayBufferToBase64 = (buffer) => {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 };
 
-const base64ToArrayBuffer = (base64) => {
-  const binary = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes.buffer;
-};
-
 /**
  * Obtener credenciales guardadas
  */
