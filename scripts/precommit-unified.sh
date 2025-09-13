@@ -116,11 +116,26 @@ send_notification() {
     fi
 
     # Obtener información del commit y repositorio
-    local commit_hash=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    local commit_hash="staging"  # Durante pre-commit aún no existe el hash
     local branch_name=$(git branch --show-current 2>/dev/null || echo "unknown")
-    local commit_message=$(git log -1 --pretty=%s 2>/dev/null || echo "unknown")
-    local author_name=$(git log -1 --pretty=%an 2>/dev/null || echo "unknown")
-    local author_email=$(git log -1 --pretty=%ae 2>/dev/null || echo "unknown")
+
+    # 🔧 CORREGIDO: Obtener mensaje del commit actual desde argumentos de Git
+    local commit_message="commit en progreso"
+
+    # Intentar obtener el mensaje desde diferentes fuentes en orden de prioridad
+    if [ -n "$GIT_COMMIT_MESSAGE" ]; then
+        # Si la variable de entorno está definida (para testing)
+        commit_message="$GIT_COMMIT_MESSAGE"
+    elif [ -f ".git/COMMIT_EDITMSG" ] && [ -s ".git/COMMIT_EDITMSG" ]; then
+        # Si el archivo existe y no está vacío (algunos casos especiales)
+        commit_message=$(head -n 1 .git/COMMIT_EDITMSG 2>/dev/null)
+    else
+        # Durante pre-commit, el mensaje aún no está disponible
+        commit_message="commit en progreso"
+    fi
+
+    local author_name=$(git config user.name 2>/dev/null || echo "unknown")
+    local author_email=$(git config user.email 2>/dev/null || echo "unknown")
     local repo_name=$(basename $(git rev-parse --show-toplevel 2>/dev/null) 2>/dev/null || echo "forestech")
     local changed_files=$(git diff --cached --name-only 2>/dev/null | wc -l || echo "0")
 
@@ -300,7 +315,8 @@ fi
 # PASO 5: Validación de build
 CURRENT_STEP=$((CURRENT_STEP + 1))
 if [ "$BUILD_ALIMENTACION" = true ] || [ "$BUILD_COMBUSTIBLES" = true ] || [ "$FORCE_FULL_BUILD" = true ]; then
-    execute_with_progress $CURRENT_STEP "✅ Validando builds generados" "test -d alimentacion/dist -o -d combustibles/dist"
+    # Validar que existan los builds en public/ (donde Vite los genera)
+    execute_with_progress $CURRENT_STEP "✅ Validando builds generados" "test -d public/combustibles -o -d public/alimentacion"
 else
     print_step $CURRENT_STEP "✅ Validación de build saltada (no hay builds nuevos)"
 fi
@@ -346,7 +362,7 @@ echo "║  🌐 Deploy: SALTADO                                            ║"
 fi
 echo "║                                                                ║"
 echo "║  🎯 Tu código está listo y desplegado automáticamente         ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+echo "╚════════════════════════════════════════════════════════════════���"
 echo -e "${NC}"
 
 # 📡 ENVIAR NOTIFICACIÓN DE ÉXITO

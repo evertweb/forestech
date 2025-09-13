@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 🚀 POST-COMMIT HOOK - Notificaciones con información correcta del commit
+echo "📡 Enviando notificación de commit exitoso..."
+
+# Ejecutar script de notificaciones post-commit
+./scripts/post-commit-notify.sh
+
+echo "✅ Notificación post-commit completada."

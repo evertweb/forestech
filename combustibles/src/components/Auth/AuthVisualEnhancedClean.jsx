@@ -1,6 +1,6 @@
 /**
- * AuthVisualEnhanced - Login ULTRA SIMPLE para Forestech
- * Versión de emergencia sin CSS complejo
+ * AuthVisualEnhanced - Login SIMPLIFICADO para Forestech
+ * Versión limpia sin CSS complejo que causa overflow
  */
 
 import React, { useState, useEffect } from 'react';
@@ -14,6 +14,30 @@ import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
 import { validateInvitationCode } from '../../firebase/invitationService';
 import SEOContent from '../SEO/SEOContent';
+
+// ✅ ICONOS SIMPLES Y CONTROLADOS
+const FingerprintIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 11c1.656 0 3-1.344 3-3s-1.344-3-3-3-3 1.344-3 3 1.344 3 3 3z"/>
+    <path d="M12 11v8M8.5 14v3M15.5 14v3M6 16.5v2M18 16.5v2"/>
+  </svg>
+);
+
+const LoadingSpinner = () => (
+  <svg width="16" height="16" className="animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" strokeDasharray="31.416" strokeDashoffset="31.416" opacity="0.25"/>
+    <path d="M12 2c5.523 0 10 4.477 10 10" strokeLinecap="round"/>
+  </svg>
+);
+
+const GoogleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+);
 
 const AuthVisualEnhanced = () => {
   const [view, setView] = useState('login');
@@ -193,144 +217,17 @@ const AuthVisualEnhanced = () => {
     clearMessages();
   };
 
-  // Estilos inline simples
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e3a8a 0%, #065f46 100%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px'
-  };
-
-  const cardStyle = {
-    backgroundColor: 'white',
-    borderRadius: '16px',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-    padding: '32px',
-    width: '100%',
-    maxWidth: '400px'
-  };
-
-  const logoStyle = {
-    width: '64px',
-    height: '64px',
-    backgroundColor: '#059669',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '24px',
-    margin: '0 auto 16px auto'
-  };
-
-  const titleStyle = {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: '8px'
-  };
-
-  const subtitleStyle = {
-    fontSize: '14px',
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: '24px'
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    height: '48px',
-    borderRadius: '8px',
-    border: 'none',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    marginBottom: '12px'
-  };
-
-  const primaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#2563eb',
-    color: 'white'
-  };
-
-  const secondaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#f3f4f6',
-    color: '#374151',
-    border: '1px solid #d1d5db'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    height: '40px',
-    padding: '0 12px',
-    border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    fontSize: '14px',
-    marginBottom: '16px',
-    outline: 'none'
-  };
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: '4px'
-  };
-
-  const errorStyle = {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fecaca',
-    color: '#dc2626',
-    padding: '12px',
-    borderRadius: '6px',
-    fontSize: '14px',
-    marginBottom: '16px'
-  };
-
-  const successStyle = {
-    backgroundColor: '#f0fdf4',
-    border: '1px solid #bbf7d0',
-    color: '#16a34a',
-    padding: '12px',
-    borderRadius: '6px',
-    fontSize: '14px',
-    marginBottom: '16px'
-  };
-
-  const separatorStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    margin: '20px 0',
-    fontSize: '14px',
-    color: '#6b7280'
-  };
-
-  const lineStyle = {
-    flex: 1,
-    height: '1px',
-    backgroundColor: '#d1d5db'
-  };
-
   // Renderizar mensajes
   const renderMessages = () => (
-    <div>
+    <div className="space-y-3">
       {success && (
-        <div style={successStyle}>
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
           ✅ {success}
         </div>
       )}
       
       {error && (
-        <div style={errorStyle}>
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
           ⚠️ {error}
         </div>
       )}
@@ -339,81 +236,75 @@ const AuthVisualEnhanced = () => {
 
   // Vista principal de login
   const renderLoginView = () => (
-    <div>
+    <div className="space-y-6">
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={logoStyle}>
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold mx-auto">
           🌲
         </div>
-        <h1 style={titleStyle}>
-          Forestech Combustibles
-        </h1>
-        <p style={subtitleStyle}>
-          Sistema de gestión forestal
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Forestech Combustibles
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Sistema de gestión forestal
+          </p>
+        </div>
       </div>
 
       {renderMessages()}
 
       {/* Botón Passkey */}
       {passkeySupported && (
-        <div style={{ marginBottom: '16px' }}>
+        <div className="space-y-3">
           <button
             onClick={handlePasskeyLogin}
             disabled={passkeyLoading || loading}
-            style={{
-              ...primaryButtonStyle,
-              opacity: (passkeyLoading || loading) ? 0.6 : 1
-            }}
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center space-x-2"
           >
             {passkeyLoading ? (
               <>
-                <span>🔄</span>
+                <LoadingSpinner />
                 <span>Verificando...</span>
               </>
             ) : (
               <>
-                <span>🔐</span>
+                <FingerprintIcon />
                 <span>Acceder con Passkey</span>
               </>
             )}
           </button>
-          <p style={{ fontSize: '12px', textAlign: 'center', color: '#6b7280', margin: '8px 0' }}>
+          <p className="text-xs text-center text-gray-500">
             Touch ID • Face ID • Windows Hello
           </p>
         </div>
       )}
 
       {/* Separador */}
-      <div style={separatorStyle}>
-        <div style={lineStyle}></div>
-        <span style={{ margin: '0 12px' }}>O</span>
-        <div style={lineStyle}></div>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-3 bg-white text-gray-500">O</span>
+        </div>
       </div>
 
       {/* Toggle formulario email */}
       {!showEmailForm ? (
         <button
           onClick={() => setShowEmailForm(true)}
-          style={{
-            width: '100%',
-            background: 'none',
-            border: 'none',
-            color: '#2563eb',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            padding: '8px',
-            marginBottom: '16px'
-          }}
+          className="w-full text-center text-blue-600 hover:text-blue-700 font-medium py-2"
         >
           Acceder con email y contraseña
         </button>
       ) : (
-        <div style={{ marginBottom: '16px' }}>
-          <form onSubmit={handleEmailLogin}>
+        <div className="space-y-4">
+          <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label style={labelStyle}>Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
@@ -421,12 +312,14 @@ const AuthVisualEnhanced = () => {
                 required
                 disabled={loading}
                 placeholder="tu@ejemplo.com"
-                style={inputStyle}
+                className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label style={labelStyle}>Contraseña</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña
+              </label>
               <input
                 type="password"
                 value={password}
@@ -434,23 +327,18 @@ const AuthVisualEnhanced = () => {
                 required
                 disabled={loading}
                 placeholder="Tu contraseña"
-                style={inputStyle}
+                className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              style={{
-                ...secondaryButtonStyle,
-                backgroundColor: '#4b5563',
-                color: 'white',
-                opacity: loading ? 0.6 : 1
-              }}
+              className="w-full h-10 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium rounded-lg flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>
-                  <span>🔄</span>
+                  <LoadingSpinner />
                   <span>Iniciando...</span>
                 </>
               ) : (
@@ -461,57 +349,42 @@ const AuthVisualEnhanced = () => {
 
           <button
             onClick={() => setShowEmailForm(false)}
-            style={{
-              width: '100%',
-              background: 'none',
-              border: 'none',
-              color: '#6b7280',
-              fontSize: '14px',
-              cursor: 'pointer',
-              padding: '4px',
-              marginTop: '8px'
-            }}
+            className="w-full text-center text-gray-500 text-sm py-1"
           >
             Ocultar formulario
           </button>
         </div>
       )}
 
-      {/* Separador */}
-      <div style={separatorStyle}>
-        <div style={lineStyle}></div>
-        <span style={{ margin: '0 12px' }}>O continúa con</span>
-        <div style={lineStyle}></div>
-      </div>
-      
       {/* Botón Google */}
-      <button
-        onClick={handleGoogleLogin}
-        disabled={loading}
-        style={{
-          ...secondaryButtonStyle,
-          opacity: loading ? 0.6 : 1
-        }}
-      >
-        <span>🌐</span>
-        <span>Google</span>
-      </button>
+      <div className="space-y-3">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-3 bg-white text-gray-500">O continúa con</span>
+          </div>
+        </div>
+        
+        <button
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full h-10 border-2 border-gray-300 hover:border-gray-400 rounded-lg font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center space-x-2"
+        >
+          <GoogleIcon />
+          <span>Google</span>
+        </button>
+      </div>
 
       {/* Link invitación */}
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+      <div className="text-center">
         <button
           onClick={() => {
             resetForm();
             setView('invite');
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#2563eb',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer'
-          }}
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
           ¿Tienes código de invitación?
         </button>
@@ -521,30 +394,24 @@ const AuthVisualEnhanced = () => {
 
   // Vista invitación
   const renderInviteView = () => (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{
-          ...logoStyle,
-          width: '48px',
-          height: '48px',
-          fontSize: '20px'
-        }}>
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-xl font-bold mx-auto">
           🌲
         </div>
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: 'bold',
-          color: '#111827',
-          marginBottom: '8px'
-        }}>Código de Invitación</h2>
-        <p style={subtitleStyle}>Ingresa tu código de 8 caracteres</p>
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Código de Invitación</h2>
+          <p className="text-sm text-gray-600">Ingresa tu código de 8 caracteres</p>
+        </div>
       </div>
 
       {renderMessages()}
 
-      <form onSubmit={handleValidateInvitation}>
+      <form onSubmit={handleValidateInvitation} className="space-y-4">
         <div>
-          <label style={labelStyle}>Código de invitación</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Código de invitación
+          </label>
           <input
             type="text"
             value={inviteCode}
@@ -553,28 +420,18 @@ const AuthVisualEnhanced = () => {
             disabled={loading}
             placeholder="XXXXXXXX"
             maxLength={8}
-            style={{
-              ...inputStyle,
-              textAlign: 'center',
-              fontFamily: 'monospace',
-              fontSize: '18px',
-              letterSpacing: '2px',
-              textTransform: 'uppercase'
-            }}
+            className="w-full h-12 px-4 border border-gray-300 rounded-lg text-center font-mono text-lg tracking-wider uppercase"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            ...primaryButtonStyle,
-            opacity: loading ? 0.6 : 1
-          }}
+          className="w-full h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg flex items-center justify-center space-x-2"
         >
           {loading ? (
             <>
-              <span>🔄</span>
+              <LoadingSpinner />
               <span>Validando...</span>
             </>
           ) : (
@@ -583,19 +440,13 @@ const AuthVisualEnhanced = () => {
         </button>
       </form>
 
-      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+      <div className="text-center">
         <button
           onClick={() => {
             resetForm();
             setView('login');
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#6b7280',
-            fontSize: '14px',
-            cursor: 'pointer'
-          }}
+          className="text-sm text-gray-600 hover:text-gray-800"
         >
           ← Volver al login
         </button>
@@ -605,44 +456,32 @@ const AuthVisualEnhanced = () => {
 
   // Vista registro
   const renderRegisterView = () => (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{
-          ...logoStyle,
-          width: '48px',
-          height: '48px',
-          fontSize: '20px'
-        }}>
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-xl font-bold mx-auto">
           🌲
         </div>
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: 'bold',
-          color: '#111827',
-          marginBottom: '8px'
-        }}>Crear Cuenta</h2>
-        <p style={subtitleStyle}>Completa tu registro</p>
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Crear Cuenta</h2>
+          <p className="text-sm text-gray-600">Completa tu registro</p>
+        </div>
       </div>
 
       {renderMessages()}
 
-      <form onSubmit={handleRegisterWithInvitation}>
+      <form onSubmit={handleRegisterWithInvitation} className="space-y-4">
         <div>
-          <label style={labelStyle}>Email</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <input
             type="email"
             value={registerData.email}
             disabled
-            style={{
-              ...inputStyle,
-              backgroundColor: '#f9fafb',
-              color: '#6b7280'
-            }}
+            className="w-full h-10 px-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
           />
         </div>
 
         <div>
-          <label style={labelStyle}>Contraseña</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
           <input
             type="password"
             value={registerData.password}
@@ -650,12 +489,12 @@ const AuthVisualEnhanced = () => {
             required
             disabled={loading}
             placeholder="Mínimo 6 caracteres"
-            style={inputStyle}
+            className="w-full h-10 px-3 border border-gray-300 rounded-lg"
           />
         </div>
 
         <div>
-          <label style={labelStyle}>Confirmar contraseña</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
           <input
             type="password"
             value={registerData.confirmPassword}
@@ -663,23 +502,18 @@ const AuthVisualEnhanced = () => {
             required
             disabled={loading}
             placeholder="Repite tu contraseña"
-            style={inputStyle}
+            className="w-full h-10 px-3 border border-gray-300 rounded-lg"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            ...buttonStyle,
-            backgroundColor: '#059669',
-            color: 'white',
-            opacity: loading ? 0.6 : 1
-          }}
+          className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-medium rounded-lg flex items-center justify-center space-x-2"
         >
           {loading ? (
             <>
-              <span>🔄</span>
+              <LoadingSpinner />
               <span>Creando...</span>
             </>
           ) : (
@@ -688,19 +522,13 @@ const AuthVisualEnhanced = () => {
         </button>
       </form>
 
-      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+      <div className="text-center">
         <button
           onClick={() => {
             resetForm();
             setView('login');
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#6b7280',
-            fontSize: '14px',
-            cursor: 'pointer'
-          }}
+          className="text-sm text-gray-600 hover:text-gray-800"
         >
           ← Volver al login
         </button>
@@ -709,16 +537,22 @@ const AuthVisualEnhanced = () => {
   );
 
   return (
-    <div style={containerStyle}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-emerald-900 flex items-center justify-center p-4">
       <SEOContent 
         title="Forestech Combustibles - Login"
         description="Sistema de gestión de combustible forestal. Acceso con passkeys o credenciales tradicionales."
       />
       
-      <div style={cardStyle}>
-        {view === 'login' && renderLoginView()}
-        {view === 'invite' && renderInviteView()}
-        {view === 'register' && renderRegisterView()}
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl p-6">
+          {view === 'login' && renderLoginView()}
+          {view === 'invite' && renderInviteView()}
+          {view === 'register' && renderRegisterView()}
+        </div>
+        
+        <div className="mt-4 text-center text-white/80 text-xs">
+          <p>© 2025 Forestech Colombia</p>
+        </div>
       </div>
     </div>
   );
