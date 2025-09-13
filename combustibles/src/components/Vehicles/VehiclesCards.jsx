@@ -6,6 +6,7 @@
 import React from 'react';
 import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
 import VehicleIcon from './VehicleIcon';
+import HourMeterDisplay from '../Shared/HourMeterDisplay';
 
 const VehiclesCards = ({ vehicles, onEdit, onView, onMaintenance }) => {
   // Formatear número

@@ -14,6 +14,8 @@ import {
   getCategoryById,
 } from '../../data/vehicleCategories';
 import VehicleCategoriesManager from './VehicleCategoriesManager';
+import HourMeterDisplay from '../Shared/HourMeterDisplay';
+import HourMeterHistory from '../Shared/HourMeterHistory';
 import './VehicleModalNew.css';
 
 const VehicleModalNew = ({ isOpen, onClose, vehicle, onSave, mode = 'create' }) => {
