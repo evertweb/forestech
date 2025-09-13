@@ -18,6 +18,8 @@ import {
   authenticateWithPasskey,
   isWebAuthnSupported
 } from '../../services/firebasePasskeyService';
+// ✅ NUEVO: Importar servicios de reconocimiento facial
+import { loginWithFace, captureImageFromVideo } from '../../services/firebaseFacialService';
 import { COMMUNICATION_URLS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';
 import SEOContent from '../SEO/SEOContent';
 
@@ -30,6 +32,11 @@ const AuthVisualEnhanced = () => {
   const [passkeyAvailable, setPasskeyAvailable] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  // ✅ NUEVO: Estados para reconocimiento facial
+  const [facialSupported, setFacialSupported] = useState(false);
+  const [facialLoading, setFacialLoading] = useState(false);
+  const [showFacialCapture, setShowFacialCapture] = useState(false);
+  const [videoStream, setVideoStream] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -65,7 +72,30 @@ const AuthVisualEnhanced = () => {
       }
     };
 
+    // ✅ NUEVO: Verificar soporte para reconocimiento facial
+    const checkFacialSupport = () => {
+      try {
+        const facialSupported = typeof window !== 'undefined' &&
+                               typeof navigator !== 'undefined' &&
+                               !!navigator.mediaDevices &&
+                               typeof navigator.mediaDevices.getUserMedia === 'function';
+        setFacialSupported(facialSupported);
+        
+        console.log('🔍 Soporte biométrico:', { 
+          passkeySupported: isWebAuthnSupported(), 
+          facialSupported,
+          mediaDevices: !!navigator.mediaDevices,
+          getUserMedia: typeof navigator.mediaDevices?.getUserMedia,
+          isSecure: window.isSecureContext
+        });
+      } catch (error) {
+        console.log('Error verificando soporte facial:', error);
+        setFacialSupported(false);
+      }
+    };
+
     checkPasskeyAvailability();
+    checkFacialSupport();
   }, []);
 
   // Limpiar mensajes
@@ -104,6 +134,78 @@ const AuthVisualEnhanced = () => {
     } finally {
       setPasskeyLoading(false);
     }
+  };
+
+  // ✅ NUEVO: Funciones de reconocimiento facial
+  const handleFacialLogin = async () => {
+    setFacialLoading(true);
+    clearMessages();
+    
+    try {
+      // Solicitar acceso a la cámara
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: 640, 
+          height: 480,
+          facingMode: 'user' // Cámara frontal
+        } 
+      });
+      
+      setVideoStream(stream);
+      setShowFacialCapture(true);
+    } catch (error) {
+      console.error('Error accediendo a la cámara:', error);
+      setError('No se pudo acceder a la cámara. Verifica los permisos.');
+    } finally {
+      setFacialLoading(false);
+    }
+  };
+
+  const handleCaptureAndLogin = async () => {
+    if (!videoStream) return;
+    
+    setFacialLoading(true);
+    clearMessages();
+    
+    try {
+      // Crear elementos canvas temporales
+      const video = document.createElement('video');
+      const canvas = document.createElement('canvas');
+      
+      video.srcObject = videoStream;
+      await video.play();
+      
+      // Capturar imagen
+      const imageBlob = await captureImageFromVideo(video, canvas);
+      
+      // Detener el stream
+      videoStream.getTracks().forEach(track => track.stop());
+      setVideoStream(null);
+      setShowFacialCapture(false);
+      
+      // Intentar login facial
+      const result = await loginWithFace(imageBlob);
+      
+      if (result.success) {
+        setSuccess('¡Inicio de sesión facial exitoso!');
+      } else {
+        setError(result.error || 'Rostro no reconocido');
+      }
+    } catch (error) {
+      console.error('Error en login facial:', error);
+      setError('Error en reconocimiento facial. Intenta nuevamente.');
+    } finally {
+      setFacialLoading(false);
+    }
+  };
+
+  const cancelFacialCapture = () => {
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+      setVideoStream(null);
+    }
+    setShowFacialCapture(false);
+    setFacialLoading(false);
   };
 
   const handleEmailLogin = async (e) => {
@@ -423,6 +525,37 @@ const AuthVisualEnhanced = () => {
           </button>
           <p style={{ fontSize: '12px', textAlign: 'center', color: '#6b7280', margin: '8px 0' }}>
             Touch ID • Face ID • Windows Hello
+          </p>
+        </div>
+      )}
+
+      {/* ✅ NUEVO: Botón Reconocimiento Facial */}
+      {facialSupported && (
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={handleFacialLogin}
+            disabled={facialLoading || loading}
+            style={{
+              ...primaryButtonStyle,
+              backgroundColor: '#059669', // Verde para distinguir del passkey
+              borderColor: '#059669',
+              opacity: (facialLoading || loading) ? 0.6 : 1
+            }}
+          >
+            {facialLoading ? (
+              <>
+                <span>🔄</span>
+                <span>Accediendo a cámara...</span>
+              </>
+            ) : (
+              <>
+                <span>📷</span>
+                <span>Acceder con Rostro</span>
+              </>
+            )}
+          </button>
+          <p style={{ fontSize: '12px', textAlign: 'center', color: '#6b7280', margin: '8px 0' }}>
+            Reconocimiento facial con IA
           </p>
         </div>
       )}
@@ -751,6 +884,149 @@ const AuthVisualEnhanced = () => {
     </div>
   );
 
+  // ✅ NUEVO: Vista de captura facial
+  const renderFacialCaptureView = () => (
+    <div style={{ padding: '0' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{
+          width: '64px',
+          height: '64px',
+          backgroundColor: '#059669',
+          borderRadius: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px',
+          margin: '0 auto 16px'
+        }}>
+          📷
+        </div>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: '0 0 8px' }}>
+          Reconocimiento Facial
+        </h1>
+        <p style={{ fontSize: '14px', color: '#6b7280', margin: '0' }}>
+          Colócate frente a la cámara
+        </p>
+      </div>
+
+      {renderMessages()}
+
+      {/* Video preview */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{
+          position: 'relative',
+          backgroundColor: '#f3f4f6',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          height: '300px',
+          marginBottom: '16px'
+        }}>
+          {videoStream ? (
+            <video
+              autoPlay
+              playsInline
+              muted
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+              ref={(video) => {
+                if (video && videoStream) {
+                  video.srcObject = videoStream;
+                }
+              }}
+            />
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: '#6b7280'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '48px' }}>📷</div>
+                <p style={{ marginTop: '8px' }}>Cámara no disponible</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={handleCaptureAndLogin}
+            disabled={facialLoading || !videoStream}
+            style={{
+              flex: 1,
+              height: '48px',
+              backgroundColor: '#059669',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              opacity: (facialLoading || !videoStream) ? 0.6 : 1
+            }}
+          >
+            {facialLoading ? (
+              <>
+                <span>🔄</span>
+                <span>Verificando...</span>
+              </>
+            ) : (
+              <>
+                <span>📷</span>
+                <span>Capturar y Verificar</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={cancelFacialCapture}
+            style={{
+              padding: '0 16px',
+              height: '48px',
+              backgroundColor: '#e5e7eb',
+              color: '#374151',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+
+      <div style={{ textAlign: 'center' }}>
+        <button
+          onClick={() => {
+            cancelFacialCapture();
+            setView('login');
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#6b7280',
+            fontSize: '14px',
+            cursor: 'pointer'
+          }}
+        >
+          ← Volver al login
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div style={containerStyle}>
       <SEOContent 
@@ -759,9 +1035,13 @@ const AuthVisualEnhanced = () => {
       />
       
       <div style={cardStyle}>
-        {view === 'login' && renderLoginView()}
-        {view === 'invite' && renderInviteView()}
-        {view === 'register' && renderRegisterView()}
+        {showFacialCapture ? renderFacialCaptureView() : (
+          <>
+            {view === 'login' && renderLoginView()}
+            {view === 'invite' && renderInviteView()}
+            {view === 'register' && renderRegisterView()}
+          </>
+        )}
       </div>
     </div>
   );
