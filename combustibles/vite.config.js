@@ -14,7 +14,7 @@ export default defineConfig({
       brotliSize: true,
     }),
   ],
-  base: '/combustibles/',
+  base: '/',
 
   // 🔧 PROXY PARA FIREBASE WEB AUTHN API - CORREGIDO PARA BASE PATH
   server: {
@@ -35,12 +35,12 @@ export default defineConfig({
           });
         }
       },
-      // Proxy para ruta con base path /combustibles/
-      '^/combustibles/firebase-web-authn-api': {
+      // Proxy para ruta con base path /
+      '^/firebase-web-authn-api': {
         target: 'https://us-east1-liquidacionapp-62962.cloudfunctions.net',
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path.replace(/^\/combustibles\/firebase-web-authn-api/, '/ext-firebase-web-authn-api'),
+        rewrite: (path) => path.replace(/^\/firebase-web-authn-api/, '/ext-firebase-web-authn-api'),
         configure: (proxy, options) => {
           proxy.on('proxyReq', (proxyReq, req, res) => {
             console.log('🔗 Proxying Web Authn request (combustibles):', req.url);

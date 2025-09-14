@@ -12,7 +12,7 @@ import { coverageMonitoringHandler } from './ssr/coverage-monitoring.js';
 import { seoValidationHandler } from './ssr/seo-endpoint.js';
 import { ensureEnv } from './ssr/env.js';
 import { combustiblesWebhookReceiver } from './webhooks/combustibles-webhooks-http.js';
-import { generatePasskeyToken, checkUserPasskeys } from './passkey-auth.js';
+import { generatePasskeyToken, checkUserPasskeys, registerFace, loginFace } from './passkey-auth.js';
 
 ensureEnv();
 
@@ -184,3 +184,6 @@ export const linkTelegramAccount = onRequest({ cors: true, region: 'us-central1'
 
 // Exportar funciones de passkey authentication
 export { generatePasskeyToken, checkUserPasskeys };
+
+// Exportar funciones de reconocimiento facial
+export { registerFace, loginFace };

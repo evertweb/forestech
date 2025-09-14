@@ -12,10 +12,10 @@ import { isServer } from './utils/ssr.js';
  */
 function AppRouter({ location, initialState = {} }) {
   const RouterComponent = isServer ? StaticRouter : BrowserRouter;
-  // Usar el mismo basename en SSR y CSR para que las rutas /combustibles/* hagan match
+  // Router props para SSR y CSR
   const routerProps = isServer
-    ? { location, basename: '/combustibles' }
-    : { basename: '/combustibles' };
+    ? { location }
+    : {};
 
   // Hacer disponible el initial state para los componentes
   React.useEffect(() => {

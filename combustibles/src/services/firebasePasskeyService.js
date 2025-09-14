@@ -362,3 +362,43 @@ const getErrorMessage = (error) => {
 
   return message || 'Error desconocido';
 };
+
+/**
+ * Autenticar con passkey completa (nativo + Firebase)
+ */
+export const authenticateWithPasskeyComplete = async () => {
+  try {
+    console.log('🔐 Iniciando autenticación con passkey');
+
+    // 1. Autenticación nativa WebAuthn
+    const credential = await authenticatePasskeyNative();
+    console.log('✅ Autenticación WebAuthn exitosa:', credential.id);
+
+    // 2. Generar token de Firebase usando la credencial
+    const result = await generatePasskeyTokenFn({
+      credentialId: credential.id,
+      challenge: credential.challenge || 'default-challenge'
+    });
+
+    const { customToken, user } = result.data;
+
+    // 3. Iniciar sesión con Firebase Auth
+    await signInWithCustomToken(auth, customToken);
+
+    console.log('✅ Autenticación completa con passkey exitosa');
+
+    return {
+      success: true,
+      user: user,
+      credentialId: credential.id
+    };
+
+  } catch (error) {
+    console.error('❌ Error en autenticación con passkey:', error);
+    
+    return {
+      success: false,
+      error: getErrorMessage(error.message || error)
+    };
+  }
+};

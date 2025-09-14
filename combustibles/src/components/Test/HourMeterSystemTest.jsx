@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { HourMeterInput, HourMeterDisplay, HourMeterHistory } from '../Shared';
+import { HourMeterInput, HourMeterDisplay, HourMeterHistory } from '../shared';
 import { createVehicle } from '../../services/vehiclesService';
 import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService';
 import { getHourMeterSummary } from '../../services/hourMeterService';

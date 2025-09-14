@@ -8,8 +8,8 @@ export const SEO_CONFIG = {
   site: {
     name: 'Forestech Colombia',
     description: 'Sistema de gestión integral para operaciones forestales y combustibles',
-    url: 'https://forestechdecolombia.com.co',
-    logo: 'https://forestechdecolombia.com.co/assets/logo.png',
+    url: 'https://oilforestech.web.app',
+    logo: 'https://oilforestech.web.app/assets/logo.png',
     social: {
       twitter: '@forestechcol',
       facebook: 'forestechcolombia',
@@ -23,7 +23,7 @@ export const SEO_CONFIG = {
       title: 'Gestión de Combustibles - Forestech Colombia',
       description: 'Sistema especializado para control de inventario y movimientos de combustibles en operaciones forestales',
       keywords: ['gestión combustibles', 'inventario forestal', 'control combustible', 'logística forestal'],
-      image: 'https://forestechdecolombia.com.co/assets/combustibles-og.jpg',
+      image: 'https://oilforestech.web.app/assets/combustibles-og.jpg',
       type: 'website',
       locale: 'es_CO'
     },
@@ -31,7 +31,7 @@ export const SEO_CONFIG = {
       title: 'Liquidación de Alimentación - Forestech Colombia',
       description: 'Sistema de cálculos y liquidación para servicios de alimentación en operaciones forestales',
       keywords: ['liquidación alimentación', 'cálculos forestales', 'servicios alimentación'],
-      image: 'https://forestechdecolombia.com.co/assets/alimentacion-og.jpg',
+      image: 'https://oilforestech.web.app/assets/alimentacion-og.jpg',
       type: 'website',
       locale: 'es_CO'
     }
@@ -44,7 +44,7 @@ export const SEO_CONFIG = {
       description: 'Soluciones tecnológicas especializadas para la gestión integral de operaciones forestales en Colombia',
       keywords: ['forestech', 'tecnología forestal', 'operaciones forestales', 'colombia']
     },
-    '/combustibles/': {
+    '/': {
       title: 'Sistema de Gestión de Combustibles',
       description: 'Control completo de inventario, movimientos y reportes de combustibles para operaciones forestales',
       keywords: ['gestión combustibles', 'inventario', 'reportes', 'control operacional']
@@ -140,7 +140,7 @@ export function generateJsonLD(route = '/', app = null) {
       '@type': 'SoftwareApplication',
       name: appConfig.title,
       description: appConfig.description,
-      url: `${baseConfig.url}/combustibles/`,
+      url: `${baseConfig.url}/`,
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web Browser',
       offers: {

@@ -10,7 +10,7 @@ import {
   getCustomCategories 
 } from '../../services/vehicleCategoriesService';
 import { AVAILABLE_FIELDS, FUEL_TYPES } from '../../data/vehicleCategories';
-import ForestechFormWizard from '../Shared/ForestechFormWizard';
+import ForestechFormWizard from '../shared/ForestechFormWizard';
 
 // Importar pasos del wizard
 import Step1_BasicInfo from './CategoryWizardSteps/Step1_BasicInfo';

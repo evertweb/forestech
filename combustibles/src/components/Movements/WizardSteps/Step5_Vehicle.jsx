@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { WIZARD_QUESTIONS } from '../../../constants';
-import { HourMeterInput } from '../../Shared';
+import { HourMeterInput } from '../../shared';
 
 const Step5_Vehicle = ({
   formData,

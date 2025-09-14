@@ -107,6 +107,10 @@ function AppContent() {
                 <AuthVisualEnhanced />
               ) : (
                 <Routes>
+                  {/* Ruta independiente para Admin con diseño completo */}
+                  <Route path="/admin" element={<AdminMain />} />
+                  
+                  {/* Rutas del Dashboard normal */}
                   <Route path="/" element={<Dashboard />}>
                     <Route index element={<DashboardMain />} />
                     <Route path="inventario" element={<InventoryMain />} />
@@ -116,7 +120,6 @@ function AppContent() {
                     <Route path="productos" element={<ProductsMain />} />
                     <Route path="proveedores" element={<SuppliersMain />} />
                     <Route path="reportes" element={<ReportsMain />} />
-                    <Route path="admin" element={<AdminMain />} />
                     <Route path="integraciones/telegram" element={<LinkTelegram />} />
                   </Route>
                 </Routes>

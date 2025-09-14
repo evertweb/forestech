@@ -16,13 +16,13 @@ const __dirname = path.dirname(__filename);
 
 // Configuración de validación
 const VALIDATION_CONFIG = {
-  baseUrl: 'http://127.0.0.1:5000', // Emulator
+  baseUrl: 'https://oilforestech.web.app', // Producción
   routes: [
-    '/combustibles/',
-    '/combustibles/movimientos',
-    '/combustibles/inventario',
-    '/combustibles/vehiculos',
-    '/combustibles/mantenimiento',
+    '/',
+    '/movimientos',
+    '/inventario',
+    '/vehiculos',
+    '/mantenimiento',
   ],
   seoChecks: {
     title: { minLength: 10, maxLength: 60 },

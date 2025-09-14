@@ -9,85 +9,153 @@
   "storage": {
     "rules": "storage.rules"
   },
-  "hosting": {
-    "site": "forestechdecolombia",
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**",
-      "**/*.map",
-      "**/src/**",
-      "**/scripts/**",
-      "**/docs/**",
-      "**/tests/**",
-      "**/coverage/**"
-    ],
-    "headers": [
-      {
-        "source": "**/*.@(js|css|png|jpg|jpeg|webp|svg|ico|woff|woff2|ttf|eot)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=31536000, immutable"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(html|json)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=3600"
-          }
-        ]
-      },
-      {
-        "source": "**",
-        "headers": [
-          {
-            "key": "X-Powered-By",
-            "value": "Forestech Colombia"
-          }
-        ]
-      }
-    ],
-    "redirects": [
-      {
-        "source": "/robots.txt",
-        "destination": "/seo-robots",
-        "type": 301
-      },
-      {
-        "source": "/combustibles/politica-privacidad",
-        "destination": "/legal/politica-privacidad.html",
-        "type": 301
-      },
-      {
-        "source": "/combustibles/terminos-servicio",
-        "destination": "/legal/terminos-servicio.html",
-        "type": 301
-      },
-      {
-        "source": "/politica-privacidad",
-        "destination": "/legal/politica-privacidad.html",
-        "type": 301
-      },
-      {
-        "source": "/terminos-servicio",
-        "destination": "/legal/terminos-servicio.html",
-        "type": 301
-      }
-    ],
-    "rewrites": [
-      {
-        "source": "/combustibles/**",
-        "destination": "/combustibles/index.html"
-      },
-      {
-        "source": "/alimentacion/**",
-        "destination": "/alimentacion/index.html"
-      }
-    ]
-  }
+  "hosting": [
+    {
+      "site": "forestechdecolombia",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**/*.map",
+        "**/src/**",
+        "**/scripts/**",
+        "**/docs/**",
+        "**/tests/**",
+        "**/coverage/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|png|jpg|jpeg|webp|svg|ico|woff|woff2|ttf|eot)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|json)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Powered-By",
+              "value": "Forestech Colombia"
+            }
+          ]
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/robots.txt",
+          "destination": "/seo-robots",
+          "type": 301
+        },
+        {
+          "source": "/combustibles/politica-privacidad",
+          "destination": "/legal/politica-privacidad.html",
+          "type": 301
+        },
+        {
+          "source": "/combustibles/terminos-servicio",
+          "destination": "/legal/terminos-servicio.html",
+          "type": 301
+        },
+        {
+          "source": "/politica-privacidad",
+          "destination": "/legal/politica-privacidad.html",
+          "type": 301
+        },
+        {
+          "source": "/terminos-servicio",
+          "destination": "/legal/terminos-servicio.html",
+          "type": 301
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/combustibles/**",
+          "destination": "/combustibles/index.html"
+        },
+        {
+          "source": "/alimentacion/**",
+          "destination": "/alimentacion/index.html"
+        }
+      ]
+    },
+    {
+      "site": "oilforestech",
+      "public": "public/combustibles",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**/*.map",
+        "**/src/**",
+        "**/scripts/**",
+        "**/docs/**",
+        "**/tests/**",
+        "**/coverage/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|png|jpg|jpeg|webp|svg|ico|woff|woff2|ttf|eot)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|json)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Powered-By",
+              "value": "Forestech Colombia"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/sitemap.xml",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/sitemap-combustibles.xml",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/sitemap-index.xml",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/robots.txt",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ]
 }

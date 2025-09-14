@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { createVehicle, updateVehicle, VEHICLE_STATUS } from '../../services/vehiclesService';
 import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
 import { FUEL_TYPES } from '../../data/vehicleCategories';
-import ForestechFormWizard from '../Shared/ForestechFormWizard';
+import ForestechFormWizard from '../shared/ForestechFormWizard';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import CategoryWizard from './CategoryWizard';
 import '../Movements/WizardSteps-Government.css';

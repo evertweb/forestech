@@ -15,7 +15,7 @@ if (typeof document !== 'undefined') {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename="/combustibles">
+    <BrowserRouter>
       <Suspense
         fallback={
           <div className="loading-container">
