@@ -612,7 +612,7 @@
 }
 
 /* SAP Fiori Dark mode support */
-
+@media (prefers-color-scheme: dark) {
   .corporate-modal-overlay {
     background: rgba(29, 45, 62, 0.8);
   }
