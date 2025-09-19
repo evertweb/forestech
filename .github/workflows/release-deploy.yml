@@ -1,11 +1,9 @@
 name: 🚀 Release Deploy to Firebase
 
 on:
-  release:
-    types: [published]
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 env:
   NODE_VERSION: '20'
