@@ -557,18 +557,4 @@ textarea.smart-form-input {
 
 /* ==== MODO OSCURO (opt-in con atributo) ==== */
 /* Nota: Evitamos prefers-color-scheme para no forzar cambios por preferencia del SO. */
-  background: #1f2937;
-  color: #f9fafb;
-}
-
-  background: #374151;
-  border-color: #4b5563;
-}
-
-  background: #374151;
-  border-color: #4b5563;
-  color: #f9fafb;
-}
-
-  color: #9ca3af;
-}
+/* Dark mode eliminado - proyecto usa solo modo claro */
