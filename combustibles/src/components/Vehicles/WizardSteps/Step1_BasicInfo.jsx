@@ -127,22 +127,22 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
 
   return (
     <div className={`wizard-step step-basic-info ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
+      <div className="apple-card">
         {/* Indicador de progreso de subpasos */}
-        <div className="substep-progress sap-theme">
-          <div className="substep-progress-bar sap-theme">
+        <div className="apple-progress-bar">
+          <div className="apple-progress-bar">
             <div
-              className="substep-progress-fill sap-theme"
+              className="apple-progress-fill"
               style={{ width: `${subStepProgress}%` }}
             />
           </div>
-          <div className="substep-counter sap-theme">
+          <div className="apple-status-badge">
             {currentSubStep} de {totalSubSteps} - {currentStepData.title}
           </div>
         </div>
 
         {/* Contenedor de subpasos */}
-        <div className="substeps-container sap-theme">
+        <div className="apple-card">
           {subSteps.map((subStep, index) => (
             <div
               key={subStep.id}
@@ -154,15 +154,15 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
               }}
             >
               {/* Pregunta del subpaso */}
-              <div className="step-question sap-theme">
+              <div className="apple-card">
                 <h3>{subStep.question}</h3>
                 <p>{subStep.description}</p>
               </div>
 
               {/* Input del subpaso */}
-              <div className="typeform-input-group sap-theme">
-                <div className="input-with-icon sap-theme">
-                  <span className="input-icon sap-theme">
+              <div className="apple-form-group">
+                <div className="apple-form-input">
+                  <span className="apple-form-input">
                     {subStep.field === 'vehicleId' && '🏷️'}
                     {subStep.field === 'name' && '📝'}
                     {subStep.field === 'brand' && '🏭'}
@@ -170,7 +170,7 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
                   </span>
                   <input
                     type="text"
-                    className="typeform-input substep-input sap-theme"
+                    className="apple-form-input"
                     placeholder={subStep.placeholder}
                     value={formData[subStep.field] || ''}
                     onChange={handleInputChange(subStep.field)}
@@ -179,21 +179,21 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
                 </div>
 
                 {errors[subStep.field] && (
-                  <div className="input-error sap-theme">
-                    <span className="error-icon sap-theme">⚠️</span>
+                  <div className="apple-form-error">
+                    <span className="apple-form-error">⚠️</span>
                     {errors[subStep.field]}
                   </div>
                 )}
 
-                <div className="input-hint sap-theme">{subStep.hint}</div>
+                <div className="apple-form-label">{subStep.hint}</div>
               </div>
 
               {/* Navegación de subpasos */}
-              <div className="substep-navigation sap-theme">
+              <div className="apple-action-buttons">
                 {currentSubStep > 1 && (
                   <button
                     type="button"
-                    className="substep-btn substep-btn-back sap-theme"
+                    className="apple-button apple-button-secondary"
                     onClick={goToPrevSubStep}
                   >
                     ← Anterior
@@ -203,7 +203,7 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
                 {currentSubStep < totalSubSteps && (
                   <button
                     type="button"
-                    className={`substep-btn substep-btn-next ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
+                    className={`apple-button apple-button-primary ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
                     onClick={goToNextSubStep}
                     disabled={!isCurrentSubStepValid()}
                   >
@@ -217,21 +217,21 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
 
         {/* Resumen visual (solo mostrar cuando se hayan completado algunos campos) */}
         {currentSubStep === totalSubSteps && formData.vehicleId && formData.name && (
-          <div className="step-preview sap-theme">
-            <div className="preview-card sap-theme">
+          <div className="apple-card">
+            <div className="apple-card">
               <h4>📋 Vista previa</h4>
-              <div className="preview-item sap-theme">
-                <span className="preview-label sap-theme">ID:</span>
-                <span className="preview-value sap-theme">{formData.vehicleId}</span>
+              <div className="apple-card">
+                <span className="apple-form-label">ID:</span>
+                <span className="apple-form-input">{formData.vehicleId}</span>
               </div>
-              <div className="preview-item sap-theme">
-                <span className="preview-label sap-theme">Nombre:</span>
-                <span className="preview-value sap-theme">{formData.name}</span>
+              <div className="apple-card">
+                <span className="apple-form-label">Nombre:</span>
+                <span className="apple-form-input">{formData.name}</span>
               </div>
               {formData.brand && formData.model && (
-                <div className="preview-item sap-theme">
-                  <span className="preview-label sap-theme">Marca/Modelo:</span>
-                  <span className="preview-value sap-theme">
+                <div className="apple-card">
+                  <span className="apple-form-label">Marca/Modelo:</span>
+                  <span className="apple-form-input">
                     {formData.brand} {formData.model}
                   </span>
                 </div>
@@ -241,7 +241,7 @@ const Step1_BasicInfo = ({ formData, updateFormData, errors, isActive }) => {
         )}
 
         {/* Indicador de navegación */}
-        <div className="navigation-hint sap-theme">
+        <div className="apple-status-badge">
           💡 Tip: Usa Enter o → para avanzar, ← para retroceder
         </div>
       </div>

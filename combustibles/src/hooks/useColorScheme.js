@@ -1,6 +1,6 @@
 // hooks/useColorScheme.js - Hook para manejar el color scheme (light/dark)
-import { useCallback, useEffect, useState } from 'react';
-import { applySchemeToDocument, getStoredScheme, setStoredScheme } from '../utils/theme';
+import { useEffect, useState } from 'react';
+import { applySchemeToDocument, getStoredScheme } from '../utils/theme';
 
 export const useColorScheme = () => {
   const [scheme, setScheme] = useState(() => {
@@ -25,25 +25,8 @@ export const useColorScheme = () => {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const toggleScheme = useCallback(() => {
-    setScheme((prev) => {
-      const next = prev === 'light' ? 'dark' : 'light';
-      setStoredScheme(next);
-      return next;
-    });
-  }, []);
-
-  const setLight = useCallback(() => {
-    setStoredScheme('light');
-    setScheme('light');
-  }, []);
-
-  const setDark = useCallback(() => {
-    setStoredScheme('dark');
-    setScheme('dark');
-  }, []);
-
-  return { scheme, toggleScheme, setLight, setDark };
+  // Remover funciones de toggle y dark mode - forzar siempre light
+  return { scheme: 'light' };
 };
 
 export default useColorScheme;

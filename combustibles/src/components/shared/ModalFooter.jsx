@@ -20,12 +20,12 @@ const ModalFooter = ({
 
       {/* Botones de acción estándar */}
       {(primaryAction || secondaryAction) && (
-        <div className="modal-actions sap-theme">
+        <div className="apple-modal-footer">
           {/* Botón secundario (normalmente Cancelar) */}
           {secondaryAction && (
             <button
               type="button"
-              className={`btn-secondary ${secondaryAction.className || ''}`}
+              className={`apple-button apple-button-secondary ${secondaryAction.className || ''}`}
               onClick={secondaryAction.onClick}
               disabled={isLoading || secondaryAction.disabled}
             >
@@ -37,11 +37,18 @@ const ModalFooter = ({
           {primaryAction && (
             <button
               type={primaryAction.type || 'button'}
-              className={`btn-primary ${primaryAction.className || ''}`}
+              className={`apple-button apple-button-primary ${primaryAction.className || ''}`}
               onClick={primaryAction.onClick}
               disabled={isLoading || primaryAction.disabled}
             >
-              {isLoading ? 'Guardando...' : primaryAction.label || 'Guardar'}
+              {isLoading ? (
+                <>
+                  <span className="apple-loading"></span>
+                  Guardando...
+                </>
+              ) : (
+                primaryAction.label || 'Guardar'
+              )}
             </button>
           )}
         </div>

@@ -37,7 +37,7 @@ const AdminSSRBanner = () => {
       title: 'SSR Reports',
       description: 'Dashboard de reportes y métricas SSR',
       icon: '📊',
-      color: '#2563eb',
+      color: 'var(--color-verdigris)',
       status: 'active',
     },
     {
@@ -46,7 +46,7 @@ const AdminSSRBanner = () => {
       title: 'SSR Alerts',
       description: 'Sistema de alertas y notificaciones',
       icon: '🚨',
-      color: '#dc2626',
+      color: 'var(--color-rusty-red)',
       status: 'active',
     },
     {
@@ -55,7 +55,7 @@ const AdminSSRBanner = () => {
       title: 'SSR Optimization',
       description: 'Panel de optimización de performance',
       icon: '⚡',
-      color: '#059669',
+      color: 'var(--color-teal)',
       status: 'active',
     },
     {
@@ -64,7 +64,7 @@ const AdminSSRBanner = () => {
       title: 'SSR Coverage',
       description: 'Monitoreo de cobertura SSR (45% target)',
       icon: '📈',
-      color: '#7c3aed',
+      color: 'var(--color-violet-jtc)',
       status: 'active',
     },
   ];

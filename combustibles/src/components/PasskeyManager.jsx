@@ -10,7 +10,8 @@ import {
   getUserPasskeyInfo,
   isWebAuthnSupported
 } from '../services/firebasePasskeyService';
-import { registerFace, checkFacialSupport, captureImageFromVideo } from '../services/firebaseFacialService';
+import FacialCaptureImproved from './FacialCapture/FacialCaptureImproved';
+import useFacialAuth from '../hooks/useFacialAuth';
 
 const PasskeyManager = () => {
   const [loading, setLoading] = useState(false);
@@ -18,18 +19,22 @@ const PasskeyManager = () => {
   const [error, setError] = useState('');
   const [passkeyInfo, setPasskeyInfo] = useState(null);
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
-  const [facialSupported, setFacialSupported] = useState(false);
-  const [facialLoading, setFacialLoading] = useState(false);
   const [showFacialCapture, setShowFacialCapture] = useState(false);
-  const [videoStream, setVideoStream] = useState(null);
+  
+  // Usar el hook de autenticación facial
+  const {
+    loading: facialLoading,
+    error: facialError,
+    success: facialSuccess,
+    isSupported: facialSupported,
+    registerUserFace,
+    clearMessages: clearFacialMessages
+  } = useFacialAuth();
 
   useEffect(() => {
     // Verificar soporte
     const webauthnSupported = isWebAuthnSupported();
     setWebAuthnSupported(webauthnSupported);
-
-    const facialSupported = checkFacialSupport();
-    setFacialSupported(facialSupported);
 
     // DEBUG: Logs para entender por qué no aparece el botón
     console.log('🔍 PasskeyManager - Soporte biométrico:', {
@@ -44,7 +49,7 @@ const PasskeyManager = () => {
 
     // Cargar información de passkeys
     loadPasskeyInfo();
-  }, []);
+  }, [facialSupported]);
 
   const loadPasskeyInfo = async () => {
     try {
@@ -58,6 +63,7 @@ const PasskeyManager = () => {
   const clearMessages = () => {
     setMessage('');
     setError('');
+    clearFacialMessages(); // También limpiar mensajes del hook facial
   };
 
   const handleRegisterPasskey = async () => {
@@ -110,74 +116,29 @@ const PasskeyManager = () => {
     setLoading(false);
   };
 
-  const handleFacialRegister = async () => {
+  const handleFacialRegister = () => {
     clearMessages();
-    setFacialLoading(true);
-
-    try {
-      // Solicitar acceso a la cámara
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          width: 640, 
-          height: 480,
-          facingMode: 'user'
-        } 
-      });
-      
-      setVideoStream(stream);
-      setShowFacialCapture(true);
-    } catch (error) {
-      console.error('Error accediendo a la cámara:', error);
-      setError('No se pudo acceder a la cámara. Verifica los permisos.');
-      setFacialLoading(false);
-    }
+    setShowFacialCapture(true);
   };
 
-  const handleCaptureAndRegister = async () => {
-    if (!videoStream) return;
-    
-    setFacialLoading(true);
-    clearMessages();
-    
+  const handleFacialCapture = async (imageBlob) => {
     try {
-      // Crear elementos canvas temporales
-      const video = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      
-      video.srcObject = videoStream;
-      await video.play();
-      
-      // Capturar imagen
-      const imageBlob = await captureImageFromVideo(video, canvas);
-      
-      // Detener el stream
-      videoStream.getTracks().forEach(track => track.stop());
-      setVideoStream(null);
-      setShowFacialCapture(false);
-      
-      // Registrar rostro
-      const result = await registerFace(imageBlob);
+      const result = await registerUserFace(imageBlob);
       
       if (result.success) {
-        setMessage('Rostro registrado exitosamente para autenticación facial');
+        setMessage('¡Rostro registrado exitosamente! Ya puedes usar reconocimiento facial para iniciar sesión.');
+        setShowFacialCapture(false);
       } else {
-        setError(result.error || 'Error registrando el rostro');
+        // El error ya está manejado por el hook
       }
     } catch (error) {
       console.error('Error en registro facial:', error);
-      setError('Error en registro facial. Intenta nuevamente.');
-    } finally {
-      setFacialLoading(false);
     }
   };
 
-  const cancelFacialCapture = () => {
-    if (videoStream) {
-      videoStream.getTracks().forEach(track => track.stop());
-      setVideoStream(null);
-    }
+  const handleFacialCancel = () => {
     setShowFacialCapture(false);
-    setFacialLoading(false);
+    clearMessages();
   };
 
   if (!webAuthnSupported && !facialSupported) {
@@ -196,82 +157,14 @@ const PasskeyManager = () => {
   // Vista de captura facial
   if (showFacialCapture) {
     return (
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-        <div className="text-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            📷 Registrar Rostro
-          </h3>
-          <p className="text-gray-600 text-sm">
-            Colócate frente a la cámara y captura tu imagen
-          </p>
-        </div>
-
-        {/* Mensajes */}
-        {message && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-700">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        {/* Video preview */}
-        <div className="mb-6">
-          <div className="relative bg-gray-100 rounded-lg overflow-hidden" style={{ height: '300px' }}>
-            {videoStream ? (
-              <video
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-                ref={(video) => {
-                  if (video && videoStream) {
-                    video.srcObject = videoStream;
-                  }
-                }}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500">
-                <div className="text-center">
-                  <span className="text-4xl">📷</span>
-                  <p className="mt-2">Cámara no disponible</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex space-x-3">
-          <button
-            onClick={handleCaptureAndRegister}
-            disabled={facialLoading || !videoStream}
-            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {facialLoading ? (
-              <>
-                <span className="animate-spin">🔄</span>
-                <span>Registrando...</span>
-              </>
-            ) : (
-              <>
-                <span>📸</span>
-                <span>Capturar y Registrar</span>
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={cancelFacialCapture}
-            className="px-6 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 rounded-lg transition-colors"
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
+      <FacialCaptureImproved
+        onCapture={handleFacialCapture}
+        onCancel={handleFacialCancel}
+        loading={facialLoading}
+        title="Registrar Rostro"
+        subtitle="Colócate frente a la cámara para registrar tu rostro"
+        captureButtonText="Capturar y Registrar"
+      />
     );
   }
 
@@ -341,15 +234,15 @@ const PasskeyManager = () => {
         </div>
 
         {/* Mensajes */}
-        {message && (
+        {(message || facialSuccess) && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-700">
-            {message}
+            {message || facialSuccess}
           </div>
         )}
 
-        {error && (
+        {(error || facialError) && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-            {error}
+            {error || facialError}
           </div>
         )}
 

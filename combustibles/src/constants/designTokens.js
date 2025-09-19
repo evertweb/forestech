@@ -10,59 +10,129 @@
 // Paleta de colores principal, gradientes y colores funcionales para la marca
 // ===================================================================
 export const COLORS = {
-  // Colores principales de marca
+  // Nueva paleta de colores unificada
   PRIMARY: {
-    FORESTECH_GREEN: '#2c5530',
-    FORESTECH_GREEN_LIGHT: '#3d7c47',
-    FORESTECH_GREEN_DARK: '#1b4332',
-    FORESTECH_SECONDARY: '#2d5016',
+    TEAL: '#0e7c7b',
+    TEAL_LIGHT: 'rgba(14, 124, 123, 0.1)',
+    TEAL_MEDIUM: 'rgba(14, 124, 123, 0.3)',
+    TEAL_DARK: '#0a5f5e',
+    TEAL_DARKER: '#074847',
+    
+    VERDIGRIS: '#17bebb',
+    VERDIGRIS_LIGHT: 'rgba(23, 190, 187, 0.1)',
+    VERDIGRIS_MEDIUM: 'rgba(23, 190, 187, 0.3)',
+    VERDIGRIS_DARK: '#128f8d',
+    VERDIGRIS_DARKER: '#0e6b69',
+    
+    NYANZA: '#d4f4dd',
+    NYANZA_LIGHT: 'rgba(212, 244, 221, 0.5)',
+    NYANZA_MEDIUM: 'rgba(212, 244, 221, 0.8)',
+    NYANZA_DARK: '#b8e6c1',
+    NYANZA_DARKER: '#9dd8a5',
+    
+    RUSTY_RED: '#d62246',
+    RUSTY_RED_LIGHT: 'rgba(214, 34, 70, 0.1)',
+    RUSTY_RED_MEDIUM: 'rgba(214, 34, 70, 0.3)',
+    RUSTY_RED_DARK: '#b01d3a',
+    RUSTY_RED_DARKER: '#8a162d',
+    
+    VIOLET_JTC: '#4b1d3f',
+    VIOLET_JTC_LIGHT: 'rgba(75, 29, 63, 0.1)',
+    VIOLET_JTC_MEDIUM: 'rgba(75, 29, 63, 0.3)',
+    VIOLET_JTC_DARK: '#3a1630',
+    VIOLET_JTC_DARKER: '#2a1024',
+    
+    // Mapeo semántico
+    FORESTECH_PRIMARY: '#0e7c7b', // Teal
+    FORESTECH_SECONDARY: '#17bebb', // Verdigris
+    FORESTECH_ACCENT: '#4b1d3f', // Violet JTC
   },
 
-  // Gradientes de la marca y fondos
+  // Gradientes actualizados con nueva paleta
   GRADIENTS: {
-    PRIMARY: 'linear-gradient(135deg, #2c5530 0%, #3d7c47 100%)',
-    BACKGROUND: 'linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #1b4332 100%)',
-    CARD_BACKGROUND: 'linear-gradient(135deg, #2c5530 0%, #3d7c47 100%)',
+    PRIMARY: 'linear-gradient(135deg, #0e7c7b 0%, #17bebb 100%)',
+    SECONDARY: 'linear-gradient(135deg, #17bebb 0%, #d4f4dd 100%)',
+    ACCENT: 'linear-gradient(135deg, #4b1d3f 0%, #0e7c7b 100%)',
+    BACKGROUND: 'linear-gradient(135deg, #d4f4dd 0%, #ffffff 100%)',
+    CARD_BACKGROUND: 'linear-gradient(135deg, #0e7c7b 0%, #17bebb 100%)',
+    
+    // Gradientes direccionales
+    TOP: 'linear-gradient(0deg, #0e7c7b, #17bebb, #d4f4dd, #d62246, #4b1d3f)',
+    RIGHT: 'linear-gradient(90deg, #0e7c7b, #17bebb, #d4f4dd, #d62246, #4b1d3f)',
+    BOTTOM: 'linear-gradient(180deg, #0e7c7b, #17bebb, #d4f4dd, #d62246, #4b1d3f)',
+    LEFT: 'linear-gradient(270deg, #0e7c7b, #17bebb, #d4f4dd, #d62246, #4b1d3f)',
+    RADIAL: 'radial-gradient(#0e7c7b, #17bebb, #d4f4dd, #d62246, #4b1d3f)',
   },
 
-  // Colores funcionales para estados de la UI (éxito, advertencia, error, info)
+  // Colores funcionales actualizados
   FUNCTIONAL: {
-    SUCCESS: '#16a34a', // green-600
-    SUCCESS_LIGHT: '#22c55e', // green-500
-    WARNING: '#ca8a04', // yellow-600
-    WARNING_LIGHT: '#eab308', // yellow-500
-    ERROR: '#dc2626', // red-600
-    ERROR_LIGHT: '#ef4444', // red-500
-    INFO: '#2563eb', // blue-600
-    INFO_LIGHT: '#3b82f6', // blue-500
+    SUCCESS: '#0e7c7b', // Teal para éxito
+    SUCCESS_LIGHT: 'rgba(14, 124, 123, 0.1)',
+    SUCCESS_MEDIUM: 'rgba(14, 124, 123, 0.3)',
+    SUCCESS_DARK: '#0a5f5e',
+    
+    INFO: '#17bebb', // Verdigris para información
+    INFO_LIGHT: 'rgba(23, 190, 187, 0.1)',
+    INFO_MEDIUM: 'rgba(23, 190, 187, 0.3)',
+    INFO_DARK: '#128f8d',
+    
+    WARNING: '#e67e22', // Naranja complementario
+    WARNING_LIGHT: 'rgba(230, 126, 34, 0.1)',
+    WARNING_MEDIUM: 'rgba(230, 126, 34, 0.3)',
+    WARNING_DARK: '#d35400',
+    
+    ERROR: '#d62246', // Rusty Red para errores
+    ERROR_LIGHT: 'rgba(214, 34, 70, 0.1)',
+    ERROR_MEDIUM: 'rgba(214, 34, 70, 0.3)',
+    ERROR_DARK: '#b01d3a',
+    
+    NEUTRAL: '#6c757d',
+    NEUTRAL_LIGHT: 'rgba(108, 117, 125, 0.1)',
+    NEUTRAL_MEDIUM: 'rgba(108, 117, 125, 0.3)',
+    NEUTRAL_DARK: '#495057',
   },
 
-  // Colores de texto principales y secundarios
+  // Colores de texto actualizados
   TEXT: {
-    PRIMARY: '#2c5530',
-    SECONDARY: '#666',
-    TERTIARY: '#555',
-    MUTED: '#999',
+    PRIMARY: '#4b1d3f', // Violet JTC para texto principal
+    SECONDARY: '#6c757d',
+    TERTIARY: '#adb5bd',
+    MUTED: '#868e96',
     WHITE: '#ffffff',
     BLACK: '#000000',
+    ON_PRIMARY: '#ffffff',
+    ON_SECONDARY: '#ffffff',
+    ON_ACCENT: '#ffffff',
   },
 
-  // Colores de fondo
+  // Colores de fondo actualizados
   BACKGROUND: {
+    PRIMARY: '#d4f4dd', // Nyanza como fondo principal
+    SECONDARY: '#ffffff',
+    TERTIARY: '#f8f9fa',
+    QUATERNARY: '#e9ecef',
     WHITE: '#ffffff',
     LIGHT_GRAY: '#f8f9fa',
     MEDIUM_GRAY: '#e9ecef',
-    OVERLAY: 'rgba(255, 255, 255, 0.1)',
-    OVERLAY_DARK: 'rgba(0, 0, 0, 0.5)',
-    CARD: 'rgba(255, 255, 255, 0.1)',
+    
+    OVERLAY: 'rgba(75, 29, 63, 0.1)',
+    OVERLAY_DARK: 'rgba(75, 29, 63, 0.5)',
+    OVERLAY_LIGHT: 'rgba(212, 244, 221, 0.8)',
+    
+    CARD: '#ffffff',
+    CARD_HOVER: 'rgba(212, 244, 221, 0.5)',
+    CARD_ACTIVE: 'rgba(212, 244, 221, 0.8)',
   },
 
-  // Colores de bordes
+  // Colores de bordes actualizados
   BORDER: {
-    LIGHT: 'rgba(255, 255, 255, 0.3)',
-    MEDIUM: 'rgba(255, 255, 255, 0.5)',
-    DARK: 'rgba(0, 0, 0, 0.1)',
-    FOCUS: '#2c5530',
+    PRIMARY: '#0e7c7b',
+    SECONDARY: '#17bebb',
+    LIGHT: 'rgba(14, 124, 123, 0.2)',
+    MEDIUM: 'rgba(14, 124, 123, 0.4)',
+    DARK: '#0a5f5e',
+    NEUTRAL: '#dee2e6',
+    FOCUS: '#17bebb',
   },
 };
 
@@ -70,16 +140,16 @@ export const COLORS = {
 // COLORES PARA PRODUCTOS
 // ===================================================================
 export const PRODUCT_COLORS = [
-  '#FF6B35', // Naranja
-  '#4CAF50', // Verde
-  '#2196F3', // Azul
-  '#FF9800', // Ámbar
-  '#F44336', // Rojo
-  '#9C27B0', // Púrpura
-  '#E91E63', // Rosa
-  '#795548', // Marrón
-  '#607D8B', // Azul gris
-  '#FFC107', // Amarillo
+  '#0e7c7b', // Teal - Color principal
+  '#17bebb', // Verdigris - Color secundario
+  '#4b1d3f', // Violet JTC - Color de acento
+  '#d62246', // Rusty Red - Color de alerta
+  '#e67e22', // Naranja complementario
+  '#0a5f5e', // Teal oscuro
+  '#128f8d', // Verdigris oscuro
+  '#3a1630', // Violet JTC oscuro
+  '#b01d3a', // Rusty Red oscuro
+  '#d4f4dd', // Nyanza - Color suave
 ];
 
 // ===================================================================
@@ -283,31 +353,31 @@ export const CACHE_CONFIG = {
 // TOKENS ESPECÍFICOS PARA TEMAS
 // ===================================================================
 export const THEME_TOKENS = {
-  // Tema SAP Fiori
+  // Tema SAP Fiori actualizado con nueva paleta
   SAP: {
-    PRIMARY_COLOR: '#0070f3',
-    SECONDARY_COLOR: '#f4f5f6',
-    ACCENT_COLOR: '#ff6b35',
+    PRIMARY_COLOR: COLORS.PRIMARY.TEAL,
+    SECONDARY_COLOR: COLORS.PRIMARY.VERDIGRIS,
+    ACCENT_COLOR: COLORS.PRIMARY.VIOLET_JTC,
     FONT_FAMILY: TYPOGRAPHY.FONT_FAMILIES.SAP,
     BORDER_RADIUS: BORDERS.RADIUS.SM,
     SHADOW: SHADOWS.MD,
   },
 
-  // Tema Retro 80s
+  // Tema Retro 80s actualizado
   RETRO: {
-    PRIMARY_COLOR: '#ff00ff',
-    SECONDARY_COLOR: '#00ffff',
-    ACCENT_COLOR: '#ffff00',
+    PRIMARY_COLOR: COLORS.PRIMARY.VIOLET_JTC,
+    SECONDARY_COLOR: COLORS.PRIMARY.VERDIGRIS,
+    ACCENT_COLOR: COLORS.PRIMARY.RUSTY_RED,
     FONT_FAMILY: TYPOGRAPHY.FONT_FAMILIES.RETRO,
     BORDER_RADIUS: BORDERS.RADIUS.NONE,
     SHADOW: SHADOWS.XL,
   },
 
-  // Tema Default/Forestech
+  // Tema Default/Forestech con nueva paleta
   DEFAULT: {
-    PRIMARY_COLOR: COLORS.PRIMARY.FORESTECH_GREEN,
-    SECONDARY_COLOR: COLORS.PRIMARY.FORESTECH_GREEN_LIGHT,
-    ACCENT_COLOR: COLORS.FUNCTIONAL.SUCCESS,
+    PRIMARY_COLOR: COLORS.PRIMARY.FORESTECH_PRIMARY,
+    SECONDARY_COLOR: COLORS.PRIMARY.FORESTECH_SECONDARY,
+    ACCENT_COLOR: COLORS.PRIMARY.FORESTECH_ACCENT,
     FONT_FAMILY: TYPOGRAPHY.FONT_FAMILIES.PRIMARY,
     BORDER_RADIUS: BORDERS.RADIUS.MD,
     SHADOW: SHADOWS.CARD,
@@ -323,41 +393,102 @@ export const CSS_VARIABLES = {
     const themeTokens = THEME_TOKENS[theme.toUpperCase()] || THEME_TOKENS.DEFAULT;
 
     return {
-      // Colores principales
+      // Colores principales actualizados
       '--forestech-primary': themeTokens.PRIMARY_COLOR,
       '--forestech-secondary': themeTokens.SECONDARY_COLOR,
       '--forestech-accent': themeTokens.ACCENT_COLOR,
 
-      // Colores Forestech
-      '--forestech-green': COLORS.PRIMARY.FORESTECH_GREEN,
-      '--forestech-green-light': COLORS.PRIMARY.FORESTECH_GREEN_LIGHT,
-      '--forestech-green-dark': COLORS.PRIMARY.FORESTECH_GREEN_DARK,
+      // Nueva paleta de colores
+      '--color-teal': COLORS.PRIMARY.TEAL,
+      '--color-teal-light': COLORS.PRIMARY.TEAL_LIGHT,
+      '--color-teal-medium': COLORS.PRIMARY.TEAL_MEDIUM,
+      '--color-teal-dark': COLORS.PRIMARY.TEAL_DARK,
+      '--color-teal-darker': COLORS.PRIMARY.TEAL_DARKER,
+      
+      '--color-verdigris': COLORS.PRIMARY.VERDIGRIS,
+      '--color-verdigris-light': COLORS.PRIMARY.VERDIGRIS_LIGHT,
+      '--color-verdigris-medium': COLORS.PRIMARY.VERDIGRIS_MEDIUM,
+      '--color-verdigris-dark': COLORS.PRIMARY.VERDIGRIS_DARK,
+      '--color-verdigris-darker': COLORS.PRIMARY.VERDIGRIS_DARKER,
+      
+      '--color-nyanza': COLORS.PRIMARY.NYANZA,
+      '--color-nyanza-light': COLORS.PRIMARY.NYANZA_LIGHT,
+      '--color-nyanza-medium': COLORS.PRIMARY.NYANZA_MEDIUM,
+      '--color-nyanza-dark': COLORS.PRIMARY.NYANZA_DARK,
+      '--color-nyanza-darker': COLORS.PRIMARY.NYANZA_DARKER,
+      
+      '--color-rusty-red': COLORS.PRIMARY.RUSTY_RED,
+      '--color-rusty-red-light': COLORS.PRIMARY.RUSTY_RED_LIGHT,
+      '--color-rusty-red-medium': COLORS.PRIMARY.RUSTY_RED_MEDIUM,
+      '--color-rusty-red-dark': COLORS.PRIMARY.RUSTY_RED_DARK,
+      '--color-rusty-red-darker': COLORS.PRIMARY.RUSTY_RED_DARKER,
+      
+      '--color-violet-jtc': COLORS.PRIMARY.VIOLET_JTC,
+      '--color-violet-jtc-light': COLORS.PRIMARY.VIOLET_JTC_LIGHT,
+      '--color-violet-jtc-medium': COLORS.PRIMARY.VIOLET_JTC_MEDIUM,
+      '--color-violet-jtc-dark': COLORS.PRIMARY.VIOLET_JTC_DARK,
+      '--color-violet-jtc-darker': COLORS.PRIMARY.VIOLET_JTC_DARKER,
 
-      // Colores funcionales
+      // Colores funcionales actualizados
       '--color-success': COLORS.FUNCTIONAL.SUCCESS,
       '--color-success-light': COLORS.FUNCTIONAL.SUCCESS_LIGHT,
-      '--color-warning': COLORS.FUNCTIONAL.WARNING,
-      '--color-warning-light': COLORS.FUNCTIONAL.WARNING_LIGHT,
-      '--color-error': COLORS.FUNCTIONAL.ERROR,
-      '--color-error-light': COLORS.FUNCTIONAL.ERROR_LIGHT,
+      '--color-success-medium': COLORS.FUNCTIONAL.SUCCESS_MEDIUM,
+      '--color-success-dark': COLORS.FUNCTIONAL.SUCCESS_DARK,
+      
       '--color-info': COLORS.FUNCTIONAL.INFO,
       '--color-info-light': COLORS.FUNCTIONAL.INFO_LIGHT,
+      '--color-info-medium': COLORS.FUNCTIONAL.INFO_MEDIUM,
+      '--color-info-dark': COLORS.FUNCTIONAL.INFO_DARK,
+      
+      '--color-warning': COLORS.FUNCTIONAL.WARNING,
+      '--color-warning-light': COLORS.FUNCTIONAL.WARNING_LIGHT,
+      '--color-warning-medium': COLORS.FUNCTIONAL.WARNING_MEDIUM,
+      '--color-warning-dark': COLORS.FUNCTIONAL.WARNING_DARK,
+      
+      '--color-error': COLORS.FUNCTIONAL.ERROR,
+      '--color-error-light': COLORS.FUNCTIONAL.ERROR_LIGHT,
+      '--color-error-medium': COLORS.FUNCTIONAL.ERROR_MEDIUM,
+      '--color-error-dark': COLORS.FUNCTIONAL.ERROR_DARK,
+      
+      '--color-neutral': COLORS.FUNCTIONAL.NEUTRAL,
+      '--color-neutral-light': COLORS.FUNCTIONAL.NEUTRAL_LIGHT,
+      '--color-neutral-medium': COLORS.FUNCTIONAL.NEUTRAL_MEDIUM,
+      '--color-neutral-dark': COLORS.FUNCTIONAL.NEUTRAL_DARK,
 
-      // Colores de texto
+      // Colores de texto actualizados
       '--text-primary': COLORS.TEXT.PRIMARY,
       '--text-secondary': COLORS.TEXT.SECONDARY,
       '--text-tertiary': COLORS.TEXT.TERTIARY,
       '--text-muted': COLORS.TEXT.MUTED,
       '--text-white': COLORS.TEXT.WHITE,
       '--text-black': COLORS.TEXT.BLACK,
+      '--text-on-primary': COLORS.TEXT.ON_PRIMARY,
+      '--text-on-secondary': COLORS.TEXT.ON_SECONDARY,
+      '--text-on-accent': COLORS.TEXT.ON_ACCENT,
 
-      // Colores de fondo
+      // Colores de fondo actualizados
+      '--bg-primary': COLORS.BACKGROUND.PRIMARY,
+      '--bg-secondary': COLORS.BACKGROUND.SECONDARY,
+      '--bg-tertiary': COLORS.BACKGROUND.TERTIARY,
+      '--bg-quaternary': COLORS.BACKGROUND.QUATERNARY,
       '--bg-white': COLORS.BACKGROUND.WHITE,
       '--bg-light-gray': COLORS.BACKGROUND.LIGHT_GRAY,
       '--bg-medium-gray': COLORS.BACKGROUND.MEDIUM_GRAY,
       '--bg-overlay': COLORS.BACKGROUND.OVERLAY,
       '--bg-overlay-dark': COLORS.BACKGROUND.OVERLAY_DARK,
+      '--bg-overlay-light': COLORS.BACKGROUND.OVERLAY_LIGHT,
       '--bg-card': COLORS.BACKGROUND.CARD,
+      '--bg-card-hover': COLORS.BACKGROUND.CARD_HOVER,
+      '--bg-card-active': COLORS.BACKGROUND.CARD_ACTIVE,
+      
+      // Colores de borde actualizados
+      '--border-primary': COLORS.BORDER.PRIMARY,
+      '--border-secondary': COLORS.BORDER.SECONDARY,
+      '--border-light': COLORS.BORDER.LIGHT,
+      '--border-medium': COLORS.BORDER.MEDIUM,
+      '--border-dark': COLORS.BORDER.DARK,
+      '--border-neutral': COLORS.BORDER.NEUTRAL,
+      '--border-focus': COLORS.BORDER.FOCUS,
 
       // Espaciado
       '--spacing-xs': SPACING.XS,
@@ -418,11 +549,13 @@ export const CSS_VARIABLES = {
 // COLORES ESPECÍFICOS DE PRODUCTOS (consolidado)
 // ===================================================================
 export const PRODUCT_CATEGORY_COLORS = {
-  // Mapeo de categorías a colores sugeridos
-  COMBUSTIBLE: '#FF6B35', // Naranja Forestech
-  ACEITE: '#795548', // Café
-  LUBRICANTE: '#9C27B0', // Púrpura
-  FLUIDO: '#2196F3', // Azul
+  // Mapeo de categorías a colores con nueva paleta
+  COMBUSTIBLE: '#0e7c7b', // Teal - Color principal para combustibles
+  ACEITE: '#4b1d3f', // Violet JTC - Color elegante para aceites
+  LUBRICANTE: '#17bebb', // Verdigris - Color fresco para lubricantes
+  FLUIDO: '#e67e22', // Naranja complementario para fluidos
+  ADITIVO: '#d62246', // Rusty Red para aditivos
+  OTROS: '#6c757d', // Neutral para otros productos
 };
 
 // Función para obtener color por categoría
@@ -458,14 +591,14 @@ export const RESPONSIVE_UTILS = {
 // ===================================================================
 export const CHART_COLORS = {
   DEFAULT: [
-    'var(--forestech-green)',
-    'var(--color-error)',
-    'var(--color-info)',
-    'var(--color-warning-dark)',
-    'var(--color-purple)',
-    'var(--color-success)',
+    'var(--color-teal)',
+    'var(--color-verdigris)',
+    'var(--color-violet-jtc)',
+    'var(--color-rusty-red)',
     'var(--color-warning)',
-    'var(--color-primary)',
+    'var(--color-teal-dark)',
+    'var(--color-verdigris-dark)',
+    'var(--color-violet-jtc-dark)',
   ],
 };
 
@@ -473,16 +606,16 @@ export const CHART_COLORS = {
 // 🎨 CATEGORY COLORS - Colores para categorías de vehículos
 // ===================================================================
 export const CATEGORY_COLORS = [
-  { color: '#3b82f6', name: 'Azul', description: 'Profesional y confiable' },
-  { color: '#10b981', name: 'Verde', description: 'Natural y ecológico' },
-  { color: '#f59e0b', name: 'Naranja', description: 'Energético y llamativo' },
-  { color: '#ef4444', name: 'Rojo', description: 'Urgente e importante' },
-  { color: '#8b5cf6', name: 'Morado', description: 'Elegante y distintivo' },
-  { color: '#06b6d4', name: 'Cian', description: 'Moderno y tecnológico' },
-  { color: '#84cc16', name: 'Lima', description: 'Fresco y dinámico' },
-  { color: '#f97316', name: 'Ámbar', description: 'Cálido y acogedor' },
-  { color: '#ec4899', name: 'Rosa', description: 'Creativo y único' },
-  { color: '#64748b', name: 'Gris', description: 'Neutro y versátil' },
+  { color: '#0e7c7b', name: 'Teal', description: 'Confianza y estabilidad' },
+  { color: '#17bebb', name: 'Verdigris', description: 'Modernidad y frescura' },
+  { color: '#4b1d3f', name: 'Violet JTC', description: 'Elegancia y profundidad' },
+  { color: '#d62246', name: 'Rusty Red', description: 'Urgencia controlada' },
+  { color: '#d4f4dd', name: 'Nyanza', description: 'Naturaleza y calma' },
+  { color: '#e67e22', name: 'Naranja', description: 'Energético y complementario' },
+  { color: '#0a5f5e', name: 'Teal Oscuro', description: 'Seriedad y confianza' },
+  { color: '#128f8d', name: 'Verdigris Oscuro', description: 'Sofisticación moderna' },
+  { color: '#b01d3a', name: 'Rusty Red Oscuro', description: 'Intensidad controlada' },
+  { color: '#6c757d', name: 'Gris Neutro', description: 'Equilibrio y versatilidad' },
 ];
 
 // ===================================================================

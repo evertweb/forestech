@@ -6,7 +6,6 @@
 /* ============ VARIABLES CSS ============ */
 :root {
   --forest-primary: #059669;
-  --forest-primary-dark: #047857;
   --forest-primary-light: #10b981;
   --forest-secondary: #065f46;
   --forest-accent: #34d399;
@@ -67,7 +66,6 @@
 .header-title h2 {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--forest-primary-dark);
   margin: 0 0 var(--spacing-sm) 0;
   display: flex;
   align-items: center;
@@ -124,7 +122,6 @@
 }
 
 .tab-btn.active:hover {
-  background: var(--forest-primary-dark);
 }
 
 /* Acciones de cada pestaña */
@@ -150,7 +147,6 @@
 }
 
 .tab-description h3 {
-  color: var(--forest-primary-dark);
   margin: 0 0 var(--spacing-sm) 0;
   font-size: 1.5rem;
   font-weight: 700;
@@ -218,7 +214,6 @@
 
 /* Estilos para botones de vehículos - ahora en tab-actions */
 .btn-create-vehicle {
-  background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;
   border: none;
   padding: var(--spacing-md) var(--spacing-lg);
@@ -233,7 +228,6 @@
 .btn-create-vehicle:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
-  background: linear-gradient(135deg, var(--forest-primary-dark), var(--forest-secondary));
 }
 
 /* ============ ESTADÍSTICAS ============ */
@@ -265,7 +259,6 @@
 }
 
 .stat-card.primary {
-  background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;
   border: none;
 }
@@ -776,7 +769,6 @@
 }
 
 .summary-tag:hover {
-  background: var(--forest-primary-dark);
 }
 
 /* ============ TARJETAS DE VEHÍCULOS ============ */
@@ -1433,7 +1425,6 @@
 
 .btn-retry:hover,
 .btn-create-first:hover {
-  background: var(--forest-primary-dark);
   transform: translateY(-1px);
 }
 

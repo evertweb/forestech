@@ -113,29 +113,29 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
   };
 
   return (
-    <div className="inventory-reports sap-theme">
+    <div className="apple-card">
       {/* Resumen de inventario */}
-      <div className="kpis-grid sap-theme">
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon inventory sap-theme">💰</div>
-          <div className="kpi-value sap-theme">{formatCurrency(inventoryStats.totalValue)}</div>
-          <div className="kpi-label sap-theme">Valor Total</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📦</span>
+      <div className="apple-stats-grid">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">💰</div>
+          <div className="apple-form-input">{formatCurrency(inventoryStats.totalValue)}</div>
+          <div className="apple-form-label">Valor Total</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">📦</span>
             {inventoryStats.totalItems} productos
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon inventory sap-theme">📊</div>
-          <div className="kpi-value sap-theme">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">📊</div>
+          <div className="apple-form-input">
             {formatPercentage(inventoryStats.averageStockLevel / 100)}
           </div>
-          <div className="kpi-label sap-theme">Nivel Promedio</div>
+          <div className="apple-form-label">Nivel Promedio</div>
           <div
-            className={`kpi-trend ${inventoryStats.averageStockLevel > 60 ? 'positive' : inventoryStats.averageStockLevel > 30 ? 'neutral' : 'negative'}`}
+            className={`apple-status-badge ${inventoryStats.averageStockLevel > 60 ? 'positive' : inventoryStats.averageStockLevel > 30 ? 'neutral' : 'negative'}`}
           >
-            <span className="trend-icon sap-theme">
+            <span className="apple-status-badge">
               {inventoryStats.averageStockLevel > 60
                 ? '📈'
                 : inventoryStats.averageStockLevel > 30
@@ -146,34 +146,34 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon inventory sap-theme">⚠️</div>
-          <div className="kpi-value sap-theme">{inventoryStats.lowStockItems}</div>
-          <div className="kpi-label sap-theme">Alertas de Stock</div>
-          <div className={`kpi-trend ${inventoryStats.criticalItems > 0 ? 'negative' : 'neutral'}`}>
-            <span className="trend-icon sap-theme">🚨</span>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">⚠️</div>
+          <div className="apple-form-input">{inventoryStats.lowStockItems}</div>
+          <div className="apple-form-label">Alertas de Stock</div>
+          <div className={`apple-status-badge ${inventoryStats.criticalItems > 0 ? 'negative' : 'neutral'}`}>
+            <span className="apple-status-badge">🚨</span>
             {inventoryStats.criticalItems} críticos
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon inventory sap-theme">🎯</div>
-          <div className="kpi-value sap-theme">{formatNumber(projections.confidence)}%</div>
-          <div className="kpi-label sap-theme">Precisión Proyección</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">📊</span>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">🎯</div>
+          <div className="apple-form-input">{formatNumber(projections.confidence)}%</div>
+          <div className="apple-form-label">Precisión Proyección</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">📊</span>
             {projections.dataPoints} datos
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="reports-filters sap-theme">
-        <div className="filters-grid sap-theme">
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Ubicación</label>
+      <div className="apple-card">
+        <div className="apple-card">
+          <div className="apple-form-group">
+            <label className="apple-form-label">Ubicación</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
             >
@@ -185,10 +185,10 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
               ))}
             </select>
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Ordenar por</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Ordenar por</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -198,8 +198,8 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
               <option value="location">Ubicación</option>
             </select>
           </div>
-          <div className="filter-actions sap-theme">
-            <button className="filter-btn secondary sap-theme" onClick={exportToCSV}>
+          <div className="apple-action-buttons">
+            <button className="apple-button apple-button-secondary" onClick={exportToCSV}>
               📊 Exportar CSV
             </button>
           </div>
@@ -207,30 +207,30 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
       </div>
 
       {/* Stock por tipo de combustible */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">🛢️ Stock por Tipo de Combustible</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">🛢️ Stock por Tipo de Combustible</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="stock-grid sap-theme">
+        <div className="apple-card">
+          <div className="apple-stats-grid">
             {Object.entries(stockByType).map(([fuelType, stock]) => {
               const fuelInfo = FUEL_INFO[fuelType] || {};
               return (
-                <div key={fuelType} className="stock-item sap-theme">
-                  <div className="stock-header sap-theme">
-                    <span className="stock-icon sap-theme">{fuelInfo.icon || '⛽'}</span>
+                <div key={fuelType} className="apple-card">
+                  <div className="apple-card">
+                    <span className="apple-stat-card-icon">{fuelInfo.icon || '⛽'}</span>
                     <h4>{fuelInfo.name || fuelType.toUpperCase()}</h4>
                   </div>
-                  <div className="stock-value sap-theme">
+                  <div className="apple-form-input">
                     {formatNumber(stock)} {fuelInfo.unit || 'L'}
                   </div>
-                  <div className="stock-status sap-theme">
+                  <div className="apple-status-badge">
                     {stock > 1000 ? (
-                      <span className="badge success sap-theme">Stock Bueno</span>
+                      <span className="apple-status-badge">Stock Bueno</span>
                     ) : stock > 500 ? (
-                      <span className="badge warning sap-theme">Stock Bajo</span>
+                      <span className="apple-status-badge">Stock Bajo</span>
                     ) : (
-                      <span className="badge danger sap-theme">Stock Crítico</span>
+                      <span className="apple-status-badge">Stock Crítico</span>
                     )}
                   </div>
                 </div>
@@ -242,28 +242,28 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
 
       {/* Alertas de stock bajo */}
       {lowStockAlerts.length > 0 && (
-        <div className="chart-container sap-theme">
-          <div className="chart-header sap-theme">
-            <h3 className="chart-title sap-theme">⚠️ Alertas de Stock Bajo</h3>
-            <div className="chart-actions sap-theme">
-              <span className="badge danger sap-theme">{lowStockAlerts.length} alertas</span>
+        <div className="apple-card">
+          <div className="apple-card">
+            <h3 className="apple-form-label">⚠️ Alertas de Stock Bajo</h3>
+            <div className="apple-action-buttons">
+              <span className="apple-status-badge">{lowStockAlerts.length} alertas</span>
             </div>
           </div>
-          <div className="chart-content sap-theme">
-            <div className="alerts-list sap-theme">
+          <div className="apple-card">
+            <div className="apple-card">
               {lowStockAlerts.map((alert, index) => (
                 <div
                   key={index}
-                  className={`alert ${alert.stockLevel === 'critical' ? 'critical' : 'warning'}`}
+                  className={`apple-card ${alert.stockLevel === 'critical' ? 'critical' : 'warning'}`}
                 >
-                  <span className="alert-icon sap-theme">
+                  <span className="apple-stat-card-icon">
                     {alert.stockLevel === 'critical' ? '🚨' : '⚠️'}
                   </span>
-                  <div className="alert-content sap-theme">
-                    <div className="alert-title sap-theme">
+                  <div className="apple-card">
+                    <div className="apple-form-label">
                       {alert.productName} - {alert.location}
                     </div>
-                    <div className="alert-message sap-theme">
+                    <div className="apple-form-input">
                       Stock: {formatNumber(alert.currentStock)} {alert.unit}(
                       {formatPercentage(alert.percentage / 100)} de capacidad máxima)
                     </div>
@@ -277,31 +277,31 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
 
       {/* Proyecciones de compra */}
       {Object.keys(projections.recommendedPurchases).length > 0 && (
-        <div className="chart-container sap-theme">
-          <div className="chart-header sap-theme">
-            <h3 className="chart-title sap-theme">📈 Proyecciones de Compra (30 días)</h3>
-            <div className="chart-actions sap-theme">
-              <span className="badge info sap-theme">
+        <div className="apple-card">
+          <div className="apple-card">
+            <h3 className="apple-form-label">📈 Proyecciones de Compra (30 días)</h3>
+            <div className="apple-action-buttons">
+              <span className="apple-status-badge">
                 Confianza: {formatNumber(projections.confidence)}%
               </span>
             </div>
           </div>
-          <div className="chart-content sap-theme">
-            <div className="projections-grid sap-theme">
+          <div className="apple-card">
+            <div className="apple-stats-grid">
               {Object.entries(projections.recommendedPurchases).map(
                 ([fuelType, recommendation]) => {
                   const fuelInfo = FUEL_INFO[fuelType] || {};
                   const projection = projections.projectedConsumption[fuelType];
                   return (
-                    <div key={fuelType} className="projection-item sap-theme">
-                      <div className="projection-header sap-theme">
+                    <div key={fuelType} className="apple-card">
+                      <div className="apple-card">
                         <span>{fuelInfo.icon || '⛽'}</span>
                         <h4>{fuelInfo.name || fuelType.toUpperCase()}</h4>
                       </div>
-                      <div className="projection-value sap-theme">
+                      <div className="apple-form-input">
                         {formatNumber(recommendation)} {fuelInfo.unit || 'L'}
                       </div>
-                      <div className="projection-details sap-theme">
+                      <div className="apple-form-label">
                         <small>
                           Consumo proyectado: {formatNumber(projection?.projectedTotal)}{' '}
                           {fuelInfo.unit || 'L'}
@@ -321,12 +321,12 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
       )}
 
       {/* Tabla detallada de inventario */}
-      <div className="report-table-container sap-theme">
-        <div className="report-table-header sap-theme">
-          <h3 className="report-table-title sap-theme">📋 Inventario Detallado</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">📋 Inventario Detallado</h3>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table className="report-table sap-theme">
+          <table className="apple-table">
             <thead>
               <tr>
                 <th>Producto</th>
@@ -357,7 +357,7 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
                   </td>
                   <td>
                     <span
-                      className={`text-${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}
+                      className={`apple-status-badge ${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}
                     >
                       {formatPercentage(item.percentage / 100)}
                     </span>
@@ -366,7 +366,7 @@ const InventoryReports = ({ inventory, movements /* _dateRange */ }) => {
                   <td>{formatCurrency(item.value)}</td>
                   <td>
                     <span
-                      className={`badge ${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}
+                      className={`apple-status-badge ${item.stockLevel === 'critical' ? 'danger' : item.stockLevel === 'low' ? 'warning' : 'success'}`}
                     >
                       {item.stockLevel === 'critical'
                         ? 'Crítico'

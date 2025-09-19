@@ -1,0 +1,312 @@
+/**
+ * Apple Forms - Estilos para formularios estilo Apple
+ * Inputs, selects, checkboxes, radio buttons con diseño iOS/macOS
+ */
+
+/* ================================================================
+ * INPUTS APPLE
+ * ================================================================ */
+
+.apple-form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.apple-form-label {
+  display: block;
+  font-size: var(--font-size-label-large);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+  font-family: var(--font-family-system);
+}
+
+.apple-form-label.required::after {
+  content: ' *';
+  color: var(--interactive-error);
+}
+
+.apple-form-input {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width-thin) solid var(--border-secondary);
+  border-radius: var(--radius-input);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: var(--font-size-body-medium);
+  font-family: var(--font-family-system);
+  transition: var(--transition-fast);
+  min-height: 44px;
+}
+
+.apple-form-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.apple-form-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.apple-form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-secondary);
+}
+
+.apple-form-input.error {
+  border-color: var(--border-error);
+  background: rgba(255, 59, 48, 0.05);
+}
+
+.apple-form-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+}
+
+/* ================================================================
+ * SELECT APPLE
+ * ================================================================ */
+
+.apple-form-select {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width-thin) solid var(--border-secondary);
+  border-radius: var(--radius-input);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: var(--font-size-body-medium);
+  font-family: var(--font-family-system);
+  transition: var(--transition-fast);
+  min-height: 44px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--spacing-3) center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: var(--spacing-10);
+}
+
+.apple-form-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background-color: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* ================================================================
+ * TEXTAREA APPLE
+ * ================================================================ */
+
+.apple-form-textarea {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width-thin) solid var(--border-secondary);
+  border-radius: var(--radius-input);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: var(--font-size-body-medium);
+  font-family: var(--font-family-system);
+  transition: var(--transition-fast);
+  resize: vertical;
+  min-height: 88px;
+}
+
+.apple-form-textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* ================================================================
+ * CHECKBOX Y RADIO APPLE
+ * ================================================================ */
+
+.apple-form-checkbox,
+.apple-form-radio {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-md);
+  cursor: pointer;
+}
+
+.apple-form-checkbox input,
+.apple-form-radio input {
+  width: 20px;
+  height: 20px;
+  border: var(--border-width-normal) solid var(--border-secondary);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.apple-form-checkbox input {
+  border-radius: var(--radius-xs);
+}
+
+.apple-form-radio input {
+  border-radius: var(--radius-full);
+}
+
+.apple-form-checkbox input:checked,
+.apple-form-radio input:checked {
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+}
+
+.apple-form-checkbox input:focus,
+.apple-form-radio input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.apple-form-checkbox-label,
+.apple-form-radio-label {
+  font-size: var(--font-size-body-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ================================================================
+ * GRUPOS DE FORMULARIO
+ * ================================================================ */
+
+.apple-form-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.apple-form-row .apple-form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.apple-form-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border: var(--border-width-thin) solid var(--border-primary);
+}
+
+.apple-form-section-title {
+  font-size: var(--font-size-title-medium);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-width-thin) solid var(--border-primary);
+}
+
+/* ================================================================
+ * MENSAJES DE ERROR Y ÉXITO
+ * ================================================================ */
+
+.apple-form-error {
+  background: rgba(255, 59, 48, 0.1);
+  border: var(--border-width-thin) solid var(--interactive-error);
+  color: var(--interactive-error);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body-small);
+  margin-top: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.apple-form-success {
+  background: rgba(52, 199, 89, 0.1);
+  border: var(--border-width-thin) solid var(--interactive-success);
+  color: var(--interactive-success);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body-small);
+  margin-top: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.apple-form-help {
+  font-size: var(--font-size-body-small);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-1);
+}
+
+/* ================================================================
+ * RESPONSIVE FORMS
+ * ================================================================ */
+
+@media (max-width: 768px) {
+  .apple-form-row {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .apple-form-section {
+    padding: var(--spacing-md);
+  }
+  
+  .apple-form-input,
+  .apple-form-select,
+  .apple-form-textarea {
+    font-size: var(--font-size-body-large); /* Más grande en móvil */
+  }
+}
+
+/* ================================================================
+ * ESTADOS DE VALIDACIÓN
+ * ================================================================ */
+
+.apple-form-group.valid .apple-form-input {
+  border-color: var(--interactive-success);
+}
+
+.apple-form-group.invalid .apple-form-input {
+  border-color: var(--interactive-error);
+}
+
+.apple-form-group.valid .apple-form-input:focus {
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
+}
+
+.apple-form-group.invalid .apple-form-input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+}
+
+/* ================================================================
+ * BOTONES DE FORMULARIO
+ * ================================================================ */
+
+.apple-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-width-thin) solid var(--border-primary);
+}
+
+.apple-form-actions.centered {
+  justify-content: center;
+}
+
+.apple-form-actions.space-between {
+  justify-content: space-between;
+}
+
+@media (max-width: 480px) {
+  .apple-form-actions {
+    flex-direction: column;
+  }
+  
+  .apple-form-actions .apple-button {
+    width: 100%;
+  }
+}

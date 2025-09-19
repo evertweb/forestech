@@ -31,11 +31,7 @@
   --shimmer-border-radius: var(--sap-border-radius-sm, 4px);
 }
 
-/* Tema oscuro */
-[data-theme='dark'] {
-  --shimmer-bg-base: #2a2d32;
-  --shimmer-bg-highlight: #34373c;
-}
+/* Tema oscuro - ELIMINADO COMPLETAMENTE */
 
 /* ============================================================================================================
    ANIMACIONES SHIMMER

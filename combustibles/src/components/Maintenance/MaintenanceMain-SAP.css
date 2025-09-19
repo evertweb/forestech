@@ -12,7 +12,6 @@
   --sap-blue-primary: #0070f2;
   --sap-blue-secondary: #0054b9;
   --sap-blue-light: #e6f3ff;
-  --sap-blue-dark: #003d82;
 
   /* SAP Semantic Colors */
   --sap-success: #30914f;
@@ -226,7 +225,6 @@
 .sap-message-info {
   background: var(--sap-blue-light);
   border: 1px solid var(--sap-blue-primary);
-  color: var(--sap-blue-dark);
 }
 
 .sap-message-error {
@@ -496,7 +494,6 @@
 .stats-insights h3 {
   font-size: var(--sap-font-size-lg);
   font-weight: 600;
-  color: var(--sap-blue-dark);
   margin: 0 0 var(--sap-spacing-lg) 0;
   display: flex;
   align-items: center;
@@ -536,7 +533,6 @@
 
 .insight-value {
   font-size: var(--sap-font-size-sm);
-  color: var(--sap-blue-dark);
   font-weight: 600;
 }
 
@@ -844,7 +840,6 @@
   background: var(--sap-blue-light);
   border: 1px solid var(--sap-blue-primary);
   border-radius: var(--sap-border-radius-sm);
-  color: var(--sap-blue-dark);
   font-size: var(--sap-font-size-xs);
   font-weight: 500;
   display: flex;
@@ -1474,22 +1469,4 @@
   padding: var(--sap-spacing-lg);
 }
 
-/* === TEMA OSCURO (opt-in con atributo) === */
-/* Importante: No usar prefers-color-scheme para evitar cambios no deseados por el SO */
-html[data-color-scheme='dark'] {
-  --sap-neutral-100: #1d2125;
-  --sap-neutral-200: #282d33;
-  --sap-neutral-300: #3c4349;
-  --sap-text-primary: #ffffff;
-  --sap-text-secondary: #b3b5b7;
-}
-
-html[data-color-scheme='dark'] .maintenance-main.sap-theme {
-  background: var(--sap-neutral-100);
-}
-
-html[data-color-scheme='dark'] .maintenance-card.sap-theme,
-html[data-color-scheme='dark'] .table.sap-theme {
-  background: var(--sap-neutral-200);
-  border-color: var(--sap-neutral-300);
-}
+/* === TEMA OSCURO - ELIMINADO COMPLETAMENTE === */

@@ -101,11 +101,9 @@
 .tab-btn.sap-theme.active {
   background: var(--sap-blue-primary) !important;
   color: var(--sap-neutral-100) !important;
-  box-shadow: inset 0 0 0 2px var(--sap-blue-dark) !important;
 }
 
 .tab-btn.sap-theme.active:hover {
-  background: var(--sap-blue-dark) !important;
 }
 
 /* ==== VEHICLES ACTIONS SAP ==== */
@@ -135,8 +133,6 @@
 }
 
 .btn-create-vehicle.sap-theme:hover {
-  background: var(--sap-blue-dark) !important;
-  border-color: var(--sap-blue-dark) !important;
   box-shadow: var(--sap-shadow-md) !important;
   transform: translateY(-1px) !important;
 }
@@ -771,8 +767,6 @@
 }
 
 .btn-create-first.sap-theme:hover {
-  background: var(--sap-blue-dark) !important;
-  border-color: var(--sap-blue-dark) !important;
   box-shadow: var(--sap-shadow-md) !important;
   transform: translateY(-1px) !important;
 }

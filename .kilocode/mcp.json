@@ -1,18 +1,5 @@
 {
   "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/home/hp/Documents/forestech"
-      ],
-      "alwaysAllow": [
-        "list_directory",
-        "directory_tree",
-        "read_text_file"
-      ]
-    },
     "puppeteer": {
       "command": "npx",
       "args": [

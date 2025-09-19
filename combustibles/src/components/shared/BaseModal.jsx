@@ -78,24 +78,24 @@ const BaseModal = ({
 
   return (
     <div
-      className="modal- sap-themeoverlay"
+      className="apple-modal-overlay"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
-      <div className={`modal-content ${modalSizeClass} ${className}`} role="document" tabIndex="-1">
+      <div className={`apple-modal ${modalSizeClass} ${className}`} role="document" tabIndex="-1">
         {/* Header opcional con título y botón de cerrar */}
         {(title || showCloseButton) && (
-          <div className="modal- sap-themeheader">
+          <div className="apple-modal-header">
             {title && (
-              <h2 id="modal-title" className="modal- sap-themetitle">
+              <h2 id="modal-title" className="apple-modal-title">
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
-                className="modal- sap-themeclose"
+                className="apple-modal-close"
                 onClick={onClose}
                 type="button"
                 aria-label="Cerrar modal"
@@ -107,7 +107,7 @@ const BaseModal = ({
         )}
 
         {/* Contenido del modal */}
-        <div className="modal- sap-themebody">{children}</div>
+        <div className="apple-modal-content">{children}</div>
       </div>
     </div>
   );

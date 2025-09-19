@@ -15,29 +15,27 @@ const ModalHeader = ({
   className = '',
 }) => {
   return (
-    <div className={`modal-header ${className}`}>
-      <div className="modal-header-content sap-theme">
-        {/* Icono y título */}
-        <div className="modal-title-section sap-theme">
-          {icon && <span className="modal-icon sap-theme">{icon}</span>}
-          <div className="modal-title-text sap-theme">
-            <h2 className="modal-title sap-theme">{title}</h2>
-            {subtitle && <p className="modal-subtitle sap-theme">{subtitle}</p>}
-          </div>
+    <div className={`apple-modal-header ${className}`}>
+      {/* Icono y título */}
+      <div className="apple-modal-title-section">
+        {icon && <span className="apple-modal-icon">{icon}</span>}
+        <div className="apple-modal-title-text">
+          <h2 className="apple-modal-title">{title}</h2>
+          {subtitle && <p className="apple-modal-subtitle">{subtitle}</p>}
         </div>
-
-        {/* Botón de cerrar */}
-        {showCloseButton && onClose && (
-          <button
-            className="modal-close sap-theme"
-            onClick={onClose}
-            type="button"
-            aria-label="Cerrar modal"
-          >
-            ✕
-          </button>
-        )}
       </div>
+
+      {/* Botón de cerrar */}
+      {showCloseButton && onClose && (
+        <button
+          className="apple-modal-close"
+          onClick={onClose}
+          type="button"
+          aria-label="Cerrar modal"
+        >
+          ✕
+        </button>
+      )}
     </div>
   );
 };

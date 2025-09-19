@@ -105,34 +105,34 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
   };
 
   return (
-    <div className="inventory-table-container sap-theme">
-      <div className="table-wrapper sap-theme">
-        <table className="inventory-table sap-theme">
+    <div className="apple-content-section">
+      <div className="table-wrapper">
+        <table className="apple-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('name')} className="sortable sap-theme">
+              <th onClick={() => handleSort('name')} className="sortable">
                 Combustible {getSortIcon('name')}
               </th>
-              <th onClick={() => handleSort('location')} className="sortable sap-theme">
+              <th onClick={() => handleSort('location')} className="sortable">
                 Ubicación {getSortIcon('location')}
               </th>
-              <th onClick={() => handleSort('currentStock')} className="sortable sap-theme">
+              <th onClick={() => handleSort('currentStock')} className="sortable">
                 Stock Actual {getSortIcon('currentStock')}
               </th>
-              <th onClick={() => handleSort('stockPercentage')} className="sortable sap-theme">
+              <th onClick={() => handleSort('stockPercentage')} className="sortable">
                 Nivel {getSortIcon('stockPercentage')}
               </th>
-              <th onClick={() => handleSort('pricePerUnit')} className="sortable sap-theme">
+              <th onClick={() => handleSort('pricePerUnit')} className="sortable">
                 Precio {getSortIcon('pricePerUnit')}
               </th>
-              <th className="sap-theme">Valor Total</th>
-              <th onClick={() => handleSort('status')} className="sortable sap-theme">
+              <th>Valor Total</th>
+              <th onClick={() => handleSort('status')} className="sortable">
                 Estado {getSortIcon('status')}
               </th>
-              <th onClick={() => handleSort('lastUpdated')} className="sortable sap-theme">
+              <th onClick={() => handleSort('lastUpdated')} className="sortable">
                 Actualizado {getSortIcon('lastUpdated')}
               </th>
-              {canManage && <th className="sap-theme">Acciones</th>}
+              {canManage && <th>Acciones</th>}
             </tr>
           </thead>
           <tbody>
@@ -153,27 +153,23 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
       </div>
 
       {/* Table Footer */}
-      <div className="table-footer sap-theme">
-        <div className="table-info sap-theme">
-          {sortedItems.length} items ordenados por {sortField}(
+      <div className="apple-card-footer">
+        <div className="apple-body-small text-secondary">
+          {sortedItems.length} items ordenados por {sortField} (
           {sortDirection === 'asc' ? 'ascendente' : 'descendente'})
         </div>
 
-        <div className="table-legend sap-theme">
-          <span className="legend-item sap-theme">
-            <span className="legend-dot critical sap-theme"></span>
+        <div className="table-legend">
+          <span className="apple-badge apple-badge-error">
             Crítico
           </span>
-          <span className="legend-item sap-theme">
-            <span className="legend-dot low sap-theme"></span>
+          <span className="apple-badge apple-badge-warning">
             Bajo
           </span>
-          <span className="legend-item sap-theme">
-            <span className="legend-dot normal sap-theme"></span>
+          <span className="apple-badge apple-badge-success">
             Normal
           </span>
-          <span className="legend-item sap-theme">
-            <span className="legend-dot high sap-theme"></span>
+          <span className="apple-badge apple-badge-primary">
             Alto
           </span>
         </div>
@@ -207,56 +203,55 @@ const InventoryRow = memo(function InventoryRow({
   const handleDelete = useCallback(() => onDelete(item), [onDelete, item]);
 
   return (
-    <tr className={`${item.needsRestock ? 'needs-restock' : ''} sap-theme`.trim()}>
-      <td className="fuel-cell sap-theme">
-        <div className="fuel-info sap-theme">
+    <tr className={`${item.needsRestock ? 'needs-restock' : ''}`.trim()}>
+      <td className="fuel-cell">
+        <div className="fuel-info">
           <span className="fuel-icon" style={{ color: fuelInfo?.color }}>
             {fuelInfo?.icon}
           </span>
           <div>
-            <div className="fuel-name sap-theme">{fuelInfo?.name}</div>
-            <div className="fuel-type">{item.fuelType}</div>
+            <div className="apple-body-medium fuel-name">{fuelInfo?.name}</div>
+            <div className="apple-body-small text-secondary fuel-type">{item.fuelType}</div>
           </div>
         </div>
       </td>
-      <td>{item.location}</td>
-      <td className="stock-cell sap-theme">
+      <td className="apple-body-medium">{item.location}</td>
+      <td className="stock-cell">
         <div className="stock-info">
-          <span className="stock-amount">{formatNumber(currentStock)}</span>
-          <span className="stock-unit">
+          <span className="apple-body-medium stock-amount">{formatNumber(currentStock)}</span>
+          <span className="apple-body-small text-secondary stock-unit">
             / {formatNumber(maxCapacity)} {item.unit || 'gal'}
           </span>
         </div>
-        {item.needsRestock && <div className="restock-indicator">⚠️ Bajo mínimo</div>}
+        {item.needsRestock && <div className="apple-badge apple-badge-warning">⚠️ Bajo mínimo</div>}
       </td>
-      <td className="level-cell sap-theme">
+      <td className="level-cell">
         <div className="level-info">
           <div
-            className="level-badge"
+            className="apple-badge"
             style={{ backgroundColor: stockAlert?.color, color: 'white' }}
           >
             {stockPercentage}%
           </div>
-          <div className="level-bar">
+          <div className="apple-progress-bar">
             <div
-              className="level-fill"
+              className="apple-progress-fill"
               style={{ width: `${stockPercentage}%`, backgroundColor: stockAlert?.color }}
             />
           </div>
         </div>
       </td>
-      <td className="price-cell sap-theme">
+      <td className="price-cell">
         <div className="price-info">
-          <span className="price-amount">{formatCurrency(pricePerUnit)}</span>
-          <span className="price-unit">/ {item.unit || 'gal'}</span>
+          <span className="apple-body-medium price-amount">{formatCurrency(pricePerUnit)}</span>
+          <span className="apple-body-small text-secondary price-unit">/ {item.unit || 'gal'}</span>
         </div>
       </td>
-      <td className="value-cell sap-theme">
-        <span className="total-value">{formatCurrency(totalValue)}</span>
+      <td className="value-cell">
+        <span className="apple-body-medium total-value">{formatCurrency(totalValue)}</span>
       </td>
-      <td className="status-cell sap-theme">
-        <span className={`status-badge ${item.status}`}>
-          <span className="status-dot"></span>
+      <td className="status-cell">
+        <span className={`apple-status-badge ${item.status === 'active' ? 'active' : item.status === 'inactive' ? 'inactive' : 'warning'}`}>
           {item.status === 'active'
             ? 'Activo'
             : item.status === 'inactive'
@@ -266,23 +261,24 @@ const InventoryRow = memo(function InventoryRow({
                 : item.status}
         </span>
       </td>
-      <td className="updated-cell sap-theme">
-        <span className="time-ago">{getTimeAgo(item.lastUpdated)}</span>
+      <td className="updated-cell">
+        <span className="apple-body-small text-secondary time-ago">{getTimeAgo(item.lastUpdated)}</span>
       </td>
       {canManage && (
-        <td className="actions-cell sap-theme sap-theme">
-          <div className="action-buttons sap-theme">
+        <td className="actions-cell">
+          <div className="apple-action-buttons">
             <button
-              className="btn btn-sm btn-secondary sap-theme"
+              className="apple-action-button"
               onClick={handleEdit}
               title="Editar"
             >
               ✏️
             </button>
             <button
-              className="btn btn-sm btn-danger sap-theme"
+              className="apple-action-button"
               onClick={handleDelete}
               title="Eliminar"
+              style={{ color: 'var(--interactive-error)' }}
             >
               🗑️
             </button>

@@ -134,7 +134,6 @@
 }
 
 /* Dark theme optimizations para desktop (opt-in) */
-html[data-color-scheme='dark'] .desktop-app .sap-theme {
   --sap-background-base: #1a1a1a;
   --sap-background-level-1: #2a2a2a;
   --sap-text-primary: #ffffff;

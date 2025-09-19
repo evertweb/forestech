@@ -8,15 +8,8 @@ const STORAGE_KEY = 'color-scheme';
 export const getStoredScheme = () => {
   if (isServer) return 'light'; // Default para SSR
 
-  return safeWindow((window) => {
-    try {
-      const v = window.localStorage?.getItem(STORAGE_KEY);
-      if (v === 'light' || v === 'dark') return v;
-    } catch {
-      // noop: si localStorage no está disponible, usamos 'light'
-    }
-    return 'light';
-  }, 'light');
+  // Forzar siempre modo claro - eliminar soporte para dark mode
+  return 'light';
 };
 
 export const setStoredScheme = (scheme) => {

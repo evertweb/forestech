@@ -200,7 +200,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} size="xl" className="vehicle-modal sap-theme">
+    <BaseModal isOpen={isOpen} onClose={onClose} size="xl" className="apple-modal">
       <ModalHeader
         title={getModalTitle()}
         subtitle={getModalSubtitle()}
@@ -208,46 +208,46 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
         onClose={onClose}
       />
 
-      <div className="modal-body sap-theme">
+      <div className="apple-modal-content">
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="modal-form sap-theme">
-          <div className="form-content sap-theme">
+        <form onSubmit={handleSubmit} className="apple-form">
+          <div className="apple-form-content">
             {/* Preview Card */}
-            <div className="vehicle-preview sap-theme">
-              <div className="preview-header sap-theme">
-                <span className="preview-icon sap-theme">{getVehicleIcon(formData.type)}</span>
-                <div className="preview-info sap-theme">
-                  <span className="preview-id sap-theme">{formData.vehicleId || 'ID-000'}</span>
-                  <span className="preview-name sap-theme">
+            <div className="apple-card apple-card-compact vehicle-preview">
+              <div className="apple-card-header">
+                <span className="preview-icon">{getVehicleIcon(formData.type)}</span>
+                <div className="preview-info">
+                  <span className="apple-title-small preview-id">{formData.vehicleId || 'ID-000'}</span>
+                  <span className="apple-body-medium preview-name">
                     {formData.name || UI_FORM_LABELS.VEHICLE_NAME}
                   </span>
                 </div>
-                <div className="preview-fuel sap-theme">
-                  <span className="fuel-icon sap-theme">{getFuelIcon(formData.fuelType)}</span>
-                  <span className="fuel-text sap-theme">{formData.fuelType}</span>
+                <div className="preview-fuel">
+                  <span className="fuel-icon">{getFuelIcon(formData.fuelType)}</span>
+                  <span className="apple-body-small fuel-text">{formData.fuelType}</span>
                 </div>
               </div>
-              <div className="preview-specs sap-theme">
+              <div className="preview-specs">
                 {formData.enginePower > 0 && (
-                  <span className="spec sap-theme">⚡ {formData.enginePower} HP</span>
+                  <span className="apple-badge apple-badge-neutral spec">⚡ {formData.enginePower} HP</span>
                 )}
                 {formData.fuelCapacity > 0 && (
-                  <span className="spec sap-theme">🛢️ {formData.fuelCapacity} gal</span>
+                  <span className="apple-badge apple-badge-neutral spec">🛢️ {formData.fuelCapacity} gal</span>
                 )}
               </div>
             </div>
 
             {/* Error general */}
             {errors.general && (
-              <div className="error-message general-error sap-theme">⚠️ {errors.general}</div>
+              <div className="apple-form-error">⚠️ {errors.general}</div>
             )}
 
             {/* Información básica */}
-            <div className="form-section sap-theme">
-              <h4 className="section-title sap-theme">📋 {UI_TITLES.BASIC_INFO}</h4>
-              <div className="form-grid sap-theme">
-                <div className="form-group sap-theme">
-                  <label htmlFor="vehicleId">{UI_FORM_LABELS.VEHICLE_ID} *</label>
+            <div className="apple-form-section">
+              <h4 className="apple-form-section-title">📋 {UI_TITLES.BASIC_INFO}</h4>
+              <div className="apple-form-row">
+                <div className="apple-form-group">
+                  <label htmlFor="vehicleId" className="apple-form-label required">{UI_FORM_LABELS.VEHICLE_ID}</label>
                   <input
                     type="text"
                     id="vehicleId"
@@ -255,17 +255,17 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.vehicleId}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.VEHICLE_ID}
-                    className={errors.vehicleId ? 'error' : ''}
+                    className={`apple-form-input ${errors.vehicleId ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={20}
                   />
                   {errors.vehicleId && (
-                    <span className="error-text sap-theme">{errors.vehicleId}</span>
+                    <div className="apple-form-error">{errors.vehicleId}</div>
                   )}
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="name">{UI_FORM_LABELS.VEHICLE_NAME} *</label>
+                <div className="apple-form-group">
+                  <label htmlFor="name" className="apple-form-label required">{UI_FORM_LABELS.VEHICLE_NAME}</label>
                   <input
                     type="text"
                     id="name"
@@ -273,22 +273,23 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.VEHICLE_NAME}
-                    className={errors.name ? 'error' : ''}
+                    className={`apple-form-input ${errors.name ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={100}
                   />
-                  {errors.name && <span className="error-text sap-theme">{errors.name}</span>}
+                  {errors.name && <div className="apple-form-error">{errors.name}</div>}
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="type">{UI_FORM_LABELS.VEHICLE_TYPE}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="type" className="apple-form-label">{UI_FORM_LABELS.VEHICLE_TYPE}</label>
                   {!showCustomType ? (
-                    <div className="select-with-button sap-theme">
+                    <div className="select-with-button">
                       <select
                         id="type"
                         name="type"
                         value={formData.type}
                         onChange={handleInputChange}
+                        className="apple-form-select"
                         disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                       >
                         {Object.entries(VEHICLE_INFO).map(([key, info]) => (
@@ -299,7 +300,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                       </select>
                       <button
                         type="button"
-                        className="btn-add-custom sap-theme"
+                        className="apple-button apple-button-tertiary apple-button-small"
                         onClick={() => setShowCustomType(true)}
                         disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                         title={UI_TOOLTIPS.ADD_CUSTOM_TYPE}
@@ -308,12 +309,13 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                       </button>
                     </div>
                   ) : (
-                    <div className="custom-type-input sap-theme">
+                    <div className="custom-type-input">
                       <input
                         type="text"
                         placeholder={UI_PLACEHOLDERS.CUSTOM_TYPE}
                         value={customType}
                         onChange={(e) => setCustomType(e.target.value)}
+                        className="apple-form-input"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -331,7 +333,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                       />
                       <button
                         type="button"
-                        className="btn-confirm-custom sap-theme"
+                        className="apple-button apple-button-success apple-button-small"
                         onClick={() => {
                           if (customType.trim()) {
                             setFormData((prev) => ({ ...prev, type: customType.trim() }));
@@ -345,7 +347,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                       </button>
                       <button
                         type="button"
-                        className="btn-cancel-custom sap-theme"
+                        className="apple-button apple-button-secondary apple-button-small"
                         onClick={() => {
                           setShowCustomType(false);
                           setCustomType('');
@@ -358,13 +360,14 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                   )}
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="status">{UI_FORM_LABELS.STATUS}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="status" className="apple-form-label">{UI_FORM_LABELS.STATUS}</label>
                   <select
                     id="status"
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
+                    className="apple-form-select"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
                     {Object.values(VEHICLE_STATUS).map((status) => (
@@ -378,11 +381,11 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
             </div>
 
             {/* Especificaciones técnicas */}
-            <div className="form-section sap-theme">
-              <h4 className="section-title sap-theme">🔧 {UI_TITLES.TECHNICAL_SPECS}</h4>
-              <div className="form-grid sap-theme">
-                <div className="form-group sap-theme">
-                  <label htmlFor="brand">{UI_FORM_LABELS.BRAND}</label>
+            <div className="apple-form-section">
+              <h4 className="apple-form-section-title">🔧 {UI_TITLES.TECHNICAL_SPECS}</h4>
+              <div className="apple-form-row">
+                <div className="apple-form-group">
+                  <label htmlFor="brand" className="apple-form-label">{UI_FORM_LABELS.BRAND}</label>
                   <input
                     type="text"
                     id="brand"
@@ -390,13 +393,14 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.brand}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.BRAND}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={50}
                   />
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="model">{UI_FORM_LABELS.MODEL}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="model" className="apple-form-label">{UI_FORM_LABELS.MODEL}</label>
                   <input
                     type="text"
                     id="model"
@@ -404,13 +408,14 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.model}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.MODEL}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={50}
                   />
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="serialNumber">{UI_FORM_LABELS.SERIAL_NUMBER}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="serialNumber" className="apple-form-label">{UI_FORM_LABELS.SERIAL_NUMBER}</label>
                   <input
                     type="text"
                     id="serialNumber"
@@ -418,13 +423,14 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.serialNumber}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.SERIAL_NUMBER}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={50}
                   />
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="plateNumber">{UI_FORM_LABELS.PLATE_NUMBER}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="plateNumber" className="apple-form-label">{UI_FORM_LABELS.PLATE_NUMBER}</label>
                   <input
                     type="text"
                     id="plateNumber"
@@ -432,13 +438,14 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.plateNumber}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.PLATE_NUMBER}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={10}
                   />
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="enginePower">{UI_FORM_LABELS.ENGINE_POWER}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="enginePower" className="apple-form-label">{UI_FORM_LABELS.ENGINE_POWER}</label>
                   <input
                     type="number"
                     id="enginePower"
@@ -448,27 +455,28 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     min="0"
                     max="1000"
                     step="0.1"
-                    className={errors.enginePower ? 'error' : ''}
+                    className={`apple-form-input ${errors.enginePower ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.enginePower && (
-                    <span className="error-text sap-theme">{errors.enginePower}</span>
+                    <div className="apple-form-error">{errors.enginePower}</div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Combustible */}
-            <div className="form-section sap-theme">
-              <h4 className="section-title sap-theme">⛽ {UI_TITLES.FUEL_INFO}</h4>
-              <div className="form-grid sap-theme">
-                <div className="form-group sap-theme">
-                  <label htmlFor="fuelType">{UI_FORM_LABELS.FUEL_TYPE}</label>
+            <div className="apple-form-section">
+              <h4 className="apple-form-section-title">⛽ {UI_TITLES.FUEL_INFO}</h4>
+              <div className="apple-form-row">
+                <div className="apple-form-group">
+                  <label htmlFor="fuelType" className="apple-form-label">{UI_FORM_LABELS.FUEL_TYPE}</label>
                   <select
                     id="fuelType"
                     name="fuelType"
                     value={formData.fuelType}
                     onChange={handleInputChange}
+                    className="apple-form-select"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   >
                     {Object.values(FUEL_COMPATIBILITY).map((fuel) => (
@@ -479,8 +487,8 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                   </select>
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="fuelCapacity">{UI_FORM_LABELS.TANK_CAPACITY} *</label>
+                <div className="apple-form-group">
+                  <label htmlFor="fuelCapacity" className="apple-form-label required">{UI_FORM_LABELS.TANK_CAPACITY}</label>
                   <input
                     type="number"
                     id="fuelCapacity"
@@ -490,16 +498,16 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     min="0"
                     max="1000"
                     step="0.1"
-                    className={errors.fuelCapacity ? 'error' : ''}
+                    className={`apple-form-input ${errors.fuelCapacity ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.fuelCapacity && (
-                    <span className="error-text sap-theme">{errors.fuelCapacity}</span>
+                    <div className="apple-form-error">{errors.fuelCapacity}</div>
                   )}
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="estimatedConsumptionPerHour">
+                <div className="apple-form-group">
+                  <label htmlFor="estimatedConsumptionPerHour" className="apple-form-label">
                     {UI_FORM_LABELS.ESTIMATED_CONSUMPTION}
                   </label>
                   <input
@@ -511,18 +519,18 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     min="0"
                     max="50"
                     step="0.1"
-                    className={errors.estimatedConsumptionPerHour ? 'error' : ''}
+                    className={`apple-form-input ${errors.estimatedConsumptionPerHour ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.estimatedConsumptionPerHour && (
-                    <span className="error-text sap-theme">
+                    <div className="apple-form-error">
                       {errors.estimatedConsumptionPerHour}
-                    </span>
+                    </div>
                   )}
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="currentLocation">{UI_FORM_LABELS.CURRENT_LOCATION}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="currentLocation" className="apple-form-label">{UI_FORM_LABELS.CURRENT_LOCATION}</label>
                   <input
                     type="text"
                     id="currentLocation"
@@ -530,6 +538,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.currentLocation}
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.CURRENT_LOCATION}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                     maxLength={100}
                   />
@@ -539,11 +548,11 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
 
             {/* ✅ NUEVO: Sección Horómetro para tractores */}
             {(formData.type === VEHICLE_TYPES.TRACTOR || formData.hasHourMeter) && (
-              <div className="form-section sap-theme">
-                <h4 className="section-title sap-theme">⏰ {UI_TITLES.HOUR_METER_SYSTEM}</h4>
-                <div className="form-grid sap-theme">
-                  <div className="form-group sap-theme">
-                    <label htmlFor="hasHourMeter">
+              <div className="apple-form-section">
+                <h4 className="apple-form-section-title">⏰ {UI_TITLES.HOUR_METER_SYSTEM}</h4>
+                <div className="apple-form-row">
+                  <div className="apple-form-group">
+                    <div className="apple-form-checkbox">
                       <input
                         type="checkbox"
                         id="hasHourMeter"
@@ -555,22 +564,24 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                           (mode === 'edit' && !canEdit) ||
                           formData.type === VEHICLE_TYPES.TRACTOR
                         }
-                      />{' '}
-                      {UI_FORM_LABELS.HAS_HOUR_METER}
-                      {formData.type === VEHICLE_TYPES.TRACTOR && (
-                        <span className="auto-enabled sap-theme"> (Automático para tractores)</span>
-                      )}
-                    </label>
-                    <small className="field-help sap-theme">
+                      />
+                      <label htmlFor="hasHourMeter" className="apple-form-checkbox-label">
+                        {UI_FORM_LABELS.HAS_HOUR_METER}
+                        {formData.type === VEHICLE_TYPES.TRACTOR && (
+                          <span className="apple-body-small text-secondary"> (Automático para tractores)</span>
+                        )}
+                      </label>
+                    </div>
+                    <div className="apple-form-help">
                       Los tractores TR1, TR2, TR3 requieren control de horómetro para reportes de
                       consumo
-                    </small>
+                    </div>
                   </div>
 
                   {formData.hasHourMeter && (
                     <>
-                      <div className="form-group sap-theme">
-                        <label htmlFor="currentHours">{UI_FORM_LABELS.CURRENT_HOURS}</label>
+                      <div className="apple-form-group">
+                        <label htmlFor="currentHours" className="apple-form-label">{UI_FORM_LABELS.CURRENT_HOURS}</label>
                         <input
                           type="number"
                           id="currentHours"
@@ -581,37 +592,38 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                           max="50000"
                           step="0.1"
                           placeholder={UI_PLACEHOLDERS.CURRENT_HOURS}
+                          className="apple-form-input"
                           disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                         />
-                        <small className="field-help sap-theme">
+                        <div className="apple-form-help">
                           Ingrese la lectura actual mostrada en el horómetro del vehículo
-                        </small>
+                        </div>
                       </div>
 
                       {formData.currentHours > 0 && (
-                        <div className="form-group sap-theme">
-                          <div className="hour-meter-info sap-theme">
-                            <h5>📊 {UI_TITLES.HOUR_METER_INFO}</h5>
-                            <div className="info-grid sap-theme">
-                              <div className="info-item sap-theme">
-                                <span className="info-label sap-theme">Lectura actual:</span>
-                                <span className="info-value sap-theme">
+                        <div className="apple-form-group">
+                          <div className="apple-card apple-card-compact hour-meter-info">
+                            <h5 className="apple-title-small">📊 {UI_TITLES.HOUR_METER_INFO}</h5>
+                            <div className="info-grid">
+                              <div className="info-item">
+                                <span className="apple-body-small text-secondary">Lectura actual:</span>
+                                <span className="apple-body-medium">
                                   {formData.currentHours} horas
                                 </span>
                               </div>
                               {mode === 'edit' && vehicle?.totalHoursWorked && (
-                                <div className="info-item sap-theme">
-                                  <span className="info-label sap-theme">
+                                <div className="info-item">
+                                  <span className="apple-body-small text-secondary">
                                     Horas trabajadas totales:
                                   </span>
-                                  <span className="info-value sap-theme">
+                                  <span className="apple-body-medium">
                                     {vehicle.totalHoursWorked} horas
                                   </span>
                                 </div>
                               )}
-                              <div className="info-item sap-theme">
-                                <span className="info-label sap-theme">Próximo mantenimiento:</span>
-                                <span className="info-value sap-theme">
+                              <div className="info-item">
+                                <span className="apple-body-small text-secondary">Próximo mantenimiento:</span>
+                                <span className="apple-body-medium">
                                   {250 - (formData.currentHours % 250)} horas (
                                   {(
                                     formData.currentHours +
@@ -631,11 +643,11 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
             )}
 
             {/* Fechas importantes */}
-            <div className="form-section sap-theme">
-              <h4 className="section-title sap-theme">📅 {UI_TITLES.IMPORTANT_DATES}</h4>
-              <div className="form-grid sap-theme">
-                <div className="form-group sap-theme">
-                  <label htmlFor="purchaseDate">{UI_FORM_LABELS.PURCHASE_DATE}</label>
+            <div className="apple-form-section">
+              <h4 className="apple-form-section-title">📅 {UI_TITLES.IMPORTANT_DATES}</h4>
+              <div className="apple-form-row">
+                <div className="apple-form-group">
+                  <label htmlFor="purchaseDate" className="apple-form-label">{UI_FORM_LABELS.PURCHASE_DATE}</label>
                   <input
                     type="date"
                     id="purchaseDate"
@@ -643,61 +655,63 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.purchaseDate}
                     onChange={handleInputChange}
                     max={new Date().toISOString().split('T')[0]}
-                    className={errors.purchaseDate ? 'error' : ''}
+                    className={`apple-form-input ${errors.purchaseDate ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.purchaseDate && (
-                    <span className="error-text sap-theme">{errors.purchaseDate}</span>
+                    <div className="apple-form-error">{errors.purchaseDate}</div>
                   )}
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="warrantyExpiration">{UI_FORM_LABELS.WARRANTY_EXPIRATION}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="warrantyExpiration" className="apple-form-label">{UI_FORM_LABELS.WARRANTY_EXPIRATION}</label>
                   <input
                     type="date"
                     id="warrantyExpiration"
                     name="warrantyExpiration"
                     value={formData.warrantyExpiration}
                     onChange={handleInputChange}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="lastMaintenanceDate">{UI_FORM_LABELS.LAST_MAINTENANCE}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="lastMaintenanceDate" className="apple-form-label">{UI_FORM_LABELS.LAST_MAINTENANCE}</label>
                   <input
                     type="date"
                     id="lastMaintenanceDate"
                     name="lastMaintenanceDate"
                     value={formData.lastMaintenanceDate}
                     onChange={handleInputChange}
+                    className="apple-form-input"
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                 </div>
 
-                <div className="form-group sap-theme">
-                  <label htmlFor="nextMaintenanceDate">{UI_FORM_LABELS.NEXT_MAINTENANCE}</label>
+                <div className="apple-form-group">
+                  <label htmlFor="nextMaintenanceDate" className="apple-form-label">{UI_FORM_LABELS.NEXT_MAINTENANCE}</label>
                   <input
                     type="date"
                     id="nextMaintenanceDate"
                     name="nextMaintenanceDate"
                     value={formData.nextMaintenanceDate}
                     onChange={handleInputChange}
-                    className={errors.nextMaintenanceDate ? 'error' : ''}
+                    className={`apple-form-input ${errors.nextMaintenanceDate ? 'error' : ''}`}
                     disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                   />
                   {errors.nextMaintenanceDate && (
-                    <span className="error-text sap-theme">{errors.nextMaintenanceDate}</span>
+                    <div className="apple-form-error">{errors.nextMaintenanceDate}</div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Descripción */}
-            <div className="form-section sap-theme">
-              <h4 className="section-title sap-theme">📝 {UI_TITLES.DESCRIPTION_AND_NOTES}</h4>
-              <div className="form-group sap-theme">
-                <label htmlFor="description">{UI_FORM_LABELS.DESCRIPTION}</label>
+            <div className="apple-form-section">
+              <h4 className="apple-form-section-title">📝 {UI_TITLES.DESCRIPTION_AND_NOTES}</h4>
+              <div className="apple-form-group">
+                <label htmlFor="description" className="apple-form-label">{UI_FORM_LABELS.DESCRIPTION}</label>
                 <textarea
                   id="description"
                   name="description"
@@ -706,11 +720,12 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                   placeholder={UI_PLACEHOLDERS.VEHICLE_DESCRIPTION}
                   rows="3"
                   maxLength="500"
+                  className="apple-form-textarea"
                   disabled={isReadOnly || (mode === 'edit' && !canEdit)}
                 />
-                <span className="char-count sap-theme">
+                <div className="apple-form-help">
                   {formData.description.length}/500 caracteres
-                </span>
+                </div>
               </div>
             </div>
           </div>

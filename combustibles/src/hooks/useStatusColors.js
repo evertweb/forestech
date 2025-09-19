@@ -20,101 +20,109 @@ import { useMemo } from 'react';
  * Mapeos de estados a colores CSS variables
  */
 const STATUS_COLOR_MAPS = {
-  // Estados de vehículos
+  // Estados de vehículos - Nueva paleta
   vehicle: {
-    activo: 'var(--color-success)',
-    disponible: 'var(--color-success-light)',
-    en_uso: 'var(--color-info)',
-    mantenimiento: 'var(--color-warning)',
-    reparacion: 'var(--color-error)',
-    inactivo: 'var(--color-error-light)',
-    fuera_servicio: 'var(--color-error-dark)',
-    pendiente: 'var(--color-warning-light)',
+    activo: 'var(--color-teal)', // Teal para activo
+    disponible: 'var(--color-teal-light)', // Teal claro para disponible
+    en_uso: 'var(--color-verdigris)', // Verdigris para en uso
+    mantenimiento: 'var(--color-warning)', // Naranja para mantenimiento
+    reparacion: 'var(--color-rusty-red)', // Rusty Red para reparación
+    inactivo: 'var(--color-rusty-red-light)', // Rusty Red claro para inactivo
+    fuera_servicio: 'var(--color-rusty-red-dark)', // Rusty Red oscuro para fuera de servicio
+    pendiente: 'var(--color-warning-light)', // Naranja claro para pendiente
   },
 
-  // Estados de proveedores
+  // Estados de proveedores - Nueva paleta
   supplier: {
-    active: 'var(--color-success)',
-    activo: 'var(--color-success)',
-    inactive: 'var(--color-error)',
-    inactivo: 'var(--color-error)',
-    suspended: 'var(--color-warning)',
-    suspendido: 'var(--color-warning)',
-    pending: 'var(--color-info)',
-    pendiente: 'var(--color-info)',
+    active: 'var(--color-teal)',
+    activo: 'var(--color-teal)',
+    inactive: 'var(--color-neutral)',
+    inactivo: 'var(--color-neutral)',
+    suspended: 'var(--color-rusty-red)',
+    suspendido: 'var(--color-rusty-red)',
+    pending: 'var(--color-verdigris)',
+    pendiente: 'var(--color-verdigris)',
     evaluation: 'var(--color-warning-light)',
     evaluacion: 'var(--color-warning-light)',
+    preferred: 'var(--color-warning)', // Nuevo estado para proveedores preferidos
+    preferido: 'var(--color-warning)',
   },
 
-  // Estados de movimientos
+  // Estados de movimientos - Nueva paleta
   movement: {
-    completed: 'var(--color-success)',
-    completado: 'var(--color-success)',
+    completed: 'var(--color-teal)',
+    completado: 'var(--color-teal)',
     pending: 'var(--color-warning)',
     pendiente: 'var(--color-warning)',
-    in_progress: 'var(--color-info)',
-    en_progreso: 'var(--color-info)',
-    cancelled: 'var(--color-error)',
-    cancelado: 'var(--color-error)',
-    error: 'var(--color-error-dark)',
-    failed: 'var(--color-error-dark)',
-    fallido: 'var(--color-error-dark)',
+    in_progress: 'var(--color-verdigris)',
+    en_progreso: 'var(--color-verdigris)',
+    cancelled: 'var(--color-rusty-red)',
+    cancelado: 'var(--color-rusty-red)',
+    error: 'var(--color-rusty-red-dark)',
+    failed: 'var(--color-rusty-red-dark)',
+    fallido: 'var(--color-rusty-red-dark)',
+    entrada: 'var(--color-teal)', // Verde para entradas
+    salida: 'var(--color-rusty-red)', // Rojo para salidas
+    transferencia: 'var(--color-verdigris)', // Azul para transferencias
+    ajuste: 'var(--color-warning)', // Naranja para ajustes
   },
 
-  // Estados de inventario
+  // Estados de inventario - Nueva paleta
   inventory: {
-    available: 'var(--color-success)',
-    disponible: 'var(--color-success)',
+    available: 'var(--color-teal)',
+    disponible: 'var(--color-teal)',
     low_stock: 'var(--color-warning)',
     stock_bajo: 'var(--color-warning)',
-    out_of_stock: 'var(--color-error)',
-    sin_stock: 'var(--color-error)',
-    reserved: 'var(--color-info)',
-    reservado: 'var(--color-info)',
-    expired: 'var(--color-error-light)',
-    vencido: 'var(--color-error-light)',
+    out_of_stock: 'var(--color-rusty-red)',
+    sin_stock: 'var(--color-rusty-red)',
+    reserved: 'var(--color-verdigris)',
+    reservado: 'var(--color-verdigris)',
+    expired: 'var(--color-rusty-red-light)',
+    vencido: 'var(--color-rusty-red-light)',
   },
 
-  // Estados de mantenimiento
+  // Estados de mantenimiento - Nueva paleta
   maintenance: {
-    scheduled: 'var(--color-info)',
-    programado: 'var(--color-info)',
+    scheduled: 'var(--color-verdigris)',
+    programado: 'var(--color-verdigris)',
     in_progress: 'var(--color-warning)',
     en_progreso: 'var(--color-warning)',
-    completed: 'var(--color-success)',
-    completado: 'var(--color-success)',
-    overdue: 'var(--color-error)',
-    vencido: 'var(--color-error)',
-    cancelled: 'var(--color-error-light)',
-    cancelado: 'var(--color-error-light)',
+    completed: 'var(--color-teal)',
+    completado: 'var(--color-teal)',
+    overdue: 'var(--color-rusty-red)',
+    vencido: 'var(--color-rusty-red)',
+    cancelled: 'var(--color-rusty-red-light)',
+    cancelado: 'var(--color-rusty-red-light)',
   },
 
-  // Estados de productos
+  // Estados de productos - Nueva paleta
   product: {
-    active: 'var(--color-success)',
-    activo: 'var(--color-success)',
-    inactive: 'var(--color-error-light)',
-    inactivo: 'var(--color-error-light)',
-    discontinued: 'var(--color-error)',
-    descontinuado: 'var(--color-error)',
-    new: 'var(--color-info)',
-    nuevo: 'var(--color-info)',
+    active: 'var(--color-teal)',
+    activo: 'var(--color-teal)',
+    inactive: 'var(--color-neutral)',
+    inactivo: 'var(--color-neutral)',
+    discontinued: 'var(--color-rusty-red)',
+    descontinuado: 'var(--color-rusty-red)',
+    new: 'var(--color-verdigris)',
+    nuevo: 'var(--color-verdigris)',
   },
 
-  // Estados generales/por defecto
+  // Estados generales/por defecto - Nueva paleta
   general: {
-    success: 'var(--color-success)',
-    exito: 'var(--color-success)',
+    success: 'var(--color-teal)',
+    exito: 'var(--color-teal)',
     warning: 'var(--color-warning)',
     advertencia: 'var(--color-warning)',
-    error: 'var(--color-error)',
-    info: 'var(--color-info)',
-    informacion: 'var(--color-info)',
+    error: 'var(--color-rusty-red)',
+    info: 'var(--color-verdigris)',
+    informacion: 'var(--color-verdigris)',
     neutral: 'var(--color-neutral)',
-    primary: 'var(--color-primary)',
-    principal: 'var(--color-primary)',
-    secondary: 'var(--color-secondary)',
-    secundario: 'var(--color-secondary)',
+    primary: 'var(--forestech-primary)',
+    principal: 'var(--forestech-primary)',
+    secondary: 'var(--forestech-secondary)',
+    secundario: 'var(--forestech-secondary)',
+    accent: 'var(--forestech-accent)',
+    acento: 'var(--forestech-accent)',
   },
 };
 
@@ -123,9 +131,9 @@ const STATUS_COLOR_MAPS = {
  */
 const FALLBACK_COLORS = {
   default: 'var(--text-muted)',
-  positive: 'var(--color-success)',
-  negative: 'var(--color-error)',
-  neutral: 'var(--color-info)',
+  positive: 'var(--color-teal)',
+  negative: 'var(--color-rusty-red)',
+  neutral: 'var(--color-verdigris)',
   warning: 'var(--color-warning)',
 };
 

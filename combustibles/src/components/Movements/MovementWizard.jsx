@@ -1043,9 +1043,9 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
       };
     }
     return {
-      overlay: `${MODAL_PRESETS.MOVEMENT_WIZARD.overlay} sap-theme`,
-      content: `${MODAL_PRESETS.MOVEMENT_WIZARD.content} sap-theme typeform-mode ${isLastStep ? 'is-last-step' : ''}`,
-      theme: 'sap-theme',
+      overlay: `apple-modal-overlay`,
+      content: `apple-modal typeform-mode ${isLastStep ? 'is-last-step' : ''}`,
+      theme: 'apple-theme',
     };
   };
 
@@ -1070,7 +1070,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
       };
       return cliComponents[component] || `cli-${component}`;
     }
-    return `${component} sap-theme`;
+    return `${component} apple-theme`;
   };
 
   // Helper functions for split-screen terminal
@@ -1577,7 +1577,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
           </div>
         ) : (
           /* Original layout for other themes */
-          <div className={getThemeClass('wizard-body')}>
+          <div className="apple-modal-content wizard-body">
             {movementCreated ? (
               /* Pantalla de confirmación institucional - estilo gubernamental */
               <div className="official-confirmation-container">
@@ -1803,7 +1803,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
                 <span className="confirm-icon">
                   {isLoading ? (
                     <span
-                      className={`loading-spinner small ${theme === 'government' ? 'government-spinner' : 'sap-theme'}`}
+                      className={`loading-spinner small ${theme === 'government' ? 'government-spinner' : 'apple-loading'}`}
                     ></span>
                   ) : (
                     '✓'
@@ -1858,8 +1858,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
 
         {/* Indicador de paso actual - ocultar si movimiento creado */}
         {!movementCreated && theme !== 'government' && (
-          <div className="typeform-step-indicator sap-theme">
-            <div className="step-number sap-theme">{currentLogicalStep}</div>
+          <div className="apple-badge apple-badge-neutral typeform-step-indicator">
+            <div className="apple-body-small step-number">{currentLogicalStep}</div>
             <span>de {totalSteps}</span>
           </div>
         )}

@@ -430,8 +430,6 @@
 }
 
 .btn.btn-primary.sap-theme:hover {
-  background: var(--sap-blue-dark);
-  border-color: var(--sap-blue-dark);
   box-shadow: var(--sap-shadow-sm);
 }
 

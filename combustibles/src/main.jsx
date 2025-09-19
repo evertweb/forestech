@@ -8,6 +8,17 @@ import { lazy, Suspense } from 'react';
 
 const App = lazy(() => import('./App.jsx'));
 
+// Detectar basename dinámico según el path actual.
+// Esto permite que la app funcione correctamente cuando se sirve bajo /combustibles
+// (por ejemplo, rutas como /combustibles/vehicle-wizard-popup) y en raíz '/'.
+const getBaseName = () => {
+  if (typeof window === 'undefined') return '/';
+  const path = window.location.pathname || '/';
+  if (path.startsWith('/combustibles')) return '/combustibles';
+  if (path.startsWith('/alimentacion')) return '/alimentacion';
+  return '/';
+};
+
 // Inicializar esquema de color lo antes posible para evitar FOUC del tema
 if (typeof document !== 'undefined') {
   initSchemeFromStorage();
@@ -15,7 +26,7 @@ if (typeof document !== 'undefined') {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={getBaseName()}>
       <Suspense
         fallback={
           <div className="loading-container">

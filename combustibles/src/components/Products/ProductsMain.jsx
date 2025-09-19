@@ -188,16 +188,16 @@ const ProductsMain = () => {
   });
 
   const headerActions = canManageProducts ? (
-    <div className="header-actions sap-theme">
+    <div className="apple-content-actions">
       <button
-        className="btn-primary sap-theme sap-button sap-button-primary"
+        className="apple-button apple-button-primary"
         onClick={handleCreateProduct}
       >
         ➕ Nuevo producto
       </button>
 
       <button
-        className="btn-secondary sap-theme sap-button sap-button-secondary"
+        className="apple-button apple-button-secondary"
         onClick={() => setShowCategoriesManager(!showCategoriesManager)}
         style={{ marginLeft: '10px' }}
       >
@@ -207,123 +207,134 @@ const ProductsMain = () => {
   ) : null;
 
   const filtersComponent = (
-    <div className="products-filters sap-theme">
-      <div className="filter-group sap-theme">
-        <input
-          type="text"
-          placeholder="🔍 Buscar productos..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input sap-theme sap-input"
-        />
-      </div>
+    <div className="apple-content-section">
+      <div className="apple-form-row">
+        <div className="apple-form-group">
+          <input
+            type="text"
+            placeholder="🔍 Buscar productos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="apple-form-input"
+          />
+        </div>
 
-      <div className="filter-group sap-theme">
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="filter-select sap-theme sap-select"
-        >
-          <option value="">🏷️ Todas las categorías</option>
-          {Object.values(PRODUCT_CATEGORIES).map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="apple-form-group">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="apple-form-select"
+          >
+            <option value="">🏷️ Todas las categorías</option>
+            {Object.values(PRODUCT_CATEGORIES).map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="filter-group sap-theme">
-        <button
-          className={`toggle-btn sap-theme sap-button ${showStats ? 'active sap-button-primary' : 'sap-button-secondary'}`}
-          onClick={() => setShowStats(!showStats)}
-        >
-          📊 Estadísticas
-        </button>
+        <div className="apple-form-group">
+          <button
+            className={`apple-button ${showStats ? 'apple-button-primary' : 'apple-button-secondary'}`}
+            onClick={() => setShowStats(!showStats)}
+          >
+            📊 Estadísticas
+          </button>
+        </div>
       </div>
     </div>
   );
 
   const tableContent = (
     <>
-      {error && <div className="error-message sap-theme sap-message-error">⚠️ {error}</div>}
+      {error && <div className="apple-form-error">⚠️ {error}</div>}
 
-      <div className="products-grid sap-theme">
+      <div className="apple-stats-grid">
         {filteredProducts.map((product) => (
-          <div key={product.id} className="product-card sap-theme sap-card">
-            <div className="product-icon sap-theme" style={{ color: product.color }}>
-              {product.icon}
+          <div key={product.id} className="apple-card">
+            <div className="apple-card-header">
+              <div className="product-icon" style={{ color: product.color }}>
+                {product.icon}
+              </div>
+              <div className="product-info">
+                <h3 className="apple-card-title">{product.displayName}</h3>
+                <p className="apple-card-subtitle">{product.category}</p>
+                <p className="apple-body-small text-secondary">{product.description}</p>
+              </div>
             </div>
 
-            <div className="product-info sap-theme">
-              <h3 className="sap-title">{product.displayName}</h3>
-              <p className="product-category sap-theme sap-text-secondary">{product.category}</p>
-              <p className="product-description sap-theme sap-text">{product.description}</p>
-
-              <div className="product-stats sap-theme">
-                <div className="stat sap-theme">
-                  <span className="stat-label sap-theme sap-text-secondary">Stock:</span>
-                  <span className="stat-value sap-theme sap-text-primary">
+            <div className="apple-card-content">
+              <div className="product-stats">
+                <div className="stat">
+                  <span className="apple-body-small text-secondary">Stock:</span>
+                  <span className="apple-body-medium">
                     {product.currentStock || 0} {product.unit}
                   </span>
                 </div>
-                <div className="stat sap-theme">
-                  <span className="stat-label sap-theme sap-text-secondary">Precio:</span>
-                  <span className="stat-value sap-theme sap-text-primary">
+                <div className="stat">
+                  <span className="apple-body-small text-secondary">Precio:</span>
+                  <span className="apple-body-medium">
                     ${new Intl.NumberFormat('es-CO').format(product.defaultPrice || 0)}
                   </span>
                 </div>
               </div>
 
-              <div
-                className={`product-status sap-theme sap-badge ${product.isActive ? 'active sap-badge-success' : 'inactive sap-badge-error'}`}
-              >
-                {product.isActive ? '✅ Activo' : '❌ Inactivo'}
+              <div className="apple-card-footer">
+                <div
+                  className={`apple-status-badge ${product.isActive ? 'active' : 'inactive'}`}
+                >
+                  {product.isActive ? '✅ Activo' : '❌ Inactivo'}
+                </div>
+
+                <div className="apple-action-buttons">
+                  <button
+                    className="apple-action-button"
+                    onClick={() => handleViewProduct(product)}
+                    title="Ver detalles"
+                  >
+                    👁️
+                  </button>
+
+                  {canManageProducts && (
+                    <>
+                      <button
+                        className="apple-action-button primary"
+                        onClick={() => handleEditProduct(product)}
+                        title="Editar producto"
+                      >
+                        ✏️
+                      </button>
+
+                      <button
+                        className="apple-action-button"
+                        onClick={() => handleDeleteProduct(product.id)}
+                        title="Eliminar producto"
+                        style={{ color: 'var(--interactive-error)' }}
+                      >
+                        🗑️
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-
-            <div className="product-actions sap-theme">
-              <button
-                className="btn-secondary sap-theme sap-button sap-button-secondary"
-                onClick={() => handleViewProduct(product)}
-              >
-                👁️ Ver
-              </button>
-
-              {canManageProducts && (
-                <>
-                  <button
-                    className="btn-primary sap-theme sap-button sap-button-primary"
-                    onClick={() => handleEditProduct(product)}
-                  >
-                    ✏️ Editar
-                  </button>
-
-                  <button
-                    className="btn-danger sap-theme sap-button sap-button-danger"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    🗑️ Eliminar
-                  </button>
-                </>
-              )}
             </div>
           </div>
         ))}
       </div>
 
       {filteredProducts.length === 0 && (
-        <div className="empty-state sap-theme sap-message-info">
-          <div className="empty-icon sap-theme">📦</div>
-          <h3 className="sap-title">No hay productos</h3>
-          <p className="sap-text">
+        <div className="apple-empty-state">
+          <div className="apple-empty-icon">📦</div>
+          <h3 className="apple-empty-title">No hay productos</h3>
+          <p className="apple-empty-description">
             {searchTerm || selectedCategory
               ? 'No se encontraron productos con los filtros aplicados.'
               : 'Aún no hay productos registrados.'}
           </p>
           {canManageProducts && !searchTerm && !selectedCategory && (
             <button
-              className="btn-primary sap-theme sap-button sap-button-primary"
+              className="apple-button apple-button-primary"
               onClick={handleCreateProduct}
             >
               ➕ Crear primer producto

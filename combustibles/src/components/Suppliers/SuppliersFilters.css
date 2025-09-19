@@ -3,7 +3,6 @@
 /* SAP Fiori Variables */
 :root {
   --sap-primary: #0070f2;
-  --sap-primary-dark: #0040b0;
   --sap-primary-light: #e6f3ff;
   --sap-success: #107e3e;
   --sap-warning: #df6e0c;
@@ -149,7 +148,6 @@
 .suppliers-filters.sap-theme .quick-filter.sap-theme:hover {
   border-color: var(--sap-primary);
   background: var(--sap-primary-light);
-  color: var(--sap-primary-dark);
   transform: translateY(-1px);
   box-shadow: var(--sap-shadow-2);
 }
@@ -162,7 +160,6 @@
 }
 
 .suppliers-filters.sap-theme .quick-filter.sap-theme.active:hover {
-  background: var(--sap-primary-dark);
   transform: translateY(-1px);
 }
 
@@ -187,7 +184,6 @@
 .suppliers-filters.sap-theme .btn-advanced-filters.sap-theme:hover {
   border-color: var(--sap-primary);
   background: var(--sap-primary-light);
-  color: var(--sap-primary-dark);
 }
 
 .suppliers-filters.sap-theme .btn-advanced-filters.sap-theme.active {
@@ -241,7 +237,6 @@
 
 .suppliers-filters.sap-theme .view-mode.sap-theme:hover {
   background: var(--sap-primary-light);
-  color: var(--sap-primary-dark);
 }
 
 .suppliers-filters.sap-theme .view-mode.sap-theme.active {
@@ -365,7 +360,6 @@
   gap: var(--sap-spacing-xs);
   padding: var(--sap-spacing-xs) var(--sap-spacing-s);
   background: var(--sap-primary-light);
-  color: var(--sap-primary-dark);
   border-radius: var(--sap-radius);
   font-size: 12px;
   font-weight: 500;

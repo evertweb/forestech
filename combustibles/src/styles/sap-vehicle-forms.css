@@ -64,7 +64,6 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  border-bottom: 1px solid var(--sap-blue-dark) !important;
   position: relative !important;
 }
 
@@ -366,8 +365,6 @@
 }
 
 .btn.btn-primary.sap-theme:hover:not(:disabled) {
-  background: var(--sap-blue-dark) !important;
-  border-color: var(--sap-blue-dark) !important;
   box-shadow: var(--sap-shadow-md) !important;
   transform: translateY(-1px) !important;
 }

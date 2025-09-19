@@ -299,11 +299,6 @@
 }
 
 /* Mejoras para modo oscuro (si se implementa en el futuro) */
-@media (prefers-color-scheme: dark) {
-  .auth-card {
-    background: rgba(17, 24, 39, 0.95);
-    color: white;
-  }
   
   .enhanced-input {
     background: rgba(31, 41, 55, 0.8);

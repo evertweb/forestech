@@ -26,14 +26,41 @@ const PageLayout = ({
   // Contenido principal: priorizar 'table' si está definido; de lo contrario, usar 'children'.
   const content = table !== undefined ? table : children;
   return (
-    <div className={`sap-theme min-h-screen bg-gray-50 ${className}`}>
-      <PageHeader title={title} subtitle={subtitle} actions={actions} />
+    <div className={`apple-dashboard-main ${className}`}>
+      {/* Header Apple */}
+      <div className="apple-dashboard-header">
+        <h1 className="apple-dashboard-title">{title}</h1>
+        {subtitle && <p className="apple-dashboard-subtitle">{subtitle}</p>}
+        {actions && <div className="apple-content-actions">{actions}</div>}
+      </div>
 
-      {stats && showStats && <StatsSection>{stats}</StatsSection>}
+      {/* Stats Apple */}
+      {stats && showStats && (
+        <div className="apple-stats-grid">
+          {stats}
+        </div>
+      )}
 
-      {filters && showFilters && <FiltersSection>{filters}</FiltersSection>}
+      {/* Filters Apple */}
+      {filters && showFilters && (
+        <div className="apple-content-section">
+          <div className="apple-content-body">
+            {filters}
+          </div>
+        </div>
+      )}
 
-      <TableSection loading={loading}>{content}</TableSection>
+      {/* Content Apple */}
+      <div className="apple-content-grid">
+        {loading ? (
+          <div className="apple-loading-state">
+            <div className="apple-loading-spinner"></div>
+            <div className="apple-loading-text">Cargando...</div>
+          </div>
+        ) : (
+          content
+        )}
+      </div>
     </div>
   );
 };

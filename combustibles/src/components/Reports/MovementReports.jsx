@@ -247,48 +247,48 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
   };
 
   return (
-    <div className="movement-reports sap-theme">
+    <div className="apple-card">
       {/* KPIs de movimientos */}
-      <div className="kpis-grid sap-theme">
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon movements sap-theme">📈</div>
-          <div className="kpi-value sap-theme">{movementsStats.totalMovements}</div>
-          <div className="kpi-label sap-theme">Movimientos Totales</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">✅</span>
+      <div className="apple-stats-grid">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">📈</div>
+          <div className="apple-form-input">{movementsStats.totalMovements}</div>
+          <div className="apple-form-label">Movimientos Totales</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">✅</span>
             {movementsStats.completedMovements} completados
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon movements sap-theme">🛢️</div>
-          <div className="kpi-value sap-theme">{formatNumber(movementsStats.totalQuantity)}</div>
-          <div className="kpi-label sap-theme">Cantidad Total (L)</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📊</span>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">🛢️</div>
+          <div className="apple-form-input">{formatNumber(movementsStats.totalQuantity)}</div>
+          <div className="apple-form-label">Cantidad Total (L)</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">📊</span>
             Promedio:{' '}
             {formatNumber(movementsStats.totalQuantity / (movementsStats.totalMovements || 1), 1)} L
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon financial sap-theme">💰</div>
-          <div className="kpi-value sap-theme">{formatCurrency(costsAnalysis.totalCost)}</div>
-          <div className="kpi-label sap-theme">Valor Total</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">💵</span>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">💰</div>
+          <div className="apple-form-input">{formatCurrency(costsAnalysis.totalCost)}</div>
+          <div className="apple-form-label">Valor Total</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">💵</span>
             {formatCurrency(costsAnalysis.averageCostPerMovement)} promedio
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon movements sap-theme">⚠️</div>
-          <div className="kpi-value sap-theme">{movementsStats.pendingMovements}</div>
-          <div className="kpi-label sap-theme">Pendientes</div>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">⚠️</div>
+          <div className="apple-form-input">{movementsStats.pendingMovements}</div>
+          <div className="apple-form-label">Pendientes</div>
           <div
-            className={`kpi-trend ${movementsStats.pendingMovements > 0 ? 'negative' : 'positive'}`}
+            className={`apple-status-badge ${movementsStats.pendingMovements > 0 ? 'negative' : 'positive'}`}
           >
-            <span className="trend-icon sap-theme">
+            <span className="apple-status-badge">
               {movementsStats.pendingMovements > 0 ? '⏳' : '✅'}
             </span>
             {movementsStats.cancelledMovements} cancelados
@@ -297,12 +297,12 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
       </div>
 
       {/* Filtros */}
-      <div className="reports-filters sap-theme">
-        <div className="filters-grid sap-theme">
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Tipo de Movimiento</label>
+      <div className="apple-card">
+        <div className="apple-card">
+          <div className="apple-form-group">
+            <label className="apple-form-label">Tipo de Movimiento</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
             >
@@ -313,10 +313,10 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
               <option value={MOVEMENT_TYPES.AJUSTE}>Ajustes</option>
             </select>
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Tipo de Combustible</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Tipo de Combustible</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedFuelType}
               onChange={(e) => setSelectedFuelType(e.target.value)}
             >
@@ -328,10 +328,10 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
               ))}
             </select>
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Ubicación</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Ubicación</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
             >
@@ -343,8 +343,8 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
               ))}
             </select>
           </div>
-          <div className="filter-actions sap-theme">
-            <button className="filter-btn secondary sap-theme" onClick={exportToCSV}>
+          <div className="apple-action-buttons">
+            <button className="apple-button apple-button-secondary" onClick={exportToCSV}>
               📊 Exportar CSV
             </button>
           </div>
@@ -352,42 +352,42 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
       </div>
 
       {/* Análisis por tipo de movimiento */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">📊 Movimientos por Tipo</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">📊 Movimientos por Tipo</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="movement-types-grid sap-theme">
+        <div className="apple-card">
+          <div className="apple-stats-grid">
             {movementTypeAnalysis.map((typeData) => (
-              <div key={typeData.type} className="movement-type-item sap-theme">
+              <div key={typeData.type} className="apple-card">
                 <h4>
                   {typeData.type === MOVEMENT_TYPES.ENTRADA && '📥 Entradas'}
                   {typeData.type === MOVEMENT_TYPES.SALIDA && '📤 Salidas'}
                   {typeData.type === MOVEMENT_TYPES.TRANSFERENCIA && '🔄 Transferencias'}
                   {typeData.type === MOVEMENT_TYPES.AJUSTE && '⚙️ Ajustes'}
                 </h4>
-                <div className="type-metrics sap-theme">
-                  <div className="metric sap-theme">
-                    <span className="metric-value sap-theme">{typeData.count}</span>
-                    <span className="metric-label sap-theme">Movimientos</span>
+                <div className="apple-card">
+                  <div className="apple-card">
+                    <span className="apple-form-input">{typeData.count}</span>
+                    <span className="apple-form-label">Movimientos</span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-input">
                       {formatNumber(typeData.totalQuantity)} L
                     </span>
-                    <span className="metric-label sap-theme">Cantidad</span>
+                    <span className="apple-form-label">Cantidad</span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-input">
                       {formatCurrency(typeData.totalValue)}
                     </span>
-                    <span className="metric-label sap-theme">Valor</span>
+                    <span className="apple-form-label">Valor</span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-input">
                       {formatNumber(typeData.percentage, 1)}%
                     </span>
-                    <span className="metric-label sap-theme">Participación</span>
+                    <span className="apple-form-label">Participación</span>
                   </div>
                 </div>
               </div>
@@ -397,38 +397,38 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
       </div>
 
       {/* Análisis por combustible */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">⛽ Análisis por Tipo de Combustible</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">⛽ Análisis por Tipo de Combustible</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="fuel-analysis-grid sap-theme">
+        <div className="apple-card">
+          <div className="apple-stats-grid">
             {Object.entries(fuelTypeAnalysis).map(([fuelType, analysis]) => (
-              <div key={fuelType} className="fuel-analysis-item sap-theme">
+              <div key={fuelType} className="apple-card">
                 <h4>
                   <span style={{ marginRight: '0.5rem' }}>{analysis.fuelInfo.icon || '⛽'}</span>
                   {analysis.fuelInfo.name || fuelType.toUpperCase()}
                 </h4>
-                <div className="analysis-metrics sap-theme">
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Movimientos:</span>
-                    <span className="metric-value sap-theme">{analysis.count}</span>
+                <div className="apple-card">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Movimientos:</span>
+                    <span className="apple-form-input">{analysis.count}</span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Cantidad:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Cantidad:</span>
+                    <span className="apple-form-input">
                       {formatNumber(analysis.totalQuantity)} {analysis.fuelInfo.unit || 'L'}
                     </span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Valor:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Valor:</span>
+                    <span className="apple-form-input">
                       {formatCurrency(analysis.totalValue)}
                     </span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Precio Promedio:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Precio Promedio:</span>
+                    <span className="apple-form-input">
                       {formatCurrency(analysis.avgPrice)}
                     </span>
                   </div>
@@ -441,24 +441,24 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
 
       {/* Top vehículos consumidores */}
       {topVehicles.length > 0 && (
-        <div className="chart-container sap-theme">
-          <div className="chart-header sap-theme">
-            <h3 className="chart-title sap-theme">🚜 Top Vehículos por Consumo</h3>
+        <div className="apple-card">
+          <div className="apple-card">
+            <h3 className="apple-form-label">🚜 Top Vehículos por Consumo</h3>
           </div>
-          <div className="chart-content sap-theme">
-            <div className="top-vehicles-list sap-theme">
+          <div className="apple-card">
+            <div className="apple-card">
               {topVehicles.slice(0, 5).map((vehicleData, index) => (
-                <div key={vehicleData.vehicleId} className="top-vehicle-item sap-theme">
-                  <div className="vehicle-rank sap-theme">#{index + 1}</div>
-                  <div className="vehicle-info sap-theme">
+                <div key={vehicleData.vehicleId} className="apple-card">
+                  <div className="apple-status-badge">#{index + 1}</div>
+                  <div className="apple-card">
                     <h4>{vehicleData.vehicleId}</h4>
                     <p>{vehicleData.vehicle?.name || 'Nombre no disponible'}</p>
                   </div>
-                  <div className="vehicle-consumption sap-theme">
-                    <span className="consumption-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-input">
                       {formatNumber(vehicleData.totalConsumption)} L
                     </span>
-                    <span className="consumption-movements sap-theme">
+                    <span className="apple-form-label">
                       {vehicleData.movementsCount} movimientos
                     </span>
                   </div>
@@ -471,31 +471,31 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
 
       {/* Tendencia temporal */}
       {temporalAnalysis.length > 0 && (
-        <div className="chart-container sap-theme">
-          <div className="chart-header sap-theme">
-            <h3 className="chart-title sap-theme">📈 Tendencia Temporal</h3>
+        <div className="apple-card">
+          <div className="apple-card">
+            <h3 className="apple-form-label">📈 Tendencia Temporal</h3>
           </div>
-          <div className="chart-content sap-theme">
-            <div className="temporal-analysis sap-theme">
+          <div className="apple-card">
+            <div className="apple-card">
               {temporalAnalysis.map((monthData) => (
-                <div key={monthData.month} className="month-data sap-theme">
+                <div key={monthData.month} className="apple-card">
                   <h4>{monthData.month}</h4>
-                  <div className="month-metrics sap-theme">
-                    <div className="metric small sap-theme">
-                      <span className="metric-label sap-theme">📥 Entradas:</span>
-                      <span className="metric-value sap-theme">{monthData.entradas}</span>
+                  <div className="apple-card">
+                    <div className="apple-card">
+                      <span className="apple-form-label">📥 Entradas:</span>
+                      <span className="apple-form-input">{monthData.entradas}</span>
                     </div>
-                    <div className="metric small sap-theme">
-                      <span className="metric-label sap-theme">📤 Salidas:</span>
-                      <span className="metric-value sap-theme">{monthData.salidas}</span>
+                    <div className="apple-card">
+                      <span className="apple-form-label">📤 Salidas:</span>
+                      <span className="apple-form-input">{monthData.salidas}</span>
                     </div>
-                    <div className="metric small sap-theme">
-                      <span className="metric-label sap-theme">🔄 Transferencias:</span>
-                      <span className="metric-value sap-theme">{monthData.transferencias}</span>
+                    <div className="apple-card">
+                      <span className="apple-form-label">🔄 Transferencias:</span>
+                      <span className="apple-form-input">{monthData.transferencias}</span>
                     </div>
-                    <div className="metric small sap-theme">
-                      <span className="metric-label sap-theme">💰 Valor:</span>
-                      <span className="metric-value sap-theme">
+                    <div className="apple-card">
+                      <span className="apple-form-label">💰 Valor:</span>
+                      <span className="apple-form-input">
                         {formatCurrency(monthData.totalValue)}
                       </span>
                     </div>
@@ -508,12 +508,12 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
       )}
 
       {/* Tabla detallada */}
-      <div className="report-table-container sap-theme">
-        <div className="report-table-header sap-theme">
-          <h3 className="report-table-title sap-theme">📋 Movimientos Detallados</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">📋 Movimientos Detallados</h3>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table className="report-table sap-theme">
+          <table className="apple-table">
             <thead>
               <tr>
                 <th>Fecha</th>
@@ -534,7 +534,7 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
                   <td>{new Date(movement.createdAt || movement.date).toLocaleDateString()}</td>
                   <td>
                     <span
-                      className={`badge ${
+                      className={`apple-status-badge ${
                         movement.type === MOVEMENT_TYPES.ENTRADA
                           ? 'success'
                           : movement.type === MOVEMENT_TYPES.SALIDA
@@ -560,7 +560,7 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
                   <td>{movement.vehicleId || '-'}</td>
                   <td>
                     <span
-                      className={`badge ${
+                      className={`apple-status-badge ${
                         movement.status === 'completado'
                           ? 'success'
                           : movement.status === 'pendiente'

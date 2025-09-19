@@ -142,44 +142,44 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
   };
 
   return (
-    <div className="movements-table-container sap-theme sap-theme">
-      <div className="table-wrapper sap-theme">
-        <table className="movements-table sap-theme sap-theme">
+    <div className="apple-content-section">
+      <div className="table-wrapper">
+        <table className="apple-table">
           <thead>
             <tr>
-              <th className="sortable sap-theme sap-theme" onClick={() => handleSort('type')}>
+              <th className="sortable" onClick={() => handleSort('type')}>
                 Tipo {getSortIcon('type')}
               </th>
-              <th className="sortable sap-theme sap-theme" onClick={() => handleSort('fuelType')}>
+              <th className="sortable" onClick={() => handleSort('fuelType')}>
                 Combustible {getSortIcon('fuelType')}
               </th>
               <th
-                className="sortable sap-theme sap-theme text-right"
+                className="sortable text-right"
                 onClick={() => handleSort('quantity')}
               >
                 Cantidad {getSortIcon('quantity')}
               </th>
               <th
-                className="sortable sap-theme sap-theme text-right"
+                className="sortable text-right"
                 onClick={() => handleSort('unitPrice')}
               >
                 Precio/Gal {getSortIcon('unitPrice')}
               </th>
               <th
-                className="sortable sap-theme sap-theme text-right"
+                className="sortable text-right"
                 onClick={() => handleSort('totalValue')}
               >
                 Valor Total {getSortIcon('totalValue')}
               </th>
               <th>Vehículo</th>
               <th>Ubicación</th>
-              <th className="sortable sap-theme sap-theme" onClick={() => handleSort('status')}>
+              <th className="sortable" onClick={() => handleSort('status')}>
                 Estado {getSortIcon('status')}
               </th>
-              <th className="sortable sap-theme sap-theme" onClick={() => handleSort('createdAt')}>
+              <th className="sortable" onClick={() => handleSort('createdAt')}>
                 Fecha {getSortIcon('createdAt')}
               </th>
-              <th className="actions-column sap-theme">Acciones</th>
+              <th className="actions-column">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -206,27 +206,27 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
       </div>
 
       {/* Información de la tabla */}
-      <div className="table-info sap-theme">
-        <div className="table-summary sap-theme">
-          <span className="total-rows sap-theme">
+      <div className="apple-card-footer">
+        <div className="apple-body-small text-secondary">
+          <span>
             {movements.length} movimiento{movements.length !== 1 ? 's' : ''}
           </span>
           {sortField && (
-            <span className="sort-info sap-theme">
-              Ordenado por {sortField} ({sortDirection === 'asc' ? 'ascendente' : 'descendente'})
+            <span>
+              · Ordenado por {sortField} ({sortDirection === 'asc' ? 'ascendente' : 'descendente'})
             </span>
           )}
         </div>
 
-        <div className="table-legend sap-theme">
-          <span className="legend-item sap-theme">
-            <span className="legend-icon sap-theme">⏳</span> Pendiente
+        <div className="table-legend">
+          <span className="apple-badge apple-badge-warning">
+            ⏳ Pendiente
           </span>
-          <span className="legend-item sap-theme">
-            <span className="legend-icon sap-theme">✅</span> Completado
+          <span className="apple-badge apple-badge-success">
+            ✅ Completado
           </span>
-          <span className="legend-item sap-theme">
-            <span className="legend-icon sap-theme">❌</span> Cancelado
+          <span className="apple-badge apple-badge-error">
+            ❌ Cancelado
           </span>
         </div>
       </div>
@@ -275,71 +275,73 @@ const MovementRow = memo(function MovementRow({
 
   return (
     <tr
-      className={`movement-row sap-theme ${movement.status === MOVEMENT_STATUS.PENDIENTE ? 'pending-row' : ''}`}
+      className={`movement-row ${movement.status === MOVEMENT_STATUS.PENDIENTE ? 'pending-row' : ''}`}
     >
-      <td className="type-cell sap-theme">
-        <div className="movement-type sap-theme sap-theme">
-          <span className="movement-type-icon sap-theme sap-theme">
+      <td className="type-cell">
+        <div className="movement-type">
+          <span className="movement-type-icon">
             {getMovementIcon(movement.type)}
           </span>
-          <span className="type-text sap-theme">
+          <span className="apple-body-medium type-text">
             {movement.type
               ? movement.type.charAt(0).toUpperCase() + movement.type.slice(1)
               : 'Sin tipo'}
           </span>
         </div>
       </td>
-      <td className="fuel-cell sap-theme">
-        <div className="fuel-info sap-theme sap-theme">
-          <span className="fuel-icon sap-theme sap-theme">{getFuelIcon(movement.fuelType)}</span>
-          <span className="fuel-type sap-theme sap-theme">{movement.fuelType}</span>
+      <td className="fuel-cell">
+        <div className="fuel-info">
+          <span className="fuel-icon">{getFuelIcon(movement.fuelType)}</span>
+          <span className="apple-body-medium fuel-type">{movement.fuelType}</span>
         </div>
       </td>
-      <td className="quantity-cell sap-theme sap-theme text-right">
-        <span className="quantity-value sap-theme">{movement.quantity}</span>
-        <span className="quantity-unit sap-theme">gal</span>
+      <td className="quantity-cell text-right">
+        <span className="apple-body-medium quantity-value">{movement.quantity}</span>
+        <span className="apple-body-small text-secondary quantity-unit">gal</span>
       </td>
-      <td className="price-cell sap-theme text-right">{formatCurrency(movement.unitPrice)}</td>
-      <td className="value-cell sap-theme sap-theme text-right">
-        <strong>{formatCurrency(movement.totalValue)}</strong>
+      <td className="price-cell text-right">
+        <span className="apple-body-medium">{formatCurrency(movement.unitPrice)}</span>
       </td>
-      <td className="vehicle-cell sap-theme">
+      <td className="value-cell text-right">
+        <strong className="apple-body-medium">{formatCurrency(movement.totalValue)}</strong>
+      </td>
+      <td className="vehicle-cell">
         {movement.vehicleId ? (
-          <span className="vehicle-id sap-theme">🚜 {movement.vehicleId}</span>
+          <span className="apple-body-medium vehicle-id">🚜 {movement.vehicleId}</span>
         ) : (
-          <span className="no-vehicle sap-theme">-</span>
+          <span className="apple-body-small text-secondary no-vehicle">-</span>
         )}
       </td>
-      <td className="location-cell sap-theme">
-        <span className="location-text sap-theme">
+      <td className="location-cell">
+        <span className="apple-body-medium location-text">
           📍{' '}
           {movement.type === MOVEMENT_TYPES.ENTRADA
             ? movement.destinationLocation || 'Sin ubicación'
             : movement.location || 'Principal'}
         </span>
       </td>
-      <td className="status-cell sap-theme">
-        <div className={`status-badge sap-theme ${getStatusClass(movement.status)}`}>
-          <span className="status-icon sap-theme sap-theme">{getStatusIcon(movement.status)}</span>
-          <span className="status-text sap-theme">
+      <td className="status-cell">
+        <div className={`apple-status-badge ${getStatusClass(movement.status)}`}>
+          <span className="status-icon">{getStatusIcon(movement.status)}</span>
+          <span className="apple-body-small status-text">
             {movement.status
               ? movement.status.charAt(0).toUpperCase() + movement.status.slice(1)
               : 'Sin estado'}
           </span>
         </div>
       </td>
-      <td className="date-cell sap-theme sap-theme">
-        <div className="date-content sap-theme">
-          <span className="date-value sap-theme">{formatDate(movement.createdAt)}</span>
+      <td className="date-cell">
+        <div className="date-content">
+          <span className="apple-body-medium date-value">{formatDate(movement.createdAt)}</span>
           {movement.reference && (
-            <span className="reference-small sap-theme">#{movement.reference}</span>
+            <span className="apple-body-small text-secondary reference-small">#{movement.reference}</span>
           )}
         </div>
       </td>
-      <td className="actions-cell sap-theme sap-theme">
-        <div className="actions-buttons sap-theme sap-theme">
+      <td className="actions-cell">
+        <div className="apple-action-buttons">
           <button
-            className="action-btn sap-theme view sap-theme"
+            className="apple-action-button"
             onClick={handleView}
             title="Ver detalles"
           >
@@ -348,16 +350,18 @@ const MovementRow = memo(function MovementRow({
           {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
             <>
               <button
-                className="action-btn sap-theme approve sap-theme"
+                className="apple-action-button"
                 onClick={handleApprove}
                 title="Aprobar movimiento"
+                style={{ color: 'var(--interactive-success)' }}
               >
                 ✓
               </button>
               <button
-                className="action-btn sap-theme reject sap-theme"
+                className="apple-action-button"
                 onClick={handleReject}
                 title="Rechazar movimiento"
+                style={{ color: 'var(--interactive-error)' }}
               >
                 ✗
               </button>
@@ -365,7 +369,7 @@ const MovementRow = memo(function MovementRow({
           )}
           {onEdit && movement.status === MOVEMENT_STATUS.PENDIENTE && (
             <button
-              className="action-btn sap-theme edit sap-theme"
+              className="apple-action-button primary"
               onClick={handleEdit}
               title="Editar movimiento"
             >
@@ -374,9 +378,10 @@ const MovementRow = memo(function MovementRow({
           )}
           {userRole === 'admin' && (
             <button
-              className="action-btn sap-theme delete sap-theme"
+              className="apple-action-button"
               onClick={handleDelete}
               title="Eliminar movimiento"
+              style={{ color: 'var(--interactive-error)' }}
             >
               🗑️
             </button>

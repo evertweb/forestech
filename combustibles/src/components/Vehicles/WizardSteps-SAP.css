@@ -28,7 +28,6 @@
   --sap-blue-primary: #0070f2; /* Azul principal SAP para elementos interactivos */
   --sap-blue-secondary: #0054b9; /* Azul secundario para hover y estados activos */
   --sap-blue-light: #e6f3ff; /* Azul claro para fondos y destacados suaves */
-  --sap-blue-dark: #003d82; /* Azul oscuro para textos importantes */
 
   /* SAP Semantic Colors - Colores semánticos para feedback del usuario */
   --sap-success: #30914f; /* Verde para estados exitosos y confirmaciones */

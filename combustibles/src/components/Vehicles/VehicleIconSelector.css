@@ -328,12 +328,6 @@
 }
 
 /* Tema oscuro */
-@media (prefers-color-scheme: dark) {
-  .icon-selector-button,
-  .icon-selector-panel {
-    background: var(--corporate-surface, #233446);
-    border-color: var(--corporate-border, #475e75);
-  }
 
   .icon-search {
     background: var(--corporate-surface, #233446);

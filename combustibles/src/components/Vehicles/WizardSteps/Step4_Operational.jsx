@@ -250,22 +250,22 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
 
   return (
     <div className={`wizard-step step-operational ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
+      <div className="apple-card">
         {/* Indicador de progreso de subpasos */}
-        <div className="substep-progress sap-theme">
-          <div className="substep-progress-bar sap-theme">
+        <div className="apple-progress-bar">
+          <div className="apple-progress-bar">
             <div
-              className="substep-progress-fill sap-theme"
+              className="apple-progress-fill"
               style={{ width: `${subStepProgress}%` }}
             />
           </div>
-          <div className="substep-counter sap-theme">
+          <div className="apple-status-badge">
             {currentSubStep} de {totalSubSteps} - {currentStepData.title}
           </div>
         </div>
 
         {/* Contenedor de subpasos */}
-        <div className="substeps-container sap-theme">
+        <div className="apple-card">
           {subSteps.map((subStep, index) => (
             <div
               key={subStep.id}
@@ -277,40 +277,40 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
               }}
             >
               {/* Pregunta del subpaso */}
-              <div className="typeform-question sap-theme">
+              <div className="apple-card">
                 <h2>{subStep.question}</h2>
                 <p>{subStep.description}</p>
               </div>
 
               {/* Contenido específico por tipo de subpaso */}
               {subStep.type === 'status-selection' && (
-                <div className="typeform-options status-options sap-theme">
+                <div className="apple-stats-grid">
                   {statusOptions.map((option, optionIndex) => (
                     <div
                       key={option.value}
-                      className={`typeform-option status-option ${option.color} ${
+                      className={`apple-card ${option.color} ${
                         formData.status === option.value ? 'selected' : ''
                       }`}
                       onClick={() => handleStatusSelect(option.value)}
                     >
-                      <div className="option-header sap-theme">
-                        <span className="option-icon sap-theme">{option.icon}</span>
-                        <span className="option-number sap-theme">{optionIndex + 1}</span>
+                      <div className="apple-card">
+                        <span className="apple-stat-card-icon">{option.icon}</span>
+                        <span className="apple-status-badge">{optionIndex + 1}</span>
                       </div>
-                      <div className="option-content sap-theme">
-                        <h4 className="option-title sap-theme">{option.title}</h4>
-                        <p className="option-description sap-theme">{option.description}</p>
+                      <div className="apple-card">
+                        <h4 className="apple-form-label">{option.title}</h4>
+                        <p className="apple-form-input">{option.description}</p>
                       </div>
                       {formData.status === option.value && (
-                        <div className="selection-indicator sap-theme">
-                          <span className="checkmark sap-theme">✓</span>
+                        <div className="apple-status-badge">
+                          <span className="apple-status-badge">✓</span>
                         </div>
                       )}
                     </div>
                   ))}
                   {errors.status && (
-                    <div className="input-error-centered sap-theme">
-                      <span className="error-icon sap-theme">⚠️</span>
+                    <div className="apple-form-error">
+                      <span className="apple-form-error">⚠️</span>
                       {errors.status}
                     </div>
                   )}
@@ -318,12 +318,12 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
               )}
 
               {subStep.type === 'input' && (
-                <div className="typeform-input-group sap-theme">
-                  <div className="input-with-icon sap-theme">
-                    <span className="input-icon sap-theme">📍</span>
+                <div className="apple-form-group">
+                  <div className="apple-form-input">
+                    <span className="apple-form-input">📍</span>
                     <input
                       type="text"
-                      className="typeform-input substep-input sap-theme"
+                      className="apple-form-input"
                       placeholder={subStep.placeholder}
                       value={formData[subStep.field] || ''}
                       onChange={handleInputChange(subStep.field)}
@@ -332,42 +332,42 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                   </div>
 
                   {errors[subStep.field] && (
-                    <div className="input-error sap-theme">
-                      <span className="error-icon sap-theme">⚠️</span>
+                    <div className="apple-form-error">
+                      <span className="apple-form-error">⚠️</span>
                       {errors[subStep.field]}
                     </div>
                   )}
 
-                  <div className="input-hint sap-theme">{subStep.hint}</div>
+                  <div className="apple-form-label">{subStep.hint}</div>
                 </div>
               )}
 
               {subStep.type === 'hour-meter' && (
-                <div className="typeform-section sap-theme">
-                  <div className="checkbox-group sap-theme">
-                    <label className="checkbox-option sap-theme">
+                <div className="apple-card">
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">
                       <input
                         type="checkbox"
                         checked={formData.hasHourMeter || false}
                         onChange={handleInputChange('hasHourMeter')}
                       />
-                      <span className="checkbox-custom sap-theme"></span>
-                      <span className="checkbox-label sap-theme">
+                      <span className="apple-form-input"></span>
+                      <span className="apple-form-label">
                         🕐 Sí, este vehículo tiene horómetro
                       </span>
                     </label>
                   </div>
 
                   {formData.hasHourMeter && (
-                    <div className="typeform-input-group dependent-field sap-theme">
-                      <label className="typeform-label sap-theme">
+                    <div className="apple-form-group">
+                      <label className="apple-form-label">
                         ¿Cuántas horas marca actualmente?
                       </label>
-                      <div className="input-with-icon sap-theme">
-                        <span className="input-icon sap-theme">⏱️</span>
+                      <div className="apple-form-input">
+                        <span className="apple-form-input">⏱️</span>
                         <input
                           type="number"
-                          className="typeform-input substep-input sap-theme"
+                          className="apple-form-input"
                           placeholder="1250.5"
                           min="0"
                           step="0.1"
@@ -376,20 +376,20 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                         />
                       </div>
                       {errors.currentHours && (
-                        <div className="input-error sap-theme">
-                          <span className="error-icon sap-theme">⚠️</span>
+                        <div className="apple-form-error">
+                          <span className="apple-form-error">⚠️</span>
                           {errors.currentHours}
                         </div>
                       )}
                     </div>
                   )}
 
-                  <div className="input-hint sap-theme">{subStep.hint}</div>
+                  <div className="apple-form-label">{subStep.hint}</div>
                 </div>
               )}
 
               {subStep.type === 'hour-meter-value' && (
-                <div className="typeform-section sap-theme">
+                <div className="apple-card">
                   {/* Mensaje informativo sobre horómetro heredado */}
                   <div
                     style={{
@@ -416,15 +416,15 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                   </div>
 
                   {/* Campo para ingresar horas */}
-                  <div className="typeform-input-group sap-theme">
-                    <label className="typeform-label sap-theme">
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">
                       Horas actuales del horómetro (opcional)
                     </label>
-                    <div className="input-with-icon sap-theme">
-                      <span className="input-icon sap-theme">⏰</span>
+                    <div className="apple-form-input">
+                      <span className="apple-form-input">⏰</span>
                       <input
                         type="number"
-                        className="typeform-input substep-input sap-theme"
+                        className="apple-form-input"
                         placeholder="1250.5"
                         min="0"
                         step="0.1"
@@ -434,42 +434,42 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                       />
                     </div>
                     {errors.currentHours && (
-                      <div className="input-error sap-theme">
-                        <span className="error-icon sap-theme">⚠️</span>
+                      <div className="apple-form-error">
+                        <span className="apple-form-error">⚠️</span>
                         {errors.currentHours}
                       </div>
                     )}
-                    <div className="input-hint sap-theme">{subStep.hint}</div>
+                    <div className="apple-form-label">{subStep.hint}</div>
                   </div>
                 </div>
               )}
 
               {subStep.type === 'dates-and-notes' && (
-                <div className="dates-and-notes-section sap-theme">
+                <div className="apple-card">
                   {/* Fechas importantes */}
-                  <div className="typeform-row sap-theme">
-                    <div className="typeform-input-group sap-theme">
-                      <label className="typeform-label sap-theme">
+                  <div className="apple-card">
+                    <div className="apple-form-group">
+                      <label className="apple-form-label">
                         Último mantenimiento (opcional)
                       </label>
-                      <div className="input-with-icon sap-theme">
-                        <span className="input-icon sap-theme">🔧</span>
+                      <div className="apple-form-input">
+                        <span className="apple-form-input">🔧</span>
                         <input
                           type="date"
-                          className="typeform-input substep-input sap-theme"
+                          className="apple-form-input"
                           value={formData.lastMaintenanceDate || ''}
                           onChange={handleInputChange('lastMaintenanceDate')}
                         />
                       </div>
                     </div>
 
-                    <div className="typeform-input-group sap-theme">
-                      <label className="typeform-label sap-theme">Fecha de compra (opcional)</label>
-                      <div className="input-with-icon sap-theme">
-                        <span className="input-icon sap-theme">📅</span>
+                    <div className="apple-form-group">
+                      <label className="apple-form-label">Fecha de compra (opcional)</label>
+                      <div className="apple-form-input">
+                        <span className="apple-form-input">📅</span>
                         <input
                           type="date"
-                          className="typeform-input substep-input sap-theme"
+                          className="apple-form-input"
                           value={formData.purchaseDate || ''}
                           onChange={handleInputChange('purchaseDate')}
                         />
@@ -478,14 +478,14 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                   </div>
 
                   {/* Descripción adicional */}
-                  <div className="typeform-input-group sap-theme">
-                    <label className="typeform-label sap-theme">
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">
                       ¿Algo más que debamos saber? (opcional)
                     </label>
-                    <div className="input-with-icon sap-theme">
-                      <span className="input-icon sap-theme">📝</span>
+                    <div className="apple-form-input">
+                      <span className="apple-form-input">📝</span>
                       <textarea
-                        className="typeform-textarea substep-input sap-theme"
+                        className="apple-form-input"
                         placeholder="Observaciones, características especiales, modificaciones, etc."
                         rows="3"
                         value={formData.description || ''}
@@ -494,16 +494,16 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                     </div>
                   </div>
 
-                  <div className="input-hint sap-theme">{subStep.hint}</div>
+                  <div className="apple-form-label">{subStep.hint}</div>
                 </div>
               )}
 
               {/* Navegación de subpasos */}
-              <div className="substep-navigation sap-theme">
+              <div className="apple-action-buttons">
                 {currentSubStep > 1 && (
                   <button
                     type="button"
-                    className="substep-btn substep-btn-back sap-theme"
+                    className="apple-button apple-button-secondary"
                     onClick={goToPrevSubStep}
                   >
                     ← Anterior
@@ -513,7 +513,7 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
                 {currentSubStep < totalSubSteps && (
                   <button
                     type="button"
-                    className={`substep-btn substep-btn-next ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
+                    className={`apple-button apple-button-primary ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
                     onClick={goToNextSubStep}
                     disabled={!isCurrentSubStepValid()}
                   >
@@ -527,49 +527,49 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
 
         {/* Resumen visual (solo mostrar cuando se haya completado información) */}
         {currentSubStep === totalSubSteps && formData.status && (
-          <div className="step-preview sap-theme">
-            <div className="preview-card sap-theme">
+          <div className="apple-card">
+            <div className="apple-card">
               <h4>📋 Estado operacional</h4>
 
-              <div className="preview-item sap-theme">
-                <span className="preview-label sap-theme">Estado:</span>
-                <span className="preview-value sap-theme">
+              <div className="apple-card">
+                <span className="apple-form-label">Estado:</span>
+                <span className="apple-form-input">
                   {statusOptions.find((s) => s.value === formData.status)?.icon} {formData.status}
                 </span>
               </div>
 
               {formData.currentLocation && (
-                <div className="preview-item sap-theme">
-                  <span className="preview-label sap-theme">Ubicación:</span>
-                  <span className="preview-value sap-theme">📍 {formData.currentLocation}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Ubicación:</span>
+                  <span className="apple-form-input">📍 {formData.currentLocation}</span>
                 </div>
               )}
 
               {formData.hasHourMeter && formData.currentHours && (
-                <div className="preview-item sap-theme">
-                  <span className="preview-label sap-theme">Horómetro:</span>
-                  <span className="preview-value sap-theme">⏱️ {formData.currentHours} horas</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Horómetro:</span>
+                  <span className="apple-form-input">⏱️ {formData.currentHours} horas</span>
                 </div>
               )}
 
               {formData.lastMaintenanceDate && (
-                <div className="preview-item sap-theme">
-                  <span className="preview-label sap-theme">Último mantenimiento:</span>
-                  <span className="preview-value sap-theme">🔧 {formData.lastMaintenanceDate}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Último mantenimiento:</span>
+                  <span className="apple-form-input">🔧 {formData.lastMaintenanceDate}</span>
                 </div>
               )}
 
               {formData.purchaseDate && (
-                <div className="preview-item sap-theme">
-                  <span className="preview-label sap-theme">Fecha de compra:</span>
-                  <span className="preview-value sap-theme">📅 {formData.purchaseDate}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Fecha de compra:</span>
+                  <span className="apple-form-input">📅 {formData.purchaseDate}</span>
                 </div>
               )}
 
               {formData.description && (
-                <div className="preview-item sap-theme">
-                  <span className="preview-label sap-theme">Observaciones:</span>
-                  <span className="preview-value sap-theme">📝 {formData.description}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Observaciones:</span>
+                  <span className="apple-form-input">📝 {formData.description}</span>
                 </div>
               )}
             </div>
@@ -577,7 +577,7 @@ const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraDa
         )}
 
         {/* Indicador de navegación */}
-        <div className="navigation-hint sap-theme">
+        <div className="apple-status-badge">
           💡 Tip: Usa Enter o → para avanzar, ← para retroceder
           {currentSubStep === 1 && ` | Teclas 1-${statusOptions.length} para seleccionar estado`}
         </div>

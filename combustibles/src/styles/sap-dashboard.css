@@ -150,7 +150,6 @@
 }
 
 .navigation-card.sap-theme:hover .navigation-card-action.sap-theme {
-  color: var(--sap-blue-dark);
 }
 
 /* ==== RESPONSIVE DESIGN ==== */
@@ -549,8 +548,6 @@
 }
 
 .btn.btn-primary.sap-theme:hover {
-  background: var(--sap-blue-dark);
-  border-color: var(--sap-blue-dark);
   box-shadow: var(--sap-shadow-sm);
 }
 
@@ -783,7 +780,6 @@
       var(--sap-fiori-yellow, #f5e6a3) 0%,
       var(--sap-fiori-yellow-sand, #f2e19c) 100%
     ) !important;
-  border-color: var(--sap-fiori-yellow-dark, #e6d078) !important;
 }
 
 .unified-card:hover {
@@ -796,7 +792,6 @@
       var(--sap-fiori-yellow-light, #faf0c4) 0%,
       var(--sap-fiori-yellow, #f5e6a3) 100%
     ) !important;
-  border-color: var(--sap-fiori-yellow-dark, #e6d078) !important;
 }
 
 .unified-card .card-title {

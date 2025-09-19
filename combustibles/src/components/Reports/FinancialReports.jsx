@@ -257,67 +257,67 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
   };
 
   return (
-    <div className="financial-reports sap-theme">
+    <div className="apple-card">
       {/* KPIs financieros */}
-      <div className="kpis-grid sap-theme">
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon financial sap-theme">💰</div>
-          <div className="kpi-value sap-theme">{formatCurrency(financialAnalysis.totalCost)}</div>
-          <div className="kpi-label sap-theme">Costo Total</div>
+      <div className="apple-stats-grid">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">💰</div>
+          <div className="apple-form-input">{formatCurrency(financialAnalysis.totalCost)}</div>
+          <div className="apple-form-label">Costo Total</div>
           <div
-            className={`kpi-trend ${comparison?.costChangePercent > 0 ? 'negative' : 'positive'}`}
+            className={`apple-status-badge ${comparison?.costChangePercent > 0 ? 'negative' : 'positive'}`}
           >
-            <span className="trend-icon sap-theme">
+            <span className="apple-status-badge">
               {comparison?.costChangePercent > 0 ? '📈' : '📉'}
             </span>
             {comparison ? `${formatNumber(Math.abs(comparison.costChangePercent), 1)}%` : 'N/A'}
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon financial sap-theme">📊</div>
-          <div className="kpi-value sap-theme">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">📊</div>
+          <div className="apple-form-input">
             {formatCurrency(financialAnalysis.averageCostPerMovement)}
           </div>
-          <div className="kpi-label sap-theme">Costo Promedio</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📋</span>
+          <div className="apple-form-label">Costo Promedio</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">📋</span>
             {filteredMovements.length} movimientos
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon financial sap-theme">🔄</div>
-          <div className="kpi-value sap-theme">{formatCurrency(financialAnalysis.netFlow)}</div>
-          <div className="kpi-label sap-theme">Flujo Neto</div>
-          <div className={`kpi-trend ${financialAnalysis.netFlow > 0 ? 'negative' : 'positive'}`}>
-            <span className="trend-icon sap-theme">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">🔄</div>
+          <div className="apple-form-input">{formatCurrency(financialAnalysis.netFlow)}</div>
+          <div className="apple-form-label">Flujo Neto</div>
+          <div className={`apple-status-badge ${financialAnalysis.netFlow > 0 ? 'negative' : 'positive'}`}>
+            <span className="apple-status-badge">
               {financialAnalysis.netFlow > 0 ? '📤' : '📥'}
             </span>
             {formatPercentage(financialAnalysis.turnoverRatio)} rotación
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon financial sap-theme">📈</div>
-          <div className="kpi-value sap-theme">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">📈</div>
+          <div className="apple-form-input">
             {formatCurrency(financialProjections.totalProjectedCost)}
           </div>
-          <div className="kpi-label sap-theme">Proyección 30 días</div>
-          <div className="kpi-trend info sap-theme">
-            <span className="trend-icon sap-theme">🎯</span>
+          <div className="apple-form-label">Proyección 30 días</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">🎯</span>
             {formatNumber(financialProjections.confidence)}% confianza
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="reports-filters sap-theme">
-        <div className="filters-grid sap-theme">
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Período de Análisis</label>
+      <div className="apple-card">
+        <div className="apple-card">
+          <div className="apple-form-group">
+            <label className="apple-form-label">Período de Análisis</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
             >
@@ -327,10 +327,10 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
               <option value="year">Anual</option>
             </select>
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Comparar con</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Comparar con</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={comparisonPeriod}
               onChange={(e) => setComparisonPeriod(e.target.value)}
             >
@@ -338,8 +338,8 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
               <option value="year_ago">Mismo período año anterior</option>
             </select>
           </div>
-          <div className="filter-actions sap-theme">
-            <button className="filter-btn secondary sap-theme" onClick={exportFinancialReport}>
+          <div className="apple-action-buttons">
+            <button className="apple-button apple-button-secondary" onClick={exportFinancialReport}>
               📊 Exportar Reporte
             </button>
           </div>
@@ -348,35 +348,35 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
 
       {/* Comparación con período anterior */}
       {comparison && (
-        <div className="chart-container sap-theme">
-          <div className="chart-header sap-theme">
-            <h3 className="chart-title sap-theme">📊 Comparación con Período Anterior</h3>
-            <div className="chart-actions sap-theme">
-              <span className="badge info sap-theme">vs {comparisonData.period}</span>
+        <div className="apple-card">
+          <div className="apple-card">
+            <h3 className="apple-form-label">📊 Comparación con Período Anterior</h3>
+            <div className="apple-action-buttons">
+              <span className="apple-status-badge">vs {comparisonData.period}</span>
             </div>
           </div>
-          <div className="chart-content sap-theme">
-            <div className="comparison-grid sap-theme">
-              <div className="comparison-item sap-theme">
+          <div className="apple-card">
+            <div className="apple-stats-grid">
+              <div className="apple-card">
                 <h4>💰 Cambio en Costos</h4>
                 <div
-                  className={`comparison-value ${comparison.costChangePercent > 0 ? 'negative' : 'positive'}`}
+                  className={`apple-form-input ${comparison.costChangePercent > 0 ? 'negative' : 'positive'}`}
                 >
                   {formatCurrency(comparison.costChange)}
-                  <span className="comparison-percent sap-theme">
+                  <span className="apple-status-badge">
                     ({comparison.costChangePercent > 0 ? '+' : ''}
                     {formatNumber(comparison.costChangePercent, 1)}%)
                   </span>
                 </div>
               </div>
-              <div className="comparison-item sap-theme">
+              <div className="apple-card">
                 <h4>📈 Cambio en Movimientos</h4>
                 <div
-                  className={`comparison-value ${comparison.movementChangePercent > 0 ? 'positive' : 'negative'}`}
+                  className={`apple-form-input ${comparison.movementChangePercent > 0 ? 'positive' : 'negative'}`}
                 >
                   {comparison.movementChange > 0 ? '+' : ''}
                   {comparison.movementChange}
-                  <span className="comparison-percent sap-theme">
+                  <span className="apple-status-badge">
                     ({comparison.movementChangePercent > 0 ? '+' : ''}
                     {formatNumber(comparison.movementChangePercent, 1)}%)
                   </span>
@@ -388,35 +388,35 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
       )}
 
       {/* Análisis por ubicación */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">📍 Costos por Ubicación</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">📍 Costos por Ubicación</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="location-analysis-grid sap-theme">
+        <div className="apple-card">
+          <div className="apple-stats-grid">
             {locationAnalysis.slice(0, 6).map((location) => (
-              <div key={location.location} className="location-item sap-theme">
+              <div key={location.location} className="apple-card">
                 <h4>{location.location}</h4>
-                <div className="location-metrics sap-theme">
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Costo Total:</span>
-                    <span className="metric-value sap-theme">
+                <div className="apple-card">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Costo Total:</span>
+                    <span className="apple-form-input">
                       {formatCurrency(location.totalCost)}
                     </span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Movimientos:</span>
-                    <span className="metric-value sap-theme">{location.movementsCount}</span>
+                  <div className="apple-card">
+                    <span className="apple-form-label">Movimientos:</span>
+                    <span className="apple-form-input">{location.movementsCount}</span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Participación:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Participación:</span>
+                    <span className="apple-form-input">
                       {formatNumber(location.movementsPercentage, 1)}%
                     </span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Promedio:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Promedio:</span>
+                    <span className="apple-form-input">
                       {formatCurrency(location.averageCostPerMovement)}
                     </span>
                   </div>
@@ -429,41 +429,41 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
 
       {/* Análisis de proveedores */}
       {supplierAnalysis.length > 0 && (
-        <div className="chart-container sap-theme">
-          <div className="chart-header sap-theme">
-            <h3 className="chart-title sap-theme">🏪 Análisis de Proveedores</h3>
+        <div className="apple-card">
+          <div className="apple-card">
+            <h3 className="apple-form-label">🏪 Análisis de Proveedores</h3>
           </div>
-          <div className="chart-content sap-theme">
-            <div className="suppliers-analysis sap-theme">
+          <div className="apple-card">
+            <div className="apple-card">
               {supplierAnalysis.slice(0, 5).map((supplier) => (
-                <div key={supplier.name} className="supplier-item sap-theme">
+                <div key={supplier.name} className="apple-card">
                   <h4>{supplier.name}</h4>
-                  <div className="supplier-metrics sap-theme">
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Valor Total:</span>
-                      <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <div className="apple-card">
+                      <span className="apple-form-label">Valor Total:</span>
+                      <span className="apple-form-input">
                         {formatCurrency(supplier.totalValue)}
                       </span>
                     </div>
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Cantidad:</span>
-                      <span className="metric-value sap-theme">
+                    <div className="apple-card">
+                      <span className="apple-form-label">Cantidad:</span>
+                      <span className="apple-form-input">
                         {formatNumber(supplier.totalQuantity)} L
                       </span>
                     </div>
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Precio Promedio:</span>
-                      <span className="metric-value sap-theme">
+                    <div className="apple-card">
+                      <span className="apple-form-label">Precio Promedio:</span>
+                      <span className="apple-form-input">
                         {formatCurrency(supplier.avgPrice)}
                       </span>
                     </div>
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Movimientos:</span>
-                      <span className="metric-value sap-theme">{supplier.movementsCount}</span>
+                    <div className="apple-card">
+                      <span className="apple-form-label">Movimientos:</span>
+                      <span className="apple-form-input">{supplier.movementsCount}</span>
                     </div>
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Combustibles:</span>
-                      <span className="metric-value sap-theme">
+                    <div className="apple-card">
+                      <span className="apple-form-label">Combustibles:</span>
+                      <span className="apple-form-input">
                         {supplier.fuelTypes.join(', ')}
                       </span>
                     </div>
@@ -476,42 +476,42 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
       )}
 
       {/* Proyecciones financieras */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">📈 Proyecciones Financieras (30 días)</h3>
-          <div className="chart-actions sap-theme">
-            <span className="badge success sap-theme">
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">📈 Proyecciones Financieras (30 días)</h3>
+          <div className="apple-action-buttons">
+            <span className="apple-status-badge">
               Confianza: {formatNumber(financialProjections.confidence)}%
             </span>
           </div>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="projections-financial sap-theme">
+        <div className="apple-card">
+          <div className="apple-card">
             {Object.entries(financialProjections.projectedCosts).map(([fuelType, cost]) => {
               const quantity = financialProjections.recommendedPurchases[fuelType];
               const price = financialProjections.currentPrices[fuelType];
               const fuelInfo = FUEL_INFO[fuelType] || {};
 
               return (
-                <div key={fuelType} className="projection-financial-item sap-theme">
+                <div key={fuelType} className="apple-card">
                   <h4>
                     <span style={{ marginRight: '0.5rem' }}>{fuelInfo.icon || '⛽'}</span>
                     {fuelInfo.name || fuelType.toUpperCase()}
                   </h4>
-                  <div className="projection-financial-metrics sap-theme">
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Cantidad Proyectada:</span>
-                      <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <div className="apple-card">
+                      <span className="apple-form-label">Cantidad Proyectada:</span>
+                      <span className="apple-form-input">
                         {formatNumber(quantity)} {fuelInfo.unit || 'L'}
                       </span>
                     </div>
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Precio Actual:</span>
-                      <span className="metric-value sap-theme">{formatCurrency(price)}</span>
+                    <div className="apple-card">
+                      <span className="apple-form-label">Precio Actual:</span>
+                      <span className="apple-form-input">{formatCurrency(price)}</span>
                     </div>
-                    <div className="metric sap-theme">
-                      <span className="metric-label sap-theme">Costo Proyectado:</span>
-                      <span className="metric-value highlight sap-theme">
+                    <div className="apple-card">
+                      <span className="apple-form-label">Costo Proyectado:</span>
+                      <span className="apple-status-badge">
                         {formatCurrency(cost)}
                       </span>
                     </div>
@@ -524,22 +524,22 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
       </div>
 
       {/* Top costos por categoría */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">💸 Top Costos por Categoría</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">💸 Top Costos por Categoría</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="top-costs-list sap-theme">
+        <div className="apple-card">
+          <div className="apple-card">
             {topCosts.map((item, index) => (
-              <div key={item.category} className="cost-item sap-theme">
-                <div className="cost-rank sap-theme">#{index + 1}</div>
-                <div className="cost-info sap-theme">
+              <div key={item.category} className="apple-card">
+                <div className="apple-status-badge">#{index + 1}</div>
+                <div className="apple-card">
                   <h4>{item.category.replace('_', ' - ')}</h4>
-                  <div className="cost-percentage sap-theme">
+                  <div className="apple-form-label">
                     {formatPercentage(item.cost / financialAnalysis.totalCost)} del total
                   </div>
                 </div>
-                <div className="cost-value sap-theme">{formatCurrency(item.cost)}</div>
+                <div className="apple-form-input">{formatCurrency(item.cost)}</div>
               </div>
             ))}
           </div>
@@ -547,48 +547,48 @@ const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, in
       </div>
 
       {/* Resumen ejecutivo */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">📋 Resumen Ejecutivo</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">📋 Resumen Ejecutivo</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="executive-summary sap-theme">
-            <div className="summary-section sap-theme">
+        <div className="apple-card">
+          <div className="apple-card">
+            <div className="apple-card">
               <h4>💰 Flujo de Efectivo</h4>
-              <div className="summary-metrics sap-theme">
-                <div className="summary-item sap-theme">
+              <div className="apple-card">
+                <div className="apple-card">
                   <span>Entradas:</span>
-                  <span className="text-success sap-theme">
+                  <span className="apple-status-badge">
                     {formatCurrency(financialAnalysis.entradasValue)}
                   </span>
                 </div>
-                <div className="summary-item sap-theme">
+                <div className="apple-card">
                   <span>Salidas:</span>
-                  <span className="text-warning sap-theme">
+                  <span className="apple-status-badge">
                     {formatCurrency(financialAnalysis.salidasValue)}
                   </span>
                 </div>
-                <div className="summary-item sap-theme">
+                <div className="apple-card">
                   <span>Balance:</span>
-                  <span className={financialAnalysis.netFlow > 0 ? 'text-danger' : 'text-success'}>
+                  <span className={financialAnalysis.netFlow > 0 ? 'apple-status-badge' : 'apple-form-input'}>
                     {formatCurrency(Math.abs(financialAnalysis.netFlow))}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="summary-section sap-theme">
+            <div className="apple-card">
               <h4>📊 Eficiencia Operacional</h4>
-              <div className="summary-metrics sap-theme">
-                <div className="summary-item sap-theme">
+              <div className="apple-card">
+                <div className="apple-card">
                   <span>Rotación de Inventario:</span>
                   <span>{formatPercentage(financialAnalysis.turnoverRatio)}</span>
                 </div>
-                <div className="summary-item sap-theme">
+                <div className="apple-card">
                   <span>Costo por Movimiento:</span>
                   <span>{formatCurrency(financialAnalysis.averageCostPerMovement)}</span>
                 </div>
-                <div className="summary-item sap-theme">
+                <div className="apple-card">
                   <span>Total Movimientos:</span>
                   <span>{filteredMovements.length}</span>
                 </div>

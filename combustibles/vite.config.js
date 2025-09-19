@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     port: 5174, // Puerto diferente al de alimentación (5173)
     proxy: {
-      // Proxy para ruta directa (sin base path)
+      // Proxy único para Firebase Web Authn API
       '^/firebase-web-authn-api': {
         target: 'https://us-east1-liquidacionapp-62962.cloudfunctions.net',
         changeOrigin: true,
@@ -28,25 +28,10 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/firebase-web-authn-api/, '/ext-firebase-web-authn-api'),
         configure: (proxy, options) => {
           proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('🔗 Proxying Web Authn request (direct):', req.url);
+            console.log('🔗 Proxying Web Authn request:', req.url);
           });
           proxy.on('error', (err, req, res) => {
-            console.error('❌ Proxy error (direct):', err);
-          });
-        }
-      },
-      // Proxy para ruta con base path /
-      '^/firebase-web-authn-api': {
-        target: 'https://us-east1-liquidacionapp-62962.cloudfunctions.net',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/firebase-web-authn-api/, '/ext-firebase-web-authn-api'),
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('🔗 Proxying Web Authn request (combustibles):', req.url);
-          });
-          proxy.on('error', (err, req, res) => {
-            console.error('❌ Proxy error (combustibles):', err);
+            console.error('❌ Proxy error:', err);
           });
         }
       }

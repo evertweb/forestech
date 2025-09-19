@@ -225,17 +225,17 @@ const VehiclesMain = () => {
   // Componentes para PageLayout
   const headerActions = useMemo(
     () => (
-      <div className="header-actions sap-theme">
+      <div className="apple-content-header">
         {/* Navegación por pestañas */}
-        <div className="tabs-navigation sap-theme">
+        <div className="apple-nav-container">
           <button
-            className={`tab-btn sap-theme ${activeTab === 'vehicles' ? 'active' : ''}`}
+            className={`apple-nav-item ${activeTab === 'vehicles' ? 'active' : ''}`}
             onClick={() => setActiveTab('vehicles')}
           >
             🚜 Vehículos
           </button>
           <button
-            className={`tab-btn sap-theme ${activeTab === 'categories' ? 'active' : ''}`}
+            className={`apple-nav-item ${activeTab === 'categories' ? 'active' : ''}`}
             onClick={() => setActiveTab('categories')}
           >
             🏷️ Categorías
@@ -244,12 +244,12 @@ const VehiclesMain = () => {
 
         {/* Botón crear vehículo solo para tab vehículos */}
         {activeTab === 'vehicles' && canCreateVehicle && (
-          <div className="create-vehicle-options sap-theme">
-            <button className="btn-create-vehicle sap-theme primary" onClick={handleCreateVehicle}>
+          <div className="apple-content-actions">
+            <button className="apple-button apple-button-primary" onClick={handleCreateVehicle}>
               ➕ Nuevo Vehículo
             </button>
             {openingPopup && (
-              <span className="opening-status" style={{ marginLeft: 12 }}>
+              <span className="apple-body-small text-secondary" style={{ marginLeft: 12 }}>
                 Abriendo formulario...
               </span>
             )}
@@ -301,11 +301,11 @@ const VehiclesMain = () => {
       {activeTab === 'vehicles' && (
         <>
           {error && (
-            <div className="error-state sap-theme">
-              <div className="error-icon sap-theme">⚠️</div>
-              <h3>Error al cargar vehículos</h3>
-              <p>{error}</p>
-              <button className="btn-retry sap-theme" onClick={() => window.location.reload()}>
+            <div className="apple-empty-state">
+              <div className="apple-empty-icon">⚠️</div>
+              <h3 className="apple-empty-title">Error al cargar vehículos</h3>
+              <p className="apple-empty-description">{error}</p>
+              <button className="apple-button apple-button-primary" onClick={() => window.location.reload()}>
                 Reintentar
               </button>
             </div>
@@ -322,20 +322,20 @@ const VehiclesMain = () => {
                 className="shimmer-vehicles-table"
               />
             ) : filteredVehicles.length === 0 ? (
-              <div className="empty-state sap-theme">
-                <div className="empty-icon sap-theme">🚜</div>
-                <h3>
+              <div className="apple-empty-state">
+                <div className="apple-empty-icon">🚜</div>
+                <h3 className="apple-empty-title">
                   {vehicles.length === 0
                     ? 'No hay vehículos registrados'
                     : 'No se encontraron vehículos'}
                 </h3>
-                <p>
+                <p className="apple-empty-description">
                   {vehicles.length === 0
                     ? 'Comienza registrando tu primer vehículo o maquinaria forestal'
                     : 'Intenta ajustar los filtros de búsqueda'}
                 </p>
                 {vehicles.length === 0 && canCreateVehicle && (
-                  <button className="btn-create-first sap-theme" onClick={handleCreateVehicle}>
+                  <button className="apple-button apple-button-primary" onClick={handleCreateVehicle}>
                     ➕ Registrar Primer Vehículo
                   </button>
                 )}
@@ -353,45 +353,45 @@ const VehiclesMain = () => {
 
           {/* Estado de error de popup y botón de reintento */}
           {popupError && (
-            <div className="popup-error sap-theme" style={{ marginTop: 16 }}>
-              <p>
+            <div className="apple-card apple-card-compact" style={{ marginTop: 16, borderColor: 'var(--interactive-warning)' }}>
+              <p className="apple-body-medium">
                 El navegador bloqueó la ventana emergente. Permite popups para este sitio o usa el
                 formulario integrado.
               </p>
-              <button className="sap-theme" onClick={() => setShowModal(true)}>
-                Abrir formulario integrado
-              </button>
-              <button
-                className="sap-theme"
-                style={{ marginLeft: 8 }}
-                onClick={() => {
-                  setPopupError(null);
-                  handleCreateVehicle();
-                }}
-              >
-                Reintentar popup
-              </button>
+              <div className="apple-action-buttons" style={{ marginTop: 12 }}>
+                <button className="apple-button apple-button-primary" onClick={() => setShowModal(true)}>
+                  Abrir formulario integrado
+                </button>
+                <button
+                  className="apple-button apple-button-secondary"
+                  style={{ marginLeft: 8 }}
+                  onClick={() => {
+                    setPopupError(null);
+                    handleCreateVehicle();
+                  }}
+                >
+                  Reintentar popup
+                </button>
+              </div>
             </div>
           )}
         </>
       )}
 
       {activeTab === 'categories' && (
-        <div className="categories-tab-content sap-theme">
-          <div className="tab-description sap-theme">
-            <h3>🏷️ Gestión de Categorías de Vehículos</h3>
-            <p>
+        <div className="apple-content-section">
+          <div className="apple-content-header">
+            <h3 className="apple-content-title">🏷️ Gestión de Categorías de Vehículos</h3>
+            <p className="apple-body-medium text-secondary">
               Crea y administra las categorías que clasifican tus vehículos y maquinaria forestal
             </p>
           </div>
 
           <Suspense
             fallback={
-              <div className="loading-container sap-theme">
-                <div className="loader sap-theme">
-                  <div className="spinner sap-theme"></div>
-                  <p>Cargando categorías...</p>
-                </div>
+              <div className="apple-loading-state">
+                <div className="apple-loading-spinner"></div>
+                <p className="apple-loading-text">Cargando categorías...</p>
               </div>
             }
           >
@@ -410,11 +410,9 @@ const VehiclesMain = () => {
       {showModal && (
         <Suspense
           fallback={
-            <div className="loading-container sap-theme">
-              <div className="loader sap-theme">
-                <div className="spinner sap-theme"></div>
-                <p>Cargando formulario...</p>
-              </div>
+            <div className="apple-loading-state">
+              <div className="apple-loading-spinner"></div>
+              <p className="apple-loading-text">Cargando formulario...</p>
             </div>
           }
         >
@@ -433,11 +431,9 @@ const VehiclesMain = () => {
       {showMaintenanceModal && (
         <Suspense
           fallback={
-            <div className="loading-container sap-theme">
-              <div className="loader sap-theme">
-                <div className="spinner sap-theme"></div>
-                <p>Cargando mantenimiento...</p>
-              </div>
+            <div className="apple-loading-state">
+              <div className="apple-loading-spinner"></div>
+              <p className="apple-loading-text">Cargando mantenimiento...</p>
             </div>
           }
         >

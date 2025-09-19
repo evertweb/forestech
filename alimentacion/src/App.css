@@ -18,22 +18,7 @@
   --modal-content-bg: #fff;
 }
 
-body.dark-mode {
-  --bg-gradient-start: #1D2B64;
-  --bg-gradient-end: #000000;
-  --header-gradient-start: #485563;
-  --header-gradient-end: #29323c;
-  --card-bg: rgba(45, 57, 75, 0.95);
-  --text-color: #EAEAEA;
-  --text-muted-color: #a0a0a0;
-  --border-color: #4a5568;
-  --input-bg: #2d3748;
-  --focus-border-color: #4299e1;
-  --section-title-color: #EAEAEA;
-  --main-button-start: #3a7bd5;
-  --main-button-end: #3a6073;
-  --modal-content-bg: #2d3748;
-}
+/* Tema oscuro - ELIMINADO COMPLETAMENTE */
 
 /* Reseteo y Estilos Base */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -180,11 +165,6 @@ body {
   margin-bottom: 15px;
   border: 1px solid #d1d9e6;
 }
-body.dark-mode .client-input-group,
-body.dark-mode .deduction-input-group {
-  background: #1a202c;
-  border-color: #2d3748;
-}
 .client-header, .deduction-header {
   display: flex;
   justify-content: space-between;
@@ -194,10 +174,6 @@ body.dark-mode .deduction-input-group {
 .client-header h4, .deduction-header h4 {
   color: #34495e;
   font-size: 1.1em;
-}
-body.dark-mode .client-header h4,
-body.dark-mode .deduction-header h4 {
-  color: #EAEAEA;
 }
 
 /* Botones de remover */
@@ -324,9 +300,7 @@ body.dark-mode .deduction-header h4 {
 }
 .deduction-item:last-child { border-bottom: none; }
 .deduction-item .label { color: #555; }
-body.dark-mode .deduction-item .label { color: #bbb; }
 .deduction-item .value { font-weight: 600; color: #333; }
-body.dark-mode .deduction-item .value { color: #eee; }
 .deduction-item .subtotal { font-weight: bold; color: #16a085; }
 .deduction-item .final-value { font-weight: bold; font-size: 1.05em; color: #27ae60; }
 
@@ -676,9 +650,6 @@ body.dark-mode .deduction-item .value { color: #eee; }
   color: #e74c3c; /* Red for errors */
   font-weight: bold;
 }
-body.dark-mode .auth-message {
-  color: #ff5a5a;
-}
 
 /* Email Verification Banner */
 .email-verification-banner {
@@ -946,11 +917,7 @@ body.dark-mode .auth-message {
     to { opacity: 1; }
   }
 }
-/* FIX PARA EL DROPDOWN EN MODO OSCURO */
-body.dark-mode select option {
-  background: var(--input-bg); /* Usa el mismo fondo de los inputs */
-  color: var(--text-color);   /* Usa el mismo color de texto */
-}
+/* FIX PARA EL DROPDOWN - MODO OSCURO ELIMINADO */
 /* Estilos del Modal (ya estaban en tu CSS original) */
 .modal {
   display: none; /* Oculto por defecto, React lo cambiará a flex */

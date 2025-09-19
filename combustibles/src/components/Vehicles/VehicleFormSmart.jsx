@@ -240,14 +240,14 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={`${MODAL_PRESETS.VEHICLE_MODAL.overlay} sap-theme`} onClick={handleClose}>
+    <div className="apple-modal-overlay" onClick={handleClose}>
       <div
-        className={`${MODAL_PRESETS.VEHICLE_MODAL.content} sap-theme`}
+        className="apple-modal"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header simplificado */}
-        <div className={`${MODAL_PRESETS.VEHICLE_MODAL.header} sap-theme`}>
-          <h2 className="smart-modal-title sap-theme">
+        <div className="apple-modal-header">
+          <h2 className="apple-form-label">
             🚜{' '}
             {vehicle
               ? `${UI_ACTIONS.EDIT} ${UI_FORM_LABELS.VEHICLE}`
@@ -255,7 +255,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
           </h2>
           <button
             type="button"
-            className={`${MODAL_PRESETS.VEHICLE_MODAL.close} sap-theme`}
+            className="apple-button apple-button-secondary"
             onClick={handleClose}
             aria-label={UI_ACTIONS.CLOSE}
           >
@@ -286,50 +286,50 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
         </div>
 
         {/* Contenido del formulario */}
-        <div className="smart-modal-body">
-          {errors.submit && <div className="error-banner">{errors.submit}</div>}
+        <div className="apple-modal-content">
+          {errors.submit && <div className="apple-form-error">{errors.submit}</div>}
 
-          <form onSubmit={handleSubmit} className="smart-form">
+          <form onSubmit={handleSubmit} className="apple-card">
             {/* PASO 1: INFORMACIÓN BÁSICA */}
-            <div className="form-section">
-              <div className="smart-form-row">
-                <div className="smart-form-group">
-                  <label className="smart-form-label">{UI_FORM_LABELS.VEHICLE_NAME} *</label>
+            <div className="apple-card">
+              <div className="apple-card">
+                <div className="apple-form-group">
+                  <label className="apple-form-label">{UI_FORM_LABELS.VEHICLE_NAME} *</label>
                   <input
                     type="text"
-                    className={`smart-form-input ${errors.name ? 'error' : ''}`}
+                    className={`apple-form-input ${errors.name ? 'error' : ''}`}
                     value={formData.name}
                     onChange={(e) => handleFieldChange('name', e.target.value)}
                     placeholder={UI_PLACEHOLDERS.VEHICLE_NAME}
                     autoFocus
                   />
-                  {errors.name && <span className="field-error">{errors.name}</span>}
+                  {errors.name && <span className="apple-form-error">{errors.name}</span>}
                 </div>
 
-                <div className="smart-form-group">
-                  <label className="smart-form-label">{UI_FORM_LABELS.PLATE_CODE} *</label>
+                <div className="apple-form-group">
+                  <label className="apple-form-label">{UI_FORM_LABELS.PLATE_CODE} *</label>
                   <input
                     type="text"
-                    className={`smart-form-input ${errors.plateCode ? 'error' : ''}`}
+                    className={`apple-form-input ${errors.plateCode ? 'error' : ''}`}
                     value={formData.plateCode}
                     onChange={(e) => handleFieldChange('plateCode', e.target.value.toUpperCase())}
                     placeholder={UI_PLACEHOLDERS.PLATE_CODE}
                   />
-                  {errors.plateCode && <span className="field-error">{errors.plateCode}</span>}
+                  {errors.plateCode && <span className="apple-form-error">{errors.plateCode}</span>}
                 </div>
               </div>
 
-              <div className="smart-form-group">
-                <label className="smart-form-label">{UI_FORM_LABELS.VEHICLE_CATEGORY} *</label>
+              <div className="apple-form-group">
+                <label className="apple-form-label">{UI_FORM_LABELS.VEHICLE_CATEGORY} *</label>
                 {categoriesLoading ? (
-                  <div className="loading-categories">
-                    <div className="spinner"></div>
+                  <div className="apple-loading-state">
+                    <div className="apple-loading-state"></div>
                     <span>{UI_MESSAGES.LOADING.CATEGORIES}</span>
                   </div>
                 ) : (
-                  <div className="custom-select-wrapper">
+                  <div className="apple-form-input">
                     <select
-                      className={`smart-form-input ${errors.categoryId ? 'error' : ''}`}
+                      className={`apple-form-input ${errors.categoryId ? 'error' : ''}`}
                       value={formData.categoryId}
                       onChange={(e) => handleFieldChange('categoryId', e.target.value)}
                     >
@@ -343,20 +343,20 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                     </select>
                   </div>
                 )}
-                {errors.categoryId && <span className="field-error">{errors.categoryId}</span>}
+                {errors.categoryId && <span className="apple-form-error">{errors.categoryId}</span>}
               </div>
             </div>
 
             {/* PASO 2: DETALLES OPERATIVOS (aparece cuando se selecciona categoría) */}
             {(currentStep === 'details' || showAdvanced) && canProceedToDetails && (
-              <div className="form-section fade-in">
+              <div className="apple-card fade-in">
                 <h3>{UI_FORM_LABELS.OPERATIONAL_DETAILS}</h3>
 
-                <div className="smart-form-row">
-                  <div className="smart-form-group">
-                    <label className="smart-form-label">{UI_FORM_LABELS.FUEL_TYPE} *</label>
+                <div className="apple-card">
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">{UI_FORM_LABELS.FUEL_TYPE} *</label>
                     <select
-                      className={`smart-form-input ${errors.fuelType ? 'error' : ''}`}
+                      className={`apple-form-input ${errors.fuelType ? 'error' : ''}`}
                       value={formData.fuelType}
                       onChange={(e) => handleFieldChange('fuelType', e.target.value)}
                     >
@@ -365,14 +365,14 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       <option value="GASOLINE">⛽ Gasolina</option>
                       <option value="ELECTRIC">⚡ Eléctrico</option>
                     </select>
-                    {errors.fuelType && <span className="field-error">{errors.fuelType}</span>}
+                    {errors.fuelType && <span className="apple-form-error">{errors.fuelType}</span>}
                   </div>
 
-                  <div className="smart-form-group">
-                    <label className="smart-form-label">{UI_FORM_LABELS.TANK_CAPACITY}</label>
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">{UI_FORM_LABELS.TANK_CAPACITY}</label>
                     <input
                       type="number"
-                      className="smart-form-input"
+                      className="apple-form-input"
                       value={formData.tankCapacity}
                       onChange={(e) => handleFieldChange('tankCapacity', e.target.value)}
                       placeholder="0"
@@ -382,8 +382,8 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                   </div>
                 </div>
 
-                <div className="smart-form-group">
-                  <label className="checkbox-label">
+                <div className="apple-form-group">
+                  <label className="apple-form-label">
                     <input
                       type="checkbox"
                       checked={formData.hasHorometer}
@@ -395,10 +395,10 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
                 {/* Botón para mostrar campos avanzados */}
                 {canProceedToAdvanced && !showAdvanced && (
-                  <div className="advanced-toggle">
+                  <div className="apple-action-buttons">
                     <button
                       type="button"
-                      className="btn-show-advanced"
+                      className="apple-button apple-button-secondary"
                       onClick={() => setShowAdvanced(true)}
                     >
                       ➕ {UI_ACTIONS.ADD} {UI_FORM_LABELS.ADDITIONAL_INFO.toLowerCase()} (opcional)
@@ -410,13 +410,13 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
             {/* PASO 3: INFORMACIÓN ADICIONAL (opcional) */}
             {showAdvanced && (
-              <div className="form-section fade-in">
+              <div className="apple-card fade-in">
                 <h3>{UI_FORM_LABELS.ADDITIONAL_INFO}</h3>
 
-                <div className="smart-form-group">
-                  <label className="smart-form-label">{UI_FORM_LABELS.DESCRIPTION}</label>
+                <div className="apple-form-group">
+                  <label className="apple-form-label">{UI_FORM_LABELS.DESCRIPTION}</label>
                   <textarea
-                    className="smart-form-input"
+                    className="apple-form-input"
                     value={formData.description}
                     onChange={(e) => handleFieldChange('description', e.target.value)}
                     placeholder={UI_PLACEHOLDERS.VEHICLE_DESCRIPTION}
@@ -424,10 +424,10 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                   />
                 </div>
 
-                <div className="smart-form-group">
-                  <label className="smart-form-label">{UI_FORM_LABELS.SPECIAL_NOTES}</label>
+                <div className="apple-form-group">
+                  <label className="apple-form-label">{UI_FORM_LABELS.SPECIAL_NOTES}</label>
                   <textarea
-                    className="smart-form-input"
+                    className="apple-form-input"
                     value={formData.notes}
                     onChange={(e) => handleFieldChange('notes', e.target.value)}
                     placeholder={UI_PLACEHOLDERS.SPECIAL_NOTES}
@@ -437,7 +437,7 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
                 <button
                   type="button"
-                  className="btn-hide-advanced"
+                  className="apple-button apple-button-secondary"
                   onClick={() => setShowAdvanced(false)}
                 >
                   ➖ {UI_ACTIONS.HIDE} {UI_FORM_LABELS.ADDITIONAL_INFO.toLowerCase()}
@@ -446,10 +446,10 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
             )}
 
             {/* Acciones del formulario */}
-            <div className="smart-form-actions">
+            <div className="apple-action-buttons">
               <button
                 type="button"
-                className="smart-btn-secondary"
+                className="apple-button apple-button-secondary"
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
@@ -458,12 +458,12 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
 
               <button
                 type="submit"
-                className="smart-btn-primary"
+                className="apple-button apple-button-primary"
                 disabled={!canProceedToAdvanced || isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <div className="spinner small"></div>
+                    <div className="apple-loading-state"></div>
                     {vehicle ? UI_MESSAGES.LOADING.UPDATING : UI_MESSAGES.LOADING.CREATING}
                   </>
                 ) : vehicle ? (

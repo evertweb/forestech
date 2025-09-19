@@ -1,0 +1,368 @@
+/**
+ * Apple Design System - Design Tokens
+ * Sistema de diseño completo inspirado en Apple
+ * Colores neutros, tipografía SF Pro, espaciado 8pt grid
+ */
+
+/* ================================================================
+ * IMPORTAR TIPOGRAFÍA INTER (FALLBACK DE SF PRO)
+ * ================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* ================================================================
+   * PALETA DE COLORES APPLE
+   * ================================================================ */
+  
+  /* Grises Apple - Base del sistema */
+  --apple-gray-50: #fafafa;
+  --apple-gray-100: #f5f5f7;
+  --apple-gray-200: #e5e5e7;
+  --apple-gray-300: #d2d2d7;
+  --apple-gray-400: #86868b;
+  --apple-gray-500: #6e6e73;
+  --apple-gray-600: #515154;
+  --apple-gray-700: #424245;
+  --apple-gray-800: #1d1d1f;
+  --apple-gray-900: #000000;
+
+  /* Blancos Apple */
+  --apple-white: #ffffff;
+  --apple-off-white: #fbfbfd;
+
+  /* Colores del sistema Apple */
+  --apple-blue: #007aff;
+  --apple-blue-light: #5ac8fa;
+
+  --apple-green: #34c759;
+  --apple-green-light: #30d158;
+
+  --apple-red: #ff3b30;
+  --apple-red-light: #ff453a;
+
+  --apple-orange: #ff9500;
+  --apple-orange-light: #ff9f0a;
+
+  --apple-yellow: #ffcc00;
+  --apple-yellow-light: #ffd60a;
+
+  --apple-purple: #af52de;
+  --apple-purple-light: #bf5af2;
+
+  /* ================================================================
+   * MAPEO SEMÁNTICO DE COLORES
+   * ================================================================ */
+  
+  /* Backgrounds */
+  --bg-primary: var(--apple-white);
+  --bg-secondary: var(--apple-gray-50);
+  --bg-tertiary: var(--apple-gray-100);
+  --bg-elevated: var(--apple-white);
+  --bg-overlay: rgba(0, 0, 0, 0.4);
+  --bg-overlay-light: rgba(0, 0, 0, 0.1);
+  --bg-card: var(--apple-white);
+  --bg-card-hover: var(--apple-gray-50);
+  --bg-card-active: var(--apple-gray-100);
+
+  /* Text */
+  --text-primary: var(--apple-gray-800);
+  --text-secondary: var(--apple-gray-500);
+  --text-tertiary: var(--apple-gray-400);
+  --text-muted: var(--apple-gray-400);
+  --text-inverse: var(--apple-white);
+  --text-on-primary: var(--apple-white);
+
+  /* Interactive */
+  --interactive-primary: var(--apple-blue);
+  --interactive-secondary: var(--apple-gray-200);
+  --interactive-secondary-hover: var(--apple-gray-300);
+  --interactive-success: var(--apple-green);
+  --interactive-warning: var(--apple-orange);
+  --interactive-error: var(--apple-red);
+  --interactive-info: var(--apple-blue);
+
+  /* Borders */
+  --border-primary: var(--apple-gray-200);
+  --border-secondary: var(--apple-gray-300);
+  --border-tertiary: var(--apple-gray-400);
+  --border-focus: var(--apple-blue);
+  --border-error: var(--apple-red);
+  --border-success: var(--apple-green);
+
+  /* ================================================================
+   * TIPOGRAFÍA SF PRO / INTER
+   * ================================================================ */
+  
+  /* Font Families */
+  --font-family-system: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  --font-family-display: 'Inter', var(--font-family-system);
+  --font-family-text: 'Inter', var(--font-family-system);
+  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+  /* Font Sizes - Escala tipográfica Apple */
+  --font-size-display-large: 57px;
+  --font-size-display-medium: 45px;
+  --font-size-display-small: 36px;
+
+  --font-size-headline-large: 32px;
+  --font-size-headline-medium: 28px;
+  --font-size-headline-small: 24px;
+
+  --font-size-title-large: 22px;
+  --font-size-title-medium: 16px;
+  --font-size-title-small: 14px;
+
+  --font-size-body-large: 16px;
+  --font-size-body-medium: 14px;
+  --font-size-body-small: 12px;
+
+  --font-size-label-large: 14px;
+  --font-size-label-medium: 12px;
+  --font-size-label-small: 11px;
+
+  /* Font Weights Apple */
+  --font-weight-thin: 100;
+  --font-weight-ultralight: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 800;
+  --font-weight-black: 900;
+
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ================================================================
+   * ESPACIADO APPLE (8PT GRID)
+   * ================================================================ */
+  
+  --spacing-1: 4px;   /* 0.25rem */
+  --spacing-2: 8px;   /* 0.5rem */
+  --spacing-3: 12px;  /* 0.75rem */
+  --spacing-4: 16px;  /* 1rem */
+  --spacing-5: 20px;  /* 1.25rem */
+  --spacing-6: 24px;  /* 1.5rem */
+  --spacing-8: 32px;  /* 2rem */
+  --spacing-10: 40px; /* 2.5rem */
+  --spacing-12: 48px; /* 3rem */
+  --spacing-16: 64px; /* 4rem */
+  --spacing-20: 80px; /* 5rem */
+  --spacing-24: 96px; /* 6rem */
+
+  /* Espaciado semántico */
+  --spacing-xs: var(--spacing-1);
+  --spacing-sm: var(--spacing-2);
+  --spacing-md: var(--spacing-4);
+  --spacing-lg: var(--spacing-6);
+  --spacing-xl: var(--spacing-8);
+  --spacing-2xl: var(--spacing-12);
+  --spacing-3xl: var(--spacing-16);
+
+  /* ================================================================
+   * BORDES Y RADIOS APPLE
+   * ================================================================ */
+  
+  /* Border Radius */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* Radios específicos Apple */
+  --radius-card: var(--radius-lg);
+  --radius-button: var(--radius-md);
+  --radius-input: var(--radius-md);
+  --radius-modal: var(--radius-xl);
+
+  /* Border Widths */
+  --border-width-thin: 0.5px;
+  --border-width-normal: 1px;
+  --border-width-thick: 2px;
+  --border-width-heavy: 4px;
+
+  /* ================================================================
+   * SOMBRAS APPLE
+   * ================================================================ */
+  
+  /* Sombras sutiles Apple */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Sombras específicas */
+  --shadow-card: var(--shadow-sm);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-dropdown: var(--shadow-lg);
+  --shadow-button: var(--shadow-xs);
+  --shadow-button-hover: var(--shadow-md);
+
+  /* ================================================================
+   * ANIMACIONES Y TRANSICIONES APPLE
+   * ================================================================ */
+  
+  /* Curvas de animación Apple */
+  --ease-in-out-cubic: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-cubic: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-cubic: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Duraciones */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* Transiciones comunes */
+  --transition-fast: all var(--duration-fast) var(--ease-out-cubic);
+  --transition-normal: all var(--duration-normal) var(--ease-out-cubic);
+  --transition-slow: all var(--duration-slow) var(--ease-out-cubic);
+
+  /* ================================================================
+   * BREAKPOINTS RESPONSIVE
+   * ================================================================ */
+  
+  --breakpoint-sm: 640px;   /* iPhone */
+  --breakpoint-md: 768px;   /* iPad Portrait */
+  --breakpoint-lg: 1024px;  /* iPad Landscape */
+  --breakpoint-xl: 1280px;  /* Desktop */
+  --breakpoint-2xl: 1536px; /* Large Desktop */
+
+  /* ================================================================
+   * CONTAINERS Y LAYOUT
+   * ================================================================ */
+  
+  --container-xs: 480px;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  /* Z-index layers */
+  --z-base: 0;
+  --z-content: 10;
+  --z-header: 100;
+  --z-sidebar: 200;
+  --z-dropdown: 500;
+  --z-modal: 1000;
+  --z-notification: 1100;
+  --z-tooltip: 1200;
+  --z-overlay: 1300;
+}
+
+/* Remover tema oscuro - forzar siempre light mode */
+
+/* ================================================================
+ * RESET Y BASE STYLES APPLE
+ * ================================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family-system);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  
+  /* Optimizaciones de rendering Apple */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-variant-ligatures: common-ligatures;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family-system);
+  line-height: var(--line-height-normal);
+  overflow-x: hidden;
+}
+
+/* ================================================================
+ * UTILIDADES DE CLASE APPLE
+ * ================================================================ */
+
+/* Tipografía */
+.apple-display-large { font-size: var(--font-size-display-large); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+.apple-display-medium { font-size: var(--font-size-display-medium); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+.apple-display-small { font-size: var(--font-size-display-small); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+
+.apple-headline-large { font-size: var(--font-size-headline-large); font-weight: var(--font-weight-semibold); line-height: var(--line-height-tight); }
+.apple-headline-medium { font-size: var(--font-size-headline-medium); font-weight: var(--font-weight-semibold); line-height: var(--line-height-tight); }
+.apple-headline-small { font-size: var(--font-size-headline-small); font-weight: var(--font-weight-semibold); line-height: var(--line-height-tight); }
+
+.apple-title-large { font-size: var(--font-size-title-large); font-weight: var(--font-weight-medium); line-height: var(--line-height-normal); }
+.apple-title-medium { font-size: var(--font-size-title-medium); font-weight: var(--font-weight-medium); line-height: var(--line-height-normal); }
+.apple-title-small { font-size: var(--font-size-title-small); font-weight: var(--font-weight-medium); line-height: var(--line-height-normal); }
+
+.apple-body-large { font-size: var(--font-size-body-large); font-weight: var(--font-weight-regular); line-height: var(--line-height-normal); }
+.apple-body-medium { font-size: var(--font-size-body-medium); font-weight: var(--font-weight-regular); line-height: var(--line-height-normal); }
+.apple-body-small { font-size: var(--font-size-body-small); font-weight: var(--font-weight-regular); line-height: var(--line-height-normal); }
+
+.apple-label-large { font-size: var(--font-size-label-large); font-weight: var(--font-weight-medium); line-height: var(--line-height-normal); }
+.apple-label-medium { font-size: var(--font-size-label-medium); font-weight: var(--font-weight-medium); line-height: var(--line-height-normal); }
+.apple-label-small { font-size: var(--font-size-label-small); font-weight: var(--font-weight-medium); line-height: var(--line-height-normal); }
+
+/* Colores de texto */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-muted { color: var(--text-muted); }
+.text-inverse { color: var(--text-inverse); }
+
+/* Colores de fondo */
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+.bg-card { background-color: var(--bg-card); }
+
+/* Espaciado */
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+
+.m-xs { margin: var(--spacing-xs); }
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+
+/* Bordes */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+
+/* Sombras */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-card { box-shadow: var(--shadow-card); }
+
+/* Transiciones */
+.transition-fast { transition: var(--transition-fast); }
+.transition-normal { transition: var(--transition-normal); }
+.transition-slow { transition: var(--transition-slow); }

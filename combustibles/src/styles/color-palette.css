@@ -1,0 +1,286 @@
+/**
+ * color-palette.css - Nueva Paleta de Colores Unificada
+ * Rediseño UI/UX - App Combustibles
+ * Forestech Colombia 2025
+ * 
+ * Paleta de colores unificada basada en:
+ * - Teal: #0e7c7b (Color principal - confianza y estabilidad)
+ * - Verdigris: #17bebb (Color secundario - modernidad y frescura)
+ * - Nyanza: #d4f4dd (Color de fondo suave - naturaleza y calma)
+ * - Rusty Red: #d62246 (Color de alerta/error - urgencia controlada)
+ * - Violet JTC: #4b1d3f (Color de acento - elegancia y profundidad)
+ */
+
+:root {
+  /* ================================================================
+   * PALETA PRINCIPAL - NUEVA IDENTIDAD VISUAL
+   * ================================================================ */
+  
+  /* Colores primarios */
+  --color-teal: #0e7c7b;
+  --color-teal-rgb: 14, 124, 123;
+  --color-teal-hsl: 179, 80%, 27%;
+  
+  --color-verdigris: #17bebb;
+  --color-verdigris-rgb: 23, 190, 187;
+  --color-verdigris-hsl: 179, 78%, 42%;
+  
+  --color-nyanza: #d4f4dd;
+  --color-nyanza-rgb: 212, 244, 221;
+  --color-nyanza-hsl: 137, 59%, 89%;
+  
+  --color-rusty-red: #d62246;
+  --color-rusty-red-rgb: 214, 34, 70;
+  --color-rusty-red-hsl: 348, 73%, 49%;
+  
+  --color-violet-jtc: #4b1d3f;
+  --color-violet-jtc-rgb: 75, 29, 63;
+  --color-violet-jtc-hsl: 316, 44%, 20%;
+
+  /* ================================================================
+   * VARIACIONES DE COLORES PRINCIPALES
+   * ================================================================ */
+  
+  /* Teal variations */
+  --color-teal-light: rgba(14, 124, 123, 0.1);
+  --color-teal-medium: rgba(14, 124, 123, 0.3);
+  
+  /* Verdigris variations */
+  --color-verdigris-light: rgba(23, 190, 187, 0.1);
+  --color-verdigris-medium: rgba(23, 190, 187, 0.3);
+  
+  /* Nyanza variations */
+  --color-nyanza-light: rgba(212, 244, 221, 0.5);
+  --color-nyanza-medium: rgba(212, 244, 221, 0.8);
+  
+  /* Rusty Red variations */
+  --color-rusty-red-light: rgba(214, 34, 70, 0.1);
+  --color-rusty-red-medium: rgba(214, 34, 70, 0.3);
+  
+  /* Violet JTC variations */
+  --color-violet-jtc-light: rgba(75, 29, 63, 0.1);
+  --color-violet-jtc-medium: rgba(75, 29, 63, 0.3);
+
+  /* ================================================================
+   * MAPEO SEMÁNTICO DE COLORES
+   * ================================================================ */
+  
+  /* Colores principales de la marca */
+  --forestech-primary: var(--color-teal);
+  --forestech-primary-light: var(--color-teal-light);
+  
+  --forestech-secondary: var(--color-verdigris);
+  --forestech-secondary-light: var(--color-verdigris-light);
+  
+  --forestech-accent: var(--color-violet-jtc);
+  --forestech-accent-light: var(--color-violet-jtc-light);
+
+  /* ================================================================
+   * COLORES FUNCIONALES - ESTADOS DE LA UI
+   * ================================================================ */
+  
+  /* Estados de éxito */
+  --color-success: var(--color-teal);
+  --color-success-light: var(--color-teal-light);
+  --color-success-medium: var(--color-teal-medium);
+  
+  /* Estados de información */
+  --color-info: var(--color-verdigris);
+  --color-info-light: var(--color-verdigris-light);
+  --color-info-medium: var(--color-verdigris-medium);
+  
+  /* Estados de advertencia */
+  --color-warning: #e67e22; /* Naranja complementario que armoniza */
+  --color-warning-light: rgba(230, 126, 34, 0.1);
+  --color-warning-medium: rgba(230, 126, 34, 0.3);
+  
+  /* Estados de error */
+  --color-error: var(--color-rusty-red);
+  --color-error-light: var(--color-rusty-red-light);
+  --color-error-medium: var(--color-rusty-red-medium);
+  
+  /* Estados neutrales */
+  --color-neutral: #6c757d;
+  --color-neutral-light: rgba(108, 117, 125, 0.1);
+  --color-neutral-medium: rgba(108, 117, 125, 0.3);
+
+  /* ================================================================
+   * COLORES DE TEXTO
+   * ================================================================ */
+  
+  --text-primary: var(--color-violet-jtc);
+  --text-secondary: #6c757d;
+  --text-tertiary: #adb5bd;
+  --text-muted: #868e96;
+  --text-white: #ffffff;
+  --text-black: #000000;
+  --text-on-primary: #ffffff;
+  --text-on-secondary: #ffffff;
+  --text-on-accent: #ffffff;
+
+  /* ================================================================
+   * COLORES DE FONDO
+   * ================================================================ */
+  
+  --bg-primary: var(--color-nyanza);
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f9fa;
+  --bg-quaternary: #e9ecef;
+  
+  --bg-overlay: rgba(75, 29, 63, 0.1);
+  --bg-overlay-light: rgba(212, 244, 221, 0.8);
+  
+  --bg-card: #ffffff;
+  --bg-card-hover: var(--color-nyanza-light);
+  --bg-card-active: var(--color-nyanza-medium);
+
+  /* ================================================================
+   * COLORES DE BORDE
+   * ================================================================ */
+  
+  --border-primary: var(--color-teal);
+  --border-secondary: var(--color-verdigris);
+  --border-light: rgba(14, 124, 123, 0.2);
+  --border-medium: rgba(14, 124, 123, 0.4);
+  --border-neutral: #dee2e6;
+  --border-focus: var(--color-verdigris);
+
+  /* ================================================================
+   * GRADIENTES CORPORATIVOS
+   * ================================================================ */
+  
+  --gradient-primary: linear-gradient(135deg, var(--color-teal) 0%, var(--color-verdigris) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--color-verdigris) 0%, var(--color-nyanza) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-violet-jtc) 0%, var(--color-teal) 100%);
+  --gradient-background: linear-gradient(135deg, var(--color-nyanza) 0%, #ffffff 100%);
+  
+  /* Gradientes direccionales */
+  --gradient-top: linear-gradient(0deg, var(--color-teal), var(--color-verdigris), var(--color-nyanza), var(--color-rusty-red), var(--color-violet-jtc));
+  --gradient-right: linear-gradient(90deg, var(--color-teal), var(--color-verdigris), var(--color-nyanza), var(--color-rusty-red), var(--color-violet-jtc));
+  --gradient-bottom: linear-gradient(180deg, var(--color-teal), var(--color-verdigris), var(--color-nyanza), var(--color-rusty-red), var(--color-violet-jtc));
+  --gradient-left: linear-gradient(270deg, var(--color-teal), var(--color-verdigris), var(--color-nyanza), var(--color-rusty-red), var(--color-violet-jtc));
+  --gradient-radial: radial-gradient(var(--color-teal), var(--color-verdigris), var(--color-nyanza), var(--color-rusty-red), var(--color-violet-jtc));
+
+  /* ================================================================
+   * COMPATIBILIDAD CON SISTEMA ANTERIOR
+   * ================================================================ */
+  
+  /* Mapeo para mantener compatibilidad con variables existentes */
+  --sap-blue-primary: var(--color-teal);
+  --sap-blue-light: var(--color-teal-light);
+  
+  --sap-success: var(--color-success);
+  --sap-warning: var(--color-warning);
+  --sap-error: var(--color-error);
+  --sap-information: var(--color-info);
+  
+  --sap-neutral-100: #ffffff;
+  --sap-neutral-200: var(--bg-tertiary);
+  --sap-neutral-300: var(--border-neutral);
+  --sap-neutral-400: #ced4da;
+  --sap-neutral-500: #adb5bd;
+  --sap-neutral-600: var(--text-secondary);
+  --sap-neutral-700: #495057;
+  --sap-neutral-800: #343a40;
+  --sap-neutral-900: #212529;
+  
+  --sap-text-primary: var(--text-primary);
+  --sap-text-secondary: var(--text-secondary);
+  --sap-text-disabled: var(--text-muted);
+  --sap-text-white: var(--text-white);
+
+  /* ================================================================
+   * COLORES ESPECÍFICOS PARA COMPONENTES
+   * ================================================================ */
+  
+  /* Estados de vehículos */
+  --vehicle-active: var(--color-success);
+  --vehicle-inactive: var(--color-error);
+  --vehicle-maintenance: var(--color-warning);
+  --vehicle-available: var(--color-info);
+  
+  /* Estados de proveedores */
+  --supplier-active: var(--color-success);
+  --supplier-inactive: var(--color-neutral);
+  --supplier-suspended: var(--color-error);
+  --supplier-preferred: var(--color-warning);
+  
+  /* Estados de movimientos */
+  --movement-entrada: var(--color-success);
+  --movement-salida: var(--color-error);
+  --movement-transferencia: var(--color-info);
+  --movement-ajuste: var(--color-warning);
+  
+  /* Estados de inventario */
+  --inventory-available: var(--color-success);
+  --inventory-low: var(--color-warning);
+  --inventory-out: var(--color-error);
+  --inventory-reserved: var(--color-info);
+
+  /* ================================================================
+   * COLORES PARA GRÁFICOS Y VISUALIZACIONES
+   * ================================================================ */
+  
+  --chart-color-1: var(--color-teal);
+  --chart-color-2: var(--color-verdigris);
+  --chart-color-3: var(--color-violet-jtc);
+  --chart-color-4: var(--color-rusty-red);
+  --chart-color-5: var(--color-warning);
+
+  /* ================================================================
+   * SOMBRAS CON NUEVA PALETA
+   * ================================================================ */
+  
+  --shadow-primary: 0 4px 6px rgba(14, 124, 123, 0.1);
+  --shadow-secondary: 0 4px 6px rgba(23, 190, 187, 0.1);
+  --shadow-accent: 0 4px 6px rgba(75, 29, 63, 0.1);
+  --shadow-error: 0 4px 6px rgba(214, 34, 70, 0.1);
+  
+  --shadow-sm: 0 1px 3px rgba(14, 124, 123, 0.12);
+  --shadow-md: 0 4px 8px rgba(14, 124, 123, 0.12);
+  --shadow-lg: 0 8px 16px rgba(14, 124, 123, 0.15);
+  --shadow-xl: 0 20px 25px rgba(14, 124, 123, 0.15);
+
+  /* ================================================================
+   * VARIABLES DE TRANSICIÓN Y ANIMACIÓN
+   * ================================================================ */
+  
+  --transition-primary: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+  --transition-medium: all 0.3s ease;
+  --transition-slow: all 0.45s ease;
+  
+  --animation-duration-fast: 150ms;
+  --animation-duration-medium: 300ms;
+  --animation-duration-slow: 500ms;
+}
+
+/* Remover tema oscuro - forzar siempre light mode */
+
+/* ================================================================
+ * UTILIDADES DE COLOR
+ * ================================================================ */
+
+.color-primary { color: var(--forestech-primary) !important; }
+.color-secondary { color: var(--forestech-secondary) !important; }
+.color-accent { color: var(--forestech-accent) !important; }
+.color-success { color: var(--color-success) !important; }
+.color-info { color: var(--color-info) !important; }
+.color-warning { color: var(--color-warning) !important; }
+.color-error { color: var(--color-error) !important; }
+
+.bg-primary { background-color: var(--forestech-primary) !important; }
+.bg-secondary { background-color: var(--forestech-secondary) !important; }
+.bg-accent { background-color: var(--forestech-accent) !important; }
+.bg-success { background-color: var(--color-success) !important; }
+.bg-info { background-color: var(--color-info) !important; }
+.bg-warning { background-color: var(--color-warning) !important; }
+.bg-error { background-color: var(--color-error) !important; }
+
+.border-primary { border-color: var(--forestech-primary) !important; }
+.border-secondary { border-color: var(--forestech-secondary) !important; }
+.border-accent { border-color: var(--forestech-accent) !important; }
+.border-success { border-color: var(--color-success) !important; }
+.border-info { border-color: var(--color-info) !important; }
+.border-warning { border-color: var(--color-warning) !important; }
+.border-error { border-color: var(--color-error) !important; }

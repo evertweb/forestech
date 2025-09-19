@@ -7,21 +7,18 @@
 :root {
   /* Colores tema Forestech */
   --forestech-primary: #059669;
-  --forestech-primary-dark: #047857;
   --forestech-primary-light: #10b981;
   --forestech-secondary: #065f46;
   --forestech-accent: #34d399;
 
   /* Colores tema Vehículos */
   --vehicles-primary: #3b82f6;
-  --vehicles-primary-dark: #2563eb;
   --vehicles-primary-light: #60a5fa;
   --vehicles-secondary: #1e40af;
   --vehicles-accent: #93c5fd;
 
   /* Colores tema Productos */
   --products-primary: #f59e0b;
-  --products-primary-dark: #d97706;
   --products-primary-light: #fbbf24;
   --products-secondary: #92400e;
   --products-accent: #fcd34d;
@@ -571,7 +568,6 @@
 }
 
 .wizard-btn-primary:hover:not(:disabled) {
-  background: var(--current-primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--wizard-shadow-lg);
 }
@@ -594,7 +590,6 @@
 }
 
 .wizard-btn-success:hover:not(:disabled) {
-  background: var(--current-primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--wizard-shadow-lg);
 }
@@ -604,7 +599,6 @@
 .forestech-wizard-modal.forestech,
 .forestech-wizard-modal:not(.vehicles):not(.products) {
   --current-primary: var(--forestech-primary);
-  --current-primary-dark: var(--forestech-primary-dark);
   --current-primary-light: var(--forestech-primary-light);
   --current-primary-shadow: rgba(5, 150, 105, 0.4);
   --current-primary-rgb: 5, 150, 105;
@@ -616,7 +610,6 @@
 /* Tema Vehículos */
 .forestech-wizard-modal.vehicles {
   --current-primary: var(--vehicles-primary);
-  --current-primary-dark: var(--vehicles-primary-dark);
   --current-primary-light: var(--vehicles-primary-light);
   --current-primary-shadow: rgba(59, 130, 246, 0.4);
   --current-primary-rgb: 59, 130, 246;
@@ -628,7 +621,6 @@
 /* Tema Productos */
 .forestech-wizard-modal.products {
   --current-primary: var(--products-primary);
-  --current-primary-dark: var(--products-primary-dark);
   --current-primary-light: var(--products-primary-light);
   --current-primary-shadow: rgba(245, 158, 11, 0.4);
   --current-primary-rgb: 245, 158, 11;

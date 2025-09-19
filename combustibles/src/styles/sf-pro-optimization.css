@@ -196,13 +196,6 @@ table,
    Dark Mode Compatibility
    =================================================================== */
 
-@media (prefers-color-scheme: dark) {
-  * {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-}
-
 /* ===================================================================
    Accessibility Optimizations
    =================================================================== */

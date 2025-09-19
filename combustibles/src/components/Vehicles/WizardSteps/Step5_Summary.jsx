@@ -63,124 +63,124 @@ const Step5_Summary = ({ formData, isActive, extraData }) => {
 
   return (
     <div className={`wizard-step step-summary ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
+      <div className="apple-card">
         {/* Pregunta principal */}
-        <div className="typeform-question sap-theme">
+        <div className="apple-card">
           <h2>
             📋 ¡Perfecto! Revisa la información de{' '}
-            <span className="highlight sap-theme">{formData.name}</span>
+            <span className="apple-status-badge">{formData.name}</span>
           </h2>
           <p>Verifica que toda la información sea correcta antes de guardar el vehículo</p>
         </div>
 
         {/* Resumen en tarjetas */}
-        <div className="summary-sections sap-theme">
+        <div className="apple-stats-grid">
           {/* Información básica */}
-          <div className="summary-card sap-theme">
-            <div className="summary-header sap-theme">
-              <span className="summary-icon sap-theme">📝</span>
+          <div className="apple-card">
+            <div className="apple-card">
+              <span className="apple-stat-card-icon">📝</span>
               <h3>Información Básica</h3>
             </div>
-            <div className="summary-content sap-theme">
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">ID del vehículo:</span>
-                <span className="item-value highlight sap-theme">{formData.vehicleId}</span>
+            <div className="apple-card">
+              <div className="apple-card">
+                <span className="apple-form-label">ID del vehículo:</span>
+                <span className="apple-status-badge">{formData.vehicleId}</span>
               </div>
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Nombre:</span>
-                <span className="item-value sap-theme">{formData.name}</span>
+              <div className="apple-card">
+                <span className="apple-form-label">Nombre:</span>
+                <span className="apple-form-input">{formData.name}</span>
               </div>
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Marca y modelo:</span>
-                <span className="item-value sap-theme">
+              <div className="apple-card">
+                <span className="apple-form-label">Marca y modelo:</span>
+                <span className="apple-form-input">
                   {formData.brand} {formData.model}
                 </span>
               </div>
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Año:</span>
-                <span className="item-value sap-theme">{formData.year}</span>
+              <div className="apple-card">
+                <span className="apple-form-label">Año:</span>
+                <span className="apple-form-input">{formData.year}</span>
               </div>
             </div>
           </div>
 
           {/* Categoría */}
-          <div className="summary-card sap-theme">
-            <div className="summary-header sap-theme">
-              <span className="summary-icon sap-theme">{getCategoryIcon(selectedCategory)}</span>
+          <div className="apple-card">
+            <div className="apple-card">
+              <span className="apple-stat-card-icon">{getCategoryIcon(selectedCategory)}</span>
               <h3>Categoría</h3>
             </div>
-            <div className="summary-content sap-theme">
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Tipo:</span>
-                <span className="item-value sap-theme">
+            <div className="apple-card">
+              <div className="apple-card">
+                <span className="apple-form-label">Tipo:</span>
+                <span className="apple-form-input">
                   {selectedCategory?.name || 'No especificada'}
                 </span>
               </div>
               {selectedCategory?.description && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Descripción:</span>
-                  <span className="item-value sap-theme">{selectedCategory.description}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Descripción:</span>
+                  <span className="apple-form-input">{selectedCategory.description}</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Especificaciones técnicas */}
-          <div className="summary-card sap-theme">
-            <div className="summary-header sap-theme">
-              <span className="summary-icon sap-theme">⚙️</span>
+          <div className="apple-card">
+            <div className="apple-card">
+              <span className="apple-stat-card-icon">⚙️</span>
               <h3>Especificaciones Técnicas</h3>
             </div>
-            <div className="summary-content sap-theme">
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Tipo de combustible:</span>
-                <span className="item-value sap-theme">
+            <div className="apple-card">
+              <div className="apple-card">
+                <span className="apple-form-label">Tipo de combustible:</span>
+                <span className="apple-form-input">
                   {getFuelIcon(formData.fuelType)} {formData.fuelType}
                 </span>
               </div>
               {formData.plateNumber && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Número de placa:</span>
-                  <span className="item-value sap-theme">🏷️ {formData.plateNumber}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Número de placa:</span>
+                  <span className="apple-form-input">🏷️ {formData.plateNumber}</span>
                 </div>
               )}
               {formData.enginePower && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Potencia del motor:</span>
-                  <span className="item-value sap-theme">⚡ {formData.enginePower} HP</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Potencia del motor:</span>
+                  <span className="apple-form-input">⚡ {formData.enginePower} HP</span>
                 </div>
               )}
               {formData.fuelCapacity && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Capacidad de combustible:</span>
-                  <span className="item-value sap-theme">⛽ {formData.fuelCapacity} L</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Capacidad de combustible:</span>
+                  <span className="apple-form-input">⛽ {formData.fuelCapacity} L</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Información operacional */}
-          <div className="summary-card sap-theme">
-            <div className="summary-header sap-theme">
-              <span className="summary-icon sap-theme">🚀</span>
+          <div className="apple-card">
+            <div className="apple-card">
+              <span className="apple-stat-card-icon">🚀</span>
               <h3>Estado Operacional</h3>
             </div>
-            <div className="summary-content sap-theme">
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Estado actual:</span>
-                <span className="item-value sap-theme">
+            <div className="apple-card">
+              <div className="apple-card">
+                <span className="apple-form-label">Estado actual:</span>
+                <span className="apple-form-input">
                   {getStatusIcon(formData.status)} {formData.status}
                 </span>
               </div>
               {formData.currentLocation && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Ubicación:</span>
-                  <span className="item-value sap-theme">📍 {formData.currentLocation}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Ubicación:</span>
+                  <span className="apple-form-input">📍 {formData.currentLocation}</span>
                 </div>
               )}
-              <div className="summary-item sap-theme">
-                <span className="item-label sap-theme">Horómetro:</span>
-                <span className="item-value sap-theme">
+              <div className="apple-card">
+                <span className="apple-form-label">Horómetro:</span>
+                <span className="apple-form-input">
                   {formData.hasHourMeter ? (
                     <>🕐 Sí {formData.currentHours ? `(${formData.currentHours} horas)` : ''}</>
                   ) : (
@@ -189,21 +189,21 @@ const Step5_Summary = ({ formData, isActive, extraData }) => {
                 </span>
               </div>
               {formData.lastMaintenanceDate && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Último mantenimiento:</span>
-                  <span className="item-value sap-theme">🔧 {formData.lastMaintenanceDate}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Último mantenimiento:</span>
+                  <span className="apple-form-input">🔧 {formData.lastMaintenanceDate}</span>
                 </div>
               )}
               {formData.purchaseDate && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Fecha de compra:</span>
-                  <span className="item-value sap-theme">📅 {formData.purchaseDate}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Fecha de compra:</span>
+                  <span className="apple-form-input">📅 {formData.purchaseDate}</span>
                 </div>
               )}
               {formData.description && (
-                <div className="summary-item sap-theme">
-                  <span className="item-label sap-theme">Observaciones:</span>
-                  <span className="item-value sap-theme">📝 {formData.description}</span>
+                <div className="apple-card">
+                  <span className="apple-form-label">Observaciones:</span>
+                  <span className="apple-form-input">📝 {formData.description}</span>
                 </div>
               )}
             </div>
@@ -211,16 +211,16 @@ const Step5_Summary = ({ formData, isActive, extraData }) => {
         </div>
 
         {/* Confirmación final */}
-        <div className="confirmation-section sap-theme">
-          <div className="confirmation-card sap-theme">
-            <div className="confirmation-icon sap-theme">✅</div>
+        <div className="apple-card">
+          <div className="apple-card">
+            <div className="apple-stat-card-icon">✅</div>
             <h3>¡Todo listo para guardar!</h3>
             <p>
               El vehículo <strong>{formData.name}</strong> ({formData.vehicleId}) se registrará en
               el sistema con toda la información proporcionada.
             </p>
-            <div className="confirmation-actions sap-theme">
-              <div className="action-hint sap-theme">
+            <div className="apple-action-buttons">
+              <div className="apple-status-badge">
                 💡 Puedes hacer clic en "Completar" o presionar Enter para finalizar
               </div>
             </div>
@@ -228,10 +228,10 @@ const Step5_Summary = ({ formData, isActive, extraData }) => {
         </div>
 
         {/* Información adicional */}
-        <div className="info-section sap-theme">
-          <div className="info-card sap-theme">
-            <span className="info-icon sap-theme">🔄</span>
-            <div className="info-content sap-theme">
+        <div className="apple-card">
+          <div className="apple-card">
+            <span className="apple-stat-card-icon">🔄</span>
+            <div className="apple-card">
               <h4>¿Qué pasa después?</h4>
               <ul>
                 <li>El vehículo aparecerá en la lista de vehículos</li>

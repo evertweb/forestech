@@ -20,7 +20,6 @@
   /* Colores Forestech */
   --forestech-green: #2c5530;
   --forestech-green-light: #3d7c47;
-  --forestech-green-dark: #1b4332;
 
   /* Colores funcionales */
   --color-success: #16a34a;
@@ -45,7 +44,6 @@
   --bg-light-gray: #f8f9fa;
   --bg-medium-gray: #e9ecef;
   --bg-overlay: rgba(255, 255, 255, 0.1);
-  --bg-overlay-dark: rgba(0, 0, 0, 0.5);
   --bg-card: rgba(255, 255, 255, 0.1);
 
   /* Gradientes */
@@ -56,7 +54,6 @@
   /* Colores de bordes */
   --border-light: #e0e7e3;
   --border-medium: #d1d5db;
-  --border-dark: #6b7280;
 
   /* Sombras específicas de Forestech */
   --shadow-light: 0 2px 8px rgba(44, 85, 48, 0.1);
@@ -154,7 +151,6 @@
   --sap-blue-primary: #0070f2;
   --sap-blue-secondary: #0054b9;
   --sap-blue-light: #e6f3ff;
-  --sap-blue-dark: #003d82;
 
   /* SAP Semantic Colors */
   --color-success: #30914f;

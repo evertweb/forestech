@@ -227,7 +227,7 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
 
   return (
     <div className={`wizard-step step-technical ${isActive ? 'active' : ''}`}>
-      <div className="typeform-layout sap-theme">
+      <div className="apple-card">
         {/* Mensaje informativo si el combustible se hereda automáticamente */}
         {!shouldShowFuelSelection && selectedCategory && (
           <div
@@ -258,20 +258,20 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
           </div>
         )}
         {/* Indicador de progreso de subpasos */}
-        <div className="substep-progress sap-theme">
-          <div className="substep-progress-bar sap-theme">
+        <div className="apple-progress-bar">
+          <div className="apple-progress-bar">
             <div
-              className="substep-progress-fill sap-theme"
+              className="apple-progress-fill"
               style={{ width: `${subStepProgress}%` }}
             />
           </div>
-          <div className="substep-counter sap-theme">
+          <div className="apple-status-badge">
             {currentSubStep} de {totalSubSteps} - {currentStepData.title}
           </div>
         </div>
 
         {/* Contenedor de subpasos */}
-        <div className="substeps-container sap-theme">
+        <div className="apple-card">
           {subSteps.map((subStep, index) => (
             <div
               key={subStep.id}
@@ -283,37 +283,37 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
               }}
             >
               {/* Pregunta del subpaso */}
-              <div className="step-question sap-theme">
+              <div className="apple-card">
                 <h3>{subStep.question}</h3>
                 <p>{subStep.description}</p>
               </div>
 
               {/* Contenido específico por tipo de subpaso */}
               {subStep.type === 'fuel-selection' && (
-                <div className="technical-specs-grid sap-theme">
+                <div className="apple-stats-grid">
                   {fuelTypeOptions.map((option) => (
                     <div
                       key={option.type}
-                      className={`spec-group ${
+                      className={`apple-card ${
                         formData.fuelType === option.type ? 'selected' : ''
                       }`}
                       onClick={() => handleFuelTypeSelect(option.type)}
                       style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
                     >
-                      <div className="spec-label sap-theme">
+                      <div className="apple-form-label">
                         {option.icon} {option.title}
                       </div>
-                      <div className="spec-description sap-theme">{option.description}</div>
+                      <div className="apple-form-input">{option.description}</div>
                       {formData.fuelType === option.type && (
-                        <div className="selection-indicator sap-theme">
-                          <span className="checkmark sap-theme">✓</span>
+                        <div className="apple-status-badge">
+                          <span className="apple-status-badge">✓</span>
                         </div>
                       )}
                     </div>
                   ))}
                   {errors.fuelType && (
-                    <div className="input-error-centered sap-theme">
-                      <span className="error-icon sap-theme">⚠️</span>
+                    <div className="apple-form-error">
+                      <span className="apple-form-error">⚠️</span>
                       {errors.fuelType}
                     </div>
                   )}
@@ -321,12 +321,12 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
               )}
 
               {subStep.type === 'input' && (
-                <div className="typeform-input-group sap-theme">
-                  <div className="input-with-icon sap-theme">
-                    <span className="input-icon sap-theme">🏷️</span>
+                <div className="apple-form-group">
+                  <div className="apple-form-input">
+                    <span className="apple-form-input">🏷️</span>
                     <input
                       type="text"
-                      className="typeform-input substep-input sap-theme"
+                      className="apple-form-input"
                       placeholder={subStep.placeholder}
                       value={formData[subStep.field] || ''}
                       onChange={handleInputChange(subStep.field)}
@@ -335,25 +335,25 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
                   </div>
 
                   {errors[subStep.field] && (
-                    <div className="input-error sap-theme">
-                      <span className="error-icon sap-theme">⚠️</span>
+                    <div className="apple-form-error">
+                      <span className="apple-form-error">⚠️</span>
                       {errors[subStep.field]}
                     </div>
                   )}
 
-                  <div className="input-hint sap-theme">{subStep.hint}</div>
+                  <div className="apple-form-label">{subStep.hint}</div>
                 </div>
               )}
 
               {subStep.type === 'technical-specs' && (
-                <div className="typeform-row sap-theme">
-                  <div className="typeform-input-group sap-theme">
-                    <label className="typeform-label sap-theme">Potencia del motor (HP)</label>
-                    <div className="input-with-icon sap-theme">
-                      <span className="input-icon sap-theme">⚡</span>
+                <div className="apple-card">
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">Potencia del motor (HP)</label>
+                    <div className="apple-form-input">
+                      <span className="apple-form-input">⚡</span>
                       <input
                         type="number"
-                        className="typeform-input substep-input sap-theme"
+                        className="apple-form-input"
                         placeholder="150"
                         min="1"
                         step="1"
@@ -362,20 +362,20 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
                       />
                     </div>
                     {errors.enginePower && (
-                      <div className="input-error sap-theme">
-                        <span className="error-icon sap-theme">⚠️</span>
+                      <div className="apple-form-error">
+                        <span className="apple-form-error">⚠️</span>
                         {errors.enginePower}
                       </div>
                     )}
                   </div>
 
-                  <div className="typeform-input-group sap-theme">
-                    <label className="typeform-label sap-theme">Capacidad de combustible (L)</label>
-                    <div className="input-with-icon sap-theme">
-                      <span className="input-icon sap-theme">⛽</span>
+                  <div className="apple-form-group">
+                    <label className="apple-form-label">Capacidad de combustible (L)</label>
+                    <div className="apple-form-input">
+                      <span className="apple-form-input">⛽</span>
                       <input
                         type="number"
-                        className="typeform-input substep-input sap-theme"
+                        className="apple-form-input"
                         placeholder="200"
                         min="1"
                         step="0.1"
@@ -384,23 +384,23 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
                       />
                     </div>
                     {errors.fuelCapacity && (
-                      <div className="input-error sap-theme">
-                        <span className="error-icon sap-theme">⚠️</span>
+                      <div className="apple-form-error">
+                        <span className="apple-form-error">⚠️</span>
                         {errors.fuelCapacity}
                       </div>
                     )}
                   </div>
 
-                  <div className="input-hint sap-theme">{subStep.hint}</div>
+                  <div className="apple-form-label">{subStep.hint}</div>
                 </div>
               )}
 
               {/* Navegación de subpasos */}
-              <div className="substep-navigation sap-theme">
+              <div className="apple-action-buttons">
                 {currentSubStep > 1 && (
                   <button
                     type="button"
-                    className="substep-btn substep-btn-back sap-theme"
+                    className="apple-button apple-button-secondary"
                     onClick={goToPrevSubStep}
                   >
                     ← Anterior
@@ -410,7 +410,7 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
                 {currentSubStep < totalSubSteps && (
                   <button
                     type="button"
-                    className={`substep-btn substep-btn-next ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
+                    className={`apple-button apple-button-primary ${!isCurrentSubStepValid() ? 'disabled' : ''}`}
                     onClick={goToNextSubStep}
                     disabled={!isCurrentSubStepValid()}
                   >
@@ -425,14 +425,14 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
         {/* Resumen visual (solo mostrar cuando se haya completado información) */}
         {currentSubStep === totalSubSteps &&
           (formData.fuelType || formData.enginePower || formData.fuelCapacity) && (
-            <div className="step-preview sap-theme">
-              <div className="preview-card sap-theme">
+            <div className="apple-card">
+              <div className="apple-card">
                 <h4>📋 Especificaciones técnicas</h4>
 
                 {formData.fuelType && (
-                  <div className="preview-item sap-theme">
-                    <span className="preview-label sap-theme">Combustible:</span>
-                    <span className="preview-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Combustible:</span>
+                    <span className="apple-form-input">
                       {fuelTypeOptions.find((f) => f.type === formData.fuelType)?.icon}{' '}
                       {formData.fuelType}
                     </span>
@@ -440,23 +440,23 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
                 )}
 
                 {formData.plateNumber && (
-                  <div className="preview-item sap-theme">
-                    <span className="preview-label sap-theme">Placa:</span>
-                    <span className="preview-value sap-theme">🏷️ {formData.plateNumber}</span>
+                  <div className="apple-card">
+                    <span className="apple-form-label">Placa:</span>
+                    <span className="apple-form-input">🏷️ {formData.plateNumber}</span>
                   </div>
                 )}
 
                 {formData.enginePower && (
-                  <div className="preview-item sap-theme">
-                    <span className="preview-label sap-theme">Potencia:</span>
-                    <span className="preview-value sap-theme">⚡ {formData.enginePower} HP</span>
+                  <div className="apple-card">
+                    <span className="apple-form-label">Potencia:</span>
+                    <span className="apple-form-input">⚡ {formData.enginePower} HP</span>
                   </div>
                 )}
 
                 {formData.fuelCapacity && (
-                  <div className="preview-item sap-theme">
-                    <span className="preview-label sap-theme">Cap. combustible:</span>
-                    <span className="preview-value sap-theme">⛽ {formData.fuelCapacity} L</span>
+                  <div className="apple-card">
+                    <span className="apple-form-label">Cap. combustible:</span>
+                    <span className="apple-form-input">⛽ {formData.fuelCapacity} L</span>
                   </div>
                 )}
               </div>
@@ -464,7 +464,7 @@ const Step3_Technical = ({ formData, updateFormData, errors, isActive, extraData
           )}
 
         {/* Indicador de navegación */}
-        <div className="navigation-hint sap-theme">
+        <div className="apple-status-badge">
           💡 Tip: Usa Enter o → para avanzar, ← para retroceder
         </div>
       </div>

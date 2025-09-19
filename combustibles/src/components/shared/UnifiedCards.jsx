@@ -1,10 +1,12 @@
 /**
  * UnifiedCards.jsx - Componente universal para renderizar cards de métricas
  * Centraliza la presentación visual de todas las cards del sistema
+ * Actualizado con diseño Apple inspirado en Health app
  */
 
 import React from 'react';
 import './UnifiedCards.css';
+import '../../styles/apple-cards.css';
 
 const UnifiedCard = ({ card, onClick, className = '', size = 'normal' }) => {
   if (!card) return null;
@@ -16,6 +18,7 @@ const UnifiedCard = ({ card, onClick, className = '', size = 'normal' }) => {
   };
 
   const getCardThemeClass = () => {
+    // Mantener compatibilidad con categorías existentes pero usar clases Apple
     switch (card.category) {
       case 'financial':
         return 'card-financial';
@@ -41,49 +44,45 @@ const UnifiedCard = ({ card, onClick, className = '', size = 'normal' }) => {
   const getTrendClass = () => {
     switch (card.trend?.type) {
       case 'positive':
-        return 'trend-positive';
+        return 'status-normal';
       case 'negative':
-        return 'trend-negative';
+        return 'status-critical';
       case 'warning':
-        return 'trend-warning';
+        return 'status-warning';
       case 'info':
-        return 'trend-info';
+        return 'status-high';
       default:
-        return 'trend-neutral';
+        return 'status-normal';
     }
   };
 
   return (
     <div
-      className={`unified-card sap-theme ${getCardThemeClass()} ${size} ${className} ${onClick ? 'clickable' : ''}`}
+      className={`apple-card ${getCardThemeClass()} ${size} ${className} ${onClick ? 'clickable' : ''}`}
       onClick={handleClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyPress={onClick ? (e) => e.key === 'Enter' && handleClick() : undefined}
     >
       {/* Header de la card */}
-      <div className="card-header">
-        <div className="card-icon-container">
-          <span className="card-icon" role="img" aria-label={card.title}>
-            {card.icon}
-          </span>
-        </div>
-        <div className="card-title-container">
-          <h3 className="card-title">{card.title}</h3>
-        </div>
+      <div className="apple-card-header">
+        <span className="apple-stat-card-icon" role="img" aria-label={card.title}>
+          {card.icon}
+        </span>
+        <h3 className="apple-card-title">{card.title}</h3>
       </div>
 
       {/* Contenido principal */}
-      <div className="card-content">
-        <div className="card-value">{card.value}</div>
-        <div className="card-subtitle">{card.subtitle}</div>
+      <div className="apple-card-content">
+        <div className="apple-form-input">{card.value}</div>
+        <div className="apple-form-label">{card.subtitle}</div>
       </div>
 
       {/* Trend/Estado */}
       {card.trend && (
-        <div className={`card-trend ${getTrendClass()}`}>
-          <span className="trend-icon">{card.trend.icon}</span>
-          <span className="trend-text">{card.trend.text}</span>
+        <div className={`apple-status-badge ${getTrendClass()}`}>
+          <span>{card.trend.icon}</span>
+          <span>{card.trend.text}</span>
         </div>
       )}
 
@@ -133,7 +132,7 @@ const UnifiedCardsGrid = ({
   };
 
   return (
-    <div className={`unified-cards-grid ${getGridClass()} ${className}`}>
+    <div className={`apple-stats-grid ${getGridClass()} ${className}`}>
       {cards.map((card, index) => (
         <UnifiedCard key={card.id || index} card={card} onClick={onCardClick} size={size} />
       ))}
@@ -167,31 +166,31 @@ const CategorizedCards = ({ cards = [], onCardClick, className = '', showCategor
   const getCategoryTitle = (category) => {
     switch (category) {
       case 'financial':
-        return '💰 Financiero';
+        return 'Financiero';
       case 'inventory':
-        return '📦 Inventario';
+        return 'Inventario';
       case 'operations':
-        return '⚙️ Operaciones';
+        return 'Operaciones';
       case 'alerts':
-        return '⚠️ Alertas';
+        return 'Alertas';
       case 'locations':
-        return '📍 Ubicaciones';
+        return 'Ubicaciones';
       case 'maintenance':
-        return '🔧 Mantenimiento';
+        return 'Mantenimiento';
       case 'trends':
-        return '📈 Tendencias';
+        return 'Tendencias';
       case 'efficiency':
-        return '⚡ Eficiencia';
+        return 'Eficiencia';
       default:
-        return '📊 General';
+        return 'General';
     }
   };
 
   return (
-    <div className={`categorized-cards ${className}`}>
+    <div className={`apple-section ${className}`}>
       {Object.entries(cardsByCategory).map(([category, categoryCards]) => (
-        <div key={category} className="category-section">
-          {showCategories && <h4 className="category-title">{getCategoryTitle(category)}</h4>}
+        <div key={category} className="apple-section">
+          {showCategories && <h2 className="apple-section-title">{getCategoryTitle(category)}</h2>}
           <UnifiedCardsGrid
             cards={categoryCards}
             onCardClick={onCardClick}

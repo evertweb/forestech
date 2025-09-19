@@ -4,12 +4,7 @@
 const STORAGE_KEY = 'color-scheme';
 
 export const getStoredScheme = () => {
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'light' || v === 'dark') return v;
-  } catch {
-    // noop: si localStorage no está disponible, usamos 'light'
-  }
+  // Forzar siempre modo claro - eliminar soporte para dark mode
   return 'light';
 };
 

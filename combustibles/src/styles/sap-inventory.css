@@ -274,14 +274,11 @@
 
 .sap-btn.sap-btn-emphasized {
   background: var(--sap-blue-primary);
-  border-color: var(--sap-blue-dark);
   color: var(--sap-neutral-100);
   box-shadow: 0 2px 4px rgba(0, 112, 242, 0.3);
 }
 
 .sap-btn.sap-btn-emphasized:hover {
-  background: var(--sap-blue-dark);
-  border-color: var(--sap-blue-dark);
   color: var(--sap-neutral-100);
   box-shadow: 0 3px 8px rgba(0, 112, 242, 0.4);
 }
@@ -391,7 +388,6 @@
 }
 
 .sap-view-btn.sap-active:hover {
-  background: var(--sap-blue-dark);
 }
 
 .sap-view-btn:not(:last-child) {
@@ -972,8 +968,6 @@
 }
 
 .btn.btn-primary.sap-theme:hover {
-  background: var(--sap-blue-dark);
-  border-color: var(--sap-blue-dark);
   box-shadow: var(--sap-shadow-sm);
 }
 

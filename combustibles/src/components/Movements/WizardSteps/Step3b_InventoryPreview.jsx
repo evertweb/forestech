@@ -64,10 +64,10 @@ const Step3b_InventoryPreview = ({ formData, systemData, setError, isActive }) =
 
   // Función para obtener color según el estado del stock
   const getStockStatusColor = (percentage) => {
-    if (percentage >= 80) return '#10b981'; // Verde
-    if (percentage >= 50) return '#f59e0b'; // Amarillo
-    if (percentage >= 20) return '#f97316'; // Naranja
-    return '#ef4444'; // Rojo
+    if (percentage >= 80) return 'var(--color-teal)'; // Teal para excelente
+    if (percentage >= 50) return 'var(--color-warning)'; // Naranja para moderado
+    if (percentage >= 20) return 'var(--color-warning-dark)'; // Naranja oscuro para bajo
+    return 'var(--color-rusty-red)'; // Rusty Red para crítico
   };
 
   if (!isActive) return null;

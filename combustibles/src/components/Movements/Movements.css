@@ -6,7 +6,6 @@
 /* ============ VARIABLES CSS ============ */
 :root {
   --forest-primary: #059669;
-  --forest-primary-dark: #047857;
   --forest-primary-light: #10b981;
   --forest-secondary: #065f46;
   --forest-accent: #34d399;
@@ -103,7 +102,6 @@ body {
 }
 
 .btn-create-movement.primary {
-  background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;
   border: 2px solid var(--forest-primary);
 }
@@ -111,7 +109,6 @@ body {
 .btn-create-movement.primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
-  background: linear-gradient(135deg, var(--forest-primary-dark), var(--forest-secondary));
 }
 
 .btn-create-movement.secondary {
@@ -150,7 +147,6 @@ body {
 }
 
 .btn-create-first.primary {
-  background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;
   border: 2px solid var(--forest-primary);
 }
@@ -733,7 +729,6 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;
   border: none;
   padding: var(--spacing-md) var(--spacing-lg);
@@ -747,7 +742,6 @@ body {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--forest-primary-dark), var(--forest-secondary));
   transform: translateY(-1px);
 }
 
@@ -827,7 +821,6 @@ body {
 
 .btn-retry:hover,
 .btn-create-first:hover {
-  background: var(--forest-primary-dark);
   transform: translateY(-1px);
 }
 
@@ -1309,7 +1302,6 @@ body {
 
 /* Header de tabla */
 .movements-table thead {
-  background: linear-gradient(135deg, var(--forest-primary), var(--forest-primary-dark));
   color: white;
 }
 
@@ -1320,7 +1312,6 @@ body {
   font-size: 0.875rem;
   letter-spacing: 0.025em;
   white-space: nowrap;
-  border-bottom: 2px solid var(--forest-primary-dark);
 }
 
 .movements-table th.text-right {
@@ -1423,13 +1414,11 @@ body {
 }
 
 .value-cell strong {
-  color: var(--forest-primary-dark);
   font-size: 1.05rem;
 }
 
 .vehicle-cell .vehicle-id {
   background: rgba(5, 150, 105, 0.1);
-  color: var(--forest-primary-dark);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 16px;
   font-size: 0.875rem;
@@ -1618,7 +1607,6 @@ body {
   align-items: center;
   padding: var(--spacing-sm) var(--spacing-md);
   background: rgba(5, 150, 105, 0.1);
-  color: var(--forest-primary-dark);
   border-radius: var(--border-radius);
   border: 1px solid rgba(5, 150, 105, 0.2);
 }

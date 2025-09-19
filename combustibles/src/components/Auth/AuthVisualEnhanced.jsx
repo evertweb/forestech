@@ -48,6 +48,63 @@ const AuthVisualEnhanced = () => {
     invitationCode: '',
   });
 
+  // Definiciones de estilos
+  const logoStyle = {
+    backgroundColor: '#059669',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+    margin: '0 auto'
+  };
+
+  const subtitleStyle = {
+    fontSize: '14px',
+    color: '#6b7280',
+    marginTop: '4px'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: '4px'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    height: '40px',
+    padding: '0 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: '8px',
+    fontSize: '14px'
+  };
+
+  const primaryButtonStyle = {
+    width: '100%',
+    height: '40px',
+    backgroundColor: '#059669',
+    color: 'white',
+    fontWeight: '500',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer'
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    height: '40px',
+    backgroundColor: '#059669',
+    color: 'white',
+    fontWeight: '500',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer'
+  };
+
   // Verificar soporte WebAuthn y disponibilidad de passkeys
   useEffect(() => {
     const checkPasskeyAvailability = async () => {
@@ -338,184 +395,56 @@ const AuthVisualEnhanced = () => {
     clearMessages();
   };
 
-  // Estilos inline simples
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e3a8a 0%, #065f46 100%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px'
-  };
+  // Estilos Apple - usando CSS classes
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    borderRadius: '16px',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-    padding: '32px',
-    width: '100%',
-    maxWidth: '400px'
-  };
-
-  const logoStyle = {
-    width: '64px',
-    height: '64px',
-    backgroundColor: '#059669',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '24px',
-    margin: '0 auto 16px auto'
-  };
-
-  const titleStyle = {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: '8px'
-  };
-
-  const subtitleStyle = {
-    fontSize: '14px',
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: '24px'
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    height: '48px',
-    borderRadius: '8px',
-    border: 'none',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    marginBottom: '12px'
-  };
-
-  const primaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#2563eb',
-    color: 'white'
-  };
-
-  const secondaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#f3f4f6',
-    color: '#374151',
-    border: '1px solid #d1d5db'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    height: '40px',
-    padding: '0 12px',
-    border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    fontSize: '14px',
-    marginBottom: '16px',
-    outline: 'none'
-  };
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: '4px'
-  };
-
-  const errorStyle = {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fecaca',
-    color: '#dc2626',
-    padding: '12px',
-    borderRadius: '6px',
-    fontSize: '14px',
-    marginBottom: '16px'
-  };
-
-  const successStyle = {
-    backgroundColor: '#f0fdf4',
-    border: '1px solid #bbf7d0',
-    color: '#16a34a',
-    padding: '12px',
-    borderRadius: '6px',
-    fontSize: '14px',
-    marginBottom: '16px'
-  };
-
-  const separatorStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    margin: '20px 0',
-    fontSize: '14px',
-    color: '#6b7280'
-  };
-
-  const lineStyle = {
-    flex: 1,
-    height: '1px',
-    backgroundColor: '#d1d5db'
-  };
-
-  // Renderizar mensajes
+  // Renderizar mensajes Apple
   const renderMessages = () => (
     <div>
       {success && (
-        <div style={successStyle}>
+        <div className="apple-auth-message success">
           ✅ {success}
         </div>
       )}
       
       {error && (
-        <div style={errorStyle}>
+        <div className="apple-auth-message error">
           ⚠️ {error}
         </div>
       )}
     </div>
   );
 
-  // Vista principal de login
+  // Vista principal de login Apple
   const renderLoginView = () => (
     <div>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={logoStyle}>
+      {/* Header Apple */}
+      <div className="apple-auth-header">
+        <div className="apple-auth-logo">
           🌲
         </div>
-        <h1 style={titleStyle}>
+        <h1 className="apple-auth-title">
           Forestech Combustibles
         </h1>
-        <p style={subtitleStyle}>
+        <p className="apple-auth-subtitle">
           Sistema de gestión forestal
         </p>
       </div>
 
       {renderMessages()}
 
-      {/* Botón Passkey */}
+      {/* Botón Passkey Apple */}
       {passkeySupported && passkeyAvailable && (
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
           <button
             onClick={handlePasskeyLogin}
             disabled={passkeyLoading || loading}
-            style={{
-              ...primaryButtonStyle,
-              opacity: (passkeyLoading || loading) ? 0.6 : 1
-            }}
+            className="apple-auth-button apple-auth-button-primary"
           >
             {passkeyLoading ? (
-              <>
-                <span>🔄</span>
+              <div className="apple-auth-loading">
+                <span className="apple-auth-spinner"></span>
                 <span>Verificando...</span>
-              </>
+              </div>
             ) : (
               <>
                 <span>🔐</span>
@@ -523,30 +452,29 @@ const AuthVisualEnhanced = () => {
               </>
             )}
           </button>
-          <p style={{ fontSize: '12px', textAlign: 'center', color: '#6b7280', margin: '8px 0' }}>
-            Touch ID • Face ID • Windows Hello
-          </p>
+          <div className="apple-auth-features">
+            <span className="apple-auth-feature">Touch ID</span>
+            <span>•</span>
+            <span className="apple-auth-feature">Face ID</span>
+            <span>•</span>
+            <span className="apple-auth-feature">Windows Hello</span>
+          </div>
         </div>
       )}
 
-      {/* ✅ NUEVO: Botón Reconocimiento Facial */}
+      {/* Botón Reconocimiento Facial Apple */}
       {facialSupported && (
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
           <button
             onClick={handleFacialLogin}
             disabled={facialLoading || loading}
-            style={{
-              ...primaryButtonStyle,
-              backgroundColor: '#059669', // Verde para distinguir del passkey
-              borderColor: '#059669',
-              opacity: (facialLoading || loading) ? 0.6 : 1
-            }}
+            className="apple-auth-button apple-auth-button-success"
           >
             {facialLoading ? (
-              <>
-                <span>🔄</span>
+              <div className="apple-auth-loading">
+                <span className="apple-auth-spinner"></span>
                 <span>Accediendo a cámara...</span>
-              </>
+              </div>
             ) : (
               <>
                 <span>📷</span>
@@ -554,42 +482,32 @@ const AuthVisualEnhanced = () => {
               </>
             )}
           </button>
-          <p style={{ fontSize: '12px', textAlign: 'center', color: '#6b7280', margin: '8px 0' }}>
+          <p className="apple-auth-hint">
             Reconocimiento facial con IA
           </p>
         </div>
       )}
 
-      {/* Separador */}
-      <div style={separatorStyle}>
-        <div style={lineStyle}></div>
-        <span style={{ margin: '0 12px' }}>O</span>
-        <div style={lineStyle}></div>
+      {/* Separador Apple */}
+      <div className="apple-auth-separator">
+        <div className="apple-auth-separator-line"></div>
+        <span className="apple-auth-separator-text">O</span>
+        <div className="apple-auth-separator-line"></div>
       </div>
 
       {/* Toggle formulario email */}
       {!showEmailForm ? (
         <button
           onClick={() => setShowEmailForm(true)}
-          style={{
-            width: '100%',
-            background: 'none',
-            border: 'none',
-            color: '#2563eb',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            padding: '8px',
-            marginBottom: '16px'
-          }}
+          className="apple-auth-button apple-auth-button-text"
         >
           Acceder con email y contraseña
         </button>
       ) : (
-        <div style={{ marginBottom: '16px' }}>
+        <div className="apple-auth-form">
           <form onSubmit={handleEmailLogin}>
-            <div>
-              <label style={labelStyle}>Email</label>
+            <div className="apple-auth-form-group">
+              <label className="apple-auth-label">Email</label>
               <input
                 type="email"
                 value={email}
@@ -597,12 +515,12 @@ const AuthVisualEnhanced = () => {
                 required
                 disabled={loading}
                 placeholder="tu@ejemplo.com"
-                style={inputStyle}
+                className="apple-auth-input"
               />
             </div>
 
-            <div>
-              <label style={labelStyle}>Contraseña</label>
+            <div className="apple-auth-form-group">
+              <label className="apple-auth-label">Contraseña</label>
               <input
                 type="password"
                 value={password}
@@ -610,25 +528,21 @@ const AuthVisualEnhanced = () => {
                 required
                 disabled={loading}
                 placeholder="Tu contraseña"
-                style={inputStyle}
+                className="apple-auth-input"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              style={{
-                ...secondaryButtonStyle,
-                backgroundColor: '#4b5563',
-                color: 'white',
-                opacity: loading ? 0.6 : 1
-              }}
+              className="apple-auth-button apple-auth-button-secondary"
+              style={{ backgroundColor: 'var(--apple-gray-700)', color: 'var(--apple-white)' }}
             >
               {loading ? (
-                <>
-                  <span>🔄</span>
+                <div className="apple-auth-loading">
+                  <span className="apple-auth-spinner"></span>
                   <span>Iniciando...</span>
-                </>
+                </div>
               ) : (
                 <span>Iniciar Sesión</span>
               )}
@@ -637,57 +551,39 @@ const AuthVisualEnhanced = () => {
 
           <button
             onClick={() => setShowEmailForm(false)}
-            style={{
-              width: '100%',
-              background: 'none',
-              border: 'none',
-              color: '#6b7280',
-              fontSize: '14px',
-              cursor: 'pointer',
-              padding: '4px',
-              marginTop: '8px'
-            }}
+            className="apple-auth-link apple-auth-back-link"
+            style={{ width: '100%', textAlign: 'center', marginTop: 'var(--spacing-2)' }}
           >
             Ocultar formulario
           </button>
         </div>
       )}
 
-      {/* Separador */}
-      <div style={separatorStyle}>
-        <div style={lineStyle}></div>
-        <span style={{ margin: '0 12px' }}>O continúa con</span>
-        <div style={lineStyle}></div>
+      {/* Separador Apple */}
+      <div className="apple-auth-separator">
+        <div className="apple-auth-separator-line"></div>
+        <span className="apple-auth-separator-text">O continúa con</span>
+        <div className="apple-auth-separator-line"></div>
       </div>
       
-      {/* Botón Google */}
+      {/* Botón Google Apple */}
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
-        style={{
-          ...secondaryButtonStyle,
-          opacity: loading ? 0.6 : 1
-        }}
+        className="apple-auth-button apple-auth-button-secondary"
       >
         <span>🌐</span>
         <span>Google</span>
       </button>
 
-      {/* Link invitación */}
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+      {/* Link invitación Apple */}
+      <div style={{ textAlign: 'center', marginTop: 'var(--spacing-lg)' }}>
         <button
           onClick={() => {
             resetForm();
             setView('invite');
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#2563eb',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer'
-          }}
+          className="apple-auth-link"
         >
           ¿Tienes código de invitación?
         </button>
@@ -1028,13 +924,13 @@ const AuthVisualEnhanced = () => {
   );
 
   return (
-    <div style={containerStyle}>
-      <SEOContent 
+    <div className="apple-auth-container">
+      <SEOContent
         title="Forestech Combustibles - Login"
         description="Sistema de gestión de combustible forestal. Acceso con passkeys o credenciales tradicionales."
       />
       
-      <div style={cardStyle}>
+      <div className="apple-auth-card">
         {showFacialCapture ? renderFacialCaptureView() : (
           <>
             {view === 'login' && renderLoginView()}

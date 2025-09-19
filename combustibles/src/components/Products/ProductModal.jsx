@@ -154,34 +154,34 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} size="lg" className="product-modal sap-theme">
+    <BaseModal isOpen={isOpen} onClose={onClose} size="lg" className="apple-modal">
       <ModalHeader title={getModalTitle()} onClose={onClose} icon="🛢️" />
 
-      <div className="modal-body sap-theme">
+      <div className="apple-modal-content">
         {/* Preview Card */}
-        <div className="product-preview sap-theme">
-          <div className="preview-card sap-theme">
-            <div className="preview-icon sap-theme" style={{ color: formData.color }}>
+        <div className="apple-card apple-card-compact product-preview">
+          <div className="apple-card-header">
+            <div className="preview-icon" style={{ color: formData.color }}>
               {formData.icon}
             </div>
-            <div className="preview-info sap-theme">
-              <h3>{formData.displayName || UI_FORM_LABELS.DISPLAY_NAME}</h3>
-              <p className="preview-category sap-theme">{formData.category}</p>
-              <p className="preview-description sap-theme">{formData.description}</p>
-              <div className="preview-price sap-theme">
+            <div className="preview-info">
+              <h3 className="apple-title-medium">{formData.displayName || UI_FORM_LABELS.DISPLAY_NAME}</h3>
+              <p className="apple-body-small text-secondary preview-category">{formData.category}</p>
+              <p className="apple-body-small text-secondary preview-description">{formData.description}</p>
+              <div className="apple-badge apple-badge-primary preview-price">
                 ${new Intl.NumberFormat('es-CO').format(formData.defaultPrice)} / {formData.unit}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="form-grid sap-theme">
+        <div className="apple-form-content">
           {/* Información Básica */}
-          <div className="form-section sap-theme">
-            <h3>📝 {UI_TITLES.BASIC_INFO}</h3>
+          <div className="apple-form-section">
+            <h3 className="apple-form-section-title">📝 {UI_TITLES.BASIC_INFO}</h3>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.INTERNAL_NAME} *</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label required">{UI_FORM_LABELS.INTERNAL_NAME}</label>
               <input
                 type="text"
                 name="name"
@@ -189,12 +189,13 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 onChange={handleInputChange}
                 disabled={!canEdit}
                 placeholder={UI_PLACEHOLDERS.INTERNAL_NAME}
+                className="apple-form-input"
               />
-              {errors.name && <span className="error sap-theme">{errors.name}</span>}
+              {errors.name && <div className="apple-form-error">{errors.name}</div>}
             </div>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.DISPLAY_NAME} *</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label required">{UI_FORM_LABELS.DISPLAY_NAME}</label>
               <input
                 type="text"
                 name="displayName"
@@ -202,17 +203,19 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 onChange={handleInputChange}
                 disabled={!canEdit}
                 placeholder={UI_PLACEHOLDERS.DISPLAY_NAME}
+                className="apple-form-input"
               />
-              {errors.displayName && <span className="error sap-theme">{errors.displayName}</span>}
+              {errors.displayName && <div className="apple-form-error">{errors.displayName}</div>}
             </div>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.CATEGORY} *</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label required">{UI_FORM_LABELS.CATEGORY}</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
                 disabled={!canEdit}
+                className="apple-form-select"
               >
                 {Object.values(PRODUCT_CATEGORIES).map((category) => (
                   <option key={category} value={category}>
@@ -220,11 +223,11 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                   </option>
                 ))}
               </select>
-              {errors.category && <span className="error sap-theme">{errors.category}</span>}
+              {errors.category && <div className="apple-form-error">{errors.category}</div>}
             </div>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.DESCRIPTION}</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label">{UI_FORM_LABELS.DESCRIPTION}</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -232,21 +235,23 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 disabled={!canEdit}
                 placeholder={UI_PLACEHOLDERS.PRODUCT_DESCRIPTION}
                 rows="3"
+                className="apple-form-textarea"
               />
             </div>
           </div>
 
           {/* Configuración */}
-          <div className="form-section sap-theme">
-            <h3>⚙️ {UI_TITLES.SETTINGS}</h3>
+          <div className="apple-form-section">
+            <h3 className="apple-form-section-title">⚙️ {UI_TITLES.SETTINGS}</h3>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.UNIT_OF_MEASUREMENT} *</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label required">{UI_FORM_LABELS.UNIT_OF_MEASUREMENT}</label>
               <select
                 name="unit"
                 value={formData.unit}
                 onChange={handleInputChange}
                 disabled={!canEdit}
+                className="apple-form-select"
               >
                 {unitOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -254,52 +259,50 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                   </option>
                 ))}
               </select>
-              {errors.unit && <span className="error sap-theme">{errors.unit}</span>}
+              {errors.unit && <div className="apple-form-error">{errors.unit}</div>}
             </div>
 
             {/* Control de precios automáticos */}
             {canUseAutomatic(formData) && (
-              <div className="automatic-pricing-section sap-theme">
-                <div className="form-group pricing-toggle sap-theme">
-                  <label className="toggle-label sap-theme">
+              <div className="apple-card apple-card-compact automatic-pricing-section">
+                <div className="apple-form-group">
+                  <div className="apple-form-checkbox">
                     <input
                       type="checkbox"
                       checked={automaticPricing}
                       onChange={(e) => toggleAutomaticPricing(e.target.checked)}
-                      className="toggle-input sap-theme"
                       disabled={!canEdit}
                     />
-                    <span className="toggle-switch sap-theme"></span>
-                    <span className="toggle-text sap-theme">
+                    <label className="apple-form-checkbox-label">
                       🔄 Sincronización automática de precios
-                    </span>
-                  </label>
-                  <small className="pricing-help sap-theme">
+                    </label>
+                  </div>
+                  <div className="apple-form-help">
                     Actualiza automáticamente desde la API del gobierno colombiano
-                  </small>
+                  </div>
                 </div>
 
                 {automaticPricing && (
-                  <div className="automatic-pricing-info sap-theme">
-                    <div className="pricing-status sap-theme">
-                      <span className="status-icon sap-theme">🇨🇴</span>
-                      <span className="status-text sap-theme">
+                  <div className="automatic-pricing-info">
+                    <div className="pricing-status">
+                      <span className="apple-badge apple-badge-success">🇨🇴</span>
+                      <span className="apple-body-small">
                         Disponible para {getFuelType(formData)}
                       </span>
                       {lastPriceUpdate && (
-                        <span className="last-update sap-theme">
+                        <span className="apple-body-small text-secondary">
                           Última actualización: {new Date(lastPriceUpdate).toLocaleString('es-CO')}
                         </span>
                       )}
                     </div>
                     {priceError && (
-                      <div className="pricing-error sap-theme">
-                        <span className="error-icon sap-theme">⚠️</span>
-                        <span className="error-text sap-theme">{priceError}</span>
+                      <div className="apple-form-error">
+                        <span>⚠️</span>
+                        <span>{priceError}</span>
                         <button
                           type="button"
                           onClick={clearPriceError}
-                          className="btn-clear-error sap-theme"
+                          className="apple-button apple-button-tertiary apple-button-small"
                           disabled={!canEdit}
                         >
                           ✕
@@ -311,13 +314,13 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
               </div>
             )}
 
-            <div className="form-group sap-theme">
-              <div className="price-input-header sap-theme">
-                <label>{UI_FORM_LABELS.DEFAULT_PRICE}</label>
+            <div className="apple-form-group">
+              <div className="price-input-header">
+                <label className="apple-form-label">{UI_FORM_LABELS.DEFAULT_PRICE}</label>
                 {automaticPricing && canUseAutomatic(formData) && canEdit && (
                   <button
                     type="button"
-                    className="btn-sync-price sap-theme"
+                    className="apple-button apple-button-tertiary apple-button-small"
                     onClick={handleSyncPrice}
                     disabled={priceLoading}
                     title="Sincronizar precio ahora"
@@ -334,20 +337,21 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 disabled={!canEdit || priceLoading}
                 min="0"
                 step="0.01"
+                className="apple-form-input"
               />
               {errors.defaultPrice && (
-                <span className="error sap-theme">{errors.defaultPrice}</span>
+                <div className="apple-form-error">{errors.defaultPrice}</div>
               )}
               {priceLoading && (
-                <div className="price-loading sap-theme">
-                  <span className="loading-icon sap-theme">⏳</span>
-                  <span className="loading-text sap-theme">Obteniendo precio actualizado...</span>
+                <div className="apple-loading-state">
+                  <span className="apple-loading-spinner"></span>
+                  <span className="apple-loading-text">Obteniendo precio actualizado...</span>
                 </div>
               )}
             </div>
 
-            <div className="form-group sap-theme">
-              <label>
+            <div className="apple-form-group">
+              <div className="apple-form-checkbox">
                 <input
                   type="checkbox"
                   name="isActive"
@@ -355,17 +359,19 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                   onChange={handleInputChange}
                   disabled={!canEdit}
                 />
-                {UI_FORM_LABELS.IS_ACTIVE}
-              </label>
+                <label className="apple-form-checkbox-label">
+                  {UI_FORM_LABELS.IS_ACTIVE}
+                </label>
+              </div>
             </div>
           </div>
 
           {/* Stock y Umbrales */}
-          <div className="form-section sap-theme">
-            <h3>📊 {UI_TITLES.STOCK_AND_THRESHOLDS}</h3>
+          <div className="apple-form-section">
+            <h3 className="apple-form-section-title">📊 {UI_TITLES.STOCK_AND_THRESHOLDS}</h3>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.CURRENT_STOCK}</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label">{UI_FORM_LABELS.CURRENT_STOCK}</label>
               <input
                 type="number"
                 name="currentStock"
@@ -374,14 +380,15 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 disabled={!canEdit}
                 min="0"
                 step="0.01"
+                className="apple-form-input"
               />
               {errors.currentStock && (
-                <span className="error sap-theme">{errors.currentStock}</span>
+                <div className="apple-form-error">{errors.currentStock}</div>
               )}
             </div>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.MIN_THRESHOLD}</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label">{UI_FORM_LABELS.MIN_THRESHOLD}</label>
               <input
                 type="number"
                 name="minThreshold"
@@ -390,14 +397,15 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 disabled={!canEdit}
                 min="0"
                 step="0.01"
+                className="apple-form-input"
               />
               {errors.minThreshold && (
-                <span className="error sap-theme">{errors.minThreshold}</span>
+                <div className="apple-form-error">{errors.minThreshold}</div>
               )}
             </div>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.MAX_CAPACITY}</label>
+            <div className="apple-form-group">
+              <label className="apple-form-label">{UI_FORM_LABELS.MAX_CAPACITY}</label>
               <input
                 type="number"
                 name="maxCapacity"
@@ -406,23 +414,24 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
                 disabled={!canEdit}
                 min="1"
                 step="0.01"
+                className="apple-form-input"
               />
-              {errors.maxCapacity && <span className="error sap-theme">{errors.maxCapacity}</span>}
+              {errors.maxCapacity && <div className="apple-form-error">{errors.maxCapacity}</div>}
             </div>
           </div>
 
           {/* Apariencia */}
-          <div className="form-section sap-theme">
-            <h3>🎨 {UI_FORM_LABELS.APPEARANCE}</h3>
+          <div className="apple-form-section">
+            <h3 className="apple-form-section-title">🎨 {UI_FORM_LABELS.APPEARANCE}</h3>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.ICON}</label>
-              <div className="icon-selector sap-theme">
+            <div className="apple-form-group">
+              <label className="apple-form-label">{UI_FORM_LABELS.ICON}</label>
+              <div className="icon-selector">
                 {iconOptions[formData.category]?.map((icon) => (
                   <button
                     key={icon}
                     type="button"
-                    className={`icon-option ${formData.icon === icon ? 'selected' : ''}`}
+                    className={`apple-button apple-button-icon ${formData.icon === icon ? 'apple-button-primary' : 'apple-button-secondary'}`}
                     onClick={() => setFormData((prev) => ({ ...prev, icon }))}
                     disabled={!canEdit}
                   >
@@ -432,14 +441,14 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
               </div>
             </div>
 
-            <div className="form-group sap-theme">
-              <label>{UI_FORM_LABELS.COLOR}</label>
-              <div className="color-selector sap-theme">
+            <div className="apple-form-group">
+              <label className="apple-form-label">{UI_FORM_LABELS.COLOR}</label>
+              <div className="color-selector">
                 {colorOptions.map((color) => (
                   <button
                     key={color}
                     type="button"
-                    className={`color-option ${formData.color === color ? 'selected' : ''}`}
+                    className={`apple-button apple-button-icon color-option ${formData.color === color ? 'selected' : ''}`}
                     style={{ backgroundColor: color }}
                     onClick={() => setFormData((prev) => ({ ...prev, color }))}
                     disabled={!canEdit}
@@ -450,7 +459,7 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
           </div>
         </div>
 
-        {errors.submit && <div className="error-message sap-theme">{errors.submit}</div>}
+        {errors.submit && <div className="apple-form-error">{errors.submit}</div>}
       </div>
 
       <ModalFooter

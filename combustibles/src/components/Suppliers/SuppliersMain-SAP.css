@@ -9,34 +9,32 @@
  * ================================================================= */
 
 :root {
-  /* SAP Brand Colors */
-  --sap-blue-primary: #0070f2;
-  --sap-blue-secondary: #0054b9;
-  --sap-blue-light: #e6f3ff;
-  --sap-blue-dark: #003d82;
+  /* SAP Brand Colors - Actualizados con nueva paleta */
+  --sap-blue-primary: var(--color-teal);
+  --sap-blue-light: var(--color-teal-light);
 
-  /* SAP Semantic Colors */
-  --sap-success: #30914f;
-  --sap-warning: #df6e00;
-  --sap-error: #dc0d0e;
-  --sap-information: #0070f2;
+  /* SAP Semantic Colors - Nueva paleta */
+  --sap-success: var(--color-teal);
+  --sap-warning: var(--color-warning);
+  --sap-error: var(--color-rusty-red);
+  --sap-information: var(--color-verdigris);
 
-  /* SAP Neutral Colors */
-  --sap-neutral-100: #ffffff;
-  --sap-neutral-200: #f7f7f7;
-  --sap-neutral-300: #ededed;
-  --sap-neutral-400: #d9d9d9;
-  --sap-neutral-500: #cccccc;
-  --sap-neutral-600: #999999;
-  --sap-neutral-700: #666666;
-  --sap-neutral-800: #333333;
-  --sap-neutral-900: #000000;
+  /* SAP Neutral Colors - Actualizados */
+  --sap-neutral-100: var(--bg-card);
+  --sap-neutral-200: var(--bg-tertiary);
+  --sap-neutral-300: var(--border-neutral);
+  --sap-neutral-400: #ced4da;
+  --sap-neutral-500: #adb5bd;
+  --sap-neutral-600: var(--text-secondary);
+  --sap-neutral-700: #495057;
+  --sap-neutral-800: #343a40;
+  --sap-neutral-900: #212529;
 
-  /* SAP Text Colors */
-  --sap-text-primary: #32363a;
-  --sap-text-secondary: #6a6d70;
-  --sap-text-disabled: #b3b5b7;
-  --sap-text-white: #ffffff;
+  /* SAP Text Colors - Nueva paleta */
+  --sap-text-primary: var(--text-primary);
+  --sap-text-secondary: var(--text-secondary);
+  --sap-text-disabled: var(--text-muted);
+  --sap-text-white: var(--text-white);
 
   /* SAP Spacing System */
   --sap-spacing-xs: 4px;
@@ -79,7 +77,7 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--sap-spacing-lg);
-  background: var(--sap-neutral-100);
+  background: var(--bg-primary);
   min-height: 100vh;
   font-family: var(--sap-font-family);
   color: var(--sap-text-primary);
@@ -253,7 +251,6 @@
 
 .sap-message-info {
   background: var(--sap-blue-light);
-  color: var(--sap-blue-dark);
   border: 1px solid var(--sap-blue-primary);
 }
 

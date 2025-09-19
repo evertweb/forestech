@@ -557,22 +557,18 @@ textarea.smart-form-input {
 
 /* ==== MODO OSCURO (opt-in con atributo) ==== */
 /* Nota: Evitamos prefers-color-scheme para no forzar cambios por preferencia del SO. */
-html[data-color-scheme='dark'] .smart-modal-container {
   background: #1f2937;
   color: #f9fafb;
 }
 
-html[data-color-scheme='dark'] .progress-indicator {
   background: #374151;
   border-color: #4b5563;
 }
 
-html[data-color-scheme='dark'] .smart-form-input {
   background: #374151;
   border-color: #4b5563;
   color: #f9fafb;
 }
 
-html[data-color-scheme='dark'] .smart-form-input::placeholder {
   color: #9ca3af;
 }

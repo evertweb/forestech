@@ -208,60 +208,60 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
   };
 
   return (
-    <div className="vehicle-reports sap-theme">
+    <div className="apple-card">
       {/* KPIs de vehículos */}
-      <div className="kpis-grid sap-theme">
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon vehicles sap-theme">🚜</div>
-          <div className="kpi-value sap-theme">{vehiclesStats.activeVehicles}</div>
-          <div className="kpi-label sap-theme">Vehículos Activos</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">📊</span>
+      <div className="apple-stats-grid">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">🚜</div>
+          <div className="apple-form-input">{vehiclesStats.activeVehicles}</div>
+          <div className="apple-form-label">Vehículos Activos</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">📊</span>
             {formatNumber(vehiclesStats.totalHours)} horas total
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon vehicles sap-theme">⛽</div>
-          <div className="kpi-value sap-theme">{formatNumber(vehiclesStats.totalConsumption)}</div>
-          <div className="kpi-label sap-theme">Consumo Total (L)</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📈</span>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">⛽</div>
+          <div className="apple-form-input">{formatNumber(vehiclesStats.totalConsumption)}</div>
+          <div className="apple-form-label">Consumo Total (L)</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">📈</span>
             {formatNumber(vehiclesStats.averageEfficiency, 1)} L/h promedio
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon vehicles sap-theme">⚡</div>
-          <div className="kpi-value sap-theme">
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">⚡</div>
+          <div className="apple-form-input">
             {formatNumber(topPerformers.mostEfficient?.efficiencyRating || 0, 1)}%
           </div>
-          <div className="kpi-label sap-theme">Mejor Eficiencia</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">🏆</span>
+          <div className="apple-form-label">Mejor Eficiencia</div>
+          <div className="apple-status-badge">
+            <span className="apple-status-badge">🏆</span>
             {topPerformers.mostEfficient?.vehicleId || 'N/A'}
           </div>
         </div>
 
-        <div className="kpi-card sap-theme">
-          <div className="kpi-icon vehicles sap-theme">🔧</div>
-          <div className="kpi-value sap-theme">{topPerformers.nearMaintenance.length}</div>
-          <div className="kpi-label sap-theme">Próximo Mantenimiento</div>
+        <div className="apple-card">
+          <div className="apple-stat-card-icon">🔧</div>
+          <div className="apple-form-input">{topPerformers.nearMaintenance.length}</div>
+          <div className="apple-form-label">Próximo Mantenimiento</div>
           <div
-            className={`kpi-trend ${topPerformers.nearMaintenance.length > 0 ? 'negative' : 'positive'}`}
+            className={`apple-status-badge ${topPerformers.nearMaintenance.length > 0 ? 'negative' : 'positive'}`}
           >
-            <span className="trend-icon sap-theme">⚠️</span>≤ 50 horas
+            <span className="apple-status-badge">⚠️</span>≤ 50 horas
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="reports-filters sap-theme">
-        <div className="filters-grid sap-theme">
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Categoría</label>
+      <div className="apple-card">
+        <div className="apple-card">
+          <div className="apple-form-group">
+            <label className="apple-form-label">Categoría</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -273,10 +273,10 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
               ))}
             </select>
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Tipo de Combustible</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Tipo de Combustible</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={selectedFuelType}
               onChange={(e) => setSelectedFuelType(e.target.value)}
             >
@@ -288,10 +288,10 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
               ))}
             </select>
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme">Ordenar por</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Ordenar por</label>
             <select
-              className="filter-select sap-theme"
+              className="apple-form-input"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -302,8 +302,8 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
               <option value="name">Nombre</option>
             </select>
           </div>
-          <div className="filter-actions sap-theme">
-            <button className="filter-btn secondary sap-theme" onClick={exportToCSV}>
+          <div className="apple-action-buttons">
+            <button className="apple-button apple-button-secondary" onClick={exportToCSV}>
               📊 Exportar CSV
             </button>
           </div>
@@ -312,15 +312,15 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
 
       {/* Alertas de mantenimiento */}
       {topPerformers.nearMaintenance.length > 0 && (
-        <div className="alerts-container sap-theme">
+        <div className="apple-card">
           {topPerformers.nearMaintenance.map((vehicle, index) => (
-            <div key={index} className="alert warning sap-theme">
-              <span className="alert-icon sap-theme">🔧</span>
-              <div className="alert-content sap-theme">
-                <div className="alert-title sap-theme">
+            <div key={index} className="apple-card">
+              <span className="apple-stat-card-icon">🔧</span>
+              <div className="apple-card">
+                <div className="apple-form-label">
                   Mantenimiento Próximo: {vehicle.vehicleId}
                 </div>
-                <div className="alert-message sap-theme">
+                <div className="apple-form-input">
                   Horas actuales: {formatNumber(vehicle.currentHours)}h | Próximo mantenimiento:{' '}
                   {vehicle.nextMaintenanceHours}h | Faltan:{' '}
                   {formatNumber(vehicle.hoursToMaintenance)}h
@@ -332,36 +332,36 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       )}
 
       {/* Análisis por tipo de combustible */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">⛽ Análisis por Tipo de Combustible</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">⛽ Análisis por Tipo de Combustible</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="fuel-analysis-grid sap-theme">
+        <div className="apple-card">
+          <div className="apple-stats-grid">
             {Object.entries(fuelAnalysis).map(([fuelType, analysis]) => (
-              <div key={fuelType} className="fuel-analysis-item sap-theme">
+              <div key={fuelType} className="apple-card">
                 <h4>{fuelType.toUpperCase()}</h4>
-                <div className="analysis-metrics sap-theme">
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Vehículos:</span>
-                    <span className="metric-value sap-theme">{analysis.vehicleCount}</span>
+                <div className="apple-card">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Vehículos:</span>
+                    <span className="apple-form-input">{analysis.vehicleCount}</span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Consumo Total:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Consumo Total:</span>
+                    <span className="apple-form-input">
                       {formatNumber(analysis.totalConsumption)} L
                     </span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Costo Total:</span>
-                    <span className="metric-value sap-theme">
+                  <div className="apple-card">
+                    <span className="apple-form-label">Costo Total:</span>
+                    <span className="apple-form-input">
                       {formatCurrency(analysis.totalCost)}
                     </span>
                   </div>
-                  <div className="metric sap-theme">
-                    <span className="metric-label sap-theme">Eficiencia Promedio:</span>
+                  <div className="apple-card">
+                    <span className="apple-form-label">Eficiencia Promedio:</span>
                     <span
-                      className={`metric-value ${analysis.avgEfficiency > 10 ? 'text-success' : analysis.avgEfficiency > 0 ? 'text-warning' : 'text-danger'}`}
+                      className={`apple-status-badge ${analysis.avgEfficiency > 10 ? 'success' : analysis.avgEfficiency > 0 ? 'warning' : 'danger'}`}
                     >
                       {formatNumber(analysis.avgEfficiency, 1)}%
                     </span>
@@ -374,49 +374,49 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       </div>
 
       {/* Top performers */}
-      <div className="chart-container sap-theme">
-        <div className="chart-header sap-theme">
-          <h3 className="chart-title sap-theme">🏆 Análisis de Rendimiento</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">🏆 Análisis de Rendimiento</h3>
         </div>
-        <div className="chart-content sap-theme">
-          <div className="performers-grid sap-theme">
-            <div className="performer-item success sap-theme">
+        <div className="apple-card">
+          <div className="apple-stats-grid">
+            <div className="apple-card">
               <h4>🥇 Más Eficiente</h4>
-              <div className="performer-name sap-theme">
+              <div className="apple-form-input">
                 {topPerformers.mostEfficient?.vehicleId || 'N/A'}
               </div>
-              <div className="performer-metric sap-theme">
+              <div className="apple-form-label">
                 {formatNumber(topPerformers.mostEfficient?.efficiencyRating || 0, 1)}% eficiencia
               </div>
-              <div className="performer-details sap-theme">
+              <div className="apple-form-input">
                 {formatNumber(topPerformers.mostEfficient?.actualConsumptionPerHour || 0, 2)} L/h
               </div>
             </div>
 
-            <div className="performer-item warning sap-theme">
+            <div className="apple-card">
               <h4>⚠️ Mayor Consumo</h4>
-              <div className="performer-name sap-theme">
+              <div className="apple-form-input">
                 {topPerformers.highestConsumption?.vehicleId || 'N/A'}
               </div>
-              <div className="performer-metric sap-theme">
+              <div className="apple-form-label">
                 {formatNumber(topPerformers.highestConsumption?.consumption.totalConsumption || 0)}{' '}
                 L total
               </div>
-              <div className="performer-details sap-theme">
+              <div className="apple-form-input">
                 {formatNumber(topPerformers.highestConsumption?.actualConsumptionPerHour || 0, 2)}{' '}
                 L/h
               </div>
             </div>
 
-            <div className="performer-item danger sap-theme">
+            <div className="apple-card">
               <h4>📉 Menos Eficiente</h4>
-              <div className="performer-name sap-theme">
+              <div className="apple-form-input">
                 {topPerformers.leastEfficient?.vehicleId || 'N/A'}
               </div>
-              <div className="performer-metric sap-theme">
+              <div className="apple-form-label">
                 {formatNumber(topPerformers.leastEfficient?.efficiencyRating || 0, 1)}% eficiencia
               </div>
-              <div className="performer-details sap-theme">
+              <div className="apple-form-input">
                 {formatNumber(topPerformers.leastEfficient?.actualConsumptionPerHour || 0, 2)} L/h
               </div>
             </div>
@@ -425,12 +425,12 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
       </div>
 
       {/* Tabla detallada */}
-      <div className="report-table-container sap-theme">
-        <div className="report-table-header sap-theme">
-          <h3 className="report-table-title sap-theme">🚜 Análisis Detallado de Vehículos</h3>
+      <div className="apple-card">
+        <div className="apple-card">
+          <h3 className="apple-form-label">🚜 Análisis Detallado de Vehículos</h3>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table className="report-table sap-theme">
+          <table className="apple-table">
             <thead>
               <tr>
                 <th>Vehículo</th>
@@ -457,7 +457,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                   <td>{vehicle.type}</td>
                   <td>
                     <span
-                      className={`badge ${vehicle.fuelType === 'DIESEL' ? 'info' : 'secondary'}`}
+                      className={`apple-status-badge ${vehicle.fuelType === 'DIESEL' ? 'info' : 'secondary'}`}
                     >
                       {vehicle.fuelType}
                     </span>
@@ -466,7 +466,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                     {vehicle.hasHourMeter ? (
                       <span>{formatNumber(vehicle.currentHours)}h</span>
                     ) : (
-                      <span className="text-muted sap-theme">N/A</span>
+                      <span className="apple-form-input">N/A</span>
                     )}
                   </td>
                   <td>{formatNumber(vehicle.totalHoursWorked)}h</td>
@@ -475,7 +475,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                   <td>{formatNumber(vehicle.estimatedConsumption, 2)}</td>
                   <td>
                     <span
-                      className={`badge ${vehicle.efficiencyRating > 10 ? 'success' : vehicle.efficiencyRating > 0 ? 'warning' : 'danger'}`}
+                      className={`apple-status-badge ${vehicle.efficiencyRating > 10 ? 'success' : vehicle.efficiencyRating > 0 ? 'warning' : 'danger'}`}
                     >
                       {formatNumber(vehicle.efficiencyRating, 1)}%
                     </span>
@@ -485,7 +485,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                     {vehicle.hasHourMeter ? (
                       <span
                         className={
-                          vehicle.hoursToMaintenance <= 50 ? 'text-warning' : 'text-success'
+                          vehicle.hoursToMaintenance <= 50 ? 'apple-status-badge' : 'apple-form-input'
                         }
                       >
                         {vehicle.nextMaintenanceHours}h
@@ -493,7 +493,7 @@ const VehicleReports = ({ vehicles, movements, dateRange }) => {
                         <small>({formatNumber(vehicle.hoursToMaintenance)}h restantes)</small>
                       </span>
                     ) : (
-                      <span className="text-muted sap-theme">N/A</span>
+                      <span className="apple-form-input">N/A</span>
                     )}
                   </td>
                 </tr>

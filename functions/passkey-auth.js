@@ -180,12 +180,24 @@ export const registerFace = onCall(async (request) => {
       throw new HttpsError('not-found', 'Usuario no encontrado');
     }
 
+    // Verificar configuración de AWS usando variables de entorno
+    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const awsRegion = process.env.AWS_REGION || 'us-east-1';
+
+    if (!awsAccessKeyId || !awsSecretAccessKey) {
+      logger.error('❌ Credenciales de AWS no configuradas en variables de entorno');
+      throw new HttpsError('failed-precondition', 'Configuración de AWS incompleta. Contacta al administrador.');
+    }
+
+    console.log('🔧 Configuración AWS verificada, región:', awsRegion);
+
     // Configurar cliente AWS
     const rekognitionClient = new RekognitionClient({
-      region: functions.config().aws?.region || 'us-east-1',
+      region: awsRegion,
       credentials: {
-        accessKeyId: functions.config().aws?.access_key_id,
-        secretAccessKey: functions.config().aws?.secret_access_key,
+        accessKeyId: awsAccessKeyId,
+        secretAccessKey: awsSecretAccessKey,
       },
     });
 
@@ -258,7 +270,7 @@ export const loginFace = onCall(async (request) => {
     const { RekognitionClient, SearchFacesByImageCommand } = await import('@aws-sdk/client-rekognition');
     
     const { imageBase64 } = request.data;
-    const minSimilarity = parseFloat(functions.config().facial?.min_similarity) || 90.0;
+    const minSimilarity = parseFloat(process.env.FACIAL_MIN_SIMILARITY) || 90.0;
 
     if (!imageBase64) {
       throw new HttpsError('invalid-argument', 'imageBase64 es requerido');
@@ -266,12 +278,22 @@ export const loginFace = onCall(async (request) => {
 
     console.log('🔍 Buscando coincidencia facial, similitud mínima:', minSimilarity);
 
+    // Verificar configuración de AWS usando variables de entorno
+    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const awsRegion = process.env.AWS_REGION || 'us-east-1';
+
+    if (!awsAccessKeyId || !awsSecretAccessKey) {
+      logger.error('❌ Credenciales de AWS no configuradas en variables de entorno');
+      throw new HttpsError('failed-precondition', 'Configuración de AWS incompleta. Contacta al administrador.');
+    }
+
     // Configurar cliente AWS
     const rekognitionClient = new RekognitionClient({
-      region: functions.config().aws?.region || 'us-east-1',
+      region: awsRegion,
       credentials: {
-        accessKeyId: functions.config().aws?.access_key_id,
-        secretAccessKey: functions.config().aws?.secret_access_key,
+        accessKeyId: awsAccessKeyId,
+        secretAccessKey: awsSecretAccessKey,
       },
     });
 

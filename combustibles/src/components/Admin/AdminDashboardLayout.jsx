@@ -1,6 +1,6 @@
 /**
- * AdminDashboardLayout - Layout principal para el nuevo diseño de administración
- * Dashboard moderno con sidebar modal y cards, reemplaza el sistema de tabs horizontal
+ * AdminDashboardLayout - Layout modal para el panel de administración
+ * Modal moderno con sidebar interna que se abre sobre la app sin interferir
  */
 
 import React, { useState, useEffect } from 'react';
@@ -14,9 +14,9 @@ import BackgroundImageManager from './BackgroundImageManager';
 import PriceServiceControl from '../Services/PriceServiceControl';
 import './AdminDashboard.css';
 
-const AdminDashboardLayout = ({ user, userProfile }) => {
+const AdminDashboardLayout = ({ user, userProfile, isOpen, onClose }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   // Detectar tamaño de pantalla para responsive
@@ -24,7 +24,7 @@ const AdminDashboardLayout = ({ user, userProfile }) => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
       if (window.innerWidth <= 768) {
-        setSidebarOpen(false);
+        setSidebarCollapsed(false);
       }
     };
 
@@ -113,156 +113,148 @@ const AdminDashboardLayout = ({ user, userProfile }) => {
 
   // Loading state si las secciones no están listas
   if (!dashboardSections || dashboardSections.length === 0) {
-    return (
-      <div className="admin-dashboard-layout">
-        <div className="loading-dashboard">
-          <div className="loading-spinner"></div>
-          <span>Cargando dashboard...</span>
-        </div>
-      </div>
-    );
+    return null; // No mostrar nada si no hay secciones
+  }
+
+  // No mostrar si el modal no está abierto
+  if (!isOpen) {
+    return null;
   }
 
   // Autorización
   if (userProfile?.role !== 'admin') {
-    return (
-      <div className="admin-unauthorized">
-        <motion.div
-          className="unauthorized-content"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="unauthorized-icon">⛔</div>
-          <h2>Acceso Denegado</h2>
-          <p>Solo los administradores pueden acceder a esta sección.</p>
-          <div className="unauthorized-details">
-            <span>Usuario actual: {user?.email}</span>
-            <span>Rol: {userProfile?.role || 'Sin rol asignado'}</span>
-          </div>
-        </motion.div>
-      </div>
-    );
+    return null; // No mostrar modal si no es admin
   }
 
   return (
-    <div className={`admin-dashboard-layout ${isMobile ? 'mobile' : ''}`}>
-      {/* Botón para abrir sidebar modal */}
-      <motion.button
-        className="admin-sidebar-toggle"
-        onClick={() => setSidebarOpen(true)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        title="Abrir menú de administración"
-      >
-        ⚙️ Admin
-      </motion.button>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Overlay oscuro */}
+          <motion.div
+            className="admin-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
 
-      {/* Sidebar Modal */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <>
-            {/* Overlay oscuro */}
+          {/* Modal del Dashboard Admin */}
+          <motion.div
+            className={`admin-modal-container ${isMobile ? 'mobile' : ''}`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: 'tween', duration: 0.2 }}
+          >
             <motion.div
-              className="admin-modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSidebarOpen(false)}
-            />
-
-            {/* Sidebar Modal */}
-            <motion.div
-              className="admin-sidebar-modal"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.3 }}
+              className="admin-modal-content"
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
+              exit={{ y: 20 }}
+              transition={{ delay: 0.1 }}
             >
-              <AdminSidebar
-                sections={dashboardSections}
-                activeSection={activeSection}
-                onSectionChange={(section) => {
-                  setActiveSection(section);
-                  setSidebarOpen(false); // Cerrar modal al seleccionar
-                }}
-                collapsed={false} // Modal siempre expandido
-                onToggleCollapse={() => setSidebarOpen(false)}
-                isMobile={isMobile}
-                user={user}
-                userProfile={userProfile}
-              />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Contenido principal */}
-      <main className="admin-main-content">
-        {/* Header de la sección actual */}
-        <motion.div
-          className="admin-content-header"
-          key={activeSection}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="header-content">
-            <div className="header-title-section">
-              <div className={`header-icon ${currentSection?.color}`}>
-                {currentSection?.icon}
+              {/* Header del Modal */}
+              <div className="admin-modal-header">
+                <div className="modal-header-content">
+                  <h2>Panel de Administración</h2>
+                  <button
+                    className="admin-modal-close"
+                    onClick={onClose}
+                    title="Cerrar panel de administración"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
-              <div className="header-text">
-                <h1>{currentSection?.title}</h1>
-                <p>{currentSection?.subtitle}</p>
+
+              {/* Contenido del Modal */}
+              <div className="admin-modal-body">
+                {/* Sidebar interna del modal */}
+                <div className={`admin-modal-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+                  <AdminSidebar
+                    sections={dashboardSections}
+                    activeSection={activeSection}
+                    onSectionChange={setActiveSection}
+                    collapsed={sidebarCollapsed}
+                    onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    isMobile={isMobile}
+                    user={user}
+                    userProfile={userProfile}
+                  />
+                </div>
+
+                {/* Contenido principal */}
+                <main className="admin-modal-main">
+                  {/* Header de la sección actual */}
+                  <motion.div
+                    className="admin-content-header"
+                    key={activeSection}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="header-content">
+                      <div className="header-title-section">
+                        <div className={`header-icon ${currentSection?.color}`}>
+                          {currentSection?.icon}
+                        </div>
+                        <div className="header-text">
+                          <h1>{currentSection?.title}</h1>
+                          <p>{currentSection?.subtitle}</p>
+                        </div>
+                      </div>
+
+                      {/* Breadcrumb */}
+                      <nav className="breadcrumb">
+                        <span className="breadcrumb-item">Administración</span>
+                        <span className="breadcrumb-separator">›</span>
+                        <span className="breadcrumb-item active">{currentSection?.title}</span>
+                      </nav>
+                    </div>
+                  </motion.div>
+
+                  {/* Contenido de la sección */}
+                  <div className="admin-section-content">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeSection}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="section-wrapper"
+                      >
+                        {activeSection === 'dashboard' && (
+                          <AdminDashboardCards
+                            sections={dashboardSections ? dashboardSections.filter(s => s.id !== 'dashboard') : []}
+                            onSectionClick={setActiveSection}
+                          />
+                        )}
+
+                        {currentSection?.component && React.createElement(currentSection.component, {
+                          user,
+                          userProfile,
+                          ...(activeSection === 'prices' && { userRole: userProfile?.role })
+                        })}
+
+                        {!currentSection?.component && activeSection !== 'dashboard' && (
+                          <AdminContentPanel
+                            section={activeSection}
+                            user={user}
+                            userProfile={userProfile}
+                          />
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                </main>
               </div>
-            </div>
-
-            {/* Breadcrumb */}
-            <nav className="breadcrumb">
-              <span className="breadcrumb-item">Administración</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-item active">{currentSection?.title}</span>
-            </nav>
-          </div>
-        </motion.div>
-
-        {/* Contenido de la sección */}
-        <div className="admin-section-content">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="section-wrapper"
-            >
-              {activeSection === 'dashboard' && (
-                <AdminDashboardCards
-                  sections={dashboardSections ? dashboardSections.filter(s => s.id !== 'dashboard') : []}
-                  onSectionClick={setActiveSection}
-                />
-              )}
-
-              {currentSection?.component && React.createElement(currentSection.component, {
-                user,
-                userProfile,
-                ...(activeSection === 'prices' && { userRole: userProfile?.role })
-              })}
-
-              {!currentSection?.component && activeSection !== 'dashboard' && (
-                <AdminContentPanel
-                  section={activeSection}
-                  user={user}
-                  userProfile={userProfile}
-                />
-              )}
             </motion.div>
-          </AnimatePresence>
-        </div>
-      </main>
-    </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 

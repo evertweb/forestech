@@ -85,11 +85,11 @@ const ReportsMain = () => {
 
   if (!canViewReports) {
     return (
-      <div className="reports-main sap-theme">
-        <div className="empty-state sap-theme sap-message-info">
-          <div className="empty-icon sap-theme">🔒</div>
-          <h3 className="empty-title sap-theme sap-title">Acceso Restringido</h3>
-          <p className="empty-message sap-theme sap-text">
+      <div className="apple-dashboard-main">
+        <div className="apple-empty-state">
+          <div className="apple-empty-icon">🔒</div>
+          <h3 className="apple-empty-title">Acceso Restringido</h3>
+          <p className="apple-empty-description">
             No tienes permisos para ver los reportes. Contacta a tu administrador.
           </p>
         </div>
@@ -146,22 +146,22 @@ const ReportsMain = () => {
 
   // Renderizar dashboard ejecutivo
   const renderDashboard = () => (
-    <div className="dashboard-content sap-theme">
+    <div className="apple-content-grid">
       {/* Alertas críticas */}
       {lowStockAlerts.length > 0 && (
-        <div className="alerts-container sap-theme">
+        <div className="alerts-container">
           {lowStockAlerts.slice(0, 3).map((alert, index) => (
             <div
               key={index}
-              className={`alert sap-theme sap-message-${alert.stockLevel === 'critical' ? 'error' : 'warning'}`}
+              className={`apple-card ${alert.stockLevel === 'critical' ? 'apple-form-error' : 'apple-form-warning'}`}
             >
-              <span className="alert-icon sap-theme">⚠️</span>
-              <div className="alert-content sap-theme">
-                <div className="alert-title sap-theme sap-text-primary">
+              <span className="alert-icon">⚠️</span>
+              <div className="alert-content">
+                <div className="apple-title-small alert-title">
                   Stock {alert.stockLevel === 'critical' ? 'Crítico' : 'Bajo'}: {alert.productName}
                 </div>
-                <div className="alert-message sap-theme sap-text-secondary">
-                  {alert.location} - {formatNumber(alert.currentStock)} {alert.unit}(
+                <div className="apple-body-small text-secondary alert-message">
+                  {alert.location} - {formatNumber(alert.currentStock)} {alert.unit} (
                   {formatPercentage(alert.percentage / 100)} de capacidad)
                 </div>
               </div>
@@ -171,56 +171,62 @@ const ReportsMain = () => {
       )}
 
       {/* KPIs principales */}
-      <div className="kpis-grid sap-theme">
+      <div className="apple-stats-grid">
         {/* Inventario */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon inventory sap-theme">🛢️</div>
-          <div className="kpi-value sap-theme sap-text-primary">
+        <div className="apple-stat-card">
+          <div className="apple-stat-card-header">
+            <div className="apple-stat-card-icon">🛢️</div>
+          </div>
+          <div className="apple-stat-card-value">
             {formatCurrency(inventoryStats.totalValue)}
           </div>
-          <div className="kpi-label sap-theme sap-text-secondary">Valor Total Inventario</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📦</span>
-            <span className="sap-text">{inventoryStats.totalItems} productos activos</span>
+          <div className="apple-stat-card-label">Valor Total Inventario</div>
+          <div className="apple-stat-card-change neutral">
+            <span>📦</span>
+            <span>{inventoryStats.totalItems} productos activos</span>
           </div>
         </div>
 
         {/* Vehículos */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon vehicles sap-theme">🚜</div>
-          <div className="kpi-value sap-theme sap-text-primary">{vehiclesStats.activeVehicles}</div>
-          <div className="kpi-label sap-theme sap-text-secondary">Vehículos Activos</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">⏱️</span>
-            <span className="sap-text">
-              {formatNumber(vehiclesStats.totalHours)} horas trabajadas
-            </span>
+        <div className="apple-stat-card">
+          <div className="apple-stat-card-header">
+            <div className="apple-stat-card-icon">🚜</div>
+          </div>
+          <div className="apple-stat-card-value">{vehiclesStats.activeVehicles}</div>
+          <div className="apple-stat-card-label">Vehículos Activos</div>
+          <div className="apple-stat-card-change positive">
+            <span>⏱️</span>
+            <span>{formatNumber(vehiclesStats.totalHours)} horas trabajadas</span>
           </div>
         </div>
 
         {/* Movimientos */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon movements sap-theme">📈</div>
-          <div className="kpi-value sap-theme sap-text-primary">
+        <div className="apple-stat-card">
+          <div className="apple-stat-card-header">
+            <div className="apple-stat-card-icon">📈</div>
+          </div>
+          <div className="apple-stat-card-value">
             {movementsStats.totalMovements}
           </div>
-          <div className="kpi-label sap-theme sap-text-secondary">Movimientos del Mes</div>
-          <div className="kpi-trend positive sap-theme">
-            <span className="trend-icon sap-theme">✅</span>
-            <span className="sap-text">{movementsStats.completedMovements} completados</span>
+          <div className="apple-stat-card-label">Movimientos del Mes</div>
+          <div className="apple-stat-card-change positive">
+            <span>✅</span>
+            <span>{movementsStats.completedMovements} completados</span>
           </div>
         </div>
 
         {/* Eficiencia */}
-        <div className="kpi-card sap-theme sap-card">
-          <div className="kpi-icon financial sap-theme">💰</div>
-          <div className="kpi-value sap-theme sap-text-primary">
+        <div className="apple-stat-card">
+          <div className="apple-stat-card-header">
+            <div className="apple-stat-card-icon">💰</div>
+          </div>
+          <div className="apple-stat-card-value">
             {formatNumber(vehiclesStats.averageEfficiency, 1)}
           </div>
-          <div className="kpi-label sap-theme sap-text-secondary">Consumo Promedio (L/h)</div>
-          <div className="kpi-trend neutral sap-theme">
-            <span className="trend-icon sap-theme">📊</span>
-            <span className="sap-text">{formatNumber(vehiclesStats.totalConsumption)} L total</span>
+          <div className="apple-stat-card-label">Consumo Promedio (L/h)</div>
+          <div className="apple-stat-card-change neutral">
+            <span>📊</span>
+            <span>{formatNumber(vehiclesStats.totalConsumption)} L total</span>
           </div>
         </div>
       </div>
@@ -303,10 +309,10 @@ const ReportsMain = () => {
     }
 
     return (
-      <div className="empty-state sap-theme sap-message-info">
-        <div className="empty-icon sap-theme">🚧</div>
-        <h3 className="empty-title sap-theme sap-title">Reporte en Desarrollo</h3>
-        <p className="empty-message sap-theme sap-text">
+      <div className="apple-empty-state">
+        <div className="apple-empty-icon">🚧</div>
+        <h3 className="apple-empty-title">Reporte en Desarrollo</h3>
+        <p className="apple-empty-description">
           Este reporte estará disponible próximamente.
         </p>
       </div>
@@ -319,29 +325,29 @@ const ReportsMain = () => {
   const filtersComponent = (
     <>
       {/* Filtros globales */}
-      <div className="reports-filters sap-theme">
-        <div className="filters-grid sap-theme">
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme sap-text-secondary">Fecha Inicio</label>
+      <div className="apple-content-section">
+        <div className="apple-form-row">
+          <div className="apple-form-group">
+            <label className="apple-form-label">Fecha Inicio</label>
             <input
               type="date"
-              className="filter-input sap-theme sap-input"
+              className="apple-form-input"
               value={dateRange.start}
               onChange={(e) => handleDateRangeChange('start', e.target.value)}
             />
           </div>
-          <div className="filter-group sap-theme">
-            <label className="filter-label sap-theme sap-text-secondary">Fecha Fin</label>
+          <div className="apple-form-group">
+            <label className="apple-form-label">Fecha Fin</label>
             <input
               type="date"
-              className="filter-input sap-theme sap-input"
+              className="apple-form-input"
               value={dateRange.end}
               onChange={(e) => handleDateRangeChange('end', e.target.value)}
             />
           </div>
-          <div className="filter-actions sap-theme">
+          <div className="apple-form-group">
             <button
-              className="filter-btn secondary sap-theme sap-button sap-button-secondary"
+              className="apple-button apple-button-secondary"
               onClick={() => {
                 const today = new Date();
                 const lastMonth = new Date(
@@ -358,7 +364,7 @@ const ReportsMain = () => {
               📅 Último Mes
             </button>
             <button
-              className="filter-btn primary sap-theme sap-button sap-button-primary"
+              className="apple-button apple-button-primary"
               onClick={() => window.location.reload()}
             >
               🔄 Actualizar
@@ -368,17 +374,17 @@ const ReportsMain = () => {
       </div>
 
       {/* Navegación de reportes */}
-      <div className="reports-navigation sap-theme">
+      <div className="apple-nav-container">
         {reportTabs.map((tab) => (
           <button
             key={tab.id}
-            className={`nav-tab sap-theme sap-button ${activeTab === tab.id ? 'active sap-button-primary' : 'sap-button-secondary'}`}
+            className={`apple-nav-item ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            <span className="nav-tab-icon sap-theme">{tab.icon}</span>
-            <div className="nav-tab-text sap-theme">
-              <span className="nav-tab-title sap-theme sap-text-primary">{tab.title}</span>
-              <span className="nav-tab-subtitle sap-theme sap-text-secondary">{tab.subtitle}</span>
+            <span className="apple-nav-icon">{tab.icon}</span>
+            <div className="nav-tab-text">
+              <span className="apple-nav-label">{tab.title}</span>
+              <span className="apple-body-small text-secondary">{tab.subtitle}</span>
             </div>
           </button>
         ))}

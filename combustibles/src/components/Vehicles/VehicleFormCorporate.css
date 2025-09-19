@@ -5,7 +5,6 @@
   /* SAP Fiori Primary Colors */
   --corporate-primary: #0a6ed1;
   --corporate-primary-light: #1c86e5;
-  --corporate-primary-dark: #085caf;
   --corporate-primary-hover: #0e7de0;
 
   /* SAP Fiori Semantic Colors */
@@ -519,7 +518,6 @@
 }
 
 .btn-primary:active:not(:disabled) {
-  background: var(--corporate-primary-dark);
 }
 
 .btn-primary:disabled {
@@ -614,24 +612,6 @@
 }
 
 /* SAP Fiori Dark mode support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* SAP Fiori Dark Theme Colors */
-    --corporate-background: #1d2d3e;
-    --corporate-surface: #233446;
-    --corporate-secondary: #2a3d52;
-    --corporate-text: #ffffff;
-    --corporate-text-secondary: #d9d9d9;
-    --corporate-text-muted: #a6a6a6;
-    --corporate-border: #475e75;
-    --corporate-border-strong: #5a738c;
-    --corporate-hover: #2a3d52;
-    --corporate-active: #1c4a73;
-    --corporate-selected: #1e4a6f;
-    --corporate-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --corporate-shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.5);
-    --corporate-shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
-  }
 
   .corporate-modal-overlay {
     background: rgba(29, 45, 62, 0.8);

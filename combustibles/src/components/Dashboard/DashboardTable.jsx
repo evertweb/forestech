@@ -16,6 +16,7 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import './Dashboard.css';
 import './DashboardTable.css';
+import '../../styles/apple-cards.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
 import { logInventoryState, findDuplicateItems } from '../../utils/debugUtils';
@@ -222,11 +223,11 @@ const DashboardTable = () => {
   // ==================================================================================================
   if (dataLoading) {
     return (
-      <div className="dashboard-main sap-theme">
-        <h1 className="dashboard-title sap-theme">Dashboard Operativo - Vista Tabla</h1>
-        <p className="dashboard-subtitle sap-theme">Cargando datos en tiempo real...</p>
-        <div className="loading-spinner-container sap-theme">
-          <div className="loading-spinner sap-theme"></div>
+      <div className="apple-card">
+        <h1 className="apple-form-label">Dashboard Operativo - Vista Tabla</h1>
+        <p className="apple-form-input">Cargando datos en tiempo real...</p>
+        <div className="apple-card">
+          <div className="apple-loading-state"></div>
         </div>
       </div>
     );
@@ -234,11 +235,11 @@ const DashboardTable = () => {
 
   if (dataError) {
     return (
-      <div className="dashboard-main sap-theme">
-        <h1 className="dashboard-title sap-theme">Dashboard Operativo - Vista Tabla</h1>
-        <div className="error-message sap-theme">
+      <div className="apple-card">
+        <h1 className="apple-form-label">Dashboard Operativo - Vista Tabla</h1>
+        <div className="apple-form-error">
           <p>⚠️ {dataError}</p>
-          <button onClick={() => window.location.reload()}>Reintentar</button>
+          <button className="apple-button apple-button-secondary" onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       </div>
     );
@@ -248,122 +249,101 @@ const DashboardTable = () => {
   // RENDERIZADO PRINCIPAL EN FORMATO TABLA
   // ==================================================================================================
   return (
-    <div className="dashboard-main dashboard-table-view sap-theme">
-      <div className="dashboard-table-header sap-theme">
-        <h1 className="dashboard-title sap-theme">📊 Dashboard Operativo - Vista Tabla</h1>
-        <p className="dashboard-subtitle sap-theme">
+    <div className="apple-section">
+      <div className="apple-card">
+        <h1 className="apple-form-label">Dashboard Operativo</h1>
+        <p className="apple-form-input">
           Resumen completo del estado de combustibles y maquinaria en formato organizado.
         </p>
       </div>
 
-      {/* Tabla de Estadísticas Generales */}
-      <div className="dashboard-table-section sap-theme">
-        <h2 className="table-section-title sap-theme">📈 Estadísticas Generales</h2>
-        <div className="dashboard-table-container sap-theme">
-          <div className="table-wrapper sap-theme">
-            <table className="dashboard-table sap-theme">
-              <thead>
-                <tr>
-                  <th>Métrica</th>
-                  <th>Valor</th>
-                  <th>Estado</th>
-                  <th>Descripción</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="metric-name sap-theme">
-                    <span className="metric-icon sap-theme">🛢️</span>
-                    Combustible Total
-                  </td>
-                  <td className="metric-value sap-theme">{formatNumber(stats.totalFuel)} gal</td>
-                  <td>
-                    <span
-                      className={`status-badge ${stats.totalFuel > 1000 ? 'status-normal' : 'status-low'}`}
-                    >
-                      {stats.totalFuel > 1000 ? '🟢 Suficiente' : '🟡 Revisar'}
-                    </span>
-                  </td>
-                  <td className="metric-description sap-theme">
-                    Total de combustible disponible en inventario
-                  </td>
-                </tr>
-                <tr>
-                  <td className="metric-name sap-theme">
-                    <span className="metric-icon sap-theme">💰</span>
-                    Valor Inventario
-                  </td>
-                  <td className="metric-value sap-theme">{formatCurrency(stats.totalValue)}</td>
-                  <td>
-                    <span className="status-badge status-normal sap-theme">🟢 Activo</span>
-                  </td>
-                  <td className="metric-description sap-theme">
-                    Valor monetario total del inventario
-                  </td>
-                </tr>
-                <tr>
-                  <td className="metric-name sap-theme">
-                    <span className="metric-icon sap-theme">🚜</span>
-                    Vehículos Activos
-                  </td>
-                  <td className="metric-value sap-theme">{formatNumber(stats.activeVehicles)}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${stats.activeVehicles > 0 ? 'status-normal' : 'status-low'}`}
-                    >
-                      {stats.activeVehicles > 0 ? '🟢 Operativos' : '🔴 Sin actividad'}
-                    </span>
-                  </td>
-                  <td className="metric-description sap-theme">
-                    Número de vehículos en estado activo
-                  </td>
-                </tr>
-                <tr>
-                  <td className="metric-name sap-theme">
-                    <span className="metric-icon sap-theme">🔄</span>
-                    Movimientos Pendientes
-                  </td>
-                  <td className="metric-value sap-theme">{formatNumber(stats.pendingMovements)}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${stats.pendingMovements === 0 ? 'status-normal' : 'status-warning'}`}
-                    >
-                      {stats.pendingMovements === 0 ? '🟢 Al día' : '🟡 Pendientes'}
-                    </span>
-                  </td>
-                  <td className="metric-description sap-theme">
-                    Movimientos que requieren procesamiento
-                  </td>
-                </tr>
-                <tr className={stats.lowStockAlerts > 0 ? 'alert-row' : ''}>
-                  <td className="metric-name sap-theme">
-                    <span className="metric-icon sap-theme">⚠️</span>
-                    Alertas de Stock
-                  </td>
-                  <td className="metric-value sap-theme">{formatNumber(stats.lowStockAlerts)}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${stats.lowStockAlerts === 0 ? 'status-normal' : 'status-critical'}`}
-                    >
-                      {stats.lowStockAlerts === 0 ? '🟢 Normal' : '🔴 Crítico'}
-                    </span>
-                  </td>
-                  <td className="metric-description sap-theme">
-                    Productos con stock por debajo del mínimo
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      {/* Estadísticas Generales - Cards Apple */}
+      <div className="apple-section">
+        <h2 className="apple-section-title">Estadísticas Generales</h2>
+        <div className="apple-stats-grid">
+          <div className="apple-card">
+            <div className="apple-card-header">
+              <span className="apple-stat-card-icon">🛢️</span>
+              <h3 className="apple-card-title">Combustible Total</h3>
+            </div>
+            <div className="apple-card-content">
+              <div className="apple-form-input">{formatNumber(stats.totalFuel)} gal</div>
+              <div className="apple-form-label">disponible en inventario</div>
+              <div className="apple-status-badge">
+                <span className={`apple-status-badge ${stats.totalFuel > 1000 ? 'status-normal' : 'status-low'}`}>
+                  {stats.totalFuel > 1000 ? 'Suficiente' : 'Revisar'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="apple-card">
+            <div className="apple-card-header">
+              <span className="apple-stat-card-icon">💰</span>
+              <h3 className="apple-card-title">Valor Inventario</h3>
+            </div>
+            <div className="apple-card-content">
+              <div className="apple-form-input">{formatCurrency(stats.totalValue)}</div>
+              <div className="apple-form-label">valor monetario total</div>
+              <div className="apple-status-badge status-normal">Activo</div>
+            </div>
+          </div>
+
+          <div className="apple-card">
+            <div className="apple-card-header">
+              <span className="apple-stat-card-icon">🚜</span>
+              <h3 className="apple-card-title">Vehículos Activos</h3>
+            </div>
+            <div className="apple-card-content">
+              <div className="apple-form-input">{formatNumber(stats.activeVehicles)}</div>
+              <div className="apple-form-label">en estado operativo</div>
+              <div className="apple-status-badge">
+                <span className={`apple-status-badge ${stats.activeVehicles > 0 ? 'status-normal' : 'status-low'}`}>
+                  {stats.activeVehicles > 0 ? 'Operativos' : 'Sin actividad'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="apple-card">
+            <div className="apple-card-header">
+              <span className="apple-stat-card-icon">🔄</span>
+              <h3 className="apple-card-title">Movimientos Pendientes</h3>
+            </div>
+            <div className="apple-card-content">
+              <div className="apple-form-input">{formatNumber(stats.pendingMovements)}</div>
+              <div className="apple-form-label">requieren procesamiento</div>
+              <div className="apple-status-badge">
+                <span className={`apple-status-badge ${stats.pendingMovements === 0 ? 'status-normal' : 'status-warning'}`}>
+                  {stats.pendingMovements === 0 ? 'Al día' : 'Pendientes'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="apple-card">
+            <div className="apple-card-header">
+              <span className="apple-stat-card-icon">⚠️</span>
+              <h3 className="apple-card-title">Alertas de Stock</h3>
+            </div>
+            <div className="apple-card-content">
+              <div className="apple-form-input">{formatNumber(stats.lowStockAlerts)}</div>
+              <div className="apple-form-label">productos con stock bajo</div>
+              <div className="apple-status-badge">
+                <span className={`apple-status-badge ${stats.lowStockAlerts === 0 ? 'status-normal' : 'status-critical'}`}>
+                  {stats.lowStockAlerts === 0 ? 'Normal' : 'Crítico'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tabla de Inventario Principal */}
-      <div className="dashboard-table-section sap-theme">
-        <h2 className="table-section-title sap-theme">📦 Inventario Principal</h2>
-        <div className="dashboard-table-container sap-theme">
-          <div className="table-wrapper sap-theme">
-            <table className="dashboard-table sap-theme">
+      {/* Inventario Principal */}
+      <div className="apple-section">
+        <h2 className="apple-section-title">Inventario Principal</h2>
+        <div className="apple-card">
+          <table className="apple-table">
               <thead>
                 <tr>
                   <th>Producto</th>
@@ -382,21 +362,21 @@ const DashboardTable = () => {
                       key={item.id}
                       className={item.statusClass === 'status-low' ? 'alert-row' : ''}
                     >
-                      <td className="product-name sap-theme">
-                        <span className="product-icon sap-theme">⛽</span>
+                      <td className="apple-card">
+                        <span className="apple-stat-card-icon">⛽</span>
                         {item.name}
                       </td>
                       <td>{item.location}</td>
-                      <td className="stock-value sap-theme">
+                      <td className="apple-form-input">
                         {formatNumber(item.currentStock)} gal
                       </td>
                       <td>{formatNumber(item.maxCapacity)} gal</td>
                       <td>
-                        <div className="percentage-display sap-theme">
-                          <span className="percentage-value sap-theme">{item.percentage}%</span>
-                          <div className="percentage-bar sap-theme">
+                        <div className="apple-card">
+                          <span className="apple-form-input">{item.percentage}%</span>
+                          <div className="apple-progress-bar">
                             <div
-                              className="percentage-fill sap-theme"
+                              className="apple-progress-fill"
                               style={{
                                 width: `${item.percentage}%`,
                                 backgroundColor:
@@ -410,9 +390,9 @@ const DashboardTable = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="value-cell sap-theme">{formatCurrency(item.value)}</td>
+                      <td className="apple-form-input">{formatCurrency(item.value)}</td>
                       <td>
-                        <span className={`status-badge ${item.statusClass}`}>
+                        <span className={`apple-status-badge ${item.statusClass}`}>
                           {item.status === 'Bajo' ? '🔴' : item.status === 'Alto' ? '🔵' : '🟢'}{' '}
                           {item.status}
                         </span>
@@ -421,7 +401,7 @@ const DashboardTable = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="no-data sap-theme">
+                    <td colSpan="7" className="apple-form-input">
                       No hay datos de inventario disponibles
                     </td>
                   </tr>
@@ -429,15 +409,13 @@ const DashboardTable = () => {
               </tbody>
             </table>
           </div>
-        </div>
       </div>
 
-      {/* Tabla de Vehículos Activos */}
-      <div className="dashboard-table-section sap-theme">
-        <h2 className="table-section-title sap-theme">🚜 Vehículos Activos</h2>
-        <div className="dashboard-table-container sap-theme">
-          <div className="table-wrapper sap-theme">
-            <table className="dashboard-table sap-theme">
+      {/* Vehículos Activos */}
+      <div className="apple-section">
+        <h2 className="apple-section-title">Vehículos Activos</h2>
+        <div className="apple-card">
+          <table className="apple-table">
               <thead>
                 <tr>
                   <th>ID Vehículo</th>
@@ -454,21 +432,21 @@ const DashboardTable = () => {
                 {vehiclesTableData.length > 0 ? (
                   vehiclesTableData.map((vehicle) => (
                     <tr key={vehicle.id}>
-                      <td className="vehicle-id sap-theme">{vehicle.vehicleId}</td>
+                      <td className="apple-form-input">{vehicle.vehicleId}</td>
                       <td>{vehicle.name}</td>
-                      <td className="vehicle-type sap-theme">{vehicle.type}</td>
+                      <td className="apple-form-input">{vehicle.type}</td>
                       <td>
-                        <span className="fuel-type sap-theme">
+                        <span className="apple-status-badge">
                           {vehicle.fuelType === 'DIESEL' ? '🚛' : '🚗'} {vehicle.fuelType}
                         </span>
                       </td>
-                      <td className="consumption-value sap-theme">
+                      <td className="apple-form-input">
                         {formatNumber(vehicle.consumption)} gal
                       </td>
                       <td>{formatNumber(vehicle.hours)} hrs</td>
                       <td>📍 {vehicle.location}</td>
                       <td>
-                        <span className={`status-badge ${vehicle.statusClass}`}>
+                        <span className={`apple-status-badge ${vehicle.statusClass}`}>
                           ✅ {vehicle.status}
                         </span>
                       </td>
@@ -476,7 +454,7 @@ const DashboardTable = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="no-data sap-theme">
+                    <td colSpan="8" className="apple-form-input">
                       No hay vehículos activos registrados
                     </td>
                   </tr>
@@ -484,15 +462,13 @@ const DashboardTable = () => {
               </tbody>
             </table>
           </div>
-        </div>
       </div>
 
-      {/* Tabla de Actividad Reciente */}
-      <div className="dashboard-table-section sap-theme">
-        <h2 className="table-section-title sap-theme">📋 Actividad Reciente</h2>
-        <div className="dashboard-table-container sap-theme">
-          <div className="table-wrapper sap-theme">
-            <table className="dashboard-table sap-theme">
+      {/* Actividad Reciente */}
+      <div className="apple-section">
+        <h2 className="apple-section-title">Actividad Reciente</h2>
+        <div className="apple-card">
+          <table className="apple-table">
               <thead>
                 <tr>
                   <th>Tipo</th>
@@ -506,7 +482,7 @@ const DashboardTable = () => {
                   recentMovements.map((mov) => (
                     <tr key={mov.id}>
                       <td>
-                        <span className={`movement-type-badge ${mov.type}`}>
+                        <span className={`apple-status-badge ${mov.type}`}>
                           {mov.type === 'entrada'
                             ? '📥'
                             : mov.type === 'salida'
@@ -517,15 +493,15 @@ const DashboardTable = () => {
                           {mov.type}
                         </span>
                       </td>
-                      <td className="movement-description sap-theme">
+                      <td className="apple-form-input">
                         {getMovementDescription(mov)}
                       </td>
-                      <td className="movement-date sap-theme">
+                      <td className="apple-form-input">
                         {safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}
                       </td>
                       <td>
                         <span
-                          className={`status-badge ${mov.status === 'completado' ? 'status-normal' : 'status-warning'}`}
+                          className={`apple-status-badge ${mov.status === 'completado' ? 'status-normal' : 'status-warning'}`}
                         >
                           {mov.status === 'completado' ? '✅ Completado' : '⏳ Pendiente'}
                         </span>
@@ -534,7 +510,7 @@ const DashboardTable = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="no-data sap-theme">
+                    <td colSpan="4" className="apple-form-input">
                       No hay movimientos recientes
                     </td>
                   </tr>
@@ -542,24 +518,25 @@ const DashboardTable = () => {
               </tbody>
             </table>
           </div>
-        </div>
       </div>
 
       {/* Footer con información del dashboard */}
-      <div className="dashboard-table-footer sap-theme">
-        <div className="footer-stats sap-theme">
-          <span className="footer-stat sap-theme">
-            <strong>{inventory.length}</strong> productos en inventario
-          </span>
-          <span className="footer-stat sap-theme">
-            <strong>{vehicles.length}</strong> vehículos registrados
-          </span>
-          <span className="footer-stat sap-theme">
-            <strong>{movements.length}</strong> movimientos totales
-          </span>
-        </div>
-        <div className="footer-timestamp sap-theme">
-          Última actualización: {new Date().toLocaleString('es-CO')}
+      <div className="apple-section">
+        <div className="apple-card">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '12px' }}>
+            <span className="apple-form-label">
+              <strong>{inventory.length}</strong> productos en inventario
+            </span>
+            <span className="apple-form-label">
+              <strong>{vehicles.length}</strong> vehículos registrados
+            </span>
+            <span className="apple-form-label">
+              <strong>{movements.length}</strong> movimientos totales
+            </span>
+          </div>
+          <div className="apple-form-input">
+            Última actualización: {new Date().toLocaleString('es-CO')}
+          </div>
         </div>
       </div>
     </div>
