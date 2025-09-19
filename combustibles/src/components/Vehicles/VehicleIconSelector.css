@@ -328,6 +328,7 @@
 }
 
 /* Tema oscuro */
+@media (prefers-color-scheme: dark) {
 
   .icon-search {
     background: var(--corporate-surface, #233446);
