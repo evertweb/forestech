@@ -258,7 +258,7 @@ const AdminMain = () => {
       stats={statsComponent}
       filters={filtersComponent}
       showStats={activeSection === 'dashboard'}
-      showFilters={true}
+      showFilters={activeSection === 'dashboard'}
       className="admin-page-layout"
     >
       {mainContent}
