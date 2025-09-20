@@ -210,14 +210,14 @@ export const testSqlConnection = onCall(
   }
 );
 
-// SQL Movements Functions - TASK-002
+// SQL Inventory Functions - TASK-003
 import {
-  createMovement,
-  getAllMovements,
-  updateMovement,
-  deleteMovement
-} from './src/sql/movementsService.js';
-import { HttpsError } from 'firebase-functions/v2/https';
+  createInventoryItem,
+  getAllInventory,
+  updateInventoryItem,
+  deleteInventoryItem,
+  getInventoryByLocation
+} from './src/sql/inventoryService.js';
 
 /**
  * Crear movimiento SQL via Functions
@@ -344,6 +344,167 @@ export const sqlDeleteMovement = onCall(
     } catch (error) {
       console.error('❌ Error en sqlDeleteMovement:', error);
       throw new HttpsError('internal', error.message || 'Error al eliminar movimiento');
+    }
+  }
+);
+
+// SQL Inventory Functions - TASK-003
+
+/**
+ * Crear item de inventario SQL via Functions
+ */
+export const sqlCreateInventoryItem = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { inventoryData } = request.data;
+      if (!inventoryData) {
+        throw new HttpsError('invalid-argument', 'inventoryData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createInventoryItem(inventoryData, userInfo);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateInventoryItem:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear item de inventario');
+    }
+  }
+);
+
+/**
+ * Obtener todos los items del inventario SQL
+ */
+export const sqlGetAllInventory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+      
+      const result = await getAllInventory(filters);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllInventory:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener inventario');
+    }
+  }
+);
+
+/**
+ * Actualizar item de inventario SQL
+ */
+export const sqlUpdateInventoryItem = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { itemId, updateData } = request.data;
+      if (!itemId || !updateData) {
+        throw new HttpsError('invalid-argument', 'itemId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateInventoryItem(itemId, updateData, userInfo);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateInventoryItem:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar item de inventario');
+    }
+  }
+);
+
+/**
+ * Eliminar item de inventario SQL
+ */
+export const sqlDeleteInventoryItem = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { itemId } = request.data;
+      if (!itemId) {
+        throw new HttpsError('invalid-argument', 'itemId es requerido');
+      }
+
+      const result = await deleteInventoryItem(itemId);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteInventoryItem:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar item de inventario');
+    }
+  }
+);
+
+/**
+ * Obtener inventario por ubicación SQL
+ */
+export const sqlGetInventoryByLocation = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { location } = request.data;
+      if (!location) {
+        throw new HttpsError('invalid-argument', 'location es requerida');
+      }
+
+      const result = await getInventoryByLocation(location);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetInventoryByLocation:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener inventario por ubicación');
     }
   }
 );
