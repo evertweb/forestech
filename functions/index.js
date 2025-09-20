@@ -219,6 +219,34 @@ import {
   getInventoryByLocation
 } from './src/sql/inventoryService.js';
 
+// SQL Vehicles Functions - TASK-004
+import {
+  createVehicle,
+  getAllVehicles,
+  getVehicleById,
+  updateVehicle,
+  deleteVehicle,
+  getVehiclesStats,
+  VEHICLE_STATUS,
+  FUEL_TYPES,
+  FUEL_COMPATIBILITY
+} from './src/sql/vehiclesService.js';
+
+// SQL Suppliers Functions - TASK-005
+import {
+  createSupplier,
+  getAllSuppliers,
+  getSupplierById,
+  updateSupplier,
+  deleteSupplier,
+  updateSupplierStats,
+  getPreferredSuppliers,
+  getSuppliersStats,
+  SUPPLIER_STATUS,
+  SUPPLIER_TYPES,
+  SUPPLIER_CATEGORIES
+} from './src/sql/suppliersService.js';
+
 /**
  * Crear movimiento SQL via Functions
  */
@@ -496,7 +524,7 @@ export const sqlGetInventoryByLocation = onCall(
       }
 
       const result = await getInventoryByLocation(location);
-      
+
       if (!result.success) {
         throw new HttpsError('internal', result.error);
       }
@@ -505,6 +533,435 @@ export const sqlGetInventoryByLocation = onCall(
     } catch (error) {
       console.error('❌ Error en sqlGetInventoryByLocation:', error);
       throw new HttpsError('internal', error.message || 'Error al obtener inventario por ubicación');
+    }
+  }
+);
+
+// SQL Vehicles Functions - TASK-004
+
+/**
+ * Crear vehículo SQL via Functions
+ */
+export const sqlCreateVehicle = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleData } = request.data;
+      if (!vehicleData) {
+        throw new HttpsError('invalid-argument', 'vehicleData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createVehicle(vehicleData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateVehicle:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear vehículo');
+    }
+  }
+);
+
+/**
+ * Obtener todos los vehículos SQL
+ */
+export const sqlGetAllVehicles = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getAllVehicles(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllVehicles:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener vehículos');
+    }
+  }
+);
+
+/**
+ * Obtener vehículo por ID SQL
+ */
+export const sqlGetVehicleById = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId } = request.data;
+      if (!vehicleId) {
+        throw new HttpsError('invalid-argument', 'vehicleId es requerido');
+      }
+
+      const result = await getVehicleById(vehicleId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetVehicleById:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener vehículo');
+    }
+  }
+);
+
+/**
+ * Actualizar vehículo SQL
+ */
+export const sqlUpdateVehicle = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId, updateData } = request.data;
+      if (!vehicleId || !updateData) {
+        throw new HttpsError('invalid-argument', 'vehicleId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateVehicle(vehicleId, updateData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateVehicle:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar vehículo');
+    }
+  }
+);
+
+/**
+ * Eliminar vehículo SQL
+ */
+export const sqlDeleteVehicle = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId } = request.data;
+      if (!vehicleId) {
+        throw new HttpsError('invalid-argument', 'vehicleId es requerido');
+      }
+
+      const result = await deleteVehicle(vehicleId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteVehicle:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar vehículo');
+    }
+  }
+);
+
+/**
+ * Obtener estadísticas de vehículos SQL
+ */
+export const sqlGetVehiclesStats = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getVehiclesStats(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetVehiclesStats:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener estadísticas de vehículos');
+    }
+  }
+);
+
+// SQL Suppliers Functions - TASK-005
+
+/**
+ * Crear proveedor SQL via Functions
+ */
+export const sqlCreateSupplier = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { supplierData } = request.data;
+      if (!supplierData) {
+        throw new HttpsError('invalid-argument', 'supplierData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createSupplier(supplierData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateSupplier:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear proveedor');
+    }
+  }
+);
+
+/**
+ * Obtener todos los proveedores SQL
+ */
+export const sqlGetAllSuppliers = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getAllSuppliers(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllSuppliers:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener proveedores');
+    }
+  }
+);
+
+/**
+ * Obtener proveedor por ID SQL
+ */
+export const sqlGetSupplierById = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { supplierId } = request.data;
+      if (!supplierId) {
+        throw new HttpsError('invalid-argument', 'supplierId es requerido');
+      }
+
+      const result = await getSupplierById(supplierId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetSupplierById:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener proveedor');
+    }
+  }
+);
+
+/**
+ * Actualizar proveedor SQL
+ */
+export const sqlUpdateSupplier = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { supplierId, updateData } = request.data;
+      if (!supplierId || !updateData) {
+        throw new HttpsError('invalid-argument', 'supplierId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateSupplier(supplierId, updateData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateSupplier:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar proveedor');
+    }
+  }
+);
+
+/**
+ * Eliminar proveedor SQL
+ */
+export const sqlDeleteSupplier = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { supplierId } = request.data;
+      if (!supplierId) {
+        throw new HttpsError('invalid-argument', 'supplierId es requerido');
+      }
+
+      const result = await deleteSupplier(supplierId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteSupplier:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar proveedor');
+    }
+  }
+);
+
+/**
+ * Actualizar estadísticas de proveedor SQL
+ */
+export const sqlUpdateSupplierStats = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { supplierId, stats } = request.data;
+      if (!supplierId || !stats) {
+        throw new HttpsError('invalid-argument', 'supplierId y stats son requeridos');
+      }
+
+      const result = await updateSupplierStats(supplierId, stats);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateSupplierStats:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar estadísticas de proveedor');
+    }
+  }
+);
+
+/**
+ * Obtener proveedores preferidos SQL
+ */
+export const sqlGetPreferredSuppliers = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getPreferredSuppliers();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetPreferredSuppliers:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener proveedores preferidos');
+    }
+  }
+);
+
+/**
+ * Obtener estadísticas de proveedores SQL
+ */
+export const sqlGetSuppliersStats = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getSuppliersStats();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetSuppliersStats:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener estadísticas de proveedores');
     }
   }
 );

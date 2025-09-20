@@ -77,17 +77,17 @@ export const CombustiblesProvider = ({ children, overrides }) => {
           { subscribeToVehicles },
           { subscribeToSuppliers },
           { subscribeToCategories },
-          SqlMovementsService,
+          FirebaseMovementsService,
         ] = await Promise.all([
-          import('../services/SqlInventoryService'),
-          import('../services/SqlVehiclesService'),
+          import('../services/FirebaseInventoryService'),
+          import('../services/FirebaseVehiclesService'),
           import('../services/SqlSuppliersService'),
           import('../services/SqlVehicleCategoriesService'),
-          import('../services/SqlMovementsService'),
+          import('../services/FirebaseMovementsService'),
         ]);
 
-        // Crear instancia del servicio SQL
-        const movementsService = new SqlMovementsService.default();
+        // Crear instancia del servicio Firebase
+        const movementsService = new FirebaseMovementsService.default();
 
         // Configurar suscripciones
         const inventoryUnsub = subscribeToInventory(

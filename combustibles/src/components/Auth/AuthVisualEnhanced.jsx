@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { createUserProfileWithInvitation, createUserProfile } from '../../firebase/userService';
-import { validateInvitationCode } from '../../firebase/invitationService';
+import { isInvitationValid } from '../../firebase/invitationService';
 // ✅ NUEVO: Importar servicios de passkeys con Firebase
 import {
   authenticateWithPasskey,
@@ -308,7 +308,7 @@ const AuthVisualEnhanced = () => {
     setLoading(true);
 
     try {
-      const result = await validateInvitationCode(inviteCode);
+      const result = await isInvitationValid(inviteCode);
       if (result.success) {
         setValidatedInvite(result.invitation);
         setSuccess(`Invitación válida para: ${result.invitation.targetEmail}`);

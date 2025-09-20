@@ -10,7 +10,7 @@ import {
   getVehiclesStats,
   VEHICLE_STATUS,
   FUEL_COMPATIBILITY,
-} from '../../services/SqlVehiclesService';
+} from '../../services/FirebaseVehiclesService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 
 // Componentes de la pestaña Vehículos

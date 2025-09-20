@@ -8,8 +8,8 @@ import React, { useState, useEffect } from 'react';
 // ❌ ANTES: Usando Firestore
 // import { movementsService } from '../services/movementsService.js';
 
-// ✅ DESPUÉS: Usando SQL Server
-import sqlMovementsService from '../services/SqlMovementsService.js';
+// ✅ DESPUÉS: Usando Firebase Functions
+import firebaseMovementsService from '../services/FirebaseMovementsService.js';
 
 const MovementsList = () => {
   const [movements, setMovements] = useState([]);
@@ -26,7 +26,7 @@ const MovementsList = () => {
       setError(null);
 
       // ✅ MISMA LLAMADA - implementación diferente
-      const result = await sqlMovementsService.getAllMovements({
+      const result = await firebaseMovementsService.getAllMovements({
         limit: 20,
         orderBy: 'createdAt',
         orderDirection: 'DESC'
@@ -47,7 +47,7 @@ const MovementsList = () => {
   const createMovement = async (movementData) => {
     try {
       // ✅ MISMA LLAMADA - implementación diferente
-      const result = await sqlMovementsService.createMovement(movementData, {
+      const result = await firebaseMovementsService.createMovement(movementData, {
         email: 'usuario@ejemplo.com',
         uid: 'user123'
       });
@@ -68,7 +68,7 @@ const MovementsList = () => {
 
     try {
       // ✅ MISMA LLAMADA - implementación diferente
-      const result = await sqlMovementsService.deleteMovement(movementId);
+      const result = await firebaseMovementsService.deleteMovement(movementId);
 
       if (result.success) {
         console.log('✅ Movimiento eliminado');

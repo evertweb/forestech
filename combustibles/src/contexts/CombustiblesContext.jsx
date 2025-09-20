@@ -4,15 +4,15 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useAuth } from './AuthContextLazy';
 import { useCombustiblesCRUD } from '../hooks/useCombustiblesCRUD';
-import { subscribeToInventory } from '../services/SqlInventoryService';
-import { subscribeToVehicles } from '../services/SqlVehiclesService';
+import { subscribeToInventory } from '../services/FirebaseInventoryService';
+import { subscribeToVehicles } from '../services/FirebaseVehiclesService';
 import { subscribeToSuppliers } from '../services/SqlSuppliersService';
 import { subscribeToCategories } from '../services/SqlVehicleCategoriesService';
-import SqlMovementsService from '../services/SqlMovementsService';
+import FirebaseMovementsService from '../services/FirebaseMovementsService';
 import { getUserProfile } from '../firebase/userService';
 
-// Instancia del servicio SQL de movimientos
-const sqlMovementsService = new SqlMovementsService();
+// Instancia del servicio Firebase de movimientos
+const firebaseMovementsService = new FirebaseMovementsService();
 
 export const CombustiblesContext = createContext();
 
@@ -143,8 +143,8 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       updateLoading();
     });
 
-    // Suscripción a movimientos (ahora usando SQL)
-    const unsubMovements = sqlMovementsService.subscribeToMovements((data, error) => {
+    // Suscripción a movimientos (ahora usando Firebase Functions)
+    const unsubMovements = firebaseMovementsService.subscribeToMovements((data, error) => {
       if (error) {
         console.error('Error en suscripción de movimientos:', error);
         setDataError('Error al cargar los movimientos.');
@@ -228,7 +228,7 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       subscribeToVehicles,
       subscribeToSuppliers,
       subscribeToVehicleCategories: subscribeToCategories,
-      subscribeToMovements: sqlMovementsService.subscribeToMovements.bind(sqlMovementsService),
+      subscribeToMovements: firebaseMovementsService.subscribeToMovements.bind(firebaseMovementsService),
     }),
     [
       auth,

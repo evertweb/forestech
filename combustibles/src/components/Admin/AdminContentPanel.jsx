@@ -7,8 +7,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   createInvitation,
-  getInvitations,
-  cancelInvitation,
+  getAllInvitations,
+  deleteInvitation,
 } from '../../firebase/invitationService';
 import { ROLES } from '../../constants/roles';
 
@@ -28,7 +28,7 @@ const AdminContentPanel = ({ section, _user, _userProfile }) => {
   const loadInvitations = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getInvitations();
+      const data = await getAllInvitations();
       setInvitations(data);
     } catch (error) {
       console.error('Error loading invitations:', error);
@@ -41,7 +41,7 @@ const AdminContentPanel = ({ section, _user, _userProfile }) => {
     if (!confirm('¿Estás seguro de que quieres cancelar esta invitación?')) return;
 
     try {
-      await cancelInvitation(invitationId);
+      await deleteInvitation(invitationId);
       await loadInvitations();
       alert('Invitación cancelada exitosamente');
     } catch (error) {

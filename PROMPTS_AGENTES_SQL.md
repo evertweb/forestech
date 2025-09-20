@@ -207,6 +207,104 @@ ENTREGABLES:
 ¿Quieres que te muestre el error específico del import antes de empezar?
 ```
 
+### 🎯 **PROMPT PARA TASK-005: Migrar SqlSuppliersService**
+
+```
+AGENTE 2 - SERVICES MIGRATOR | TASK-005: Migrar SqlSuppliersService a Functions
+
+PREREQUISITO: TASK-001 completada (setup SQL funcionando)
+
+OBJETIVO: Migrar servicio de proveedores siguiendo patrón establecido
+
+ARCHIVO FUENTE:
+- /home/hp/Documents/forestech/combustibles/src/services/SqlSuppliersService.js
+
+PATRONES A SEGUIR:
+1. Revisa cómo se migraron SqlMovementsService (TASK-002), SqlInventoryService (TASK-003), SqlVehiclesService (TASK-004)
+2. Usa la misma estructura: /functions/src/sql/suppliersService.js
+3. Convierte clase a funciones exportables
+4. Mantén consistencia en naming y error handling
+
+TAREAS ESPECÍFICAS:
+1. Migra SqlSuppliersService.js a /functions/src/sql/suppliersService.js
+2. Convierte clase a funciones exportables
+3. Crea endpoints en /functions/index.js:
+   - sqlCreateSupplier
+   - sqlGetAllSuppliers
+   - sqlUpdateSupplier
+   - sqlDeleteSupplier
+   - sqlGetSupplierById
+4. Deploy y testing básico
+
+CONSIDERACIONES ESPECIALES:
+- Los proveedores manejan información de contacto
+- Validar emails y teléfonos
+- Mantener historial de transacciones
+- Integración con sistema de compras
+
+ENTREGABLES:
+- ✅ /functions/src/sql/suppliersService.js funcionando
+- ✅ Functions de proveedores deployadas
+- ✅ Testing de operaciones CRUD
+- ✅ Validación de lógica de negocio
+- ✅ Actualizar ROADMAP: TASK-005 completada
+
+¿Necesitas revisar el código del SqlSuppliersService antes de empezar?
+```
+
+### 🎯 **PROMPT PARA TASK-006: Crear servicios SQL faltantes**
+
+```
+AGENTE 2 - SERVICES MIGRATOR | TASK-006: Crear servicios SQL faltantes
+
+PREREQUISITO: TASK-002 completada (movements funcionando)
+
+OBJETIVO: Completar la migración creando servicios que no existían en SQL
+
+SERVICIOS A CREAR:
+1. **SqlProductsService** (de productsService.js)
+2. **SqlMaintenanceService** (de maintenanceService.js)
+3. **SqlHourMeterService** (de hourMeterService.js)
+4. **SqlVehicleCategoriesService** (completar migración)
+
+PATRONES A SEGUIR:
+1. Usa estructura /functions/src/sql/[serviceName].js
+2. Sigue patrón de TASK-002: funciones exportables + endpoints onCall
+3. Mantén consistencia con servicios ya migrados
+4. Implementa lógica completa de negocio
+
+TAREAS ESPECÍFICAS POR SERVICIO:
+
+**1. SqlProductsService:**
+- Migrar de /combustibles/src/services/productsService.js
+- Endpoints: sqlCreateProduct, sqlGetAllProducts, sqlUpdateProduct, sqlDeleteProduct
+- Manejar categorías y precios
+
+**2. SqlMaintenanceService:**
+- Migrar de /combustibles/src/services/maintenanceService.js
+- Endpoints: sqlCreateMaintenance, sqlGetAllMaintenance, sqlUpdateMaintenance, sqlDeleteMaintenance
+- Manejar historial de mantenimientos
+
+**3. SqlHourMeterService:**
+- Migrar de /combustibles/src/services/hourMeterService.js
+- Endpoints: sqlUpdateHourMeter, sqlGetHourMeterHistory, sqlGetHourMeterStats
+- Manejar lecturas de horómetro
+
+**4. SqlVehicleCategoriesService:**
+- Completar migración de categorías de vehículos
+- Endpoints: sqlCreateCategory, sqlGetAllCategories, sqlUpdateCategory, sqlDeleteCategory
+- Integrar con sistema de vehículos
+
+ENTREGABLES:
+- ✅ 4 nuevos servicios SQL en Functions
+- ✅ Endpoints correspondientes para cada servicio
+- ✅ Testing básico de cada endpoint
+- ✅ Integración con servicios existentes
+- ✅ Actualizar ROADMAP: TASK-006 completada
+
+¿Necesitas revisar los archivos fuente específicos antes de empezar?
+```
+
 ---
 
 ## 👤 AGENTE 3 - FRONTEND INTEGRATOR
