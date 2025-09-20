@@ -229,7 +229,7 @@ firebase deploy --only functions:testSqlConnection
 
 **Servicios a crear:**
 - [ ] `SqlProductsService` (de `productsService.js`)
-- [ ] `SqlMaintenanceService` (de `maintenanceService.js`)  
+- [ ] `SqlMaintenanceService` (de `maintenanceService.js`)
 - [ ] `SqlHourMeterService` (de `hourMeterService.js`)
 - [ ] `SqlVehicleCategoriesService` (completar migración)
 
@@ -237,6 +237,35 @@ firebase deploy --only functions:testSqlConnection
 - [ ] 4 nuevos servicios SQL en Functions
 - [ ] Endpoints correspondientes
 - [ ] Testing básico de cada uno
+
+#### 🚨 **ADVERTENCIA: PROBLEMA DE CUOTAS GOOGLE CLOUD**
+**Estado:** 🔴 RIESGO ALTO - POSIBLE BLOQUEO POR CUOTA CPU
+**Problema conocido:** Cuota Cloud Run al 45% (9,000/20,000 mCPU) puede impedir deploy de funciones complejas
+
+**Estrategia recomendada para TASK-006:**
+1. **Deploy por fases** - Empezar con servicios simples primero
+2. **Monitorear cuota** - Verificar antes de cada deploy
+3. **Servicios prioritarios** - Products y VehicleCategories primero (menos CPU)
+4. **Servicios complejos** - Maintenance al final (más riesgo de cuota)
+
+**Comandos para verificar cuota:**
+```bash
+# Verificar cuota actual antes de deploy
+gcloud run services list --region=us-central1 --project=liquidacionapp-62962
+
+# Deploy estratégico por fases
+firebase deploy --only functions:sqlCreateProduct,functions:sqlGetAllProducts
+firebase deploy --only functions:sqlHourMeterService,functions:sqlVehicleCategoriesService
+firebase deploy --only functions:sqlMaintenanceService  # ← Mayor riesgo
+```
+
+**Si se presenta bloqueo por cuota:**
+- **Solución inmediata:** Deploy solo funciones que funcionen
+- **Solución permanente:** Esperar aprobación cuota (1-3 días)
+- **Contacto:** Equipo ventas Google Cloud (ya contactado)
+- **Costo adicional:** ~$0.70/mes por aumento cuota
+
+**Nota para agente:** Proceder con precaución, priorizar servicios simples primero
 
 ---
 
