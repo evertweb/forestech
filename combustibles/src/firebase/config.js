@@ -2,8 +2,9 @@
 // Configuración Firebase para la app de combustibles (LEGACY - usar lazyFirebase.js)
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getFirestore } from 'firebase/firestore';
+// Firestore eliminado de export pero disponible para servicios legacy específicos
 // Lazy loading disponible en lazyFirebase.js para optimizar LCP
 // import { getAnalytics, isSupported } from "firebase/analytics";
 // import { getPerformance } from "firebase/performance";
@@ -37,8 +38,9 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // Inicializar servicios
 export const auth = getAuth(app);
-export const db = getFirestore(app);
 export const storage = getStorage(app);
+// db disponible solo para servicios legacy específicos (passkeys, etc.)
+export const db = getFirestore(app);
 
 // Analytics y Performance deshabilitados temporalmente debido a CORB
 export let analytics = null;

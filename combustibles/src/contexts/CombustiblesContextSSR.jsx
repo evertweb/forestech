@@ -77,14 +77,17 @@ export const CombustiblesProvider = ({ children, overrides }) => {
           { subscribeToVehicles },
           { subscribeToSuppliers },
           { subscribeToCategories },
-          movementsService,
+          SqlMovementsService,
         ] = await Promise.all([
-          import('../services/inventoryService'),
-          import('../services/vehiclesService'),
-          import('../services/suppliersService'),
-          import('../services/vehicleCategoriesService'),
-          import('../services/movementsService'),
+          import('../services/SqlInventoryService'),
+          import('../services/SqlVehiclesService'),
+          import('../services/SqlSuppliersService'),
+          import('../services/SqlVehicleCategoriesService'),
+          import('../services/SqlMovementsService'),
         ]);
+
+        // Crear instancia del servicio SQL
+        const movementsService = new SqlMovementsService.default();
 
         // Configurar suscripciones
         const inventoryUnsub = subscribeToInventory(

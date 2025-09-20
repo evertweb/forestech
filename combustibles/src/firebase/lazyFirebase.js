@@ -1,52 +1,93 @@
 // combustibles/src/firebase/lazyFirebase.js
-// Firebase lazy loading para optimizar LCP crítico
+// Lazy loading para Firebase - optimiza el tiempo de carga inicial
 
-let firebaseModule = null;
+let firebasePromise = null;
 
-// Inicialización lazy de Firebase (solo cuando se necesite auth)
+/**
+ * Carga Firebase de manera lazy
+ * @returns {Promise<Object>} - Módulos de Firebase
+ */
 export const loadFirebase = async () => {
-  if (firebaseModule) return firebaseModule;
-
-  // Cargar Firebase de forma async para no bloquear LCP
-  const [firebaseApp, auth, firestore, storage] = await Promise.all([
-    import('firebase/app'),
-    import('firebase/auth'),
-    import('firebase/firestore'),
-    import('firebase/storage'),
-  ]);
-
-  // Configurar Firebase solo una vez
-  const env = import.meta.env;
-  const firebaseConfig = {
-    apiKey: env.VITE_FIREBASE_API_KEY,
-    appId: env.VITE_FIREBASE_APP_ID,
-    authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || 'liquidacionapp-62962.firebaseapp.com',
-    projectId: env.VITE_FIREBASE_PROJECT_ID || 'liquidacionapp-62962',
-    storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || 'liquidacionapp-62962.firebasestorage.app',
-    messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '851382130132',
-    measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || undefined,
-  };
-
-  if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
-    console.error(
-      '❌ Firebase config incompleta: asegúrate de definir VITE_FIREBASE_API_KEY y VITE_FIREBASE_APP_ID en combustibles/.env.local'
-    );
-    throw new Error(
-      'Configuración Firebase incompleta. Falta VITE_FIREBASE_API_KEY o VITE_FIREBASE_APP_ID.'
-    );
+  if (!firebasePromise) {
+    firebasePromise = Promise.all([
+      import('firebase/auth'),
+      import('firebase/firestore'),
+      import('firebase/storage'),
+      import('./config'),
+    ]).then(([authModule, firestoreModule, storageModule, configModule]) => {
+      return {
+        // Auth
+        onAuthStateChanged: authModule.onAuthStateChanged,
+        signInWithEmailAndPassword: authModule.signInWithEmailAndPassword,
+        signOut: authModule.signOut,
+        createUserWithEmailAndPassword: authModule.createUserWithEmailAndPassword,
+        updateProfile: authModule.updateProfile,
+        sendPasswordResetEmail: authModule.sendPasswordResetEmail,
+        
+        // Firestore
+        doc: firestoreModule.doc,
+        getDoc: firestoreModule.getDoc,
+        setDoc: firestoreModule.setDoc,
+        updateDoc: firestoreModule.updateDoc,
+        deleteDoc: firestoreModule.deleteDoc,
+        collection: firestoreModule.collection,
+        getDocs: firestoreModule.getDocs,
+        query: firestoreModule.query,
+        where: firestoreModule.where,
+        orderBy: firestoreModule.orderBy,
+        limit: firestoreModule.limit,
+        onSnapshot: firestoreModule.onSnapshot,
+        serverTimestamp: firestoreModule.serverTimestamp,
+        writeBatch: firestoreModule.writeBatch,
+        runTransaction: firestoreModule.runTransaction,
+        
+        // Storage
+        ref: storageModule.ref,
+        uploadBytes: storageModule.uploadBytes,
+        getDownloadURL: storageModule.getDownloadURL,
+        deleteObject: storageModule.deleteObject,
+        
+        // Config
+        auth: configModule.auth,
+        db: configModule.db,
+        storage: configModule.storage,
+      };
+    });
   }
-
-  const app = firebaseApp.initializeApp(firebaseConfig);
-
-  firebaseModule = {
-    app,
-    auth: auth.getAuth(app),
-    db: firestore.getFirestore(app),
-    storage: storage.getStorage(app),
-  };
-
-  return firebaseModule;
+  
+  return firebasePromise;
 };
 
-// Re-export para compatibilidad con código existente
-export const getFirebaseModule = () => firebaseModule;
+/**
+ * Funciones específicas para auth
+ */
+export const signOutFromFirebase = async () => {
+  const { signOut, auth } = await loadFirebase();
+  return signOut(auth);
+};
+
+export const signInWithEmailAndPassword = async (email, password) => {
+  const { signInWithEmailAndPassword: signIn, auth } = await loadFirebase();
+  return signIn(auth, email, password);
+};
+
+export const createUserWithEmailAndPassword = async (email, password) => {
+  const { createUserWithEmailAndPassword: createUser, auth } = await loadFirebase();
+  return createUser(auth, email, password);
+};
+
+/**
+ * Re-exportar auth por compatibilidad
+ */
+export const getAuth = async () => {
+  const { auth } = await loadFirebase();
+  return auth;
+};
+
+export default {
+  loadFirebase,
+  signOutFromFirebase,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  getAuth,
+};

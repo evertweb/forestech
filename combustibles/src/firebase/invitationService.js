@@ -1,258 +1,178 @@
 /**
- * Servicio de Invitaciones para Combustibles
- * Gestiona códigos de invitación para crear nuevos usuarios de forma segura
- * Adaptado del sistema de alimentación
+ * Servicio de invitaciones para Forestech Combustibles
+ * Gestiona invitaciones de usuarios
  */
 
 import { 
   doc, 
+  getDoc, 
   setDoc, 
-  updateDoc, 
+  updateDoc,
+  deleteDoc,
   collection, 
-  query, 
   getDocs,
+  query,
   where,
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from './config';
-import { ROLES, getCombustiblesPermissions } from '../constants/roles';
-import { getUserProfile } from './userService';
 
 /**
  * Obtiene la referencia base para invitaciones en Firestore
  */
-const getInvitationsPath = () => {
+const getInvitationsCollectionPath = () => {
   return `artifacts/${import.meta.env.VITE_FIREBASE_APP_ID}/invitations`;
 };
 
 /**
- * Genera un código de invitación único
- * @returns {string} - Código de 8 caracteres alfanumérico
- */
-const generateInvitationCode = () => {
-  const chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'; // Sin O, 0 para evitar confusión
-  let code = '';
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-};
-
-/**
- * Crea una nueva invitación (en lugar de crear usuario directamente)
+ * Crear una nueva invitación
  * @param {Object} invitationData - Datos de la invitación
- * @param {string} adminUserId - UID del admin que crea la invitación
- * @returns {Promise<Object>} - Resultado de la creación
+ * @returns {Promise<string>} - ID de la invitación
  */
-export const createInvitation = async (invitationData, adminUserId) => {
+export const createInvitation = async (invitationData) => {
   try {
-    // Verificar permisos de admin
-    const adminProfile = await getUserProfile(adminUserId);
-    if (!adminProfile.success || adminProfile.userData.role !== 'admin') {
-      return { success: false, error: 'Solo administradores pueden crear invitaciones' };
-    }
-
-    // Generar código único
-    let invitationCode;
-    let isUnique = false;
-    let attempts = 0;
-    
-    while (!isUnique && attempts < 10) {
-      invitationCode = generateInvitationCode();
-      
-      // Verificar si el código ya existe
-      const q = query(
-        collection(db, getInvitationsPath()),
-        where("code", "==", invitationCode)
-      );
-      const existingCodes = await getDocs(q);
-      
-      if (existingCodes.empty) {
-        isUnique = true;
-      }
-      attempts++;
-    }
-
-    if (!isUnique) {
-      return { success: false, error: 'No se pudo generar un código único' };
-    }
-
-    // Crear invitación
-    const invitationRef = doc(collection(db, getInvitationsPath()));
+    const invitationId = crypto.randomUUID();
     const invitation = {
-      code: invitationCode,
-      targetEmail: invitationData.email.toLowerCase(),
-      targetRole: invitationData.role || ROLES.CLIENTE,
-      targetName: invitationData.name || '',
+      id: invitationId,
+      email: invitationData.email,
+      role: invitationData.role,
+      permissions: invitationData.permissions,
+      displayName: invitationData.displayName,
+      invitedBy: invitationData.invitedBy,
       status: 'pending',
-      appContext: 'combustibles',
-      expiresAt: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)), // 7 días
       createdAt: serverTimestamp(),
-      createdBy: adminUserId,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
+      used: false,
       usedAt: null,
       usedBy: null
     };
 
-    await setDoc(invitationRef, invitation);
+    const invitationDocRef = doc(db, getInvitationsCollectionPath(), invitationId);
+    await setDoc(invitationDocRef, invitation);
 
-    console.log('🎫 Invitación creada:', {
-      code: invitationCode,
-      email: invitationData.email,
-      role: invitationData.role
-    });
+    console.log('✅ Invitación creada:', invitationId);
+    return invitationId;
 
-    return { 
-      success: true, 
-      invitation: {
-        id: invitationRef.id,
-        code: invitationCode,
-        ...invitation
-      }
-    };
   } catch (error) {
-    console.error('Error creating invitation:', error);
-    return { success: false, error: error.message };
+    console.error('❌ Error creando invitación:', error);
+    throw error;
   }
 };
 
 /**
- * Valida un código de invitación
- * @param {string} invitationCode - Código a validar
- * @returns {Promise<Object>} - Resultado de la validación
- */
-export const validateInvitationCode = async (invitationCode) => {
-  try {
-    const q = query(
-      collection(db, getInvitationsPath()),
-      where("code", "==", invitationCode.toUpperCase()),
-      where("status", "==", "pending")
-    );
-    
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-      return { success: false, error: 'Código de invitación inválido o expirado' };
-    }
-
-    const invitationDoc = querySnapshot.docs[0];
-    const invitation = invitationDoc.data();
-    
-    // Verificar expiración
-    const now = new Date();
-    const expiresAt = invitation.expiresAt.toDate();
-    
-    if (now > expiresAt) {
-      return { success: false, error: 'Código de invitación expirado' };
-    }
-
-    return { 
-      success: true, 
-      invitation: {
-        id: invitationDoc.id,
-        ...invitation
-      }
-    };
-  } catch (error) {
-    console.error('Error validating invitation:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-/**
- * Marca una invitación como usada
+ * Obtener invitación por ID
  * @param {string} invitationId - ID de la invitación
- * @param {string} userId - UID del usuario que usó la invitación
- * @returns {Promise<Object>} - Resultado de la operación
+ * @returns {Promise<Object|null>} - Datos de la invitación
  */
-export const markInvitationAsUsed = async (invitationId, userId) => {
+export const getInvitation = async (invitationId) => {
   try {
-    const invitationRef = doc(db, getInvitationsPath(), invitationId);
+    const invitationDocRef = doc(db, getInvitationsCollectionPath(), invitationId);
+    const invitationDoc = await getDoc(invitationDocRef);
     
-    await updateDoc(invitationRef, {
-      status: 'used',
-      usedAt: serverTimestamp(),
-      usedBy: userId
-    });
-
-    return { success: true };
+    if (invitationDoc.exists()) {
+      return invitationDoc.data();
+    }
+    
+    return null;
   } catch (error) {
-    console.error('Error marking invitation as used:', error);
-    return { success: false, error: error.message };
+    console.error('❌ Error obteniendo invitación:', error);
+    throw error;
   }
 };
 
 /**
- * Lista todas las invitaciones (solo para admins)
- * @param {string} adminUserId - UID del admin
- * @returns {Promise<Object>} - Lista de invitaciones
+ * Validar y usar una invitación
+ * @param {string} invitationId - ID de la invitación
+ * @param {string} userUid - UID del usuario que usa la invitación
+ * @returns {Promise<Object>} - Datos de la invitación
  */
-export const getInvitations = async (adminUserId) => {
+export const useInvitation = async (invitationId, userUid) => {
   try {
-    // Verificar permisos de admin
-    const adminProfile = await getUserProfile(adminUserId);
-    if (!adminProfile.success || adminProfile.userData.role !== 'admin') {
-      return { success: false, error: 'Solo administradores pueden ver invitaciones' };
+    const invitation = await getInvitation(invitationId);
+    
+    if (!invitation) {
+      throw new Error('Invitación no encontrada');
     }
+    
+    if (invitation.used) {
+      throw new Error('Esta invitación ya ha sido utilizada');
+    }
+    
+    if (new Date() > invitation.expiresAt.toDate()) {
+      throw new Error('Esta invitación ha expirado');
+    }
+    
+    // Marcar invitación como usada
+    const invitationDocRef = doc(db, getInvitationsCollectionPath(), invitationId);
+    await updateDoc(invitationDocRef, {
+      used: true,
+      usedAt: serverTimestamp(),
+      usedBy: userUid,
+      status: 'used'
+    });
+    
+    return invitation;
+    
+  } catch (error) {
+    console.error('❌ Error usando invitación:', error);
+    throw error;
+  }
+};
 
-    const q = query(collection(db, getInvitationsPath()));
-    const querySnapshot = await getDocs(q);
+/**
+ * Obtener todas las invitaciones
+ * @returns {Promise<Array>} - Lista de invitaciones
+ */
+export const getAllInvitations = async () => {
+  try {
+    const invitationsCollectionRef = collection(db, getInvitationsCollectionPath());
+    const invitationsSnapshot = await getDocs(invitationsCollectionRef);
     
     const invitations = [];
-    querySnapshot.forEach((doc) => {
-      invitations.push({
-        id: doc.id,
-        ...doc.data()
-      });
+    invitationsSnapshot.forEach((doc) => {
+      invitations.push(doc.data());
     });
-
-    // Ordenar por fecha de creación (más recientes primero)
-    invitations.sort((a, b) => {
-      const aTime = a.createdAt?.toDate() || new Date(0);
-      const bTime = b.createdAt?.toDate() || new Date(0);
-      return bTime - aTime;
-    });
-
-    return { success: true, invitations };
-  } catch (error) {
-    console.error('Error getting invitations:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-/**
- * Cancela una invitación pendiente
- * @param {string} invitationId - ID de la invitación
- * @param {string} adminUserId - UID del admin
- * @returns {Promise<Object>} - Resultado de la operación
- */
-export const cancelInvitation = async (invitationId, adminUserId) => {
-  try {
-    // Verificar permisos de admin
-    const adminProfile = await getUserProfile(adminUserId);
-    if (!adminProfile.success || adminProfile.userData.role !== 'admin') {
-      return { success: false, error: 'Solo administradores pueden cancelar invitaciones' };
-    }
-
-    const invitationRef = doc(db, getInvitationsPath(), invitationId);
     
-    await updateDoc(invitationRef, {
-      status: 'cancelled',
-      cancelledAt: serverTimestamp(),
-      cancelledBy: adminUserId
-    });
-
-    return { success: true };
+    return invitations;
   } catch (error) {
-    console.error('Error cancelling invitation:', error);
-    return { success: false, error: error.message };
+    console.error('❌ Error obteniendo invitaciones:', error);
+    throw error;
   }
 };
 
 /**
- * Obtiene los permisos basados en una invitación
- * @param {Object} invitation - Datos de la invitación
- * @returns {Object} - Permisos para combustibles
+ * Eliminar invitación
+ * @param {string} invitationId - ID de la invitación
+ * @returns {Promise<void>}
  */
-export const getPermissionsFromInvitation = (invitation) => {
-  return getCombustiblesPermissions(invitation.targetRole);
+export const deleteInvitation = async (invitationId) => {
+  try {
+    const invitationDocRef = doc(db, getInvitationsCollectionPath(), invitationId);
+    await deleteDoc(invitationDocRef);
+    
+    console.log('✅ Invitación eliminada:', invitationId);
+  } catch (error) {
+    console.error('❌ Error eliminando invitación:', error);
+    throw error;
+  }
+};
+
+/**
+ * Verificar si una invitación es válida
+ * @param {string} invitationId - ID de la invitación
+ * @returns {Promise<boolean>} - True si es válida
+ */
+export const isInvitationValid = async (invitationId) => {
+  try {
+    const invitation = await getInvitation(invitationId);
+    
+    if (!invitation) return false;
+    if (invitation.used) return false;
+    if (new Date() > invitation.expiresAt.toDate()) return false;
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Error validando invitación:', error);
+    return false;
+  }
 };

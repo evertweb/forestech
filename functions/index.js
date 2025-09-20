@@ -1,5 +1,5 @@
 import express from 'express';
-import { onRequest } from 'firebase-functions/v2/https';
+import { onRequest, onCall } from 'firebase-functions/v2/https';
 import { ssrHandler, healthHandler } from './ssr/server.js';
 import { sitemapHandler, robotsHandler } from './ssr/sitemap.js';
 import { abTestingHandler } from './ssr/ab-testing-phase1.js';
@@ -13,6 +13,8 @@ import { seoValidationHandler } from './ssr/seo-endpoint.js';
 import { ensureEnv } from './ssr/env.js';
 import { combustiblesWebhookReceiver } from './webhooks/combustibles-webhooks-http.js';
 import { generatePasskeyToken, checkUserPasskeys, registerFace, loginFace } from './passkey-auth.js';
+
+import { testConnection } from './src/sql/testConnection.js';
 
 ensureEnv();
 
@@ -187,3 +189,161 @@ export { generatePasskeyToken, checkUserPasskeys };
 
 // Exportar funciones de reconocimiento facial
 export { registerFace, loginFace };
+
+// Test SQL Connection Function
+export const testSqlConnection = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    console.log('🧪 Iniciando prueba de conexión SQL...');
+    try {
+      const result = await testSqlConnection();
+      console.log('✅ Resultado de testSqlConnection:', result);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('❌ Error en testSqlConnection:', error);
+      throw new Error(`Error en conexión SQL: ${error.message}`);
+    }
+  }
+);
+
+// SQL Movements Functions - TASK-002
+import {
+  createMovement,
+  getAllMovements,
+  updateMovement,
+  deleteMovement
+} from './src/sql/movementsService.js';
+import { HttpsError } from 'firebase-functions/v2/https';
+
+/**
+ * Crear movimiento SQL via Functions
+ */
+export const sqlCreateMovement = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { movementData } = request.data;
+      if (!movementData) {
+        throw new HttpsError('invalid-argument', 'movementData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createMovement(movementData, userInfo);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateMovement:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear movimiento');
+    }
+  }
+);
+
+/**
+ * Obtener todos los movimientos SQL
+ */
+export const sqlGetAllMovements = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+      
+      const result = await getAllMovements(filters);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllMovements:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener movimientos');
+    }
+  }
+);
+
+/**
+ * Actualizar movimiento SQL
+ */
+export const sqlUpdateMovement = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { movementId, updateData } = request.data;
+      if (!movementId || !updateData) {
+        throw new HttpsError('invalid-argument', 'movementId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateMovement(movementId, updateData, userInfo);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateMovement:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar movimiento');
+    }
+  }
+);
+
+/**
+ * Eliminar movimiento SQL
+ */
+export const sqlDeleteMovement = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { movementId } = request.data;
+      if (!movementId) {
+        throw new HttpsError('invalid-argument', 'movementId es requerido');
+      }
+
+      const result = await deleteMovement(movementId);
+      
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteMovement:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar movimiento');
+    }
+  }
+);

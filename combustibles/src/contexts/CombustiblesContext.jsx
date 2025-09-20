@@ -4,12 +4,15 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useAuth } from './AuthContextLazy';
 import { useCombustiblesCRUD } from '../hooks/useCombustiblesCRUD';
-import { subscribeToInventory } from '../services/inventoryService';
-import { subscribeToVehicles } from '../services/vehiclesService';
-import { subscribeToSuppliers } from '../services/suppliersService';
-import { subscribeToCategories } from '../services/vehicleCategoriesService';
-import movementsService from '../services/movementsService';
+import { subscribeToInventory } from '../services/SqlInventoryService';
+import { subscribeToVehicles } from '../services/SqlVehiclesService';
+import { subscribeToSuppliers } from '../services/SqlSuppliersService';
+import { subscribeToCategories } from '../services/SqlVehicleCategoriesService';
+import SqlMovementsService from '../services/SqlMovementsService';
 import { getUserProfile } from '../firebase/userService';
+
+// Instancia del servicio SQL de movimientos
+const sqlMovementsService = new SqlMovementsService();
 
 export const CombustiblesContext = createContext();
 
@@ -140,8 +143,8 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       updateLoading();
     });
 
-    // Suscripción a movimientos
-    const unsubMovements = movementsService.subscribeToMovements((data, error) => {
+    // Suscripción a movimientos (ahora usando SQL)
+    const unsubMovements = sqlMovementsService.subscribeToMovements((data, error) => {
       if (error) {
         console.error('Error en suscripción de movimientos:', error);
         setDataError('Error al cargar los movimientos.');
@@ -225,7 +228,7 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       subscribeToVehicles,
       subscribeToSuppliers,
       subscribeToVehicleCategories: subscribeToCategories,
-      subscribeToMovements: movementsService.subscribeToMovements,
+      subscribeToMovements: sqlMovementsService.subscribeToMovements.bind(sqlMovementsService),
     }),
     [
       auth,
