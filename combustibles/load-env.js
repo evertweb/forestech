@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 // load-env.js - Script para cargar variables de entorno en cualquier entorno
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Función para cargar archivo .env
 function loadEnvFile(filePath) {
@@ -71,4 +75,4 @@ if (allPresent) {
   console.log('⚠️  Faltan variables de Firebase. Revisa tu archivo .env');
 }
 
-module.exports = loadedVars;
+export default loadedVars;
