@@ -84,33 +84,14 @@ export default defineConfig({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
-          // Vendor libraries (React ecosystem)
+          // Vendor libraries (React ecosystem) - solo las instaladas
           vendor: ['react', 'react-dom'],
-          // UI components and icons
-          ui: ['react-aria-components', 'lucide-react', '@untitledui/icons'],
-          // Charts and data visualization
-          charts: ['chart.js', 'react-chartjs-2'],
+          // Router y motion libraries
+          router: ['react-router-dom', 'framer-motion'],
           // Firebase core (crítico para LCP - separar auth/firestore)
           'firebase-core': ['firebase/app'],
           'firebase-auth': ['firebase/auth'],
           'firebase-db': ['firebase/firestore', 'firebase/storage'],
-          // Utils and smaller libraries (only installed ones)
-          utils: ['clsx', 'tailwind-merge', 'xlsx'],
-          // Services comunes para evitar duplicación
-          services: [
-            './src/services/productsService.js',
-            './src/services/inventoryService.js',
-            './src/services/movementsService.js',
-            './src/services/vehiclesService.js',
-            './src/services/locationsService.js',
-          ],
-          // Contextos y hooks compartidos
-          contexts: [
-            './src/contexts/CombustiblesContext.jsx',
-            './src/contexts/FirebaseProgressContext.jsx',
-            './src/hooks/useFormData.js',
-            './src/hooks/useStatusColors.js',
-          ],
         },
       },
     },
