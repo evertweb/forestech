@@ -10,6 +10,8 @@
   "scripts": {
     "dev:alimentacion": "npm run dev --workspace=alimentacion",
     "dev:combustibles": "npm run dev --workspace=combustibles",
+    "dev:combustibles:codespace": "npm run dev:codespace --workspace=combustibles",
+    "check-env:combustibles": "npm run check-env --workspace=combustibles",
     "build:alimentacion": "npm run build --workspace=alimentacion",
     "build:combustibles": "npm run build --workspace=combustibles",
     "build:all": "npm run build:alimentacion && npm run build:combustibles",
