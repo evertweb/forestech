@@ -3,17 +3,15 @@
  * Gestiona invitaciones de usuarios
  */
 
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
+import {
+  doc,
+  getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
-  collection, 
+  collection,
   getDocs,
-  query,
-  where,
-  serverTimestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from './config';
 

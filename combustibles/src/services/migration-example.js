@@ -41,20 +41,20 @@ const result = await sqlMovementsService.createMovement(movementData, userInfo);
 
 // Interfaz Firestore (original)
 const firestoreInterface = {
-  createMovement: async (data, user) => { /* ... */ },
-  getAllMovements: async (filters) => { /* ... */ },
-  getMovement: async (id) => { /* ... */ },
-  updateMovement: async (id, data) => { /* ... */ },
-  deleteMovement: async (id) => { /* ... */ },
+  createMovement: async (_data, _user) => { /* ... */ },
+  getAllMovements: async (_filters) => { /* ... */ },
+  getMovement: async (_id) => { /* ... */ },
+  updateMovement: async (_id, _data) => { /* ... */ },
+  deleteMovement: async (_id) => { /* ... */ },
 };
 
 // Interfaz SQL Server (nueva - compatible)
 const sqlInterface = {
-  createMovement: async (data, user) => { /* ... */ },
-  getAllMovements: async (filters) => { /* ... */ },
-  getMovement: async (id) => { /* ... */ },
-  updateMovement: async (id, data) => { /* ... */ },
-  deleteMovement: async (id) => { /* ... */ },
+  createMovement: async (_data, _user) => { /* ... */ },
+  getAllMovements: async (_filters) => { /* ... */ },
+  getMovement: async (_id) => { /* ... */ },
+  updateMovement: async (_id, _data) => { /* ... */ },
+  deleteMovement: async (_id) => { /* ... */ },
 };
 
 // ✅ MISMA INTERFAZ = FÁCIL MIGRACIÓN

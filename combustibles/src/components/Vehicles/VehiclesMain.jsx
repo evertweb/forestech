@@ -217,10 +217,10 @@ const VehiclesMain = () => {
   // Permisos del usuario
   const canCreateVehicle =
     userProfile?.role === 'admin' ||
-    userProfile?.role === 'contador' ||
-    userProfile?.role === 'cliente';
+    userProfile?.role === 'operador' ||
+    userProfile?.role === 'consulta';
   const canEditVehicle = userProfile?.role === 'admin';
-  const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'contador';
+  const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'operador';
 
   // Componentes para PageLayout
   const headerActions = useMemo(

@@ -1,251 +1,501 @@
-// combustibles/src/services/FirebaseMovementsService.js
-// Servicio para movimientos usando Firebase Functions (httpsCallable)
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getAuth } from 'firebase/auth';
-
-const functions = getFunctions();
-
-// Configurar emulador si es desarrollo
-if (import.meta.env.DEV) {
-  functions.useEmulator('localhost', 5001);
-}
-
 /**
- * Servicio de movimientos usando Firebase Functions
- * Reemplaza SqlMovementsService para usar httpsCallable
+ * CloudRunMovementsService - Servicio de movimientos usando Cloud Run SQL endpoints
+ * Reemplaza SqlMovementsService para usar endpoints SQL migrados
+ * Forestech Combustibles App
  */
-class FirebaseMovementsService {
+
+import HttpService from './base/HttpService.js';
+
+// Tipos de movimientos (mantenemos compatibilidad)
+export const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+  TRANSFERENCIA: 'transferencia',
+  AJUSTE: 'ajuste',
+  MANTENIMIENTO: 'mantenimiento',
+};
+
+export const MOVEMENT_STATUS = {
+  PENDIENTE: 'pendiente',
+  COMPLETADO: 'completado',
+  CANCELADO: 'cancelado',
+};
+
+class FirebaseMovementsService extends HttpService {
   constructor() {
-    this.auth = getAuth();
+    super();
   }
 
   /**
-   * Crear un nuevo movimiento
+   * Crear nuevo movimiento con lógica de negocio
    * @param {Object} movementData - Datos del movimiento
-   * @param {Object} userInfo - Información del usuario (opcional)
-   * @returns {Promise<Object>} Resultado de la operación
+   * @returns {Promise<Object>} - Resultado de la operación
    */
-  async createMovement(movementData, userInfo = null) {
+  async createMovement(movementData) {
     try {
-      console.log('📊 Movement: Creando movimiento via Functions...', movementData);
+      if (!(await this.isAuthenticated())) {
+        return { success: false, error: 'Usuario no autenticado' };
+      }
 
-      const createMovementFn = httpsCallable(functions, 'sqlCreateMovement');
+      // Normalizar fuelType
+      if (movementData.fuelType) {
+        movementData.fuelType = movementData.fuelType.toUpperCase();
+      }
 
-      // Preparar datos para la función
-      const functionData = {
-        movementData,
-        userInfo: userInfo || {
-          uid: this.auth.currentUser?.uid,
-          email: this.auth.currentUser?.email,
-          displayName: this.auth.currentUser?.displayName,
-        }
-      };
+      // Validar datos básicos
+      this.validateMovementData(movementData);
 
-      const result = await createMovementFn(functionData);
-
-      console.log('✅ Movement: Creado exitosamente:', result.data);
-      return {
-        success: true,
-        id: result.data.id,
-        data: result.data,
-        message: 'Movimiento creado exitosamente'
-      };
-    } catch (error) {
-      console.error('❌ Movement: Error al crear:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al crear movimiento',
-        details: error
-      };
-    }
-  }
-
-  /**
-   * Obtener todos los movimientos
-   * @param {Object} filters - Filtros para la consulta
-   * @returns {Promise<Object>} Resultado de la operación
-   */
-  async getAllMovements(filters = {}) {
-    try {
-      console.log('📊 Movement: Obteniendo movimientos via Functions...', filters);
-
-      const getAllMovementsFn = httpsCallable(functions, 'sqlGetAllMovements');
-      const result = await getAllMovementsFn({ filters });
-
-      console.log('✅ Movement: Obtenidos exitosamente:', result.data.movements?.length, 'movimientos');
-      return {
-        success: true,
-        movements: result.data.movements || [],
-        total: result.data.total || 0,
-        data: result.data
-      };
-    } catch (error) {
-      console.error('❌ Movement: Error al obtener:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al obtener movimientos',
-        details: error
-      };
-    }
-  }
-
-  /**
-   * Actualizar un movimiento
-   * @param {string} movementId - ID del movimiento
-   * @param {Object} updateData - Datos a actualizar
-   * @param {Object} userInfo - Información del usuario (opcional)
-   * @returns {Promise<Object>} Resultado de la operación
-   */
-  async updateMovement(movementId, updateData, userInfo = null) {
-    try {
-      console.log('📊 Movement: Actualizando movimiento via Functions...', movementId);
-
-      const updateMovementFn = httpsCallable(functions, 'sqlUpdateMovement');
-
-      const functionData = {
-        movementId,
-        updateData,
-        userInfo: userInfo || {
-          uid: this.auth.currentUser?.uid,
-          email: this.auth.currentUser?.email,
-          displayName: this.auth.currentUser?.displayName,
-        }
-      };
-
-      const result = await updateMovementFn(functionData);
-
-      console.log('✅ Movement: Actualizado exitosamente:', result.data);
-      return {
-        success: true,
-        data: result.data,
-        message: 'Movimiento actualizado exitosamente'
-      };
-    } catch (error) {
-      console.error('❌ Movement: Error al actualizar:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al actualizar movimiento',
-        details: error
-      };
-    }
-  }
-
-  /**
-   * Eliminar un movimiento
-   * @param {string} movementId - ID del movimiento
-   * @returns {Promise<Object>} Resultado de la operación
-   */
-  async deleteMovement(movementId) {
-    try {
-      console.log('📊 Movement: Eliminando movimiento via Functions...', movementId);
-
-      const deleteMovementFn = httpsCallable(functions, 'sqlDeleteMovement');
-      const result = await deleteMovementFn({ movementId });
-
-      console.log('✅ Movement: Eliminado exitosamente:', result.data);
-      return {
-        success: true,
-        data: result.data,
-        message: 'Movimiento eliminado exitosamente'
-      };
-    } catch (error) {
-      console.error('❌ Movement: Error al eliminar:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al eliminar movimiento',
-        details: error
-      };
-    }
-  }
-
-  /**
-   * Obtener movimientos con paginación
-   * @param {Object} options - Opciones de paginación
-   * @returns {Promise<Object>} Resultado de la operación
-   */
-  async getMovements(options = {}) {
-    try {
-      console.log('📊 Movement: Obteniendo movimientos paginados via Functions...', options);
-
-      const getAllMovementsFn = httpsCallable(functions, 'sqlGetAllMovements');
-      const result = await getAllMovementsFn({
-        filters: {
-          limit: options.limit || 50,
-          offset: options.offset || 0,
-          orderBy: options.orderBy || 'createdAt',
-          orderDirection: options.orderDirection || 'DESC',
-          ...options.filters
+      const result = await this.callEndpoint('sqlCreateMovement', {
+        movementData: {
+          ...movementData,
+          createdBy: (await this.getCurrentUser())?.uid
         }
       });
 
-      console.log('✅ Movement: Paginación exitosa:', result.data.movements?.length, 'movimientos');
-      return {
-        success: true,
-        movements: result.data.movements || [],
-        total: result.data.total || 0,
-        hasMore: result.data.hasMore || false,
-        data: result.data
-      };
+      return result;
     } catch (error) {
-      console.error('❌ Movement: Error en paginación:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al obtener movimientos paginados',
-        details: error
-      };
+      console.error('Error al crear movimiento:', error);
+      return { success: false, error: error.message };
     }
   }
 
   /**
-   * Suscribirse a cambios en movimientos (simulado con polling)
-   * @param {Function} callback - Función callback para cambios
-   * @param {number} interval - Intervalo de polling en ms (default: 5000)
-   * @returns {Function} Función para cancelar suscripción
+   * Obtener movimientos con filtros
+   * @param {Object} filters - Filtros de búsqueda
+   * @returns {Promise<Array>} - Lista de movimientos
    */
-  subscribeToMovements(callback, interval = 5000) {
-    console.log('📊 Movement: Iniciando suscripción a movimientos...');
+  async getAllMovements(filters = {}) {
+    try {
+      // Normalizar fuelType en filtros
+      if (filters.fuelType) {
+        filters.fuelType = filters.fuelType.toUpperCase();
+      }
 
-    let isSubscribed = true;
-    let lastUpdate = Date.now();
+      const result = await this.callEndpoint('sqlGetAllMovements', { filters });
+
+      if (result.success && result.data) {
+        // Convertir timestamps para compatibilidad con frontend
+        return result.data.map(movement => ({
+          ...movement,
+          createdAt: movement.createdAt?.toISOString(),
+          updatedAt: movement.updatedAt?.toISOString(),
+          effectiveDate: movement.effectiveDate?.toISOString(),
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error al obtener movimientos:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtener movimiento específico por ID
+   * @param {string} movementId - ID del movimiento
+   * @returns {Promise<Object|null>} - Datos del movimiento
+   */
+  async getMovement(movementId) {
+    try {
+      const result = await this.callEndpoint('sqlGetMovement', { movementId });
+
+      if (result.success && result.data) {
+        // Convertir timestamps
+        return {
+          ...result.data,
+          createdAt: result.data.createdAt?.toISOString(),
+          updatedAt: result.data.updatedAt?.toISOString(),
+          effectiveDate: result.data.effectiveDate?.toISOString(),
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error al obtener movimiento:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Actualizar movimiento
+   * @param {string} movementId - ID del movimiento
+   * @param {Object} updateData - Datos a actualizar
+   * @returns {Promise<Object>} - Resultado de la operación
+   */
+  async updateMovement(movementId, updateData) {
+    try {
+      if (!(await this.isAuthenticated())) {
+        return { success: false, error: 'Usuario no autenticado' };
+      }
+
+      const result = await this.callEndpoint('sqlUpdateMovement', {
+        movementId,
+        updateData: {
+          ...updateData,
+          updatedBy: (await this.getCurrentUser())?.uid
+        }
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error al actualizar movimiento:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Eliminar movimiento y revertir inventario
+   * @param {string} movementId - ID del movimiento
+   * @returns {Promise<Object>} - Resultado de la operación
+   */
+  async deleteMovement(movementId) {
+    try {
+      const result = await this.callEndpoint('sqlDeleteMovement', { movementId });
+      return result;
+    } catch (error) {
+      console.error('Error al eliminar movimiento:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Suscribirse a cambios en movimientos
+   * @param {Function} callback - Función de callback
+   * @returns {Function} - Función para cancelar suscripción
+   */
+  subscribeToMovements(callback) {
+    let isActive = true;
 
     const poll = async () => {
-      if (!isSubscribed) return;
+      if (!isActive) return;
 
       try {
-        const result = await this.getMovements({ limit: 100 });
+        // Verificar circuit breaker ANTES de intentar autenticación
+        if (!this.isEndpointAvailable('sqlGetAllMovements')) {
+          console.warn('⚡ MovementsService: Circuit breaker abierto, omitiendo polling por 5 minutos');
+          callback([], null); // Devolver array vacío
+          if (isActive) {
+            setTimeout(poll, 300000); // Poll cada 5 minutos cuando circuit breaker activo
+          }
+          return;
+        }
 
-        if (result.success) {
-          callback(result.movements, null);
-        } else {
-          callback([], result.error);
+        // Verificar autenticación antes de hacer la llamada
+        const isAuth = await this.isAuthenticated();
+        if (!isAuth) {
+          console.log('🔒 MovementsService: Usuario no autenticado, omitiendo polling');
+          callback([], null); // Devolver array vacío en lugar de error
+          if (isActive) {
+            setTimeout(poll, 60000); // Poll cada 1 minuto cuando no autenticado
+          }
+          return;
+        }
+
+        const data = await this.getAllMovements();
+        callback(data, null);
+        
+        // Éxito - usar intervalo normal
+        if (isActive) {
+          setTimeout(poll, 30000); // Poll cada 30 segundos
         }
       } catch (error) {
-        console.error('❌ Movement: Error en suscripción:', error);
-        callback([], error.message);
-      }
-
-      // Programar siguiente poll
-      if (isSubscribed) {
-        setTimeout(poll, interval);
+        console.error('❌ Error en polling de movimientos:', error);
+        callback(null, error);
+        
+        // Backoff exponencial basado en tipo de error
+        let nextInterval = 30000; // 30 segundos default
+        
+        if (error.circuitBreakerOpen) {
+          nextInterval = 300000; // 5 minutos si circuit breaker está abierto
+          console.warn('⚡ MovementsService: Circuit breaker detectado, esperando 5 minutos');
+        } else if (error.message && error.message.includes('404')) {
+          nextInterval = 120000; // 2 minutos para errores 404
+          console.warn('🔍 MovementsService: Endpoint no disponible, esperando 2 minutos');
+        }
+        
+        if (isActive) {
+          setTimeout(poll, nextInterval);
+        }
+        return;
       }
     };
 
-    // Iniciar polling
+    // Ejecutar inmediatamente
     poll();
 
-    // Retornar función de cancelación
+    // Retornar función para cancelar suscripción
     return () => {
-      console.log('📊 Movement: Cancelando suscripción a movimientos');
-      isSubscribed = false;
+      isActive = false;
     };
+  }
+
+  /**
+   * Obtener movimientos por vehículo
+   * @param {string} vehicleId - ID del vehículo
+   * @param {Object} options - Opciones de filtrado
+   * @returns {Promise<Array>} - Lista de movimientos del vehículo
+   */
+  async getMovementsByVehicle(vehicleId, options = {}) {
+    try {
+      const result = await this.callEndpoint('sqlGetMovementsByVehicle', {
+        vehicleId,
+        options
+      });
+
+      if (result.success && result.data) {
+        return result.data.map(movement => ({
+          ...movement,
+          createdAt: movement.createdAt?.toISOString(),
+          updatedAt: movement.updatedAt?.toISOString(),
+          effectiveDate: movement.effectiveDate?.toISOString(),
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo movimientos por vehículo:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener movimientos por ubicación
+   * @param {string} location - Ubicación
+   * @param {Object} options - Opciones de filtrado
+   * @returns {Promise<Array>} - Lista de movimientos en la ubicación
+   */
+  async getMovementsByLocation(location, options = {}) {
+    try {
+      const result = await this.callEndpoint('sqlGetMovementsByLocation', {
+        location,
+        options
+      });
+
+      if (result.success && result.data) {
+        return result.data.map(movement => ({
+          ...movement,
+          createdAt: movement.createdAt?.toISOString(),
+          updatedAt: movement.updatedAt?.toISOString(),
+          effectiveDate: movement.effectiveDate?.toISOString(),
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo movimientos por ubicación:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener estadísticas de movimientos
+   * @param {Object} filters - Filtros opcionales
+   * @returns {Promise<Object|null>} - Estadísticas de movimientos
+   */
+  async getMovementsStats(filters = {}) {
+    try {
+      const result = await this.callEndpoint('sqlGetMovementsStats', { filters });
+
+      if (result.success && result.data) {
+        return result.data;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error obteniendo estadísticas de movimientos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener consumo de combustible por período
+   * @param {Object} period - Período de consulta {startDate, endDate}
+   * @param {Object} filters - Filtros adicionales
+   * @returns {Promise<Object>} - Datos de consumo
+   */
+  async getFuelConsumptionByPeriod(period, filters = {}) {
+    try {
+      const result = await this.callEndpoint('sqlGetFuelConsumptionByPeriod', {
+        period,
+        filters
+      });
+
+      if (result.success && result.data) {
+        return result.data;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error obteniendo consumo de combustible por período:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener movimientos pendientes de aprobación
+   * @returns {Promise<Array>} - Lista de movimientos pendientes
+   */
+  async getPendingMovements() {
+    try {
+      const result = await this.callEndpoint('sqlGetPendingMovements');
+
+      if (result.success && result.data) {
+        return result.data.map(movement => ({
+          ...movement,
+          createdAt: movement.createdAt?.toISOString(),
+          updatedAt: movement.updatedAt?.toISOString(),
+          effectiveDate: movement.effectiveDate?.toISOString(),
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo movimientos pendientes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Aprobar movimiento
+   * @param {string} movementId - ID del movimiento
+   * @param {Object} approvalData - Datos de aprobación
+   * @returns {Promise<Object>} - Resultado de la operación
+   */
+  async approveMovement(movementId, approvalData = {}) {
+    try {
+      if (!(await this.isAuthenticated())) {
+        return { success: false, error: 'Usuario no autenticado' };
+      }
+
+      const result = await this.callEndpoint('sqlApproveMovement', {
+        movementId,
+        approvalData: {
+          ...approvalData,
+          approvedBy: (await this.getCurrentUser())?.uid
+        }
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error aprobando movimiento:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Rechazar movimiento
+   * @param {string} movementId - ID del movimiento
+   * @param {string} reason - Razón del rechazo
+   * @returns {Promise<Object>} - Resultado de la operación
+   */
+  async rejectMovement(movementId, reason) {
+    try {
+      if (!(await this.isAuthenticated())) {
+        return { success: false, error: 'Usuario no autenticado' };
+      }
+
+      const result = await this.callEndpoint('sqlRejectMovement', {
+        movementId,
+        reason,
+        rejectedBy: (await this.getCurrentUser())?.uid
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error rechazando movimiento:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ========== MÉTODOS DE VALIDACIÓN ==========
+
+  /**
+   * Validar datos de movimiento
+   * @param {Object} movementData - Datos a validar
+   */
+  validateMovementData(movementData) {
+    const required = ['type', 'fuelType', 'quantity', 'unitPrice'];
+
+    for (const field of required) {
+      if (!movementData[field]) {
+        throw new Error(`Campo requerido: ${field}`);
+      }
+    }
+
+    if (movementData.fuelType) {
+      movementData.fuelType = movementData.fuelType.toUpperCase();
+    }
+
+    if (!Object.values(MOVEMENT_TYPES).includes(movementData.type)) {
+      throw new Error('Tipo de movimiento inválido');
+    }
+
+    if (movementData.quantity <= 0) {
+      throw new Error('La cantidad debe ser mayor a cero');
+    }
+
+    if (movementData.unitPrice < 0) {
+      throw new Error('El precio unitario no puede ser negativo');
+    }
+
+    // Validaciones específicas por tipo
+    if (movementData.type === MOVEMENT_TYPES.SALIDA && !movementData.vehicleId) {
+      throw new Error('Las salidas deben tener un vehículo asociado');
+    }
+
+    if (movementData.type === MOVEMENT_TYPES.TRANSFERENCIA && !movementData.destinationLocation) {
+      throw new Error('Las transferencias deben tener una ubicación destino');
+    }
+
+    if (movementData.type === MOVEMENT_TYPES.ENTRADA) {
+      if (!movementData.supplierName) {
+        throw new Error('Las entradas deben tener un proveedor');
+      }
+      if (!movementData.destinationLocation) {
+        throw new Error('Las entradas deben tener una ubicación destino');
+      }
+    }
+  }
+
+  /**
+   * Calcular valor total del movimiento
+   * @param {Object} movementData - Datos del movimiento
+   * @returns {number} - Valor total
+   */
+  calculateMovementValue(movementData) {
+    return (movementData.quantity || 0) * (movementData.unitPrice || 0);
   }
 }
 
-// Exportar función subscribeToMovements para compatibilidad
-export const subscribeToMovements = (callback, interval = 5000) => {
+export default FirebaseMovementsService;
+
+// Funciones de compatibilidad con el servicio anterior
+export const createMovement = async (movementData) => {
   const service = new FirebaseMovementsService();
-  return service.subscribeToMovements(callback, interval);
+  return service.createMovement(movementData);
 };
 
-// Exportar instancia singleton
-export default new FirebaseMovementsService();
+export const getAllMovements = async (filters = {}) => {
+  const service = new FirebaseMovementsService();
+  return service.getAllMovements(filters);
+};
+
+export const getMovement = async (movementId) => {
+  const service = new FirebaseMovementsService();
+  return service.getMovement(movementId);
+};
+
+export const updateMovement = async (movementId, updateData) => {
+  const service = new FirebaseMovementsService();
+  return service.updateMovement(movementId, updateData);
+};
+
+export const deleteMovement = async (movementId) => {
+  const service = new FirebaseMovementsService();
+  return service.deleteMovement(movementId);
+};
+
+export const subscribeToMovements = (callback) => {
+  const service = new FirebaseMovementsService();
+  return service.subscribeToMovements(callback);
+};

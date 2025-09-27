@@ -52,6 +52,7 @@
     "chart.js": "^4.5.0",
     "dotenv": "^17.2.0",
     "firebase": "^11.9.1",
+    "mssql": "^11.0.1",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.0"
@@ -75,6 +76,8 @@
     ]
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }

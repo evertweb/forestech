@@ -217,7 +217,7 @@ class SqlConnection {
     // Verificar si la conexión sigue viva
     try {
       await this.pool.request().query('SELECT 1');
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ Conexión perdida, reconectando...');
       this.isConnected = false;
       await this.connect();

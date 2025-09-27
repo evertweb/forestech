@@ -257,8 +257,8 @@ const MovementsMain = () => {
   // Permisos del usuario
   const canCreateMovement =
     userProfile?.role === 'admin' ||
-    userProfile?.role === 'contador' ||
-    userProfile?.role === 'cliente';
+    userProfile?.role === 'operador' ||
+    userProfile?.role === 'consulta';
 
   // Componentes para PageLayout
   const headerActions = canCreateMovement && (

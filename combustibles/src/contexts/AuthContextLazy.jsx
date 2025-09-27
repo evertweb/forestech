@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const isInitialLoadRef = useRef(true);
   const lastUserUidRef = useRef(null);
 
@@ -139,11 +140,13 @@ export const AuthProvider = ({ children }) => {
           }
 
           setLoading(false);
+          setAuthReady(true);
           isInitialLoadRef.current = false;
         });
       } catch (error) {
         console.error('Error inicializando Firebase Auth:', error);
         setLoading(false);
+        setAuthReady(false);
       }
     };
 
@@ -182,6 +185,7 @@ export const AuthProvider = ({ children }) => {
     userProfile,
     loading,
     firebaseLoaded,
+    authReady,
     signIn,
     signOut,
   };

@@ -1,295 +1,542 @@
-// combustibles/src/services/FirebaseVehiclesService.js
-// Servicio para vehículos usando Firebase Functions (httpsCallable)
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getAuth } from 'firebase/auth';
-
-const functions = getFunctions();
-
-// Configurar emulador si es desarrollo
-if (import.meta.env.DEV) {
-  functions.useEmulator('localhost', 5001);
-}
-
 /**
- * Servicio de vehículos usando Firebase Functions
- * Reemplaza SqlVehiclesService para usar httpsCallable
+ * CloudRunVehiclesService - Servicio de vehículos usando Cloud Run SQL endpoints
+ * Reemplaza SqlVehiclesService para usar endpoints SQL migrados
+ * Forestech Combustibles App
  */
-class FirebaseVehiclesService {
+
+import HttpService from './base/HttpService.js';
+import { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories.js';
+
+// Re-exportar constantes para compatibilidad
+export { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories.js';
+
+export const FUEL_COMPATIBILITY = {
+  DIESEL: 'DIESEL',
+  GASOLINE: 'GASOLINE',
+  MIXED: 'MIXED',
+};
+
+class FirebaseVehiclesService extends HttpService {
   constructor() {
-    this.auth = getAuth();
+    super();
+  }
+
+  /**
+   * Validar datos de vehículo
+   * @param {Object} vehicleData - Datos a validar
+   */
+  validateVehicleData(vehicleData) {
+    const required = ['vehicleId', 'name', 'type', 'fuelType'];
+
+    for (const field of required) {
+      if (!vehicleData[field]) {
+        throw new Error(`Campo requerido: ${field}`);
+      }
+    }
+
+    if (!vehicleData.type || vehicleData.type.trim().length === 0) {
+      throw new Error('Tipo de vehículo requerido');
+    }
+
+    if (!Object.values(FUEL_COMPATIBILITY).includes(vehicleData.fuelType)) {
+      throw new Error('Tipo de combustible inválido');
+    }
+
+    if (vehicleData.status && !Object.values(VEHICLE_STATUS).includes(vehicleData.status)) {
+      throw new Error('Estado de vehículo inválido');
+    }
+
+    if (vehicleData.enginePower && vehicleData.enginePower <= 0) {
+      throw new Error('La potencia del motor debe ser mayor a cero');
+    }
+
+    if (vehicleData.fuelCapacity && vehicleData.fuelCapacity <= 0) {
+      throw new Error('La capacidad de combustible debe ser mayor a cero');
+    }
+  }
+
+  /**
+   * Calcular consumo estimado por hora
+   * @param {Object} vehicleData - Datos del vehículo
+   * @returns {number} - Consumo estimado
+   */
+  calculateEstimatedConsumption(vehicleData) {
+    const { type, enginePower, fuelType } = vehicleData;
+
+    const consumptionFactors = {
+      excavadora: 0.04,
+      bulldozer: 0.05,
+      cargador: 0.035,
+      camion: 0.03,
+      camioneta: 0.03,
+      grua: 0.045,
+      motosierra: 0.02,
+      tractor: 0.025,
+      volqueta: 0.035,
+      motobomba: 0.035,
+      fumigadora: 0.025,
+      guadana: 0.02,
+      motocicleta: 0.015,
+      planta_electrica: 0.08,
+      otros: 0.03,
+    };
+
+    const fuelFactors = {
+      [FUEL_COMPATIBILITY.DIESEL]: 1.0,
+      [FUEL_COMPATIBILITY.GASOLINE]: 1.2,
+      [FUEL_COMPATIBILITY.MIXED]: 1.1,
+    };
+
+    const baseFactor = consumptionFactors[type] || 0.03;
+    const fuelFactor = fuelFactors[fuelType] || 1.0;
+    const power = enginePower || 100;
+
+    return baseFactor * power * fuelFactor;
   }
 
   /**
    * Crear un nuevo vehículo
    * @param {Object} vehicleData - Datos del vehículo
-   * @param {Object} userInfo - Información del usuario (opcional)
-   * @returns {Promise<Object>} Resultado de la operación
+   * @returns {Promise<Object>} - Resultado
    */
-  async createVehicle(vehicleData, userInfo = null) {
+  async createVehicle(vehicleData) {
     try {
-      console.log('🚜 Vehicle: Creando vehículo via Functions...', vehicleData);
+      if (!(await this.isAuthenticated())) {
+        return { success: false, error: 'Usuario no autenticado' };
+      }
 
-      const createVehicleFn = httpsCallable(functions, 'sqlCreateVehicle');
+      // Normalizar fuelType
+      if (vehicleData.fuelType) {
+        vehicleData.fuelType = vehicleData.fuelType.toUpperCase();
+      }
 
-      const functionData = {
-        vehicleData,
-        userInfo: userInfo || {
-          uid: this.auth.currentUser?.uid,
-          email: this.auth.currentUser?.email,
-          displayName: this.auth.currentUser?.displayName,
+      // Validar
+      this.validateVehicleData(vehicleData);
+
+      const result = await this.callEndpoint('sqlCreateVehicle', {
+        vehicleData: {
+          ...vehicleData,
+          createdBy: (await this.getCurrentUser())?.uid
         }
-      };
+      });
 
-      const result = await createVehicleFn(functionData);
-
-      console.log('✅ Vehicle: Creado exitosamente:', result.data);
-      return {
-        success: true,
-        id: result.data.id,
-        data: result.data,
-        message: 'Vehículo creado exitosamente'
-      };
+      return result;
     } catch (error) {
-      console.error('❌ Vehicle: Error al crear:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al crear vehículo',
-        details: error
-      };
+      console.error('Error al crear vehículo:', error);
+      return { success: false, error: error.message };
     }
   }
 
   /**
    * Obtener todos los vehículos
-   * @param {Object} filters - Filtros para la consulta
-   * @returns {Promise<Object>} Resultado de la operación
+   * @param {Object} filters - Filtros
+   * @returns {Promise<Array>} - Lista de vehículos
    */
   async getAllVehicles(filters = {}) {
     try {
-      console.log('🚜 Vehicle: Obteniendo vehículos via Functions...', filters);
+      // Normalizar fuelType
+      if (filters.fuelType) {
+        filters.fuelType = filters.fuelType.toUpperCase();
+      }
 
-      const getAllVehiclesFn = httpsCallable(functions, 'sqlGetAllVehicles');
-      const result = await getAllVehiclesFn({ filters });
+      const result = await this.callEndpoint('sqlGetAllVehicles', { filters });
 
-      console.log('✅ Vehicle: Obtenidos exitosamente:', result.data.vehicles?.length, 'vehículos');
-      return {
-        success: true,
-        vehicles: result.data.vehicles || [],
-        total: result.data.total || 0,
-        data: result.data
-      };
+      if (result.success && result.data) {
+        // Procesar datos para compatibilidad (convertir JSON fields)
+        return result.data.map(vehicle => ({
+          ...vehicle,
+          fuelType: vehicle.fuelType?.toUpperCase() || vehicle.fuelType,
+          hourMeterHistory: vehicle.hourMeterHistory ? JSON.parse(vehicle.hourMeterHistory) : [],
+          maintenanceHistory: vehicle.maintenanceHistory ? JSON.parse(vehicle.maintenanceHistory) : [],
+          searchTags: vehicle.searchTags ? JSON.parse(vehicle.searchTags) : [],
+          createdAt: vehicle.createdAt,
+          updatedAt: vehicle.updatedAt,
+          lastMovementDate: vehicle.lastMovementDate,
+          lastMaintenanceDate: vehicle.lastMaintenanceDate,
+          lastHourMeterUpdate: vehicle.lastHourMeterUpdate,
+        }));
+      }
+
+      return [];
     } catch (error) {
-      console.error('❌ Vehicle: Error al obtener:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al obtener vehículos',
-        details: error
-      };
+      console.error('Error al obtener vehículos:', error);
+      throw new Error(`Error al obtener vehículos: ${error.message}`);
     }
   }
 
   /**
    * Obtener vehículo por ID
-   * @param {string} vehicleId - ID del vehículo
-   * @returns {Promise<Object>} Resultado de la operación
+   * @param {string} vehicleId - ID
+   * @returns {Promise<Object|null>} - Vehículo
    */
-  async getVehicleById(vehicleId) {
+  async getVehicle(vehicleId) {
     try {
-      console.log('🚜 Vehicle: Obteniendo vehículo por ID via Functions...', vehicleId);
+      if (!vehicleId) {
+        throw new Error('ID de vehículo requerido');
+      }
 
-      const getVehicleByIdFn = httpsCallable(functions, 'sqlGetVehicleById');
-      const result = await getVehicleByIdFn({ vehicleId });
+      const result = await this.callEndpoint('sqlGetVehicleById', { vehicleId });
 
-      console.log('✅ Vehicle: Obtenido por ID exitosamente:', result.data);
-      return {
-        success: true,
-        vehicle: result.data.vehicle,
-        data: result.data
-      };
+      if (result.success && result.data) {
+        const vehicle = result.data;
+        return {
+          id: vehicle.id,
+          ...vehicle,
+          fuelType: vehicle.fuelType?.toUpperCase() || vehicle.fuelType,
+          hourMeterHistory: vehicle.hourMeterHistory ? JSON.parse(vehicle.hourMeterHistory) : [],
+          maintenanceHistory: vehicle.maintenanceHistory ? JSON.parse(vehicle.maintenanceHistory) : [],
+          searchTags: vehicle.searchTags ? JSON.parse(vehicle.searchTags) : [],
+          createdAt: vehicle.createdAt,
+          updatedAt: vehicle.updatedAt,
+          lastMovementDate: vehicle.lastMovementDate,
+          lastMaintenanceDate: vehicle.lastMaintenanceDate,
+          lastHourMeterUpdate: vehicle.lastHourMeterUpdate,
+        };
+      }
+
+      return null;
     } catch (error) {
-      console.error('❌ Vehicle: Error al obtener por ID:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al obtener vehículo',
-        details: error
-      };
+      console.error('Error al obtener vehículo:', error);
+      throw new Error(`Error al obtener vehículo: ${error.message}`);
     }
   }
 
   /**
-   * Actualizar un vehículo
-   * @param {string} vehicleId - ID del vehículo
+   * Obtener vehículo por código
+   * @param {string} vehicleCode - Código
+   * @returns {Promise<Object|null>} - Vehículo
+   */
+  async getVehicleByCode(vehicleCode) {
+    try {
+      const result = await this.callEndpoint('sqlGetVehicleByCode', { vehicleCode });
+
+      if (result.success && result.data) {
+        const vehicle = result.data;
+        return {
+          id: vehicle.id,
+          ...vehicle,
+          fuelType: vehicle.fuelType?.toUpperCase() || vehicle.fuelType,
+          hourMeterHistory: vehicle.hourMeterHistory ? JSON.parse(vehicle.hourMeterHistory) : [],
+          maintenanceHistory: vehicle.maintenanceHistory ? JSON.parse(vehicle.maintenanceHistory) : [],
+          searchTags: vehicle.searchTags ? JSON.parse(vehicle.searchTags) : [],
+          createdAt: vehicle.createdAt,
+          updatedAt: vehicle.updatedAt,
+          lastMovementDate: vehicle.lastMovementDate,
+          lastMaintenanceDate: vehicle.lastMaintenanceDate,
+          lastHourMeterUpdate: vehicle.lastHourMeterUpdate,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error al buscar vehículo por código:', error);
+      throw new Error(`Error al buscar vehículo: ${error.message}`);
+    }
+  }
+
+  /**
+   * Actualizar vehículo
+   * @param {string} vehicleId - ID
    * @param {Object} updateData - Datos a actualizar
-   * @param {Object} userInfo - Información del usuario (opcional)
-   * @returns {Promise<Object>} Resultado de la operación
+   * @returns {Promise<Object>} - Resultado
    */
-  async updateVehicle(vehicleId, updateData, userInfo = null) {
+  async updateVehicle(vehicleId, updateData) {
     try {
-      console.log('🚜 Vehicle: Actualizando vehículo via Functions...', vehicleId);
+      if (!(await this.isAuthenticated())) {
+        return { success: false, error: 'Usuario no autenticado' };
+      }
 
-      const updateVehicleFn = httpsCallable(functions, 'sqlUpdateVehicle');
+      if (!vehicleId) {
+        throw new Error('ID de vehículo requerido');
+      }
 
-      const functionData = {
+      // Normalizar fuelType
+      if (updateData.fuelType) {
+        updateData.fuelType = updateData.fuelType.toUpperCase();
+      }
+
+      const result = await this.callEndpoint('sqlUpdateVehicle', {
         vehicleId,
-        updateData,
-        userInfo: userInfo || {
-          uid: this.auth.currentUser?.uid,
-          email: this.auth.currentUser?.email,
-          displayName: this.auth.currentUser?.displayName,
+        updateData: {
+          ...updateData,
+          updatedBy: (await this.getCurrentUser())?.uid
         }
-      };
+      });
 
-      const result = await updateVehicleFn(functionData);
-
-      console.log('✅ Vehicle: Actualizado exitosamente:', result.data);
-      return {
-        success: true,
-        data: result.data,
-        message: 'Vehículo actualizado exitosamente'
-      };
+      return result;
     } catch (error) {
-      console.error('❌ Vehicle: Error al actualizar:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al actualizar vehículo',
-        details: error
-      };
+      console.error('Error al actualizar vehículo:', error);
+      return { success: false, error: error.message };
     }
   }
 
   /**
-   * Eliminar un vehículo
-   * @param {string} vehicleId - ID del vehículo
-   * @returns {Promise<Object>} Resultado de la operación
+   * Eliminar vehículo
+   * @param {string} vehicleId - ID
+   * @returns {Promise<Object>} - Resultado
    */
   async deleteVehicle(vehicleId) {
     try {
-      console.log('🚜 Vehicle: Eliminando vehículo via Functions...', vehicleId);
-
-      const deleteVehicleFn = httpsCallable(functions, 'sqlDeleteVehicle');
-      const result = await deleteVehicleFn({ vehicleId });
-
-      console.log('✅ Vehicle: Eliminado exitosamente:', result.data);
-      return {
-        success: true,
-        data: result.data,
-        message: 'Vehículo eliminado exitosamente'
-      };
+      const result = await this.callEndpoint('sqlDeleteVehicle', { vehicleId });
+      return result;
     } catch (error) {
-      console.error('❌ Vehicle: Error al eliminar:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al eliminar vehículo',
-        details: error
-      };
+      console.error('Error al eliminar vehículo:', error);
+      throw new Error(`Error al eliminar vehículo: ${error.message}`);
     }
+  }
+
+  /**
+   * Suscribirse a vehículos
+   * @param {Function} callback - Callback
+   * @param {Object} filters - Filtros
+   * @returns {Function} - Unsubscribe
+   */
+  subscribeToVehicles(callback, filters = {}) {
+    let isActive = true;
+
+    const poll = async () => {
+      if (!isActive) return;
+
+      try {
+        // Verificar circuit breaker ANTES de intentar autenticación
+        if (!this.isEndpointAvailable('sqlGetAllVehicles')) {
+          console.warn('⚡ VehiclesService: Circuit breaker abierto, omitiendo polling por 10 minutos');
+          callback([], null, { added: [], modified: [], removed: [] }); // Devolver array vacío
+          if (isActive) {
+            setTimeout(poll, 600000); // Poll cada 10 minutos cuando circuit breaker activo
+          }
+          return;
+        }
+
+        // Verificar autenticación antes de hacer la llamada
+        const isAuth = await this.isAuthenticated();
+        if (!isAuth) {
+          console.log('🔒 VehiclesService: Usuario no autenticado, omitiendo polling');
+          callback([], null, { added: [], modified: [], removed: [] }); // Devolver array vacío
+          if (isActive) {
+            setTimeout(poll, 120000); // Poll cada 2 minuto cuando no autenticado
+          }
+          return;
+        }
+
+        const vehicles = await this.getAllVehicles(filters);
+        callback(vehicles, null, { added: [], modified: [], removed: [] });
+        
+        // Éxito - usar intervalo normal
+        if (isActive) {
+          setTimeout(poll, 60000); // Poll cada 1 minuto
+        }
+      } catch (error) {
+        console.error('❌ Error en polling de vehículos:', error);
+        callback(null, error);
+        
+        // Backoff exponencial más agresivo para vehículos
+        let nextInterval = 60000; // 1 minuto default
+        
+        if (error.circuitBreakerOpen) {
+          nextInterval = 600000; // 10 minutos si circuit breaker está abierto
+          console.warn('⚡ VehiclesService: Circuit breaker detectado, esperando 10 minutos');
+        } else if (error.message && error.message.includes('404')) {
+          nextInterval = 300000; // 5 minutos para errores 404
+          console.warn('🔍 VehiclesService: Endpoint no disponible, esperando 5 minutos');
+        }
+        
+        if (isActive) {
+          setTimeout(poll, nextInterval);
+        }
+        return;
+      }
+    };
+
+    // Llamada inicial
+    poll();
+
+    return () => {
+      isActive = false;
+    };
   }
 
   /**
    * Obtener estadísticas de vehículos
-   * @param {Object} filters - Filtros para las estadísticas
-   * @returns {Promise<Object>} Resultado de la operación
+   * @param {Object} filters - Filtros
+   * @returns {Promise<Object>} - Estadísticas
    */
   async getVehiclesStats(filters = {}) {
     try {
-      console.log('🚜 Vehicle: Obteniendo estadísticas via Functions...', filters);
+      const result = await this.callEndpoint('sqlGetVehiclesStats', { filters });
 
-      const getVehiclesStatsFn = httpsCallable(functions, 'sqlGetVehiclesStats');
-      const result = await getVehiclesStatsFn({ filters });
+      if (result.success && result.data) {
+        return result.data;
+      }
 
-      console.log('✅ Vehicle: Estadísticas obtenidas exitosamente:', result.data);
-      return {
-        success: true,
-        stats: result.data.stats,
-        data: result.data
-      };
+      return null;
     } catch (error) {
-      console.error('❌ Vehicle: Error al obtener estadísticas:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al obtener estadísticas de vehículos',
-        details: error
-      };
+      console.error('Error al calcular estadísticas:', error);
+      throw new Error(`Error al calcular estadísticas: ${error.message}`);
     }
   }
 
   /**
-   * Suscribirse a cambios en vehículos (simulado con polling)
-   * @param {Function} callback - Función callback para cambios
-   * @param {number} interval - Intervalo de polling en ms (default: 8000)
-   * @returns {Function} Función para cancelar suscripción
+   * Actualizar métricas del vehículo
+   * @param {string} vehicleCode - Código
+   * @param {Object} movementData - Datos movimiento
+   * @returns {Promise<void>}
    */
-  subscribeToVehicles(callback, interval = 8000) {
-    console.log('🚜 Vehicle: Iniciando suscripción a vehículos...');
+  async updateVehicleMetrics(vehicleCode, movementData) {
+    try {
+      const result = await this.callEndpoint('sqlUpdateVehicleMetrics', {
+        vehicleCode,
+        movementData
+      });
 
-    let isSubscribed = true;
+      if (result.success) {
+        console.log(`✅ Métricas del vehículo ${vehicleCode} actualizadas`);
+      }
+    } catch (error) {
+      console.error('Error al actualizar métricas:', error);
+    }
+  }
 
-    const poll = async () => {
-      if (!isSubscribed) return;
+  /**
+   * Actualizar horómetro
+   * @param {string} vehicleCode - Código
+   * @param {number} newHours - Nuevas horas
+   * @param {string} notes - Notas
+   * @returns {Promise<Object>} - Resultado
+   */
+  async updateHourMeter(vehicleCode, newHours, notes = '') {
+    try {
+      const result = await this.callEndpoint('sqlUpdateHourMeter', {
+        vehicleCode,
+        newHours,
+        notes
+      });
 
-      try {
-        const result = await this.getAllVehicles();
+      return result;
+    } catch (error) {
+      console.error('Error al actualizar horómetro:', error);
+      throw new Error(`Error al actualizar horómetro: ${error.message}`);
+    }
+  }
 
-        if (result.success) {
-          callback(result.vehicles, null);
-        } else {
-          callback([], result.error);
-        }
-      } catch (error) {
-        console.error('❌ Vehicle: Error en suscripción:', error);
-        callback([], error.message);
+  /**
+   * Obtener historial de horómetro
+   * @param {string} vehicleCode - Código
+   * @param {number} limit - Límite
+   * @returns {Promise<Array>} - Historial
+   */
+  async getHourMeterHistory(vehicleCode, limit = 50) {
+    try {
+      const result = await this.callEndpoint('sqlGetHourMeterHistory', {
+        vehicleCode,
+        limit
+      });
+
+      if (result.success && result.data) {
+        return result.data;
       }
 
-      // Programar siguiente poll
-      if (isSubscribed) {
-        setTimeout(poll, interval);
+      return [];
+    } catch (error) {
+      console.error('Error al obtener historial:', error);
+      throw new Error(`Error al obtener historial: ${error.message}`);
+    }
+  }
+
+  /**
+   * Calcular consumo de vehículo
+   * @param {string} vehicleCode - Código
+   * @returns {Promise<Object>} - Métricas
+   */
+  async calculateVehicleConsumption(vehicleCode) {
+    try {
+      const result = await this.callEndpoint('sqlCalculateVehicleConsumption', {
+        vehicleCode
+      });
+
+      if (result.success && result.data) {
+        return result.data;
       }
-    };
 
-    // Iniciar polling
-    poll();
+      return null;
+    } catch (error) {
+      console.error('Error al calcular consumo:', error);
+      throw new Error(`Error al calcular métricas: ${error.message}`);
+    }
+  }
 
-    // Retornar función de cancelación
-    return () => {
-      console.log('🚜 Vehicle: Cancelando suscripción a vehículos');
-      isSubscribed = false;
-    };
+  /**
+   * Registrar mantenimiento
+   * @param {string} vehicleId - ID
+   * @param {Object} maintenanceData - Datos
+   * @returns {Promise<Object>} - Resultado
+   */
+  async registerMaintenance(vehicleId, maintenanceData) {
+    try {
+      const result = await this.callEndpoint('sqlRegisterMaintenance', {
+        vehicleId,
+        maintenanceData
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error al registrar mantenimiento:', error);
+      throw new Error(`Error al registrar mantenimiento: ${error.message}`);
+    }
+  }
+
+  /**
+   * Contar vehículos por categoría
+   * @param {string} categoryId - ID categoría
+   * @returns {Promise<number>} - Conteo
+   */
+  async countVehiclesByCategory(categoryId) {
+    try {
+      const result = await this.callEndpoint('sqlCountVehiclesByCategory', {
+        categoryId
+      });
+
+      if (result.success && result.data) {
+        return result.data.count || 0;
+      }
+
+      return 0;
+    } catch (error) {
+      console.error('Error al contar vehículos por categoría:', error);
+      return 0;
+    }
   }
 }
 
-// Constantes exportadas desde Firebase Functions
-export const VEHICLE_STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-  MAINTENANCE: 'maintenance',
-  OUT_OF_SERVICE: 'out_of_service'
-};
+export default FirebaseVehiclesService;
 
-export const FUEL_TYPES = {
-  DIESEL: 'diesel',
-  GASOLINE: 'gasoline',
-  ELECTRIC: 'electric',
-  HYBRID: 'hybrid'
-};
-
-export const FUEL_COMPATIBILITY = {
-  [FUEL_TYPES.DIESEL]: [FUEL_TYPES.DIESEL],
-  [FUEL_TYPES.GASOLINE]: [FUEL_TYPES.GASOLINE],
-  [FUEL_TYPES.ELECTRIC]: [FUEL_TYPES.ELECTRIC],
-  [FUEL_TYPES.HYBRID]: [FUEL_TYPES.DIESEL, FUEL_TYPES.GASOLINE, FUEL_TYPES.ELECTRIC]
-};
-
-// Exportar función subscribeToVehicles para compatibilidad
-export const subscribeToVehicles = (callback, interval = 8000) => {
+// Funciones de compatibilidad con el servicio anterior
+export const createVehicle = async (vehicleData) => {
   const service = new FirebaseVehiclesService();
-  return service.subscribeToVehicles(callback, interval);
+  return service.createVehicle(vehicleData);
 };
 
-// Exportar función getVehiclesStats para compatibilidad
-export const getVehiclesStats = (filters = {}) => {
+export const subscribeToVehicles = (callback, filters = {}) => {
+  const service = new FirebaseVehiclesService();
+  return service.subscribeToVehicles(callback, filters);
+};
+
+export const updateVehicle = async (vehicleId, updateData) => {
+  const service = new FirebaseVehiclesService();
+  return service.updateVehicle(vehicleId, updateData);
+};
+
+export const deleteVehicle = async (vehicleId) => {
+  const service = new FirebaseVehiclesService();
+  return service.deleteVehicle(vehicleId);
+};
+
+export const getVehicle = async (vehicleId) => {
+  const service = new FirebaseVehiclesService();
+  return service.getVehicle(vehicleId);
+};
+
+export const getVehiclesStats = async (filters = {}) => {
   const service = new FirebaseVehiclesService();
   return service.getVehiclesStats(filters);
 };
-
-// Exportar instancia singleton
-export default new FirebaseVehiclesService();

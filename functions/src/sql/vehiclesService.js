@@ -9,6 +9,61 @@ import sqlConnection from './SqlConnection.js';
 const TABLE_NAME = 'combustibles_vehicles';
 const MOVEMENTS_TABLE = 'combustibles_movements';
 
+/**
+ * Verificar si una tabla específica existe en la base de datos
+ * @param {string} tableName - Nombre de la tabla a verificar
+ * @returns {Promise<boolean>} - true si existe, false si no
+ */
+const checkTableExists = async (tableName) => {
+  try {
+    const query = `
+      SELECT COUNT(*) as tableExists
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = @tableName
+      AND TABLE_SCHEMA = SCHEMA_NAME()
+    `;
+    
+    const result = await sqlConnection.query(query, { tableName });
+    const exists = result[0]?.tableExists > 0;
+    
+    return exists;
+  } catch (error) {
+    console.error(`🔍 Error verificando tabla ${tableName}:`, error.message);
+    return false;
+  }
+};
+
+/**
+ * Verificar que las tablas requeridas existan antes de operaciones críticas
+ * @returns {Promise<Object>} - Resultado de la verificación
+ */
+const verifyRequiredTables = async () => {
+  try {
+    const vehiclesTableExists = await checkTableExists(TABLE_NAME);
+    const movementsTableExists = await checkTableExists(MOVEMENTS_TABLE);
+    
+    const missingTables = [];
+    if (!vehiclesTableExists) missingTables.push(TABLE_NAME);
+    if (!movementsTableExists) missingTables.push(MOVEMENTS_TABLE);
+    
+    return {
+      success: missingTables.length === 0,
+      vehiclesTableExists,
+      movementsTableExists,
+      missingTables,
+      message: missingTables.length > 0 
+        ? `Faltan tablas: ${missingTables.join(', ')}. Ejecute inicialización de base de datos.`
+        : 'Todas las tablas requeridas existen'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      message: 'Error al verificar tablas requeridas'
+    };
+  }
+};
+
 // Estados de vehículos (copiados de vehicleCategories.js para Functions)
 export const VEHICLE_STATUS = {
   ACTIVO: 'activo',
@@ -132,6 +187,19 @@ const calculateEstimatedConsumption = (vehicleData) => {
 export async function createVehicle(vehicleData, userInfo = null) {
   try {
     console.log('🚗 Iniciando creación de vehículo SQL en Functions:', vehicleData);
+
+    // Verificar que las tablas requeridas existan
+    const tableVerification = await verifyRequiredTables();
+    if (!tableVerification.success) {
+      console.error('❌ Error en verificación de tablas:', tableVerification.message);
+      return {
+        success: false,
+        error: tableVerification.message,
+        code: 'MISSING_TABLES',
+        missingTables: tableVerification.missingTables || [],
+        recommendation: 'Ejecute /system/autorepair o /sqlInitializeDatabase para crear las tablas faltantes'
+      };
+    }
 
     // Normalizar fuelType
     if (vehicleData.fuelType) {
@@ -257,6 +325,20 @@ export async function createVehicle(vehicleData, userInfo = null) {
 export async function getAllVehicles(filters = {}) {
   try {
     console.log('🚗 Obteniendo vehículos SQL en Functions con filtros:', filters);
+
+    // Verificar que la tabla de vehículos exista
+    const vehiclesTableExists = await checkTableExists(TABLE_NAME);
+    if (!vehiclesTableExists) {
+      console.warn(`⚠️ Tabla ${TABLE_NAME} no existe - retornando lista vacía`);
+      return {
+        success: true,
+        data: [],
+        count: 0,
+        message: `Tabla ${TABLE_NAME} no existe. Ejecute inicialización de base de datos.`,
+        code: 'MISSING_TABLE',
+        recommendation: 'Ejecute /system/autorepair o /sqlInitializeDatabase para crear las tablas faltantes'
+      };
+    }
 
     // Normalizar fuelType
     if (filters.fuelType) {

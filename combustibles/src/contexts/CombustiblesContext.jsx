@@ -6,10 +6,19 @@ import { useAuth } from './AuthContextLazy';
 import { useCombustiblesCRUD } from '../hooks/useCombustiblesCRUD';
 import { subscribeToInventory } from '../services/FirebaseInventoryService';
 import { subscribeToVehicles } from '../services/FirebaseVehiclesService';
-import { subscribeToSuppliers } from '../services/SqlSuppliersService';
-import { subscribeToCategories } from '../services/SqlVehicleCategoriesService';
+import { subscribeToSuppliers } from '../services/FirebaseSuppliersService';
+import { subscribeToCategories } from '../services/FirebaseVehicleCategoriesService';
 import FirebaseMovementsService from '../services/FirebaseMovementsService';
 import { getUserProfile } from '../firebase/userService';
+
+// Importar servicios Firebase Functions
+import FirebaseInventoryService from '../services/FirebaseInventoryService';
+import FirebaseVehiclesService from '../services/FirebaseVehiclesService';
+import FirebaseSuppliersService from '../services/FirebaseSuppliersService';
+import FirebaseProductsService from '../services/FirebaseProductsService';
+import FirebaseMaintenanceService from '../services/FirebaseMaintenanceService';
+import FirebaseHourMeterService from '../services/FirebaseHourMeterService';
+import FirebaseVehicleCategoriesService from '../services/FirebaseVehicleCategoriesService';
 
 // Instancia del servicio Firebase de movimientos
 const firebaseMovementsService = new FirebaseMovementsService();
@@ -67,12 +76,22 @@ export const CombustiblesProvider = ({ children, overrides }) => {
   const [dataLoading, setDataLoading] = useState(true);
   const [dataError, setDataError] = useState(null);
 
+  // Estado para controlar si las suscripciones ya están activas
+  const [subscriptionsActive, setSubscriptionsActive] = useState(false);
+
   // Suscripciones a Firebase
   useEffect(() => {
-    // TEMPORAL: Cargar datos incluso sin usuario para debugging
-    // TODO: Restaurar verificación de auth cuando se resuelva el problema de autenticación
-    const forceLoadData = import.meta.env.DEV || !auth?.user;
+    // No ejecutar suscripciones hasta que la autenticación esté completamente lista
+    if (!auth?.authReady) {
+      console.log('🔥 CombustiblesContext: Esperando autenticación completa...');
+      return;
+    }
 
+    // TEMPORAL: Cargar datos incluso sin usuario para debugging en desarrollo
+    // TODO: Restaurar verificación de auth cuando se resuelva el problema de autenticación
+    const forceLoadData = import.meta.env.DEV;
+
+    // Solo cargar datos si hay usuario autenticado O si estamos forzando en desarrollo
     if (!auth?.user && !forceLoadData) {
       // Reset data when no user (solo en producción)
       setInventory([]);
@@ -81,12 +100,22 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       setSuppliers([]);
       setVehicleCategories([]);
       setDataLoading(false);
+      setSubscriptionsActive(false);
       return;
     }
 
     console.log('🔥 CombustiblesContext: Iniciando suscripciones a Firebase...');
     console.log('👤 Usuario autenticado:', !!auth?.user, auth?.user?.email);
+    console.log('🔐 Autenticación lista:', auth?.authReady);
+    console.log('🔧 Modo desarrollo forzado:', forceLoadData);
 
+    // Verificar si las suscripciones ya están activas para evitar duplicados
+    if (subscriptionsActive) {
+      console.log('🔥 CombustiblesContext: Suscripciones ya activas, omitiendo...');
+      return;
+    }
+
+    setSubscriptionsActive(true);
     let loadingCount = 5;
     setDataLoading(true);
     setDataError(null);
@@ -155,13 +184,16 @@ export const CombustiblesProvider = ({ children, overrides }) => {
     });
 
     return () => {
+      console.log('🔥 CombustiblesContext: Limpiando suscripciones...');
+      setSubscriptionsActive(false);
       if (typeof unsubInventory === 'function') unsubInventory();
       if (typeof unsubVehicles === 'function') unsubVehicles();
       if (typeof unsubSuppliers === 'function') unsubSuppliers();
       if (typeof unsubCategories === 'function') unsubCategories();
       if (typeof unsubMovements === 'function') unsubMovements();
     };
-  }, [auth?.user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth?.user, auth?.authReady]); // Removed subscriptionsActive from deps to prevent infinite loop
 
   // Datos estructurados
   const data = {
@@ -229,6 +261,15 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       subscribeToSuppliers,
       subscribeToVehicleCategories: subscribeToCategories,
       subscribeToMovements: firebaseMovementsService.subscribeToMovements.bind(firebaseMovementsService),
+
+      // Servicios Firebase Functions para operaciones directas
+      firebaseInventoryService: new FirebaseInventoryService(),
+      firebaseVehiclesService: new FirebaseVehiclesService(),
+      firebaseSuppliersService: new FirebaseSuppliersService(),
+      firebaseProductsService: new FirebaseProductsService(),
+      firebaseMaintenanceService: new FirebaseMaintenanceService(),
+      firebaseHourMeterService: new FirebaseHourMeterService(),
+      firebaseVehicleCategoriesService: new FirebaseVehicleCategoriesService(),
     }),
     [
       auth,

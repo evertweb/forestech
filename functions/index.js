@@ -1,5 +1,5 @@
 import express from 'express';
-import { onRequest, onCall } from 'firebase-functions/v2/https';
+import { onRequest, onCall, HttpsError } from 'firebase-functions/v2/https';
 import { ssrHandler, healthHandler } from './ssr/server.js';
 import { sitemapHandler, robotsHandler } from './ssr/sitemap.js';
 import { abTestingHandler } from './ssr/ab-testing-phase1.js';
@@ -246,6 +246,62 @@ import {
   SUPPLIER_TYPES,
   SUPPLIER_CATEGORIES
 } from './src/sql/suppliersService.js';
+
+// SQL Products Functions - TASK-006
+import {
+  createProduct,
+  getAllProducts,
+  getProduct,
+  updateProduct,
+  deleteProduct,
+  getProductsByCategory,
+  getActiveProducts,
+  updateProductStock,
+  searchProducts,
+  getLowStockProducts,
+  getProductByCode
+} from './src/sql/productsService.js';
+
+// SQL Maintenance Functions - TASK-006
+import {
+  createMaintenanceRecord,
+  getAllMaintenanceRecords,
+  getMaintenanceRecord,
+  updateMaintenanceRecord,
+  deleteMaintenanceRecord,
+  getMaintenanceByVehicle,
+  getUpcomingMaintenance,
+  getMaintenanceStats,
+  MAINTENANCE_TYPES,
+  MAINTENANCE_STATUS,
+  BATTERY_STATUS,
+  MAINTENANCE_CONSTANTS
+} from './src/sql/maintenanceService.js';
+
+// SQL Hour Meter Functions - TASK-006
+import {
+  recordHourMeterReading,
+  validateHourMeterForMovement,
+  getHourMeterHistory,
+  initializeHourMeter,
+  getHourMeterSummary,
+  getHourMeterStats
+} from './src/sql/hourMeterService.js';
+
+// SQL Vehicle Categories Functions - TASK-006
+import {
+  createCategory,
+  getAllCategories,
+  getCategory,
+  updateCategory,
+  deleteCategory,
+  getCategoryByCode,
+  updateVehicleCount,
+  reorderCategories,
+  getActiveCategories,
+  getCategoryStats,
+  CATEGORY_TYPES
+} from './src/sql/vehicleCategoriesService.js';
 
 /**
  * Crear movimiento SQL via Functions
@@ -962,6 +1018,1066 @@ export const sqlGetSuppliersStats = onCall(
     } catch (error) {
       console.error('❌ Error en sqlGetSuppliersStats:', error);
       throw new HttpsError('internal', error.message || 'Error al obtener estadísticas de proveedores');
+    }
+  }
+);
+
+// SQL Products Functions - TASK-006
+
+/**
+ * Crear producto SQL via Functions
+ */
+export const sqlCreateProduct = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { productData } = request.data;
+      if (!productData) {
+        throw new HttpsError('invalid-argument', 'productData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createProduct(productData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateProduct:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear producto');
+    }
+  }
+);
+
+/**
+ * Obtener todos los productos SQL
+ */
+export const sqlGetAllProducts = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getAllProducts(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllProducts:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener productos');
+    }
+  }
+);
+
+/**
+ * Obtener producto por ID SQL
+ */
+export const sqlGetProduct = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { productId } = request.data;
+      if (!productId) {
+        throw new HttpsError('invalid-argument', 'productId es requerido');
+      }
+
+      const result = await getProduct(productId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetProduct:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener producto');
+    }
+  }
+);
+
+/**
+ * Actualizar producto SQL
+ */
+export const sqlUpdateProduct = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { productId, updateData } = request.data;
+      if (!productId || !updateData) {
+        throw new HttpsError('invalid-argument', 'productId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateProduct(productId, updateData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateProduct:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar producto');
+    }
+  }
+);
+
+/**
+ * Eliminar producto SQL
+ */
+export const sqlDeleteProduct = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { productId } = request.data;
+      if (!productId) {
+        throw new HttpsError('invalid-argument', 'productId es requerido');
+      }
+
+      const result = await deleteProduct(productId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteProduct:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar producto');
+    }
+  }
+);
+
+/**
+ * Obtener productos por categoría SQL
+ */
+export const sqlGetProductsByCategory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { category } = request.data;
+      if (!category) {
+        throw new HttpsError('invalid-argument', 'category es requerida');
+      }
+
+      const result = await getProductsByCategory(category);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetProductsByCategory:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener productos por categoría');
+    }
+  }
+);
+
+/**
+ * Obtener productos activos SQL
+ */
+export const sqlGetActiveProducts = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getActiveProducts();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetActiveProducts:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener productos activos');
+    }
+  }
+);
+
+/**
+ * Actualizar stock de producto SQL
+ */
+export const sqlUpdateProductStock = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { productId, newStock } = request.data;
+      if (!productId || newStock === undefined) {
+        throw new HttpsError('invalid-argument', 'productId y newStock son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateProductStock(productId, newStock, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateProductStock:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar stock de producto');
+    }
+  }
+);
+
+/**
+ * Buscar productos SQL
+ */
+export const sqlSearchProducts = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { searchTerm } = request.data;
+      if (!searchTerm) {
+        throw new HttpsError('invalid-argument', 'searchTerm es requerido');
+      }
+
+      const result = await searchProducts(searchTerm);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlSearchProducts:', error);
+      throw new HttpsError('internal', error.message || 'Error al buscar productos');
+    }
+  }
+);
+
+/**
+ * Obtener productos con stock bajo SQL
+ */
+export const sqlGetLowStockProducts = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getLowStockProducts();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetLowStockProducts:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener productos con stock bajo');
+    }
+  }
+);
+
+/**
+ * Obtener producto por código SQL
+ */
+export const sqlGetProductByCode = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { productCode } = request.data;
+      if (!productCode) {
+        throw new HttpsError('invalid-argument', 'productCode es requerido');
+      }
+
+      const result = await getProductByCode(productCode);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetProductByCode:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener producto por código');
+    }
+  }
+);
+
+// SQL Maintenance Functions - TASK-006
+
+/**
+ * Crear registro de mantenimiento SQL via Functions
+ */
+export const sqlCreateMaintenance = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { maintenanceData } = request.data;
+      if (!maintenanceData) {
+        throw new HttpsError('invalid-argument', 'maintenanceData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createMaintenanceRecord(maintenanceData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateMaintenance:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear mantenimiento');
+    }
+  }
+);
+
+/**
+ * Obtener todos los registros de mantenimiento SQL
+ */
+export const sqlGetAllMaintenance = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getAllMaintenanceRecords(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllMaintenance:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener mantenimientos');
+    }
+  }
+);
+
+/**
+ * Obtener registro de mantenimiento por ID SQL
+ */
+export const sqlGetMaintenance = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { maintenanceId } = request.data;
+      if (!maintenanceId) {
+        throw new HttpsError('invalid-argument', 'maintenanceId es requerido');
+      }
+
+      const result = await getMaintenanceRecord(maintenanceId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetMaintenance:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener mantenimiento');
+    }
+  }
+);
+
+/**
+ * Actualizar registro de mantenimiento SQL
+ */
+export const sqlUpdateMaintenance = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { maintenanceId, updateData } = request.data;
+      if (!maintenanceId || !updateData) {
+        throw new HttpsError('invalid-argument', 'maintenanceId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateMaintenanceRecord(maintenanceId, updateData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateMaintenance:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar mantenimiento');
+    }
+  }
+);
+
+/**
+ * Eliminar registro de mantenimiento SQL
+ */
+export const sqlDeleteMaintenance = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { maintenanceId } = request.data;
+      if (!maintenanceId) {
+        throw new HttpsError('invalid-argument', 'maintenanceId es requerido');
+      }
+
+      const result = await deleteMaintenanceRecord(maintenanceId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteMaintenance:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar mantenimiento');
+    }
+  }
+);
+
+/**
+ * Obtener mantenimientos por vehículo SQL
+ */
+export const sqlGetMaintenanceByVehicle = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId } = request.data;
+      if (!vehicleId) {
+        throw new HttpsError('invalid-argument', 'vehicleId es requerido');
+      }
+
+      const result = await getMaintenanceByVehicle(vehicleId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetMaintenanceByVehicle:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener mantenimientos por vehículo');
+    }
+  }
+);
+
+/**
+ * Obtener próximos mantenimientos SQL
+ */
+export const sqlGetUpcomingMaintenance = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getUpcomingMaintenance();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetUpcomingMaintenance:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener próximos mantenimientos');
+    }
+  }
+);
+
+/**
+ * Obtener estadísticas de mantenimiento SQL
+ */
+export const sqlGetMaintenanceStats = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getMaintenanceStats(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetMaintenanceStats:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener estadísticas de mantenimiento');
+    }
+  }
+);
+
+// SQL Hour Meter Functions - TASK-006
+
+/**
+ * Registrar lectura de horómetro SQL via Functions
+ */
+export const sqlRecordHourMeterReading = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId, newReading, movementId } = request.data;
+      if (!vehicleId || newReading === undefined) {
+        throw new HttpsError('invalid-argument', 'vehicleId y newReading son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await recordHourMeterReading(vehicleId, newReading, movementId, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlRecordHourMeterReading:', error);
+      throw new HttpsError('internal', error.message || 'Error al registrar lectura de horómetro');
+    }
+  }
+);
+
+/**
+ * Validar lectura de horómetro SQL
+ */
+export const sqlValidateHourMeterForMovement = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId, requiredReading } = request.data;
+      if (!vehicleId) {
+        throw new HttpsError('invalid-argument', 'vehicleId es requerido');
+      }
+
+      const result = await validateHourMeterForMovement(vehicleId, requiredReading);
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlValidateHourMeterForMovement:', error);
+      throw new HttpsError('internal', error.message || 'Error al validar horómetro');
+    }
+  }
+);
+
+/**
+ * Obtener historial de horómetro SQL
+ */
+export const sqlGetHourMeterHistory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId, limit } = request.data;
+      if (!vehicleId) {
+        throw new HttpsError('invalid-argument', 'vehicleId es requerido');
+      }
+
+      const result = await getHourMeterHistory(vehicleId, limit);
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('❌ Error en sqlGetHourMeterHistory:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener historial de horómetro');
+    }
+  }
+);
+
+/**
+ * Inicializar horómetro SQL
+ */
+export const sqlInitializeHourMeter = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId, initialReading } = request.data;
+      if (!vehicleId || initialReading === undefined) {
+        throw new HttpsError('invalid-argument', 'vehicleId y initialReading son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await initializeHourMeter(vehicleId, initialReading, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlInitializeHourMeter:', error);
+      throw new HttpsError('internal', error.message || 'Error al inicializar horómetro');
+    }
+  }
+);
+
+/**
+ * Obtener resumen de horómetro SQL
+ */
+export const sqlGetHourMeterSummary = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { vehicleId } = request.data;
+      if (!vehicleId) {
+        throw new HttpsError('invalid-argument', 'vehicleId es requerido');
+      }
+
+      const result = await getHourMeterSummary(vehicleId);
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetHourMeterSummary:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener resumen de horómetro');
+    }
+  }
+);
+
+/**
+ * Obtener estadísticas de horómetros SQL
+ */
+export const sqlGetHourMeterStats = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { filters } = request.data || {};
+
+      const result = await getHourMeterStats(filters);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetHourMeterStats:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener estadísticas de horómetros');
+    }
+  }
+);
+
+// SQL Vehicle Categories Functions - TASK-006
+
+/**
+ * Crear categoría de vehículo SQL via Functions
+ */
+export const sqlCreateCategory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { categoryData } = request.data;
+      if (!categoryData) {
+        throw new HttpsError('invalid-argument', 'categoryData es requerido');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await createCategory(categoryData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlCreateCategory:', error);
+      throw new HttpsError('internal', error.message || 'Error al crear categoría');
+    }
+  }
+);
+
+/**
+ * Obtener todas las categorías SQL
+ */
+export const sqlGetAllCategories = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { options } = request.data || {};
+
+      const result = await getAllCategories(options);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetAllCategories:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener categorías');
+    }
+  }
+);
+
+/**
+ * Obtener categoría por ID SQL
+ */
+export const sqlGetCategory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { categoryId } = request.data;
+      if (!categoryId) {
+        throw new HttpsError('invalid-argument', 'categoryId es requerido');
+      }
+
+      const result = await getCategory(categoryId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetCategory:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener categoría');
+    }
+  }
+);
+
+/**
+ * Actualizar categoría SQL
+ */
+export const sqlUpdateCategory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { categoryId, updateData } = request.data;
+      if (!categoryId || !updateData) {
+        throw new HttpsError('invalid-argument', 'categoryId y updateData son requeridos');
+      }
+
+      const userInfo = request.auth ? {
+        uid: request.auth.uid,
+        email: request.auth.token.email,
+        displayName: request.auth.token.name,
+      } : null;
+
+      const result = await updateCategory(categoryId, updateData, userInfo);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateCategory:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar categoría');
+    }
+  }
+);
+
+/**
+ * Eliminar categoría SQL
+ */
+export const sqlDeleteCategory = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { categoryId } = request.data;
+      if (!categoryId) {
+        throw new HttpsError('invalid-argument', 'categoryId es requerido');
+      }
+
+      const result = await deleteCategory(categoryId);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlDeleteCategory:', error);
+      throw new HttpsError('internal', error.message || 'Error al eliminar categoría');
+    }
+  }
+);
+
+/**
+ * Obtener categoría por código SQL
+ */
+export const sqlGetCategoryByCode = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { code } = request.data;
+      if (!code) {
+        throw new HttpsError('invalid-argument', 'code es requerido');
+      }
+
+      const result = await getCategoryByCode(code);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetCategoryByCode:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener categoría por código');
+    }
+  }
+);
+
+/**
+ * Actualizar contador de vehículos en categoría SQL
+ */
+export const sqlUpdateVehicleCount = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { categoryId, increment } = request.data;
+      if (!categoryId) {
+        throw new HttpsError('invalid-argument', 'categoryId es requerido');
+      }
+
+      const result = await updateVehicleCount(categoryId, increment);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlUpdateVehicleCount:', error);
+      throw new HttpsError('internal', error.message || 'Error al actualizar contador de vehículos');
+    }
+  }
+);
+
+/**
+ * Reordenar categorías SQL
+ */
+export const sqlReorderCategories = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const { categoryOrders } = request.data;
+      if (!categoryOrders) {
+        throw new HttpsError('invalid-argument', 'categoryOrders es requerido');
+      }
+
+      const result = await reorderCategories(categoryOrders);
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlReorderCategories:', error);
+      throw new HttpsError('internal', error.message || 'Error al reordenar categorías');
+    }
+  }
+);
+
+/**
+ * Obtener categorías activas SQL
+ */
+export const sqlGetActiveCategories = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getActiveCategories();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetActiveCategories:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener categorías activas');
+    }
+  }
+);
+
+/**
+ * Obtener estadísticas de categorías SQL
+ */
+export const sqlGetCategoryStats = onCall(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB'
+  },
+  async (request) => {
+    try {
+      const result = await getCategoryStats();
+
+      if (!result.success) {
+        throw new HttpsError('internal', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error en sqlGetCategoryStats:', error);
+      throw new HttpsError('internal', error.message || 'Error al obtener estadísticas de categorías');
     }
   }
 );

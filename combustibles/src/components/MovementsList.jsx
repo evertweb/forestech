@@ -44,24 +44,6 @@ const MovementsList = () => {
     }
   };
 
-  const createMovement = async (movementData) => {
-    try {
-      // ✅ MISMA LLAMADA - implementación diferente
-      const result = await firebaseMovementsService.createMovement(movementData, {
-        email: 'usuario@ejemplo.com',
-        uid: 'user123'
-      });
-
-      if (result.success) {
-        console.log('✅ Movimiento creado:', result.id);
-        loadMovements(); // Recargar lista
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Error al crear movimiento: ' + err.message);
-    }
-  };
 
   const deleteMovement = async (movementId) => {
     if (!confirm('¿Estás seguro de eliminar este movimiento?')) return;

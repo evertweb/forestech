@@ -17,13 +17,35 @@ export default [
       'temp-test-image.js',
     ],
   },
+  // Configuración para archivos de Node.js (scripts)
+  {
+    files: ['scripts/**/*.{js,jsx}', 'src/config/**/*.{js,jsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^[A-Z_]|motion',
+          argsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  // Configuración para archivos React
   {
     files: ['**/*.{js,jsx}'],
-    extends: [
-      js.configs.recommended,
-      ...reactHooks.configs.recommended,
-      ...reactRefresh.configs.recommended,
-    ],
+    ignores: ['scripts/**/*.{js,jsx}', 'src/services/base/**/*.{js,jsx}', 'src/config/**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -33,7 +55,14 @@ export default [
         sourceType: 'module',
       },
     },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
     rules: {
+      ...js.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      ...reactRefresh.configs.recommended.rules,
       'no-unused-vars': [
         'error',
         {

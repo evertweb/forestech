@@ -1,10 +1,10 @@
 // combustibles/src/hooks/useCombustiblesCRUD.js
 // Hook para operaciones CRUD optimizadas - NIVEL 2 OPTIMIZACIÓN
 import { useState, useCallback } from 'react';
-import SqlMovementsService from '../services/SqlMovementsService';
+import FirebaseMovementsService from '../services/FirebaseMovementsService';
 
-// Instancia del servicio SQL
-const movementsService = new SqlMovementsService();
+// Instancia del servicio Firebase
+const movementsService = new FirebaseMovementsService();
 
 export const useCombustiblesCRUD = () => {
   const [loading, setLoading] = useState(false);

@@ -10,6 +10,64 @@ const TABLE_NAME = 'combustibles_movements';
 const INVENTORY_TABLE = 'combustibles_inventory';
 const VEHICLES_TABLE = 'combustibles_vehicles';
 
+/**
+ * Verificar si una tabla específica existe en la base de datos
+ * @param {string} tableName - Nombre de la tabla a verificar
+ * @returns {Promise<boolean>} - true si existe, false si no
+ */
+const checkTableExists = async (tableName) => {
+  try {
+    const query = `
+      SELECT COUNT(*) as tableExists
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_NAME = @tableName
+      AND TABLE_SCHEMA = SCHEMA_NAME()
+    `;
+    
+    const result = await sqlConnection.query(query, { tableName });
+    const exists = result[0]?.tableExists > 0;
+    
+    return exists;
+  } catch (error) {
+    console.error(`🔍 Error verificando tabla ${tableName}:`, error.message);
+    return false;
+  }
+};
+
+/**
+ * Verificar que las tablas requeridas existan antes de operaciones críticas
+ * @returns {Promise<Object>} - Resultado de la verificación
+ */
+const verifyRequiredTables = async () => {
+  try {
+    const movementsTableExists = await checkTableExists(TABLE_NAME);
+    const inventoryTableExists = await checkTableExists(INVENTORY_TABLE);
+    const vehiclesTableExists = await checkTableExists(VEHICLES_TABLE);
+    
+    const missingTables = [];
+    if (!movementsTableExists) missingTables.push(TABLE_NAME);
+    if (!inventoryTableExists) missingTables.push(INVENTORY_TABLE);
+    if (!vehiclesTableExists) missingTables.push(VEHICLES_TABLE);
+    
+    return {
+      success: missingTables.length === 0,
+      movementsTableExists,
+      inventoryTableExists,
+      vehiclesTableExists,
+      missingTables,
+      message: missingTables.length > 0 
+        ? `Faltan tablas: ${missingTables.join(', ')}. Ejecute inicialización de base de datos.`
+        : 'Todas las tablas requeridas existen'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      message: 'Error al verificar tablas requeridas'
+    };
+  }
+};
+
 // Tipos de movimientos (mantenemos compatibilidad)
 export const MOVEMENT_TYPES = {
   ENTRADA: 'entrada',
@@ -306,6 +364,19 @@ export async function createMovement(movementData, userInfo = null) {
   try {
     console.log('🚀 Iniciando creación de movimiento SQL en Functions:', movementData);
 
+    // Verificar que las tablas requeridas existan
+    const tableVerification = await verifyRequiredTables();
+    if (!tableVerification.success) {
+      console.error('❌ Error en verificación de tablas:', tableVerification.message);
+      return {
+        success: false,
+        error: tableVerification.message,
+        code: 'MISSING_TABLES',
+        missingTables: tableVerification.missingTables || [],
+        recommendation: 'Ejecute /system/autorepair o /sqlInitializeDatabase para crear las tablas faltantes'
+      };
+    }
+
     // Normalizar fuelType
     if (movementData.fuelType) {
       movementData.fuelType = movementData.fuelType.toUpperCase();
@@ -391,6 +462,20 @@ export async function createMovement(movementData, userInfo = null) {
  */
 export async function getAllMovements(filters = {}) {
   try {
+    // Verificar que la tabla de movimientos exista
+    const movementsTableExists = await checkTableExists(TABLE_NAME);
+    if (!movementsTableExists) {
+      console.warn(`⚠️ Tabla ${TABLE_NAME} no existe - retornando lista vacía`);
+      return {
+        success: true,
+        data: [],
+        count: 0,
+        message: `Tabla ${TABLE_NAME} no existe. Ejecute inicialización de base de datos.`,
+        code: 'MISSING_TABLE',
+        recommendation: 'Ejecute /system/autorepair o /sqlInitializeDatabase para crear las tablas faltantes'
+      };
+    }
+
     // Normalizar fuelType en filtros
     if (filters.fuelType) {
       filters.fuelType = filters.fuelType.toUpperCase();

@@ -264,7 +264,7 @@ export async function getAllSuppliers(filters = {}) {
         rating: supplier.rating,
         evaluationNotes: supplier.evaluationNotes,
         status: supplier.status,
-        isPreferred: supplier.isPreferred,
+        isPreferred: supplier.isPreferred || false, // Valor por defecto si no existe
         totalOrders: supplier.totalOrders,
         totalPurchased: supplier.totalPurchased,
         lastOrderDate: supplier.lastOrderDate,
