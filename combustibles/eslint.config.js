@@ -19,7 +19,7 @@ export default [
   },
   // Configuración para archivos de Node.js (scripts)
   {
-    files: ['scripts/**/*.{js,jsx}', 'src/config/**/*.{js,jsx}'],
+    files: ['scripts/**/*.{js,jsx}', 'src/config/**/*.{js,jsx}', 'load-env.js'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.node,
