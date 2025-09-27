@@ -26,7 +26,8 @@ import { POPUP_EVENTS } from '../../services/popupCommunication';
 
 const MovementsMain = () => {
   // Context y estado
-  const { user, userProfile, deleteMovement, inventory, vehicles } = useCombustibles();
+  const { user, userProfile, deleteMovement, inventory, vehicles, hasPermission } =
+    useCombustibles();
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
@@ -255,10 +256,7 @@ const MovementsMain = () => {
   };
 
   // Permisos del usuario
-  const canCreateMovement =
-    userProfile?.role === 'admin' ||
-    userProfile?.role === 'operador' ||
-    userProfile?.role === 'consulta';
+  const canCreateMovement = hasPermission('canCreateMovements');
 
   // Componentes para PageLayout
   const headerActions = canCreateMovement && (

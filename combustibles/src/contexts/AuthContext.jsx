@@ -56,10 +56,7 @@ export const AuthProvider = ({ children }) => {
           let profileResult = await getUserProfile(firebaseUser.uid);
 
           if (!profileResult.success) {
-            profileResult = await createUserProfile(firebaseUser, {
-              provider: 'existing_account',
-              appContext: 'combustibles',
-            });
+            profileResult = await createUserProfile(firebaseUser);
           }
 
           if (profileResult.success) {

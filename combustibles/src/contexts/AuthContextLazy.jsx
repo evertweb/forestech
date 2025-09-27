@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { loadFirebase } from '../firebase/lazyFirebase';
 import { sendLoginNotification } from '../services/webhookService';
-import { getUserProfile } from '../firebase/userService';
+import { createUserProfile, getUserProfile } from '../firebase/userService';
 
 const AuthContext = createContext();
 
@@ -53,7 +53,12 @@ export const AuthProvider = ({ children }) => {
             // Obtener perfil del usuario
             let profile = null;
             try {
-              const profileResult = await getUserProfile(firebaseUser.uid);
+              let profileResult = await getUserProfile(firebaseUser.uid);
+
+              if (!profileResult.success) {
+                profileResult = await createUserProfile(firebaseUser);
+              }
+
               if (profileResult.success) {
                 profile = profileResult.userData;
                 setUserProfile(profile);

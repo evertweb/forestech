@@ -148,8 +148,10 @@ const getDefaultPermissions = (role) => {
  */
 export const createUserProfile = async (user, customRole = null, invitationData = null) => {
   try {
-    let role, permissions, displayName;
-    
+    let role;
+    let permissions;
+    let displayName;
+
     if (invitationData) {
       // Usar datos de la invitación
       role = invitationData.role;
@@ -157,7 +159,9 @@ export const createUserProfile = async (user, customRole = null, invitationData 
       displayName = invitationData.displayName;
     } else {
       // Determinar rol automáticamente
-      role = customRole || determineUserRole(user.email);
+      role = typeof customRole === 'string' && customRole.length > 0
+        ? customRole
+        : determineUserRole(user.email);
       permissions = getDefaultPermissions(role);
       displayName = user.displayName || user.email.split('@')[0];
     }
@@ -165,15 +169,15 @@ export const createUserProfile = async (user, customRole = null, invitationData 
     const userProfile = {
       uid: user.uid,
       email: user.email,
-      displayName: displayName,
-      role: role,
+      displayName,
+      role,
       ...permissions,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
       isActive: true,
       invitedBy: invitationData?.invitedBy || null,
-      invitationUsed: invitationData ? true : false
+      invitationUsed: Boolean(invitationData),
     };
 
     const userDocRef = doc(db, getUsersCollectionPath(), user.uid);
@@ -181,15 +185,22 @@ export const createUserProfile = async (user, customRole = null, invitationData 
 
     console.log('✅ Perfil de usuario creado:', {
       email: user.email,
-      role: role,
-      uid: user.uid
+      role,
+      uid: user.uid,
     });
 
-    return userProfile;
-
+    return {
+      success: true,
+      userData: userProfile,
+      message: 'Perfil de usuario creado correctamente',
+    };
   } catch (error) {
     console.error('❌ Error creando perfil de usuario:', error);
-    throw error;
+    return {
+      success: false,
+      error: error.message,
+      message: 'Error creando perfil de usuario',
+    };
   }
 };
 
@@ -212,22 +223,34 @@ export const getUserProfile = async (uid) => {
   try {
     const userDocRef = doc(db, getUsersCollectionPath(), uid);
     const userDoc = await getDoc(userDocRef);
-    
+
     if (userDoc.exists()) {
       const profile = userDoc.data();
-      
+
       // Actualizar último login
       await updateDoc(userDocRef, {
-        lastLogin: serverTimestamp()
+        lastLogin: serverTimestamp(),
       });
-      
-      return profile;
+
+      return {
+        success: true,
+        userData: profile,
+      };
     }
-    
-    return null;
+
+    return {
+      success: false,
+      userData: null,
+      message: 'Perfil de usuario no encontrado',
+    };
   } catch (error) {
     console.error('❌ Error obteniendo perfil de usuario:', error);
-    throw error;
+    return {
+      success: false,
+      userData: null,
+      error: error.message,
+      message: 'Error obteniendo perfil de usuario',
+    };
   }
 };
 
@@ -348,16 +371,22 @@ export const deactivateUser = async (uid) => {
  */
 export const getOrCreateUserProfile = async (user) => {
   try {
-    let profile = await getUserProfile(user.uid);
-    
-    if (!profile) {
-      profile = await createUserProfile(user);
+    const profileResult = await getUserProfile(user.uid);
+
+    if (profileResult.success && profileResult.userData) {
+      return profileResult;
     }
-    
-    return profile;
+
+    const createResult = await createUserProfile(user);
+    return createResult;
   } catch (error) {
     console.error('❌ Error obteniendo o creando perfil de usuario:', error);
-    throw error;
+    return {
+      success: false,
+      userData: null,
+      error: error.message,
+      message: 'Error obteniendo o creando perfil de usuario',
+    };
   }
 };
 
