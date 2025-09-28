@@ -1,12 +1,18 @@
 /**
- * Webhook HTTP para recibir movimientos desde N8N/Telegram
- * Permite crear movimientos tipo ENTRADA desde fuentes externas
+ * WEBHOOK MOVIDO A CLOUD RUN
+ * 
+ * ✅ Este webhook ahora está implementado en Cloud Run:
+ * - URL: https://forestech-sql-service-851382130132.us-central1.run.app/webhook/combustibles
+ * - Mejor performance y sin limitaciones de cuota
+ * - Integración directa con Azure SQL
+ * 
+ * ❌ ELIMINADO de Firebase Functions para evitar duplicación y conflictos Gen1/Gen2
+ * 
+ * Si necesitas el webhook en Firebase Functions, usa:
+ * import { onRequest } from 'firebase-functions/v1/https';
  */
 
-import { onRequest } from 'firebase-functions/v2/https';
-import { initializeApp, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
+export default null; // Placeholder para evitar errores de import
 
 // Inicializar Firebase Admin (solo si no está ya inicializado)
 if (!getApps().length) {

@@ -3,7 +3,7 @@
  * Guía al usuario paso a paso con validaciones en tiempo real y feedback visual
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createMovement, MOVEMENT_TYPES } from '../../services/FirebaseMovementsService';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { getActiveProducts } from '../../services/FirebaseProductsService';
@@ -53,6 +53,8 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
   const [_suppliersData, setSuppliersData] = useState([]);
   const [_suppliersLoading, setSuppliersLoading] = useState(false);
 
+  const suppliersDataRef = useRef([]);
+
   // Estado local para vehículos (fix para el problema de vehículos vacíos)
   const [localVehicles, setLocalVehicles] = useState([]);
   const [_vehiclesLoading, setVehiclesLoading] = useState(false);
@@ -80,7 +82,12 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
     suppliers: [],
     products: [],
     loadingData: true,
+    suppliersLoaded: false,
   });
+
+  useEffect(() => {
+    suppliersDataRef.current = _suppliersData;
+  }, [_suppliersData]);
 
   // Función para resetear el estado del wizard
   const resetWizard = () => {
@@ -140,10 +147,10 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
       console.log('🔥 ENTRANDO en isOpen=true...');
       document.body.classList.add('modal-open');
 
-      // Resetear estado antes de cargar nuevos datos
-      resetWizard();
+    // Resetear estado antes de cargar nuevos datos
+    resetWizard();
 
-      setSystemData((prev) => ({ ...prev, loadingData: true }));
+    setSystemData((prev) => ({ ...prev, loadingData: true, suppliersLoaded: false }));
       setSuppliersLoading(true);
       setVehiclesLoading(true);
 
@@ -195,43 +202,59 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
       // Suscribirse a suppliers inmediatamente
       if (subscribeToSuppliers) {
         suppliersUnsubscribe = subscribeToSuppliers((suppliersData) => {
-          const newSuppliers = suppliersData || [];
-          setSuppliersData(newSuppliers);
+          const normalizedSuppliers = Array.isArray(suppliersData)
+            ? suppliersData
+            : Array.isArray(suppliersData?.data)
+              ? suppliersData.data
+              : [];
+
+          setSuppliersData(normalizedSuppliers);
           setSuppliersLoading(false);
 
           // Actualizar systemData directamente para evitar dependencias circulares
           setSystemData((prev) => ({
             ...prev,
-            suppliers: newSuppliers,
+            suppliers: normalizedSuppliers,
+            suppliersLoaded: true,
           }));
         });
 
         // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
         fallbackTimer = setTimeout(async () => {
-          setSuppliersData((currentSuppliers) => {
-            if (currentSuppliers.length === 0) {
-              // Solo ejecutar fallback si aún no tenemos suppliers
-              getAllSuppliers()
-                .then((result) => {
-                  if (result.success && result.data.length > 0) {
-                    const fallbackSuppliers = result.data;
-                    setSuppliersData(fallbackSuppliers);
-                    setSuppliersLoading(false);
+          if (suppliersDataRef.current.length > 0) {
+            return;
+          }
 
-                    // Actualizar systemData directamente
-                    setSystemData((prev) => ({
-                      ...prev,
-                      suppliers: fallbackSuppliers,
-                    }));
-                  }
-                })
-                .catch((error) => {
-                  console.error('❌ Error en fallback de suppliers:', error);
-                });
-            }
-            return currentSuppliers;
-          });
+          try {
+            const result = await getAllSuppliers();
+            const fallbackSuppliers = Array.isArray(result)
+              ? result
+              : Array.isArray(result?.data)
+                ? result.data
+                : [];
+
+            setSuppliersData(fallbackSuppliers);
+            setSystemData((prev) => ({
+              ...prev,
+              suppliers: fallbackSuppliers,
+              suppliersLoaded: true,
+            }));
+          } catch (error) {
+            console.error('❌ Error en fallback de suppliers:', error);
+            setSystemData((prev) => ({
+              ...prev,
+              suppliersLoaded: true,
+            }));
+          } finally {
+            setSuppliersLoading(false);
+          }
         }, 3000);
+      } else {
+        setSuppliersLoading(false);
+        setSystemData((prev) => ({
+          ...prev,
+          suppliersLoaded: true,
+        }));
       }
 
       // Cargar productos de forma async

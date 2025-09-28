@@ -10,9 +10,9 @@ RUN npm ci --only=production --no-audit --no-fund || npm install --only=producti
 RUN npm cache clean --force
 
 # Copy application code
-COPY server.js ./
+COPY cloud-run-server.js ./
 COPY src ./src
 
 EXPOSE 8080
 
-CMD ["node", "server.js"]
+CMD ["node", "cloud-run-server.js"]

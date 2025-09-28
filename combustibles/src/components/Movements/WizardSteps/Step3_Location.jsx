@@ -33,7 +33,9 @@ const Step3_Location = ({
     return `${baseClass} sap-theme`;
   };
 
-  const { suppliers, inventory } = systemData;
+  const { suppliers = [], inventory, suppliersLoaded = false } = systemData;
+  const supplierList = Array.isArray(suppliers) ? suppliers : [];
+  const isSuppliersLoading = !suppliersLoaded;
   const isEntrada = formData.type === MOVEMENT_TYPES.ENTRADA;
 
   // Cargar ubicaciones dinámicamente desde Firebase
@@ -227,9 +229,7 @@ const Step3_Location = ({
 
   // Renderizar opciones para entradas (proveedores)
   if (isEntrada) {
-    const activeSuppliers = Array.isArray(suppliers)
-      ? suppliers.filter((s) => s.status === 'active')
-      : [];
+    const activeSuppliers = supplierList.filter((s) => s.status === 'active');
 
     return (
       <div className={`wizard-step step-location ${getThemeClass('')} ${isActive ? 'active' : ''}`}>
@@ -245,16 +245,20 @@ const Step3_Location = ({
           </div>
         )}
 
-        {!Array.isArray(suppliers) || suppliers.length === 0 ? (
+        {isSuppliersLoading ? (
           <div className={getThemeClass('wizard-loading')}>
             <div className={getThemeClass('loading-spinner')}></div>
             <p>🔄 Cargando proveedores...</p>
           </div>
-        ) : activeSuppliers.length === 0 ? (
+        ) : supplierList.length === 0 || activeSuppliers.length === 0 ? (
           <div className={getThemeClass('empty-state')}>
             <div className={getThemeClass('empty-icon')}>🏪</div>
             <h3>No hay proveedores disponibles</h3>
-            <p>No se encontraron proveedores activos en el sistema.</p>
+            <p>
+              {supplierList.length === 0
+                ? 'Aún no se han registrado proveedores en el sistema.'
+                : 'No se encontraron proveedores activos en el sistema.'}
+            </p>
             <p>Contacta al administrador para agregar proveedores.</p>
           </div>
         ) : (

@@ -83,11 +83,64 @@
       "rewrites": [
         {
           "source": "/combustibles/**",
-          "destination": "/combustibles/index.html"
+          "function": "ssrCombustibles"
         },
         {
           "source": "/alimentacion/**",
           "destination": "/alimentacion/index.html"
+        }
+      ]
+    },
+    {
+      "site": "combustibles-subdomain",
+      "public": "public/combustibles",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**/*.map"
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|png|jpg|jpeg|webp|svg|ico|woff|woff2|ttf|eot)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|json)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=3600"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "X-Powered-By",
+              "value": "Forestech Colombia"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "/sitemap.xml",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "/robots.txt",
+          "function": "ssrCombustibles"
+        },
+        {
+          "source": "**",
+          "function": "ssrCombustibles"
         }
       ]
     },
@@ -153,7 +206,7 @@
         },
         {
           "source": "**",
-          "destination": "/index.html"
+          "function": "ssrCombustibles"
         }
       ]
     }

@@ -1,14 +1,18 @@
 /**
- * Passkey Authentication Functions
- * Funciones para manejar autenticación con passkeys usando custom tokens
+ * PASSKEY AUTH FUNCTIONS MOVIDAS A CLOUD RUN
+ * 
+ * ✅ Estas funciones ahora están implementadas en Cloud Run:
+ * - URL: https://forestech-sql-service-851382130132.us-central1.run.app/auth/
+ * - Mejor performance y integración directa con base de datos
+ * - Sin limitaciones de cuota Firebase Functions
+ * 
+ * ❌ ELIMINADAS de Firebase Functions para evitar duplicación y conflictos Gen1/Gen2
+ * 
+ * Si necesitas alguna función específica en Firebase Functions, usa:
+ * import { onCall, HttpsError } from 'firebase-functions/v1/https';
  */
 
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { initializeApp, getApps } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { logger } from 'firebase-functions/v2';
-import * as functions from 'firebase-functions';
+export default null; // Placeholder para evitar errores de import
 
 // Inicializar Firebase Admin solo si no está ya inicializado
 let app;
