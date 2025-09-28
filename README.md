@@ -1,7 +1,63 @@
-# 🚀 Forestech - Monorepo de Aplicaciones Web
+# 🌲 Forestech Colombia - Sistema de Gestión Forestal
 
-> **Suite de aplicaciones web para operaciones forestales en Colombia**
-> **Firebase Hosting + React 19 + WebAuthn**
+> **🚀 [📋 GUÍA DE DEPLOYMENT - LECTURA OBLIGATORIA](./DEPLOYMENT_GUIDE.md)**
+
+Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + Cloud Run + Azure SQL.
+
+## 🏗️ **ARQUITECTURA**
+
+- **🔥 Firebase**: Apps React (Combustibles + Alimentación) + SSR
+- **☁️ Cloud Run**: Backend SQL + Azure Database + Webhooks
+- **🧪 E2E**: Tests automatizados con Playwright
+
+## ⚡ **INICIO RÁPIDO**
+
+```bash
+# Instalar dependencias
+npm install
+
+# Desarrollo local
+npm run dev:combustibles  # puerto 5174
+npm run dev:alimentacion  # puerto 5173
+
+# Build producción
+npm run build:all
+```
+
+## 🚀 **DEPLOYMENT**
+
+### **Frontend (Auto-deploy)**
+```bash
+git push origin main  # ✅ Auto-deploy Firebase
+```
+
+### **Backend (Manual)**
+```bash
+# 1. Push código
+git push origin main
+
+# 2. GitHub Actions → "🚀 Deploy to Cloud Run" → force_deploy: true
+```
+
+**📋 [Ver guía completa de deployment](./DEPLOYMENT_GUIDE.md)**
+
+## 🌐 **URLs Producción**
+
+- **Combustibles**: https://combustibles.forestechdecolombia.com.co
+- **Alimentación**: https://forestechdecolombia.web.app/alimentacion  
+- **API Backend**: https://forestech-sql-service-851382130132.us-central1.run.app
+
+## 🛠️ **Tecnologías**
+
+- **Frontend**: React 19 + Vite + Tailwind CSS + React Aria
+- **Backend**: Node.js + Express + Azure SQL
+- **Auth**: Firebase Auth + WebAuthn (passkeys)
+- **Deploy**: Firebase Hosting + Cloud Run
+- **Testing**: Playwright E2E
+
+---
+
+**📖 Documentación completa en [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)**
 
 ## 📋 Flujo de Trabajo Optimizado
 

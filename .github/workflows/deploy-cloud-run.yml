@@ -1,17 +1,10 @@
 name: 🚀 Deploy to Cloud Run
 
 on:
-  # push:                    # Temporalmente deshabilitado por problemas de permisos
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'functions/**'
-  #     - 'combustibles/src/services/**'
-  #     - '.github/workflows/deploy-cloud-run.yml'
-  workflow_dispatch:         # Solo deploy manual hasta fix permisos
+  workflow_dispatch:         # Solo deploy manual
     inputs:
       force_deploy:
-        description: 'Force deploy to Cloud Run (requiere permisos storage.admin)'
+        description: 'Confirmar deploy to Cloud Run (requiere permisos storage.admin)'
         required: true
         default: false
         type: boolean
