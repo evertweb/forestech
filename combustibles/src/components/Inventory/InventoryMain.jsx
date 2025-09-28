@@ -18,7 +18,7 @@ import {
   subscribeToInventory,
   deleteInventoryItem,
   getInventoryStats,
-} from '../../services/inventoryService';
+} from '../../services/FirebaseInventoryService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import InventoryTable from './InventoryTable';
 import InventoryCards from './InventoryCards';

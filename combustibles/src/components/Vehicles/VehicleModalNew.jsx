@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFormData } from '../../hooks/useFormData';
-import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
-import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/FirebaseVehiclesService';
+import { getAllVehicleCategories } from '../../services/FirebaseVehicleCategoriesService';
 import {
   DEFAULT_VEHICLE_CATEGORIES,
   AVAILABLE_FIELDS,

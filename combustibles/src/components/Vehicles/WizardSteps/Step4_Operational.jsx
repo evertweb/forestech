@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useCallback, useMemo, useState } from 'react';
-import { VEHICLE_STATUS } from '../../../services/vehiclesService';
+import { VEHICLE_STATUS } from '../../../services/FirebaseVehiclesService';
 import './VehicleWizardSteps.css';
 
 const Step4_Operational = ({ formData, updateFormData, errors, isActive, extraData }) => {

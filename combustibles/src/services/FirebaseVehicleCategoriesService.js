@@ -357,3 +357,18 @@ export const getCategoryByCode = async (code) => {
   const service = new FirebaseVehicleCategoriesService();
   return service.getCategoryByCode(code);
 };
+
+export const getAllVehicleCategories = async (options = {}) => {
+  const service = new FirebaseVehicleCategoriesService();
+  return service.getCategories(options);
+};
+
+export const getActiveCategories = async () => {
+  const service = new FirebaseVehicleCategoriesService();
+  return service.getActiveCategories();
+};
+
+export const getCategoryStats = async () => {
+  const service = new FirebaseVehicleCategoriesService();
+  return service.getCategoryStats();
+};

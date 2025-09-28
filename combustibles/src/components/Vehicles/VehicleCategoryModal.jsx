@@ -9,7 +9,7 @@ import {
   updateCategory,
   getAllVehicleCategories,
   deleteCategory,
-} from '../../services/vehicleCategoriesService';
+} from '../../services/FirebaseVehicleCategoriesService';
 import {
   AVAILABLE_FIELDS,
   FUEL_TYPES,

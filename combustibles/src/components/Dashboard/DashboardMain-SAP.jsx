@@ -149,7 +149,48 @@ const DashboardMainSAP = () => {
   const _headerActions = (
     <div className="apple-content-actions">
       <button className="apple-button apple-button-secondary">📊 Exportar</button>
-      <button className="apple-button apple-button-primary">🔄 Actualizar</button>
+      <button
+        className="apple-button apple-button-primary"
+        onClick={async () => {
+          console.log('🔄 Forzando actualización manual del dashboard...');
+          try {
+            // Invalidar cache primero
+            const { cardsService } = await import('../../services/cardsService');
+            cardsService.invalidateCache();
+
+            // Forzar refresh de datos
+            const FirebaseMovementsService = (await import('../../services/FirebaseMovementsService')).default;
+            const movementsService = new FirebaseMovementsService();
+
+            const inventoryService = (await import('../../services/FirebaseInventoryService')).default;
+            const inventoryServiceInstance = new inventoryService();
+
+            // Obtener datos frescos directamente
+            const [movementsResult, inventoryResult] = await Promise.all([
+              movementsService.getAllMovements(),
+              inventoryServiceInstance.getInventory()
+            ]);
+
+            console.log('🔍 Datos frescos obtenidos:');
+            console.log('  - Movimientos:', movementsResult?.length, 'items');
+            console.log('  - Inventario:', inventoryResult?.length, 'items');
+
+            // Actualizar estado manualmente para debugging
+            if (movementsResult) {
+              setMovements(movementsResult);
+            }
+            if (inventoryResult) {
+              setInventory(inventoryResult);
+            }
+
+            console.log('✅ Refresh manual completado');
+          } catch (error) {
+            console.error('❌ Error en refresh manual:', error);
+          }
+        }}
+      >
+        🔄 Actualizar
+      </button>
     </div>
   );
 

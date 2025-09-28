@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/FirebaseVehiclesService';
 
 const VehiclesFilters = ({
   filters,

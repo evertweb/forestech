@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { createCategory } from '../../services/vehicleCategoriesService';
+import { createCategory } from '../../services/FirebaseVehicleCategoriesService';
 import { FUEL_TYPES } from '../../data/vehicleCategories';
 
 const SimpleVehicleCategoryModal = ({ isOpen, onClose, onSuccess }) => {

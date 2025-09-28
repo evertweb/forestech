@@ -13,7 +13,7 @@ import {
   validateForm as runValidation,
 } from '../../utils/validators';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { createSupplier, updateSupplier } from '../../services/suppliersService';
+import { createSupplier, updateSupplier } from '../../services/FirebaseSuppliersService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
 import {

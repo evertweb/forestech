@@ -9,8 +9,8 @@ import {
   updateVehicle,
   VEHICLE_STATUS,
   getAllVehicles,
-} from '../../services/vehiclesService';
-import { getAllVehicleCategories } from '../../services/vehicleCategoriesService';
+} from '../../services/FirebaseVehiclesService';
+import { getAllVehicleCategories } from '../../services/FirebaseVehicleCategoriesService';
 import { FUEL_TYPES } from '../../data/vehicleCategories';
 import { DEFAULT_VEHICLE_ICON } from '../../constants/vehicleIcons';
 import VehicleIconSelector from './VehicleIconSelector';

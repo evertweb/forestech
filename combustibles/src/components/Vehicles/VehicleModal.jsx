@@ -14,7 +14,7 @@ import {
   validateForm as runValidation,
   crossFieldValidators,
 } from '../../utils/validators';
-import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_TYPES, VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/FirebaseVehiclesService';
 import { VEHICLE_INFO } from '../../constants/vehicleTypes';
 import { FUEL_TYPES, FUEL_INFO } from '../../constants/combustibleTypes';
 import {

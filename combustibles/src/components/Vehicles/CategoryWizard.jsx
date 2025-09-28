@@ -8,7 +8,7 @@ import {
   createCategory, 
   updateCategory, 
   getCustomCategories 
-} from '../../services/vehicleCategoriesService';
+} from '../../services/FirebaseVehicleCategoriesService';
 import { AVAILABLE_FIELDS, FUEL_TYPES } from '../../data/vehicleCategories';
 import ForestechFormWizard from '../shared/ForestechFormWizard';
 

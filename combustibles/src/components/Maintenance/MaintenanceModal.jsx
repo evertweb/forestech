@@ -23,7 +23,7 @@ import {
   updateMaintenanceRecord,
   getVehiclesForMaintenance,
   calculateNextOilChange,
-} from '../../services/maintenanceService';
+} from '../../services/FirebaseMaintenanceService';
 import {
   UI_ACTIONS,
   UI_FORM_LABELS,

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/maintenanceService';
+import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/FirebaseMaintenanceService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 
 const MaintenanceCards = ({ maintenanceRecords, onEdit, onView, onDelete, userRole }) => {

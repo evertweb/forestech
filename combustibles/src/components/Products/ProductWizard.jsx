@@ -5,7 +5,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { useFormData } from '../../hooks/useFormData';
-import { createProduct } from '../../services/productsService';
+import { createProduct } from '../../services/FirebaseProductsService';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { PRODUCT_COLORS } from '../../constants/designTokens';
 import { postMessageSafe, POPUP_EVENTS } from '../../services/popupCommunication';

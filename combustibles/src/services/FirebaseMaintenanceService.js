@@ -366,3 +366,59 @@ export const subscribeToMaintenance = (callback) => {
   const service = new FirebaseMaintenanceService();
   return service.subscribeToMaintenance(callback);
 };
+
+export const getVehiclesForMaintenance = async () => {
+  // Esta función obtiene vehículos que necesitan mantenimiento
+  // Por ahora retornaremos una implementación básica
+  try {
+    const service = new FirebaseMaintenanceService();
+    const upcomingMaintenance = await service.getUpcomingMaintenance();
+    
+    if (upcomingMaintenance.success && upcomingMaintenance.data) {
+      // Extraer vehículos únicos que necesitan mantenimiento
+      const vehicles = upcomingMaintenance.data.map(record => ({
+        id: record.vehicleId,
+        vehicleName: record.vehicleName || record.vehicleId,
+        maintenanceType: record.maintenanceType,
+        dueDate: record.dueDate
+      }));
+      
+      // Remover duplicados
+      const uniqueVehicles = vehicles.filter((vehicle, index, self) =>
+        index === self.findIndex(v => v.id === vehicle.id)
+      );
+      
+      return { success: true, data: uniqueVehicles };
+    }
+    
+    return { success: true, data: [] };
+  } catch (error) {
+    console.error('Error obteniendo vehículos para mantenimiento:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const calculateNextOilChange = (vehicleData, lastOilChangeHours = 0) => {
+  // Cálculo básico para próximo cambio de aceite
+  const DEFAULT_OIL_CHANGE_INTERVAL = MAINTENANCE_CONSTANTS.DEFAULT_OIL_CHANGE_HOURS || 250;
+  
+  if (!vehicleData) {
+    return {
+      nextChangeHours: lastOilChangeHours + DEFAULT_OIL_CHANGE_INTERVAL,
+      hoursRemaining: DEFAULT_OIL_CHANGE_INTERVAL,
+      isOverdue: false
+    };
+  }
+  
+  const currentHours = vehicleData.currentHourMeter || 0;
+  const nextChangeHours = lastOilChangeHours + DEFAULT_OIL_CHANGE_INTERVAL;
+  const hoursRemaining = Math.max(0, nextChangeHours - currentHours);
+  const isOverdue = currentHours > nextChangeHours;
+  
+  return {
+    nextChangeHours,
+    hoursRemaining,
+    isOverdue,
+    currentHours
+  };
+};

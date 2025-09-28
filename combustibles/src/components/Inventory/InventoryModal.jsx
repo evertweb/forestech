@@ -7,7 +7,7 @@ import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { createInventoryItem, updateInventoryItem } from '../../services/inventoryService';
+import { createInventoryItem, updateInventoryItem } from '../../services/FirebaseInventoryService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import useFuelTypes from '../../hooks/useFuelTypes';
 import { MODAL_PRESETS, UI_ACTIONS, UI_FORM_LABELS, UI_MESSAGES } from '../../constants';

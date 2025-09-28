@@ -348,3 +348,51 @@ export const deleteInventoryItem = async (itemId) => {
   const service = new FirebaseInventoryService();
   return service.deleteInventoryItem(itemId);
 };
+
+export const getAllInventoryItems = async (filters = {}) => {
+  const service = new FirebaseInventoryService();
+  const items = await service.getInventory(filters);
+  return { success: true, data: items };
+};
+
+export const getInventoryStats = async () => {
+  try {
+    const result = await getAllInventoryItems();
+    if (!result.success) return result;
+
+    const items = result.data;
+    const stats = {
+      totalItems: items.length,
+      activeItems: items.filter((item) => item.status === 'active').length,
+      lowStockItems: items.filter((item) => item.needsRestock).length,
+      totalValue: items.reduce((sum, item) => sum + (item.currentStock * (item.pricePerUnit || 0)), 0),
+      averageStockLevel:
+        items.length > 0
+          ? Math.round(items.reduce((sum, item) => sum + (item.stockPercentage || 0), 0) / items.length)
+          : 0,
+      byFuelType: {},
+    };
+
+    // Estadísticas por tipo de combustible
+    items.forEach((item) => {
+      if (!stats.byFuelType[item.fuelType]) {
+        stats.byFuelType[item.fuelType] = {
+          count: 0,
+          totalStock: 0,
+          totalCapacity: 0,
+          totalValue: 0,
+        };
+      }
+
+      stats.byFuelType[item.fuelType].count++;
+      stats.byFuelType[item.fuelType].totalStock += item.currentStock || 0;
+      stats.byFuelType[item.fuelType].totalCapacity += item.maxCapacity || 0;
+      stats.byFuelType[item.fuelType].totalValue += (item.currentStock || 0) * (item.pricePerUnit || 0);
+    });
+
+    return { success: true, data: stats };
+  } catch (error) {
+    console.error('Error calculating inventory stats:', error);
+    return { success: false, error: error.message };
+  }
+};

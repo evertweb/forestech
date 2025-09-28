@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/FirebaseVehiclesService';
 import { formatNumber } from '../../utils/calculations';
 import { CHART_COLORS } from '../../constants';
 import { useVehicleStatusColors } from '../../hooks/useStatusColors';

@@ -14,7 +14,7 @@ import {
   DEFAULT_PRODUCT_CATEGORIES,
   AVAILABLE_FIELDS,
   generateCategoryId,
-} from '../../services/productCategoriesService';
+} from '../../services/FirebaseProductCategoriesService';
 import './ProductCategoriesManager.css';
 
 const ProductCategoriesManager = ({ onClose, onCategoryCreated }) => {

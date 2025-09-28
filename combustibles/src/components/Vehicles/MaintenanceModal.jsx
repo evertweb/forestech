@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFormData } from '../../hooks/useFormData';
-import { VEHICLE_STATUS } from '../../services/vehiclesService';
+import { VEHICLE_STATUS } from '../../services/FirebaseVehiclesService';
 
 // Tipos de mantenimiento
 const MAINTENANCE_TYPES = {

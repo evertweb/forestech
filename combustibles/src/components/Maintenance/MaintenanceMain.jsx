@@ -12,7 +12,7 @@ import {
   deleteMaintenanceRecord,
   MAINTENANCE_TYPES,
   MAINTENANCE_STATUS,
-} from '../../services/maintenanceService';
+} from '../../services/FirebaseMaintenanceService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import MaintenanceStats from './MaintenanceStats';
 import MaintenanceFilters from './MaintenanceFilters';

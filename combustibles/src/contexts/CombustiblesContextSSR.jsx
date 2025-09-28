@@ -94,6 +94,11 @@ export const CombustiblesProvider = ({ children, overrides }) => {
           (data) => {
             setInventory(data);
             setInventoryLoading(false);
+            // Invalidar cache del cardsService cuando se actualice el inventario
+            import('../services/cardsService').then(({ cardsService }) => {
+              cardsService.invalidateCache();
+              console.log('🗑️ Cache de cardsService invalidado por actualización de inventario');
+            });
           },
           (error) => {
             console.error('Error en suscripción inventory:', error);
@@ -134,7 +139,24 @@ export const CombustiblesProvider = ({ children, overrides }) => {
           }
         );
 
-        // Cargar movimientos iniciales
+        // Suscripción a movimientos con polling más rápido para testing
+        const movementsUnsub = movementsService.subscribeToMovements((data, error) => {
+          if (error) {
+            console.error('Error en suscripción de movimientos:', error);
+            setMovementsLoading(false);
+          } else {
+            console.log('📊 Movimientos actualizados:', data?.length, 'items');
+            setMovements(data || []);
+            setMovementsLoading(false);
+            // Invalidar cache del cardsService cuando se actualicen los movimientos
+            import('../services/cardsService').then(({ cardsService }) => {
+              cardsService.invalidateCache();
+              console.log('🗑️ Cache de cardsService invalidado por actualización de movimientos');
+            });
+          }
+        });
+
+        // Cargar movimientos iniciales también (por si el polling tarda)
         const loadMovements = async () => {
           try {
             const result = await movementsService.getMovements({ limit: 50 });
@@ -150,7 +172,7 @@ export const CombustiblesProvider = ({ children, overrides }) => {
 
         loadMovements();
 
-        unsubscribes = [inventoryUnsub, vehiclesUnsub, suppliersUnsub, categoriesUnsub];
+        unsubscribes = [inventoryUnsub, vehiclesUnsub, suppliersUnsub, categoriesUnsub, movementsUnsub];
       } catch (error) {
         console.error('Error configurando suscripciones:', error);
         setInventoryLoading(false);

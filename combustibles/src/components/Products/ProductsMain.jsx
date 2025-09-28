@@ -9,7 +9,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-} from '../../services/productsService';
+} from '../../services/FirebaseProductsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';

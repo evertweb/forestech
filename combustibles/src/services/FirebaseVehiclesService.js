@@ -540,3 +540,8 @@ export const getVehiclesStats = async (filters = {}) => {
   const service = new FirebaseVehiclesService();
   return service.getVehiclesStats(filters);
 };
+
+export const getAllVehicles = async (filters = {}) => {
+  const service = new FirebaseVehiclesService();
+  return service.getAllVehicles(filters);
+};

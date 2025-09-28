@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo, useCallback, memo } from 'react';
-import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/vehiclesService';
+import { VEHICLE_STATUS, FUEL_COMPATIBILITY } from '../../services/FirebaseVehiclesService';
 import VehicleIcon from './VehicleIcon';
 
 const VehiclesTable = ({ vehicles, onEdit, onView, onMaintenance }) => {

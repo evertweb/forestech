@@ -332,3 +332,13 @@ export const getSupplier = async (supplierId) => {
   const service = new FirebaseSuppliersService();
   return service.getSupplier(supplierId);
 };
+
+export const getAllSuppliers = async (filters = {}) => {
+  const service = new FirebaseSuppliersService();
+  return service.getSuppliers(filters);
+};
+
+export const getSuppliersStats = async () => {
+  const service = new FirebaseSuppliersService();
+  return service.getSupplierStats();
+};

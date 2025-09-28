@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { CombustiblesProvider } from '../../contexts/CombustiblesContext';
-import { subscribeToProducts } from '../../services/productsService';
+import { subscribeToProducts } from '../../services/FirebaseProductsService';
 import {
   addMessageListener,
   POPUP_EVENTS,

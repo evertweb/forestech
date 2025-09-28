@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { FUEL_TYPES } from '../../../data/vehicleCategories';
-import { VEHICLE_STATUS } from '../../../services/vehiclesService';
+import { VEHICLE_STATUS } from '../../../services/FirebaseVehiclesService';
 import './VehicleWizardSteps.css';
 
 const Step5_Summary = ({ formData, isActive, extraData }) => {

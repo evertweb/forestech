@@ -4,11 +4,11 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { createMovement, MOVEMENT_TYPES } from '../../services/movementsService';
+import { createMovement, MOVEMENT_TYPES } from '../../services/FirebaseMovementsService';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { getActiveProducts } from '../../services/productsService';
-import { getAllSuppliers } from '../../services/suppliersService';
-import { subscribeToVehicles, getAllVehicles } from '../../services/vehiclesService';
+import { getActiveProducts } from '../../services/FirebaseProductsService';
+import { getAllSuppliers } from '../../services/FirebaseSuppliersService';
+import { subscribeToVehicles, getAllVehicles } from '../../services/FirebaseVehiclesService';
 import { MODAL_PRESETS, UI_ACTIONS, UI_MESSAGES } from '../../constants';
 import {
   validators,

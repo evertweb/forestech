@@ -3,7 +3,7 @@
  * Esta función se puede ejecutar una vez para actualizar vehículos sin iconId
  */
 
-import { getAllVehicles, updateVehicle } from '../services/vehiclesService';
+import { getAllVehicles, updateVehicle } from '../services/FirebaseVehiclesService';
 import { DEFAULT_VEHICLE_ICON, VEHICLE_ICONS } from '../constants/vehicleIcons';
 
 // Mapeo de tipos de vehículos a iconos apropiados

@@ -6,7 +6,7 @@ import {
   subscribeToSuppliers,
   deleteSupplier,
   getSuppliersStats,
-} from '../../services/suppliersService';
+} from '../../services/FirebaseSuppliersService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { updateUserPermissions } from '../../firebase/userService';
 import SuppliersTable from './SuppliersTable';

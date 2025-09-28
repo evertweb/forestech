@@ -10,7 +10,7 @@ import {
   deleteCategory,
   subscribeToCategories,
   getCategoryStats,
-} from '../../services/vehicleCategoriesService';
+} from '../../services/FirebaseVehicleCategoriesService';
 import {
   resetVehicleCategories,
   hasCustomCategories,

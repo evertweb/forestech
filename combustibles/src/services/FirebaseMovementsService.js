@@ -499,3 +499,17 @@ export const subscribeToMovements = (callback) => {
   const service = new FirebaseMovementsService();
   return service.subscribeToMovements(callback);
 };
+
+export const getMovementsStats = async (filters = {}) => {
+  const service = new FirebaseMovementsService();
+  return service.getMovementsStats(filters);
+};
+
+export const approveMovement = async (movementId, approvalData) => {
+  const service = new FirebaseMovementsService();
+  return service.updateMovement(movementId, { 
+    status: 'completado',
+    approvedAt: new Date().toISOString(),
+    ...approvalData 
+  });
+};

@@ -12,7 +12,7 @@ import {
   updateMovement,
   MOVEMENT_TYPES,
   MOVEMENT_STATUS,
-} from '../../services/movementsService';
+} from '../../services/FirebaseMovementsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import MovementsStats from './MovementsStats';
 import MovementsFilters from './MovementsFilters';

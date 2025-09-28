@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { subscribeToMovements } from '../../services/movementsService';
+import { subscribeToMovements } from '../../services/FirebaseMovementsService';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 import './ProductsStats-SAP.css';

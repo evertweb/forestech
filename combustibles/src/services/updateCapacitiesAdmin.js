@@ -3,7 +3,7 @@
  * Integrado con los servicios existentes de la app
  */
 
-import { updateInventoryItem, getAllInventoryItems } from '../services/inventoryService';
+import { updateInventoryItem, getAllInventoryItems } from '../services/FirebaseInventoryService';
 
 /**
  * Actualizar las capacidades de tanques en bodegas Austria e Ilusión
