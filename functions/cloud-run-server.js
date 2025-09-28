@@ -36,7 +36,7 @@ app.get('/test', (req, res) => {
     message: 'Test endpoint working',
     timestamp: new Date().toISOString(),
     service: 'forestech-sql-service',
-    endpoints: 35
+    endpoints: 36
   });
 });
 
@@ -103,7 +103,7 @@ app.use(async (req, res, next) => {
 
 // Importar todos los servicios SQL
 import {
-  createMovement, getAllMovements, updateMovement, deleteMovement
+  createMovement, getAllMovements, updateMovement, deleteMovement, getMovementsStats
 } from './src/sql/movementsService.js';
 
 import {
@@ -152,7 +152,7 @@ import {
 } from './src/sql/databaseHealthService.js';
 
 
-// Rutas para Movements (5 endpoints)
+// Rutas para Movements (6 endpoints)
 app.post('/sqlCreateMovement', async (req, res) => {
   try {
     const { movementData } = req.body;
@@ -195,6 +195,17 @@ app.post('/sqlDeleteMovement', async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('❌ Error en sqlDeleteMovement:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/sqlGetMovementsStats', async (req, res) => {
+  try {
+    const { filters } = req.body;
+    const result = await getMovementsStats(filters);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Error en sqlGetMovementsStats:', error);
     res.status(500).json({ error: error.message });
   }
 });

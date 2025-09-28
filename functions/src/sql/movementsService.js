@@ -678,3 +678,119 @@ export async function deleteMovement(movementId) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Obtener estadísticas de movimientos
+ * @param {Object} filters - Filtros opcionales (type, fuelType, status, dateRange)
+ * @returns {Promise<Object>} - Estadísticas calculadas
+ */
+export async function getMovementsStats(filters = {}) {
+  try {
+    console.log('📊 Calculando estadísticas de movimientos con filtros:', filters);
+
+    const verifyResult = await verifyRequiredTables();
+    if (!verifyResult.success) {
+      return verifyResult;
+    }
+
+    // Construir query con filtros
+    let whereClause = '1=1';
+    const params = {};
+
+    if (filters.type) {
+      whereClause += ' AND type = @type';
+      params.type = filters.type;
+    }
+    if (filters.fuelType) {
+      whereClause += ' AND fuelType = @fuelType';
+      params.fuelType = filters.fuelType;
+    }
+    if (filters.status) {
+      whereClause += ' AND status = @status';
+      params.status = filters.status;
+    }
+    if (filters.dateRange && filters.dateRange !== 'all') {
+      const days = {
+        '7d': 7,
+        '30d': 30,
+        '90d': 90,
+        '1y': 365
+      }[filters.dateRange] || 30;
+      
+      whereClause += ' AND createdAt >= DATEADD(day, -@days, GETDATE())';
+      params.days = days;
+    }
+
+    const query = `
+      SELECT 
+        COUNT(*) as totalMovements,
+        ISNULL(SUM(quantity * unitPrice), 0) as totalValue,
+        ISNULL(AVG(quantity * unitPrice), 0) as avgValue,
+        COUNT(CASE WHEN type = 'entrada' THEN 1 END) as totalEntradas,
+        COUNT(CASE WHEN type = 'salida' THEN 1 END) as totalSalidas,
+        COUNT(CASE WHEN type = 'transferencia' THEN 1 END) as totalTransferencias,
+        COUNT(CASE WHEN type = 'ajuste' THEN 1 END) as totalAjustes,
+        COUNT(CASE WHEN status = 'pendiente' THEN 1 END) as movimientosPendientes,
+        COUNT(CASE WHEN status = 'completado' THEN 1 END) as movimientosCompletados,
+        COUNT(CASE WHEN fuelType = 'ACPM' THEN 1 END) as movimientosACPM,
+        COUNT(CASE WHEN fuelType = 'GASOLINA_CORRIENTE' THEN 1 END) as movimientosGasolina,
+        ISNULL(SUM(CASE WHEN type = 'entrada' THEN quantity ELSE 0 END), 0) as totalEntradasVolumen,
+        ISNULL(SUM(CASE WHEN type = 'salida' THEN quantity ELSE 0 END), 0) as totalSalidasVolumen,
+        MAX(createdAt) as fechaUltimoMovimiento
+      FROM ${TABLE_NAME}
+      WHERE ${whereClause}
+    `;
+
+    const result = await sqlConnection.query(query, params);
+    
+    if (!result || result.length === 0) {
+      return {
+        success: true,
+        data: {
+          totalMovements: 0,
+          totalValue: 0,
+          avgValue: 0,
+          byType: {},
+          byFuelType: {},
+          byStatus: {},
+          lastMovement: null
+        }
+      };
+    }
+
+    const data = result[0];
+    
+    const stats = {
+      totalMovements: data.totalMovements || 0,
+      totalValue: parseFloat(data.totalValue) || 0,
+      avgValue: parseFloat(data.avgValue) || 0,
+      byType: {
+        entrada: data.totalEntradas || 0,
+        salida: data.totalSalidas || 0,
+        transferencia: data.totalTransferencias || 0,
+        ajuste: data.totalAjustes || 0
+      },
+      byFuelType: {
+        ACPM: data.movimientosACPM || 0,
+        GASOLINA_CORRIENTE: data.movimientosGasolina || 0
+      },
+      byStatus: {
+        pendiente: data.movimientosPendientes || 0,
+        completado: data.movimientosCompletados || 0
+      },
+      volumeStats: {
+        totalEntradas: parseFloat(data.totalEntradasVolumen) || 0,
+        totalSalidas: parseFloat(data.totalSalidasVolumen) || 0,
+        balance: parseFloat(data.totalEntradasVolumen || 0) - parseFloat(data.totalSalidasVolumen || 0)
+      },
+      lastMovement: data.fechaUltimoMovimiento || null
+    };
+
+    console.log('✅ Estadísticas de movimientos calculadas exitosamente');
+    return { success: true, data: stats };
+
+  } catch (error) {
+    console.error('❌ Error al calcular estadísticas de movimientos:', error);
+    return { success: false, error: error.message };
+  }
+}
