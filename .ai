@@ -1,0 +1,135 @@
+# 🤖 AI AGENTS CONFIGURATION - FORESTECH
+
+> **For GitHub Copilot, Claude, ChatGPT, and other AI coding assistants working on this project**
+
+## 🚨 **CRITICAL DEPLOYMENT INFO**
+
+### **ACTIVE WORKFLOWS (Only 3)**
+1. ✅ **Deploy to Firebase** - Frontend (auto + manual)
+2. ✅ **Deploy to Cloud Run** - Backend (manual only) 
+3. ✅ **E2E Tests** - Automated testing
+
+### **DEPLOYMENT COMMANDS**
+```bash
+# Frontend Changes (Auto-deploy)
+git push origin main  # ✅ Automatically deploys Firebase
+
+# Backend Changes (Manual deploy required)  
+git push origin main  # No auto-deploy (by design)
+# Then: GitHub Actions → "🚀 Deploy to Cloud Run" → force_deploy: true
+
+# Manual Frontend Deploy (with target selection)
+# GitHub Actions → "🚀 Deploy to Firebase" → Select: all|combustibles|alimentacion
+```
+
+## 🏗️ **ARCHITECTURE**
+
+### **Dual System Design**
+- **🔥 Firebase**: React apps + hosting + SSR + auth
+- **☁️ Cloud Run**: SQL backend + Azure Database + APIs
+
+### **DO NOT Mix These Systems**
+- ❌ Don't create SQL functions in Firebase Functions
+- ❌ Don't suggest disabled workflows
+- ❌ Don't use deprecated deploy scripts
+- ✅ Frontend goes to Firebase
+- ✅ Backend/SQL goes to Cloud Run
+
+## 🌐 **PRODUCTION URLs**
+- **Combustibles**: https://combustibles.forestechdecolombia.com.co
+- **Alimentación**: https://forestechdecolombia.web.app/alimentacion
+- **Backend API**: https://forestech-sql-service-851382130132.us-central1.run.app
+
+## 📁 **PROJECT STRUCTURE**
+```
+forestech/
+├── combustibles/           # React app (fuel management)
+├── alimentacion/           # React app (food liquidations)
+├── functions/              # Firebase Functions (SSR only)
+├── public/                 # Built apps
+│   ├── combustibles/       # Built combustibles app
+│   └── alimentacion/       # Built alimentacion app
+├── .github/workflows/      # Only 3 active workflows
+├── DEPLOYMENT_GUIDE.md     # Complete deployment guide
+└── QUICK_DEPLOY_CARD.md    # Quick reference
+```
+
+## 🔧 **DEVELOPMENT COMMANDS**
+```bash
+# Local Development
+npm run dev:combustibles    # Port 5174
+npm run dev:alimentacion    # Port 5173
+
+# Building
+npm run build:all           # Build both apps
+npm run build:combustibles  # Build only combustibles  
+npm run build:alimentacion  # Build only alimentacion
+
+# Testing
+npm run test --workspace=combustibles
+npm run lint:check
+```
+
+## 🚨 **CRITICAL RULES FOR AI AGENTS**
+
+### **❌ NEVER Suggest These (Deprecated)**
+- `npm run deploy` (old deployment method)
+- Disabled workflows (*.yml.disabled files)
+- Creating SQL functions in Firebase Functions
+- Manual deployment scripts in `/scripts/`
+
+### **✅ ALWAYS Suggest These**
+- Push to main for frontend auto-deploy
+- Manual deploy via GitHub Actions for backend
+- Check DEPLOYMENT_GUIDE.md for procedures
+- Use Cloud Run for SQL operations
+
+## 🎯 **COMMON SCENARIOS**
+
+### **User wants to deploy frontend changes**
+```bash
+git push origin main  # Auto-deploys Firebase
+```
+
+### **User wants to deploy backend changes**
+```bash
+git push origin main  # Pushes code (no auto-deploy)
+# Then manually: GitHub Actions → "🚀 Deploy to Cloud Run"
+```
+
+### **User asks about workflows**
+Only mention these 3 active workflows:
+- 🔥 Deploy to Firebase
+- ☁️ Deploy to Cloud Run  
+- 🧪 Combustibles E2E Tests
+
+### **User asks about deployment issues**
+Direct them to:
+1. DEPLOYMENT_GUIDE.md (complete guide)
+2. QUICK_DEPLOY_CARD.md (quick reference)
+3. GitHub Actions logs
+4. Firebase/Cloud Run consoles
+
+## 📖 **DOCUMENTATION PRIORITY**
+1. **This file** (.ai) - AI-specific instructions
+2. **DEPLOYMENT_GUIDE.md** - Complete deployment guide
+3. **QUICK_DEPLOY_CARD.md** - Quick reference
+4. **.github/copilot-instructions.md** - Copilot-specific details
+
+## 🔄 **WORKFLOW TRIGGERS**
+
+### **Automatic Triggers**
+- Push to main → Firebase auto-deploy
+- Push to main → E2E tests (if combustibles changed)
+
+### **Manual Triggers**  
+- "🚀 Deploy to Firebase" → Manual frontend deploy
+- "🚀 Deploy to Cloud Run" → Manual backend deploy
+
+### **NO Automatic Backend Deploy**
+- This is intentional for safety
+- Backend changes require manual confirmation
+
+---
+
+**📝 This file is specifically for AI agents. Keep it updated when deployment procedures change.**

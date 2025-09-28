@@ -1,0 +1,20 @@
+# AI Configuration Files
+.ai linguist-language=Markdown linguist-documentation=true
+.chatgpt linguist-language=Markdown linguist-documentation=true
+.claude/* linguist-language=Markdown linguist-documentation=true
+DEPLOYMENT_GUIDE.md linguist-documentation=true
+QUICK_DEPLOY_CARD.md linguist-documentation=true
+
+# Documentation
+*.md linguist-documentation=true
+docs/* linguist-documentation=true
+
+# Generated files
+public/* linguist-generated=true
+dist/* linguist-generated=true
+build/* linguist-generated=true
+
+# Config files
+*.json linguist-language=JSON
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML

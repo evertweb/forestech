@@ -4,6 +4,29 @@
 
 Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + Cloud Run + Azure SQL.
 
+## 🤖 **PARA AGENTES DE IA (GitHub Copilot, Claude, ChatGPT)**
+
+### **📋 Información Crítica de Deployment**
+- **Frontend**: Auto-deploy con `git push origin main`
+- **Backend**: Manual deploy via GitHub Actions únicamente
+- **Solo 3 workflows activos** (ignorar archivos .disabled)
+- **Arquitectura dual**: Firebase (frontend) + Cloud Run (backend)
+
+### **📁 Archivos de Configuración para IA**
+- **`.ai`** - Instrucciones generales para todos los agentes
+- **`.github/copilot-instructions.md`** - Instrucciones específicas GitHub Copilot  
+- **`.chatgpt`** - Instrucciones específicas ChatGPT
+- **`.claude/instructions.md`** - Instrucciones específicas Claude
+
+### **🚨 Reglas Críticas para IA**
+- ❌ NO sugerir workflows desactivados (.yml.disabled)
+- ❌ NO usar `npm run deploy` (deprecated)
+- ❌ NO crear funciones SQL en Firebase Functions
+- ✅ Revisar DEPLOYMENT_GUIDE.md para procedimientos
+- ✅ Distinguir entre Firebase (frontend) y Cloud Run (backend)
+
+---
+
 ## 🏗️ **ARQUITECTURA**
 
 - **🔥 Firebase**: Apps React (Combustibles + Alimentación) + SSR

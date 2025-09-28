@@ -1,0 +1,42 @@
+# 🤖 ChatGPT Instructions - Forestech Project
+
+## 🚨 **CRITICAL DEPLOYMENT INFO**
+
+### **Current Deployment Setup (Sept 2025)**
+- **Frontend**: Auto-deploys on `git push origin main`
+- **Backend**: Manual deploy via GitHub Actions only
+- **Only 3 active workflows** - ignore any disabled .yml files
+
+### **If user asks about deployment:**
+1. **Frontend changes**: `git push origin main` (auto-deploys)
+2. **Backend changes**: Push code + manual GitHub Actions deploy
+3. **Full guide**: Refer to `DEPLOYMENT_GUIDE.md`
+4. **Quick ref**: Refer to `QUICK_DEPLOY_CARD.md`
+
+## 🏗️ **Architecture**
+- **Firebase**: React apps + hosting + auth + SSR
+- **Cloud Run**: SQL backend + Azure Database + APIs
+- **Separate systems** - don't mix them
+
+## 🌐 **Production URLs**
+- Combustibles: https://combustibles.forestechdecolombia.com.co
+- Alimentación: https://forestechdecolombia.web.app/alimentacion
+- Backend API: https://forestech-sql-service-851382130132.us-central1.run.app
+
+## 📋 **Common Commands**
+```bash
+# Development
+npm run dev:combustibles  # port 5174
+npm run dev:alimentacion  # port 5173
+
+# Building
+npm run build:all
+
+# NO LONGER USE: npm run deploy (deprecated)
+```
+
+## 🚨 **Rules for ChatGPT**
+- ❌ Don't suggest deprecated deployment methods
+- ❌ Don't reference disabled workflows
+- ✅ Always check latest deployment guide files
+- ✅ Distinguish between Firebase and Cloud Run operations
