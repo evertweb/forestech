@@ -74,7 +74,7 @@ jobs:
       - name: 🚀 Deploy to Firebase (full)
         run: |
           echo "🚀 Deploying release to Firebase..."
-          firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }} --json | tee deploy-result.json
+          firebase deploy --only hosting:forestechdecolombia,hosting:combustibles-subdomain --token ${{ secrets.FIREBASE_TOKEN }} --json | tee deploy-result.json
 
           # Mostrar resultado
           if grep -q '"status": "success"' deploy-result.json; then

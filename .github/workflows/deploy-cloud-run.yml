@@ -1,13 +1,20 @@
 name: 🚀 Deploy to Cloud Run
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'functions/**'
-      - 'combustibles/src/services/**'
-      - '.github/workflows/deploy-cloud-run.yml'
+  # push:                    # Temporalmente deshabilitado por problemas de permisos
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'functions/**'
+  #     - 'combustibles/src/services/**'
+  #     - '.github/workflows/deploy-cloud-run.yml'
+  workflow_dispatch:         # Solo deploy manual hasta fix permisos
+    inputs:
+      force_deploy:
+        description: 'Force deploy to Cloud Run (requiere permisos storage.admin)'
+        required: true
+        default: false
+        type: boolean
 
 env:
   NODE_VERSION: '20'
@@ -48,8 +55,14 @@ jobs:
           npm ci --prefer-offline --no-audit --no-fund
 
       - name: 🏗️ Build and Deploy to Cloud Run
+        if: github.event.inputs.force_deploy == 'true'
         run: |
           echo "🚀 Deploying to Cloud Run..."
+          echo "⚠️ NOTA: Este deploy requiere permisos adicionales:"
+          echo "   - roles/run.admin"
+          echo "   - roles/storage.admin" 
+          echo "   - roles/cloudbuild.builds.builder"
+          echo ""
           cd functions
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --source . \
@@ -65,7 +78,27 @@ jobs:
             --set-env-vars="FIREBASE_PROJECT_ID=${{ env.GCLOUD_PROJECT }}" \
             --set-env-vars="GCLOUD_PROJECT=${{ env.GCLOUD_PROJECT }}"
 
+      - name: ℹ️ Permisos Requeridos
+        if: github.event.inputs.force_deploy != 'true'
+        run: |
+          echo "⚠️ Deploy Cloud Run deshabilitado por falta de permisos."
+          echo ""
+          echo "🔧 Para habilitar, el service account necesita estos roles:"
+          echo "   • roles/run.admin                   (Cloud Run Admin)"
+          echo "   • roles/storage.admin               (Cloud Storage Admin)"
+          echo "   • roles/cloudbuild.builds.builder   (Cloud Build Service Account)"
+          echo "   • roles/iam.serviceAccountUser      (Service Account User)"
+          echo ""
+          echo "📋 Service Account actual:"
+          echo "   github-action-1002035008@liquidacionapp-62962.iam.gserviceaccount.com"
+          echo ""
+          echo "🌐 Cloud Run actual funcionando en:"
+          echo "   https://forestech-sql-service-851382130132.us-central1.run.app/"
+          echo ""
+          echo "💡 Mientras tanto, Cloud Run sigue funcionando con el deploy anterior."
+
       - name: ✅ Verify Deployment
+        if: github.event.inputs.force_deploy == 'true'
         run: |
           echo "🔍 Verifying deployment..."
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \

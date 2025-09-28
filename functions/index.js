@@ -108,17 +108,72 @@ app.get('/seo-validation', seoValidationHandler);
 app.post('/seo-validation', seoValidationHandler);
 
 // ====================================================================
-// ÚNICA FUNCIÓN EXPORTADA: SSR unificada para subpath Y subdomain
-// Gen 1 para EVITAR conflicto con Cloud Run SQL 
+// FUNCIONES EXPORTADAS: SSR + Funciones web esenciales (Gen 1)
 // ====================================================================
+
+// SSR Function - Principal (Gen 1)
 export const ssrCombustibles = https.onRequest(app);
 
 // ====================================================================
-// ELIMINADAS TEMPORALMENTE:
-// - linkTelegramAccount (mover a Cloud Run si necesario)
-// - Todas las SQL functions (ya están en Cloud Run)
-// - Webhook functions (ya están en Cloud Run)
+// FUNCIONES MÍNIMAS PARA EVITAR 404s (Gen 1 - redireccionan a Cloud Run)
 // ====================================================================
+
+// Webhook redirector - redirige a Cloud Run (Gen 1)
+export const combustiblesWebhookReceiver = https.onRequest((req, res) => {
+  const cloudRunURL = 'https://forestech-sql-service-851382130132.us-central1.run.app';
+  
+  if (req.method === 'GET') {
+    res.status(200).json({
+      message: 'Webhook receiver moved to Cloud Run',
+      cloudRunURL: `${cloudRunURL}/webhook`,
+      status: 'redirected'
+    });
+  } else {
+    // Redirect POST/PUT/DELETE to Cloud Run
+    res.status(307).json({
+      message: 'Webhook moved to Cloud Run - please update your endpoint',
+      newURL: `${cloudRunURL}/webhook`,
+      method: req.method
+    });
+  }
+});
+
+// Telegram link redirector - redirige a Cloud Run (Gen 1)
+export const linkTelegramAccount = https.onRequest((req, res) => {
+  const cloudRunURL = 'https://forestech-sql-service-851382130132.us-central1.run.app';
+  
+  res.status(307).json({
+    message: 'Telegram integration moved to Cloud Run',
+    newURL: `${cloudRunURL}/telegram/link`,
+    redirect: true
+  });
+});
+
+// Passkey functions redirectors - redirigen a extensión Firebase (Gen 1)
+const passkeyRedirect = (functionName) => https.onRequest((req, res) => {
+  res.status(200).json({
+    message: `${functionName} handled by Firebase Web Authn Extension`,
+    extension: 'ext-firebase-web-authn-api',
+    status: 'extension_handled'
+  });
+});
+
+export const checkUserPasskeys = passkeyRedirect('checkUserPasskeys');
+export const generatePasskeyToken = passkeyRedirect('generatePasskeyToken');
+
+// Face recognition redirectors - redirigen a Cloud Run (Gen 1)
+const faceRedirect = (functionName) => https.onRequest((req, res) => {
+  const cloudRunURL = 'https://forestech-sql-service-851382130132.us-central1.run.app';
+  
+  res.status(200).json({
+    message: `${functionName} moved to Cloud Run for better performance`,
+    newURL: `${cloudRunURL}/face/${functionName.replace('Face', '').toLowerCase()}`,
+    redirect: true
+  });
+});
+
+export const loginFace = faceRedirect('loginFace');
+export const registerFace = faceRedirect('registerFace');
 
 // ====================================================================
 // NOTA: Funciones SQL ELIMINADAS de Firebase Functions
