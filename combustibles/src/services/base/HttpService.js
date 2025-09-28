@@ -95,6 +95,8 @@ export class HttpService {
    */
   async callEndpoint(endpoint, data = {}) {
     try {
+      console.log(`🔍 HttpService.callEndpoint - INICIO: ${endpoint}`, { data, baseUrl: this.baseUrl });
+
       // Verificar circuit breaker ANTES de hacer la llamada
       if (this.isCircuitOpen(endpoint)) {
         console.warn(`⚡ Circuit Breaker: ${endpoint} está CERRADO temporalmente`);
@@ -123,16 +125,31 @@ export class HttpService {
         };
       }
 
-      const idToken = await this.getIdToken();
+      console.log(`✅ HttpService.callEndpoint - Autenticación exitosa para ${endpoint}`);
 
-      const response = await fetch(`${this.baseUrl}/${endpoint}`, {
+      const idToken = await this.getIdToken();
+      console.log(`🔑 HttpService.callEndpoint - Token obtenido (longitud: ${idToken?.length || 0})`);
+
+      const fullUrl = `${this.baseUrl}/${endpoint}`;
+      const requestBody = JSON.stringify(data);
+
+      console.log(`📤 HttpService.callEndpoint - Enviando request:`, {
+        url: fullUrl,
+        method: 'POST',
+        bodyLength: requestBody.length,
+        bodyPreview: requestBody.substring(0, 200) + (requestBody.length > 200 ? '...' : '')
+      });
+
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`,
         },
-        body: JSON.stringify(data),
+        body: requestBody,
       });
+
+      console.log(`📥 HttpService.callEndpoint - Response status: ${response.status}`);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -161,10 +178,11 @@ export class HttpService {
       }
     } catch (error) {
       console.error(`❌ Cloud Run: Error en ${endpoint}:`, error);
-      
+      console.error(`❌ HttpService.callEndpoint - Stack trace:`, error.stack);
+
       // Registrar fallo en circuit breaker
       this.recordFailure(endpoint);
-      
+
       return {
         success: false,
         error: error.message || 'Error de conexión',

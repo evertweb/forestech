@@ -1,3 +1,4 @@
+
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -23,6 +24,7 @@ export default defineConfig(({ mode }) => {
   // 🔧 PROXY PARA FIREBASE WEB AUTHN API - CORREGIDO PARA BASE PATH
   server: {
     port: 5174, // Puerto diferente al de alimentación (5173)
+    host: process.env.CODESPACE_NAME ? '0.0.0.0' : undefined, // Bind to all interfaces in Codespaces
     proxy: {
       // Proxy único para Firebase Web Authn API
       '^/firebase-web-authn-api': {

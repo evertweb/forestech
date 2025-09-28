@@ -21,6 +21,17 @@ export const MOVEMENT_STATUS = {
   CANCELADO: 'cancelado',
 };
 
+/**
+ * Tipos de movimiento personalizables (para futura expansión)
+ */
+export const MOVEMENT_TYPE_DEFINITIONS = {
+  ENTRADA: { name: 'Entrada', description: 'Ingreso de combustible al inventario' },
+  SALIDA: { name: 'Salida', description: 'Consumo o distribución de combustible' },
+  TRANSFERENCIA: { name: 'Transferencia', description: 'Movimiento entre ubicaciones' },
+  AJUSTE: { name: 'Ajuste', description: 'Corrección de inventario' },
+  MANTENIMIENTO: { name: 'Mantenimiento', description: 'Movimientos relacionados con mantenimiento' },
+};
+
 class FirebaseMovementsService extends HttpService {
   constructor() {
     super();
@@ -33,28 +44,45 @@ class FirebaseMovementsService extends HttpService {
    */
   async createMovement(movementData) {
     try {
+      console.log('🔥 FirebaseMovementsService.createMovement - INICIO:', movementData);
+
       if (!(await this.isAuthenticated())) {
+        console.error('❌ FirebaseMovementsService.createMovement - Usuario no autenticado');
         return { success: false, error: 'Usuario no autenticado' };
       }
+
+      console.log('✅ FirebaseMovementsService.createMovement - Usuario autenticado');
 
       // Normalizar fuelType
       if (movementData.fuelType) {
         movementData.fuelType = movementData.fuelType.toUpperCase();
       }
 
+      console.log('🔧 FirebaseMovementsService.createMovement - Datos normalizados:', movementData);
+
       // Validar datos básicos
       this.validateMovementData(movementData);
+      console.log('✅ FirebaseMovementsService.createMovement - Validación exitosa');
 
-      const result = await this.callEndpoint('sqlCreateMovement', {
+      const currentUser = await this.getCurrentUser();
+      console.log('👤 FirebaseMovementsService.createMovement - Usuario actual:', currentUser);
+
+      const payload = {
         movementData: {
           ...movementData,
-          createdBy: (await this.getCurrentUser())?.uid
+          createdBy: currentUser?.uid
         }
-      });
+      };
+
+      console.log('📤 FirebaseMovementsService.createMovement - Payload a enviar:', payload);
+
+      const result = await this.callEndpoint('sqlCreateMovement', payload);
+
+      console.log('📥 FirebaseMovementsService.createMovement - Resultado recibido:', result);
 
       return result;
     } catch (error) {
-      console.error('Error al crear movimiento:', error);
+      console.error('❌ FirebaseMovementsService.createMovement - Error:', error);
       return { success: false, error: error.message };
     }
   }

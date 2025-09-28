@@ -363,6 +363,7 @@ const revertInventoryChanges = async (transaction, movement) => {
 export async function createMovement(movementData, userInfo = null) {
   try {
     console.log('🚀 Iniciando creación de movimiento SQL en Functions:', movementData);
+    console.log('👤 Información del usuario:', userInfo);
 
     // Verificar que las tablas requeridas existan
     const tableVerification = await verifyRequiredTables();
@@ -377,13 +378,18 @@ export async function createMovement(movementData, userInfo = null) {
       };
     }
 
+    console.log('✅ Verificación de tablas exitosa');
+
     // Normalizar fuelType
     if (movementData.fuelType) {
       movementData.fuelType = movementData.fuelType.toUpperCase();
     }
 
+    console.log('🔧 Datos normalizados:', movementData);
+
     // Validar datos básicos
     validateMovementData(movementData);
+    console.log('✅ Validación de datos exitosa');
 
     // Preparar datos del movimiento
     const movement = {

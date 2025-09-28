@@ -26,24 +26,86 @@ class FirebaseVehicleCategoriesService extends HttpService {
    */
   async createCategory(categoryData) {
     try {
-      if (!this.isAuthenticated()) {
+      console.log('🔥 FirebaseVehicleCategoriesService.createCategory - INICIO:', categoryData);
+
+      // Verificar autenticación
+      if (!(await this.isAuthenticated())) {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Usuario no autenticado');
         return { success: false, error: 'Usuario no autenticado' };
       }
 
-      if (!categoryData.name) {
-        return { success: false, error: 'El nombre de la categoría es requerido' };
+      // Verificar permisos
+      const currentUser = await this.getCurrentUser();
+      if (!currentUser?.combustiblesPermissions?.['categories:create']) {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Usuario sin permisos para crear categorías');
+        return { success: false, error: 'No tiene permisos para crear categorías' };
       }
 
-      const result = await this.callEndpoint('sqlCreateCategory', {
+      console.log('✅ FirebaseVehicleCategoriesService.createCategory - Usuario autenticado y con permisos');
+
+      // Validación de payload básico
+      if (!categoryData || typeof categoryData !== 'object') {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Payload inválido:', categoryData);
+        return { success: false, error: 'Datos de categoría inválidos' };
+      }
+
+      // Validación de campos requeridos
+      if (!categoryData.name || typeof categoryData.name !== 'string' || categoryData.name.trim().length === 0) {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Nombre requerido:', categoryData.name);
+        return { success: false, error: 'El nombre de la categoría es requerido y debe ser texto válido' };
+      }
+
+      if (categoryData.name.trim().length < 2) {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Nombre demasiado corto:', categoryData.name);
+        return { success: false, error: 'El nombre debe tener al menos 2 caracteres' };
+      }
+
+      // Validación de fuelTypes si está presente
+      if (categoryData.fuelTypes !== undefined) {
+        if (!Array.isArray(categoryData.fuelTypes)) {
+          console.error('❌ FirebaseVehicleCategoriesService.createCategory - fuelTypes debe ser array:', categoryData.fuelTypes);
+          return { success: false, error: 'Los tipos de combustible deben ser un array' };
+        }
+        if (categoryData.fuelTypes.length === 0) {
+          console.error('❌ FirebaseVehicleCategoriesService.createCategory - fuelTypes vacío');
+          return { success: false, error: 'Debe seleccionar al menos un tipo de combustible' };
+        }
+      }
+
+      // Validación de code si está presente
+      if (categoryData.code && (typeof categoryData.code !== 'string' || categoryData.code.trim().length === 0)) {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Código inválido:', categoryData.code);
+        return { success: false, error: 'El código debe ser texto válido' };
+      }
+
+      console.log('✅ FirebaseVehicleCategoriesService.createCategory - Validación exitosa');
+
+      // Preparar payload para Cloud Run
+      const payload = {
         categoryData: {
           ...categoryData,
-          createdBy: this.getCurrentUser()?.uid
+          name: categoryData.name.trim(),
+          code: categoryData.code ? categoryData.code.trim().toUpperCase() : this.generateCategoryCode(categoryData.name),
+          createdBy: currentUser.uid,
+          createdAt: new Date().toISOString(),
         }
-      });
+      };
+
+      console.log('📤 FirebaseVehicleCategoriesService.createCategory - Payload a enviar:', payload);
+
+      const result = await this.callEndpoint('sqlCreateCategory', payload);
+
+      console.log('📥 FirebaseVehicleCategoriesService.createCategory - Resultado recibido:', result);
+
+      if (result.success) {
+        console.log('✅ FirebaseVehicleCategoriesService.createCategory - Categoría creada exitosamente');
+      } else {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Error en Cloud Run:', result.error);
+      }
 
       return result;
     } catch (error) {
-      console.error('Error creando categoría:', error);
+      console.error('❌ FirebaseVehicleCategoriesService.createCategory - Error inesperado:', error);
       return {
         success: false,
         error: 'Error al crear la categoría: ' + error.message
@@ -129,21 +191,83 @@ class FirebaseVehicleCategoriesService extends HttpService {
    */
   async updateCategory(categoryId, updateData) {
     try {
-      if (!this.isAuthenticated()) {
+      console.log('🔥 FirebaseVehicleCategoriesService.updateCategory - INICIO:', { categoryId, updateData });
+
+      // Verificar autenticación
+      if (!(await this.isAuthenticated())) {
+        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Usuario no autenticado');
         return { success: false, error: 'Usuario no autenticado' };
       }
 
-      const result = await this.callEndpoint('sqlUpdateCategory', {
-        categoryId,
+      // Verificar permisos
+      const currentUser = await this.getCurrentUser();
+      if (!currentUser?.combustiblesPermissions?.['categories:update']) {
+        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Usuario sin permisos para actualizar categorías');
+        return { success: false, error: 'No tiene permisos para actualizar categorías' };
+      }
+
+      // Validación de parámetros
+      if (!categoryId || typeof categoryId !== 'string' || categoryId.trim().length === 0) {
+        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - ID de categoría inválido:', categoryId);
+        return { success: false, error: 'ID de categoría requerido' };
+      }
+
+      if (!updateData || typeof updateData !== 'object' || Object.keys(updateData).length === 0) {
+        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Datos de actualización inválidos:', updateData);
+        return { success: false, error: 'Datos de actualización requeridos' };
+      }
+
+      // Validación específica de campos
+      if (updateData.name !== undefined) {
+        if (typeof updateData.name !== 'string' || updateData.name.trim().length === 0) {
+          console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Nombre inválido:', updateData.name);
+          return { success: false, error: 'El nombre debe ser texto válido' };
+        }
+        if (updateData.name.trim().length < 2) {
+          console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Nombre demasiado corto:', updateData.name);
+          return { success: false, error: 'El nombre debe tener al menos 2 caracteres' };
+        }
+        updateData.name = updateData.name.trim();
+      }
+
+      if (updateData.fuelTypes !== undefined) {
+        if (!Array.isArray(updateData.fuelTypes)) {
+          console.error('❌ FirebaseVehicleCategoriesService.updateCategory - fuelTypes debe ser array:', updateData.fuelTypes);
+          return { success: false, error: 'Los tipos de combustible deben ser un array' };
+        }
+        if (updateData.fuelTypes.length === 0) {
+          console.error('❌ FirebaseVehicleCategoriesService.updateCategory - fuelTypes vacío');
+          return { success: false, error: 'Debe seleccionar al menos un tipo de combustible' };
+        }
+      }
+
+      console.log('✅ FirebaseVehicleCategoriesService.updateCategory - Validación exitosa');
+
+      // Preparar payload
+      const payload = {
+        categoryId: categoryId.trim(),
         updateData: {
           ...updateData,
-          updatedBy: this.getCurrentUser()?.uid
+          updatedBy: currentUser.uid,
+          updatedAt: new Date().toISOString(),
         }
-      });
+      };
+
+      console.log('📤 FirebaseVehicleCategoriesService.updateCategory - Payload a enviar:', payload);
+
+      const result = await this.callEndpoint('sqlUpdateCategory', payload);
+
+      console.log('📥 FirebaseVehicleCategoriesService.updateCategory - Resultado recibido:', result);
+
+      if (result.success) {
+        console.log('✅ FirebaseVehicleCategoriesService.updateCategory - Categoría actualizada exitosamente');
+      } else {
+        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Error en Cloud Run:', result.error);
+      }
 
       return result;
     } catch (error) {
-      console.error('Error actualizando categoría:', error);
+      console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Error inesperado:', error);
       return {
         success: false,
         error: 'Error al actualizar la categoría: ' + error.message
@@ -158,10 +282,48 @@ class FirebaseVehicleCategoriesService extends HttpService {
    */
   async deleteCategory(categoryId) {
     try {
-      const result = await this.callEndpoint('sqlDeleteCategory', { categoryId });
+      console.log('🔥 FirebaseVehicleCategoriesService.deleteCategory - INICIO:', categoryId);
+
+      // Verificar autenticación
+      if (!(await this.isAuthenticated())) {
+        console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - Usuario no autenticado');
+        return { success: false, error: 'Usuario no autenticado' };
+      }
+
+      // Verificar permisos
+      const currentUser = await this.getCurrentUser();
+      if (!currentUser?.combustiblesPermissions?.['categories:delete']) {
+        console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - Usuario sin permisos para eliminar categorías');
+        return { success: false, error: 'No tiene permisos para eliminar categorías' };
+      }
+
+      // Validación de parámetros
+      if (!categoryId || typeof categoryId !== 'string' || categoryId.trim().length === 0) {
+        console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - ID de categoría inválido:', categoryId);
+        return { success: false, error: 'ID de categoría requerido' };
+      }
+
+      console.log('✅ FirebaseVehicleCategoriesService.deleteCategory - Validación exitosa');
+
+      const payload = {
+        categoryId: categoryId.trim()
+      };
+
+      console.log('📤 FirebaseVehicleCategoriesService.deleteCategory - Payload a enviar:', payload);
+
+      const result = await this.callEndpoint('sqlDeleteCategory', payload);
+
+      console.log('📥 FirebaseVehicleCategoriesService.deleteCategory - Resultado recibido:', result);
+
+      if (result.success) {
+        console.log('✅ FirebaseVehicleCategoriesService.deleteCategory - Categoría eliminada exitosamente');
+      } else {
+        console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - Error en Cloud Run:', result.error);
+      }
+
       return result;
     } catch (error) {
-      console.error('Error eliminando categoría:', error);
+      console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - Error inesperado:', error);
       return {
         success: false,
         error: 'Error al eliminar la categoría: ' + error.message

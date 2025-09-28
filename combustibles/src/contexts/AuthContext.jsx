@@ -56,10 +56,12 @@ export const AuthProvider = ({ children }) => {
           let profileResult = await getUserProfile(firebaseUser.uid);
 
           if (!profileResult.success) {
+            console.log('👤 AuthContext: Perfil no encontrado, intentando crear uno nuevo');
             profileResult = await createUserProfile(firebaseUser);
           }
 
           if (profileResult.success) {
+            console.log('👤 AuthContext: Perfil cargado exitosamente:', profileResult.userData?.email);
             setUserProfile(profileResult.userData);
 
             // Enviar notificación de login a n8n si:
@@ -102,7 +104,30 @@ export const AuthProvider = ({ children }) => {
             // Actualizar el último UID de usuario
             lastUserUidRef.current = firebaseUser.uid;
           } else {
-            setError('Error cargando perfil de usuario');
+            console.error('👤 AuthContext: Error cargando perfil de usuario:', profileResult.error);
+            // Fallback: crear perfil básico con permisos limitados para evitar bloqueo de UI
+            const fallbackProfile = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              role: 'user',
+              combustiblesPermissions: {
+                // Permisos básicos de solo lectura para evitar bloqueo completo
+                'movements:read': true,
+                'inventory:read': true,
+                'vehicles:read': true,
+                'categories:read': true,
+                // Permisos de creación deshabilitados por defecto
+                'movements:create': false,
+                'categories:create': false,
+                'vehicles:create': false,
+              },
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+            console.log('🔄 AuthContext: Aplicando perfil fallback con permisos básicos');
+            setUserProfile(fallbackProfile);
+            setError('Perfil cargado con permisos limitados - contacte al administrador');
           }
         } else {
           setUser(null);
