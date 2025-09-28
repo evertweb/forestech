@@ -5,6 +5,7 @@
  */
 
 import sqlConnection from './SqlConnection.js';
+import sql from 'mssql';
 
 const TABLE_NAME = 'combustibles_vehicle_categories';
 
@@ -66,7 +67,7 @@ export async function createCategory(categoryData, userInfo = null) {
     }
 
     // Generar código automático si no se proporciona
-    const code = categoryData.code || generateCategoryCode(categoryData.name);
+    const code = categoryData.code || categoryData.uniqueCode || generateCategoryCode(categoryData.name);
 
     // Obtener el siguiente sortOrder
     const sortOrderQuery = `
@@ -74,6 +75,13 @@ export async function createCategory(categoryData, userInfo = null) {
     `;
     const sortOrderResult = await sqlConnection.query(sortOrderQuery);
     const nextSortOrder = sortOrderResult[0].nextSortOrder;
+
+    // Mapear datos del frontend al formato de base de datos
+    const customFieldsData = {
+      fields: categoryData.fields || [],
+      fuelTypes: categoryData.fuelTypes || [],
+      ...(categoryData.customFields || {})
+    };
 
     // Preparar datos de la categoría
     const category = {
@@ -83,10 +91,10 @@ export async function createCategory(categoryData, userInfo = null) {
       type: categoryData.type || CATEGORY_TYPES.VEHICLE,
       icon: categoryData.icon || 'vehicle',
       color: categoryData.color || '#4F46E5',
-      customFields: JSON.stringify(categoryData.customFields || {}),
-      defaultFuelType: categoryData.defaultFuelType || 'DIESEL',
+      customFields: JSON.stringify(customFieldsData),
+      defaultFuelType: (categoryData.fuelTypes && categoryData.fuelTypes[0]) || categoryData.defaultFuelType || 'DIESEL',
       estimatedConsumption: categoryData.estimatedConsumption || 0,
-      isActive: categoryData.isActive !== false,
+      isActive: categoryData.isActive !== false ? 1 : 0,  // Convertir a bit
       sortOrder: categoryData.sortOrder || nextSortOrder,
       vehicleCount: 0,
       createdAt: new Date(),
@@ -95,25 +103,58 @@ export async function createCategory(categoryData, userInfo = null) {
       updatedBy: userInfo?.email || 'unknown',
     };
 
+    console.log('🔍 DEBUG - Datos mapeados para inserción:', category);
+
     // Crear categoría en transacción
     const result = await sqlConnection.transaction(async (transaction) => {
       const columns = Object.keys(category);
       const values = columns.map((_, index) => `@param${index}`);
+      
+      // Log detallado para debug
+      console.log('🔍 DEBUG - Columnas a insertar:', columns);
+      console.log('🔍 DEBUG - Valores a insertar:', Object.values(category));
+      
       const insertQuery = `
         INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
         VALUES (${values.join(', ')});
         SELECT SCOPE_IDENTITY() as id;
       `;
+      
+      console.log('🔍 DEBUG - Query generada:', insertQuery);
 
       const insertRequest = transaction.request();
       columns.forEach((col, index) => {
-        insertRequest.input(`param${index}`, category[col]);
+        const value = category[col];
+        console.log(`🔍 DEBUG - Parámetro ${index}: ${col} = ${value} (type: ${typeof value})`);
+        
+        // Manejar tipos específicos para SQL Server
+        if (col === 'isActive') {
+          insertRequest.input(`param${index}`, sql.Bit, value ? 1 : 0);
+        } else if (col === 'estimatedConsumption') {
+          insertRequest.input(`param${index}`, sql.Decimal(8, 3), value || null);
+        } else if (col === 'sortOrder' || col === 'vehicleCount') {
+          insertRequest.input(`param${index}`, sql.Int, value || 0);
+        } else if (col === 'createdAt' || col === 'updatedAt') {
+          insertRequest.input(`param${index}`, sql.DateTime2, value);
+        } else if (col === 'customFields') {
+          insertRequest.input(`param${index}`, sql.NVarChar(sql.MAX), value);
+        } else {
+          insertRequest.input(`param${index}`, value);
+        }
       });
+      
+      console.log('🔍 DEBUG - Ejecutando query...');
       const createResult = await insertRequest.query(insertQuery);
+      
+      console.log('🔍 DEBUG - Resultado completo:', createResult);
+      console.log('🔍 DEBUG - Recordset:', createResult.recordset);
+      
       const categoryId = createResult.recordset[0]?.id;
+      console.log('🔍 DEBUG - Category ID obtenido:', categoryId);
 
       if (!categoryId) {
-        throw new Error('No se pudo crear la categoría');
+        console.log('❌ DEBUG - SCOPE_IDENTITY() retornó null o undefined');
+        throw new Error('No se pudo crear la categoría - SCOPE_IDENTITY() falló');
       }
 
       return { id: categoryId, ...category };
