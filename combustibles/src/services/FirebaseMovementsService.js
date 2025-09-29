@@ -4,7 +4,7 @@
  * Forestech Combustibles App
  */
 
-import HttpService from './base/HttpService.js';
+import { httpsCallable, getFunctions } from 'firebase/functions';
 
 // Tipos de movimientos (mantenemos compatibilidad)
 export const MOVEMENT_TYPES = {
@@ -32,9 +32,17 @@ export const MOVEMENT_TYPE_DEFINITIONS = {
   MANTENIMIENTO: { name: 'Mantenimiento', description: 'Movimientos relacionados con mantenimiento' },
 };
 
-class FirebaseMovementsService extends HttpService {
+class FirebaseMovementsService {
   constructor() {
-    super();
+    this.functions = getFunctions();
+  }
+
+  async isAuthenticated() {
+    return true;
+  }
+
+  async getCurrentUser() {
+    return null;
   }
 
   /**
@@ -76,11 +84,14 @@ class FirebaseMovementsService extends HttpService {
 
       console.log('📤 FirebaseMovementsService.createMovement - Payload a enviar:', payload);
 
-      const result = await this.callEndpoint('sqlCreateMovement', payload);
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'create',
+        data: payload
+      });
 
       console.log('📥 FirebaseMovementsService.createMovement - Resultado recibido:', result);
 
-      return result;
+      return result.data;
     } catch (error) {
       console.error('❌ FirebaseMovementsService.createMovement - Error:', error);
       return { success: false, error: error.message };
@@ -99,11 +110,15 @@ class FirebaseMovementsService extends HttpService {
         filters.fuelType = filters.fuelType.toUpperCase();
       }
 
-      const result = await this.callEndpoint('sqlGetAllMovements', { filters });
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'getAll',
+        data: { filters }
+      });
 
-      if (result.success && result.data) {
+      const data = result.data;
+      if (data) {
         // Convertir timestamps para compatibilidad con frontend
-        return result.data.map(movement => ({
+        return data.map(movement => ({
           ...movement,
           createdAt: movement.createdAt?.toISOString(),
           updatedAt: movement.updatedAt?.toISOString(),
@@ -125,15 +140,19 @@ class FirebaseMovementsService extends HttpService {
    */
   async getMovement(movementId) {
     try {
-      const result = await this.callEndpoint('sqlGetMovement', { movementId });
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'get',
+        data: { movementId }
+      });
 
-      if (result.success && result.data) {
+      const data = result.data;
+      if (data) {
         // Convertir timestamps
         return {
-          ...result.data,
-          createdAt: result.data.createdAt?.toISOString(),
-          updatedAt: result.data.updatedAt?.toISOString(),
-          effectiveDate: result.data.effectiveDate?.toISOString(),
+          ...data,
+          createdAt: data.createdAt?.toISOString(),
+          updatedAt: data.updatedAt?.toISOString(),
+          effectiveDate: data.effectiveDate?.toISOString(),
         };
       }
 
@@ -156,15 +175,18 @@ class FirebaseMovementsService extends HttpService {
         return { success: false, error: 'Usuario no autenticado' };
       }
 
-      const result = await this.callEndpoint('sqlUpdateMovement', {
-        movementId,
-        updateData: {
-          ...updateData,
-          updatedBy: (await this.getCurrentUser())?.uid
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'update',
+        data: {
+          movementId,
+          updateData: {
+            ...updateData,
+            updatedBy: (await this.getCurrentUser())?.uid
+          }
         }
       });
 
-      return result;
+      return result.data;
     } catch (error) {
       console.error('Error al actualizar movimiento:', error);
       return { success: false, error: error.message };
@@ -178,8 +200,11 @@ class FirebaseMovementsService extends HttpService {
    */
   async deleteMovement(movementId) {
     try {
-      const result = await this.callEndpoint('sqlDeleteMovement', { movementId });
-      return result;
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'delete',
+        data: { movementId }
+      });
+      return result.data;
     } catch (error) {
       console.error('Error al eliminar movimiento:', error);
       return { success: false, error: error.message };
@@ -265,13 +290,17 @@ class FirebaseMovementsService extends HttpService {
    */
   async getMovementsByVehicle(vehicleId, options = {}) {
     try {
-      const result = await this.callEndpoint('sqlGetMovementsByVehicle', {
-        vehicleId,
-        options
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'getByVehicle',
+        data: {
+          vehicleId,
+          options
+        }
       });
 
-      if (result.success && result.data) {
-        return result.data.map(movement => ({
+      const data = result.data;
+      if (data) {
+        return data.map(movement => ({
           ...movement,
           createdAt: movement.createdAt?.toISOString(),
           updatedAt: movement.updatedAt?.toISOString(),
@@ -322,10 +351,14 @@ class FirebaseMovementsService extends HttpService {
    */
   async getMovementsStats(filters = {}) {
     try {
-      const result = await this.callEndpoint('sqlGetMovementsStats', { filters });
+      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
+        action: 'getStats',
+        data: { filters }
+      });
 
-      if (result.success && result.data) {
-        return result.data;
+      const data = result.data;
+      if (data) {
+        return data;
       }
 
       return null;

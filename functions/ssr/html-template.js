@@ -1,4 +1,4 @@
-import { generateMetaTags, generateMetaTagsHTML, generateJsonLD } from './seo-config.js';
+import { generateMetaTags, generateJsonLD } from './seo-config.js';
 
 /**
  * Template HTML para SSR con metadatos dinámicos y SEO optimizado

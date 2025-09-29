@@ -22,7 +22,7 @@ export class SEOValidator {
    * @param {Object} metadata - Metadata adicional
    * @returns {Object} - Resultado de validación
    */
-  validate(route, app, metadata = {}) {
+  validate(route, app, _metadata = {}) {
     this.reset();
     
     const metaTags = generateMetaTags(route, app);

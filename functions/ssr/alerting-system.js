@@ -3,7 +3,6 @@
  * Sistema automático de alertas y notificaciones para SSR
  */
 
-import { generateSSRReport } from './reporting-system.js';
 import { getErrorStatistics } from './error-handler-advanced.js';
 import { getAdvancedMetricsDashboard } from './monitoring-advanced.js';
 
@@ -583,10 +582,11 @@ export function alertsHandler(req, res) {
         res.json({ activeAlerts: getActiveAlerts() });
         break;
         
-      case 'history':
-        const limit = parseInt(req.query.limit) || 50;
+      case 'history': {
+        const limit = parseInt(req.query.limit, 10) || 50;
         res.json({ history: getAlertHistory(limit) });
         break;
+      }
         
       case 'start':
         if (req.method !== 'POST') {

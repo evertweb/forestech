@@ -4,7 +4,6 @@
  */
 
 import { getAdvancedMetricsDashboard } from './monitoring-advanced.js';
-import { getSSRCoverageStatus } from './performance-optimization.js';
 
 // Configuración de cobertura SSR para Fase 4
 const SSR_COVERAGE_CONFIG = {
@@ -442,7 +441,7 @@ export class SSRCoverageMonitor {
     let totalWeight = 0;
     let weightedSSR = 0;
 
-    Object.entries(routeCoverage).forEach(([route, data]) => {
+  Object.entries(routeCoverage).forEach(([_route, data]) => {
       const weight = data.weight || 0;
       const ssrPercentage = data.ssrPercentage || 0;
       
@@ -634,7 +633,7 @@ export function coverageMonitoringHandler(req, res) {
           .catch(error => res.status(500).json({ error: error.message }));
         break;
 
-      case 'quality':
+      case 'quality': {
         const { route } = req.query;
         if (!route) {
           return res.status(400).json({ error: 'Route parameter required' });
@@ -644,6 +643,7 @@ export function coverageMonitoringHandler(req, res) {
           .then(validation => res.json(validation))
           .catch(error => res.status(500).json({ error: error.message }));
         break;
+      }
 
       case 'config':
         res.json(getSSRCoverageConfig());

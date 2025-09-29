@@ -250,13 +250,14 @@ export function abTestingHandler(req, res) {
       res.json(getABTestingStats());
       break;
       
-    case 'update':
+    case 'update': {
       if (!route || percentage === undefined) {
         return res.status(400).json({ error: 'Missing route or percentage' });
       }
-      const success = updateRolloutPercentage(route, parseInt(percentage));
-      res.json({ success, route, percentage: parseInt(percentage) });
+      const success = updateRolloutPercentage(route, parseInt(percentage, 10));
+      res.json({ success, route, percentage: parseInt(percentage, 10) });
       break;
+    }
       
     case 'rollback':
       if (!route) {

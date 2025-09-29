@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-003
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const TABLE_NAME = 'combustibles_inventory';
 
@@ -15,13 +15,6 @@ export const INVENTORY_STATUS = {
   MAINTENANCE: 'maintenance',
 };
 
-// Tipos de combustible (fallback para Functions)
-const FUEL_TYPES = {
-  ACPM: 'ACPM',
-  GASOLINA_CORRIENTE: 'GASOLINA_CORRIENTE',
-  GASOLINA_EXTRA: 'GASOLINA_EXTRA',
-  JET_A1: 'JET_A1',
-};
 const FUEL_INFO = {
   ACPM: {
     name: 'ACPM (Diesel)',
@@ -180,7 +173,7 @@ export async function createInventoryItem(inventoryData, userInfo = null) {
       SELECT SCOPE_IDENTITY() as id;
     `;
 
-    const insertRequest = pool.request();
+    const insertRequest = sqlConnection.pool.request();
     columns.forEach((col, index) => {
       insertRequest.input(`param${index}`, inventoryItem[col]);
     });
@@ -356,7 +349,7 @@ export async function updateInventoryItem(itemId, updateData, userInfo = null) {
       WHERE id = @id
     `;
 
-    const result = await sqlConnection.execute(query, params);
+  await sqlConnection.execute(query, params);
 
     return {
       success: true,
@@ -399,7 +392,7 @@ export async function deleteInventoryItem(itemId) {
 
     // Eliminar el item
     const deleteQuery = `DELETE FROM ${TABLE_NAME} WHERE id = @id`;
-    const result = await sqlConnection.execute(deleteQuery, { id: itemId });
+  await sqlConnection.execute(deleteQuery, { id: itemId });
 
     console.log('✅ Item de inventario SQL eliminado exitosamente en Functions');
     return { success: true, message: 'Item de inventario eliminado exitosamente' };

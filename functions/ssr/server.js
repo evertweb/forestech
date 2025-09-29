@@ -1,26 +1,13 @@
 import React from 'react';
 import { renderToPipeableStream } from 'react-dom/server';
-import path from 'node:path';
-import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import { createHtmlTemplate } from './html-template.js';
 import AppSSRMinimal from './AppSSRMinimal.js';
 import { initFirebaseServerApp, getSerializableUser, hasRouteAccess } from './firebase-server-app.js';
-import { getRouteMetadata, validateMetadata, generateStructuredData } from './route-meta.js';
+import { getRouteMetadata, validateMetadata } from './route-meta.js';
 import { monitorSSRPerformance, createTimer } from './performance-monitor.js';
-import { shouldUseSSR, checkRollback } from './ab-testing-phase1.js';
+import { shouldUseSSR } from './ab-testing-phase1.js';
 import { getCachedOrFetch, getCacheStats, invalidateCache } from './cache-strategy.js';
 import { SSRError, handleSSRError } from './error-handler-advanced.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const readCSRIndex = async () => {
-  // En Cloud Functions, servir desde el directorio functions/public/
-  const root = path.resolve(__dirname, '../');
-  const filePath = path.resolve(root, 'public/combustibles/index.html');
-  return fs.readFile(filePath, 'utf8');
-};
 
 export function healthHandler(req, res) {
   res.setHeader('Server-Timing', 'ssr_total;dur=1');
@@ -52,7 +39,9 @@ export async function ssrHandler(req, res) {
     } else if (reason === 'data_fetch_error') {
       category = 'DATA_FETCH';
     }
-    
+
+    res.status(status);
+
     const error = new SSRError(`SSR fallback: ${reason}`, {
       code: errorCode || 'FALLBACK001',
       category,
@@ -65,7 +54,7 @@ export async function ssrHandler(req, res) {
         ip: req.ip || req.connection?.remoteAddress
       }
     });
-    
+
     return await handleSSRError(error, req, res);
   };
 
@@ -166,9 +155,7 @@ export async function ssrHandler(req, res) {
             initialState,
             appHtml: '', // Se llenará por pipe
             serverTiming: `ssr_total;dur=${totalDur}, ssr_render;dur=${renderDur}, data_fetch;dur=${dataFetchDuration}`,
-            currentUrl: req.path,
-            jsSrc,
-            cssHref
+            currentUrl: req.path
           });
           
           // Enviar template hasta el div root
@@ -747,29 +734,6 @@ const LATENCY_THRESHOLD = 2000; // 2 segundos
 setInterval(() => {
   errorCounters.clear();
 }, COUNTER_RESET_INTERVAL);
-
-/**
- * Incrementar contador de errores para alertas
- * @param {string} reason - Razón del fallback
- * @param {string} errorCode - Código de error
- */
-function incrementErrorCounter(reason, errorCode) {
-  const key = `${reason}_${errorCode || 'UNKNOWN'}`;
-  const current = errorCounters.get(key) || 0;
-  errorCounters.set(key, current + 1);
-  
-  // Check si excede threshold para alertar
-  const totalRequests = getTotalRequestCount();
-  if (totalRequests > 20) { // Mínimo 20 requests para calcular rate
-    const errorRate = current / totalRequests;
-    if (errorRate > ERROR_THRESHOLD) {
-      console.error(`🚨 HIGH ERROR RATE ALERT: ${key} - Rate: ${(errorRate * 100).toFixed(2)}% | Count: ${current}/${totalRequests}`);
-      
-      // En producción, aquí se podría enviar a un sistema de alertas
-      // sendAlert('high_error_rate', { reason, errorCode, rate: errorRate, count: current });
-    }
-  }
-}
 
 /**
  * Obtener total de requests (simplificado - en producción usar métricas reales)

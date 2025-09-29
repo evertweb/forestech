@@ -206,19 +206,6 @@ function generateDynamicCombustiblesRoutes() {
   
   const routes = [];
   
-  // Ejemplo: Si tuviéramos páginas públicas de estadísticas
-  const publicStatsRoutes = [
-    {
-      url: '/combustibles/public/stats',
-      priority: 0.5,
-      changefreq: 'weekly',
-      lastmod: new Date().toISOString()
-    }
-  ];
-  
-  // Solo agregar si las rutas realmente existen
-  // routes.push(...publicStatsRoutes);
-  
   return routes;
 }
 

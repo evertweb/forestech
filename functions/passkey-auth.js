@@ -12,6 +12,13 @@
  * import { onCall, HttpsError } from 'firebase-functions/v1/https';
  */
 
+import { onCall, HttpsError } from 'firebase-functions/v1/https';
+import * as functions from 'firebase-functions';
+const logger = functions.logger;
+import { getApps, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
+
 export default null; // Placeholder para evitar errores de import
 
 // Inicializar Firebase Admin solo si no está ya inicializado
@@ -30,7 +37,7 @@ const auth = getAuth(app);
  */
 export const generatePasskeyToken = onCall(async (request) => {
   try {
-    const { credentialId, challenge } = request.data;
+  const { credentialId } = request.data;
 
     if (!credentialId) {
       throw new HttpsError('invalid-argument', 'credentialId es requerido');

@@ -98,42 +98,6 @@ export async function getRemoteConfig() {
 }
 
 /**
- * Parsear parámetro de Remote Config con valor por defecto
- * @param {Object} parameter - Parámetro de Remote Config
- * @param {any} defaultValue - Valor por defecto
- * @returns {any} - Valor parseado
- */
-function parseRemoteConfigParam(parameter, defaultValue = null) {
-  if (!parameter?.defaultValue?.value) {
-    return defaultValue;
-  }
-  
-  const value = parameter.defaultValue.value;
-  
-  try {
-    // Intentar parsear como JSON si el valor empieza con [ o {
-    if (typeof value === 'string' && (value.startsWith('[') || value.startsWith('{'))) {
-      return JSON.parse(value);
-    }
-    
-    // Parsear booleans
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    
-    // Parsear números
-    if (!isNaN(value) && !isNaN(parseFloat(value))) {
-      return parseFloat(value);
-    }
-    
-    // Retornar string tal como está
-    return value;
-  } catch (error) {
-    console.warn(`Error parsing Remote Config parameter:`, error);
-    return defaultValue;
-  }
-}
-
-/**
  * Verificar si SSR está habilitado para una ruta específica
  * @param {string} route - Ruta a verificar
  * @param {Object} user - Usuario autenticado (opcional, para sampling)

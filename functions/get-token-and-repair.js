@@ -9,7 +9,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import fetch from 'node-fetch';
 import * as readline from 'readline';
-import * as readline from 'readline';
 
 // Configuración Firebase
 const firebaseConfig = {
@@ -24,10 +23,6 @@ const firebaseConfig = {
 
 // URL del servidor local
 const SERVER_URL = 'http://localhost:8080';
-
-// Credenciales de test (ajustar según sea necesario)
-const TEST_EMAIL = process.env.FIREBASE_TEST_EMAIL || 'test@forestech.com';
-const TEST_PASSWORD = process.env.FIREBASE_TEST_PASSWORD || 'test123';
 
 class DatabaseRepairer {
   constructor() {

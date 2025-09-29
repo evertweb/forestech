@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-006
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 import sql from 'mssql';
 
 const TABLE_NAME = 'combustibles_vehicle_categories';
@@ -422,8 +422,8 @@ export async function deleteCategory(categoryId) {
       };
     }
 
-    const deleteQuery = `DELETE FROM ${TABLE_NAME} WHERE id = @id`;
-    const result = await sqlConnection.execute(deleteQuery, { id: categoryId });
+  const deleteQuery = `DELETE FROM ${TABLE_NAME} WHERE id = @id`;
+  await sqlConnection.execute(deleteQuery, { id: categoryId });
 
     console.log('✅ Categoría SQL eliminada exitosamente en Functions:', categoryId);
     return { success: true, message: 'Categoría eliminada exitosamente' };
@@ -453,7 +453,7 @@ export async function updateVehicleCount(categoryId, increment = 1) {
       WHERE id = @categoryId
     `;
 
-    const result = await sqlConnection.execute(query, {
+    await sqlConnection.execute(query, {
       categoryId,
       increment,
       updatedAt: new Date()

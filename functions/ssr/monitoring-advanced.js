@@ -3,7 +3,6 @@
  * Sistema avanzado de monitoreo con métricas detalladas y análisis predictivo
  */
 
-import { getPerformanceStats, createTimer } from './performance-monitor.js';
 import { getCacheStats } from './cache-strategy.js';
 
 // Configuración avanzada de métricas
@@ -56,13 +55,12 @@ const advancedMetrics = {
  * Monitorear performance avanzada con métricas detalladas
  */
 export async function monitorAdvancedPerformance(req, startTime, result) {
-  const timer = createTimer();
   const route = req.path;
   const userId = req.user?.uid || 'anonymous';
   
   try {
     // Calcular métricas detalladas
-    const metrics = await calculateDetailedMetrics(req, startTime, result, timer);
+  const metrics = await calculateDetailedMetrics(req, startTime, result);
     
     // Almacenar métricas
     storeAdvancedMetrics(route, userId, metrics);
@@ -87,7 +85,7 @@ export async function monitorAdvancedPerformance(req, startTime, result) {
 /**
  * Calcular métricas detalladas
  */
-async function calculateDetailedMetrics(req, startTime, result, timer) {
+async function calculateDetailedMetrics(req, startTime, result) {
   const now = Date.now();
   const totalDuration = now - startTime;
   

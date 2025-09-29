@@ -374,7 +374,7 @@ async function executeFallbackStrategy(ssrError, req, res) {
         fallbackType: 'standard'
       });
       
-    case 'cached_data':
+    case 'cached_data': {
       const cachedResult = await tryFallbackToCache(route, req.user);
       if (cachedResult) {
         return sendSSRResponse(res, cachedResult, {
@@ -387,6 +387,7 @@ async function executeFallbackStrategy(ssrError, req, res) {
         reason: 'no_cached_data_available',
         errorCode: ssrError.code
       });
+    }
       
     case 'login_redirect':
       return sendLoginRedirect(res, {
@@ -709,7 +710,7 @@ function generateErrorPageHTML(ssrError) {
 /**
  * Generar HTML de modo mantenimiento
  */
-function generateMaintenanceHTML(ssrError) {
+function generateMaintenanceHTML(_ssrError) {
   return `<!DOCTYPE html>
 <html lang="es">
 <head>

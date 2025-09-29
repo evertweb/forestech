@@ -8,7 +8,7 @@
  * @param {Object} user - Usuario autenticado (opcional)
  * @returns {Promise<boolean>} - true si SSR está habilitado
  */
-export async function isSSREnabled(route, user = null) {
+export async function isSSREnabled(route, _user = null) {
   // En modo test: siempre true para rutas de combustibles
   if (process.env.NODE_ENV === 'test') {
     return route.includes('/combustibles/');

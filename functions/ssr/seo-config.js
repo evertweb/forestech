@@ -44,7 +44,7 @@ export const SEO_CONFIG = {
       description: 'Soluciones tecnológicas especializadas para la gestión integral de operaciones forestales en Colombia',
       keywords: ['forestech', 'tecnología forestal', 'operaciones forestales', 'colombia']
     },
-    '/': {
+    '/combustibles/': {
       title: 'Sistema de Gestión de Combustibles',
       description: 'Control completo de inventario, movimientos y reportes de combustibles para operaciones forestales',
       keywords: ['gestión combustibles', 'inventario', 'reportes', 'control operacional']
@@ -109,7 +109,7 @@ export function generateMetaTags(route = '/', app = null) {
  * @param {string} app - Aplicación
  * @returns {Object} - Schema JSON-LD
  */
-export function generateJsonLD(route = '/', app = null) {
+export function generateJsonLD(_route = '/', app = null) {
   const baseConfig = SEO_CONFIG.site;
   const appConfig = app ? SEO_CONFIG.apps[app] : null;
 

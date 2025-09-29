@@ -463,7 +463,7 @@ export class SSRPerformanceOptimizer {
   /**
    * Verificar mejoras después de optimizaciones
    */
-  async verifyOptimizations(optimizations) {
+  async verifyOptimizations(_optimizations) {
     // Esperar un momento para que las optimizaciones surtan efecto
     await new Promise(resolve => setTimeout(resolve, 5000));
 

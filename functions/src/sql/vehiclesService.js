@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-004
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const TABLE_NAME = 'combustibles_vehicles';
 const MOVEMENTS_TABLE = 'combustibles_movements';
@@ -84,24 +84,6 @@ export const FUEL_COMPATIBILITY = {
   DIESEL: 'DIESEL',
   GASOLINE: 'GASOLINE',
   MIXED: 'MIXED',
-};
-
-// Funciones precisas locales (copiadas de calculations.js)
-const preciseAdd = (a, b, decimals = 2) => {
-  const numA = parseFloat(a) || 0;
-  const numB = parseFloat(b) || 0;
-  return parseFloat((numA + numB).toFixed(decimals));
-};
-
-const preciseSubtract = (a, b, decimals = 2) => {
-  const numA = parseFloat(a) || 0;
-  const numB = parseFloat(b) || 0;
-  return parseFloat((numA - numB).toFixed(decimals));
-};
-
-const preciseRound = (value, decimals = 2) => {
-  const num = parseFloat(value) || 0;
-  return parseFloat(num.toFixed(decimals));
 };
 
 /**

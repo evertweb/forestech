@@ -12,6 +12,10 @@
  * import { onRequest } from 'firebase-functions/v1/https';
  */
 
+import { onRequest } from 'firebase-functions/v1/https';
+import { getApps, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+
 export default null; // Placeholder para evitar errores de import
 
 // Inicializar Firebase Admin (solo si no está ya inicializado)
@@ -20,7 +24,6 @@ if (!getApps().length) {
 }
 
 const db = getFirestore();
-const auth = getAuth();
 
 // Configuración del webhook
 const WEBHOOK_CONFIG = {
@@ -44,15 +47,7 @@ const STORAGE_LOCATIONS = [
 /**
  * Endpoint principal para recibir movimientos desde N8N
  */
-export const combustiblesWebhookReceiver = onRequest(
-  {
-    region: 'us-central1',
-    timeoutSeconds: 60,
-    memory: '512MiB',
-    maxInstances: 5,
-    cors: true,
-  },
-  async (req, res) => {
+export const combustiblesWebhookReceiver = onRequest(async (req, res) => {
     console.log('🚀 [WEBHOOK] Recibiendo request:', req.method, req.url);
     
     try {
@@ -201,9 +196,6 @@ async function handleTelegramRoute(req, res, payload) {
     return res.json(buildTelegramMessage(chatId, message));
   }
   
-  // Verificar estado de login
-  const loginStatus = await checkUserLoginStatus(chatId);
-  
   const snap = await sessionRef.get();
   const now = Date.now();
   let state = snap.exists ? snap.data() : {
@@ -318,7 +310,7 @@ async function handleTelegramRoute(req, res, payload) {
       // Validar formato de fecha YYYY-MM-DD
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!dateRegex.test(text)) {
-        return res.json(buildTelegramMessage(chatId, '❌ Formato de fecha inválido.\n\nUsa el formato YYYY-MM-DD (ej: 2024-12-15) o escribe "hoy":', { inline_keyboard: [backRow()] }));
+        return res.json(buildTelegramMessage(chatId, '❌ Formato de fecha inválido.\n\nUsa el formato YYYY-MM-DD (ej: 2024-12-15) o escribe "hoy" para usar la fecha actual:', { inline_keyboard: [backRow()] }));
       }
       
       effectiveDate = new Date(text + 'T00:00:00.000Z');
@@ -480,7 +472,7 @@ async function handleTelegramRoute(req, res, payload) {
 
   // Horómetro para SALIDA (step 5b) - NUEVA FUNCIONALIDAD
   if (state.step === '5b' && text && state.type === 'SALIDA') {
-    const hours = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    const hours = parseFloat(text.replace(/[^\d.-]/g, ''));
     if (isNaN(hours) || hours < 0) {
       return res.json(buildTelegramMessage(chatId, '❌ Horas inválidas. Ingresa un número válido >= 0 (ej: 1250):', { inline_keyboard: [backRow()] }));
     }
@@ -496,7 +488,7 @@ async function handleTelegramRoute(req, res, payload) {
 
   // Cantidad para ENTRADA (step 4) 
   if (state.step === 4 && text && state.type === 'ENTRADA') {
-    const q = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    const q = parseFloat(text.replace(/[^\d.-]/g, ''));
     if (!q || q <= 0) {
       return res.json(buildTelegramMessage(chatId, 'Cantidad inválida. Ingresa un número > 0:', { inline_keyboard: [backRow()] }));
     }
@@ -508,7 +500,7 @@ async function handleTelegramRoute(req, res, payload) {
 
   // Cantidad para SALIDA (step 6)
   if (state.step === 6 && text && state.type === 'SALIDA') {
-    const q = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    const q = parseFloat(text.replace(/[^\d.-]/g, ''));
     if (!q || q <= 0) {
       return res.json(buildTelegramMessage(chatId, 'Cantidad inválida. Ingresa un número > 0:', { inline_keyboard: [backRow()] }));
     }
@@ -535,7 +527,7 @@ async function handleTelegramRoute(req, res, payload) {
 
   // Precio para ENTRADA (step 5)
   if (state.step === 5 && text && state.type === 'ENTRADA') {
-    const p = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    const p = parseFloat(text.replace(/[^\d.-]/g, ''));
     if (p < 0 || isNaN(p)) {
       return res.json(buildTelegramMessage(chatId, 'Precio inválido. Ingresa un número >= 0:', { inline_keyboard: [backRow()] }));
     }
@@ -569,12 +561,12 @@ async function handleTelegramRoute(req, res, payload) {
 
   // Precio para SALIDA (step 7)
   if (state.step === 7 && text && state.type === 'SALIDA') {
-    const p = parseFloat(text.replace(/[^\d.\-]/g, ''));
+    const p = parseFloat(text.replace(/[^\d.-]/g, ''));
     if (p < 0 || isNaN(p)) {
       return res.json(buildTelegramMessage(chatId, 'Precio inválido. Ingresa un número >= 0:', { inline_keyboard: [backRow()] }));
     }
     state.draft.unitPrice = p;
-    state.step = 8; // resumen SALIDA
+    state.step = 8;
     await saveStateToFirestore(sessionRef, state);
 
     // Resumen SALIDA
@@ -855,15 +847,6 @@ function buildMovementConfirmation(chatId, movementType) {
       [{ text: '❌ Cancelar', callback_data: 'action:cancel' }]
     ]
   });
-}
-
-function buildVehicleKeyboard(chatId, page, withBack = false) {
-  // Mock simple de paginación de vehículos (IDs ejemplo) - MANTENER para compatibilidad
-  const vehicles = ['TRK-001', 'HILUX-02', 'RANGER-03', 'NPR-01'];
-  const rows = vehicles.map((v) => [{ text: v, callback_data: `veh:${v}` }]);
-  const kb = { inline_keyboard: [...rows] };
-  if (withBack) kb.inline_keyboard.push(backRow());
-  return buildTelegramMessage(chatId, 'Selecciona vehículo:', kb);
 }
 
 async function buildDestinationKeyboard(chatId, withBack = false) {
@@ -1479,45 +1462,6 @@ async function fetchAllActiveSuppliers() {
       success: false,
       suppliers: [], 
       count: 0,
-      error: error.message
-    };
-  }
-}
-
-/**
- * DEPRECATED: Obtener proveedores por tipo de combustible
- * Mantenido por compatibilidad, pero ya no se usa en ENTRADA
- */
-async function fetchSuppliersByFuelType(fuelType) {
-  try {
-    const suppliersQuery = db.collection('combustibles_suppliers')
-      .where('fuelTypes', 'array-contains', fuelType.toUpperCase())
-      .where('status', '==', 'active')
-      .orderBy('rating', 'desc')
-      .limit(10); // Limitar a 10 para no sobrecargar
-    
-    const snapshot = await suppliersQuery.get();
-    const suppliers = [];
-    
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      suppliers.push({
-        id: doc.id,
-        name: data.name,
-        rating: data.rating || 0,
-        fuelTypes: data.fuelTypes || []
-      });
-    });
-    
-    return {
-      success: true,
-      suppliers
-    };
-  } catch (error) {
-    console.error('❌ Error fetching suppliers by fuel type:', error);
-    return {
-      success: false,
-      suppliers: [],
       error: error.message
     };
   }

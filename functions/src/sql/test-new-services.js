@@ -3,43 +3,6 @@
  * Forestech Combustibles App
  */
 
-// Función para probar un endpoint onCall
-const testOnCallEndpoint = async (functionName, data = {}) => {
-  try {
-    console.log(`🧪 Probando ${functionName}...`);
-
-    // Simular request object
-    const request = {
-      data,
-      auth: {
-        uid: 'test-user-123',
-        token: {
-          email: 'test@forestech.com',
-          name: 'Test User'
-        }
-      }
-    };
-
-    // Importar la función dinámicamente
-    const functionModule = await import('../index.js');
-    const functionToTest = functionModule[functionName];
-
-    if (!functionToTest) {
-      throw new Error(`Función ${functionName} no encontrada`);
-    }
-
-    // Ejecutar la función
-    const result = await functionToTest(request);
-
-    console.log(`✅ ${functionName} ejecutado exitosamente:`, result);
-    return { success: true, data: result };
-
-  } catch (error) {
-    console.error(`❌ Error en ${functionName}:`, error.message);
-    return { success: false, error: error.message };
-  }
-};
-
 // Función principal de testing
 export const testNewServices = async () => {
   console.log('🚀 Iniciando testing de servicios SQL migrados (TASK-006)...');

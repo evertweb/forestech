@@ -112,56 +112,6 @@ export async function generateSSRReport(timeWindow = '1h', options = {}) {
       systemHealth: calculateSystemHealth(analysis)
     };
 
-/**
- * Calcula el estado de salud del sistema SSR
- */
-function calculateSystemHealth(analysis) {
-  const { performanceSummary, errorSummary, cacheSummary } = analysis;
-  
-  let score = 100;
-  let issues = [];
-  let status = 'healthy';
-  
-  // Penalizar por errores
-  if (errorSummary.errorRate > 0.05) { // >5% error rate
-    score -= 30;
-    issues.push('High error rate detected');
-    status = 'critical';
-  } else if (errorSummary.errorRate > 0.02) { // >2% error rate
-    score -= 15;
-    issues.push('Elevated error rate');
-    status = 'warning';
-  }
-  
-  // Penalizar por performance pobre
-  if (performanceSummary.avgResponseTime > 2000) { // >2s response time
-    score -= 25;
-    issues.push('Slow response times');
-    status = status === 'critical' ? 'critical' : 'warning';
-  } else if (performanceSummary.avgResponseTime > 1000) { // >1s response time
-    score -= 10;
-    issues.push('Moderate response times');
-  }
-  
-  // Penalizar por cache hit rate bajo
-  if (cacheSummary.hitRate < 0.5) { // <50% cache hit rate
-    score -= 15;
-    issues.push('Low cache hit rate');
-  }
-  
-  // Determinar status final
-  if (score >= 90) status = 'healthy';
-  else if (score >= 70) status = 'warning';
-  else status = 'critical';
-  
-  return {
-    score: Math.max(0, score),
-    status,
-    issues,
-    lastCheck: new Date().toISOString()
-  };
-}
-    
     // Almacenar reporte
     storeReport(report);
     
@@ -187,6 +137,52 @@ function calculateSystemHealth(analysis) {
     
     throw new Error(`Failed to generate SSR report: ${error.message}`);
   }
+}
+
+/**
+ * Calcula el estado de salud del sistema SSR
+ */
+function calculateSystemHealth(analysis) {
+  const { performanceSummary, errorSummary, cacheSummary } = analysis;
+
+  let score = 100;
+  const issues = [];
+  let status = 'healthy';
+
+  if (errorSummary.errorRate > 0.05) {
+    score -= 30;
+    issues.push('High error rate detected');
+    status = 'critical';
+  } else if (errorSummary.errorRate > 0.02) {
+    score -= 15;
+    issues.push('Elevated error rate');
+    status = 'warning';
+  }
+
+  if (performanceSummary.avgResponseTime > 2000) {
+    score -= 25;
+    issues.push('Slow response times');
+    status = status === 'critical' ? 'critical' : 'warning';
+  } else if (performanceSummary.avgResponseTime > 1000) {
+    score -= 10;
+    issues.push('Moderate response times');
+  }
+
+  if (cacheSummary.hitRate < 0.5) {
+    score -= 15;
+    issues.push('Low cache hit rate');
+  }
+
+  if (score >= 90) status = 'healthy';
+  else if (score >= 70) status = 'warning';
+  else status = 'critical';
+
+  return {
+    score: Math.max(0, score),
+    status,
+    issues,
+    lastCheck: new Date().toISOString()
+  };
 }
 
 /**
@@ -578,19 +574,19 @@ function getRecentAlertHistory() {
 }
 
 // Funciones de análisis (implementaciones básicas)
-function analyzePerformanceTrends(performanceData) {
+function analyzePerformanceTrends(_performanceData) {
   return { trend: 'stable', change: 0 }; // Simplificado
 }
 
-function calculateSLOCompliance(performanceData) {
+function calculateSLOCompliance(_performanceData) {
   return { availability: 99.9, performance: 95.5 }; // Simplificado
 }
 
-function identifyCriticalErrorPatterns(errorStats) {
+function identifyCriticalErrorPatterns(_errorStats) {
   return []; // Simplificado
 }
 
-function analyzeErrorTrends(errorStats) {
+function analyzeErrorTrends(_errorStats) {
   return { trend: 'stable', change: 0 }; // Simplificado
 }
 
@@ -598,31 +594,31 @@ function calculateCacheHitRate(cacheData) {
   return cacheData.hitRate || 0;
 }
 
-function analyzeCacheEfficiency(cacheData) {
+function analyzeCacheEfficiency(_cacheData) {
   return 'good'; // Simplificado
 }
 
-function generateCacheRecommendations(cacheData) {
+function generateCacheRecommendations(_cacheData) {
   return []; // Simplificado
 }
 
-function analyzeRolloutStatus(abTestingData) {
+function analyzeRolloutStatus(_abTestingData) {
   return 'progressive'; // Simplificado
 }
 
-function analyzeABPerformanceImpact(performanceData, abTestingData) {
+function analyzeABPerformanceImpact(_performanceData, _abTestingData) {
   return { impact: 'positive', improvement: 5 }; // Simplificado
 }
 
-function generatePerformanceRecommendations(performance) {
+function generatePerformanceRecommendations(_performance) {
   return []; // Simplificado
 }
 
-function generateErrorRecommendations(errors) {
+function generateErrorRecommendations(_errors) {
   return []; // Simplificado
 }
 
-function generateABTestingRecommendations(abTesting) {
+function generateABTestingRecommendations(_abTesting) {
   return []; // Simplificado
 }
 
@@ -668,15 +664,15 @@ function getPriority(priority) {
   return priorities[priority] || 0;
 }
 
-function calculateAverageHitTime(cacheData) {
+function calculateAverageHitTime(_cacheData) {
   return 5; // Simplificado - ms
 }
 
-function calculateAverageMissTime(cacheData) {
+function calculateAverageMissTime(_cacheData) {
   return 150; // Simplificado - ms
 }
 
-function calculateEvictionRate(cacheData) {
+function calculateEvictionRate(_cacheData) {
   return 2; // Simplificado - %
 }
 

@@ -32,14 +32,12 @@ const getCreateTablesSQL = () => {
       path.join(__dirname, 'create-tables.sql')
     ];
 
-    let sqlContent = null;
-    let usedPath = null;
+  let sqlContent = null;
 
     for (const sqlPath of possiblePaths) {
       try {
         if (fs.existsSync(sqlPath)) {
           sqlContent = fs.readFileSync(sqlPath, 'utf8');
-          usedPath = sqlPath;
           console.log(`📄 SQL file loaded successfully from: ${sqlPath}`);
           break;
         }

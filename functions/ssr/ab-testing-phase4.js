@@ -463,14 +463,14 @@ export function advancedABTestingHandler(req, res) {
     return res.status(403).json({ error: 'Admin access required' });
   }
   
-  const { action, route, percentage, feature } = req.query;
+  const { action, route, feature } = req.query;
   
   switch (action) {
     case 'status':
       res.json(getPhase4Config());
       break;
       
-    case 'simulate':
+    case 'simulate': {
       if (!route) {
         return res.status(400).json({ error: 'Missing route parameter' });
       }
@@ -479,8 +479,9 @@ export function advancedABTestingHandler(req, res) {
       const simulations = simulateUserDecisions(route, 1000);
       res.json({ route, simulations });
       break;
+    }
       
-    case 'toggle_feature':
+    case 'toggle_feature': {
       if (!feature) {
         return res.status(400).json({ error: 'Missing feature parameter' });
       }
@@ -496,6 +497,7 @@ export function advancedABTestingHandler(req, res) {
         res.status(400).json({ error: 'Unknown feature flag' });
       }
       break;
+    }
       
     default:
       res.status(400).json({ 

@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-006
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const TABLE_NAME = 'combustibles_maintenance';
 const VEHICLES_TABLE = 'combustibles_vehicles';
@@ -461,7 +461,7 @@ export async function updateMaintenanceRecord(maintenanceId, updateData, userInf
       success: true,
       id: maintenanceId,
       message: 'Mantenimiento actualizado exitosamente',
-      rowsAffected: result.rowsAffected,
+  rowsAffected: result?.rowsAffected ?? 0,
     };
 
   } catch (error) {
@@ -482,7 +482,7 @@ export async function deleteMaintenanceRecord(maintenanceId) {
     }
 
     const deleteQuery = `DELETE FROM ${TABLE_NAME} WHERE id = @id`;
-    const result = await sqlConnection.execute(deleteQuery, { id: maintenanceId });
+  await sqlConnection.execute(deleteQuery, { id: maintenanceId });
 
     console.log('✅ Mantenimiento SQL eliminado exitosamente en Functions:', maintenanceId);
     return { success: true, message: 'Mantenimiento eliminado exitosamente' };

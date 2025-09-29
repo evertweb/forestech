@@ -253,7 +253,6 @@ export function clearCache() {
  * Periodic cleanup of expired entries
  */
 export function cleanupExpiredEntries() {
-  const now = Date.now();
   const keysToDelete = [];
   
   for (const [key, value] of memoryCache.entries()) {

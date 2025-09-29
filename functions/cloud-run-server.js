@@ -147,11 +147,6 @@ import {
 } from './src/sql/databaseInitService.js';
 
 // Importar servicio de diagnóstico de base de datos
-import {
-  getDatabaseHealth, getSystemStatus, needsInitialization, autoRepair
-} from './src/sql/databaseHealthService.js';
-
-
 // Rutas para Movements (6 endpoints)
 app.post('/sqlCreateMovement', async (req, res) => {
   try {
@@ -892,7 +887,7 @@ app.post('/system/check-initialization', async (req, res) => {
 });
 
 // Manejo de errores global
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('❌ Error no manejado:', err);
   res.status(500).json({ error: 'Error interno del servidor' });
 });

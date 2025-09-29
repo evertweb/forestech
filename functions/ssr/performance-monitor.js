@@ -90,7 +90,7 @@ function cleanupExpiredMetrics() {
  * Verificar thresholds y enviar alertas si es necesario
  */
 async function checkPerformanceThresholds(metric) {
-  const { route, duration, success } = metric;
+  const { route, duration } = metric;
   
   // Alerta por request lento
   if (duration > SSR_METRICS.maxSSRTime * 1.5) {
@@ -123,13 +123,13 @@ async function checkPerformanceThresholds(metric) {
   }
   
   // Verificar error rate por ruta
-  await checkRouteErrorRate(route, success);
+  await checkRouteErrorRate(route);
 }
 
 /**
  * Verificar error rate por ruta
  */
-async function checkRouteErrorRate(route, success) {
+async function checkRouteErrorRate(route) {
   const recentMetrics = getRecentMetricsByRoute(route, 5 * 60 * 1000); // 5 minutos
   
   if (recentMetrics.length < 10) return; // Mínimo 10 requests para calcular rate
@@ -161,7 +161,7 @@ function getRecentMetricsByRoute(route, timeWindow = 5 * 60 * 1000) {
   const cutoff = Date.now() - timeWindow;
   const metrics = [];
   
-  for (const [key, metric] of performanceMetrics.entries()) {
+  for (const [, metric] of performanceMetrics.entries()) {
     if (metric.route === route && new Date(metric.timestamp).getTime() > cutoff) {
       metrics.push(metric);
     }
@@ -229,7 +229,7 @@ export function getPerformanceStats(timeWindow = 60 * 60 * 1000) { // 1 hora por
   const metrics = [];
   
   // Obtener métricas recientes
-  for (const [key, metric] of performanceMetrics.entries()) {
+  for (const [, metric] of performanceMetrics.entries()) {
     if (new Date(metric.timestamp).getTime() > cutoff) {
       metrics.push(metric);
     }

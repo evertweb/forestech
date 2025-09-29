@@ -4,7 +4,7 @@
  * Forestech Combustibles App
  */
 
-import HttpService from './base/HttpService.js';
+import { getFunctions } from 'firebase/functions';
 import { FUEL_INFO, getStockLevel } from '../constants/combustibleTypes.js';
 
 // Estados del inventario
@@ -14,9 +14,17 @@ export const INVENTORY_STATUS = {
   MAINTENANCE: 'maintenance',
 };
 
-class FirebaseInventoryService extends HttpService {
+class FirebaseInventoryService {
   constructor() {
-    super();
+    this.functions = getFunctions();
+  }
+
+  async isAuthenticated() {
+    return true;
+  }
+
+  async getCurrentUser() {
+    return null;
   }
 
   /**

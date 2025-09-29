@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-006
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const VEHICLES_TABLE = 'combustibles_vehicles';
 

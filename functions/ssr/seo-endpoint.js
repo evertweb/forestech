@@ -4,7 +4,6 @@
  */
 
 import { seoValidator, seoPerformanceChecker, seoReporter } from './seo-monitoring.js';
-import { generateMetaTags, generateJsonLD } from './seo-config.js';
 
 /**
  * Rutas principales de la aplicación para validación automática

@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-005
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const TABLE_NAME = 'combustibles_suppliers';
 
@@ -56,7 +56,7 @@ const validateSupplierData = (supplierData) => {
 
   // Validar teléfono si se proporciona
   if (supplierData.phone && supplierData.phone.trim()) {
-    const phoneRegex = /^[\d\s\-\+\(\)]{7,15}$/;
+    const phoneRegex = /^[\d\s()+-]{7,15}$/;
     if (!phoneRegex.test(supplierData.phone.trim())) {
       throw new Error('Formato de teléfono inválido');
     }

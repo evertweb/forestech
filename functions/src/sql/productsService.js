@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-006
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const TABLE_NAME = 'combustibles_products';
 
@@ -290,7 +290,7 @@ export async function deleteProduct(productId) {
     }
 
     const deleteQuery = `DELETE FROM ${TABLE_NAME} WHERE id = @id`;
-    const result = await sqlConnection.execute(deleteQuery, { id: productId });
+  await sqlConnection.execute(deleteQuery, { id: productId });
 
     console.log('✅ Producto SQL eliminado exitosamente en Functions:', productId);
     return { success: true, message: 'Producto eliminado exitosamente' };

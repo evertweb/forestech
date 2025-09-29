@@ -11,8 +11,6 @@ import {
   updateVehicle,
   deleteVehicle,
   getVehiclesStats,
-  VEHICLE_STATUS,
-  FUEL_TYPES,
   FUEL_COMPATIBILITY
 } from './vehiclesService.js';
 

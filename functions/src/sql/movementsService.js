@@ -4,7 +4,7 @@
  * Forestech Combustibles App - TASK-002
  */
 
-import sqlConnection from './SqlConnection.js';
+import sqlConnection from '../cloudsql/oil-connection.js';
 
 const TABLE_NAME = 'combustibles_movements';
 const INVENTORY_TABLE = 'combustibles_inventory';

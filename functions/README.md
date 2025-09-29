@@ -1,3 +1,4 @@
+
 # Functions SSR - Combustibles
 
 Fase 0: Bootstrap mínimo para SSR con Firebase Hosting + Functions.

@@ -1,0 +1,36 @@
+{
+  "projectId": "liquidacionapp-62962",
+  "region": "us-central1",
+  "instanceName": "oil",
+  "connectionName": "liquidacionapp-62962:us-central1:oil",
+  "publicIP": "34.61.242.157",
+  "database": "forestechCombus",
+  "user": "oil",
+  "password": "123456789",
+  "environment": {
+    "production": {
+      "server": "/cloudsql/liquidacionapp-62962:us-central1:oil",
+      "options": {
+        "encrypt": false,
+        "trustServerCertificate": true,
+        "enableArithAbort": true
+      }
+    },
+    "development": {
+      "server": "34.61.242.157",
+      "port": 1433,
+      "options": {
+        "encrypt": true,
+        "trustServerCertificate": true,
+        "enableArithAbort": true
+      }
+    }
+  },
+  "security": {
+    "privateIP": false,
+    "publicIP": true,
+    "sslRequired": false,
+    "appEngineAuthorized": true,
+    "googleCloudAuthorized": false
+  }
+}

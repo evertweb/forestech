@@ -8,7 +8,7 @@ import { SSRError, handleSSRError } from './error-handler-advanced.js';
 /**
  * Middleware para capturar errores no manejados
  */
-export function errorMiddleware(error, req, res, next) {
+export function errorMiddleware(error, req, res, _next) {
   // Si ya es un SSRError, mantenerlo
   if (error instanceof SSRError) {
     return handleSSRError(error, req, res);

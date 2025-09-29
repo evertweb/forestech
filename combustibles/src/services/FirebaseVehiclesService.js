@@ -4,7 +4,7 @@
  * Forestech Combustibles App
  */
 
-import HttpService from './base/HttpService.js';
+import { httpsCallable, getFunctions } from 'firebase/functions';
 import { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories.js';
 
 // Re-exportar constantes para compatibilidad
@@ -16,9 +16,20 @@ export const FUEL_COMPATIBILITY = {
   MIXED: 'MIXED',
 };
 
-class FirebaseVehiclesService extends HttpService {
+class FirebaseVehiclesService {
   constructor() {
-    super();
+    this.functions = getFunctions();
+  }
+
+  async isAuthenticated() {
+    // Firebase Functions maneja auth automáticamente
+    return true;
+  }
+
+  async getCurrentUser() {
+    // Asumir que está disponible globalmente o importar
+    // Por simplicidad, retornar null ya que Firebase Functions usa el token
+    return null;
   }
 
   /**
@@ -113,14 +124,17 @@ class FirebaseVehiclesService extends HttpService {
       // Validar
       this.validateVehicleData(vehicleData);
 
-      const result = await this.callEndpoint('sqlCreateVehicle', {
-        vehicleData: {
-          ...vehicleData,
-          createdBy: (await this.getCurrentUser())?.uid
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'create',
+        data: {
+          vehicleData: {
+            ...vehicleData,
+            createdBy: (await this.getCurrentUser())?.uid
+          }
         }
       });
 
-      return result;
+      return result.data;
     } catch (error) {
       console.error('Error al crear vehículo:', error);
       return { success: false, error: error.message };
@@ -139,11 +153,15 @@ class FirebaseVehiclesService extends HttpService {
         filters.fuelType = filters.fuelType.toUpperCase();
       }
 
-      const result = await this.callEndpoint('sqlGetAllVehicles', { filters });
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'getAll',
+        data: { filters }
+      });
 
-      if (result.success && result.data) {
+      const data = result.data;
+      if (data) {
         // Procesar datos para compatibilidad (convertir JSON fields)
-        return result.data.map(vehicle => ({
+        return data.map(vehicle => ({
           ...vehicle,
           fuelType: vehicle.fuelType?.toUpperCase() || vehicle.fuelType,
           hourMeterHistory: vehicle.hourMeterHistory ? JSON.parse(vehicle.hourMeterHistory) : [],
@@ -175,10 +193,14 @@ class FirebaseVehiclesService extends HttpService {
         throw new Error('ID de vehículo requerido');
       }
 
-      const result = await this.callEndpoint('sqlGetVehicleById', { vehicleId });
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'get',
+        data: { vehicleId }
+      });
 
-      if (result.success && result.data) {
-        const vehicle = result.data;
+      const data = result.data;
+      if (data) {
+        const vehicle = data;
         return {
           id: vehicle.id,
           ...vehicle,
@@ -208,10 +230,14 @@ class FirebaseVehiclesService extends HttpService {
    */
   async getVehicleByCode(vehicleCode) {
     try {
-      const result = await this.callEndpoint('sqlGetVehicleByCode', { vehicleCode });
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'getByCode',
+        data: { vehicleCode }
+      });
 
-      if (result.success && result.data) {
-        const vehicle = result.data;
+      const data = result.data;
+      if (data) {
+        const vehicle = data;
         return {
           id: vehicle.id,
           ...vehicle,
@@ -255,15 +281,18 @@ class FirebaseVehiclesService extends HttpService {
         updateData.fuelType = updateData.fuelType.toUpperCase();
       }
 
-      const result = await this.callEndpoint('sqlUpdateVehicle', {
-        vehicleId,
-        updateData: {
-          ...updateData,
-          updatedBy: (await this.getCurrentUser())?.uid
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'update',
+        data: {
+          vehicleId,
+          updateData: {
+            ...updateData,
+            updatedBy: (await this.getCurrentUser())?.uid
+          }
         }
       });
 
-      return result;
+      return result.data;
     } catch (error) {
       console.error('Error al actualizar vehículo:', error);
       return { success: false, error: error.message };
@@ -277,8 +306,11 @@ class FirebaseVehiclesService extends HttpService {
    */
   async deleteVehicle(vehicleId) {
     try {
-      const result = await this.callEndpoint('sqlDeleteVehicle', { vehicleId });
-      return result;
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'delete',
+        data: { vehicleId }
+      });
+      return result.data;
     } catch (error) {
       console.error('Error al eliminar vehículo:', error);
       throw new Error(`Error al eliminar vehículo: ${error.message}`);
@@ -363,10 +395,14 @@ class FirebaseVehiclesService extends HttpService {
    */
   async getVehiclesStats(filters = {}) {
     try {
-      const result = await this.callEndpoint('sqlGetVehiclesStats', { filters });
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'getStats',
+        data: { filters }
+      });
 
-      if (result.success && result.data) {
-        return result.data;
+      const data = result.data;
+      if (data) {
+        return data;
       }
 
       return null;
@@ -384,12 +420,15 @@ class FirebaseVehiclesService extends HttpService {
    */
   async updateVehicleMetrics(vehicleCode, movementData) {
     try {
-      const result = await this.callEndpoint('sqlUpdateVehicleMetrics', {
-        vehicleCode,
-        movementData
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'updateMetrics',
+        data: {
+          vehicleCode,
+          movementData
+        }
       });
 
-      if (result.success) {
+      if (result.data) {
         console.log(`✅ Métricas del vehículo ${vehicleCode} actualizadas`);
       }
     } catch (error) {
@@ -406,13 +445,16 @@ class FirebaseVehiclesService extends HttpService {
    */
   async updateHourMeter(vehicleCode, newHours, notes = '') {
     try {
-      const result = await this.callEndpoint('sqlUpdateHourMeter', {
-        vehicleCode,
-        newHours,
-        notes
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'updateHourMeter',
+        data: {
+          vehicleCode,
+          newHours,
+          notes
+        }
       });
 
-      return result;
+      return result.data;
     } catch (error) {
       console.error('Error al actualizar horómetro:', error);
       throw new Error(`Error al actualizar horómetro: ${error.message}`);
@@ -427,13 +469,17 @@ class FirebaseVehiclesService extends HttpService {
    */
   async getHourMeterHistory(vehicleCode, limit = 50) {
     try {
-      const result = await this.callEndpoint('sqlGetHourMeterHistory', {
-        vehicleCode,
-        limit
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'getHourMeterHistory',
+        data: {
+          vehicleCode,
+          limit
+        }
       });
 
-      if (result.success && result.data) {
-        return result.data;
+      const data = result.data;
+      if (data) {
+        return data;
       }
 
       return [];
@@ -450,12 +496,16 @@ class FirebaseVehiclesService extends HttpService {
    */
   async calculateVehicleConsumption(vehicleCode) {
     try {
-      const result = await this.callEndpoint('sqlCalculateVehicleConsumption', {
-        vehicleCode
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'calculateConsumption',
+        data: {
+          vehicleCode
+        }
       });
 
-      if (result.success && result.data) {
-        return result.data;
+      const data = result.data;
+      if (data) {
+        return data;
       }
 
       return null;
@@ -473,12 +523,15 @@ class FirebaseVehiclesService extends HttpService {
    */
   async registerMaintenance(vehicleId, maintenanceData) {
     try {
-      const result = await this.callEndpoint('sqlRegisterMaintenance', {
-        vehicleId,
-        maintenanceData
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'registerMaintenance',
+        data: {
+          vehicleId,
+          maintenanceData
+        }
       });
 
-      return result;
+      return result.data;
     } catch (error) {
       console.error('Error al registrar mantenimiento:', error);
       throw new Error(`Error al registrar mantenimiento: ${error.message}`);
@@ -492,12 +545,16 @@ class FirebaseVehiclesService extends HttpService {
    */
   async countVehiclesByCategory(categoryId) {
     try {
-      const result = await this.callEndpoint('sqlCountVehiclesByCategory', {
-        categoryId
+      const result = await httpsCallable(this.functions, 'combustiblesVehicles')({
+        action: 'countByCategory',
+        data: {
+          categoryId
+        }
       });
 
-      if (result.success && result.data) {
-        return result.data.count || 0;
+      const data = result.data;
+      if (data) {
+        return data.count || 0;
       }
 
       return 0;
