@@ -69,12 +69,27 @@ export async function createCategory(categoryData, userInfo = null) {
     // Generar código automático si no se proporciona
     const code = categoryData.code || categoryData.uniqueCode || generateCategoryCode(categoryData.name);
 
-    // Obtener el siguiente sortOrder
-    const sortOrderQuery = `
-      SELECT ISNULL(MAX(sortOrder), 0) + 1 as nextSortOrder FROM ${TABLE_NAME}
-    `;
-    const sortOrderResult = await sqlConnection.query(sortOrderQuery);
-    const nextSortOrder = sortOrderResult[0].nextSortOrder;
+    // Verificar si la columna sortOrder existe y obtener el siguiente valor
+    let nextSortOrder = 1;
+    try {
+      const columnCheck = await sqlConnection.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_NAME = '${TABLE_NAME}' AND COLUMN_NAME = 'sortOrder'
+      `);
+      
+      if (columnCheck.length > 0) {
+        const sortOrderQuery = `
+          SELECT ISNULL(MAX(sortOrder), 0) + 1 as nextSortOrder FROM ${TABLE_NAME}
+        `;
+        const sortOrderResult = await sqlConnection.query(sortOrderQuery);
+        nextSortOrder = sortOrderResult[0].nextSortOrder;
+      } else {
+        console.log('⚠️ Columna sortOrder no existe, usando valor por defecto');
+      }
+    } catch (sortError) {
+      console.log('⚠️ Error obteniendo sortOrder, usando valor por defecto:', sortError.message);
+    }
 
     // Mapear datos del frontend al formato de base de datos
     const customFieldsData = {
@@ -83,7 +98,7 @@ export async function createCategory(categoryData, userInfo = null) {
       ...(categoryData.customFields || {})
     };
 
-    // Preparar datos de la categoría
+    // Preparar datos básicos de la categoría
     const category = {
       name: categoryData.name.trim(),
       code: code.toUpperCase(),
@@ -95,13 +110,34 @@ export async function createCategory(categoryData, userInfo = null) {
       defaultFuelType: (categoryData.fuelTypes && categoryData.fuelTypes[0]) || categoryData.defaultFuelType || 'DIESEL',
       estimatedConsumption: categoryData.estimatedConsumption || 0,
       isActive: categoryData.isActive !== false ? 1 : 0,  // Convertir a bit
-      sortOrder: categoryData.sortOrder || nextSortOrder,
-      vehicleCount: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
       createdBy: userInfo?.email || 'unknown',
       updatedBy: userInfo?.email || 'unknown',
     };
+
+    // Agregar columnas opcionales solo si existen en la tabla
+    try {
+      const columnsCheck = await sqlConnection.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_NAME = '${TABLE_NAME}' AND COLUMN_NAME IN ('sortOrder', 'vehicleCount')
+      `);
+      
+      const existingColumns = columnsCheck.map(row => row.COLUMN_NAME);
+      
+      if (existingColumns.includes('sortOrder')) {
+        category.sortOrder = categoryData.sortOrder || nextSortOrder;
+      }
+      
+      if (existingColumns.includes('vehicleCount')) {
+        category.vehicleCount = 0;
+      }
+      
+      console.log('🔍 Columnas opcionales detectadas:', existingColumns);
+    } catch (columnError) {
+      console.log('⚠️ Error verificando columnas opcionales:', columnError.message);
+    }
 
     console.log('🔍 DEBUG - Datos mapeados para inserción:', category);
 
@@ -202,7 +238,24 @@ export async function getAllCategories(options = {}) {
       query += ` WHERE ${conditions.join(' AND ')}`;
     }
 
-    query += ` ORDER BY sortOrder, name`;
+    // Verificar si la columna sortOrder existe antes de usarla
+    try {
+      const columnCheck = await sqlConnection.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_NAME = '${TABLE_NAME}' AND COLUMN_NAME = 'sortOrder'
+      `);
+      
+      if (columnCheck.length > 0) {
+        query += ` ORDER BY sortOrder, name`;
+      } else {
+        console.log('⚠️ Columna sortOrder no existe, ordenando solo por name');
+        query += ` ORDER BY name`;
+      }
+    } catch (columnError) {
+      console.log('⚠️ Error verificando columna sortOrder, usando orden por name:', columnError.message);
+      query += ` ORDER BY name`;
+    }
 
     const result = await sqlConnection.query(query, params);
 
@@ -476,6 +529,21 @@ export async function reorderCategories(categoryOrders) {
   try {
     if (!Array.isArray(categoryOrders)) {
       return { success: false, error: 'categoryOrders debe ser un array' };
+    }
+
+    // Verificar si la columna sortOrder existe
+    const columnCheck = await sqlConnection.query(`
+      SELECT COLUMN_NAME 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = '${TABLE_NAME}' AND COLUMN_NAME = 'sortOrder'
+    `);
+    
+    if (columnCheck.length === 0) {
+      console.log('⚠️ Columna sortOrder no existe, no se puede reordenar');
+      return { 
+        success: false, 
+        error: 'La columna sortOrder no existe en la tabla. Ejecuta la migración de esquema primero.' 
+      };
     }
 
     // Actualizar en transacción

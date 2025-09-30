@@ -5,6 +5,7 @@
  */
 
 import { httpsCallable, getFunctions } from 'firebase/functions';
+import HttpService from './base/HttpService.js';
 
 // Tipos de movimientos (mantenemos compatibilidad)
 export const MOVEMENT_TYPES = {
@@ -32,18 +33,13 @@ export const MOVEMENT_TYPE_DEFINITIONS = {
   MANTENIMIENTO: { name: 'Mantenimiento', description: 'Movimientos relacionados con mantenimiento' },
 };
 
-class FirebaseMovementsService {
+class FirebaseMovementsService extends HttpService {
   constructor() {
+    super();
     this.functions = getFunctions();
   }
 
-  async isAuthenticated() {
-    return true;
-  }
-
-  async getCurrentUser() {
-    return null;
-  }
+  // Métodos heredados de HttpService: isAuthenticated, getCurrentUser, isEndpointAvailable
 
   /**
    * Crear nuevo movimiento con lógica de negocio
@@ -105,18 +101,23 @@ class FirebaseMovementsService {
    */
   async getAllMovements(filters = {}) {
     try {
+      console.log('🚚 FirebaseMovementsService - getAllMovements INICIO:', { filters });
+
       // Normalizar fuelType en filtros
       if (filters.fuelType) {
         filters.fuelType = filters.fuelType.toUpperCase();
       }
 
-      const result = await httpsCallable(this.functions, 'combustiblesMovements')({
-        action: 'getAll',
-        data: { filters }
+      // Usar el método heredado de HttpService
+      const result = await this.callEndpoint('sqlGetAllMovements', { 
+        filters 
       });
 
-      const data = result.data;
-      if (data) {
+      console.log('🚚 FirebaseMovementsService - Result from Firebase:', { data: result });
+      
+      const data = result?.data;
+      if (Array.isArray(data)) {
+        console.log('🚚 FirebaseMovementsService - Processing movements array:', data.length);
         // Convertir timestamps para compatibilidad con frontend
         return data.map(movement => ({
           ...movement,
@@ -124,11 +125,19 @@ class FirebaseMovementsService {
           updatedAt: movement.updatedAt?.toISOString(),
           effectiveDate: movement.effectiveDate?.toISOString(),
         }));
+      } else {
+        console.log('🚚 FirebaseMovementsService - Data is not an array, returning empty array');
+        return [];
       }
-
-      return [];
     } catch (error) {
-      console.error('Error al obtener movimientos:', error);
+      console.error('❌ Error al obtener movimientos:', {
+        message: error?.message || 'Error desconocido',
+        stack: error?.stack,
+        name: error?.name,
+        data: error?.data,
+        code: error?.code,
+        fullError: error
+      });
       return [];
     }
   }
@@ -252,7 +261,13 @@ class FirebaseMovementsService {
           setTimeout(poll, 30000); // Poll cada 30 segundos
         }
       } catch (error) {
-        console.error('❌ Error en polling de movimientos:', error);
+        console.error('❌ Error en polling de movimientos:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack,
+          name: error.name,
+          endpoint: 'sqlGetAllMovements'
+        });
         callback(null, error);
         
         // Backoff exponencial basado en tipo de error

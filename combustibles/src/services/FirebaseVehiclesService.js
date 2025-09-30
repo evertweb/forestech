@@ -5,6 +5,7 @@
  */
 
 import { httpsCallable, getFunctions } from 'firebase/functions';
+import HttpService from './base/HttpService.js';
 import { VEHICLE_STATUS, FUEL_TYPES } from '../data/vehicleCategories.js';
 
 // Re-exportar constantes para compatibilidad
@@ -16,21 +17,13 @@ export const FUEL_COMPATIBILITY = {
   MIXED: 'MIXED',
 };
 
-class FirebaseVehiclesService {
+class FirebaseVehiclesService extends HttpService {
   constructor() {
+    super();
     this.functions = getFunctions();
   }
 
-  async isAuthenticated() {
-    // Firebase Functions maneja auth automáticamente
-    return true;
-  }
-
-  async getCurrentUser() {
-    // Asumir que está disponible globalmente o importar
-    // Por simplicidad, retornar null ya que Firebase Functions usa el token
-    return null;
-  }
+  // Métodos heredados de HttpService: isAuthenticated, getCurrentUser, isEndpointAvailable
 
   /**
    * Validar datos de vehículo
@@ -158,8 +151,11 @@ class FirebaseVehiclesService {
         data: { filters }
       });
 
+      console.log('🚗 FirebaseVehiclesService - Result from Firebase:', result);
       const data = result.data;
-      if (data) {
+      console.log('🚗 FirebaseVehiclesService - Data extracted:', data);
+      
+      if (data && Array.isArray(data)) {
         // Procesar datos para compatibilidad (convertir JSON fields)
         return data.map(vehicle => ({
           ...vehicle,
@@ -175,6 +171,7 @@ class FirebaseVehiclesService {
         }));
       }
 
+      console.log('🚗 FirebaseVehiclesService - Data is not an array, returning empty array');
       return [];
     } catch (error) {
       console.error('Error al obtener vehículos:', error);
@@ -359,7 +356,13 @@ class FirebaseVehiclesService {
           setTimeout(poll, 60000); // Poll cada 1 minuto
         }
       } catch (error) {
-        console.error('❌ Error en polling de vehículos:', error);
+        console.error('❌ Error en polling de vehículos:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack,
+          name: error.name,
+          endpoint: 'sqlGetAllVehicles'
+        });
         callback(null, error);
         
         // Backoff exponencial más agresivo para vehículos

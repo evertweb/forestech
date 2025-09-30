@@ -5,6 +5,7 @@
  */
 
 import { getFunctions } from 'firebase/functions';
+import HttpService from './base/HttpService.js';
 import { FUEL_INFO, getStockLevel } from '../constants/combustibleTypes.js';
 
 // Estados del inventario
@@ -14,18 +15,13 @@ export const INVENTORY_STATUS = {
   MAINTENANCE: 'maintenance',
 };
 
-class FirebaseInventoryService {
+class FirebaseInventoryService extends HttpService {
   constructor() {
+    super();
     this.functions = getFunctions();
   }
 
-  async isAuthenticated() {
-    return true;
-  }
-
-  async getCurrentUser() {
-    return null;
-  }
+  // Métodos heredados de HttpService: isAuthenticated, getCurrentUser, isEndpointAvailable
 
   /**
    * CRUD OPERATIONS - CREATE
@@ -97,7 +93,14 @@ class FirebaseInventoryService {
 
       return [];
     } catch (error) {
-      console.error('Error obteniendo inventario:', error);
+      console.error('Error obteniendo inventario:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        name: error.name,
+        endpoint: 'sqlGetAllInventory',
+        filters: filters
+      });
       throw error;
     }
   }
@@ -262,7 +265,13 @@ class FirebaseInventoryService {
           setTimeout(poll, 30000); // Poll cada 30 segundos
         }
       } catch (error) {
-        console.error('❌ Error en polling de inventario:', error);
+        console.error('❌ Error en polling de inventario:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack,
+          name: error.name,
+          endpoint: 'sqlGetAllInventory'
+        });
         callback(null, error);
         
         // Backoff exponencial basado en si es circuit breaker error
