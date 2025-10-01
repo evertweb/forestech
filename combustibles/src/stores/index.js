@@ -14,15 +14,14 @@
  * import { useAuthStore as useAuth } from '@/stores';
  */
 
-// Import stores for resetAllStores function
-// Using TypeScript files where migrated (.ts), JavaScript files (.js) where not yet migrated
+// Import stores (All migrated to TypeScript)
 import { useAuthStore } from './auth.store.ts';
-import { useMovementsStore } from './movements.store';
-import { useVehiclesStore } from './vehicles.store';
-import { useInventoryStore } from './inventory.store';
-import { useProductsStore } from './products.store';
+import { useMovementsStore } from './movements.store.ts';
+import { useVehiclesStore } from './vehicles.store.ts';
+import { useInventoryStore } from './inventory.store.ts';
+import { useProductsStore } from './products.store.ts';
 
-// Re-export Auth Store (migrated to TS)
+// Re-export Auth Store
 export { 
   selectUserEmail, 
   selectUserRole, 
@@ -35,7 +34,7 @@ export {
   selectMovementsCount, 
   selectMovementsLoading, 
   selectMovementsByType 
-} from './movements.store';
+} from './movements.store.ts';
 
 // Re-export Vehicles Store
 export { 
@@ -43,7 +42,7 @@ export {
   selectActiveVehicles, 
   selectVehiclesLoading, 
   selectVehiclesWithHourMeter 
-} from './vehicles.store';
+} from './vehicles.store.ts';
 
 // Re-export Inventory Store
 export { 
@@ -51,7 +50,7 @@ export {
   selectInventoryLoading, 
   selectLowStockItems, 
   selectInventoryByFuelType 
-} from './inventory.store';
+} from './inventory.store.ts';
 
 // Re-export Products Store
 export { 
@@ -59,7 +58,7 @@ export {
   selectActiveProducts, 
   selectProductsLoading, 
   selectFuelTypesNames 
-} from './products.store';
+} from './products.store.ts';
 
 // Export stores (already imported above)
 export { 
