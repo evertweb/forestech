@@ -52,7 +52,7 @@
   "private": true,
   "dependencies": {
     "chart.js": "^4.5.0",
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.2.3",
     "firebase": "^11.9.1",
     "mssql": "^11.0.1",
     "react": "^19.1.0",
