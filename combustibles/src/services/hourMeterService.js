@@ -1,4 +1,24 @@
 /**
+ * ⚠️ DEPRECATED - HourMeterService Legacy
+ * 
+ * Este servicio está DEPRECADO desde la refactorización del 30/09/2025.
+ * 
+ * ✅ USAR EN SU LUGAR:
+ * - FirebaseHourMeterService (src/services/FirebaseHourMeterService.js)
+ * - useHourMeter hook (src/hooks/useHourMeter.js)
+ * 
+ * Este archivo se mantiene solo para:
+ * - Referencia temporal durante migración
+ * - Rollback de emergencia
+ * - Comparación de lógica legacy
+ * 
+ * ❌ NO IMPORTAR este servicio en nuevos componentes.
+ * ❌ NO agregar nuevas funcionalidades aquí.
+ * 
+ * Ver: MIGRACION_SERVICIOS_LEGACY.md
+ * 
+ * ---
+ * 
  * HourMeterService - Servicio para gestión de horómetros de vehículos
  * Maneja lecturas, validaciones, historial y métricas de horómetros
  */

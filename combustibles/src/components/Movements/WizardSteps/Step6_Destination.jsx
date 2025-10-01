@@ -1,15 +1,23 @@
 /**
- * Step6_Destination - Sexto paso del wizard: Selección de ubicación destino (solo para transferencias)
- * Valida capacidad disponible en destino y previene transferencias a la misma ubicación
+ * Step6_Destination - Sexto paso del wizard: Selección de ubicación destino
+ * Usado para entradas (seleccionar bodega destino)
+ * 
+ * REFACTORED: Removed legacy service import
+ * SIMPLIFIED: No longer handles TRANSFERENCIA (removed from CORE)
  */
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import {
   OPERATIONAL_LOCATIONS,
   STORAGE_LOCATIONS,
   formatLocationName,
 } from '../../../constants/locations';
+
+// Tipos de movimiento simplificados
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step6_Destination = ({
   formData,

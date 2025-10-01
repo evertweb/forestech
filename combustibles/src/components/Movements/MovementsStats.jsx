@@ -4,9 +4,20 @@
  */
 
 import React from 'react';
-import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 import { useMovementStatusColors } from '../../hooks/useStatusColors';
+
+// REFACTORED: Removed legacy service import, using constants directly
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
+
+const MOVEMENT_STATUS = {
+  COMPLETED: 'completed',
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+};
 
 const MovementsStats = ({ stats, filters }) => {
   const { getStatusColor } = useMovementStatusColors();

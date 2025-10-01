@@ -1,11 +1,19 @@
 /**
  * Step1_MovementType - Primer paso del wizard: Selección del tipo de movimiento
  * Diseño estilo Typeform: conversacional, centrado y elegante
+ * 
+ * REFACTORED: Simplificado a solo ENTRADA y SALIDA (según decisiones CORE)
+ * REMOVED: Legacy service imports - now using constants directly
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { MOVEMENT_TYPES_UI } from '../../../constants';
+
+// Tipos de movimiento simplificados (solo ENTRADA y SALIDA)
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step1_MovementType = ({
   formData,
@@ -18,6 +26,8 @@ const Step1_MovementType = ({
   const getThemeClass = (baseClass) => {
     return `${baseClass} ${theme}-theme`;
   };
+
+  // Opciones simplificadas: solo ENTRADA y SALIDA
   const movementOptions = useMemo(
     () => [
       {
@@ -28,18 +38,7 @@ const Step1_MovementType = ({
         type: MOVEMENT_TYPES.SALIDA,
         ...MOVEMENT_TYPES_UI.SALIDA,
       },
-      {
-        type: MOVEMENT_TYPES.TRANSFERENCIA,
-        ...MOVEMENT_TYPES_UI.TRANSFERENCIA,
-      },
-      {
-        type: MOVEMENT_TYPES.AJUSTE,
-        ...MOVEMENT_TYPES_UI.AJUSTE,
-      },
-      {
-        type: MOVEMENT_TYPES.MANTENIMIENTO,
-        ...MOVEMENT_TYPES_UI.MANTENIMIENTO,
-      },
+      // REMOVED: TRANSFERENCIA, AJUSTE, MANTENIMIENTO (no son necesarios en refactorización)
     ],
     []
   );

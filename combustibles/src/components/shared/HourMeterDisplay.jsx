@@ -1,10 +1,12 @@
 /**
  * HourMeterDisplay - Componente para mostrar información del horómetro de un vehículo
  * Muestra lecturas actuales, métricas y estado del horómetro
+ * 
+ * REFACTORED: Usa custom hook useHourMeter en lugar de servicio legacy
  */
 
-import React, { useState, useEffect } from 'react';
-import { getHourMeterSummary } from '../../services/hourMeterService';
+import React from 'react';
+import { useHourMeter } from '../../hooks/useHourMeter';
 
 const HourMeterDisplay = ({
   vehicleId,
@@ -14,28 +16,8 @@ const HourMeterDisplay = ({
   compact = false,
   className = '',
 }) => {
-  const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Cargar resumen del horómetro
-  useEffect(() => {
-    if (vehicleId) {
-      setLoading(true);
-      setError(null);
-
-      getHourMeterSummary(vehicleId)
-        .then((result) => {
-          setSummary(result);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error('Error loading hour meter summary:', err);
-          setError('Error al cargar datos del horómetro');
-          setLoading(false);
-        });
-    }
-  }, [vehicleId]);
+  // Hook personalizado que encapsula toda la lógica del horómetro
+  const { summary, loadingSummary: loading, errorSummary: error } = useHourMeter(vehicleId);
 
   // Si el vehículo no tiene horómetro, no mostrar nada
   if (!vehicle?.hasHourMeter && !summary?.hasHourMeter) {

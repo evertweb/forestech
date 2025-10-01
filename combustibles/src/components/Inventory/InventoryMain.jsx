@@ -9,11 +9,14 @@
  * - Mantiene toda la funcionalidad del inventario original
  * - Diseño responsive y accesible WCAG 2.1 AA
  * - Estados visuales consistentes con estándares SAP
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useAuthStore para hasPermission
  * ================================================================================================================================
  */
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 import {
   subscribeToInventory,
   deleteInventoryItem,
@@ -33,7 +36,8 @@ import '../../styles/sap-inventory.css';
 import '../../styles/inventory-header.css';
 
 const InventoryMain = () => {
-  const { hasPermission } = useCombustibles();
+  // 🔐 Zustand Store - Solo permisos
+  const hasPermission = useAuthStore(state => state.hasPermission);
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();

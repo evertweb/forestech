@@ -1,8 +1,10 @@
 // components/Popups/VehicleWizardPopup.jsx
 // Wrapper que vive en la ruta dedicada y monta VehicleWizard usando los providers globales
+// MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
 
 import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { CombustiblesProvider, useCombustibles } from '../../contexts/CombustiblesContext';
+import { CombustiblesProvider } from '../../contexts/CombustiblesContext';
+import { subscribeToCategories as subscribeToVehicleCategories } from '../../services/FirebaseVehicleCategoriesService';
 import {
   addMessageListener,
   POPUP_EVENTS,
@@ -15,7 +17,7 @@ import '../Movements/WizardSteps-Government.css';
 const VehicleFormCorporate = lazy(() => import('../Vehicles/VehicleFormCorporate'));
 
 const PopupInner = () => {
-  const { subscribeToVehicleCategories } = useCombustibles();
+  // MIGRADO: subscribeToVehicleCategories desde servicio
   const [, setInitData] = useState(null);
   const [showWizard, setShowWizard] = useState(false);
   const [, setCategories] = useState([]);
@@ -54,11 +56,11 @@ const PopupInner = () => {
   // Suscribirse a categorías dentro del popup si es necesario
   useEffect(() => {
     let unsubscribe = null;
-    if (showWizard && typeof subscribeToVehicleCategories === 'function') {
+    if (showWizard) {
       unsubscribe = subscribeToVehicleCategories((list) => setCategories(list || []));
     }
     return () => unsubscribe && unsubscribe();
-  }, [showWizard, subscribeToVehicleCategories]);
+  }, [showWizard]);
 
   if (!showWizard) {
     return (

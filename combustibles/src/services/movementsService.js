@@ -1,4 +1,24 @@
 /**
+ * ⚠️ DEPRECATED - MovementsService Legacy
+ * 
+ * Este servicio está DEPRECADO desde la refactorización del 30/09/2025.
+ * 
+ * ✅ USAR EN SU LUGAR:
+ * - FirebaseMovementsService (src/services/FirebaseMovementsService.js)
+ * - useMovements hook (src/hooks/useMovements.js)
+ * 
+ * Este archivo se mantiene solo para:
+ * - Referencia temporal durante migración
+ * - Rollback de emergencia
+ * - Comparación de lógica legacy
+ * 
+ * ❌ NO IMPORTAR este servicio en nuevos componentes.
+ * ❌ NO agregar nuevas funcionalidades aquí.
+ * 
+ * Ver: MIGRACION_SERVICIOS_LEGACY.md
+ * 
+ * ---
+ * 
  * MovementsService - Servicio para gestión de movimientos de combustibles
  * Maneja entradas, salidas, transferencias y ajustes de inventario
  */

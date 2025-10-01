@@ -10,26 +10,6 @@
         "puppeteer_navigate"
       ]
     },
-    "github": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "-e",
-        "GITHUB_TOOLSETS",
-        "-e",
-        "GITHUB_READ_ONLY",
-        "ghcr.io/github/github-mcp-server"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "",
-        "GITHUB_TOOLSETS": "",
-        "GITHUB_READ_ONLY": ""
-      }
-    },
     "context7": {
       "command": "npx",
       "args": [

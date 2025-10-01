@@ -4,7 +4,18 @@
  */
 
 import React, { useState, useMemo, useCallback, memo } from 'react';
-import { MOVEMENT_TYPES, MOVEMENT_STATUS } from '../../services/movementsService';
+
+// REFACTORED: Removed legacy service import, using constants directly
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
+
+const MOVEMENT_STATUS = {
+  COMPLETED: 'completed',
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+};
 
 const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
   const [sortField, setSortField] = useState('createdAt');

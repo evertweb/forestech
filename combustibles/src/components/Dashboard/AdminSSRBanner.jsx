@@ -15,14 +15,18 @@
  * - /ssr-alerts: Sistema de alertas y notificaciones SSR
  * - /ssr-optimization: Panel de optimización de performance SSR
  * - /ssr-coverage: Monitoreo de cobertura SSR (45% target)
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useAuthStore para isAdmin
  * ================================================================================================================================
  */
 
 import React, { useState } from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 
 const AdminSSRBanner = () => {
-  const { isAdmin } = useCombustibles();
+  // 🔐 Zustand Store - Auth
+  const isAdmin = useAuthStore(state => state.isAdmin);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Solo mostrar para administradores

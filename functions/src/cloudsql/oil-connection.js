@@ -12,18 +12,16 @@ class OilSQLConnection {
   }
 
   getConfig() {
-    const isProduction = process.env.NODE_ENV === 'production';
-    
+    // NOTA: Firebase Functions NO soporta Unix sockets
+    // Siempre usamos IP pública con SSL
     return {
-      server: isProduction 
-        ? '/cloudsql/liquidacionapp-62962:us-central1:oil'  // Unix socket para Cloud Functions
-        : '34.61.242.157',  // IP pública para desarrollo
-      port: isProduction ? undefined : 1433,
+      server: '34.61.242.157',  // IP pública siempre para Firebase Functions
+      port: 1433,
       database: 'forestechCombus',
       user: 'oil',
       password: '123456789',
       options: {
-        encrypt: !isProduction,  // Encrypt solo para conexiones externas
+        encrypt: true,  // Siempre usar SSL para conexiones externas
         trustServerCertificate: true,
         enableArithAbort: true,
         connectionTimeout: 30000,

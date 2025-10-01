@@ -1,10 +1,13 @@
 /**
  * VehiclesMain - Componente principal del módulo de vehículos
  * Ahora incluye pestañas para gestionar vehículos y categorías por separado
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useAuthStore para user y userProfile
  */
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 import {
   subscribeToVehicles,
   getVehiclesStats,
@@ -35,8 +38,10 @@ import { POPUP_EVENTS } from '../../services/popupCommunication';
 const VehiclesMain = () => {
   // Estado para manejo de pestañas
   const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'categories'
-  // Context y estado
-  const { user, userProfile } = useCombustibles();
+  
+  // 🔐 Zustand Store - Auth
+  const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
 
   // Hook para progreso transparente de Firebase (disponible para uso futuro)
   const { executeWithProgress: _executeWithProgress } = useFirebaseProgressContext();

@@ -1,11 +1,18 @@
 /**
  * Step4_Quantity - Cuarto paso del wizard: Especificar cantidad de combustible
  * Diseño estilo Typeform: entrada de cantidad conversacional y visual
+ * 
+ * REFACTORED: Removed legacy service import, simplified types
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { validateStockAvailability } from '../../../utils/calculations';
+
+// Tipos de movimiento simplificados
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step4_Quantity = ({
   formData,
@@ -29,8 +36,8 @@ const Step4_Quantity = ({
   };
 
   const { inventory } = systemData;
-  const isStockRequired =
-    formData.type === MOVEMENT_TYPES.SALIDA || formData.type === MOVEMENT_TYPES.TRANSFERENCIA;
+  // SIMPLIFIED: Only SALIDA requires stock validation (no more TRANSFERENCIA)
+  const isStockRequired = formData.type === MOVEMENT_TYPES.SALIDA;
 
   // Auto-focus del input cuando se activa el paso
   useEffect(() => {

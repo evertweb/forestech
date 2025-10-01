@@ -1,10 +1,12 @@
 /**
  * HourMeterHistory - Componente para mostrar el historial de lecturas del horómetro
  * Incluye tabla paginada, filtros y exportación de datos
+ * 
+ * REFACTORED: Usa custom hook useHourMeter en lugar de servicio legacy
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { getHourMeterHistory } from '../../services/hourMeterService';
+import { useHourMeter } from '../../hooks/useHourMeter';
 
 const HourMeterHistory = ({
   vehicleId,
@@ -14,9 +16,13 @@ const HourMeterHistory = ({
   showFilters = true,
   className = '',
 }) => {
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Hook personalizado que encapsula toda la lógica del horómetro
+  const {
+    history,
+    loadingHistory: loading,
+    errorHistory: error,
+    fetchHistory,
+  } = useHourMeter(vehicleId);
 
   // Estados para filtros y paginación
   const [dateFilter, setDateFilter] = useState({
@@ -27,24 +33,12 @@ const HourMeterHistory = ({
   const [itemsPerPage] = useState(10);
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc' o 'desc'
 
-  // Cargar historial del horómetro
+  // Cargar historial cuando el componente monta o cambia maxEntries
   useEffect(() => {
     if (vehicleId) {
-      setLoading(true);
-      setError(null);
-
-      getHourMeterHistory(vehicleId, maxEntries)
-        .then((result) => {
-          setHistory(result);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error('Error loading hour meter history:', err);
-          setError('Error al cargar historial del horómetro');
-          setLoading(false);
-        });
+      fetchHistory(maxEntries);
     }
-  }, [vehicleId, maxEntries]);
+  }, [vehicleId, maxEntries, fetchHistory]);
 
   // Filtrar y ordenar datos
   const filteredHistory = useMemo(() => {

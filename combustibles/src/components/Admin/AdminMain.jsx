@@ -1,8 +1,11 @@
 // combustibles/src/components/Admin/AdminMain.jsx
 // Componente principal del módulo de administración - PÁGINA INTEGRADA
+//
+// MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+// - Usa useAuthStore para user y userProfile
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 import { PageLayout, ShimmerLoader, ShimmerCardsGrid } from '../shared';
 import AdminDashboardCards from './AdminDashboardCards';
 import AdminContentPanel from './AdminContentPanel';
@@ -14,7 +17,9 @@ import './AdminDashboard.css';
 import './AdminMain.css';
 
 const AdminMain = () => {
-  const { user, userProfile } = useCombustibles();
+  // 🔐 Zustand Store - Auth
+  const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [loading, setLoading] = useState(true);
 

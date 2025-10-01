@@ -14,7 +14,11 @@ import {
   formatNumber,
   formatPercentage,
 } from '../../utils/calculations';
-import { MOVEMENT_TYPES } from '../../services/movementsService';
+// ✅ SIMPLIFIED: Solo ENTRADA y SALIDA según decisiones CORE
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
 const FinancialReports = ({ movements, vehicles, /* _suppliers, */ dateRange, inventory }) => {

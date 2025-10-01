@@ -1,10 +1,17 @@
 /**
  * Step2_Date - Segundo paso del wizard: Selección de fecha del movimiento
  * Diseño estilo Typeform: centrado en la fecha y uso intuitivo
+ * 
+ * REFACTORED: Removed legacy service import
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
+
+// Tipos de movimiento simplificados
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step2_Date = ({ formData, updateFormData, setError, isActive }) => {
   const [localError, setLocalError] = useState('');

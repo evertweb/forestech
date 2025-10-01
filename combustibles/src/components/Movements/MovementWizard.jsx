@@ -1,11 +1,14 @@
 /**
  * MovementWizard - Formulario tipo quiz progresivo para movimientos de combustibles
  * Guía al usuario paso a paso con validaciones en tiempo real y feedback visual
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useInventoryStore y useVehiclesStore
  */
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createMovement, MOVEMENT_TYPES } from '../../services/FirebaseMovementsService';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useInventoryStore, useVehiclesStore } from '../../stores';
 import { getActiveProducts } from '../../services/FirebaseProductsService';
 import { getAllSuppliers } from '../../services/FirebaseSuppliersService';
 import { subscribeToVehicles, getAllVehicles } from '../../services/FirebaseVehiclesService';
@@ -33,8 +36,12 @@ import Step9_Maintenance from './WizardSteps/Step9_Maintenance';
 import './WizardSteps-Government.css';
 
 const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) => {
-  // Usar datos en tiempo real del contexto
-  const { inventory, vehicles, subscribeToSuppliers } = useCombustibles();
+  // 🏪 Zustand Stores - Inventory y Vehicles
+  const inventory = useInventoryStore(state => state.inventory);
+  const vehicles = useVehiclesStore(state => state.vehicles);
+  
+  // Note: subscribeToSuppliers no está en un store aún, usar servicio directamente
+  const subscribeToSuppliers = getAllSuppliers; // Fallback temporal
 
   // (Debug logs removidos para reducir spam)
 

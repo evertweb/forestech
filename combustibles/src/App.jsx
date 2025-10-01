@@ -21,7 +21,8 @@ const DashboardMain = lazy(() => import('./components/Dashboard/DashboardMain-SA
 const InventoryMain = lazy(() => import('./components/Inventory/InventoryMain'));
 const MovementsMain = lazy(() => import('./components/Movements/MovementsMain'));
 const VehiclesMain = lazy(() => import('./components/Vehicles/VehiclesMain'));
-const MaintenanceMain = lazy(() => import('./components/Maintenance/MaintenanceMain'));
+// COMMENTED: Mantenimiento module - postponed for later phase (Refactoring decision)
+// const MaintenanceMain = lazy(() => import('./components/Maintenance/MaintenanceMain'));
 const ProductsMain = lazy(() => import('./components/Products/ProductsMain'));
 const SuppliersMain = lazy(() => import('./components/Suppliers/SuppliersMain'));
 const AdminMain = lazy(() => import('./components/Admin/AdminMain'));
@@ -92,7 +93,8 @@ function AppContent() {
                   <Route path="inventario" element={<InventoryMain />} />
                   <Route path="movimientos" element={<MovementsMain />} />
                   <Route path="vehiculos" element={<VehiclesMain />} />
-                  <Route path="mantenimiento" element={<MaintenanceMain />} />
+                  {/* COMMENTED: Mantenimiento route - postponed for later phase */}
+                  {/* <Route path="mantenimiento" element={<MaintenanceMain />} /> */}
                   <Route path="productos" element={<ProductsMain />} />
                   <Route path="proveedores" element={<SuppliersMain />} />
                   <Route path="reportes" element={<ReportsMain />} />

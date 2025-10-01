@@ -1,7 +1,7 @@
 // VehicleFormSmart.jsx - Formulario Progresivo Inteligente
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
-import { isCustomIcon } from '../../services/iconUploadService';
+// REMOVED: iconUploadService - no more custom icons in refactoring
 import {
   MODAL_PRESETS,
   UI_ACTIONS,
@@ -336,7 +336,8 @@ const VehicleFormSmart = ({ isOpen, onClose, onSuccess, vehicle = null }) => {
                       <option value="">{UI_PLACEHOLDERS.SELECT_CATEGORY}</option>
                       {vehicleCategories?.map((category) => (
                         <option key={category.id} value={category.id}>
-                          {isCustomIcon(category.icon) ? '🖼️  ' : category.icon + ' '}
+                          {/* SIMPLIFIED: Icons are text/emoji only */}
+                          {category.icon ? category.icon + ' ' : ''}
                           {category.name}
                         </option>
                       )) || []}

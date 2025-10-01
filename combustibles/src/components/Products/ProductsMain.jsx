@@ -1,6 +1,9 @@
 /**
  * ProductsMain - Gestión dinámica de productos/combustibles
  * Permite ver, crear, editar y eliminar productos con estadísticas
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useAuthStore para userProfile
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,7 +14,7 @@ import {
   deleteProduct,
 } from '../../services/FirebaseProductsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { openProductWizardPopup } from '../Popups/PopupManager';
 import { POPUP_EVENTS } from '../../services/popupCommunication';
@@ -25,8 +28,8 @@ const ProductsMain = () => {
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
 
-  // Obtener información del usuario desde el contexto
-  const { userProfile } = useCombustibles();
+  // 🔐 Zustand Store - Auth
+  const userProfile = useAuthStore(state => state.userProfile);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

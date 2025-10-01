@@ -1,10 +1,14 @@
 /**
  * MovementsMain - Componente principal del módulo de movimientos
  * Gestiona la visualización y filtrado de movimientos de combustibles
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa múltiples stores: Auth, Movements, Inventory, Vehicles
+ * - Performance optimizada con selectores
  */
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore, useMovementsStore, useInventoryStore, useVehiclesStore } from '../../stores';
 import {
   subscribeToMovements,
   getMovementsStats,
@@ -25,9 +29,13 @@ import { openMovementWizardPopup } from '../Popups/PopupManager';
 import { POPUP_EVENTS } from '../../services/popupCommunication';
 
 const MovementsMain = () => {
-  // Context y estado
-  const { user, userProfile, deleteMovement, inventory, vehicles, hasPermission } =
-    useCombustibles();
+  // 🏪 Zustand Stores - Selectores optimizados para evitar re-renders
+  const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
+  const hasPermission = useAuthStore(state => state.hasPermission);
+  const deleteMovement = useMovementsStore(state => state.deleteMovement);
+  const inventory = useInventoryStore(state => state.inventory);
+  const vehicles = useVehiclesStore(state => state.vehicles);
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();

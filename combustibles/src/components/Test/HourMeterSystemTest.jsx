@@ -6,8 +6,13 @@
 import React, { useState } from 'react';
 import { HourMeterInput, HourMeterDisplay, HourMeterHistory } from '../shared';
 import { createVehicle } from '../../services/FirebaseVehiclesService';
-import { createMovement, MOVEMENT_TYPES } from '../../services/FirebaseMovementsService';
-import { getHourMeterSummary } from '../../services/hourMeterService';
+import { createMovement } from '../../services/FirebaseMovementsService';
+// ✅ SIMPLIFIED: Solo ENTRADA y SALIDA según decisiones CORE
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
+import FirebaseHourMeterService from '../../services/FirebaseHourMeterService';
 
 const HourMeterSystemTest = () => {
   const [testVehicle, setTestVehicle] = useState(null);
@@ -143,7 +148,14 @@ const HourMeterSystemTest = () => {
     setLoading(true);
 
     try {
-      const summary = await getHourMeterSummary(testVehicle.id);
+      // ✅ MIGRATED: Usar FirebaseHourMeterService en lugar de hourMeterService legacy
+      const hourMeterService = new FirebaseHourMeterService();
+      const result = await hourMeterService.getHourMeterSummary(testVehicle.id);
+      const summary = result.success ? result.data : null;
+
+      if (!summary) {
+        throw new Error(result.error || 'No se pudo obtener el resumen del horómetro');
+      }
 
       const expectedData = {
         hasHourMeter: true,

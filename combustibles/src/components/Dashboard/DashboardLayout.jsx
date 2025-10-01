@@ -1,11 +1,15 @@
 /**
  * DashboardLayout - Layout principal del dashboard
  * Proporciona estructura común con navegación por tabs y contenido principal
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useAuthStore en lugar de CombustiblesContext
+ * - Solo necesita userProfile para verificar rol de admin
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 import MainNavigation from './MainNavigation';
 import AdminSSRBanner from './AdminSSRBanner';
 import './AdminSSRBanner.css';
@@ -13,7 +17,8 @@ import './DashboardLayout.css';
 import '../../styles/apple-dashboard.css';
 
 const DashboardLayout = ({ children }) => {
-  const { user: _user, userProfile } = useCombustibles();
+  // 🔐 Zustand Store - Solo suscribirse a userProfile.role (performance optimizada)
+  const userProfile = useAuthStore(state => state.userProfile);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,7 +29,7 @@ const DashboardLayout = ({ children }) => {
     '/inventario': 'inventario',
     '/movimientos': 'movimientos',
     '/vehiculos': 'vehiculos',
-    '/mantenimiento': 'mantenimiento',
+    // COMMENTED: '/mantenimiento': 'mantenimiento', - postponed for later phase
     '/productos': 'productos',
     '/proveedores': 'proveedores',
     '/reportes': 'reportes',

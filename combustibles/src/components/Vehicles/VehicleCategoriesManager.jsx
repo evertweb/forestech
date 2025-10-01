@@ -11,15 +11,8 @@ import {
   subscribeToCategories,
   getCategoryStats,
 } from '../../services/FirebaseVehicleCategoriesService';
-import {
-  resetVehicleCategories,
-  hasCustomCategories,
-} from '../../services/resetVehicleCategoriesService';
-import {
-  isCustomIcon,
-  renderCategoryIcon,
-  deleteCategoryIcon,
-} from '../../services/iconUploadService.jsx';
+// REMOVED: resetVehicleCategoriesService - eliminated in refactoring
+// REMOVED: iconUploadService - no more custom icons
 import { AVAILABLE_FIELDS } from '../../data/vehicleCategories';
 import './VehicleCategoriesManager.css';
 
@@ -77,12 +70,9 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   };
 
   const checkCustomCategories = async () => {
-    try {
-      const hasCustomCats = await hasCustomCategories();
-      setHasCustom(hasCustomCats);
-    } catch (error) {
-      console.error('❌ Error verificando categorías personalizadas:', error);
-    }
+    // REMOVED: hasCustomCategories service eliminated in refactoring
+    // Simplified: Always allow custom categories
+    setHasCustom(true);
   };
 
   const handleEditCategory = (category) => {
@@ -107,16 +97,8 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
       setSaving(true);
       console.log('🔄 Eliminando categoría del Firestore...');
 
-      // Si tiene un icono personalizado, eliminarlo también
-      if (category.icon && isCustomIcon(category.icon)) {
-        console.log('🖼️ Eliminando icono personalizado:', category.icon);
-        try {
-          await deleteCategoryIcon(category.icon);
-          console.log('✅ Icono eliminado exitosamente');
-        } catch (iconError) {
-          console.warn('⚠️ Error eliminando icono, continuando con categoría:', iconError);
-        }
-      }
+      // REMOVED: Custom icon deletion (iconUploadService eliminated in refactoring)
+      // Icons are now text/emoji only, no storage cleanup needed
 
       await deleteCategory(category.id);
       console.log('✅ Categoría eliminada exitosamente');
@@ -133,26 +115,11 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
   // Funciones obsoletas eliminadas - se usa modal DOM directo
 
   const handleResetCategories = async () => {
-    try {
-      setSaving(true);
-      setError('');
-
-      const result = await resetVehicleCategories();
-
-      if (result.success) {
-        setShowResetConfirm(false);
-        setError('');
-        alert(`✅ ${result.message}`);
-        // Los datos se actualizarán automáticamente via suscripción
-      } else {
-        setError('Error al resetear categorías');
-      }
-    } catch (error) {
-      console.error('Error reseteando categorías:', error);
-      setError(error.message);
-    } finally {
-      setSaving(false);
-    }
+    // REMOVED: resetVehicleCategories service eliminated in refactoring
+    // This functionality is no longer available - categories are managed directly
+    console.warn('Reset categories functionality removed in refactoring');
+    alert('La funcionalidad de reseteo ha sido eliminada. Las categorías se gestionan directamente.');
+    setShowResetConfirm(false);
   };
 
   const getStatsForCategory = (categoryId) => {
@@ -1114,10 +1081,10 @@ const VehicleCategoriesManager = ({ onClose, onCategoryCreated, embedded = false
             >
               <div className="category-header">
                 <div className="category-icon" style={{ color: category.color }}>
-                  {renderCategoryIcon(category.icon, {
-                    className: 'category-icon-display',
-                    style: { color: category.color },
-                  })}
+                  {/* SIMPLIFIED: Icons are now text/emoji only */}
+                  <span className="category-icon-display" style={{ color: category.color }}>
+                    {category.icon || '📁'}
+                  </span>
                 </div>
                 <div className="category-info">
                   <h4>{category.name}</h4>

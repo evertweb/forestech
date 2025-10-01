@@ -11,7 +11,11 @@ import {
   formatCurrency,
   formatNumber,
 } from '../../utils/calculations';
-import { MOVEMENT_TYPES } from '../../services/movementsService';
+// ✅ SIMPLIFIED: Solo ENTRADA y SALIDA según decisiones CORE
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 import { FUEL_INFO } from '../../constants/combustibleTypes';
 
 const MovementReports = ({ movements, dateRange, vehicles }) => {
@@ -162,8 +166,6 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
           month: monthKey,
           entradas: 0,
           salidas: 0,
-          transferencias: 0,
-          ajustes: 0,
           totalQuantity: 0,
           totalValue: 0,
         };
@@ -172,7 +174,12 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
       const quantity = parseFloat(movement.quantity) || 0;
       const value = quantity * (parseFloat(movement.unitPrice) || 0);
 
-      monthlyData[monthKey][movement.type]++;
+      // ✅ SIMPLIFIED: Solo contar entradas y salidas
+      if (movement.type === MOVEMENT_TYPES.ENTRADA) {
+        monthlyData[monthKey].entradas++;
+      } else if (movement.type === MOVEMENT_TYPES.SALIDA) {
+        monthlyData[monthKey].salidas++;
+      }
       monthlyData[monthKey].totalQuantity += quantity;
       monthlyData[monthKey].totalValue += value;
     });
@@ -309,8 +316,6 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
               <option value="all">Todos los tipos</option>
               <option value={MOVEMENT_TYPES.ENTRADA}>Entradas</option>
               <option value={MOVEMENT_TYPES.SALIDA}>Salidas</option>
-              <option value={MOVEMENT_TYPES.TRANSFERENCIA}>Transferencias</option>
-              <option value={MOVEMENT_TYPES.AJUSTE}>Ajustes</option>
             </select>
           </div>
           <div className="apple-form-group">
@@ -363,8 +368,6 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
                 <h4>
                   {typeData.type === MOVEMENT_TYPES.ENTRADA && '📥 Entradas'}
                   {typeData.type === MOVEMENT_TYPES.SALIDA && '📤 Salidas'}
-                  {typeData.type === MOVEMENT_TYPES.TRANSFERENCIA && '🔄 Transferencias'}
-                  {typeData.type === MOVEMENT_TYPES.AJUSTE && '⚙️ Ajustes'}
                 </h4>
                 <div className="apple-card">
                   <div className="apple-card">
@@ -490,10 +493,6 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
                       <span className="apple-form-input">{monthData.salidas}</span>
                     </div>
                     <div className="apple-card">
-                      <span className="apple-form-label">🔄 Transferencias:</span>
-                      <span className="apple-form-input">{monthData.transferencias}</span>
-                    </div>
-                    <div className="apple-card">
                       <span className="apple-form-label">💰 Valor:</span>
                       <span className="apple-form-input">
                         {formatCurrency(monthData.totalValue)}
@@ -539,9 +538,7 @@ const MovementReports = ({ movements, dateRange, vehicles }) => {
                           ? 'success'
                           : movement.type === MOVEMENT_TYPES.SALIDA
                             ? 'warning'
-                            : movement.type === MOVEMENT_TYPES.TRANSFERENCIA
-                              ? 'info'
-                              : 'secondary'
+                            : 'secondary'
                       }`}
                     >
                       {movement.type}

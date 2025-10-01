@@ -1,27 +1,18 @@
 /**
- * Step8_Summary - Resumen final del wizard  const getActionDescription = () => {
-    const quantity = parseFloat(formData.quantity) || 0;
-    const fuel = getProductInfo()?.displayName || formData.fuelType;
-    const vehicle = getVehicleInfo();
-    
-    switch (formData.type) {
-      case MOVEMENT_TYPES.ENTRADA:
-        return `Recibir ${quantity} galones de ${fuel} de ${formData.supplierName}`;
-      case MOVEMENT_TYPES.SALIDA:
-        return `Entregar ${quantity} galones de ${fuel} a ${vehicle?.vehicleId || 'vehículo'}`;
-      case MOVEMENT_TYPES.TRANSFERENCIA:
-        return `Transferir ${quantity} galones de ${fuel} desde ${formatLocationName(formData.location)} hacia ${formatLocationName(formData.destinationLocation)}`;
-      case MOVEMENT_TYPES.AJUSTE:
-        return `Ajustar ${quantity} galones de ${fuel} en ${formatLocationName(formData.location)}`;
-      default:
-        return `Procesar ${quantity} galones de ${fuel}`;
-    }
-  };Typeform: confirmación elegante y clara
+ * Step8_Summary - Resumen final del wizard: confirmación elegante y clara
+ * 
+ * REFACTORED: Removed legacy service import
+ * SIMPLIFIED: Only ENTRADA and SALIDA types (removed TRANSFERENCIA, AJUSTE)
  */
 
 import React from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { formatLocationName } from '../../../constants/locations';
+
+// Tipos de movimiento simplificados
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step8_Summary = ({
   formData,

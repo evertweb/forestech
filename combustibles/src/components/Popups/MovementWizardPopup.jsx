@@ -1,8 +1,12 @@
 // components/Popups/MovementWizardPopup.jsx
 // Wrapper que vive en la ruta dedicada y monta MovementWizard usando los providers globales
+//
+// MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+// - subscribeToSuppliers desde servicio directamente (no hay store aún)
 
 import React, { useEffect, useState, Suspense, lazy } from 'react';
-import { CombustiblesProvider, useCombustibles } from '../../contexts/CombustiblesContext';
+import { CombustiblesProvider } from '../../contexts/CombustiblesContext';
+import { subscribeToSuppliers } from '../../services/FirebaseSuppliersService';
 import {
   addMessageListener,
   POPUP_EVENTS,
@@ -14,7 +18,7 @@ import '../../components/Movements/WizardSteps-Government.css';
 const MovementWizard = lazy(() => import('../Movements/MovementWizard'));
 
 const PopupInner = () => {
-  const { subscribeToSuppliers } = useCombustibles();
+  // Note: subscribeToSuppliers usado directamente del servicio
   const [initData, setInitData] = useState(null);
   const [showWizard, setShowWizard] = useState(false);
   const [, setSuppliers] = useState([]);
@@ -53,11 +57,11 @@ const PopupInner = () => {
   // Suscribirse a suppliers dentro del popup si es necesario
   useEffect(() => {
     let unsubscribe = null;
-    if (showWizard && typeof subscribeToSuppliers === 'function') {
+    if (showWizard) {
       unsubscribe = subscribeToSuppliers((list) => setSuppliers(list || []));
     }
     return () => unsubscribe && unsubscribe();
-  }, [showWizard, subscribeToSuppliers]);
+  }, [showWizard]);
 
   if (!showWizard) {
     return (

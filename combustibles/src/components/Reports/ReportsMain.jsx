@@ -1,10 +1,13 @@
 /**
  * ReportsMain.jsx - Módulo principal de reportes y análisis
  * Dashboard ejecutivo con KPIs en tiempo real y navegación entre reportes
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa múltiples stores: Auth, Movements, Inventory, Vehicles
  */
 
 import React, { useState, useMemo } from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore, useMovementsStore, useInventoryStore, useVehiclesStore } from '../../stores';
 import {
   calculateInventoryStats,
   calculateMovementsStats,
@@ -29,7 +32,14 @@ import { useCardDetails } from '../../hooks/useCardDetails.jsx';
 import './ReportsMain-SAP.css';
 
 const ReportsMain = () => {
-  const { inventory, movements, vehicles, suppliers, userProfile } = useCombustibles();
+  // 🏪 Zustand Stores - Múltiples stores para reportes
+  const inventory = useInventoryStore(state => state.inventory);
+  const movements = useMovementsStore(state => state.movements);
+  const vehicles = useVehiclesStore(state => state.vehicles);
+  const userProfile = useAuthStore(state => state.userProfile);
+  
+  // Nota: suppliers no está en un store aún, por ahora usar array vacío memoizado
+  const suppliers = useMemo(() => [], []);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), // Últimos 30 días

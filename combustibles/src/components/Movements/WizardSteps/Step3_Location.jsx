@@ -1,15 +1,22 @@
 /**
  * Step3_Location - Tercer paso del wizard: Selección de ubicación origen
  * Diseño estilo Typeform: conversacional y centrado en la ubicación
+ * 
+ * REFACTORED: Removed legacy service imports
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import {
   getAllLocations,
   getLocationStock,
   formatLocationName,
 } from '../../../services/locationsService';
+
+// Tipos de movimiento simplificados
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step3_Location = ({
   formData,

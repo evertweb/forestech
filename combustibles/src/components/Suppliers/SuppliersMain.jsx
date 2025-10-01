@@ -1,7 +1,10 @@
 // combustibles/src/components/Suppliers/SuppliersMain.jsx
 // Componente principal del módulo de proveedores
+//
+// MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+// - Usa useAuthStore para user, userProfile, hasPermission
 import React, { useState, useEffect } from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore } from '../../stores';
 import {
   subscribeToSuppliers,
   deleteSupplier,
@@ -18,7 +21,10 @@ import { PageLayout } from '../shared';
 import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
-  const { hasPermission, userProfile, user } = useCombustibles();
+  // 🔐 Zustand Store - Auth
+  const hasPermission = useAuthStore(state => state.hasPermission);
+  const userProfile = useAuthStore(state => state.userProfile);
+  const user = useAuthStore(state => state.user);
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();

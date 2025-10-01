@@ -1,18 +1,26 @@
 /**
  * MainNavigation - Navegación principal estilo Apple iOS/macOS
  * Diseño minimalista con blur background y estados suaves
+ * 
+ * MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
+ * - Usa useAuthStore para userProfile
+ * - Usa signOut directamente de Firebase Auth
  */
 
 import React from 'react';
-import { useCombustibles } from '../../contexts/CombustiblesContext';
+import { useAuthStore, resetAllStores } from '../../stores';
+import { auth } from '../../firebase/config';
+import { signOut } from 'firebase/auth';
 
 const MainNavigation = ({ activeTab, onTabChange }) => {
-  const { userProfile, signOut } = useCombustibles();
+  // 🔐 Zustand Store - Auth
+  const userProfile = useAuthStore(state => state.userProfile);
 
   // Manejar logout
   const handleLogout = async () => {
     try {
-      await signOut();
+      await signOut(auth);
+      resetAllStores(); // Limpiar todos los stores al hacer logout
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
@@ -48,13 +56,14 @@ const MainNavigation = ({ activeTab, onTabChange }) => {
       icon: '🚜',
       path: '/vehiculos',
     },
-    {
-      id: 'mantenimiento',
-      title: 'Mantenimiento',
-      subtitle: 'Servicios y reparaciones',
-      icon: '🔧',
-      path: '/mantenimiento',
-    },
+    // COMMENTED: Mantenimiento tab - postponed for later phase (Refactoring decision)
+    // {
+    //   id: 'mantenimiento',
+    //   title: 'Mantenimiento',
+    //   subtitle: 'Servicios y reparaciones',
+    //   icon: '🔧',
+    //   path: '/mantenimiento',
+    // },
     {
       id: 'productos',
       title: 'Productos',

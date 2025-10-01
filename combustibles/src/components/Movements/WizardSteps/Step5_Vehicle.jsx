@@ -1,12 +1,19 @@
 /**
  * Step5_Vehicle - Quinto paso del wizard: Selección de vehículo/equipo
  * Diseño estilo Typeform: centrado en el vehículo y uso intuitivo
+ * 
+ * REFACTORED: Removed legacy service import
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MOVEMENT_TYPES } from '../../../services/movementsService';
 import { WIZARD_QUESTIONS } from '../../../constants';
 import { HourMeterInput } from '../../shared';
+
+// Tipos de movimiento simplificados
+const MOVEMENT_TYPES = {
+  ENTRADA: 'entrada',
+  SALIDA: 'salida',
+};
 
 const Step5_Vehicle = ({
   formData,
