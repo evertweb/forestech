@@ -1,5 +1,5 @@
 // utils/webVitals.js - Medición de Core Web Vitals
-import { onCLS, onFID, onLCP, onINP, onFCP, onTTFB } from 'web-vitals';
+import { onCLS, onLCP, onINP, onFCP, onTTFB } from 'web-vitals';
 import { logger } from './logger';
 
 const sendMetric = (metric) => {
@@ -16,9 +16,8 @@ export const registerWebVitals = () => {
   if (import.meta.env.MODE !== 'development') return;
   try {
     onCLS(sendMetric);
-    onFID(sendMetric);
+    onINP(sendMetric); // INP (Interaction to Next Paint) replaced FID in web-vitals v3+
     onLCP(sendMetric);
-    onINP(sendMetric);
     onFCP(sendMetric);
     onTTFB(sendMetric);
     logger.info('WebVitals registrados');

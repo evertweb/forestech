@@ -1,8 +1,10 @@
 // combustibles/src/firebase/performanceMonitoring.js
-// Firebase Performance Monitoring & Web Vitals integration
+// Sprint 4 Day 4: Firebase Performance Monitoring integration
+// Integrates Web Vitals metrics with Firebase Performance Monitoring for real-time performance tracking
 
 import { getPerformance } from 'firebase/performance';
-import { app } from '../../shared/firebase/firebaseConfig.js';
+import { getApp } from 'firebase/app';
+// Web vitals imported dynamically in initWebVitalsMonitoring() to avoid SSR issues
 
 /**
  * @typedef {Object} WebVitalsMetric
@@ -15,6 +17,7 @@ import { app } from '../../shared/firebase/firebaseConfig.js';
 // Inicializar Firebase Performance
 let performance = null;
 try {
+  const app = getApp(); // Get Firebase app instance (singleton from config.js)
   performance = getPerformance(app);
   console.log('🔥 Firebase Performance Monitoring initialized');
 } catch (error) {
@@ -26,7 +29,7 @@ try {
  */
 const WEB_VITALS_THRESHOLDS = {
   LCP: { good: 2500, needsImprovement: 4000 },
-  FID: { good: 100, needsImprovement: 300 },
+  INP: { good: 200, needsImprovement: 500 }, // INP replaced FID in web-vitals v3+
   CLS: { good: 0.1, needsImprovement: 0.25 },
   FCP: { good: 1800, needsImprovement: 3000 },
   TTFB: { good: 800, needsImprovement: 1800 },
@@ -83,7 +86,7 @@ export async function initWebVitalsMonitoring() {
 
   try {
     // Importar web-vitals dinámicamente para evitar bundle en SSR
-    const { onCLS, onFID, onFCP, onLCP, onTTFB } = await import('web-vitals');
+    const { onCLS, onINP, onFCP, onLCP, onTTFB } = await import('web-vitals');
 
     // Configurar handlers para cada métrica
     const handleMetric = (metric) => {
@@ -113,9 +116,9 @@ export async function initWebVitalsMonitoring() {
       }
     };
 
-    // Registrar listeners para cada métrica
+    // Registrar listeners para cada métrica (INP replaced FID in web-vitals v3+)
     onCLS(handleMetric);
-    onFID(handleMetric);
+    onINP(handleMetric);
     onFCP(handleMetric);
     onLCP(handleMetric);
     onTTFB(handleMetric);
