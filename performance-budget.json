@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Performance Budget - Forestech",
+  "description": "Límites de tamaño para bundles críticos post-optimización Sprint 4",
+  "version": "1.1.0",
+  "lastUpdated": "2025-10-02",
+  
+  "apps": {
+    "combustibles": {
+      "bundles": {
+        "index.js": {
+          "maxSize": "150kb",
+          "maxGzipSize": "50kb",
+          "description": "Bundle principal con código crítico optimizado"
+        },
+        "App.jsx": {
+          "maxSize": "12kb",
+          "maxGzipSize": "4kb",
+          "description": "Componente raíz optimizado (reducción 68% desde baseline)"
+        },
+        "MovementWizard.jsx": {
+          "maxSize": "8kb",
+          "maxGzipSize": "3kb",
+          "description": "Wizard de movimientos optimizado (reducción 84% desde baseline)"
+        },
+        "ReportsMain.jsx": {
+          "maxSize": "25kb",
+          "maxGzipSize": "8kb",
+          "description": "Módulo de reportes con React.memo y useMemo"
+        },
+        "VehiclesMain.jsx": {
+          "maxSize": "20kb",
+          "maxGzipSize": "7kb",
+          "description": "Módulo de vehículos optimizado"
+        },
+        "InventoryMain.jsx": {
+          "maxSize": "18kb",
+          "maxGzipSize": "6kb",
+          "description": "Módulo de inventario optimizado"
+        },
+        "ProductsMain.jsx": {
+          "maxSize": "15kb",
+          "maxGzipSize": "5kb",
+          "description": "Módulo de productos optimizado"
+        },
+        "SuppliersMain.jsx": {
+          "maxSize": "15kb",
+          "maxGzipSize": "5kb",
+          "description": "Módulo de proveedores optimizado"
+        }
+      },
+      "total": {
+        "maxSize": "350kb",
+        "maxGzipSize": "120kb",
+        "description": "Total de todos los bundles (reducción 31% desde baseline)"
+      },
+      "chunks": {
+        "vendor": {
+          "maxSize": "250kb",
+          "maxGzipSize": "80kb",
+          "description": "Chunk de librerías externas (React, Firebase, etc.)"
+        }
+      }
+    },
+    "alimentacion": {
+      "bundles": {
+        "index.js": {
+          "maxSize": "180kb",
+          "maxGzipSize": "60kb",
+          "description": "Bundle principal alimentación"
+        }
+      },
+      "total": {
+        "maxSize": "250kb",
+        "maxGzipSize": "85kb"
+      }
+    }
+  },
+
+  "lighthouse": {
+    "thresholds": {
+      "performance": 90,
+      "accessibility": 90,
+      "bestPractices": 90,
+      "seo": 90
+    },
+    "metrics": {
+      "desktop": {
+        "firstContentfulPaint": 1500,
+        "largestContentfulPaint": 2500,
+        "totalBlockingTime": 300,
+        "cumulativeLayoutShift": 0.1,
+        "speedIndex": 3000
+      },
+      "mobile": {
+        "firstContentfulPaint": 2500,
+        "largestContentfulPaint": 4000,
+        "totalBlockingTime": 600,
+        "cumulativeLayoutShift": 0.1,
+        "speedIndex": 5000
+      }
+    }
+  },
+
+  "webVitals": {
+    "production": {
+      "LCP": {
+        "good": 2500,
+        "needsImprovement": 4000,
+        "poor": 4000
+      },
+      "FID": {
+        "good": 100,
+        "needsImprovement": 300,
+        "poor": 300
+      },
+      "CLS": {
+        "good": 0.1,
+        "needsImprovement": 0.25,
+        "poor": 0.25
+      },
+      "FCP": {
+        "good": 1800,
+        "needsImprovement": 3000,
+        "poor": 3000
+      },
+      "TTFB": {
+        "good": 800,
+        "needsImprovement": 1800,
+        "poor": 1800
+      }
+    }
+  },
+
+  "ciEnforcement": {
+    "enabled": true,
+    "failOnBudgetExceeded": true,
+    "warningThreshold": 0.9,
+    "errorThreshold": 1.0
+  },
+
+  "baseline": {
+    "date": "2025-09-30",
+    "combustiblesTotal": "506kb",
+    "postOptimizationTotal": "350kb",
+    "improvement": "-31%"
+  },
+
+  "notes": [
+    "Budgets establecidos después de Sprint 4 Day 3 optimizations",
+    "App.jsx reducido 68% (37.5kb → 12kb)",
+    "MovementWizard reducido 84% (50kb → 8kb)",
+    "Bundle total reducido 31% (506kb → 350kb)",
+    "Todos los límites incluyen margen de 10% para futuras features"
+  ]
+}

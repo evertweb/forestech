@@ -6,7 +6,7 @@
  * - Usa múltiples stores: Auth, Movements, Inventory, Vehicles
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useAuthStore, useMovementsStore, useInventoryStore, useVehiclesStore } from '../../stores';
 import {
   calculateInventoryStats,
@@ -47,7 +47,7 @@ const ReportsMain = () => {
   });
   const { openCardDetails, CardDetailsModal } = useCardDetails();
 
-  // Verificar permisos primero
+  // Verificar permisos primero (debe evaluarse antes del render final, pero después de hooks)
   const canViewReports =
     userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
 
@@ -93,69 +93,58 @@ const ReportsMain = () => {
     vehicles.length,
   ]);
 
-  if (!canViewReports) {
-    return (
-      <div className="apple-dashboard-main">
-        <div className="apple-empty-state">
-          <div className="apple-empty-icon">🔒</div>
-          <h3 className="apple-empty-title">Acceso Restringido</h3>
-          <p className="apple-empty-description">
-            No tienes permisos para ver los reportes. Contacta a tu administrador.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Configuración de pestañas
-  const reportTabs = [
-    {
-      id: 'dashboard',
-      title: 'Dashboard',
-      subtitle: 'Vista ejecutiva',
-      icon: '📊',
-      component: null, // Se renderiza aquí mismo
-    },
-    {
-      id: 'inventory',
-      title: 'Inventario',
-      subtitle: 'Stock y alertas',
-      icon: '🛢️',
-      component: InventoryReports,
-    },
-    {
-      id: 'vehicles',
-      title: 'Vehículos',
-      subtitle: 'Consumo y eficiencia',
-      icon: '🚜',
-      component: VehicleReports,
-    },
-    {
-      id: 'movements',
-      title: 'Movimientos',
-      subtitle: 'Entradas y salidas',
-      icon: '📈',
-      component: MovementReports,
-    },
-    {
-      id: 'financial',
-      title: 'Financiero',
-      subtitle: 'Costos y ROI',
-      icon: '💰',
-      component: FinancialReports,
-    },
-  ];
+  const reportTabs = useMemo(
+    () => [
+      {
+        id: 'dashboard',
+        title: 'Dashboard',
+        subtitle: 'Vista ejecutiva',
+        icon: '📊',
+        component: null, // Se renderiza aquí mismo
+      },
+      {
+        id: 'inventory',
+        title: 'Inventario',
+        subtitle: 'Stock y alertas',
+        icon: '🛢️',
+        component: InventoryReports,
+      },
+      {
+        id: 'vehicles',
+        title: 'Vehículos',
+        subtitle: 'Consumo y eficiencia',
+        icon: '🚜',
+        component: VehicleReports,
+      },
+      {
+        id: 'movements',
+        title: 'Movimientos',
+        subtitle: 'Entradas y salidas',
+        icon: '📈',
+        component: MovementReports,
+      },
+      {
+        id: 'financial',
+        title: 'Financiero',
+        subtitle: 'Costos y ROI',
+        icon: '💰',
+        component: FinancialReports,
+      },
+    ],
+    []
+  );
 
   // Función para cambiar rango de fechas
-  const handleDateRangeChange = (field, value) => {
+  const handleDateRangeChange = useCallback((field, value) => {
     setDateRange((prev) => ({
       ...prev,
       [field]: value,
     }));
-  };
+  }, []);
 
   // Renderizar dashboard ejecutivo
-  const renderDashboard = () => (
+  const renderDashboard = useCallback(() => (
     <div className="apple-content-grid">
       {/* Alertas críticas */}
       {lowStockAlerts.length > 0 && (
@@ -294,10 +283,16 @@ const ReportsMain = () => {
         </div>
       </div>
     </div>
-  );
+  ), [
+    inventoryStats,
+    lowStockAlerts,
+    movementsStats,
+    projections,
+    vehiclesStats,
+  ]);
 
   // Renderizar contenido activo
-  const renderActiveContent = () => {
+  const activeContent = useMemo(() => {
     const activeTabConfig = reportTabs.find((tab) => tab.id === activeTab);
 
     if (activeTab === 'dashboard') {
@@ -327,12 +322,39 @@ const ReportsMain = () => {
         </p>
       </div>
     );
-  };
+  }, [
+    activeTab,
+    dateRange,
+    handleDateRangeChange,
+    inventory,
+    movements,
+    renderDashboard,
+    reportTabs,
+    suppliers,
+    vehicles,
+  ]);
 
   // Componentes para PageLayout
   const headerActions = null; // No hay acciones específicas en el header para reportes
 
-  const filtersComponent = (
+  const handleQuickRange = useCallback(() => {
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+    setDateRange({
+      start: lastMonth.toISOString().slice(0, 10),
+      end: today.toISOString().slice(0, 10),
+    });
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    window.location.reload();
+  }, []);
+
+  const handleSetActiveTab = useCallback((tabId) => {
+    setActiveTab(tabId);
+  }, []);
+
+  const filtersComponent = useMemo(() => (
     <>
       {/* Filtros globales */}
       <div className="apple-content-section">
@@ -358,24 +380,13 @@ const ReportsMain = () => {
           <div className="apple-form-group">
             <button
               className="apple-button apple-button-secondary"
-              onClick={() => {
-                const today = new Date();
-                const lastMonth = new Date(
-                  today.getFullYear(),
-                  today.getMonth() - 1,
-                  today.getDate()
-                );
-                setDateRange({
-                  start: lastMonth.toISOString().slice(0, 10),
-                  end: today.toISOString().slice(0, 10),
-                });
-              }}
+              onClick={handleQuickRange}
             >
               📅 Último Mes
             </button>
             <button
               className="apple-button apple-button-primary"
-              onClick={() => window.location.reload()}
+              onClick={handleRefresh}
             >
               🔄 Actualizar
             </button>
@@ -389,7 +400,7 @@ const ReportsMain = () => {
           <button
             key={tab.id}
             className={`apple-nav-item ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleSetActiveTab(tab.id)}
           >
             <span className="apple-nav-icon">{tab.icon}</span>
             <div className="nav-tab-text">
@@ -400,9 +411,32 @@ const ReportsMain = () => {
         ))}
       </div>
     </>
-  );
+  ), [
+    activeTab,
+    dateRange.end,
+    dateRange.start,
+    handleDateRangeChange,
+    handleQuickRange,
+    handleRefresh,
+    handleSetActiveTab,
+    reportTabs,
+  ]);
 
-  const mainContent = renderActiveContent();
+  if (!canViewReports) {
+    return (
+      <div className="apple-dashboard-main">
+        <div className="apple-empty-state">
+          <div className="apple-empty-icon">🔒</div>
+          <h3 className="apple-empty-title">Acceso Restringido</h3>
+          <p className="apple-empty-description">
+            No tienes permisos para ver los reportes. Contacta a tu administrador.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const mainContent = activeContent;
 
   return (
     <>

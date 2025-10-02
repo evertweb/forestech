@@ -1,9 +1,13 @@
 // combustibles/src/components/Inventory/InventoryCards.jsx
 // Vista de cards para el inventario
-import React from 'react';
+import React, { memo } from 'react';
 import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
 
-const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
+const InventoryCardsComponent = ({ items, onEdit, onDelete, canManage }) => {
+  console.log('🛢️ InventoryCards render', {
+    itemsCount: items?.length || 0,
+    canManage,
+  });
   const formatNumber = (num) => {
     return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(num);
   };
@@ -127,5 +131,16 @@ const InventoryCards = ({ items, onEdit, onDelete, canManage }) => {
     </div>
   );
 };
+
+const propsAreEqual = (prevProps, nextProps) => {
+  return (
+    prevProps.items === nextProps.items &&
+    prevProps.onEdit === nextProps.onEdit &&
+    prevProps.onDelete === nextProps.onDelete &&
+    prevProps.canManage === nextProps.canManage
+  );
+};
+
+const InventoryCards = memo(InventoryCardsComponent, propsAreEqual);
 
 export default InventoryCards;

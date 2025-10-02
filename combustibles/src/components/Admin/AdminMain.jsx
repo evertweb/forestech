@@ -5,6 +5,7 @@
 // - Usa useAuthStore para user y userProfile
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { shallow } from 'zustand/shallow';
 import { useAuthStore } from '../../stores';
 import { PageLayout, ShimmerLoader, ShimmerCardsGrid } from '../shared';
 import AdminDashboardCards from './AdminDashboardCards';
@@ -18,8 +19,10 @@ import './AdminMain.css';
 
 const AdminMain = () => {
   // 🔐 Zustand Store - Auth
-  const user = useAuthStore(state => state.user);
-  const userProfile = useAuthStore(state => state.userProfile);
+  const [user, userProfile] = useAuthStore(
+    (state) => [state.user, state.userProfile],
+    shallow
+  );
   const [activeSection, setActiveSection] = useState('dashboard');
   const [loading, setLoading] = useState(true);
 

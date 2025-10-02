@@ -693,10 +693,5 @@ cat FASE2_SEGUIMIENTO.md
 # 3. Instalar TypeScript
 npm install -D typescript @types/react @types/react-dom
 
-# 4. ¡EMPEZAR!
-```
 
----
-
-**¡BUENA SUERTE CON EL SPRINT 2! 🚀**
 

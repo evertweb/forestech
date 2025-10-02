@@ -1,6 +1,21 @@
 # GitHub Copilot Instructions
 
-This file provides guidance for AI coding agents working with the Forestech monorepo - a Firebase-hosted suite of React web applications for Colombian forestry operations.
+## 🌐 INSTRUCCIÓN GLOBAL DE IDIOMA
+
+**IMPORTANTE:** Todas las respuestas de GitHub Copilot CLI deben estar en ESPAÑOL, excepto:
+- Código fuente (JavaScript, TypeScript, Python, etc.)
+- Nombres de variables, funciones y clases
+- Comentarios en código que ya existan en inglés
+- Comandos de terminal y outputs
+- Mensajes de git commits (si ya están en inglés)
+
+Las explicaciones, documentación, análisis, descripciones, y cualquier texto generado debe estar completamente en **ESPAÑOL**.
+
+---
+
+## 📖 Acerca del Proyecto
+
+Este archivo proporciona guía para agentes de IA que trabajan con el monorepo Forestech - un conjunto de aplicaciones web React alojadas en Firebase para operaciones forestales colombianas.
 
 ## 🚀 **CRITICAL DEPLOYMENT INFO (Updated Sept 2025)**
 

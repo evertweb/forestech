@@ -1,11 +1,11 @@
 // combustibles/src/components/Suppliers/SuppliersTable.jsx
 // Componente de vista de tabla para proveedores
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { formatCurrency } from '../../utils/calculations';
 import { FUEL_TYPES } from '../../constants/combustibleTypes';
 import { UI_ACTIONS, UI_TOOLTIPS, UI_FORM_LABELS } from '../../constants';
 
-const SuppliersTable = ({
+const SuppliersTableComponent = ({
   suppliers,
   onEdit,
   onDelete,
@@ -14,6 +14,12 @@ const SuppliersTable = ({
 }) => {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
+
+  console.log('🤝 SuppliersTable render', {
+    suppliersCount: suppliers?.length || 0,
+    hasEditPermission,
+    hasDeletePermission,
+  });
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -405,5 +411,17 @@ const SuppliersTable = ({
     </div>
   );
 };
+
+const propsAreEqual = (prevProps, nextProps) => {
+  return (
+    prevProps.suppliers === nextProps.suppliers &&
+    prevProps.onEdit === nextProps.onEdit &&
+    prevProps.onDelete === nextProps.onDelete &&
+    prevProps.hasEditPermission === nextProps.hasEditPermission &&
+    prevProps.hasDeletePermission === nextProps.hasDeletePermission
+  );
+};
+
+const SuppliersTable = memo(SuppliersTableComponent, propsAreEqual);
 
 export default SuppliersTable;

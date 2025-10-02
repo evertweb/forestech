@@ -89,15 +89,61 @@ export default defineConfig(({ mode }) => {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        manualChunks: {
-          // Vendor libraries (React ecosystem) - solo las instaladas
-          vendor: ['react', 'react-dom'],
-          // Router y motion libraries
-          router: ['react-router-dom', 'framer-motion'],
-          // Firebase core (crítico para LCP - separar auth/firestore)
-          'firebase-core': ['firebase/app'],
-          'firebase-auth': ['firebase/auth'],
-          'firebase-db': ['firebase/firestore', 'firebase/storage'],
+        // 🚀 SPRINT 4 - DAY 2: Optimized chunk splitting strategy
+        manualChunks: (id) => {
+          // React core (crítico para LCP - siempre en bundle inicial)
+          if (id.includes('node_modules/react/') || 
+              id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          
+          // React Router (crítico para routing)
+          if (id.includes('node_modules/react-router-dom/')) {
+            return 'vendor-router';
+          }
+          
+          // Framer Motion (separado para lazy loading)
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'vendor-motion';
+          }
+          
+          // Zustand (state management - separado para mejor cache)
+          if (id.includes('node_modules/zustand/')) {
+            return 'vendor-zustand';
+          }
+          
+          // Firebase App (core - crítico)
+          if (id.includes('firebase/app')) {
+            return 'vendor-firebase-core';
+          }
+          
+          // Firebase Auth (separado - lazy load posible)
+          if (id.includes('firebase/auth') || id.includes('@firebase/auth')) {
+            return 'vendor-firebase-auth';
+          }
+          
+          // Firebase Firestore + Storage (separado - lazy load posible)
+          if (id.includes('firebase/firestore') || 
+              id.includes('firebase/storage') ||
+              id.includes('@firebase/firestore') ||
+              id.includes('@firebase/storage')) {
+            return 'vendor-firebase-db';
+          }
+          
+          // Zustand stores (aplicación - mejor cache)
+          if (id.includes('/src/stores/')) {
+            return 'app-stores';
+          }
+          
+          // Componentes de servicios (aplicación)
+          if (id.includes('/src/services/')) {
+            return 'app-services';
+          }
+          
+          // Otros node_modules (vendor misc)
+          if (id.includes('node_modules/')) {
+            return 'vendor-other';
+          }
         },
       },
     },

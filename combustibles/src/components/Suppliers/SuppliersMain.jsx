@@ -3,7 +3,8 @@
 //
 // MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
 // - Usa useAuthStore para user, userProfile, hasPermission
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { shallow } from 'zustand/shallow';
 import { useAuthStore } from '../../stores';
 import {
   subscribeToSuppliers,
@@ -22,9 +23,10 @@ import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
   // 🔐 Zustand Store - Auth
-  const hasPermission = useAuthStore(state => state.hasPermission);
-  const userProfile = useAuthStore(state => state.userProfile);
-  const user = useAuthStore(state => state.user);
+  const [hasPermission, userProfile, user] = useAuthStore(
+    (state) => [state.hasPermission, state.userProfile, state.user],
+    shallow
+  );
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
@@ -80,28 +82,32 @@ const SuppliersMain = () => {
   }, [suppliers]);
 
   // Filter suppliers
-  const filteredSuppliers = suppliers.filter((supplier) => {
-    const matchesSearch =
-      !searchTerm ||
-      supplier.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.taxId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.city?.toLowerCase().includes(searchTerm.toLowerCase());
+  const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    const matchesStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'preferred' ? supplier.isPreferred : supplier.status === filterStatus);
+  const filteredSuppliers = useMemo(() => {
+    return suppliers.filter((supplier) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        supplier.name?.toLowerCase().includes(normalizedSearch) ||
+        supplier.taxId?.toLowerCase().includes(normalizedSearch) ||
+        supplier.contactPerson?.toLowerCase().includes(normalizedSearch) ||
+        supplier.city?.toLowerCase().includes(normalizedSearch);
 
-    const matchesCategory = filterCategory === 'all' || supplier.category === filterCategory;
+      const matchesStatus =
+        filterStatus === 'all' ||
+        (filterStatus === 'preferred' ? supplier.isPreferred : supplier.status === filterStatus);
 
-    const matchesFuelType =
-      filterFuelType === 'all' ||
-      (supplier.fuelTypes && supplier.fuelTypes.includes(filterFuelType));
+      const matchesCategory = filterCategory === 'all' || supplier.category === filterCategory;
 
-    return matchesSearch && matchesStatus && matchesCategory && matchesFuelType;
-  });
+      const matchesFuelType =
+        filterFuelType === 'all' ||
+        (supplier.fuelTypes && supplier.fuelTypes.includes(filterFuelType));
 
-  const handleAddSupplier = () => {
+      return matchesSearch && matchesStatus && matchesCategory && matchesFuelType;
+    });
+  }, [filterCategory, filterFuelType, filterStatus, normalizedSearch, suppliers]);
+
+  const handleAddSupplier = useCallback(() => {
     if (!hasPermission('canManageSuppliers')) {
       setError('No tienes permisos para agregar proveedores');
       return;
@@ -109,9 +115,9 @@ const SuppliersMain = () => {
     setEditingSupplier(null);
     setShowModal(true);
     setError(null); // Clear any existing errors
-  };
+  }, [hasPermission]);
 
-  const handleEditSupplier = (supplier) => {
+  const handleEditSupplier = useCallback((supplier) => {
     if (!hasPermission('canManageSuppliers')) {
       setError('No tienes permisos para editar proveedores');
       return;
@@ -119,9 +125,9 @@ const SuppliersMain = () => {
     setEditingSupplier(supplier);
     setShowModal(true);
     setError(null); // Clear any existing errors
-  };
+  }, [hasPermission]);
 
-  const handleDeleteSupplier = async (supplierId, supplierName) => {
+  const handleDeleteSupplier = useCallback(async (supplierId, supplierName) => {
     if (!hasPermission('canManageSuppliers')) {
       setError('No tienes permisos para eliminar proveedores');
       return;
@@ -162,30 +168,30 @@ const SuppliersMain = () => {
       console.error('Error deleting supplier:', error);
       setError('Error inesperado al eliminar proveedor');
     }
-  };
+  }, [executeWithProgress, hasPermission, userProfile?.email]);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setShowModal(false);
     setEditingSupplier(null);
     setError(null); // Clear any existing errors
-  };
+  }, []);
 
-  const handleModalSuccess = () => {
+  const handleModalSuccess = useCallback(() => {
     setShowModal(false);
     setEditingSupplier(null);
     setError(null); // Clear any existing errors
     // The real-time subscription will update the list automatically
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilterStatus('all');
     setFilterCategory('all');
     setFilterFuelType('all');
     setSearchTerm('');
     setError(null); // Clear any existing errors
-  };
+  }, []);
 
-  const exportSuppliers = () => {
+  const exportSuppliers = useCallback(() => {
     if (!hasPermission('canExportReports')) {
       setError('No tienes permisos para exportar datos');
       return;
@@ -248,10 +254,10 @@ const SuppliersMain = () => {
       console.error('Error exporting suppliers:', error);
       setError('Error al exportar proveedores: ' + error.message);
     }
-  };
+  }, [filteredSuppliers, hasPermission]);
 
   // Función temporal para actualizar permisos del usuario actual
-  const upgradeUserPermissions = async () => {
+  const upgradeUserPermissions = useCallback(async () => {
     if (!user?.uid) {
       setError('No hay usuario logueado');
       return;
@@ -271,10 +277,10 @@ const SuppliersMain = () => {
       setError('Error inesperado al actualizar permisos');
       console.error('Error upgrading permissions:', error);
     }
-  };
+  }, [user?.uid]);
 
   // Componentes para PageLayout
-  const headerActions = (
+  const headerActions = useMemo(() => (
     <div className="header-actions sap-theme">
       {/* Botón temporal para desarrollo - actualizar permisos */}
       {(!hasPermission('canManageSuppliers') || !hasPermission('canExportReports')) && (
@@ -316,17 +322,29 @@ const SuppliersMain = () => {
         </button>
       )}
     </div>
-  );
+  ), [
+    exportSuppliers,
+    filteredSuppliers.length,
+    handleAddSupplier,
+    hasPermission,
+    upgradeUserPermissions,
+  ]);
 
-  const statsComponent = suppliersStats && (
-    <SuppliersStats
-      stats={suppliersStats}
-      suppliersCount={filteredSuppliers.length}
-      totalSuppliers={suppliers.length}
-    />
-  );
+  const statsComponent = useMemo(() => {
+    if (!suppliersStats) {
+      return null;
+    }
 
-  const filtersComponent = (
+    return (
+      <SuppliersStats
+        stats={suppliersStats}
+        suppliersCount={filteredSuppliers.length}
+        totalSuppliers={suppliers.length}
+      />
+    );
+  }, [filteredSuppliers.length, suppliers.length, suppliersStats]);
+
+  const filtersComponent = useMemo(() => (
     <SuppliersFilters
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
@@ -341,9 +359,26 @@ const SuppliersMain = () => {
       onClearFilters={clearFilters}
       resultsCount={filteredSuppliers.length}
     />
-  );
+  ), [
+    clearFilters,
+    filterCategory,
+    filterFuelType,
+    filterStatus,
+    filteredSuppliers.length,
+    searchTerm,
+    setFilterCategory,
+    setFilterFuelType,
+    setFilterStatus,
+    setSearchTerm,
+    setViewMode,
+    viewMode,
+  ]);
 
-  const mainContent = (
+  const handleDismissError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const mainContent = useMemo(() => (
     <>
       {/* Error Alert */}
       {error && (
@@ -351,7 +386,7 @@ const SuppliersMain = () => {
           <span>⚠️</span>
           <span className="sap-text">{error}</span>
           <button
-            onClick={() => setError(null)}
+            onClick={handleDismissError}
             className="alert-close sap-button"
             title="Cerrar alerta"
           >
@@ -425,7 +460,23 @@ const SuppliersMain = () => {
         />
       )}
     </>
-  );
+  ), [
+    clearFilters,
+    editingSupplier,
+    error,
+    filteredSuppliers,
+    handleAddSupplier,
+    handleDeleteSupplier,
+    handleDismissError,
+    handleEditSupplier,
+    handleModalClose,
+    handleModalSuccess,
+    hasPermission,
+    setError,
+    showModal,
+    suppliers.length,
+    viewMode,
+  ]);
 
   return (
     <PageLayout

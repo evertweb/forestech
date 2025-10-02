@@ -6,7 +6,7 @@
  * - Usa useAuthStore para userProfile
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   subscribeToProducts,
   createProduct,
@@ -41,6 +41,30 @@ const ProductsMain = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showStats, setShowStats] = useState(true);
   const [showCategoriesManager, setShowCategoriesManager] = useState(false);
+
+  const productCategoryOptions = useMemo(() => Object.values(PRODUCT_CATEGORIES), []);
+
+  const handleToggleCategoriesManager = useCallback(() => {
+    setShowCategoriesManager((prev) => !prev);
+  }, []);
+
+  const toggleShowStats = useCallback(() => {
+    setShowStats((prev) => !prev);
+  }, []);
+
+  const handleSearchChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
+  }, []);
+
+  const handleCategoryChange = useCallback((event) => {
+    setSelectedCategory(event.target.value);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+    setModalMode('create');
+  }, []);
 
   // Permisos de usuario - permitir más roles para gestionar productos
   const canManageProducts = ['admin', 'supervisor', 'manager', 'operator'].includes(
@@ -83,7 +107,7 @@ const ProductsMain = () => {
     });
   }, [products.length, loading, canManageProducts]);
 
-  const handleCreateProduct = () => {
+  const handleCreateProduct = useCallback(() => {
     // Datos iniciales para el popup
     const initialData = {
       theme: 'sap-fiori',
@@ -115,21 +139,21 @@ const ProductsMain = () => {
     if (!result.success) {
       alert(result.error || 'No se pudo abrir el popup. Verifica que no esté bloqueado.');
     }
-  };
+  }, [userProfile]);
 
-  const handleEditProduct = (product) => {
+  const handleEditProduct = useCallback((product) => {
     setSelectedProduct(product);
     setModalMode('edit');
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleViewProduct = (product) => {
+  const handleViewProduct = useCallback((product) => {
     setSelectedProduct(product);
     setModalMode('view');
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteProduct = async (productId) => {
+  const handleDeleteProduct = useCallback(async (productId) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
       try {
         const progressDescription = `Eliminando producto ${productId}`;
@@ -147,9 +171,9 @@ const ProductsMain = () => {
         alert('Error al eliminar el producto');
       }
     }
-  };
+  }, [executeWithProgress]);
 
-  const handleModalSave = async (productData) => {
+  const handleModalSave = useCallback(async (productData) => {
     try {
       // Generar descripción para el progreso
       const progressDescription =
@@ -179,37 +203,48 @@ const ProductsMain = () => {
       console.error('Error saving product:', error);
       throw error;
     }
-  };
+  }, [executeWithProgress, modalMode, selectedProduct]);
 
   // Filtrar productos
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-  const headerActions = canManageProducts ? (
-    <div className="apple-content-actions">
-      <button
-        className="apple-button apple-button-primary"
-        onClick={handleCreateProduct}
-      >
-        ➕ Nuevo producto
-      </button>
+    return products.filter((product) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        product.displayName?.toLowerCase().includes(normalizedSearch) ||
+        product.name?.toLowerCase().includes(normalizedSearch);
+      const matchesCategory = !selectedCategory || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchTerm, selectedCategory]);
 
-      <button
-        className="apple-button apple-button-secondary"
-        onClick={() => setShowCategoriesManager(!showCategoriesManager)}
-        style={{ marginLeft: '10px' }}
-      >
-        🏷️ Gestionar Categorías
-      </button>
-    </div>
-  ) : null;
+  const headerActions = useMemo(() => {
+    if (!canManageProducts) {
+      return null;
+    }
 
-  const filtersComponent = (
+    return (
+      <div className="apple-content-actions">
+        <button
+          className="apple-button apple-button-primary"
+          onClick={handleCreateProduct}
+        >
+          ➕ Nuevo producto
+        </button>
+
+        <button
+          className="apple-button apple-button-secondary"
+          onClick={handleToggleCategoriesManager}
+          style={{ marginLeft: '10px' }}
+        >
+          🏷️ Gestionar Categorías
+        </button>
+      </div>
+    );
+  }, [canManageProducts, handleCreateProduct, handleToggleCategoriesManager]);
+
+  const filtersComponent = useMemo(() => (
     <div className="apple-content-section">
       <div className="apple-form-row">
         <div className="apple-form-group">
@@ -217,7 +252,7 @@ const ProductsMain = () => {
             type="text"
             placeholder="🔍 Buscar productos..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             className="apple-form-input"
           />
         </div>
@@ -225,11 +260,11 @@ const ProductsMain = () => {
         <div className="apple-form-group">
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={handleCategoryChange}
             className="apple-form-select"
           >
             <option value="">🏷️ Todas las categorías</option>
-            {Object.values(PRODUCT_CATEGORIES).map((category) => (
+            {productCategoryOptions.map((category) => (
               <option key={category} value={category}>
                 {category}
               </option>
@@ -240,16 +275,24 @@ const ProductsMain = () => {
         <div className="apple-form-group">
           <button
             className={`apple-button ${showStats ? 'apple-button-primary' : 'apple-button-secondary'}`}
-            onClick={() => setShowStats(!showStats)}
+            onClick={toggleShowStats}
           >
             📊 Estadísticas
           </button>
         </div>
       </div>
     </div>
-  );
+  ), [
+    handleCategoryChange,
+    handleSearchChange,
+    productCategoryOptions,
+    searchTerm,
+    selectedCategory,
+    showStats,
+    toggleShowStats,
+  ]);
 
-  const tableContent = (
+  const tableContent = useMemo(() => (
     <>
       {error && <div className="apple-form-error">⚠️ {error}</div>}
 
@@ -346,21 +389,38 @@ const ProductsMain = () => {
         </div>
       )}
     </>
-  );
+  ), [
+    canManageProducts,
+    error,
+    filteredProducts,
+    handleCreateProduct,
+    handleDeleteProduct,
+    handleEditProduct,
+    handleViewProduct,
+    searchTerm,
+    selectedCategory,
+  ]);
+
+  const statsComponent = useMemo(() => {
+    if (!showStats) {
+      return null;
+    }
+
+    if (loading) {
+      return (
+        <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="products-cards-grid" />
+      );
+    }
+
+    return <ProductsStats products={products} />;
+  }, [loading, products, showStats]);
 
   return (
     <PageLayout
       title="🛢️ Gestión de Productos"
       subtitle="Administra los tipos de combustibles y productos disponibles"
       actions={headerActions}
-      stats={
-        showStats &&
-        (loading ? (
-          <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="products-cards-grid" />
-        ) : (
-          <ProductsStats products={products} />
-        ))
-      }
+      stats={statsComponent}
       filters={filtersComponent}
       loading={loading}
     >
@@ -368,7 +428,7 @@ const ProductsMain = () => {
 
       <ProductModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
         product={selectedProduct}
         mode={modalMode}
         onSave={handleModalSave}
@@ -378,7 +438,7 @@ const ProductsMain = () => {
       {/* Gestor de Categorías */}
       {showCategoriesManager && (
         <ProductCategoriesManager
-          onClose={() => setShowCategoriesManager(false)}
+          onClose={handleToggleCategoriesManager}
           onCategoryCreated={() => {
             // Refrescar productos si es necesario
             console.log('Nueva categoría creada');

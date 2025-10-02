@@ -15,7 +15,7 @@
  * ================================================================================================================================
  */
 
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
 import { useAuthStore } from '../../stores';
 import {
   subscribeToInventory,
@@ -103,44 +103,48 @@ const InventoryMain = () => {
   }, [inventoryItems]);
 
   // Filter items
-  const filteredItems = inventoryItems.filter((item) => {
-    // Filter by status
-    if (filterStatus === 'active' && item.isActive === false) return false;
-    if (filterStatus === 'low-stock') {
-      const stock = parseFloat(item.currentStock) || 0;
-      const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
-      if (stock > minStock) return false;
-    }
-    if (filterStatus === 'critical') {
-      const stock = parseFloat(item.currentStock) || 0;
-      if (stock !== 0) return false;
-    }
+  const filteredItems = useMemo(() => {
+    return inventoryItems.filter((item) => {
+      // Filter by status
+      if (filterStatus === 'active' && item.isActive === false) return false;
+      if (filterStatus === 'low-stock') {
+        const stock = parseFloat(item.currentStock) || 0;
+        const minStock = parseFloat(item.minStock) || parseFloat(item.minThreshold) || 20;
+        if (stock > minStock) return false;
+      }
+      if (filterStatus === 'critical') {
+        const stock = parseFloat(item.currentStock) || 0;
+        if (stock !== 0) return false;
+      }
 
-    // Filter by category
-    if (
-      filterCategory !== 'all' &&
-      item.category !== filterCategory &&
-      item.fuelType !== filterCategory
-    ) {
-      return false;
-    }
+      // Filter by category
+      if (
+        filterCategory !== 'all' &&
+        item.category !== filterCategory &&
+        item.fuelType !== filterCategory
+      ) {
+        return false;
+      }
 
-    // Filter by search term
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        (item.name || '').toLowerCase().includes(searchLower) ||
-        (item.location || '').toLowerCase().includes(searchLower) ||
-        (item.fuelType || '').toLowerCase().includes(searchLower) ||
-        (item.category || '').toLowerCase().includes(searchLower)
-      );
-    }
+      // Filter by search term
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          (item.name || '').toLowerCase().includes(searchLower) ||
+          (item.location || '').toLowerCase().includes(searchLower) ||
+          (item.fuelType || '').toLowerCase().includes(searchLower) ||
+          (item.category || '').toLowerCase().includes(searchLower)
+        );
+      }
 
-    return true;
-  });
+      return true;
+    });
+  }, [filterCategory, filterStatus, inventoryItems, searchTerm]);
+
+  const canManageInventory = useMemo(() => hasPermission('canManageInventory'), [hasPermission]);
 
   // Enhanced stats calculation
-  const enhancedStats = React.useMemo(() => {
+  const enhancedStats = useMemo(() => {
     const totalItems = inventoryItems.filter((item) => item.isActive !== false).length;
     const lowStockItems = inventoryItems.filter((item) => {
       const stock = parseFloat(item.currentStock) || 0;
@@ -171,17 +175,17 @@ const InventoryMain = () => {
     };
   }, [inventoryItems, inventoryStats]);
 
-  const handleEdit = (item) => {
-    if (!hasPermission('canManageInventory')) {
+  const handleEdit = useCallback((item) => {
+    if (!canManageInventory) {
       alert('No tienes permisos para editar items de inventario');
       return;
     }
     setEditingItem(item);
     setShowModal(true);
-  };
+  }, [canManageInventory]);
 
-  const handleDelete = async (item) => {
-    if (!hasPermission('canManageInventory')) {
+  const handleDelete = useCallback(async (item) => {
+    if (!canManageInventory) {
       alert('No tienes permisos para eliminar items de inventario');
       return;
     }
@@ -218,58 +222,62 @@ const InventoryMain = () => {
       console.error('❌ Error al eliminar item:', error);
       alert(`Error al eliminar: ${error.message}`);
     }
-  };
+  }, [canManageInventory, executeWithProgress]);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setShowModal(false);
     setEditingItem(null);
-  };
+  }, []);
 
-  const handleModalSuccess = () => {
+  const handleModalSuccess = useCallback(() => {
     handleModalClose();
-  };
+  }, [handleModalClose]);
 
-  const clearFilters = () => {
+  const handleAddItem = useCallback(() => {
+    if (!canManageInventory) {
+      alert('No tienes permisos para agregar items de inventario');
+      return;
+    }
+    setEditingItem(null);
+    setShowModal(true);
+  }, [canManageInventory]);
+
+  const clearFilters = useCallback(() => {
     setSearchTerm('');
     setFilterStatus('all');
     setFilterCategory('all');
-  };
+  }, []);
 
   // Componentes para PageLayout
-  const headerActions = (
-    <div className="inventory-header-actions">
-      <button
-        className="btn btn-primary sap-theme"
-        onClick={() => {
-          if (!hasPermission('canManageInventory')) {
-            alert('No tienes permisos para agregar items de inventario');
-            return;
-          }
-          setEditingItem(null);
-          setShowModal(true);
-        }}
-        style={{ marginRight: 'var(--sap-spacing-sm)' }}
-      >
-        ➕ Agregar Combustible
-      </button>
-      <div
-        style={{
-          background: 'var(--sap-blue-light)',
-          padding: 'var(--sap-spacing-md)',
-          borderRadius: 'var(--sap-border-radius-sm)',
-          border: '1px solid var(--sap-blue-primary)',
-          fontSize: '0.875rem',
-          flex: 1,
-        }}
-      >
-        💡 También puedes agregar combustibles automáticamente desde la pestaña{' '}
-        <strong>Movimientos</strong>
+  const headerActions = useMemo(() => {
+    return (
+      <div className="inventory-header-actions">
+        <button
+          className="btn btn-primary sap-theme"
+          onClick={handleAddItem}
+          style={{ marginRight: 'var(--sap-spacing-sm)' }}
+        >
+          ➕ Agregar Combustible
+        </button>
+        <div
+          style={{
+            background: 'var(--sap-blue-light)',
+            padding: 'var(--sap-spacing-md)',
+            borderRadius: 'var(--sap-border-radius-sm)',
+            border: '1px solid var(--sap-blue-primary)',
+            fontSize: '0.875rem',
+            flex: 1,
+          }}
+        >
+          💡 También puedes agregar combustibles automáticamente desde la pestaña{' '}
+          <strong>Movimientos</strong>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }, [handleAddItem]);
 
   // Generar cards unificadas para inventario
-  const inventoryCards = React.useMemo(() => {
+  const inventoryCards = useMemo(() => {
     return cardsService.getCardsForTab('inventory', {
       inventory: inventoryItems,
       movements: [], // Los movimientos los podríamos obtener del contexto si fuera necesario
@@ -277,319 +285,336 @@ const InventoryMain = () => {
     });
   }, [inventoryItems]);
 
-  const statsComponent = loading ? (
-    <ShimmerCardsGrid cards={4} columns={4} variant="stat" className="inventory-cards-grid" />
-  ) : (
-    <UnifiedCardsGrid
-      cards={inventoryCards}
-      onCardClick={openCardDetails}
-      columns={4}
-      className="inventory-cards-grid"
-    />
-  );
-
-  const filtersComponent = (
-    <div className="inventory-filters sap-theme">
-      <div className="filter-group sap-theme">
-        <label className="filter-label sap-theme">Buscar</label>
-        <input
-          type="text"
-          placeholder="Nombre, ubicación, tipo..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="filter-input sap-theme"
+  const statsComponent = useMemo(() => {
+    if (loading) {
+      return (
+        <ShimmerCardsGrid
+          cards={4}
+          columns={4}
+          variant="stat"
+          className="inventory-cards-grid"
         />
-      </div>
+      );
+    }
 
-      <div className="filter-group sap-theme">
-        <label className="filter-label sap-theme">Estado</label>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="filter-select sap-theme"
-        >
-          <option value="all">Todos</option>
-          <option value="active">Activos</option>
-          <option value="low-stock">Stock Bajo</option>
-          <option value="critical">Crítico</option>
-        </select>
-      </div>
+    return (
+      <UnifiedCardsGrid
+        cards={inventoryCards}
+        onCardClick={openCardDetails}
+        columns={4}
+        className="inventory-cards-grid"
+      />
+    );
+  }, [inventoryCards, loading, openCardDetails]);
 
-      <div className="filter-group sap-theme">
-        <label className="filter-label sap-theme">Categoría</label>
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="filter-select sap-theme"
-        >
-          <option value="all">Todas</option>
-          <option value="DIESEL">DIESEL</option>
-          <option value="gasolina">Gasolina</option>
-          <option value="lubricantes">Lubricantes</option>
-          <option value="aditivos">Aditivos</option>
-        </select>
-      </div>
-
-      <div className="filter-group sap-theme">
-        <label className="filter-label sap-theme">Vista</label>
-        <div style={{ display: 'flex', gap: 'var(--sap-spacing-xs)' }}>
-          <button
-            className={`btn sap-theme ${viewMode === 'table' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setViewMode('table')}
-            style={{ padding: 'var(--sap-spacing-sm)' }}
-          >
-            📊
-          </button>
-          <button
-            className={`btn sap-theme ${viewMode === 'cards' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setViewMode('cards')}
-            style={{ padding: 'var(--sap-spacing-sm)' }}
-          >
-            📱
-          </button>
+  const filtersComponent = useMemo(() => {
+    return (
+      <div className="inventory-filters sap-theme">
+        <div className="filter-group sap-theme">
+          <label className="filter-label sap-theme">Buscar</label>
+          <input
+            type="text"
+            placeholder="Nombre, ubicación, tipo..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="filter-input sap-theme"
+          />
         </div>
-      </div>
 
-      <div className="filter-actions sap-theme">
-        <button className="btn btn-tertiary sap-theme" onClick={clearFilters}>
-          🔄 Limpiar
-        </button>
-        <button className="btn btn-primary sap-theme">📊 Exportar</button>
-      </div>
-    </div>
-  );
+        <div className="filter-group sap-theme">
+          <label className="filter-label sap-theme">Estado</label>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="filter-select sap-theme"
+          >
+            <option value="all">Todos</option>
+            <option value="active">Activos</option>
+            <option value="low-stock">Stock Bajo</option>
+            <option value="critical">Crítico</option>
+          </select>
+        </div>
 
-  const mainContent = (
-    <>
-      {/* Modal de detalles de cards */}
-      {CardDetailsModal}
+        <div className="filter-group sap-theme">
+          <label className="filter-label sap-theme">Categoría</label>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="filter-select sap-theme"
+          >
+            <option value="all">Todas</option>
+            <option value="DIESEL">DIESEL</option>
+            <option value="gasolina">Gasolina</option>
+            <option value="lubricantes">Lubricantes</option>
+            <option value="aditivos">Aditivos</option>
+          </select>
+        </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="error-banner sap-theme">
-          <div>
-            <strong>Error:</strong> {error}
+        <div className="filter-group sap-theme">
+          <label className="filter-label sap-theme">Vista</label>
+          <div style={{ display: 'flex', gap: 'var(--sap-spacing-xs)' }}>
+            <button
+              className={`btn sap-theme ${viewMode === 'table' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setViewMode('table')}
+              style={{ padding: 'var(--sap-spacing-sm)' }}
+            >
+              📊
+            </button>
+            <button
+              className={`btn sap-theme ${viewMode === 'cards' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setViewMode('cards')}
+              style={{ padding: 'var(--sap-spacing-sm)' }}
+            >
+              📱
+            </button>
           </div>
-          <button
-            className="btn btn-tertiary sap-theme"
-            onClick={() => setError(null)}
-            style={{ minHeight: 'auto', padding: 'var(--sap-spacing-xs)' }}
-          >
-            ✕
-          </button>
         </div>
-      )}
 
-      {/* Content */}
-      {filteredItems.length === 0 ? (
-        <div className="inventory-table-container sap-theme">
-          <div
-            style={{
-              textAlign: 'center',
-              padding: 'var(--sap-spacing-xxl)',
-              color: 'var(--sap-text-muted)',
-            }}
-          >
-            <div style={{ fontSize: '3rem', marginBottom: 'var(--sap-spacing-lg)' }}>📦</div>
-            <h3 style={{ margin: '0 0 var(--sap-spacing-md) 0', color: 'var(--sap-text-primary)' }}>
-              No hay items de inventario
-            </h3>
-            <p style={{ margin: 0 }}>
-              {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
-                ? 'No se encontraron items con los filtros aplicados'
-                : 'Agrega tu primer combustible al inventario'}
-            </p>
-            <div style={{ marginTop: 'var(--sap-spacing-lg)' }}>
-              {searchTerm || filterStatus !== 'all' || filterCategory !== 'all' ? (
-                <button className="btn btn-primary sap-theme" onClick={clearFilters}>
-                  Limpiar Filtros
-                </button>
+        <div className="filter-actions sap-theme">
+          <button className="btn btn-tertiary sap-theme" onClick={clearFilters}>
+            🔄 Limpiar
+          </button>
+          <button className="btn btn-primary sap-theme">📊 Exportar</button>
+        </div>
+      </div>
+    );
+  }, [clearFilters, filterCategory, filterStatus, searchTerm, viewMode]);
+
+  const mainContent = useMemo(() => {
+    return (
+      <>
+        {/* Modal de detalles de cards */}
+        {CardDetailsModal}
+
+        {/* Error Display */}
+        {error && (
+          <div className="error-banner sap-theme">
+            <div>
+              <strong>Error:</strong> {error}
+            </div>
+            <button
+              className="btn btn-tertiary sap-theme"
+              onClick={() => setError(null)}
+              style={{ minHeight: 'auto', padding: 'var(--sap-spacing-xs)' }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        {filteredItems.length === 0 ? (
+          <div className="inventory-table-container sap-theme">
+            <div
+              style={{
+                textAlign: 'center',
+                padding: 'var(--sap-spacing-xxl)',
+                color: 'var(--sap-text-muted)',
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: 'var(--sap-spacing-lg)' }}>📦</div>
+              <h3
+                style={{ margin: '0 0 var(--sap-spacing-md) 0', color: 'var(--sap-text-primary)' }}
+              >
+                No hay items de inventario
+              </h3>
+              <p style={{ margin: 0 }}>
+                {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
+                  ? 'No se encontraron items con los filtros aplicados'
+                  : 'Agrega tu primer combustible al inventario'}
+              </p>
+              <div style={{ marginTop: 'var(--sap-spacing-lg)' }}>
+                {searchTerm || filterStatus !== 'all' || filterCategory !== 'all' ? (
+                  <button className="btn btn-primary sap-theme" onClick={clearFilters}>
+                    Limpiar Filtros
+                  </button>
+                ) : (
+                  <button className="btn btn-primary sap-theme" onClick={handleAddItem}>
+                    ➕ Agregar Primer Combustible
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="inventory-table-container sap-theme">
+            {/* SAP Fiori Header Section */}
+            <div className="sap-table-toolbar">
+              <div className="sap-table-toolbar-row">
+                <div className="sap-table-title-section">
+                  <h2 className="sap-table-title">
+                    <span className="sap-table-icon">📦</span>
+                    Inventario de Combustibles
+                  </h2>
+                  <div className="sap-table-subtitle">
+                    {filteredItems.length} elementos encontrados
+                  </div>
+                </div>
+                <div className="sap-table-actions-section">
+                  <button className="sap-btn sap-btn-emphasized" onClick={handleAddItem}>
+                    <span className="sap-btn-icon">➕</span>
+                    Agregar Combustible
+                  </button>
+                  <button className="sap-btn sap-btn-transparent">
+                    <span className="sap-btn-icon">🔍</span>
+                    Filtros Avanzados
+                  </button>
+                  <button className="sap-btn sap-btn-emphasized">
+                    <span className="sap-btn-icon">📊</span>
+                    Generar Reporte
+                  </button>
+                </div>
+              </div>
+
+              {/* SAP Fiori Secondary Toolbar */}
+              <div className="sap-table-toolbar-row sap-secondary">
+                <div className="sap-table-info-section">
+                  <div className="sap-info-tile">
+                    <span className="sap-info-label">Total Items:</span>
+                    <span className="sap-info-value">{filteredItems.length}</span>
+                  </div>
+                  <div className="sap-info-tile sap-warning">
+                    <span className="sap-info-label">Stock Bajo:</span>
+                    <span className="sap-info-value">{enhancedStats.lowStockItems}</span>
+                  </div>
+                  <div className="sap-info-tile sap-error">
+                    <span className="sap-info-label">Sin Stock:</span>
+                    <span className="sap-info-value">{enhancedStats.outOfStockItems}</span>
+                  </div>
+                </div>
+                <div className="sap-table-view-switcher">
+                  <button
+                    className={`sap-view-btn ${viewMode === 'table' ? 'sap-active' : ''}`}
+                    onClick={() => setViewMode('table')}
+                    title="Vista de Tabla"
+                  >
+                    <span className="sap-btn-icon">📊</span>
+                  </button>
+                  <button
+                    className={`sap-view-btn ${viewMode === 'cards' ? 'sap-active' : ''}`}
+                    onClick={() => setViewMode('cards')}
+                    title="Vista de Tarjetas"
+                  >
+                    <span className="sap-btn-icon">📱</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* SAP Fiori Content Section */}
+            <div className="sap-table-content">
+              {loading ? (
+                <ShimmerTable
+                  rows={8}
+                  columns={7}
+                  title={false}
+                  actions={false}
+                  className="shimmer-inventory-table"
+                />
+              ) : viewMode === 'table' ? (
+                <div className="sap-table-wrapper">
+                  <InventoryTable
+                    items={filteredItems}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    canManage={canManageInventory}
+                  />
+                </div>
               ) : (
-                <button
-                  className="btn btn-primary sap-theme"
-                  onClick={() => {
-                    if (!hasPermission('canManageInventory')) {
-                      alert('No tienes permisos para agregar items de inventario');
-                      return;
-                    }
-                    setEditingItem(null);
-                    setShowModal(true);
-                  }}
-                >
-                  ➕ Agregar Primer Combustible
-                </button>
+                <div className="sap-cards-container">
+                  <InventoryCards
+                    items={filteredItems}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    canManage={canManageInventory}
+                  />
+                </div>
               )}
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="inventory-table-container sap-theme">
-          {/* SAP Fiori Header Section */}
-          <div className="sap-table-toolbar">
-            <div className="sap-table-toolbar-row">
-              <div className="sap-table-title-section">
-                <h2 className="sap-table-title">
-                  <span className="sap-table-icon">📦</span>
-                  Inventario de Combustibles
-                </h2>
-                <div className="sap-table-subtitle">
-                  {filteredItems.length} elementos encontrados
-                </div>
-              </div>
-              <div className="sap-table-actions-section">
-                <button
-                  className="sap-btn sap-btn-emphasized"
-                  onClick={() => {
-                    if (!hasPermission('canManageInventory')) {
-                      alert('No tienes permisos para agregar items de inventario');
-                      return;
-                    }
-                    setEditingItem(null);
-                    setShowModal(true);
-                  }}
-                >
-                  <span className="sap-btn-icon">➕</span>
-                  Agregar Combustible
-                </button>
-                <button className="sap-btn sap-btn-transparent">
-                  <span className="sap-btn-icon">🔍</span>
-                  Filtros Avanzados
-                </button>
-                <button className="sap-btn sap-btn-emphasized">
-                  <span className="sap-btn-icon">📊</span>
-                  Generar Reporte
-                </button>
-              </div>
-            </div>
 
-            {/* SAP Fiori Secondary Toolbar */}
-            <div className="sap-table-toolbar-row sap-secondary">
-              <div className="sap-table-info-section">
-                <div className="sap-info-tile">
-                  <span className="sap-info-label">Total Items:</span>
-                  <span className="sap-info-value">{filteredItems.length}</span>
+            {/* SAP Fiori Footer Section */}
+            <div className="sap-table-footer">
+              <div className="sap-table-footer-row">
+                <div className="sap-table-pagination-info">
+                  Mostrando {filteredItems.length} de {inventoryItems.length} elementos
                 </div>
-                <div className="sap-info-tile sap-warning">
-                  <span className="sap-info-label">Stock Bajo:</span>
-                  <span className="sap-info-value">{enhancedStats.lowStockItems}</span>
+                <div className="sap-table-footer-actions">
+                  <button className="sap-btn sap-btn-transparent sap-btn-compact">
+                    <span className="sap-btn-icon">📤</span>
+                    Exportar
+                  </button>
+                  <button className="sap-btn sap-btn-transparent sap-btn-compact">
+                    <span className="sap-btn-icon">🔄</span>
+                    Actualizar
+                  </button>
                 </div>
-                <div className="sap-info-tile sap-error">
-                  <span className="sap-info-label">Sin Stock:</span>
-                  <span className="sap-info-value">{enhancedStats.outOfStockItems}</span>
-                </div>
-              </div>
-              <div className="sap-table-view-switcher">
-                <button
-                  className={`sap-view-btn ${viewMode === 'table' ? 'sap-active' : ''}`}
-                  onClick={() => setViewMode('table')}
-                  title="Vista de Tabla"
-                >
-                  <span className="sap-btn-icon">📊</span>
-                </button>
-                <button
-                  className={`sap-view-btn ${viewMode === 'cards' ? 'sap-active' : ''}`}
-                  onClick={() => setViewMode('cards')}
-                  title="Vista de Tarjetas"
-                >
-                  <span className="sap-btn-icon">📱</span>
-                </button>
               </div>
             </div>
           </div>
+        )}
 
-          {/* SAP Fiori Content Section */}
-          <div className="sap-table-content">
-            {loading ? (
-              <ShimmerTable
-                rows={8}
-                columns={7}
-                title={false}
-                actions={false}
-                className="shimmer-inventory-table"
-              />
-            ) : viewMode === 'table' ? (
-              <div className="sap-table-wrapper">
-                <InventoryTable
-                  items={filteredItems}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  canManage={hasPermission('canManageInventory')}
-                />
-              </div>
-            ) : (
-              <div className="sap-cards-container">
-                <InventoryCards
-                  items={filteredItems}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  canManage={hasPermission('canManageInventory')}
-                />
-              </div>
-            )}
+        {/* Results Footer */}
+        {filteredItems.length > 0 && (
+          <div
+            style={{
+              marginTop: 'var(--sap-spacing-lg)',
+              padding: 'var(--sap-spacing-md)',
+              background: 'var(--sap-neutral-200)',
+              borderRadius: 'var(--sap-border-radius-sm)',
+              fontSize: '0.875rem',
+              color: 'var(--sap-text-secondary)',
+              textAlign: 'center',
+            }}
+          >
+            Mostrando {filteredItems.length} de {inventoryItems.length} items
+            {searchTerm && ` · Filtro: "${searchTerm}"`}
+            {filterStatus !== 'all' && ` · Estado: ${filterStatus}`}
+            {filterCategory !== 'all' && ` · Categoría: ${filterCategory}`}
           </div>
+        )}
 
-          {/* SAP Fiori Footer Section */}
-          <div className="sap-table-footer">
-            <div className="sap-table-footer-row">
-              <div className="sap-table-pagination-info">
-                Mostrando {filteredItems.length} de {inventoryItems.length} elementos
+        {/* Modal (lazy) */}
+        {showModal && (
+          <Suspense
+            fallback={
+              <div className="loading-container">
+                <div className="loader">
+                  <div className="spinner"></div>
+                  <p>Cargando formulario...</p>
+                </div>
               </div>
-              <div className="sap-table-footer-actions">
-                <button className="sap-btn sap-btn-transparent sap-btn-compact">
-                  <span className="sap-btn-icon">📤</span>
-                  Exportar
-                </button>
-                <button className="sap-btn sap-btn-transparent sap-btn-compact">
-                  <span className="sap-btn-icon">🔄</span>
-                  Actualizar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Results Footer */}
-      {filteredItems.length > 0 && (
-        <div
-          style={{
-            marginTop: 'var(--sap-spacing-lg)',
-            padding: 'var(--sap-spacing-md)',
-            background: 'var(--sap-neutral-200)',
-            borderRadius: 'var(--sap-border-radius-sm)',
-            fontSize: '0.875rem',
-            color: 'var(--sap-text-secondary)',
-            textAlign: 'center',
-          }}
-        >
-          Mostrando {filteredItems.length} de {inventoryItems.length} items
-          {searchTerm && ` · Filtro: "${searchTerm}"`}
-          {filterStatus !== 'all' && ` · Estado: ${filterStatus}`}
-          {filterCategory !== 'all' && ` · Categoría: ${filterCategory}`}
-        </div>
-      )}
-
-      {/* Modal (lazy) */}
-      {showModal && (
-        <Suspense
-          fallback={
-            <div className="loading-container">
-              <div className="loader">
-                <div className="spinner"></div>
-                <p>Cargando formulario...</p>
-              </div>
-            </div>
-          }
-        >
-          <InventoryModal
-            item={editingItem}
-            onClose={handleModalClose}
-            onSuccess={handleModalSuccess}
-          />
-        </Suspense>
-      )}
-    </>
-  );
+            }
+          >
+            <InventoryModal
+              item={editingItem}
+              onClose={handleModalClose}
+              onSuccess={handleModalSuccess}
+            />
+          </Suspense>
+        )}
+      </>
+    );
+  }, [
+    CardDetailsModal,
+    canManageInventory,
+    clearFilters,
+    editingItem,
+    enhancedStats,
+    error,
+    filteredItems,
+    handleAddItem,
+    handleDelete,
+    handleEdit,
+    handleModalClose,
+    handleModalSuccess,
+    inventoryItems.length,
+    loading,
+    searchTerm,
+    filterStatus,
+    filterCategory,
+    showModal,
+    viewMode,
+  ]);
 
   return (
     <PageLayout

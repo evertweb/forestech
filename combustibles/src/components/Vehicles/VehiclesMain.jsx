@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
+import { shallow } from 'zustand/shallow';
 import { useAuthStore } from '../../stores';
 import {
   subscribeToVehicles,
@@ -40,8 +41,10 @@ const VehiclesMain = () => {
   const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'categories'
   
   // 🔐 Zustand Store - Auth
-  const user = useAuthStore(state => state.user);
-  const userProfile = useAuthStore(state => state.userProfile);
+  const [user, userProfile] = useAuthStore(
+    (state) => [state.user, state.userProfile],
+    shallow
+  );
 
   // Hook para progreso transparente de Firebase (disponible para uso futuro)
   const { executeWithProgress: _executeWithProgress } = useFirebaseProgressContext();
@@ -300,7 +303,7 @@ const VehiclesMain = () => {
     ]
   );
 
-  const mainContent = (
+  const mainContent = useMemo(() => (
     <>
       {/* Contenido según pestaña activa */}
       {activeTab === 'vehicles' && (
@@ -454,7 +457,28 @@ const VehiclesMain = () => {
         </Suspense>
       )}
     </>
-  );
+  ), [
+    activeTab,
+    canCreateVehicle,
+    canEditVehicle,
+    canManageVehicle,
+    error,
+    filteredVehicles,
+    handleCreateVehicle,
+    handleEditVehicle,
+    handleMaintenanceVehicle,
+    handleModalClose,
+    handleViewVehicle,
+    loading,
+    modalMode,
+    popupError,
+    selectedVehicle,
+    showMaintenanceModal,
+    showModal,
+    user?.role,
+    vehicles.length,
+    viewMode,
+  ]);
 
   return (
     <PageLayout

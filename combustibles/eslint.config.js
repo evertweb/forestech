@@ -48,7 +48,10 @@ export default [
     ignores: ['scripts/**/*.{js,jsx}', 'src/services/base/**/*.{js,jsx}', 'src/config/**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        Intl: 'readonly',
+      },
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },

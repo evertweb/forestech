@@ -187,7 +187,150 @@ firebase deploy --only hosting --project liquidacionapp-62962
 
 ---
 
-## 📞 **CONTACTO URGENTE**
+## � **CI/CD & QUALITY GATES**
+
+### **🔦 Lighthouse CI** (Sprint 4, Día 4)
+**Workflow**: `.github/workflows/lighthouse-ci.yml`
+
+**Cuándo se ejecuta**:
+- ✅ **AUTO**: En cada PR a `main`
+- ✅ **MANUAL**: GitHub Actions → "🔦 Lighthouse CI"
+
+**Budgets & Thresholds**:
+| Categoría | Threshold | Desktop | Mobile |
+|-----------|-----------|---------|--------|
+| 🚀 Performance | ≥90 | ✅ | ✅ |
+| ♿ Accessibility | ≥90 | ✅ | ✅ |
+| 🏆 Best Practices | ≥90 | ✅ | ✅ |
+| 🔍 SEO | ≥90 | ✅ | ✅ |
+
+**Métricas monitoreadas**:
+- **FCP** (First Contentful Paint): <2s desktop, <3s mobile
+- **LCP** (Largest Contentful Paint): <2.5s desktop, <4s mobile
+- **TBT** (Total Blocking Time): <300ms desktop, <600ms mobile
+- **CLS** (Cumulative Layout Shift): <0.1
+
+**Archivos de configuración**:
+- `lighthouserc-desktop.json` - Config para pruebas desktop
+- `lighthouserc-mobile.json` - Config para pruebas mobile
+
+**Reportes**:
+- Se suben como artifacts en GitHub Actions
+- Retención: 30 días
+- Ver en: Actions → Workflow run → Artifacts
+
+---
+
+### **🧪 Smoke Tests**
+**Workflow**: `.github/workflows/ci-smoke-tests.yml`
+
+**Jobs incluidos**:
+1. **Lint & Test** (~5 min)
+   - ESLint en combustibles y alimentación
+   - Unit tests (cuando estén configurados)
+   
+2. **Build Validation** (~10 min)
+   - Build de ambas apps
+   - Análisis de bundle sizes
+   - Artifacts de build disponibles
+
+3. **Performance Budget** (~8 min)
+   - Validación contra `performance-budget.json`
+   - Falla si bundles exceden límites
+   - Ver script: `scripts/performance-budget-check.sh`
+
+**Performance Budget** (`performance-budget.json`):
+```json
+{
+  "combustibles": {
+    "total": "350kb (max)",
+    "App.jsx": "12kb (max)",
+    "MovementWizard.jsx": "8kb (max)",
+    "vendor": "250kb (max)"
+  }
+}
+```
+
+**Mejoras desde baseline** (Sprint 4):
+- Bundle total: -31% (506kb → 350kb)
+- App.jsx: -68% (37.5kb → 12kb)
+- MovementWizard: -84% (50kb → 8kb)
+
+---
+
+### **📊 Firebase Performance Monitoring**
+
+**Setup activo desde**: Sprint 4, Día 4  
+**Dashboard**: [Firebase Console](https://console.firebase.google.com/project/liquidacionapp-62962/performance)
+
+**Web Vitals recolectados**:
+| Métrica | Good | Needs Improvement | Poor |
+|---------|------|-------------------|------|
+| **LCP** | ≤2.5s | 2.5s-4.0s | >4.0s |
+| **FID** | ≤100ms | 100ms-300ms | >300ms |
+| **CLS** | ≤0.1 | 0.1-0.25 | >0.25 |
+| **FCP** | ≤1.8s | 1.8s-3.0s | >3.0s |
+| **TTFB** | ≤800ms | 800ms-1800ms | >1800ms |
+
+**Implementación**:
+- Archivo: `combustibles/src/firebase/performanceMonitoring.js`
+- Auto-inicializa en `main.jsx`
+- Envía métricas a Firebase Performance
+- Ver documentación: `docs/FIREBASE_PERFORMANCE_MONITORING.md`
+
+**Acceso a datos**:
+1. Firebase Console → Performance
+2. Filtrar por versión, dispositivo, región
+3. Alertas configurables para degradaciones
+
+---
+
+### **✅ Pre-Deployment Checklist**
+
+Antes de hacer merge a `main`:
+
+- [ ] ✅ **Lint pasa**: `npm run lint:all`
+- [ ] ✅ **Build exitoso**: `npm run build:all`
+- [ ] ✅ **E2E tests pasan**: Workflow verde en PR
+- [ ] ✅ **Lighthouse CI**: Todos los scores ≥90
+- [ ] ✅ **Performance budget**: Sin excesos de tamaño
+- [ ] ✅ **Smoke tests**: Workflow verde
+- [ ] ✅ **Review aprobado**: Al menos 1 approval
+
+**Post-Deployment**:
+- [ ] ✅ **URLs funcionan**: Verificar producción
+- [ ] ✅ **Logs limpios**: Sin errores en consola
+- [ ] ✅ **Web Vitals**: Revisar Firebase Performance (24h)
+- [ ] ✅ **User testing**: Flujos críticos funcionan
+
+---
+
+### **🎯 Flujo CI/CD Completo**
+
+```mermaid
+graph TD
+    A[Push/PR a main] --> B{Cambios en apps?}
+    B -->|Sí| C[🧪 Smoke Tests]
+    C --> D[🔦 Lighthouse CI]
+    D --> E[🧪 E2E Tests]
+    E --> F{Todo verde?}
+    F -->|Sí| G[✅ Merge aprobado]
+    F -->|No| H[❌ Fix & retry]
+    G --> I[🔥 Auto-deploy Firebase]
+    I --> J[📊 Monitor Web Vitals]
+    B -->|No| K[Skip CI]
+```
+
+**Tiempos totales**:
+- **PR Checks**: ~15-20 minutos
+- **Deploy Firebase**: ~3-5 minutos
+- **Deploy Cloud Run**: ~2-3 minutos (manual)
+- **Total (Frontend)**: ~20-25 minutos
+- **Total (Backend)**: +3 minutos
+
+---
+
+## �📞 **CONTACTO URGENTE**
 
 Si un deployment falla en producción:
 1. **Slack**: #forestech-deploy
@@ -197,5 +340,5 @@ Si un deployment falla en producción:
 ---
 
 > **🔔 Esta guía se actualiza cada que cambia el flujo de deployment**  
-> **📅 Última actualización**: Septiembre 2025  
+> **📅 Última actualización**: Octubre 2025 (Sprint 4, Día 4 - CI/CD)  
 > **📝 Responsable**: DevOps Team

@@ -43,10 +43,18 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>
 );
 
-// Registrar mediciones de Core Web Vitals después de la carga inicial
-if (import.meta.env.DEV) {
-  import('./utils/webVitals').then(({ registerWebVitals }) => {
-    registerWebVitals();
+// Registrar Web Vitals y Firebase Performance Monitoring
+if (typeof window !== 'undefined') {
+  // En producción y desarrollo
+  import('./firebase/performanceMonitoring').then(({ initWebVitalsMonitoring }) => {
+    initWebVitalsMonitoring();
   });
+  
+  // Mantener legacy webVitals en desarrollo
+  if (import.meta.env.DEV) {
+    import('./utils/webVitals').then(({ registerWebVitals }) => {
+      registerWebVitals();
+    });
+  }
 }
 console.log('Build optimizado funcionando');

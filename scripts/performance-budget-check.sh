@@ -1,22 +1,36 @@
 #!/bin/bash
 # scripts/performance-budget-check.sh
-# Verificación automática de performance budgets
+# Verificación automática de performance budgets desde performance-budget.json
 
 set -e
 
 echo "📊 Iniciando verificación de Performance Budget..."
 
-# Configuración de budgets
-BUNDLE_SIZE_LIMIT_KB=800
-CHUNK_SIZE_LIMIT_KB=200
-IMAGE_SIZE_LIMIT_KB=100
-TOTAL_REQUESTS_LIMIT=60
+# Verificar que existe jq
+if ! command -v jq &> /dev/null; then
+    echo "❌ jq no está instalado. Instálalo con: sudo apt-get install jq"
+    exit 1
+fi
+
+# Cargar budgets desde JSON
+BUDGET_FILE="performance-budget.json"
+if [ ! -f "$BUDGET_FILE" ]; then
+    echo "❌ Archivo $BUDGET_FILE no encontrado"
+    exit 1
+fi
+
+# Parsear límites desde JSON (convertir de kb a KB)
+BUNDLE_SIZE_LIMIT_KB=$(jq -r '.apps.combustibles.total.maxSize' "$BUDGET_FILE" | sed 's/kb//')
+CHUNK_VENDOR_LIMIT_KB=$(jq -r '.apps.combustibles.chunks.vendor.maxSize' "$BUDGET_FILE" | sed 's/kb//')
 
 # Colores para output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+echo -e "${BLUE}📋 Budget cargado: Total max ${BUNDLE_SIZE_LIMIT_KB}KB${NC}"
 
 # Función para verificar tamaño de archivos
 check_bundle_size() {

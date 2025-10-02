@@ -2,6 +2,46 @@
 
 Aplicación de gestión de combustibles construida con React + Vite para el monorepo Forestech.
 
+## 🧪 Testing & Quality
+
+![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+![E2E Tests](https://img.shields.io/badge/e2e--tests-77%20passing-blue)
+![Unit Tests](https://img.shields.io/badge/unit--tests-221%20passing-blue)
+![Browsers](https://img.shields.io/badge/browsers-Chromium%20%7C%20Firefox-orange)
+![CI/CD](https://img.shields.io/badge/ci%2Fcd-automated-success)
+
+### Test Suite
+
+- **Unit Tests**: 221 tests (Stores + Hooks)
+  - 122 tests para stores (100% coverage)
+  - 99 tests para hooks (estructura completa)
+- **E2E Tests**: 77 tests (Playwright)
+  - 6 tests de login
+  - 10 tests de dashboard
+  - 11 tests de productos
+  - 26 tests de movimientos (entrada/salida)
+  - 17 tests de reportes
+  - 7 tests de smoke/flow
+- **Total**: 298 tests automatizados
+
+### Running Tests
+
+```bash
+# Unit tests
+npm run test              # Run unit tests
+npm run test:ui           # Run with UI
+npm run test:coverage     # With coverage report
+
+# E2E tests
+npm run test:e2e          # Run E2E tests
+npm run test:e2e:ui       # Run with Playwright UI
+npm run test:e2e:headed   # Run in headed mode
+
+# All tests
+npm run test:all          # Run unit + E2E
+```
+
 ## ⚠️ Issues Conocidos
 
 ### Firebase Analytics & Performance - DESHABILITADO

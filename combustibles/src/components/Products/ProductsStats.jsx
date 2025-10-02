@@ -3,16 +3,20 @@
  * Muestra métricas de stock, entradas, salidas por tipo de producto
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { subscribeToMovements } from '../../services/FirebaseMovementsService';
 import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 import './ProductsStats-SAP.css';
 
-const ProductsStats = ({ products }) => {
+const ProductsStatsComponent = ({ products }) => {
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
+
+  console.log('📈 ProductsStats render', {
+    productsCount: products?.length || 0,
+  });
 
   useEffect(() => {
     const unsubscribe = subscribeToMovements(
@@ -403,5 +407,11 @@ const ProductsStats = ({ products }) => {
     </div>
   );
 };
+
+const propsAreEqual = (prevProps, nextProps) => {
+  return prevProps.products === nextProps.products;
+};
+
+const ProductsStats = memo(ProductsStatsComponent, propsAreEqual);
 
 export default ProductsStats;

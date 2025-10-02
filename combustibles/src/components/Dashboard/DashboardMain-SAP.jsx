@@ -12,7 +12,7 @@
  * ================================================================================================================================
  */
 
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import '../../styles/sap-dashboard.css';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { formatNumber, formatCurrency } from '../../utils/calculations';
@@ -116,6 +116,7 @@ const DashboardMainSAP = () => {
 
   const recentMovements = useMemo(() => {
     return movements
+      .slice()
       .sort((a, b) => safeDateHelper(b.createdAt).getTime() - safeDateHelper(a.createdAt).getTime())
       .slice(0, 10);
   }, [movements]);
@@ -146,53 +147,39 @@ const DashboardMainSAP = () => {
   }, [inventory]);
 
   // Componentes para PageLayout
-  const _headerActions = (
-    <div className="apple-content-actions">
-      <button className="apple-button apple-button-secondary">📊 Exportar</button>
-      <button
-        className="apple-button apple-button-primary"
-        onClick={async () => {
-          console.log('🔄 Forzando actualización manual del dashboard...');
-          try {
-            // Invalidar cache primero
-            const { cardsService } = await import('../../services/cardsService');
-            cardsService.invalidateCache();
+  const handleManualRefresh = useCallback(async () => {
+    console.log('🔄 Forzando actualización manual del dashboard...');
+    try {
+      const { cardsService: cardsServiceModule } = await import('../../services/cardsService');
+      cardsServiceModule.invalidateCache();
 
-            // Forzar refresh de datos
-            const FirebaseMovementsService = (await import('../../services/FirebaseMovementsService')).default;
-            const movementsService = new FirebaseMovementsService();
+      const FirebaseMovementsService = (await import('../../services/FirebaseMovementsService')).default;
+      const movementsService = new FirebaseMovementsService();
 
-            const inventoryService = (await import('../../services/FirebaseInventoryService')).default;
-            const inventoryServiceInstance = new inventoryService();
+      const FirebaseInventoryService = (await import('../../services/FirebaseInventoryService')).default;
+      const inventoryServiceInstance = new FirebaseInventoryService();
 
-            // Obtener datos frescos directamente
-            const [movementsResult, inventoryResult] = await Promise.all([
-              movementsService.getAllMovements(),
-              inventoryServiceInstance.getInventory()
-            ]);
+      const [movementsResult, inventoryResult] = await Promise.all([
+        movementsService.getAllMovements(),
+        inventoryServiceInstance.getInventory()
+      ]);
 
-            console.log('🔍 Datos frescos obtenidos:');
-            console.log('  - Movimientos:', movementsResult?.length, 'items');
-            console.log('  - Inventario:', inventoryResult?.length, 'items');
+      console.log('🔍 Datos frescos obtenidos:');
+      console.log('  - Movimientos:', movementsResult?.length, 'items');
+      console.log('  - Inventario:', inventoryResult?.length, 'items');
 
-            // Actualizar estado manualmente para debugging
-            if (movementsResult) {
-              setMovements(movementsResult);
-            }
-            if (inventoryResult) {
-              setInventory(inventoryResult);
-            }
+      if (movementsResult) {
+        setMovements(movementsResult);
+      }
+      if (inventoryResult) {
+        setInventory(inventoryResult);
+      }
 
-            console.log('✅ Refresh manual completado');
-          } catch (error) {
-            console.error('❌ Error en refresh manual:', error);
-          }
-        }}
-      >
-        🔄 Actualizar
-      </button>
-    </div>
-  );
+      console.log('✅ Refresh manual completado');
+    } catch (error) {
+      console.error('❌ Error en refresh manual:', error);
+    }
+  }, [setInventory, setMovements]);
 
   // Generar cards unificadas para dashboard
   const dashboardCards = useMemo(() => {
@@ -216,296 +203,305 @@ const DashboardMainSAP = () => {
     return cards;
   }, [inventory, vehicles, movements]);
 
-  const statsComponent = dataLoading ? (
-    <div className="apple-stats-grid">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="apple-stat-card">
-          <div className="apple-skeleton" style={{ height: '20px', marginBottom: '12px' }} />
-          <div className="apple-skeleton" style={{ height: '32px', marginBottom: '8px' }} />
-          <div className="apple-skeleton" style={{ height: '16px', width: '60%' }} />
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="apple-stats-grid">
-      {dashboardCards.map((card) => (
-        <div
-          key={card.id}
-          className="apple-stat-card"
-          onClick={() => openCardDetails(card)}
-        >
-          <div className="apple-stat-card-header">
-            <span className="apple-stat-card-icon">{card.icon || '📊'}</span>
-          </div>
-          <div className="apple-stat-card-value">{card.value}</div>
-          <div className="apple-stat-card-label">{card.title}</div>
-          {card.change && (
-            <div className={`apple-stat-card-change ${card.change > 0 ? 'positive' : card.change < 0 ? 'negative' : 'neutral'}`}>
-              {card.change > 0 ? '↗' : card.change < 0 ? '↘' : '→'} {Math.abs(card.change)}%
+  const statsComponent = useMemo(() => {
+    if (dataLoading) {
+      return (
+        <div className="apple-stats-grid">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="apple-stat-card">
+              <div className="apple-skeleton" style={{ height: '20px', marginBottom: '12px' }} />
+              <div className="apple-skeleton" style={{ height: '32px', marginBottom: '8px' }} />
+              <div className="apple-skeleton" style={{ height: '16px', width: '60%' }} />
             </div>
-          )}
+          ))}
         </div>
-      ))}
-    </div>
-  );
+      );
+    }
 
-  const _filtersComponent = null; // Dashboard no necesita filtros complejos
-
-  const mainContent = (
-    <>
-      {/* Modal de detalles de cards */}
-      {CardDetailsModal}
-
-      {/* Error Display */}
-      {dataError && (
-        <div className="error-banner sap-theme">
-          <div>
-            <strong>Error al cargar datos:</strong> {dataError}
-          </div>
-          <button className="btn btn-primary sap-theme" onClick={() => window.location.reload()}>
-            Reintentar
-          </button>
-        </div>
-      )}
-
-      {/* Tabla de Inventario */}
-      {dataLoading ? (
-        <ShimmerTable
-          rows={8}
-          columns={8}
-          title={true}
-          actions={true}
-          className="shimmer-inventory-table"
-        />
-      ) : (
-        <div className="apple-content-section">
-          <div className="apple-content-header">
-            <h2 className="apple-content-title">Inventario Principal</h2>
-            <div className="apple-content-actions">
-              <button className="apple-button apple-button-tertiary">🔍 Filtrar</button>
-              <button className="apple-button apple-button-secondary">📋 Ver Todo</button>
+    return (
+      <div className="apple-stats-grid">
+        {dashboardCards.map((card) => (
+          <div
+            key={card.id}
+            className="apple-stat-card"
+            onClick={() => openCardDetails(card)}
+          >
+            <div className="apple-stat-card-header">
+              <span className="apple-stat-card-icon">{card.icon || '📊'}</span>
             </div>
+            <div className="apple-stat-card-value">{card.value}</div>
+            <div className="apple-stat-card-label">{card.title}</div>
+            {card.change && (
+              <div className={`apple-stat-card-change ${card.change > 0 ? 'positive' : card.change < 0 ? 'negative' : 'neutral'}`}>
+                {card.change > 0 ? '↗' : card.change < 0 ? '↘' : '→'} {Math.abs(card.change)}%
+              </div>
+            )}
           </div>
+        ))}
+      </div>
+    );
+  }, [dataLoading, dashboardCards, openCardDetails]);
 
-          <div className="apple-content-body">
-            <table className="apple-dashboard-table">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Ubicación</th>
-                  <th>Stock Actual</th>
-                  <th>Capacidad</th>
-                  <th>Nivel</th>
-                  <th>Valor</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inventoryTableData.length > 0 ? (
-                  inventoryTableData.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <strong className="apple-body-medium">{item.name}</strong>
-                      </td>
-                      <td className="text-secondary">{item.location}</td>
-                      <td>{formatNumber(item.currentStock)} gal</td>
-                      <td>{formatNumber(item.maxCapacity)} gal</td>
-                      <td>
-                        <div className="apple-progress-container">
-                          <div className="apple-progress-bar">
-                            <div
-                              className={`apple-progress-fill ${
-                                item.statusClass === 'error'
-                                  ? 'error'
-                                  : item.statusClass === 'warning'
-                                    ? 'warning'
-                                    : 'success'
-                              }`}
-                              style={{ width: `${item.percentage}%` }}
-                            />
+  const mainContent = useMemo(() => {
+    return (
+      <>
+        {/* Modal de detalles de cards */}
+        {CardDetailsModal}
+
+        {/* Error Display */}
+        {dataError && (
+          <div className="error-banner sap-theme">
+            <div>
+              <strong>Error al cargar datos:</strong> {dataError}
+            </div>
+            <button className="btn btn-primary sap-theme" onClick={() => window.location.reload()}>
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {/* Tabla de Inventario */}
+        {dataLoading ? (
+          <ShimmerTable
+            rows={8}
+            columns={8}
+            title={true}
+            actions={true}
+            className="shimmer-inventory-table"
+          />
+        ) : (
+          <div className="apple-content-section">
+            <div className="apple-content-header">
+              <h2 className="apple-content-title">Inventario Principal</h2>
+              <div className="apple-content-actions">
+                <button className="apple-button apple-button-tertiary">🔍 Filtrar</button>
+                <button className="apple-button apple-button-secondary">📋 Ver Todo</button>
+                <button className="apple-button apple-button-primary" onClick={handleManualRefresh}>
+                  🔄 Actualizar
+                </button>
+              </div>
+            </div>
+
+            <div className="apple-content-body">
+              <table className="apple-dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Ubicación</th>
+                    <th>Stock Actual</th>
+                    <th>Capacidad</th>
+                    <th>Nivel</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventoryTableData.length > 0 ? (
+                    inventoryTableData.map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          <strong className="apple-body-medium">{item.name}</strong>
+                        </td>
+                        <td className="text-secondary">{item.location}</td>
+                        <td>{formatNumber(item.currentStock)} gal</td>
+                        <td>{formatNumber(item.maxCapacity)} gal</td>
+                        <td>
+                          <div className="apple-progress-container">
+                            <div className="apple-progress-bar">
+                              <div
+                                className={`apple-progress-fill ${
+                                  item.statusClass === 'error'
+                                    ? 'error'
+                                    : item.statusClass === 'warning'
+                                      ? 'warning'
+                                      : 'success'
+                                }`}
+                                style={{ width: `${item.percentage}%` }}
+                              />
+                            </div>
+                            <span className="apple-progress-text">{item.percentage}%</span>
                           </div>
-                          <span className="apple-progress-text">{item.percentage}%</span>
-                        </div>
-                      </td>
-                      <td className="apple-body-medium">{formatCurrency(item.value)}</td>
-                      <td>
-                        <span className={`apple-status-badge ${
-                          item.statusClass === 'error' ? 'inactive' :
-                          item.statusClass === 'warning' ? 'warning' : 'active'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="apple-action-buttons">
-                          <button className="apple-action-button" title="Ver detalles">
-                            👁️
-                          </button>
-                          <button className="apple-action-button" title="Editar">
-                            ✏️
-                          </button>
-                          <button className="apple-action-button primary" title="Reabastecer">
-                            📦
-                          </button>
+                        </td>
+                        <td className="apple-body-medium">{formatCurrency(item.value)}</td>
+                        <td>
+                          <span className={`apple-status-badge ${
+                            item.statusClass === 'error' ? 'inactive' :
+                            item.statusClass === 'warning' ? 'warning' : 'active'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="apple-action-buttons">
+                            <button className="apple-action-button" title="Ver detalles">
+                              👁️
+                            </button>
+                            <button className="apple-action-button" title="Editar">
+                              ✏️
+                            </button>
+                            <button className="apple-action-button primary" title="Reabastecer">
+                              📦
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8">
+                        <div className="apple-empty-state">
+                          <div className="apple-empty-icon">📦</div>
+                          <div className="apple-empty-title">No hay datos de inventario</div>
+                          <div className="apple-empty-description">
+                            Los datos del inventario se cargarán automáticamente cuando estén disponibles.
+                          </div>
                         </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8">
-                      <div className="apple-empty-state">
-                        <div className="apple-empty-icon">📦</div>
-                        <div className="apple-empty-title">No hay datos de inventario</div>
-                        <div className="apple-empty-description">
-                          Los datos del inventario se cargarán automáticamente cuando estén disponibles.
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Tabla de Actividad Reciente */}
-      {dataLoading ? (
-        <ShimmerTable
-          rows={5}
-          columns={5}
-          title={true}
-          actions={true}
-          className="shimmer-activity-table"
-        />
-      ) : (
-        <div className="apple-content-section">
-          <div className="apple-content-header">
-            <h2 className="apple-content-title">Actividad Reciente</h2>
-            <div className="apple-content-actions">
-              <button className="apple-button apple-button-tertiary">📋 Ver Histórico</button>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
-          <div className="apple-content-body">
-            <table className="apple-dashboard-table">
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Descripción</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentMovements.length > 0 ? (
-                  recentMovements.map((mov) => (
-                    <tr key={mov.id}>
-                      <td>
-                        <span
-                          className={`apple-status-badge ${
-                            mov.type === 'entrada' ? 'active' :
-                            mov.type === 'salida' ? 'warning' : 'info'
-                          }`}
-                        >
+        {/* Tabla de Actividad Reciente */}
+        {dataLoading ? (
+          <ShimmerTable
+            rows={5}
+            columns={5}
+            title={true}
+            actions={true}
+            className="shimmer-activity-table"
+          />
+        ) : (
+          <div className="apple-content-section">
+            <div className="apple-content-header">
+              <h2 className="apple-content-title">Actividad Reciente</h2>
+              <div className="apple-content-actions">
+                <button className="apple-button apple-button-tertiary">📋 Ver Histórico</button>
+              </div>
+            </div>
+
+            <div className="apple-content-body">
+              <table className="apple-dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentMovements.length > 0 ? (
+                    recentMovements.map((mov) => (
+                      <tr key={mov.id}>
+                        <td>
+                          <span
+                            className={`apple-status-badge ${
+                              mov.type === 'entrada' ? 'active' :
+                              mov.type === 'salida' ? 'warning' : 'info'
+                            }`}
+                          >
+                            {mov.type === 'entrada'
+                              ? '📥'
+                              : mov.type === 'salida'
+                                ? '📤'
+                                : mov.type === 'transferencia'
+                                  ? '🔄'
+                                  : '🔧'}{' '}
+                            {mov.type}
+                          </span>
+                        </td>
+                        <td className="text-secondary">
                           {mov.type === 'entrada'
-                            ? '📥'
+                            ? `Entrada de ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`
                             : mov.type === 'salida'
-                              ? '📤'
+                              ? `Salida de ${mov.quantity || 0} gal para vehículo ${mov.vehicleId || 'N/A'}`
                               : mov.type === 'transferencia'
-                                ? '🔄'
-                                : '🔧'}{' '}
-                          {mov.type}
-                        </span>
-                      </td>
-                      <td className="text-secondary">
-                        {mov.type === 'entrada'
-                          ? `Entrada de ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`
-                          : mov.type === 'salida'
-                            ? `Salida de ${mov.quantity || 0} gal para vehículo ${mov.vehicleId || 'N/A'}`
-                            : mov.type === 'transferencia'
-                              ? `Transferencia de ${mov.quantity || 0} gal`
-                              : `Ajuste de inventario: ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`}
-                      </td>
-                      <td className="apple-body-small text-secondary">
-                        {safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}
-                      </td>
-                      <td>
-                        <span
-                          className={`apple-status-badge ${mov.status === 'completado' ? 'active' : 'warning'}`}
-                        >
-                          {mov.status === 'completado' ? 'Completado' : 'Pendiente'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="apple-action-buttons">
-                          <button className="apple-action-button" title="Ver detalles">
-                            👁️
-                          </button>
+                                ? `Transferencia de ${mov.quantity || 0} gal`
+                                : `Ajuste de inventario: ${mov.quantity || 0} gal de ${mov.fuelType || 'N/A'}`}
+                        </td>
+                        <td className="apple-body-small text-secondary">
+                          {safeDateHelper(mov.createdAt).toLocaleDateString('es-CO')}
+                        </td>
+                        <td>
+                          <span
+                            className={`apple-status-badge ${mov.status === 'completado' ? 'active' : 'warning'}`}
+                          >
+                            {mov.status === 'completado' ? 'Completado' : 'Pendiente'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="apple-action-buttons">
+                            <button className="apple-action-button" title="Ver detalles">
+                              👁️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5">
+                        <div className="apple-empty-state">
+                          <div className="apple-empty-icon">🔄</div>
+                          <div className="apple-empty-title">No hay movimientos recientes</div>
+                          <div className="apple-empty-description">
+                            Los movimientos aparecerán aquí cuando se registren nuevas actividades.
+                          </div>
                         </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">
-                      <div className="apple-empty-state">
-                        <div className="apple-empty-icon">🔄</div>
-                        <div className="apple-empty-title">No hay movimientos recientes</div>
-                        <div className="apple-empty-description">
-                          Los movimientos aparecerán aquí cuando se registren nuevas actividades.
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Footer con estadísticas Apple */}
-      {dataLoading ? (
-        <div className="apple-content-section">
-          <div className="apple-content-body">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-              <div style={{ display: 'flex', gap: 'var(--spacing-lg)', flexWrap: 'wrap' }}>
-                <div className="apple-skeleton" style={{ width: '120px', height: '16px' }} />
-                <div className="apple-skeleton" style={{ width: '140px', height: '16px' }} />
-                <div className="apple-skeleton" style={{ width: '130px', height: '16px' }} />
-              </div>
-              <div className="apple-skeleton" style={{ width: '180px', height: '14px' }} />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="apple-content-section">
-          <div className="apple-content-body">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-              <div style={{ display: 'flex', gap: 'var(--spacing-lg)', flexWrap: 'wrap' }}>
-                <span className="apple-body-medium">
-                  <strong>{inventory.length}</strong> productos en inventario
-                </span>
-                <span className="apple-body-medium">
-                  <strong>{vehicles.length}</strong> vehículos registrados
-                </span>
-                <span className="apple-body-medium">
-                  <strong>{movements.length}</strong> movimientos totales
-                </span>
-              </div>
-              <div className="apple-body-small text-secondary">
-                Última actualización: {new Date().toLocaleString('es-CO')}
+        {/* Footer con estadísticas Apple */}
+        {dataLoading ? (
+          <div className="apple-content-section">
+            <div className="apple-content-body">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
+                <div style={{ display: 'flex', gap: 'var(--spacing-lg)', flexWrap: 'wrap' }}>
+                  <div className="apple-skeleton" style={{ width: '120px', height: '16px' }} />
+                  <div className="apple-skeleton" style={{ width: '140px', height: '16px' }} />
+                  <div className="apple-skeleton" style={{ width: '130px', height: '16px' }} />
+                </div>
+                <div className="apple-skeleton" style={{ width: '180px', height: '14px' }} />
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
-  );
+        ) : (
+          <div className="apple-content-section">
+            <div className="apple-content-body">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
+                <div style={{ display: 'flex', gap: 'var(--spacing-lg)', flexWrap: 'wrap' }}>
+                  <span className="apple-body-medium">
+                    <strong>{inventory.length}</strong> productos en inventario
+                  </span>
+                  <span className="apple-body-medium">
+                    <strong>{vehicles.length}</strong> vehículos registrados
+                  </span>
+                  <span className="apple-body-medium">
+                    <strong>{movements.length}</strong> movimientos totales
+                  </span>
+                </div>
+                <div className="apple-body-small text-secondary">
+                  Última actualización: {new Date().toLocaleString('es-CO')}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }, [CardDetailsModal, dataError, dataLoading, handleManualRefresh, inventory.length, inventoryTableData, movements.length, recentMovements, vehicles.length]);
 
   return (
     <div className="apple-dashboard-main">

@@ -15,9 +15,14 @@ on:
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     # Skip E2E tests para PRs de Dependabot (solo actualizaciones de deps)
     if: github.actor != 'dependabot[bot]'
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
     
     env:
       NODE_ENV: test
@@ -41,7 +46,7 @@ jobs:
       
       - name: Install Playwright browsers
         working-directory: ./combustibles
-        run: npx playwright install chromium --with-deps
+        run: npx playwright install ${{ matrix.browser }} --with-deps
       
       - name: Create environment file
         working-directory: ./combustibles
@@ -55,12 +60,12 @@ jobs:
           echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env.local
           echo "VITE_BG_DOWNLOAD_TIMEOUT_MS=2000" >> .env.local
       
-      - name: Run E2E tests
+      - name: Run E2E tests (${{ matrix.browser }})
         working-directory: ./combustibles
         run: |
           # Usar la configuración de webServer de playwright.config.ts
           # que automáticamente levanta el servidor en puerto 5176
-          npm run e2e
+          npm run e2e -- --project=${{ matrix.browser }}
         env:
           CI: true
           E2E_BASE_URL: http://localhost:5176/combustibles/
@@ -69,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report-${{ github.run_id }}
+          name: playwright-report-${{ matrix.browser }}-${{ github.run_id }}
           path: |
             combustibles/playwright-report/
             combustibles/test-results/
@@ -79,9 +84,73 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-screenshots-${{ github.run_id }}
+          name: e2e-screenshots-${{ matrix.browser }}-${{ github.run_id }}
           path: combustibles/test-results/
           retention-days: 3
+
+  # Job para generar reporte de cobertura de tests
+  test-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.actor != 'dependabot[bot]'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'combustibles/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: ./combustibles  
+        run: npm ci
+        env:
+          HUSKY: 0
+      
+      - name: Run unit tests with coverage
+        working-directory: ./combustibles
+        run: npm run test:coverage
+        continue-on-error: true
+      
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-${{ github.run_id }}
+          path: combustibles/coverage/
+          retention-days: 7
+      
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coveragePath = 'combustibles/coverage/coverage-summary.json';
+            if (fs.existsSync(coveragePath)) {
+              const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
+              const total = coverage.total;
+              const comment = `## 📊 Test Coverage Report
+              
+              | Métrica | Cobertura |
+              |---------|-----------|
+              | Líneas | ${total.lines.pct}% |
+              | Funciones | ${total.functions.pct}% |
+              | Branches | ${total.branches.pct}% |
+              | Statements | ${total.statements.pct}% |
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
 
   # Job adicional para smoke tests rápidos
   smoke-tests:

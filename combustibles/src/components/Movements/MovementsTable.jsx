@@ -17,9 +17,14 @@ const MOVEMENT_STATUS = {
   CANCELLED: 'cancelled',
 };
 
-const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
+const MovementsTableComponent = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
   const [sortField, setSortField] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
+
+  console.log('📊 MovementsTable render', {
+    movementsCount: movements?.length || 0,
+    userRole,
+  });
 
   // Formatear moneda
   const formatCurrency = (amount) => {
@@ -244,6 +249,20 @@ const MovementsTable = ({ movements, onEdit, onView, onApprove, onReject, onDele
     </div>
   );
 };
+
+const propsAreEqual = (prevProps, nextProps) => {
+  return (
+    prevProps.movements === nextProps.movements &&
+    prevProps.onEdit === nextProps.onEdit &&
+    prevProps.onView === nextProps.onView &&
+    prevProps.onApprove === nextProps.onApprove &&
+    prevProps.onReject === nextProps.onReject &&
+    prevProps.onDelete === nextProps.onDelete &&
+    prevProps.userRole === nextProps.userRole
+  );
+};
+
+const MovementsTable = memo(MovementsTableComponent, propsAreEqual);
 
 export default MovementsTable;
 

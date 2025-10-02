@@ -78,6 +78,11 @@ combustibles/playwright-report/
 combustibles/coverage/
 **/coverage/
 
+# Lighthouse CI reports (generated in CI)
+.lighthouseci/
+lighthouse-report-*.html
+lighthouse-report-*.json
+
 # Performance reports (pueden ser regenerados)
 performance-*.md
 security-audit-report.md
