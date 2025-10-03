@@ -3,7 +3,7 @@ import { sqlConfig } from './config.js';
 
 export const testConnection = async () => {
   try {
-    console.log('🔌 Conectando a Azure SQL...');
+    console.log('🔌 Conectando a Cloud SQL Server...');
     const pool = await sql.connect(sqlConfig);
     
     const result = await pool.request().query('SELECT 1 as test');

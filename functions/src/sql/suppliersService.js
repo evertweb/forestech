@@ -1,5 +1,5 @@
 /**
- * suppliersService.js - Servicio de proveedores usando Azure SQL Server en Firebase Functions
+ * suppliersService.js - Servicio de proveedores usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/SqlSuppliersService.js
  * Forestech Combustibles App - TASK-005
  */
@@ -168,16 +168,16 @@ export async function createSupplier(supplierData, userInfo = null) {
     const values = columns.map((_, index) => `@param${index}`);
     const insertQuery = `
       INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
+      OUTPUT INSERTED.*
       VALUES (${values.join(', ')});
-      SELECT SCOPE_IDENTITY() as id;
     `;
 
-    const insertRequest = sqlConnection.pool.request();
+    const params = {};
     columns.forEach((col, index) => {
-      insertRequest.input(`param${index}`, supplier[col]);
+      params[`param${index}`] = supplier[col];
     });
-    const createResult = await insertRequest.query(insertQuery);
-    const supplierId = createResult.recordset[0]?.id;
+    const createResult = await sqlConnection.query(insertQuery, params);
+    const supplierId = createResult[0]?.id;
 
     if (!supplierId) {
       throw new Error('No se pudo crear el proveedor');
@@ -235,10 +235,16 @@ export async function getAllSuppliers(filters = {}) {
       whereClause = `WHERE ${filterConditions.join(' AND ')}`;
     }
 
+    // Paginación: limit y offset
+    const limit = filters.limit || 100; // Default 100 proveedores
+    const offset = filters.offset || 0;
+
     const query = `
       SELECT * FROM ${TABLE_NAME}
       ${whereClause}
       ORDER BY isPreferred DESC, name
+      OFFSET ${offset} ROWS
+      FETCH NEXT ${limit} ROWS ONLY
     `;
 
     const result = await sqlConnection.query(query, params);

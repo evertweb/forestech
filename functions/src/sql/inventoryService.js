@@ -1,5 +1,5 @@
 /**
- * inventoryService.js - Servicio de inventario usando Azure SQL Server en Firebase Functions
+ * inventoryService.js - Servicio de inventario usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/SqlInventoryService.js
  * Forestech Combustibles App - TASK-003
  */
@@ -138,7 +138,7 @@ export async function createInventoryItem(inventoryData, userInfo = null) {
       location: inventoryData.location.toLowerCase()
     });
 
-    if (existingResult.recordset.length > 0) {
+    if (existingResult.length > 0) {
       return {
         success: false,
         error: `Ya existe un inventario de ${inventoryData.fuelType} en ${inventoryData.location}`
@@ -164,28 +164,29 @@ export async function createInventoryItem(inventoryData, userInfo = null) {
       updatedAt: new Date(),
     };
 
-    // Crear el item de inventario
+    // Crear el item de inventario con OUTPUT INSERTED.* para obtener el ID
     const columns = Object.keys(inventoryItem).filter(key => key !== 'id');
     const values = columns.map((_, index) => `@param${index}`);
     const insertQuery = `
       INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
+      OUTPUT INSERTED.*
       VALUES (${values.join(', ')});
-      SELECT SCOPE_IDENTITY() as id;
     `;
 
-    const insertRequest = sqlConnection.pool.request();
+    const params = {};
     columns.forEach((col, index) => {
-      insertRequest.input(`param${index}`, inventoryItem[col]);
+      params[`param${index}`] = inventoryItem[col];
     });
-    const createResult = await insertRequest.query(insertQuery);
-    const inventoryId = createResult.recordset[0]?.id;
+    
+    const createResult = await sqlConnection.query(insertQuery, params);
+    const insertedItem = createResult[0];
 
-    if (!inventoryId) {
-      throw new Error('No se pudo crear el item de inventario');
+    if (!insertedItem || !insertedItem.id) {
+      throw new Error('No se pudo crear el item de inventario - No se obtuvo el ID generado');
     }
 
-    console.log('✅ Item de inventario SQL creado exitosamente en Functions:', inventoryId);
-    return { success: true, id: inventoryId, data: { ...inventoryItem, id: inventoryId } };
+    console.log('✅ Item de inventario SQL creado exitosamente en Functions:', insertedItem.id);
+    return { success: true, id: insertedItem.id, data: insertedItem };
 
   } catch (error) {
     console.error('❌ Error al crear item de inventario SQL en Functions:', error);

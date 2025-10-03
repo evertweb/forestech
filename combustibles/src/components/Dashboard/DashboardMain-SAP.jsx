@@ -85,7 +85,8 @@ const DashboardMainSAP = () => {
       if (typeof unsubMovements === 'function') unsubMovements();
       if (typeof unsubVehicles === 'function') unsubVehicles();
     };
-  }, [subscribeToInventory, subscribeToMovements, subscribeToVehicles]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Las funciones subscribe son estables del context, no necesitan estar en dependencies
 
   useEffect(() => {
     if (!dataLoading && inventory.length > 0) {

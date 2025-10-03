@@ -1,5 +1,5 @@
 /**
- * movementsService.js - Servicio de movimientos usando Azure SQL Server en Firebase Functions
+ * movementsService.js - Servicio de movimientos usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/SqlMovementsService.js
  * Forestech Combustibles App - TASK-002
  */
@@ -174,6 +174,8 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
       targetLocation = movement.destinationLocation || 'principal';
     }
 
+    console.log(`🔍 Buscando inventario: fuelType=${movement.fuelType}, location=${targetLocation}`);
+
     // Buscar item de inventario
     const inventoryQuery = `
       SELECT * FROM ${INVENTORY_TABLE}
@@ -184,6 +186,12 @@ const updateInventoryFromMovement = async (transaction, movement, movementId) =>
     request.input('fuelType', movement.fuelType);
     request.input('location', targetLocation);
     const inventoryResult = await request.query(inventoryQuery);
+
+    console.log(`📦 Inventario encontrado: ${inventoryResult.recordset.length} registros`);
+    if (inventoryResult.recordset.length > 0) {
+      console.log(`   Stock actual: ${inventoryResult.recordset[0].currentStock}`);
+      console.log(`   Movimiento cantidad: ${movement.quantity}`);
+    }
 
     if (inventoryResult.recordset.length === 0) {
       // Crear inventario automáticamente
@@ -431,8 +439,8 @@ export async function createMovement(movementData, userInfo = null) {
       const values = columns.map((_, index) => `@param${index}`);
       const insertQuery = `
         INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
+        OUTPUT INSERTED.*
         VALUES (${values.join(', ')});
-        SELECT SCOPE_IDENTITY() as id;
       `;
 
       const insertRequest = transaction.request();
@@ -513,10 +521,16 @@ export async function getAllMovements(filters = {}) {
       whereClause = `WHERE ${filterConditions.join(' AND ')}`;
     }
 
+    // Paginación: limit y offset
+    const limit = filters.limit || 100; // Default 100 registros
+    const offset = filters.offset || 0;
+
     const query = `
       SELECT * FROM ${TABLE_NAME}
       ${whereClause}
       ORDER BY createdAt DESC
+      OFFSET ${offset} ROWS
+      FETCH NEXT ${limit} ROWS ONLY
     `;
 
     const result = await sqlConnection.query(query, params);
@@ -529,10 +543,10 @@ export async function getAllMovements(filters = {}) {
         updatedAt: movement.updatedAt ? movement.updatedAt.toISOString() : null,
         effectiveDate: movement.effectiveDate ? movement.effectiveDate.toISOString() : null,
       }));
-      return { success: true, data: formattedData, count: formattedData.length };
+      return { success: true, data: formattedData, count: formattedData.length, limit, offset };
     }
 
-    return { success: true, data: [], count: 0 };
+    return { success: true, data: [], count: 0, limit, offset };
 
   } catch (error) {
     console.error('❌ Error al obtener movimientos SQL en Functions:', error);

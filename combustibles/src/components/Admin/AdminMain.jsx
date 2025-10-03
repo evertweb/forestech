@@ -5,7 +5,6 @@
 // - Usa useAuthStore para user y userProfile
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { shallow } from 'zustand/shallow';
 import { useAuthStore } from '../../stores';
 import { PageLayout, ShimmerLoader, ShimmerCardsGrid } from '../shared';
 import AdminDashboardCards from './AdminDashboardCards';
@@ -18,11 +17,9 @@ import './AdminDashboard.css';
 import './AdminMain.css';
 
 const AdminMain = () => {
-  // 🔐 Zustand Store - Auth
-  const [user, userProfile] = useAuthStore(
-    (state) => [state.user, state.userProfile],
-    shallow
-  );
+  // 🔐 Zustand Store - Auth (selectores individuales para evitar loops)
+  const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [loading, setLoading] = useState(true);
 
@@ -32,33 +29,34 @@ const AdminMain = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Verificar permisos
-  if (userProfile?.role !== 'admin') {
-    return (
-      <PageLayout
-        title="🔒 Acceso Restringido"
-        subtitle="Panel de Administración"
-        showStats={false}
-        showFilters={false}
-      >
-        <div className="admin-unauthorized">
-          <div className="unauthorized-content">
-            <div className="unauthorized-icon">🔒</div>
-            <h2>Acceso Denegado</h2>
-            <p>
-              No tienes permisos para acceder al panel de administración.
-              Solo los administradores pueden ver esta sección.
-            </p>
-            <div className="unauthorized-details">
-              <div><strong>Usuario:</strong> {user?.email || 'No identificado'}</div>
-              <div><strong>Rol:</strong> {userProfile?.role || 'Sin rol asignado'}</div>
-              <div><strong>Permisos requeridos:</strong> Administrador</div>
-            </div>
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
+  // ⚠️ PERMISOS DESHABILITADOS - Comentado el chequeo de permisos
+  // Todos los usuarios tienen acceso al panel de administración
+  // if (userProfile?.role !== 'admin') {
+  //   return (
+  //     <PageLayout
+  //       title="🔒 Acceso Restringido"
+  //       subtitle="Panel de Administración"
+  //       showStats={false}
+  //       showFilters={false}
+  //     >
+  //       <div className="admin-unauthorized">
+  //         <div className="unauthorized-content">
+  //           <div className="unauthorized-icon">🔒</div>
+  //           <h2>Acceso Denegado</h2>
+  //           <p>
+  //             No tienes permisos para acceder al panel de administración.
+  //             Solo los administradores pueden ver esta sección.
+  //           </p>
+  //           <div className="unauthorized-details">
+  //             <div><strong>Usuario:</strong> {user?.email || 'No identificado'}</div>
+  //             <div><strong>Rol:</strong> {userProfile?.role || 'Sin rol asignado'}</div>
+  //             <div><strong>Permisos requeridos:</strong> Administrador</div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </PageLayout>
+  //   );
+  // }
 
   // Configuración de secciones del dashboard
   const dashboardSections = [

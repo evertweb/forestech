@@ -14,7 +14,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspens
 import { createMovement, MOVEMENT_TYPES } from '../../services/FirebaseMovementsService';
 import { useInventoryStore, useVehiclesStore } from '../../stores';
 import { getActiveProducts } from '../../services/FirebaseProductsService';
-import { getAllSuppliers } from '../../services/FirebaseSuppliersService';
+import { subscribeToSuppliers, getAllSuppliers } from '../../services/FirebaseSuppliersService';
 import { subscribeToVehicles, getAllVehicles } from '../../services/FirebaseVehiclesService';
 import { MODAL_PRESETS, UI_ACTIONS, UI_MESSAGES } from '../../constants';
 import {
@@ -40,14 +40,21 @@ const Step9_Maintenance = lazy(() => import('./WizardSteps/Step9_Maintenance'));
 
 import './WizardSteps-Government.css';
 
+/**
+ * ⚠️ NOTA SOBRE WARNING DE POPUPS:
+ * El warning "Opening multiple popups was blocked due to lack of user activation"
+ * es un comportamiento normal del navegador cuando se trabaja con popups.
+ * No afecta la funcionalidad del wizard. Es solo un aviso de seguridad del navegador.
+ * 
+ * Para evitarlo completamente, se puede usar el wizard en modo modal inline
+ * en lugar del modo popup (ver MovementsMain.jsx línea 159).
+ */
+
 const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) => {
   // 🏪 Zustand Stores - Inventory y Vehicles
   const inventory = useInventoryStore(state => state.inventory);
   const vehicles = useVehiclesStore(state => state.vehicles);
   
-  // Note: subscribeToSuppliers no está en un store aún, usar servicio directamente
-  const subscribeToSuppliers = getAllSuppliers; // Fallback temporal
-
   // (Debug logs removidos para reducir spam)
 
   // Hook para progreso transparente de Firebase
@@ -212,35 +219,34 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
       }
 
       // Suscribirse a suppliers inmediatamente
-      if (subscribeToSuppliers) {
-        suppliersUnsubscribe = subscribeToSuppliers((suppliersData) => {
-          const normalizedSuppliers = Array.isArray(suppliersData)
-            ? suppliersData
-            : Array.isArray(suppliersData?.data)
-              ? suppliersData.data
-              : [];
+      suppliersUnsubscribe = subscribeToSuppliers((suppliersData) => {
+        const normalizedSuppliers = Array.isArray(suppliersData)
+          ? suppliersData
+          : Array.isArray(suppliersData?.data)
+            ? suppliersData.data
+            : [];
 
-          setSuppliersData(normalizedSuppliers);
-          setSuppliersLoading(false);
+        setSuppliersData(normalizedSuppliers);
+        setSuppliersLoading(false);
 
-          // Actualizar systemData directamente para evitar dependencias circulares
-          setSystemData((prev) => ({
-            ...prev,
-            suppliers: normalizedSuppliers,
-            suppliersLoaded: true,
-          }));
-        });
+        // Actualizar systemData directamente para evitar dependencias circulares
+        setSystemData((prev) => ({
+          ...prev,
+          suppliers: normalizedSuppliers,
+          suppliersLoaded: true,
+        }));
+      });
 
-        // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
-        fallbackTimer = setTimeout(async () => {
-          if (suppliersDataRef.current.length > 0) {
-            return;
-          }
+      // Fallback: Si después de 3 segundos no tenemos suppliers, cargar con getAllSuppliers
+      fallbackTimer = setTimeout(async () => {
+        if (suppliersDataRef.current.length > 0) {
+          return;
+        }
 
-          try {
-            const result = await getAllSuppliers();
-            const fallbackSuppliers = Array.isArray(result)
-              ? result
+        try {
+          const result = await getAllSuppliers();
+          const fallbackSuppliers = Array.isArray(result)
+            ? result
               : Array.isArray(result?.data)
                 ? result.data
                 : [];
@@ -261,13 +267,6 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
             setSuppliersLoading(false);
           }
         }, 3000);
-      } else {
-        setSuppliersLoading(false);
-        setSystemData((prev) => ({
-          ...prev,
-          suppliersLoaded: true,
-        }));
-      }
 
       // Cargar productos de forma async
       const loadProducts = async () => {
@@ -317,7 +316,7 @@ const MovementWizard = ({ isOpen, onClose, onSuccess, theme = 'government' }) =>
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, inventory, vehicles, subscribeToSuppliers]); // ✅ FIXED: removido 'localVehicles' para evitar bucle infinito
+  }, [isOpen, inventory, vehicles]); // ✅ FIXED: removido 'subscribeToSuppliers' (ahora es import directo)
 
   // NOTA: systemData.suppliers se actualiza directamente en los callbacks de suscripción
   // para evitar dependencias circulares y bucles infinitos

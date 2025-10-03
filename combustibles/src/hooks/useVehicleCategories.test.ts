@@ -234,7 +234,10 @@ describe('useVehicleCategories', () => {
 
       const { result } = renderHook(() => useVehicleCategories());
 
-      const response = await result.current.deleteCategory('1');
+      let response;
+      await waitFor(async () => {
+        response = await result.current.deleteCategory('1');
+      });
 
       expect(response.success).toBe(true);
       expect(mockService.deleteCategory).toHaveBeenCalledWith('1');
@@ -260,12 +263,16 @@ describe('useVehicleCategories', () => {
 
       const { result } = renderHook(() => useVehicleCategories());
 
-      await result.current.fetchCategories();
+      await waitFor(async () => {
+        await result.current.fetchCategories();
+      });
 
       await waitFor(() => {
-        const category = result.current.getCategoryById('1');
-        expect(category).toEqual(mockCategories[0]);
+        expect(result.current.categories.length).toBe(2);
       });
+
+      const category = result.current.getCategoryById('1');
+      expect(category).toEqual(mockCategories[0]);
     });
 
     it('should return undefined for non-existent id', async () => {
@@ -294,12 +301,16 @@ describe('useVehicleCategories', () => {
 
       const { result } = renderHook(() => useVehicleCategories());
 
-      await result.current.fetchCategories();
+      await waitFor(async () => {
+        await result.current.fetchCategories();
+      });
 
       await waitFor(() => {
-        const category = result.current.getCategoryByName('category one');
-        expect(category).toEqual(mockCategories[0]);
+        expect(result.current.categories.length).toBe(2);
       });
+
+      const category = result.current.getCategoryByName('category one');
+      expect(category).toEqual(mockCategories[0]);
     });
 
     it('should return undefined for non-existent name', async () => {

@@ -1,5 +1,5 @@
 /**
- * SqlConnection - Clase base para conexión y operaciones con Azure SQL Server
+ * SqlConnection - Clase base para conexión y operaciones con Cloud SQL Server Server
  * Adaptado para Firebase Functions (Node.js backend)
  * Forestech Combustibles App
  */
@@ -23,11 +23,11 @@ class SqlConnection {
         return; // Ya conectado
       }
 
-      console.log('🔌 Conectando a Azure SQL Server desde Functions...');
+      console.log('🔌 Conectando a Cloud SQL Server Server desde Functions...');
       this.pool = await sql.connect(sqlConfig);
       this.isConnected = true;
 
-      console.log('✅ Conexión exitosa a Azure SQL Server en Functions');
+      console.log('✅ Conexión exitosa a Cloud SQL Server Server en Functions');
 
       // Configurar event listeners
       this.pool.on('connect', () => {

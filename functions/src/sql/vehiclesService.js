@@ -1,5 +1,5 @@
 /**
- * vehiclesService.js - Servicio de vehículos usando Azure SQL Server en Firebase Functions
+ * vehiclesService.js - Servicio de vehículos usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/SqlVehiclesService.js
  * Forestech Combustibles App - TASK-004
  */
@@ -271,16 +271,16 @@ export async function createVehicle(vehicleData, userInfo = null) {
     const values = columns.map((_, index) => `@param${index}`);
     const insertQuery = `
       INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
+      OUTPUT INSERTED.*
       VALUES (${values.join(', ')});
-      SELECT SCOPE_IDENTITY() as id;
     `;
 
-    const insertRequest = sqlConnection.pool.request();
+    const params = {};
     columns.forEach((col, index) => {
-      insertRequest.input(`param${index}`, vehicle[col]);
+      params[`param${index}`] = vehicle[col];
     });
-    const createResult = await insertRequest.query(insertQuery);
-    const vehicleId = createResult.recordset[0]?.id;
+    const createResult = await sqlConnection.query(insertQuery, params);
+    const vehicleId = createResult[0]?.id;
 
     if (!vehicleId) {
       throw new Error('No se pudo crear el vehículo');
@@ -353,10 +353,16 @@ export async function getAllVehicles(filters = {}) {
       whereClause = `WHERE ${filterConditions.join(' AND ')}`;
     }
 
+    // Paginación: limit y offset
+    const limit = filters.limit || 200; // Default 200 vehículos (son menos que movimientos)
+    const offset = filters.offset || 0;
+
     const query = `
       SELECT * FROM ${TABLE_NAME}
       ${whereClause}
       ORDER BY vehicleId ASC
+      OFFSET ${offset} ROWS
+      FETCH NEXT ${limit} ROWS ONLY
     `;
 
     const result = await sqlConnection.query(query, params);

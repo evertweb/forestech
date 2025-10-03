@@ -479,14 +479,19 @@ class FirebaseVehicleCategoriesService extends HttpService {
 
   /**
    * Parsear JSON de manera segura
-   * @param {string} jsonString - String JSON
+   * @param {string|Object} jsonString - String JSON o ya parseado
    * @returns {Object} - Objeto parseado o valor por defecto
    */
   parseJSON(jsonString) {
     try {
+      // Si ya es un objeto, devolverlo directamente
+      if (typeof jsonString === 'object' && jsonString !== null) {
+        return jsonString;
+      }
+      // Si es string, intentar parsear
       return jsonString ? JSON.parse(jsonString) : {};
     } catch (error) {
-      console.warn('Error parseando JSON:', error);
+      console.warn('⚠️ Error parseando JSON:', error.message, 'Valor:', jsonString);
       return {};
     }
   }

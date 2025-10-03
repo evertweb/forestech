@@ -149,6 +149,7 @@ export const sendMovementNotification = async (movement, movementId, userInfo = 
  */
 const sendWebhook = async (payload) => {
   const url = `${WEBHOOK_CONFIG.baseUrl}/${WEBHOOK_CONFIG.endpoints.combustibles}`;
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   for (let attempt = 1; attempt <= WEBHOOK_CONFIG.retryAttempts; attempt++) {
     try {
@@ -181,7 +182,11 @@ const sendWebhook = async (payload) => {
         );
 
         if (attempt === WEBHOOK_CONFIG.retryAttempts) {
-          console.error('❌ Todos los intentos de webhook fallaron');
+          if (isDevelopment) {
+            console.warn('⚠️ Webhook fallido en desarrollo - Esto es normal (CORS policy)');
+          } else {
+            console.error('❌ Todos los intentos de webhook fallaron');
+          }
           return false;
         }
 
@@ -189,10 +194,22 @@ const sendWebhook = async (payload) => {
         await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     } catch (error) {
+      // Detectar error CORS en desarrollo
+      const isCORSError = error.message.includes('Failed to fetch') || error.message.includes('CORS');
+      
+      if (isDevelopment && isCORSError && attempt === 1) {
+        console.warn('⚠️ Webhook bloqueado por CORS en desarrollo - Esto es esperado');
+        return false; // No reintentar en desarrollo si es error CORS
+      }
+
       console.error(`❌ Error en intento ${attempt} de webhook:`, error.message);
 
       if (attempt === WEBHOOK_CONFIG.retryAttempts) {
-        console.error('❌ Todos los intentos de webhook fallaron por errores de red');
+        if (isDevelopment) {
+          console.warn('⚠️ Webhooks no disponibles en desarrollo (CORS policy)');
+        } else {
+          console.error('❌ Todos los intentos de webhook fallaron por errores de red');
+        }
         return false;
       }
 

@@ -17,35 +17,31 @@ Las explicaciones, documentación, análisis, descripciones, y cualquier texto g
 
 Este archivo proporciona guía para agentes de IA que trabajan con el monorepo Forestech - un conjunto de aplicaciones web React alojadas en Firebase para operaciones forestales colombianas.
 
-## 🚀 **CRITICAL DEPLOYMENT INFO (Updated Sept 2025)**
+## 🚀 **CRITICAL DEPLOYMENT INFO (Updated Oct 2025)**
 
 ### **Architecture Overview:**
-- **🔥 Firebase**: Frontend hosting + SSR (React apps)
-- **☁️ Cloud Run**: Backend SQL + Azure Database + APIs
+- **🔥 Firebase Hosting**: Frontend hosting + SSR (React apps)
+- **🔥 Firebase Functions**: Backend API layer (CRUD operations)
+- **🗄️ Cloud SQL Server**: SQL Server database (forestechCombus - IP: 34.61.242.157)
 - **🧪 E2E Tests**: Automated testing with Playwright
 
-### **ACTIVE WORKFLOWS (Only 3):**
-1. **🔥 Deploy to Firebase** (`release-deploy.yml`) - Frontend auto + manual
-2. **☁️ Deploy to Cloud Run** (`deploy-cloud-run.yml`) - Backend manual only
-3. **🧪 E2E Tests** (`combustibles-e2e.yml`) - Automated testing
+### **ACTIVE WORKFLOWS (Only 2):**
+1. **🔥 Deploy to Firebase** (`release-deploy.yml`) - Frontend + Functions (auto + manual)
+2. **🧪 E2E Tests** (`combustibles-e2e.yml`) - Automated testing
 
 ### **DEPLOYMENT COMMANDS:**
 ```bash
-# Frontend (Auto-deploy on push to main)
-git push origin main  # ✅ Auto-deploys Firebase
+# Frontend + Functions (Auto-deploy on push to main)
+git push origin main  # ✅ Auto-deploys Firebase Hosting + Functions
 
-# Backend (Manual only)
-# 1. Push code: git push origin main
-# 2. GitHub Actions → "🚀 Deploy to Cloud Run" → force_deploy: true
-
-# Manual Frontend (with options)
+# Manual Deploy (with options)
 # GitHub Actions → "🚀 Deploy to Firebase" → Select: all|combustibles|alimentacion
 ```
 
 ### **Production URLs:**
 - **Combustibles**: https://combustibles.forestechdecolombia.com.co
 - **Alimentación**: https://forestechdecolombia.web.app/alimentacion
-- **Backend API**: https://forestech-sql-service-851382130132.us-central1.run.app
+- **Firebase Functions**: Callable via Firebase SDK (not direct HTTP)
 
 ## Project Architecture
 
@@ -53,7 +49,10 @@ git push origin main  # ✅ Auto-deploys Firebase
 - `alimentacion/` - Food/meal liquidations React app
 - `combustibles/` - Fuel management React app with WebAuthn passkey authentication
 - `shared/` - Shared Firebase configuration, styles, and constants
-- `functions/` - Firebase Functions for SSR and webhooks (NOT SQL - those are in Cloud Run)
+- `functions/` - Firebase Functions for SSR, webhooks, and SQL operations
+  - `functions/src/sql/` - SQL service layer (CRUD operations)
+  - `functions/src/cloudsql/` - Cloud SQL Server connection
+  - `functions/ssr/` - Server-side rendering
 - `scripts/` - Unified deployment and build automation
 
 **Key Technology Stack:**
@@ -62,7 +61,7 @@ git push origin main  # ✅ Auto-deploys Firebase
 - WebAuthn (passkeys) via Firebase extension for `combustibles`
 - Tailwind CSS + React Aria Components (combustibles)
 - SSR support for SEO optimization
-- Cloud Run + Azure SQL for backend operations
+- Firebase Functions + Cloud SQL Server for backend operations
 
 ## Critical Development Workflows
 
@@ -79,33 +78,26 @@ npm run build:alimentacion # Build only alimentacion
 
 ## GitHub Actions Workflows (UPDATED)
 
-**ACTIVE Workflows (Only these 3):**
-- `🚀 Deploy to Firebase` - Frontend deployment (auto + manual)
-- `🚀 Deploy to Cloud Run` - Backend deployment (manual only)
+**ACTIVE Workflows (Only these 2):**
+- `🚀 Deploy to Firebase` - Frontend + Functions deployment (auto + manual)
 - `Combustibles E2E Tests` - Automated testing
 
 **DEPRECATED/DISABLED Workflows:**
-- All other `.yml.disabled` files in `.github/workflows/`
+- All `.yml.disabled` files in `.github/workflows/`
+- `deploy-cloud-run.yml` - Cloud Run is NO LONGER USED
 - Do NOT reference or suggest using disabled workflows
 
 **When Deployments Are Triggered:**
-- ✅ **Frontend Auto**: Push to main → Auto-deploys Firebase
-- ✅ **Frontend Manual**: GitHub Actions → "🚀 Deploy to Firebase" → Run workflow
-- ✅ **Backend Manual**: GitHub Actions → "🚀 Deploy to Cloud Run" → force_deploy: true
-- ❌ **No auto-deploy for backend** - This is by design for safety
+- ✅ **Frontend + Functions Auto**: Push to main → Auto-deploys Firebase Hosting + Functions
+- ✅ **Manual Deploy**: GitHub Actions → "🚀 Deploy to Firebase" → Run workflow
 
 **Recommended Deploy Process:**
 ```bash
-# For frontend changes
-git push origin main  # Auto-deploys
+# For frontend OR backend changes
+git push origin main  # Auto-deploys both Hosting + Functions
 
-# For backend changes  
-git push origin main  # No auto-deploy
-# Then: GitHub Actions → "🚀 Deploy to Cloud Run" → force_deploy: true
-
-# For full deploy
-git push origin main  # Auto-deploys frontend
-# Then: Manual deploy backend via Actions
+# For manual deploy with specific target
+# GitHub Actions → "🚀 Deploy to Firebase" → Select: all|combustibles|alimentacion
 ```
 
 ## Firebase Integration Patterns
@@ -130,10 +122,11 @@ import { createUserWithPasskey, signInWithPasskey } from '@firebase-web-authn/br
 - `alimentacion_*` collections (separate namespace)
 - Development rules allow read without auth for debugging (line 15-30 firestore.rules)
 
-**🚨 IMPORTANT: SQL Functions moved to Cloud Run**
-- All SQL operations now go through Cloud Run API
-- Firebase Functions only handle SSR and redirectors
-- Do NOT create new SQL functions in Firebase Functions
+**🚨 IMPORTANT: SQL Operations in Firebase Functions**
+- All SQL operations go through Firebase Functions (httpsCallable)
+- Functions connect directly to Cloud SQL Server
+- Connection: `/functions/src/cloudsql/oil-connection.js`
+- Services: `/functions/src/sql/*Service.js`
 
 ## Application-Specific Patterns
 
@@ -195,10 +188,11 @@ const validateUserPermissions = (user, action) => {
 
 ## Integration Points
 
-**Cloud Run API Calls:**
-- Base URL: `https://forestech-sql-service-851382130132.us-central1.run.app`
-- All SQL operations go through Cloud Run
-- Health check: `/health` endpoint
+**Firebase Functions SQL Operations:**
+- Method: `httpsCallable()` from Firebase SDK
+- Functions: `combustiblesVehicles`, `combustiblesCategories`, `combustiblesMovements`, etc.
+- Backend: Firebase Functions → Cloud SQL Server
+- Connection: Direct TCP to `34.61.242.157:1433`
 
 **Webhook Notifications (n8n):**
 - Functions send POST to `https://n8n.forestechdecolombia.com.co/webhook/*`
@@ -249,11 +243,12 @@ const validateUserPermissions = (user, action) => {
 When working with this codebase, prioritize the new deployment workflow, maintain separation between Firebase (frontend) and Cloud Run (backend), and follow the established context/service architecture.
 
 **🚨 KEY REMINDERS FOR AI AGENTS:**
-1. Only 3 workflows are active - don't suggest disabled ones
-2. Frontend auto-deploys on push, backend requires manual deploy
-3. SQL functions are in Cloud Run, NOT Firebase Functions
-4. Always check DEPLOYMENT_GUIDE.md for latest procedures
-- ❌ **NOT on regular pushes to main** - This is intentional for controlled deployments
+1. Only 2 workflows are active - don't suggest disabled ones
+2. Frontend + Functions auto-deploy together on push to main
+3. SQL functions are in Firebase Functions at `/functions/src/sql/`
+4. Cloud SQL Server is the database
+5. Cloud Run is OBSOLETE - do not reference it
+6. Always check DEPLOYMENT_GUIDE.md for latest procedures
 
 **Recommended Deploy Process:**
 ```bash

@@ -1,5 +1,5 @@
 /**
- * hourMeterService.js - Servicio de horómetros usando Azure SQL Server en Firebase Functions
+ * hourMeterService.js - Servicio de horómetros usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/hourMeterService.js
  * Forestech Combustibles App - TASK-006
  */

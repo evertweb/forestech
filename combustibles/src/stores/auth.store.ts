@@ -102,23 +102,27 @@ export const useAuthStore = create<AuthState>()(
       /**
        * Check if user has specific permission
        * 
+       * ⚠️ PERMISOS DESHABILITADOS - Todos los usuarios tienen acceso total
+       * 
        * @param permission - Permission to check (e.g., 'movements:create')
-       * @returns True if user has permission
+       * @returns Always true (permissions disabled)
        * 
        * @example
        * const canCreate = hasPermission('movements:create');
        */
       hasPermission: (permission: string): boolean => {
-        const { userProfile } = get();
-        const hasIt = Boolean(userProfile?.combustiblesPermissions?.[permission as keyof typeof userProfile.combustiblesPermissions]);
-        console.log(`🔑 AuthStore: hasPermission(${permission}) = ${hasIt}`);
-        return hasIt;
+        // ⚠️ SISTEMA DE PERMISOS DESHABILITADO
+        // Todos los usuarios tienen control total
+        console.log(`🔓 AuthStore: hasPermission(${permission}) = true (permisos deshabilitados)`);
+        return true;
       },
 
       /**
        * Check if user is admin
        * 
-       * @returns True if user role is 'admin'
+       * ⚠️ PERMISOS DESHABILITADOS - Todos los usuarios son admin
+       * 
+       * @returns Always true (permissions disabled)
        * 
        * @example
        * if (isAdmin()) {
@@ -126,16 +130,18 @@ export const useAuthStore = create<AuthState>()(
        * }
        */
       isAdmin: (): boolean => {
-        const { userProfile } = get();
-        const admin = userProfile?.role === 'admin';
-        console.log(`👑 AuthStore: isAdmin = ${admin}`);
-        return admin;
+        // ⚠️ SISTEMA DE PERMISOS DESHABILITADO
+        // Todos los usuarios son considerados admin
+        console.log(`👑 AuthStore: isAdmin = true (permisos deshabilitados)`);
+        return true;
       },
 
       /**
        * Check if user is counter or above (admin or contador)
        * 
-       * @returns True if user role is 'admin' or 'contador'
+       * ⚠️ PERMISOS DESHABILITADOS - Todos los usuarios tienen acceso
+       * 
+       * @returns Always true (permissions disabled)
        * 
        * @example
        * if (isCounterOrAbove()) {
@@ -143,10 +149,10 @@ export const useAuthStore = create<AuthState>()(
        * }
        */
       isCounterOrAbove: (): boolean => {
-        const { userProfile } = get();
-        const isCounter = userProfile?.role === 'admin' || userProfile?.role === 'contador';
-        console.log(`📊 AuthStore: isCounterOrAbove = ${isCounter}`);
-        return isCounter;
+        // ⚠️ SISTEMA DE PERMISOS DESHABILITADO
+        // Todos los usuarios tienen acceso completo
+        console.log(`📊 AuthStore: isCounterOrAbove = true (permisos deshabilitados)`);
+        return true;
       },
 
       /**

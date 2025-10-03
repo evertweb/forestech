@@ -118,12 +118,12 @@ class FirebaseMovementsService extends HttpService {
       const data = result?.data;
       if (Array.isArray(data)) {
         console.log('🚚 FirebaseMovementsService - Processing movements array:', data.length);
-        // Convertir timestamps para compatibilidad con frontend
+        // Las fechas ya vienen como strings ISO de SQL Server (no necesitan conversión)
         return data.map(movement => ({
           ...movement,
-          createdAt: movement.createdAt?.toISOString(),
-          updatedAt: movement.updatedAt?.toISOString(),
-          effectiveDate: movement.effectiveDate?.toISOString(),
+          createdAt: movement.createdAt,
+          updatedAt: movement.updatedAt,
+          effectiveDate: movement.effectiveDate,
         }));
       } else {
         console.log('🚚 FirebaseMovementsService - Data is not an array, returning empty array');

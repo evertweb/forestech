@@ -8,7 +8,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
-import { shallow } from 'zustand/shallow';
 import { useAuthStore, useMovementsStore, useInventoryStore, useVehiclesStore } from '../../stores';
 import {
   subscribeToMovements,
@@ -31,10 +30,10 @@ import { POPUP_EVENTS } from '../../services/popupCommunication';
 
 const MovementsMain = () => {
   // 🏪 Zustand Stores - Selectores optimizados para evitar re-renders
-  const [user, userProfile, hasPermission] = useAuthStore(
-    (state) => [state.user, state.userProfile, state.hasPermission],
-    shallow
-  );
+  // Usar selectores individuales en lugar de array destructuring para evitar loops
+  const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
+  const hasPermission = useAuthStore(state => state.hasPermission);
   const deleteMovement = useMovementsStore(state => state.deleteMovement);
   const inventory = useInventoryStore(state => state.inventory);
   const vehicles = useVehiclesStore(state => state.vehicles);
@@ -103,14 +102,14 @@ const MovementsMain = () => {
     return () => unsubscribe();
   }, [user, handleMovementsSubscription]);
 
-  // (moved below)
-
-  // Cargar estadísticas
+  // Cargar estadísticas solo cuando cambian los filtros o el usuario
+  // NO cuando cambian los movements (se actualizan en tiempo real por suscripción)
   useEffect(() => {
     if (user) {
       loadMovementsStats();
     }
-  }, [user, movements, loadMovementsStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, filters]);
 
   // Filtrar movimientos por búsqueda
   const filteredMovements = useMemo(() => {

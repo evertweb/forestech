@@ -1,5 +1,5 @@
 /**
- * maintenanceService.js - Servicio de mantenimientos usando Azure SQL Server en Firebase Functions
+ * maintenanceService.js - Servicio de mantenimientos usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/maintenanceService.js
  * Forestech Combustibles App - TASK-006
  */

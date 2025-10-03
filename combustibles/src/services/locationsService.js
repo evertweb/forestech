@@ -9,7 +9,9 @@
  * Ahora centraliza todas las ubicaciones reales desde Firebase
  */
 
-import { getAllInventoryItems } from './inventoryService';
+import FirebaseInventoryService from './FirebaseInventoryService';
+
+const inventoryService = new FirebaseInventoryService();
 
 /**
  * Obtener todas las ubicaciones únicas desde el inventario existente
@@ -18,7 +20,7 @@ import { getAllInventoryItems } from './inventoryService';
 export const getAllLocations = async () => {
   try {
     // Obtener inventario completo
-    const inventoryResult = await getAllInventoryItems();
+    const inventoryResult = await inventoryService.getAllInventory();
 
     if (!inventoryResult.success) {
       return {
@@ -60,7 +62,7 @@ export const getAllLocations = async () => {
  */
 export const getLocationsWithDetails = async () => {
   try {
-    const inventoryResult = await getAllInventoryItems();
+    const inventoryResult = await inventoryService.getAllInventory();
 
     if (!inventoryResult.success) {
       return {
@@ -146,7 +148,7 @@ export const getLocationStock = async (location, fuelType) => {
       };
     }
 
-    const inventoryResult = await getAllInventoryItems();
+    const inventoryResult = await inventoryService.getAllInventory();
 
     if (!inventoryResult.success) {
       return {

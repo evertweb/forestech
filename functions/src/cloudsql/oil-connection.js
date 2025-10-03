@@ -1,6 +1,6 @@
 /**
  * Cloud SQL Connection - Instancia "oil"
- * Configuración específica para tu instancia Cloud SQL SQL Server
+ * Configuración específica para tu instancia Cloud SQL Server
  */
 
 import sql from 'mssql';

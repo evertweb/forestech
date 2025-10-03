@@ -16,13 +16,34 @@ import { getApp } from 'firebase/app';
 
 // Inicializar Firebase Performance
 let performance = null;
-try {
-  const app = getApp(); // Get Firebase app instance (singleton from config.js)
-  performance = getPerformance(app);
-  console.log('🔥 Firebase Performance Monitoring initialized');
-} catch (error) {
-  console.warn('⚠️ Firebase Performance not available:', error.message);
-}
+let performanceInitAttempted = false;
+
+/**
+ * Inicializar Firebase Performance de manera lazy
+ * @returns {Object|null} - Instancia de Performance o null
+ */
+const initializePerformance = () => {
+  if (performanceInitAttempted) {
+    return performance;
+  }
+
+  performanceInitAttempted = true;
+  
+  try {
+    const app = getApp(); // Get Firebase app instance (singleton from config.js)
+    performance = getPerformance(app);
+    console.log('🔥 Firebase Performance Monitoring initialized');
+  } catch (error) {
+    // En desarrollo o si Firebase no está inicializado, no mostrar error
+    if (import.meta.env.DEV) {
+      console.debug('⚠️ Firebase Performance not available (desarrollo):', error.message);
+    } else {
+      console.warn('⚠️ Firebase Performance not available:', error.message);
+    }
+  }
+  
+  return performance;
+};
 
 /**
  * Thresholds para Web Vitals según performance-budget.json
@@ -55,25 +76,26 @@ function getRating(metricName, value) {
  * @param {WebVitalsMetric} metric - Métrica a registrar
  */
 function logWebVitalToFirebase(metric) {
-  if (!performance) return;
+  const perf = initializePerformance();
+  if (!perf) return;
 
   try {
     const { name, value, rating } = metric;
     
-    // Crear custom trace para la métrica
-    const trace = performance.trace(`webvital_${name.toLowerCase()}`);
-    trace.start();
+    // Firebase Performance no soporta custom traces desde web-vitals directamente
+    // En su lugar, usamos custom attributes en el performance monitoring automático
+    // Solo loguear en consola para desarrollo
+    if (import.meta.env.DEV) {
+      console.log(`📊 Web Vital: ${name} = ${value}ms (${rating})`);
+    }
     
-    // Agregar atributos personalizados
-    trace.putAttribute('rating', rating);
-    trace.putAttribute('value', value.toString());
-    trace.putMetric(name, Math.round(value));
-    
-    trace.stop();
-    
-    console.log(`📊 Web Vital logged: ${name} = ${value}ms (${rating})`);
+    // Las métricas automáticas de Firebase Performance capturan estas ya
+    // No necesitamos crear traces manuales para web vitals
   } catch (error) {
-    console.error('❌ Error logging Web Vital:', error);
+    // Silenciar errores en producción
+    if (import.meta.env.DEV) {
+      console.warn('⚠️ Error logging Web Vital:', error.message);
+    }
   }
 }
 

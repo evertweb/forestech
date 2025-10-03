@@ -2,7 +2,7 @@
 
 > **🚀 [📋 GUÍA DE DEPLOYMENT - LECTURA OBLIGATORIA](./DEPLOYMENT_GUIDE.md)**
 
-Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + Cloud Run + Azure SQL.
+Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + Cloud Run + Cloud SQL Server.
 
 ## 🤖 **PARA AGENTES DE IA (GitHub Copilot, Claude, ChatGPT)**
 
@@ -30,7 +30,7 @@ Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase +
 ## 🏗️ **ARQUITECTURA**
 
 - **🔥 Firebase**: Apps React (Combustibles + Alimentación) + SSR
-- **☁️ Cloud Run**: Backend SQL + Azure Database + Webhooks
+- **☁️ Cloud Run**: Backend SQL + Cloud SQL Server + Webhooks
 - **🧪 E2E**: Tests automatizados con Playwright
 
 ## ⚡ **INICIO RÁPIDO**
@@ -73,7 +73,7 @@ git push origin main
 ## 🛠️ **Tecnologías**
 
 - **Frontend**: React 19 + Vite + Tailwind CSS + React Aria
-- **Backend**: Node.js + Express + Azure SQL
+- **Backend**: Node.js + Express + Cloud SQL Server
 - **Auth**: Firebase Auth + WebAuthn (passkeys)
 - **Deploy**: Firebase Hosting + Cloud Run
 - **Testing**: Playwright E2E

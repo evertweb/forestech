@@ -1,5 +1,5 @@
 /**
- * vehicleCategoriesService.js - Servicio de categorías de vehículos usando Azure SQL Server en Firebase Functions
+ * vehicleCategoriesService.js - Servicio de categorías de vehículos usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/SqlVehicleCategoriesService.js
  * Forestech Combustibles App - TASK-006
  */
@@ -150,10 +150,11 @@ export async function createCategory(categoryData, userInfo = null) {
       console.log('🔍 DEBUG - Columnas a insertar:', columns);
       console.log('🔍 DEBUG - Valores a insertar:', Object.values(category));
       
+      // Para tablas con UNIQUEIDENTIFIER, usar OUTPUT INSERTED.* en lugar de SCOPE_IDENTITY()
       const insertQuery = `
         INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
+        OUTPUT INSERTED.*
         VALUES (${values.join(', ')});
-        SELECT SCOPE_IDENTITY() as id;
       `;
       
       console.log('🔍 DEBUG - Query generada:', insertQuery);
@@ -185,15 +186,16 @@ export async function createCategory(categoryData, userInfo = null) {
       console.log('🔍 DEBUG - Resultado completo:', createResult);
       console.log('🔍 DEBUG - Recordset:', createResult.recordset);
       
-      const categoryId = createResult.recordset[0]?.id;
-      console.log('🔍 DEBUG - Category ID obtenido:', categoryId);
+      // Con OUTPUT INSERTED.*, el recordset contiene el registro completo insertado
+      const insertedCategory = createResult.recordset[0];
+      console.log('🔍 DEBUG - Categoría insertada:', insertedCategory);
 
-      if (!categoryId) {
-        console.log('❌ DEBUG - SCOPE_IDENTITY() retornó null o undefined');
-        throw new Error('No se pudo crear la categoría - SCOPE_IDENTITY() falló');
+      if (!insertedCategory || !insertedCategory.id) {
+        console.log('❌ DEBUG - No se pudo obtener el registro insertado');
+        throw new Error('No se pudo crear la categoría - No se obtuvo el ID generado');
       }
 
-      return { id: categoryId, ...category };
+      return insertedCategory;
     });
 
     console.log('✅ Categoría SQL creada exitosamente en Functions:', result.id);

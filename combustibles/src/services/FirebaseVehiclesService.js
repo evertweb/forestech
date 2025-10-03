@@ -152,17 +152,19 @@ class FirebaseVehiclesService extends HttpService {
       });
 
       console.log('🚗 FirebaseVehiclesService - Result from Firebase:', result);
-      const data = result.data;
-      console.log('🚗 FirebaseVehiclesService - Data extracted:', data);
       
-      if (data && Array.isArray(data)) {
-        // Procesar datos para compatibilidad (convertir JSON fields)
-        return data.map(vehicle => ({
+      // La respuesta de Firebase Functions tiene estructura: {data: {success: true, data: [...]}}
+      if (result.data && result.data.success && Array.isArray(result.data.data)) {
+        const vehicles = result.data.data;
+        console.log(`🚗 FirebaseVehiclesService - Procesando ${vehicles.length} vehículos`);
+        
+        // Los campos ya vienen como arrays desde SQL Server, no necesitan parsing
+        return vehicles.map(vehicle => ({
           ...vehicle,
           fuelType: vehicle.fuelType?.toUpperCase() || vehicle.fuelType,
-          hourMeterHistory: vehicle.hourMeterHistory ? JSON.parse(vehicle.hourMeterHistory) : [],
-          maintenanceHistory: vehicle.maintenanceHistory ? JSON.parse(vehicle.maintenanceHistory) : [],
-          searchTags: vehicle.searchTags ? JSON.parse(vehicle.searchTags) : [],
+          hourMeterHistory: Array.isArray(vehicle.hourMeterHistory) ? vehicle.hourMeterHistory : [],
+          maintenanceHistory: Array.isArray(vehicle.maintenanceHistory) ? vehicle.maintenanceHistory : [],
+          searchTags: Array.isArray(vehicle.searchTags) ? vehicle.searchTags : [],
           createdAt: vehicle.createdAt,
           updatedAt: vehicle.updatedAt,
           lastMovementDate: vehicle.lastMovementDate,
@@ -171,7 +173,7 @@ class FirebaseVehiclesService extends HttpService {
         }));
       }
 
-      console.log('🚗 FirebaseVehiclesService - Data is not an array, returning empty array');
+      console.log('🚗 FirebaseVehiclesService - No se encontraron vehículos válidos');
       return [];
     } catch (error) {
       console.error('Error al obtener vehículos:', error);

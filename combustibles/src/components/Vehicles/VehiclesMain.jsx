@@ -7,7 +7,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
-import { shallow } from 'zustand/shallow';
 import { useAuthStore } from '../../stores';
 import {
   subscribeToVehicles,
@@ -40,11 +39,9 @@ const VehiclesMain = () => {
   // Estado para manejo de pestañas
   const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' | 'categories'
   
-  // 🔐 Zustand Store - Auth
-  const [user, userProfile] = useAuthStore(
-    (state) => [state.user, state.userProfile],
-    shallow
-  );
+  // 🔐 Zustand Store - Auth (selectores individuales para evitar loops)
+  const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
 
   // Hook para progreso transparente de Firebase (disponible para uso futuro)
   const { executeWithProgress: _executeWithProgress } = useFirebaseProgressContext();

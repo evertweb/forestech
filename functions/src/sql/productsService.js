@@ -1,5 +1,5 @@
 /**
- * productsService.js - Servicio de productos usando Azure SQL Server en Firebase Functions
+ * productsService.js - Servicio de productos usando Cloud SQL Server Server en Firebase Functions
  * Migrado desde combustibles/src/services/productsService.js
  * Forestech Combustibles App - TASK-006
  */

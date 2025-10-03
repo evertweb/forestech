@@ -3,8 +3,8 @@
 //
 // MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
 // - Usa useAuthStore para user, userProfile, hasPermission
+// ⚠️ PERMISOS DESHABILITADOS - Todos los usuarios tienen acceso total
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { shallow } from 'zustand/shallow';
 import { useAuthStore } from '../../stores';
 import {
   subscribeToSuppliers,
@@ -12,7 +12,6 @@ import {
   getSuppliersStats,
 } from '../../services/FirebaseSuppliersService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
-import { updateUserPermissions } from '../../firebase/userService';
 import SuppliersTable from './SuppliersTable';
 import SuppliersCards from './SuppliersCards';
 import SupplierModal from './SupplierModal';
@@ -22,11 +21,10 @@ import { PageLayout } from '../shared';
 import './SuppliersMain-SAP.css';
 
 const SuppliersMain = () => {
-  // 🔐 Zustand Store - Auth
-  const [hasPermission, userProfile, user] = useAuthStore(
-    (state) => [state.hasPermission, state.userProfile, state.user],
-    shallow
-  );
+  // 🔐 Zustand Store - Auth (selectores individuales para evitar loops)
+  // ⚠️ PERMISOS DESHABILITADOS - Ya no necesitamos hasPermission
+  const userProfile = useAuthStore(state => state.userProfile);
+  // const user = useAuthStore(state => state.user); // No usado actualmente
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
@@ -108,30 +106,21 @@ const SuppliersMain = () => {
   }, [filterCategory, filterFuelType, filterStatus, normalizedSearch, suppliers]);
 
   const handleAddSupplier = useCallback(() => {
-    if (!hasPermission('canManageSuppliers')) {
-      setError('No tienes permisos para agregar proveedores');
-      return;
-    }
+    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
     setEditingSupplier(null);
     setShowModal(true);
     setError(null); // Clear any existing errors
-  }, [hasPermission]);
+  }, []);
 
   const handleEditSupplier = useCallback((supplier) => {
-    if (!hasPermission('canManageSuppliers')) {
-      setError('No tienes permisos para editar proveedores');
-      return;
-    }
+    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
     setEditingSupplier(supplier);
     setShowModal(true);
     setError(null); // Clear any existing errors
-  }, [hasPermission]);
+  }, []);
 
   const handleDeleteSupplier = useCallback(async (supplierId, supplierName) => {
-    if (!hasPermission('canManageSuppliers')) {
-      setError('No tienes permisos para eliminar proveedores');
-      return;
-    }
+    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
 
     if (
       !window.confirm(
@@ -168,7 +157,7 @@ const SuppliersMain = () => {
       console.error('Error deleting supplier:', error);
       setError('Error inesperado al eliminar proveedor');
     }
-  }, [executeWithProgress, hasPermission, userProfile?.email]);
+  }, [executeWithProgress, userProfile?.email]);
 
   const handleModalClose = useCallback(() => {
     setShowModal(false);
@@ -192,10 +181,7 @@ const SuppliersMain = () => {
   }, []);
 
   const exportSuppliers = useCallback(() => {
-    if (!hasPermission('canExportReports')) {
-      setError('No tienes permisos para exportar datos');
-      return;
-    }
+    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
 
     if (filteredSuppliers.length === 0) {
       setError('No hay proveedores para exportar');
@@ -254,80 +240,39 @@ const SuppliersMain = () => {
       console.error('Error exporting suppliers:', error);
       setError('Error al exportar proveedores: ' + error.message);
     }
-  }, [filteredSuppliers, hasPermission]);
-
-  // Función temporal para actualizar permisos del usuario actual
-  const upgradeUserPermissions = useCallback(async () => {
-    if (!user?.uid) {
-      setError('No hay usuario logueado');
-      return;
-    }
-
-    try {
-      const result = await updateUserPermissions(user.uid, 'admin');
-      if (result.success) {
-        setError('Permisos actualizados. Recarga la página para ver los cambios.');
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        setError('Error actualizando permisos: ' + result.error);
-      }
-    } catch (error) {
-      setError('Error inesperado al actualizar permisos');
-      console.error('Error upgrading permissions:', error);
-    }
-  }, [user?.uid]);
+  }, [filteredSuppliers]);
 
   // Componentes para PageLayout
   const headerActions = useMemo(() => (
     <div className="header-actions sap-theme">
-      {/* Botón temporal para desarrollo - actualizar permisos */}
-      {(!hasPermission('canManageSuppliers') || !hasPermission('canExportReports')) && (
-        <button
-          className="btn btn-warning sap-theme"
-          onClick={upgradeUserPermissions}
-          title="Actualizar permisos de usuario (solo desarrollo)"
-          style={{ backgroundColor: 'var(--color-warning)', borderColor: 'var(--color-warning)' }}
-        >
-          <span>🔑</span>
-          <span>Obtener Permisos</span>
-        </button>
-      )}
+      {/* ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso */}
+      <button
+        className="btn btn-primary sap-theme sap-button sap-button-primary"
+        onClick={handleAddSupplier}
+        title="Agregar nuevo proveedor"
+      >
+        <span>➕</span>
+        <span>Agregar Proveedor</span>
+      </button>
 
-      {hasPermission('canManageSuppliers') && (
-        <button
-          className="btn btn-primary sap-theme sap-button sap-button-primary"
-          onClick={handleAddSupplier}
-          title="Agregar nuevo proveedor"
-        >
-          <span>➕</span>
-          <span>Agregar Proveedor</span>
-        </button>
-      )}
-
-      {hasPermission('canExportReports') && (
-        <button
-          className="btn btn-secondary sap-theme sap-button sap-button-secondary"
-          onClick={exportSuppliers}
-          disabled={filteredSuppliers.length === 0}
-          title={
-            filteredSuppliers.length === 0
-              ? 'No hay proveedores para exportar'
-              : 'Exportar proveedores a CSV'
-          }
-        >
-          <span>📊</span>
-          <span>Exportar ({filteredSuppliers.length})</span>
-        </button>
-      )}
+      <button
+        className="btn btn-secondary sap-theme sap-button sap-button-secondary"
+        onClick={exportSuppliers}
+        disabled={filteredSuppliers.length === 0}
+        title={
+          filteredSuppliers.length === 0
+            ? 'No hay proveedores para exportar'
+            : 'Exportar proveedores a CSV'
+        }
+      >
+        <span>📊</span>
+        <span>Exportar ({filteredSuppliers.length})</span>
+      </button>
     </div>
   ), [
     exportSuppliers,
     filteredSuppliers.length,
     handleAddSupplier,
-    hasPermission,
-    upgradeUserPermissions,
   ]);
 
   const statsComponent = useMemo(() => {
@@ -409,7 +354,8 @@ const SuppliersMain = () => {
               ? 'Comienza agregando tu primer proveedor de combustibles para gestionar tu cadena de suministro.'
               : 'No se encontraron proveedores que coincidan con los filtros aplicados. Intenta ajustar los criterios de búsqueda.'}
           </p>
-          {suppliers.length === 0 && hasPermission('canManageSuppliers') && (
+          {/* ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso */}
+          {suppliers.length === 0 && (
             <button
               className="btn btn-primary sap-theme sap-button sap-button-primary sap-mt-lg"
               onClick={handleAddSupplier}
@@ -430,21 +376,22 @@ const SuppliersMain = () => {
         </div>
       ) : (
         <div className="suppliers-content sap-theme">
+          {/* ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso de edición/eliminación */}
           {viewMode === 'cards' ? (
             <SuppliersCards
               suppliers={filteredSuppliers}
               onEdit={handleEditSupplier}
               onDelete={handleDeleteSupplier}
-              hasEditPermission={hasPermission('canManageSuppliers')}
-              hasDeletePermission={hasPermission('canManageSuppliers')}
+              hasEditPermission={true}
+              hasDeletePermission={true}
             />
           ) : (
             <SuppliersTable
               suppliers={filteredSuppliers}
               onEdit={handleEditSupplier}
               onDelete={handleDeleteSupplier}
-              hasEditPermission={hasPermission('canManageSuppliers')}
-              hasDeletePermission={hasPermission('canManageSuppliers')}
+              hasEditPermission={true}
+              hasDeletePermission={true}
             />
           )}
         </div>
@@ -471,7 +418,6 @@ const SuppliersMain = () => {
     handleEditSupplier,
     handleModalClose,
     handleModalSuccess,
-    hasPermission,
     setError,
     showModal,
     suppliers.length,

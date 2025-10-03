@@ -9,7 +9,9 @@ import {
   canUseAutomaticPricing,
   PRICE_UPDATE_CONFIG,
 } from './fuelPricesService';
-import { updateProduct, getAllProducts } from './productsService';
+import FirebaseProductsService from './FirebaseProductsService';
+
+const productsService = new FirebaseProductsService();
 
 class PriceUpdateService {
   constructor() {
@@ -75,7 +77,12 @@ class PriceUpdateService {
     console.log('📊 Iniciando actualización masiva de precios...');
 
     try {
-      const products = await getAllProducts();
+      const productsResult = await productsService.getAllProducts();
+      if (!productsResult.success) {
+        throw new Error(productsResult.error || 'Error al obtener productos');
+      }
+      
+      const products = productsResult.data || [];
       const compatibleProducts = products.filter(
         (product) => canUseAutomaticPricing(product) && product.automaticPricing !== false // Respetar configuración del producto
       );
@@ -135,7 +142,7 @@ class PriceUpdateService {
           apiPriceData: priceData.data,
         };
 
-        await updateProduct(product.id, updatedProduct);
+        await productsService.updateProduct(product.id, updatedProduct);
 
         console.log(
           `💰 Precio actualizado para ${product.name}: $${priceData.data.price.toLocaleString('es-CO')}`
@@ -161,7 +168,7 @@ class PriceUpdateService {
             apiError: priceData.error,
           };
 
-          await updateProduct(product.id, updatedProduct);
+          await productsService.updateProduct(product.id, updatedProduct);
 
           console.log(
             `⚠️ Precio de respaldo para ${product.name}: $${priceData.fallbackPrice.toLocaleString('es-CO')}`
@@ -200,7 +207,12 @@ class PriceUpdateService {
    */
   async forceUpdateProduct(productId) {
     try {
-      const products = await getAllProducts();
+      const productsResult = await productsService.getAllProducts();
+      if (!productsResult.success) {
+        throw new Error(productsResult.error || 'Error al obtener productos');
+      }
+      
+      const products = productsResult.data || [];
       const product = products.find((p) => p.id === productId);
 
       if (!product) {
