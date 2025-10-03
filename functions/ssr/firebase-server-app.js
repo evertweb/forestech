@@ -165,8 +165,12 @@ export function hasRouteAccess(user, route) {
     '/combustibles/proveedores',
     '/combustibles/reportes',
     '/combustibles/admin',
-    '/movement-wizard-popup',      // Popup de movimientos requiere auth
-    '/vehicle-wizard-popup'        // Popup de vehículos requiere auth
+    '/movement-wizard-popup',      // Popup de movimientos requiere auth (legacy sin prefijo)
+    '/vehicle-wizard-popup',       // Popup de vehículos requiere auth (legacy sin prefijo)
+    '/product-wizard-popup',       // Popup de productos requiere auth (legacy sin prefijo)
+    '/combustibles/movement-wizard-popup',  // Popup de movimientos con prefijo
+    '/combustibles/vehicle-wizard-popup',   // Popup de vehículos con prefijo
+    '/combustibles/product-wizard-popup'    // Popup de productos con prefijo
   ];
   
   if (protectedRoutes.some(r => route === r || route.startsWith(r))) {

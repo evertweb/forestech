@@ -77,12 +77,12 @@ function AppContent() {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             {/* RUTA PÚBLICA PARA DEMO DE PASSKEYS - ACCESO SIN LOGIN PARA PRUEBAS */}
-            <Route path="/simple-passkeys" element={<SimplePasskeyDemo />} />
+            <Route path="simple-passkeys" element={<SimplePasskeyDemo />} />
 
-            {/* Rutas dedicadas para los popups de wizards */}
-            <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
-            <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
-            <Route path="/product-wizard-popup" element={<ProductWizardPopup />} />
+            {/* Rutas dedicadas para los popups de wizards - sin slash inicial para que sean relativas al basename */}
+            <Route path="movement-wizard-popup" element={<MovementWizardPopup />} />
+            <Route path="vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+            <Route path="product-wizard-popup" element={<ProductWizardPopup />} />
 
             {/* Rutas autenticadas */}
             {user ? (

@@ -241,13 +241,17 @@ async function fetchInitialData(route, firebase) {
         return { pageType: 'login', requiresAuth: false };
       }
       
-      // Rutas de popup - datos mínimos para popup
-      if (route === '/movement-wizard-popup') {
+      // Rutas de popup - datos mínimos para popup (con y sin prefijo /combustibles/)
+      if (route === '/movement-wizard-popup' || route === '/combustibles/movement-wizard-popup') {
         return { pageType: 'movement_popup', requiresAuth: true, authenticated: !!firebase.user };
       }
       
-      if (route === '/vehicle-wizard-popup') {
+      if (route === '/vehicle-wizard-popup' || route === '/combustibles/vehicle-wizard-popup') {
         return { pageType: 'vehicle_popup', requiresAuth: true, authenticated: !!firebase.user };
+      }
+      
+      if (route === '/product-wizard-popup' || route === '/combustibles/product-wizard-popup') {
+        return { pageType: 'product_popup', requiresAuth: true, authenticated: !!firebase.user };
       }
       
       // Ruta movimientos - cargar datos iniciales

@@ -31,6 +31,7 @@ const ReportsMain = lazy(() => import('./components/Reports/ReportsMain'));
 // Rutas de los popups cargadas de forma perezosa (solo cliente)
 const MovementWizardPopup = lazy(() => import('./components/Popups/MovementWizardPopup'));
 const VehicleWizardPopup = lazy(() => import('./components/Popups/VehicleWizardPopup'));
+const ProductWizardPopup = lazy(() => import('./components/Popups/ProductWizardPopup'));
 
 // Componentes legales - Redirección al dominio principal
 const LegalRedirect = lazy(() => import('./components/Legal/LegalRedirect'));
@@ -62,9 +63,10 @@ function AppContent() {
     <div className="App">
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          {/* Rutas de popup SIEMPRE disponibles - tanto en SSR como CSR */}
-          <Route path="/movement-wizard-popup" element={<MovementWizardPopup />} />
-          <Route path="/vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+          {/* Rutas de popup SIEMPRE disponibles - tanto en SSR como CSR - sin slash para ser relativas al basename */}
+          <Route path="movement-wizard-popup" element={<MovementWizardPopup />} />
+          <Route path="vehicle-wizard-popup" element={<VehicleWizardPopup />} />
+          <Route path="product-wizard-popup" element={<ProductWizardPopup />} />
 
           {/* Rutas legales - Redirección al dominio principal */}
           <Route path="/politica-privacidad" element={<LegalRedirect type="privacy" />} />
