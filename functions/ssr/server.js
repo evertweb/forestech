@@ -8,6 +8,7 @@ import { monitorSSRPerformance, createTimer } from './performance-monitor.js';
 import { shouldUseSSR } from './ab-testing-phase1.js';
 import { getCachedOrFetch, getCacheStats, invalidateCache } from './cache-strategy.js';
 import { SSRError, handleSSRError } from './error-handler-advanced.js';
+import { sitemapHandler, robotsHandler } from './sitemap.js';
 
 export function healthHandler(req, res) {
   res.setHeader('Server-Timing', 'ssr_total;dur=1');
@@ -15,6 +16,14 @@ export function healthHandler(req, res) {
 }
 
 export async function ssrHandler(req, res) {
+  // Manejar sitemap.xml y robots.txt antes del SSR
+  if (req.path === '/sitemap.xml' || req.url === '/sitemap.xml') {
+    return sitemapHandler(req, res);
+  }
+  if (req.path === '/robots.txt' || req.url === '/robots.txt') {
+    return robotsHandler(req, res);
+  }
+  
   const timer = createTimer();
   const start = timer.start;
   let dataFetchStart = 0;
