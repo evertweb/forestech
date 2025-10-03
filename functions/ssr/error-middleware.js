@@ -67,6 +67,16 @@ export function rateLimitMiddleware(requestsPerMinute = 60) {
   const requests = new Map();
   
   return (req, res, next) => {
+    // Excluir assets estáticos del rate limiting
+    if (req.path.match(/\.(js|css|png|jpg|jpeg|svg|ico|woff|woff2|ttf|eot|json)$/i)) {
+      return next();
+    }
+    
+    // Excluir rutas de health check
+    if (req.path === '/health' || req.path === '/_ah/health') {
+      return next();
+    }
+    
     const clientId = req.ip || 'unknown';
     const now = Date.now();
     const windowStart = now - 60000; // 1 minuto
@@ -201,15 +211,17 @@ function anonymizeIP(ip) {
 export function applyErrorMiddlewares(app, options = {}) {
   const config = {
     timeout: 5000,
-    rateLimit: 60,
+    rateLimit: 200, // Aumentado de 60 a 200 para soportar popups que hacen múltiples requests
     validRoutes: [
       '/combustibles/*',
       '/movement-wizard-popup',
       '/vehicle-wizard-popup',
+      '/product-wizard-popup',
       '/sitemap*',
       '/robots.txt',
       '/health',
-      '/ab-testing'
+      '/ab-testing',
+      '/_ah/health' // Health check de App Engine
     ],
     enableLogging: true,
     ...options
