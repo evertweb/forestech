@@ -11,6 +11,25 @@
 
 Las explicaciones, documentación, análisis, descripciones, y cualquier texto generado debe estar completamente en **ESPAÑOL**.
 
+## 📝 REGLAS DE DOCUMENTACIÓN
+
+**IMPORTANTE:** NO crear archivos Markdown (.md) excesivamente. Solo crear documentación cuando:
+- El usuario lo solicite explícitamente
+- Sea absolutamente necesario para el proyecto (README, guías críticas)
+- Sea documentación técnica que quedará en el repo permanentemente
+
+**EVITAR:**
+- Crear múltiples archivos MD para resumir tareas
+- Documentar cada cambio pequeño
+- Crear guías cuando se puede explicar directamente en la respuesta
+- Archivos MD temporales o de resumen de sesión
+
+**PREFERIR:**
+- Explicar directamente en la respuesta
+- Respuestas concisas y al grano
+- Código y ejemplos inline cuando sea posible
+- Solo documentación esencial y permanente
+
 ---
 
 ## 📖 Acerca del Proyecto
