@@ -132,14 +132,6 @@
       ],
       "rewrites": [
         {
-          "source": "/sitemap.xml",
-          "function": "ssrCombustibles"
-        },
-        {
-          "source": "/robots.txt",
-          "function": "ssrCombustibles"
-        },
-        {
           "source": "**",
           "function": "ssrCombustibles"
         }
