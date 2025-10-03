@@ -1,6 +1,7 @@
 /**
  * Generador de sitemap.xml dinámico para SEO
  * Compatible con Firebase Hosting + Functions SSR
+ * Actualizado para combustibles.forestechdecolombia.com.co
  */
 
 /**
@@ -9,7 +10,7 @@
 const PUBLIC_ROUTES = [
   {
     url: '/',
-    priority: 0.9,
+    priority: 1.0,
     changefreq: 'daily',
     lastmod: null // Se calculará dinámicamente
   },
