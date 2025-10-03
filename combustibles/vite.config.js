@@ -78,7 +78,12 @@ export default defineConfig(({ mode }) => {
     emptyOutDir: true,
     // 🚀 Build cache para builds incrementales
     rollupOptions: {
-      treeshake: 'recommended', // Tree-shaking agresivo para LCP
+      treeshake: {
+        // Tree-shaking más conservador para evitar problemas de inicialización
+        moduleSideEffects: 'no-external', // Preservar side effects en dependencias
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: true,
+      },
       // Configuración de external para evitar bundling de módulos faltantes
       external: (id) => {
         // No externalizar nada en producción para evitar errores de carga
@@ -89,6 +94,11 @@ export default defineConfig(({ mode }) => {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Configuración más conservadora para evitar problemas de inicialización
+        generatedCode: {
+          constBindings: true,
+          objectShorthand: true,
+        },
         // 🚀 SPRINT 4 - DAY 2: Optimized chunk splitting strategy
         manualChunks: (id) => {
           // React core + React-DOM + Scheduler (DEBEN estar juntos)
@@ -116,22 +126,13 @@ export default defineConfig(({ mode }) => {
             return 'vendor-zustand';
           }
           
-          // Firebase App (core - crítico)
-          if (id.includes('firebase/app') || id.includes('@firebase/app')) {
-            return 'vendor-firebase-core';
-          }
-          
-          // Firebase Auth (separado - lazy load posible)
-          if (id.includes('firebase/auth') || id.includes('@firebase/auth')) {
-            return 'vendor-firebase-auth';
-          }
-          
-          // Firebase Firestore + Storage (separado - lazy load posible)
-          if (id.includes('firebase/firestore') || 
-              id.includes('firebase/storage') ||
-              id.includes('@firebase/firestore') ||
-              id.includes('@firebase/storage')) {
-            return 'vendor-firebase-db';
+          // Firebase - TODO junto en un solo chunk para evitar problemas de inicialización
+          // Firebase tiene dependencias internas complejas que no se pueden separar
+          if (id.includes('firebase/') || 
+              id.includes('@firebase/') ||
+              id.includes('node_modules/firebase/') ||
+              id.includes('node_modules/@firebase/')) {
+            return 'vendor-firebase';
           }
           
           // Zustand stores (aplicación - mejor cache)
@@ -153,7 +154,38 @@ export default defineConfig(({ mode }) => {
     },
     // Performance optimizations
     target: 'esnext',
-    minify: 'esbuild', // Use esbuild instead of terser (faster and no extra dependency)
+    minify: 'terser', // Terser es más conservador que esbuild para evitar bugs de minificación
+    terserOptions: {
+      compress: {
+        // Configuración conservadora para evitar problemas de inicialización
+        arrows: false,
+        collapse_vars: false,
+        comparisons: false,
+        computed_props: false,
+        hoist_funs: false,
+        hoist_props: false,
+        hoist_vars: false,
+        inline: false,
+        loops: false,
+        negate_iife: false,
+        properties: false,
+        reduce_funcs: false,
+        reduce_vars: false,
+        switches: false,
+        toplevel: false,
+        typeofs: false,
+        booleans: true,
+        if_return: true,
+        sequences: true,
+        unused: true,
+        conditionals: true,
+        dead_code: true,
+        evaluate: true,
+      },
+      mangle: {
+        safari10: true,
+      },
+    },
     chunkSizeWarningLimit: 1000,
     // Build speed optimizations
     sourcemap: false, // Disable sourcemaps for production builds
