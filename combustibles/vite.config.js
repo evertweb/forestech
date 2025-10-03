@@ -91,14 +91,18 @@ export default defineConfig(({ mode }) => {
         assetFileNames: 'assets/[name]-[hash].[ext]',
         // 🚀 SPRINT 4 - DAY 2: Optimized chunk splitting strategy
         manualChunks: (id) => {
-          // React core (crítico para LCP - siempre en bundle inicial)
+          // React core + React-DOM + Scheduler (DEBEN estar juntos)
+          // React-DOM depende de react/jsx-runtime y scheduler
           if (id.includes('node_modules/react/') || 
-              id.includes('node_modules/react-dom/')) {
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/scheduler/')) {
             return 'vendor-react';
           }
           
           // React Router (crítico para routing)
-          if (id.includes('node_modules/react-router-dom/')) {
+          if (id.includes('node_modules/react-router-dom/') ||
+              id.includes('node_modules/react-router/') ||
+              id.includes('node_modules/@remix-run/router/')) {
             return 'vendor-router';
           }
           
@@ -113,7 +117,7 @@ export default defineConfig(({ mode }) => {
           }
           
           // Firebase App (core - crítico)
-          if (id.includes('firebase/app')) {
+          if (id.includes('firebase/app') || id.includes('@firebase/app')) {
             return 'vendor-firebase-core';
           }
           
