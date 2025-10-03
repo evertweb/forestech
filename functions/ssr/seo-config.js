@@ -8,8 +8,8 @@ export const SEO_CONFIG = {
   site: {
     name: 'Forestech Colombia',
     description: 'Sistema de gestión integral para operaciones forestales y combustibles',
-    url: 'https://oilforestech.web.app',
-    logo: 'https://oilforestech.web.app/assets/logo.png',
+    url: 'https://combustibles.forestechdecolombia.com.co',
+    logo: 'https://combustibles.forestechdecolombia.com.co/assets/logo.png',
     social: {
       twitter: '@forestechcol',
       facebook: 'forestechcolombia',
@@ -23,7 +23,7 @@ export const SEO_CONFIG = {
       title: 'Gestión de Combustibles - Forestech Colombia',
       description: 'Sistema especializado para control de inventario y movimientos de combustibles en operaciones forestales',
       keywords: ['gestión combustibles', 'inventario forestal', 'control combustible', 'logística forestal'],
-      image: 'https://oilforestech.web.app/assets/combustibles-og.jpg',
+      image: 'https://combustibles.forestechdecolombia.com.co/assets/combustibles-og.jpg',
       type: 'website',
       locale: 'es_CO'
     },
@@ -31,7 +31,7 @@ export const SEO_CONFIG = {
       title: 'Liquidación de Alimentación - Forestech Colombia',
       description: 'Sistema de cálculos y liquidación para servicios de alimentación en operaciones forestales',
       keywords: ['liquidación alimentación', 'cálculos forestales', 'servicios alimentación'],
-      image: 'https://oilforestech.web.app/assets/alimentacion-og.jpg',
+      image: 'https://forestechdecolombia.com.co/assets/alimentacion-og.jpg',
       type: 'website',
       locale: 'es_CO'
     }
@@ -40,19 +40,19 @@ export const SEO_CONFIG = {
   // Meta tags por ruta
   routes: {
     '/': {
-      title: 'Forestech Colombia - Tecnología para Operaciones Forestales',
-      description: 'Soluciones tecnológicas especializadas para la gestión integral de operaciones forestales en Colombia',
-      keywords: ['forestech', 'tecnología forestal', 'operaciones forestales', 'colombia']
+      title: 'Forestech Colombia - Sistema de Gestión de Combustibles',
+      description: 'Sistema integral de gestión de inventario de combustibles para operaciones forestales en Colombia',
+      keywords: ['forestech', 'combustibles', 'gestión', 'operaciones forestales', 'colombia']
     },
-    '/combustibles/': {
-      title: 'Sistema de Gestión de Combustibles',
-      description: 'Control completo de inventario, movimientos y reportes de combustibles para operaciones forestales',
-      keywords: ['gestión combustibles', 'inventario', 'reportes', 'control operacional']
+    '/movimientos': {
+      title: 'Movimientos de Combustibles',
+      description: 'Control completo de movimientos, entradas, salidas y transferencias de combustibles',
+      keywords: ['movimientos', 'combustibles', 'entradas', 'salidas', 'control']
     },
-    '/alimentacion/': {
-      title: 'Sistema de Liquidación de Alimentación',
-      description: 'Cálculos automatizados y liquidación de servicios de alimentación para trabajadores forestales',
-      keywords: ['liquidación', 'alimentación', 'cálculos', 'trabajadores forestales']
+    '/inventario': {
+      title: 'Inventario de Combustibles',
+      description: 'Gestión de stock, niveles críticos y control de inventario de combustibles',
+      keywords: ['inventario', 'stock', 'combustibles', 'control']
     }
   }
 };

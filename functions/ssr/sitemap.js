@@ -83,7 +83,7 @@ const PRIVATE_ROUTES = [
  */
 export function generateSitemap(options = {}) {
   const {
-    baseUrl = 'https://oilforestech.web.app',
+    baseUrl = 'https://combustibles.forestechdecolombia.com.co',
     includePrivate = false,
     dynamicRoutes = []
   } = options;
@@ -129,7 +129,7 @@ ${urlEntries}
  * @param {string} baseUrl - URL base
  * @returns {string} - XML del sitemap index
  */
-export function generateSitemapIndex(baseUrl = 'https://oilforestech.web.app') {
+export function generateSitemapIndex(baseUrl = 'https://combustibles.forestechdecolombia.com.co') {
   const now = new Date().toISOString();
   
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -153,7 +153,7 @@ export function generateSitemapIndex(baseUrl = 'https://oilforestech.web.app') {
 export function sitemapHandler(req, res) {
   try {
     // Usar siempre el dominio correcto en lugar del host de la request
-    const baseUrl = 'https://oilforestech.web.app';
+    const baseUrl = 'https://combustibles.forestechdecolombia.com.co';
     
     // Detectar tipo de sitemap solicitado
     const path = req.path;
@@ -246,16 +246,17 @@ export function isValidSitemapUrl(url, baseUrl) {
  * @param {string} baseUrl - URL base
  * @returns {string} - Contenido del robots.txt
  */
-export function generateRobotsTxt(baseUrl = 'https://oilforestech.web.app') {
+export function generateRobotsTxt(baseUrl = 'https://combustibles.forestechdecolombia.com.co') {
   return `# Robots.txt para Forestech - Sistema Combustibles
-# Generado automáticamente - Fase 3 SSR
+# Generado automáticamente - SSR
+# Dominio: ${baseUrl}
 
 User-agent: *
 
-# Permitir acceso a páginas públicas
+# Permitir acceso a página principal
 Allow: /$
 
-# Bloquear rutas privadas y de administración (rutas reales de React Router)
+# Bloquear rutas privadas y de administración
 Disallow: /movimientos
 Disallow: /inventario
 Disallow: /vehiculos
@@ -264,19 +265,23 @@ Disallow: /productos
 Disallow: /proveedores
 Disallow: /reportes
 Disallow: /admin
+Disallow: /administracion
 Disallow: /api/
 
+# Bloquear popups de wizards
+Disallow: /movement-wizard-popup
+Disallow: /vehicle-wizard-popup
+Disallow: /product-wizard-popup
+
 # Bloquear archivos y directorios técnicos
-Disallow: /assets/
+Disallow: /assets/*.map
 Disallow: /src/
-Disallow: /*.json
-Disallow: /*.js
-Disallow: /*.css
-Disallow: /*.map
+Disallow: /*.json$
+Disallow: /*.js$
+Disallow: /*.css$
 
 # Sitemap
 Sitemap: ${baseUrl}/sitemap.xml
-Sitemap: ${baseUrl}/sitemap-combustibles.xml
 
 # Crawl delay para ser respetuosos
 Crawl-delay: 1
@@ -300,7 +305,7 @@ Crawl-delay: 2
 export function robotsHandler(req, res) {
   try {
     // Usar siempre el dominio correcto
-    const baseUrl = 'https://oilforestech.web.app';
+    const baseUrl = 'https://combustibles.forestechdecolombia.com.co';
     const robotsTxt = generateRobotsTxt(baseUrl);
     
     res.set({
