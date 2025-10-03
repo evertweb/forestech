@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 // Configuración de validación
 const VALIDATION_CONFIG = {
-  baseUrl: 'https://oilforestech.web.app', // Producción
+  baseUrl: 'https://combustibles.forestechdecolombia.com.co', // Subdomain dedicado
   routes: [
     '/',
     '/movimientos',

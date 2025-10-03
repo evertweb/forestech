@@ -8,14 +8,33 @@ import { lazy, Suspense } from 'react';
 
 const App = lazy(() => import('./App.jsx'));
 
-// Detectar basename dinámico según el path actual.
-// Esto permite que la app funcione correctamente cuando se sirve bajo /combustibles
-// (por ejemplo, rutas como /combustibles/vehicle-wizard-popup) y en raíz '/'.
+// Detectar basename dinámico según el dominio/path actual.
+// - En combustibles.forestechdecolombia.com.co → basename='/' (subdomain dedicado)
+// - En forestechdecolombia.com.co/combustibles → basename='/combustibles' (legacy)
+// - En alimentacion.forestechdecolombia.com.co → basename='/' (subdomain dedicado)
+// - En forestechdecolombia.com.co/alimentacion → basename='/alimentacion' (legacy)
 const getBaseName = () => {
   if (typeof window === 'undefined') return '/';
+  
+  const hostname = window.location.hostname || '';
   const path = window.location.pathname || '/';
-  if (path.startsWith('/combustibles')) return '/combustibles';
-  if (path.startsWith('/alimentacion')) return '/alimentacion';
+  
+  // Si el hostname es un subdomain específico, usar raíz
+  if (hostname.startsWith('combustibles.')) {
+    return '/';
+  }
+  if (hostname.startsWith('alimentacion.')) {
+    return '/';
+  }
+  
+  // Legacy: si el path tiene el prefijo, usarlo como basename
+  if (path.startsWith('/combustibles')) {
+    return '/combustibles';
+  }
+  if (path.startsWith('/alimentacion')) {
+    return '/alimentacion';
+  }
+  
   return '/';
 };
 

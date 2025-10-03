@@ -19,9 +19,25 @@ const featuresToString = (feat) =>
     .map(([k, v]) => `${k}=${v}`)
     .join(',');
 
+// Detectar si estamos en subdomain o en path con prefijo
+const getRoutePrefix = () => {
+  if (typeof window === 'undefined') return '';
+  const hostname = window.location.hostname || '';
+  
+  // Si estamos en combustibles.forestechdecolombia.com.co, NO usar prefijo
+  if (hostname.startsWith('combustibles.')) {
+    return '';
+  }
+  
+  // Si estamos en forestechdecolombia.com.co/combustibles, usar prefijo
+  return '/combustibles';
+};
+
 export class PopupManager {
-  constructor(route = '/combustibles/movement-wizard-popup', features = DEFAULT_FEATURES) {
-    this.route = route;
+  constructor(route = 'movement-wizard-popup', features = DEFAULT_FEATURES) {
+    // Aplicar el prefijo adecuado según el dominio
+    const prefix = getRoutePrefix();
+    this.route = prefix ? `${prefix}/${route}` : `/${route}`;
     this.features = features;
     this.popupRef = null;
     this.onMessage = null;
@@ -193,13 +209,13 @@ export class PopupManager {
 }
 
 export const openMovementWizardPopup = (initialData, onMessage) => {
-  const manager = new PopupManager();
+  const manager = new PopupManager('movement-wizard-popup');
   const res = manager.open(initialData, onMessage);
   return { ...res, manager };
 };
 
 export const openVehicleWizardPopup = (initialData, onMessage) => {
-  const manager = new PopupManager('/combustibles/vehicle-wizard-popup', {
+  const manager = new PopupManager('vehicle-wizard-popup', {
     ...DEFAULT_FEATURES,
     width: 900,
     height: 800,
@@ -209,7 +225,7 @@ export const openVehicleWizardPopup = (initialData, onMessage) => {
 };
 
 export const openProductWizardPopup = (initialData, onMessage) => {
-  const manager = new PopupManager('/combustibles/product-wizard-popup', {
+  const manager = new PopupManager('product-wizard-popup', {
     ...DEFAULT_FEATURES,
     width: 900,
     height: 700,
