@@ -50,6 +50,11 @@ jobs:
         run: |
           echo "📦 Installing dependencies..."
           npm ci --prefer-offline --no-audit --no-fund
+          
+          echo "📦 Installing Functions dependencies..."
+          cd functions
+          npm ci --prefer-offline --no-audit --no-fund
+          cd ..
 
       # 🏗️ BUILD APPLICATIONS
       - name: 🏗️ Build Applications
