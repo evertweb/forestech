@@ -316,6 +316,58 @@ const AppSSRMinimal = ({ location, initialState, user }) => {
     );
   }
   
+  // Popup wizards SSR (NUEVO)
+  if (route.includes('movement-wizard-popup') || 
+      route.includes('vehicle-wizard-popup') || 
+      route.includes('product-wizard-popup')) {
+    return React.createElement('div', {
+      style: {
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        fontFamily: 'system-ui, sans-serif'
+      }
+    },
+      React.createElement('div', {
+        style: {
+          background: 'white',
+          borderRadius: '12px',
+          padding: '3rem',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+          textAlign: 'center',
+          maxWidth: '400px'
+        }
+      },
+        React.createElement('div', {
+          style: {
+            width: '60px',
+            height: '60px',
+            margin: '0 auto 1.5rem',
+            border: '4px solid #667eea',
+            borderTop: '4px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }
+        }),
+        React.createElement('h2', {
+          style: {
+            color: '#1a202c',
+            marginBottom: '1rem',
+            fontSize: '1.5rem'
+          }
+        }, 'Cargando...'),
+        React.createElement('p', {
+          style: {
+            color: '#718096',
+            fontSize: '0.875rem'
+          }
+        }, 'Preparando formulario')
+      )
+    );
+  }
+  
   // Fallback a login para rutas no reconocidas
   return React.createElement(LoginSSR);
 };
