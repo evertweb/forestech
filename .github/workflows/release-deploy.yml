@@ -88,9 +88,9 @@ jobs:
           
           # Determine what to deploy
           if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event_name }}" = "push" ]; then
-            DEPLOY_TARGETS="hosting:forestechdecolombia,hosting:combustibles-subdomain"
+            DEPLOY_TARGETS="hosting:forestechdecolombia,hosting:combustibles-subdomain,functions"
           elif [ "${{ github.event.inputs.deploy_target }}" = "combustibles" ]; then
-            DEPLOY_TARGETS="hosting:combustibles-subdomain"
+            DEPLOY_TARGETS="hosting:combustibles-subdomain,functions:ssrCombustibles"
           elif [ "${{ github.event.inputs.deploy_target }}" = "alimentacion" ]; then
             DEPLOY_TARGETS="hosting:forestechdecolombia"
           fi
