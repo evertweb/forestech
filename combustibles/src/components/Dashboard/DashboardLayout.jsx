@@ -9,7 +9,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../../stores';
 import MainNavigation from './MainNavigation';
 import AdminSSRBanner from './AdminSSRBanner';
 import './AdminSSRBanner.css';
@@ -17,8 +16,6 @@ import './DashboardLayout.css';
 import '../../styles/apple-dashboard.css';
 
 const DashboardLayout = ({ children }) => {
-  // 🔐 Zustand Store - Solo suscribirse a userProfile.role (performance optimizada)
-  const userProfile = useAuthStore(state => state.userProfile);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -51,7 +48,7 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="apple-dashboard-layout">
       {/* Banner SSR para admins */}
-      {userProfile?.role === 'admin' && <AdminSSRBanner />}
+      <AdminSSRBanner />
 
       {/* Navegación principal estilo Apple */}
       <MainNavigation

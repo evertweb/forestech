@@ -37,7 +37,7 @@ export const runSicomIntegrationTests = async () => {
   ];
 
   testProducts.forEach((product) => {
-    const fuelType = detectFuelType(product.name, product.category);
+    const fuelType = detectFuelType(product.name);
     console.log(`${product.name} -> ${fuelType || 'NO DETECTADO'}`);
   });
 

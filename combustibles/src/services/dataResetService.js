@@ -328,8 +328,8 @@ const getCollectionKey = (collectionName) => {
 /**
  * Verificar si el usuario tiene permisos para reset
  */
-export const canPerformReset = (userProfile) => {
-  return userProfile?.role === 'admin';
+export const canPerformReset = (_userProfile) => {
+  return true; // Todos los usuarios pueden hacer reset en preview
 };
 
 /**

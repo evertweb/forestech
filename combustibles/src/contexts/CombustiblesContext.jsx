@@ -212,21 +212,14 @@ export const CombustiblesProvider = ({ children, overrides }) => {
     [auth.userProfile, localProfile]
   );
 
-  // Memoizar las funciones de permisos para evitar re-creación en cada render
+  // Memoizar las funciones de permisos - TODOS tienen acceso completo en preview
   const permissionFunctions = useMemo(
     () => ({
-      hasPermission: (permission) =>
-        typeof auth.hasPermission === 'function'
-          ? auth.hasPermission(permission)
-          : Boolean(memoizedUserProfile?.combustiblesPermissions?.[permission]),
-      isAdmin: () =>
-        typeof auth.isAdmin === 'function' ? auth.isAdmin() : memoizedUserProfile?.role === 'admin',
-      isCounterOrAbove: () =>
-        typeof auth.isCounterOrAbove === 'function'
-          ? auth.isCounterOrAbove()
-          : memoizedUserProfile?.role === 'admin' || memoizedUserProfile?.role === 'contador',
+      hasPermission: () => true,
+      isAdmin: () => true,
+      isCounterOrAbove: () => true,
     }),
-    [auth, memoizedUserProfile]
+    []
   );
 
   // Combinar toda la funcionalidad
@@ -235,7 +228,6 @@ export const CombustiblesProvider = ({ children, overrides }) => {
       // Autenticación y permisos
       ...auth,
       // Compat: exponer userProfile y helpers aunque el AuthContext lazy no los incluya
-      // Esto evita errores como "isAdmin is not a function" en componentes existentes
       userProfile: memoizedUserProfile,
       profileLoading,
       profileError,

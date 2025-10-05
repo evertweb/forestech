@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
-import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
+// category property removed globally - PRODUCT_CATEGORIES import removed
 import { PRODUCT_COLORS } from '../../constants/designTokens';
 import {
   UI_ACTIONS,
@@ -28,19 +28,16 @@ import './ProductPricing.css';
 const INITIAL_VALUES = {
   name: '',
   displayName: '',
-  category: PRODUCT_CATEGORIES.COMBUSTIBLE,
+  code: null,
   unit: 'gal',
   defaultPrice: 0,
-  color: '#FF6B35',
-  icon: '🛢️',
-  description: '',
   isActive: true,
   currentStock: 0,
   minThreshold: 10,
   maxCapacity: 1000,
 };
 
-const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userRole }) => {
+const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave }) => {
   const [loading] = useState(false);
 
   // Hook para precios automáticos
@@ -104,14 +101,9 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
       setFormData({
         name: product.name || '',
         displayName: product.displayName || '',
-        category: product.category || PRODUCT_CATEGORIES.COMBUSTIBLE,
+        code: product.code || null,
         unit: product.unit || 'gal',
         defaultPrice: product.defaultPrice || 0,
-        color:
-          product.color ||
-          PRODUCT_COLORS.getColorByCategory(product.category || PRODUCT_CATEGORIES.COMBUSTIBLE),
-        icon: product.icon || '🛢️',
-        description: product.description || '',
         isActive: product.isActive !== undefined ? product.isActive : true,
         currentStock: product.currentStock || 0,
         minThreshold: product.minThreshold || 10,
@@ -136,7 +128,7 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm() || !canEdit) return;
+    if (!validateForm()) return;
 
     try {
       await onSave(formData);
@@ -145,7 +137,7 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
     }
   };
 
-  const canEdit = ['admin', 'supervisor'].includes(userRole) && mode !== 'view';
+  const canEdit = mode !== 'view';
 
   const getModalTitle = () => {
     if (mode === 'create') return `➕ ${MODAL_TEXT.PRODUCT.CREATE_TITLE}`;
@@ -158,16 +150,12 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
       <ModalHeader title={getModalTitle()} onClose={onClose} icon="🛢️" />
 
       <div className="apple-modal-content">
-        {/* Preview Card */}
+        {/* Preview Card (simplified) */}
         <div className="apple-card apple-card-compact product-preview">
           <div className="apple-card-header">
-            <div className="preview-icon" style={{ color: formData.color }}>
-              {formData.icon}
-            </div>
             <div className="preview-info">
               <h3 className="apple-title-medium">{formData.displayName || UI_FORM_LABELS.DISPLAY_NAME}</h3>
-              <p className="apple-body-small text-secondary preview-category">{formData.category}</p>
-              <p className="apple-body-small text-secondary preview-description">{formData.description}</p>
+              {/* category removed from UI */}
               <div className="apple-badge apple-badge-primary preview-price">
                 ${new Intl.NumberFormat('es-CO').format(formData.defaultPrice)} / {formData.unit}
               </div>
@@ -209,33 +197,19 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
             </div>
 
             <div className="apple-form-group">
-              <label className="apple-form-label required">{UI_FORM_LABELS.CATEGORY}</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                disabled={!canEdit}
-                className="apple-form-select"
-              >
-                {Object.values(PRODUCT_CATEGORIES).map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              {errors.category && <div className="apple-form-error">{errors.category}</div>}
+                        {/* Category selection removed by request - category stays as default in INITIAL_VALUES or product value */}
             </div>
 
             <div className="apple-form-group">
-              <label className="apple-form-label">{UI_FORM_LABELS.DESCRIPTION}</label>
-              <textarea
-                name="description"
-                value={formData.description}
+              <label className="apple-form-label">Código (opcional)</label>
+              <input
+                type="text"
+                name="code"
+                value={formData.code || ''}
                 onChange={handleInputChange}
                 disabled={!canEdit}
-                placeholder={UI_PLACEHOLDERS.PRODUCT_DESCRIPTION}
-                rows="3"
-                className="apple-form-textarea"
+                placeholder="Código interno (ej. DIESEL_PREMIUM)"
+                className="apple-form-input"
               />
             </div>
           </div>
@@ -427,7 +401,7 @@ const ProductModal = ({ isOpen, onClose, product, mode = 'create', onSave, userR
             <div className="apple-form-group">
               <label className="apple-form-label">{UI_FORM_LABELS.ICON}</label>
               <div className="icon-selector">
-                {iconOptions[formData.category]?.map((icon) => (
+                {(Object.values(iconOptions).flat()).map((icon) => (
                   <button
                     key={icon}
                     type="button"

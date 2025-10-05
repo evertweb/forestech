@@ -108,9 +108,6 @@ const MaintenanceMain = () => {
     );
   });
 
-  // Verificar permisos
-  const canManageMaintenance = userProfile?.combustiblesPermissions?.canManageMaintenance || false;
-
   // Handlers
   const handleCreateMaintenance = () => {
     setSelectedMaintenance(null);
@@ -156,11 +153,6 @@ const MaintenanceMain = () => {
   };
 
   const handleDeleteMaintenance = async (maintenanceId) => {
-    if (!canManageMaintenance) {
-      alert('No tienes permisos para eliminar mantenimientos');
-      return;
-    }
-
     if (window.confirm('¿Estás seguro de que quieres eliminar este mantenimiento?')) {
       try {
         const progressDescription = `Eliminando registro de mantenimiento ${maintenanceId}`;
@@ -193,7 +185,7 @@ const MaintenanceMain = () => {
   }
 
   // Componentes para PageLayout
-  const headerActions = canManageMaintenance ? (
+  const headerActions = (
     <div className="header-actions sap-theme">
       <button
         className="btn-create-maintenance sap-theme sap-button sap-button-primary"
@@ -202,7 +194,7 @@ const MaintenanceMain = () => {
         ➕ Crear Mantenimiento
       </button>
     </div>
-  ) : null;
+  );
 
   const statsComponent = stats ? <MaintenanceStats stats={stats} /> : null;
 
@@ -241,24 +233,21 @@ const MaintenanceMain = () => {
             <MaintenanceList
               maintenanceRecords={filteredMaintenance}
               viewMode={viewMode}
-              onEdit={canManageMaintenance ? handleEditMaintenance : null}
+              onEdit={handleEditMaintenance}
               onView={handleViewMaintenance}
-              onDelete={canManageMaintenance ? handleDeleteMaintenance : null}
-              userRole={userProfile?.role}
+              onDelete={handleDeleteMaintenance}
             />
           ) : (
             <div className="empty-state sap-theme">
               <div className="empty-icon sap-theme">🔧</div>
               <h3>No hay mantenimientos registrados</h3>
               <p>Comienza creando el primer mantenimiento para tu flota de vehículos.</p>
-              {canManageMaintenance && (
-                <button
-                  className="sap-button sap-button-primary sap-mt-lg"
-                  onClick={handleCreateMaintenance}
-                >
-                  ➕ Crear Primer Mantenimiento
-                </button>
-              )}
+              <button
+                className="sap-button sap-button-primary sap-mt-lg"
+                onClick={handleCreateMaintenance}
+              >
+                ➕ Crear Primer Mantenimiento
+              </button>
             </div>
           )}
         </>

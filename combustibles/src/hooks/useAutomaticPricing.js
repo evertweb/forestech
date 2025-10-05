@@ -23,7 +23,7 @@ export const useAutomaticPricing = (initialProduct = null) => {
 
   // Función para sincronizar precio manualmente
   const syncPrice = useCallback(async (productData, city = 'BOGOTA') => {
-    const fuelType = detectFuelType(productData.name, productData.category);
+    const fuelType = detectFuelType(productData.name);
 
     if (!fuelType) {
       setPriceError('No se pudo detectar el tipo de combustible');
@@ -110,12 +110,17 @@ export const useAutomaticPricing = (initialProduct = null) => {
 
   // Función para detectar si el producto puede usar precios automáticos
   const canUseAutomatic = useCallback((productData) => {
+    // productData may be object or string name
+    if (!productData) return false;
+    if (typeof productData === 'string') return canUseAutomaticPricing({ name: productData });
     return canUseAutomaticPricing(productData);
   }, []);
 
   // Función para obtener el tipo de combustible detectado
   const getFuelType = useCallback((productData) => {
-    return detectFuelType(productData.name, productData.category);
+    if (!productData) return null;
+    const name = typeof productData === 'string' ? productData : productData.name;
+    return detectFuelType(name);
   }, []);
 
   // Función para determinar si se debe sincronizar automáticamente

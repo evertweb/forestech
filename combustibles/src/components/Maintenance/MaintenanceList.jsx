@@ -14,8 +14,7 @@ const MaintenanceList = ({
   viewMode,
   onEdit,
   onView,
-  onDelete,
-  userRole
+  onDelete
 }) => {
   if (!maintenanceRecords || maintenanceRecords.length === 0) {
     return (
@@ -35,7 +34,6 @@ const MaintenanceList = ({
           onEdit={onEdit}
           onView={onView}
           onDelete={onDelete}
-          userRole={userRole}
         />
       ) : (
         <MaintenanceTable
@@ -43,7 +41,6 @@ const MaintenanceList = ({
           onEdit={onEdit}
           onView={onView}
           onDelete={onDelete}
-          userRole={userRole}
         />
       )}
     </div>

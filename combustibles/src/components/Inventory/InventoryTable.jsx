@@ -6,7 +6,7 @@ import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
 // withOptimization eliminado
 
 // TODO: Separar componente de constantes/funciones para Fast Refresh
-const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
+const InventoryTable = ({ items, onEdit, onDelete }) => {
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
 
@@ -132,7 +132,7 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
               <th onClick={() => handleSort('lastUpdated')} className="sortable">
                 Actualizado {getSortIcon('lastUpdated')}
               </th>
-              {canManage && <th>Acciones</th>}
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -140,7 +140,7 @@ const InventoryTable = ({ items, onEdit, onDelete, canManage }) => {
               <InventoryRow
                 key={item.id}
                 item={item}
-                canManage={canManage}
+                
                 onEdit={onEdit}
                 onDelete={onDelete}
                 getTimeAgo={getTimeAgo}
@@ -183,7 +183,6 @@ export default InventoryTable;
 // Fila memoizada para evitar re-renders innecesarios
 const InventoryRow = memo(function InventoryRow({
   item,
-  canManage,
   onEdit,
   onDelete,
   getTimeAgo,
@@ -264,15 +263,14 @@ const InventoryRow = memo(function InventoryRow({
       <td className="updated-cell">
         <span className="apple-body-small text-secondary time-ago">{getTimeAgo(item.lastUpdated)}</span>
       </td>
-      {canManage && (
-        <td className="actions-cell">
-          <div className="apple-action-buttons">
-            <button
-              className="apple-action-button"
-              onClick={handleEdit}
-              title="Editar"
-            >
-              ✏️
+      <td className="actions-cell">
+        <div className="apple-action-buttons">
+          <button
+            className="apple-action-button"
+            onClick={handleEdit}
+            title="Editar"
+          >
+            ✏️
             </button>
             <button
               className="apple-action-button"
@@ -284,7 +282,6 @@ const InventoryRow = memo(function InventoryRow({
             </button>
           </div>
         </td>
-      )}
     </tr>
   );
 });

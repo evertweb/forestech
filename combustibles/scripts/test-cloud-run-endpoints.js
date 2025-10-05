@@ -2,7 +2,8 @@
 
 /**
  * Script de testing para endpoints Cloud Run
- * Prueba los endpoints SQL con tokens reales de Firebase Auth
+ * DEPRECATED: Cloud Run está obsoleto en este repo. Usa pruebas contra Firebase Functions.
+ * Prueba los endpoints SQL con tokens reales de Firebase Auth (Histórico)
  * Forestech Combustibles App
  */
 

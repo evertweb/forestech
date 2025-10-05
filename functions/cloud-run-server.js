@@ -1,6 +1,14 @@
-// server.js - Servidor Express para Cloud Run (migración desde Firebase Functions)
-// Maneja todos los endpoints SQL como HTTP POST con autenticación Firebase
-// Puerto 8080 para Cloud Run
+// DEPRECATED: cloud-run-server.js - NO USAR
+// Este servidor Express para Cloud Run quedó obsoleto cuando las operaciones SQL
+// se migraron a Firebase Functions. Mantener este archivo activo puede causar
+// confusión y errores (rutas antiguas, columnas del esquema esperadas, etc.).
+//
+// Para evitar que sea utilizado por error, todas las peticiones a este servidor
+// responderán con HTTP 410 (Gone) indicando que Cloud Run está fuera de servicio
+// y que se debe usar Firebase Functions. Si necesitas reactivar Cloud Run, debes
+// revisar cuidadosamente todo el código y los despliegues.
+
+// Nota: Este archivo se mantiene por compatibilidad histórica solo como referencia.
 
 import express from 'express';
 import cors from 'cors';
@@ -17,6 +25,24 @@ if (!admin.apps.length) {
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// Middleware deprecatorio: responder 410 a todas las peticiones para evitar uso accidental
+app.use((req, res, next) => {
+  // Permitir health check rápido en desarrollo local pero marcarlo como obsoleto
+  if (req.path === '/health' || req.path === '/test') {
+    return res.status(410).json({
+      status: 'DEPRECATED',
+      message: 'El servicio Cloud Run SQL está obsoleto. Use Firebase Functions en su lugar.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  return res.status(410).json({
+    status: 'GONE',
+    message: 'Cloud Run SQL service is deprecated and has been disabled in the repository. Use Firebase Functions (combustibles* functions) instead.',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Middleware global
 app.use(cors({

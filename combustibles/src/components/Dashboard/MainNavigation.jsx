@@ -15,6 +15,7 @@ import { signOut } from 'firebase/auth';
 const MainNavigation = ({ activeTab, onTabChange }) => {
   // 🔐 Zustand Store - Auth
   const userProfile = useAuthStore(state => state.userProfile);
+  const isAdmin = userProfile?.role === 'admin';
 
   // Manejar logout
   const handleLogout = async () => {
@@ -96,10 +97,8 @@ const MainNavigation = ({ activeTab, onTabChange }) => {
     path: '/administracion',
   };
 
-  // Combinar tabs según permisos
-  const allTabs = userProfile?.role === 'admin'
-    ? [...mainTabs, adminTab]
-    : mainTabs;
+  // Mostrar todas las tabs incluyendo admin
+  const allTabs = isAdmin ? [...mainTabs, adminTab] : mainTabs;
 
   return (
     <nav className="apple-navigation">

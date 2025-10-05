@@ -1,5 +1,7 @@
 # GitHub Copilot Instructions
 
+> ⚠️ Nota rápida: Cloud Run ya no se utiliza en este repositorio. El backend activo es Firebase Functions (Functions + Hosting). Evita ejecutar o sugerir deploys a Cloud Run.
+
 ## 🌐 INSTRUCCIÓN GLOBAL DE IDIOMA
 
 **IMPORTANTE:** Todas las respuestas de GitHub Copilot CLI deben estar en ESPAÑOL, excepto:
@@ -41,7 +43,7 @@ Este archivo proporciona guía para agentes de IA que trabajan con el monorepo F
 ### **Architecture Overview:**
 - **🔥 Firebase Hosting**: Frontend hosting + SSR (React apps)
 - **🔥 Firebase Functions**: Backend API layer (CRUD operations)
-- **🗄️ Cloud SQL Server**: SQL Server database (forestechCombus - IP: 34.61.242.157)
+- **🗄️ DigitalOcean SQL Server**: SQL Server database (DBforestech - IP: 24.199.89.134:1433)
 - **🧪 E2E Tests**: Automated testing with Playwright
 
 ### **ACTIVE WORKFLOWS (Only 2):**
@@ -70,7 +72,7 @@ git push origin main  # ✅ Auto-deploys Firebase Hosting + Functions
 - `shared/` - Shared Firebase configuration, styles, and constants
 - `functions/` - Firebase Functions for SSR, webhooks, and SQL operations
   - `functions/src/sql/` - SQL service layer (CRUD operations)
-  - `functions/src/cloudsql/` - Cloud SQL Server connection
+  - `functions/src/cloudsql/` - DigitalOcean SQL Server connection
   - `functions/ssr/` - Server-side rendering
 - `scripts/` - Unified deployment and build automation
 
@@ -143,7 +145,8 @@ import { createUserWithPasskey, signInWithPasskey } from '@firebase-web-authn/br
 
 **🚨 IMPORTANT: SQL Operations in Firebase Functions**
 - All SQL operations go through Firebase Functions (httpsCallable)
-- Functions connect directly to Cloud SQL Server
+- Functions connect directly to DigitalOcean SQL Server (24.199.89.134:1433)
+- Database: DBforestech
 - Connection: `/functions/src/cloudsql/oil-connection.js`
 - Services: `/functions/src/sql/*Service.js`
 
@@ -265,7 +268,7 @@ When working with this codebase, prioritize the new deployment workflow, maintai
 1. Only 2 workflows are active - don't suggest disabled ones
 2. Frontend + Functions auto-deploy together on push to main
 3. SQL functions are in Firebase Functions at `/functions/src/sql/`
-4. Cloud SQL Server is the database
+4. DigitalOcean SQL Server is the database (24.199.89.134:1433 - DBforestech)
 5. Cloud Run is OBSOLETE - do not reference it
 6. Always check DEPLOYMENT_GUIDE.md for latest procedures
 

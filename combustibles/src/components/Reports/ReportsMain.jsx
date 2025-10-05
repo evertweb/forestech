@@ -36,7 +36,8 @@ const ReportsMain = () => {
   const inventory = useInventoryStore(state => state.inventory);
   const movements = useMovementsStore(state => state.movements);
   const vehicles = useVehiclesStore(state => state.vehicles);
-  const userProfile = useAuthStore(state => state.userProfile);
+  const hasPermission = useAuthStore(state => state.hasPermission);
+  const canViewReports = hasPermission ? hasPermission('reports:view') : true;
   
   // Nota: suppliers no está en un store aún, por ahora usar array vacío memoizado
   const suppliers = useMemo(() => [], []);
@@ -46,10 +47,6 @@ const ReportsMain = () => {
     end: new Date().toISOString().slice(0, 10),
   });
   const { openCardDetails, CardDetailsModal } = useCardDetails();
-
-  // Verificar permisos primero (debe evaluarse antes del render final, pero después de hooks)
-  const canViewReports =
-    userProfile?.combustiblesPermissions?.canViewReports || userProfile?.role === 'admin';
 
   // Calcular estadísticas principales (hooks siempre se ejecutan)
   const inventoryStats = useMemo(() => calculateInventoryStats(inventory), [inventory]);

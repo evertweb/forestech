@@ -37,14 +37,15 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .wizard-header {
   background: var(--sap-neutral-background, #fafafa);
-  padding: 1.5rem;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
   border-bottom: 1px solid var(--sap-neutral-border-color, #e0e0e0);
   text-align: center;
+  overflow: visible;
 }
 
 .progress-bar {
@@ -52,6 +53,8 @@
   justify-content: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  overflow: visible;
 }
 
 .progress-step {
@@ -626,3 +629,310 @@
     justify-content: center;
   }
 }
+
+/* ========================================
+   🎨 DISEÑO CASCADA - ESTILO MODERNO
+   ======================================== */
+
+.product-wizard-cascade {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+}
+
+.wizard-header-cascade {
+  background: linear-gradient(135deg, var(--sap-brand-color, #0070f2) 0%, #005cc5 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 12px rgba(0, 112, 242, 0.2);
+}
+
+.wizard-main-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.wizard-subtitle {
+  font-size: 1rem;
+  opacity: 0.95;
+  margin: 0;
+  font-weight: 400;
+}
+
+.wizard-form-cascade {
+  background: white;
+  border-radius: 0 0 12px 12px;
+  padding: 1.5rem;
+}
+
+/* Estilos para cada paso en cascada */
+.cascade-step {
+  background: white;
+  border: 2px solid var(--sap-neutral-border-color, #e0e0e0);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cascade-step.complete {
+  border-color: #10b981;
+  background: linear-gradient(to right, #f0fdf4 0%, white 100%);
+}
+
+.cascade-step.expanded {
+  border-color: var(--sap-brand-color, #0070f2);
+  box-shadow: 0 4px 16px rgba(0, 112, 242, 0.15);
+}
+
+/* Header del paso */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  user-select: none;
+}
+
+.step-header:hover {
+  background: var(--sap-neutral-background, #fafafa);
+}
+
+.cascade-step.complete .step-header {
+  background: linear-gradient(to right, #f0fdf4 0%, white 100%);
+}
+
+.cascade-step.expanded .step-header {
+  background: linear-gradient(to right, #eff6ff 0%, white 100%);
+  border-bottom: 2px solid var(--sap-brand-color, #0070f2);
+}
+
+/* Indicador del paso */
+.step-indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  background: var(--sap-neutral-background, #e0e0e0);
+  color: var(--sap-neutral-text-color, #666);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.cascade-step.expanded .step-indicator {
+  background: var(--sap-brand-color, #0070f2);
+  color: white;
+  transform: scale(1.05);
+}
+
+.cascade-step.complete .step-indicator {
+  background: #10b981;
+  color: white;
+}
+
+/* Sección de título */
+.step-title-section {
+  flex: 1;
+}
+
+.step-title-cascade {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--sap-text-color, #333);
+  margin: 0 0 0.25rem 0;
+}
+
+.step-description {
+  font-size: 0.875rem;
+  color: var(--sap-neutral-text-color, #666);
+  margin: 0;
+}
+
+/* Toggle del paso */
+.step-toggle {
+  font-size: 1.25rem;
+  color: var(--sap-neutral-text-color, #666);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.cascade-step.expanded .step-toggle {
+  transform: rotate(180deg);
+}
+
+/* Contenido del paso */
+.step-content {
+  padding: 2rem 1.5rem;
+  animation: slideDown 0.3s ease;
+  background: white;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Acciones del paso */
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--sap-neutral-border-color, #e0e0e0);
+}
+
+.btn-continue,
+.btn-back {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.btn-continue {
+  background: var(--sap-brand-color, #0070f2);
+  color: white;
+}
+
+.btn-continue:hover {
+  background: #005cc5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 112, 242, 0.3);
+}
+
+.btn-back {
+  background: var(--sap-neutral-background, #f5f5f5);
+  color: var(--sap-text-color, #333);
+}
+
+.btn-back:hover {
+  background: var(--sap-neutral-border-color, #e0e0e0);
+}
+
+/* Acciones finales del wizard */
+.wizard-actions-cascade {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--sap-neutral-border-color, #e0e0e0);
+}
+
+.wizard-actions-cascade .btn-primary {
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: #10b981;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wizard-actions-cascade .btn-primary:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.wizard-actions-cascade .btn-primary:disabled {
+  background: var(--sap-neutral-background, #e0e0e0);
+  color: var(--sap-neutral-text-color, #999);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wizard-actions-cascade .btn-secondary {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Responsive para diseño cascada */
+@media (max-width: 768px) {
+  .wizard-header-cascade {
+    padding: 1.5rem 1rem;
+  }
+
+  .wizard-main-title {
+    font-size: 1.5rem;
+  }
+
+  .wizard-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .wizard-form-cascade {
+    padding: 1rem;
+  }
+
+  .cascade-step {
+    margin-bottom: 1rem;
+  }
+
+  .step-header {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .step-indicator {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-title-cascade {
+    font-size: 1.1rem;
+  }
+
+  .step-description {
+    font-size: 0.8rem;
+  }
+
+  .step-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .step-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn-continue,
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wizard-actions-cascade {
+    flex-direction: column-reverse;
+  }
+
+  .wizard-actions-cascade .btn-primary,
+  .wizard-actions-cascade .btn-secondary {
+    width: 100%;
+  }
+}
+

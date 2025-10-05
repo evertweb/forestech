@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/FirebaseMaintenanceService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 
-const MaintenanceTable = ({ maintenanceRecords, onEdit, onView, onDelete, userRole }) => {
+const MaintenanceTable = ({ maintenanceRecords, onEdit, onView, onDelete }) => {
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
 
@@ -133,8 +133,6 @@ const MaintenanceTable = ({ maintenanceRecords, onEdit, onView, onDelete, userRo
     }
   });
 
-  const canManage = userRole === 'admin' || userRole === 'supervisor';
-
   return (
     <div className="maintenance-table-container sap-theme">
       <div className="table-wrapper sap-theme">
@@ -234,7 +232,7 @@ const MaintenanceTable = ({ maintenanceRecords, onEdit, onView, onDelete, userRo
                       👁️
                     </button>
 
-                    {canManage && onEdit && (
+                    {onEdit && (
                       <button
                         className="btn-action btn-edit sap-theme"
                         onClick={() => onEdit(maintenance)}
@@ -244,7 +242,7 @@ const MaintenanceTable = ({ maintenanceRecords, onEdit, onView, onDelete, userRo
                       </button>
                     )}
 
-                    {canManage && onDelete && (
+                    {onDelete && (
                       <button
                         className="btn-action btn-delete sap-theme"
                         onClick={() => onDelete(maintenance.id)}

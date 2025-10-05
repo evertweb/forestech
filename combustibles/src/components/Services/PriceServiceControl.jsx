@@ -8,7 +8,7 @@ import { usePriceUpdateService } from '../../hooks/usePriceUpdateService';
 import { PRICE_UPDATE_CONFIG } from '../../services/fuelPricesService';
 import './PriceServiceControl.css';
 
-const PriceServiceControl = ({ userRole }) => {
+const PriceServiceControl = () => {
   const {
     serviceStatus,
     startService,
@@ -21,9 +21,6 @@ const PriceServiceControl = ({ userRole }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState([]);
   const [customInterval, setCustomInterval] = useState(24); // horas
-
-  // Solo admin y supervisor pueden controlar el servicio
-  const canControl = ['admin', 'supervisor'].includes(userRole);
 
   useEffect(() => {
     if (showHistory) {
@@ -65,22 +62,6 @@ const PriceServiceControl = ({ userRole }) => {
         return '📋';
     }
   };
-
-  if (!canControl) {
-    return (
-      <div className="price-service-readonly">
-        <div className="service-status-display">
-          <span className="status-icon">{getStatusIcon()}</span>
-          <span className="status-text">Servicio de precios automáticos: {getStatusText()}</span>
-          {serviceStatus.lastUpdate && (
-            <span className="last-update-readonly">
-              Última actualización: {formatDateTime(serviceStatus.lastUpdate)}
-            </span>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="price-service-control">

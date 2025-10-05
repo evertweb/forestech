@@ -5,6 +5,7 @@
  */
 
 import sqlConnection from '../cloudsql/oil-connection.js';
+import { randomUUID } from 'crypto';
 
 const TABLE_NAME = 'combustibles_products';
 
@@ -51,19 +52,19 @@ export async function createProduct(productData, userInfo = null) {
     validateProductData(productData);
 
     // Preparar datos del producto
+    // Mantener sólo los campos esenciales (payload simplificado)
     const product = {
+      id: productData.id || randomUUID(),
       name: productData.name.trim(),
       displayName: productData.displayName || productData.name.trim(),
       code: productData.code?.toUpperCase() || null,
-      description: productData.description || '',
       category: productData.category || 'combustible',
       unit: productData.unit || 'galones',
-      price: preciseRound(productData.price || 0),
+      price: preciseRound(productData.price || productData.defaultPrice || 0),
       currentStock: preciseRound(productData.currentStock || 0),
       minThreshold: preciseRound(productData.minThreshold || 0),
       maxCapacity: productData.maxCapacity || 1000,
       isActive: productData.isActive !== false,
-      customFields: JSON.stringify(productData.customFields || {}),
       createdBy: userInfo?.email || 'unknown',
       createdByUid: userInfo?.uid || null,
       createdByName: userInfo?.displayName || userInfo?.email || 'Usuario',
@@ -73,20 +74,41 @@ export async function createProduct(productData, userInfo = null) {
 
     // Crear producto en transacción
     const result = await sqlConnection.transaction(async (transaction) => {
-      const columns = Object.keys(product);
-      const values = columns.map((_, index) => `@param${index}`);
+      // Insert explícito con columnas esperadas (evita depender de customFields)
       const insertQuery = `
-        INSERT INTO ${TABLE_NAME} (${columns.join(', ')})
-        VALUES (${values.join(', ')});
-        SELECT SCOPE_IDENTITY() as id;
+        INSERT INTO ${TABLE_NAME} (
+          id, name, displayName, code, category, unit,
+          price, currentStock, minThreshold, maxCapacity, isActive,
+          createdBy, createdByUid, createdByName, createdAt, updatedAt
+        )
+        VALUES (
+          @id, @name, @displayName, @code, @category, @unit,
+          @price, @currentStock, @minThreshold, @maxCapacity, @isActive,
+          @createdBy, @createdByUid, @createdByName, @createdAt, @updatedAt
+        );
+        SELECT @id as id;
       `;
 
       const insertRequest = transaction.request();
-      columns.forEach((col, index) => {
-        insertRequest.input(`param${index}`, product[col]);
-      });
-      const createResult = await insertRequest.query(insertQuery);
-      const productId = createResult.recordset[0]?.id;
+      insertRequest.input('id', product.id);
+      insertRequest.input('name', product.name);
+      insertRequest.input('displayName', product.displayName);
+      insertRequest.input('code', product.code);
+      insertRequest.input('category', product.category);
+      insertRequest.input('unit', product.unit);
+      insertRequest.input('price', product.price);
+      insertRequest.input('currentStock', product.currentStock);
+      insertRequest.input('minThreshold', product.minThreshold);
+      insertRequest.input('maxCapacity', product.maxCapacity);
+      insertRequest.input('isActive', product.isActive ? 1 : 0);
+      insertRequest.input('createdBy', product.createdBy);
+      insertRequest.input('createdByUid', product.createdByUid);
+      insertRequest.input('createdByName', product.createdByName);
+      insertRequest.input('createdAt', product.createdAt);
+      insertRequest.input('updatedAt', product.updatedAt);
+
+  const createResult = await insertRequest.query(insertQuery);
+  const productId = createResult.recordset[0]?.id || product.id;
 
       if (!productId) {
         throw new Error('No se pudo crear el producto');
@@ -118,10 +140,7 @@ export async function getAllProducts(filters = {}) {
     const params = {};
     const filterConditions = [];
 
-    if (filters.category) {
-      filterConditions.push('category = @category');
-      params.category = filters.category;
-    }
+    // category filter removed
 
     if (filters.isActive !== undefined) {
       filterConditions.push('isActive = @isActive');
@@ -129,7 +148,8 @@ export async function getAllProducts(filters = {}) {
     }
 
     if (filters.search) {
-      filterConditions.push('(name LIKE @search OR displayName LIKE @search OR description LIKE @search)');
+      // Buscar solo en name y displayName: description fue removido del esquema simplificado
+      filterConditions.push('(name LIKE @search OR displayName LIKE @search)');
       params.search = `%${filters.search}%`;
     }
 
@@ -146,10 +166,9 @@ export async function getAllProducts(filters = {}) {
     const result = await sqlConnection.query(query, params);
 
     if (result.length > 0) {
-      // Convertir timestamps y parsear JSON
+      // Convertir timestamps (schema simplificado, sin description/customFields)
       const formattedData = result.map(product => ({
         ...product,
-        customFields: product.customFields ? JSON.parse(product.customFields) : {},
         createdAt: product.createdAt ? product.createdAt.toISOString() : null,
         updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
       }));
@@ -186,7 +205,6 @@ export async function getProduct(productId) {
     // Convertir timestamps y parsear JSON
     const formattedData = {
       ...product,
-      customFields: product.customFields ? JSON.parse(product.customFields) : {},
       createdAt: product.createdAt ? product.createdAt.toISOString() : null,
       updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
     };
@@ -221,7 +239,7 @@ export async function updateProduct(productId, updateData, userInfo = null) {
       validateProductData(tempData);
     }
 
-    // Preparar datos de actualización
+    // Preparar datos de actualización y filtrar solo campos permitidos
     const updatePayload = {
       ...updateData,
       updatedAt: new Date(),
@@ -231,16 +249,32 @@ export async function updateProduct(productId, updateData, userInfo = null) {
       updatePayload.updatedBy = userInfo.email || 'unknown';
     }
 
-    // Procesar customFields como JSON
-    if (updatePayload.customFields && typeof updatePayload.customFields === 'object') {
-      updatePayload.customFields = JSON.stringify(updatePayload.customFields);
-    }
+    // Solo permitir actualizar columnas explícitas para evitar inyección de columnas
+    const allowedFields = new Set([
+      'name',
+      'displayName',
+      'code',
+      'category',
+      'unit',
+      'price',
+      'currentStock',
+      'minThreshold',
+      'maxCapacity',
+      'isActive',
+      'updatedAt',
+      'updatedBy'
+    ]);
 
-    // Construir UPDATE
     const setParts = [];
     const params = { id: productId };
 
     Object.entries(updatePayload).forEach(([column, value], index) => {
+      if (!allowedFields.has(column)) {
+        // Ignorar campos no permitidos (por ejemplo customFields)
+        console.warn(`⚠️ Ignorando campo no permitido en updateProduct: ${column}`);
+        return;
+      }
+
       if (value !== undefined) {
         setParts.push(`${column} = @param${index}`);
         params[`param${index}`] = value;
@@ -323,7 +357,6 @@ export async function getProductsByCategory(category) {
     if (result.length > 0) {
       const formattedData = result.map(product => ({
         ...product,
-        customFields: product.customFields ? JSON.parse(product.customFields) : {},
         createdAt: product.createdAt ? product.createdAt.toISOString() : null,
         updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
       }));
@@ -357,7 +390,6 @@ export async function getActiveProducts() {
     if (result.length > 0) {
       const formattedData = result.map(product => ({
         ...product,
-        customFields: product.customFields ? JSON.parse(product.customFields) : {},
         createdAt: product.createdAt ? product.createdAt.toISOString() : null,
         updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
       }));
@@ -428,8 +460,7 @@ export async function searchProducts(searchTerm) {
       SELECT * FROM ${TABLE_NAME}
       WHERE isActive = 1 AND (
         name LIKE @search OR
-        displayName LIKE @search OR
-        description LIKE @search
+        displayName LIKE @search
       )
       ORDER BY name ASC
     `;
@@ -439,7 +470,6 @@ export async function searchProducts(searchTerm) {
     if (result.length > 0) {
       const formattedData = result.map(product => ({
         ...product,
-        customFields: product.customFields ? JSON.parse(product.customFields) : {},
         createdAt: product.createdAt ? product.createdAt.toISOString() : null,
         updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
       }));
@@ -473,7 +503,7 @@ export async function getLowStockProducts() {
     if (result.length > 0) {
       const formattedData = result.map(product => ({
         ...product,
-        customFields: product.customFields ? JSON.parse(product.customFields) : {},
+        // customFields removed from simplified schema
         createdAt: product.createdAt ? product.createdAt.toISOString() : null,
         updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
       }));
@@ -510,7 +540,6 @@ export async function getProductByCode(productCode) {
     const product = result[0];
     const formattedData = {
       ...product,
-      customFields: product.customFields ? JSON.parse(product.customFields) : {},
       createdAt: product.createdAt ? product.createdAt.toISOString() : null,
       updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
     };

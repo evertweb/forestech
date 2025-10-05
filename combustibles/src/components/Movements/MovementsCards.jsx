@@ -17,7 +17,7 @@ const MOVEMENT_STATUS = {
   CANCELLED: 'cancelled',
 };
 
-const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
+const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, onDelete }) => {
   // Formatear moneda
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-CO', {
@@ -199,7 +199,7 @@ const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, onDele
             </div>
 
             <div className="card-actions sap-theme">
-              {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+              {movement.status === MOVEMENT_STATUS.PENDIENTE && (
                 <div className="admin-actions sap-theme">
                   <button
                     className="btn-approve sap-theme"
@@ -237,23 +237,21 @@ const MovementsCards = ({ movements, onEdit, onView, onApprove, onReject, onDele
                   </button>
                 )}
 
-                {userRole === 'admin' && (
-                  <button
-                    className="btn-delete sap-theme"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          '¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.'
-                        )
-                      ) {
-                        onDelete(movement.id);
-                      }
-                    }}
-                    title="Eliminar movimiento"
-                  >
-                    🗑️ Eliminar
-                  </button>
-                )}
+                <button
+                  className="btn-delete sap-theme"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        '¿Estás seguro de que deseas eliminar este movimiento? Esta acción no se puede deshacer.'
+                      )
+                    ) {
+                      onDelete(movement.id);
+                    }
+                  }}
+                  title="Eliminar movimiento"
+                >
+                  🗑️ Eliminar
+                </button>
               </div>
             </div>
           </div>

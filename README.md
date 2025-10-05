@@ -2,15 +2,15 @@
 
 > **🚀 [📋 GUÍA DE DEPLOYMENT - LECTURA OBLIGATORIA](./DEPLOYMENT_GUIDE.md)**
 
-Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + Cloud Run + Cloud SQL Server.
+Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + DigitalOcean SQL Server.
 
 ## 🤖 **PARA AGENTES DE IA (GitHub Copilot, Claude, ChatGPT)**
 
 ### **📋 Información Crítica de Deployment**
 - **Frontend**: Auto-deploy con `git push origin main`
-- **Backend**: Manual deploy via GitHub Actions únicamente
-- **Solo 3 workflows activos** (ignorar archivos .disabled)
-- **Arquitectura dual**: Firebase (frontend) + Cloud Run (backend)
+- **Functions**: Auto-deploy con push to main
+- **Solo 2 workflows activos** (ignorar archivos .disabled)
+- **Arquitectura**: Firebase (frontend + functions) + DigitalOcean SQL Server
 
 ### **📁 Archivos de Configuración para IA**
 - **`.ai`** - Instrucciones generales para todos los agentes
@@ -21,16 +21,16 @@ Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase +
 ### **🚨 Reglas Críticas para IA**
 - ❌ NO sugerir workflows desactivados (.yml.disabled)
 - ❌ NO usar `npm run deploy` (deprecated)
-- ❌ NO crear funciones SQL en Firebase Functions
+- ❌ NO mencionar Cloud SQL o Cloud Run (obsoletos)
 - ✅ Revisar DEPLOYMENT_GUIDE.md para procedimientos
-- ✅ Distinguir entre Firebase (frontend) y Cloud Run (backend)
+- ✅ Base de datos: DigitalOcean SQL Server (DBforestech)
 
 ---
 
 ## 🏗️ **ARQUITECTURA**
 
-- **🔥 Firebase**: Apps React (Combustibles + Alimentación) + SSR
-- **☁️ Cloud Run**: Backend SQL + Cloud SQL Server + Webhooks
+- **🔥 Firebase**: Apps React (Combustibles + Alimentación) + SSR + Functions
+- **🗄️ DigitalOcean**: SQL Server database (DBforestech - 24.199.89.134:1433)
 - **🧪 E2E**: Tests automatizados con Playwright
 
 ## ⚡ **INICIO RÁPIDO**

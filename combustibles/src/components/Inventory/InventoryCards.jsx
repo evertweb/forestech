@@ -3,10 +3,9 @@
 import React, { memo } from 'react';
 import { FUEL_INFO, STOCK_ALERTS } from '../../constants/combustibleTypes';
 
-const InventoryCardsComponent = ({ items, onEdit, onDelete, canManage }) => {
+const InventoryCardsComponent = ({ items, onEdit, onDelete }) => {
   console.log('🛢️ InventoryCards render', {
     itemsCount: items?.length || 0,
-    canManage,
   });
   const formatNumber = (num) => {
     return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(num);
@@ -108,22 +107,20 @@ const InventoryCardsComponent = ({ items, onEdit, onDelete, canManage }) => {
               <div className="last-update sap-theme">
                 Actualizado {getTimeAgo(item.updatedAt || item.lastUpdated)}
               </div>
-              {canManage && (
-                <div className="card-actions sap-theme">
-                  <button
-                    className="btn btn-secondary btn-sm sap-theme"
-                    onClick={() => onEdit(item)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm sap-theme"
-                    onClick={() => onDelete(item)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              )}
+              <div className="card-actions sap-theme">
+                <button
+                  className="btn btn-secondary btn-sm sap-theme"
+                  onClick={() => onEdit(item)}
+                >
+                  Editar
+                </button>
+                <button
+                  className="btn btn-danger btn-sm sap-theme"
+                  onClick={() => onDelete(item)}
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -136,8 +133,7 @@ const propsAreEqual = (prevProps, nextProps) => {
   return (
     prevProps.items === nextProps.items &&
     prevProps.onEdit === nextProps.onEdit &&
-    prevProps.onDelete === nextProps.onDelete &&
-    prevProps.canManage === nextProps.canManage
+    prevProps.onDelete === nextProps.onDelete
   );
 };
 

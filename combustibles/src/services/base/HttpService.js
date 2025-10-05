@@ -79,13 +79,6 @@ const ENDPOINT_TO_FUNCTION_MAP = {
   'sqlGetLowStockProducts': { functionName: 'combustiblesProducts', action: 'getLowStock' },
   'sqlGetProductByCode': { functionName: 'combustiblesProducts', action: 'getByCode' },
 
-  // Categorías de productos
-  'sqlCreateProductCategory': { functionName: 'combustiblesProducts', action: 'createCategory' },
-  'sqlGetProductCategories': { functionName: 'combustiblesProducts', action: 'getCategories' },
-  'sqlGetProductCategory': { functionName: 'combustiblesProducts', action: 'getCategoryById' },
-  'sqlUpdateProductCategory': { functionName: 'combustiblesProducts', action: 'updateCategory' },
-  'sqlDeleteProductCategory': { functionName: 'combustiblesProducts', action: 'deleteCategory' },
-
   // Mantenimiento
   'sqlCreateMaintenance': { functionName: 'combustiblesMaintenance', action: 'create' },
   'sqlCreateMaintenanceRecord': { functionName: 'combustiblesMaintenance', action: 'create' },

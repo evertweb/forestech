@@ -121,11 +121,6 @@ const AdminDashboardLayout = ({ user, userProfile, isOpen, onClose }) => {
     return null;
   }
 
-  // Autorización
-  if (userProfile?.role !== 'admin') {
-    return null; // No mostrar modal si no es admin
-  }
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -235,7 +230,6 @@ const AdminDashboardLayout = ({ user, userProfile, isOpen, onClose }) => {
                         {currentSection?.component && React.createElement(currentSection.component, {
                           user,
                           userProfile,
-                          ...(activeSection === 'prices' && { userRole: userProfile?.role })
                         })}
 
                         {!currentSection?.component && activeSection !== 'dashboard' && (

@@ -663,8 +663,8 @@ export const getMultipleFuelPrices = async (fuelTypes, city = 'BOGOTA') => {
  * @returns {string|null} Tipo de combustible detectado o null
  */
 export const detectFuelType = (productName, category) => {
-  const name = productName.toUpperCase().trim();
-  const cat = category.toUpperCase().trim();
+  const name = (productName || '').toUpperCase().trim();
+  const cat = (category || '').toUpperCase().trim();
 
   // Detectar por nombre del producto - patrones específicos primero
   // ACPM y DIESEL tienen máxima prioridad
@@ -677,12 +677,23 @@ export const detectFuelType = (productName, category) => {
     return 'DIESEL';
   }
 
+  // BIODIESEL: detectar antes que DIESEL para evitar colisiones de substring
   if (
-    name === 'DIESEL' ||
-    name.includes('DIESEL') ||
-    name.includes('DIÉSEL') ||
-    name.startsWith('DIESEL ') ||
-    name.endsWith(' DIESEL')
+    name.includes('BIODIESEL') ||
+    name.includes('BIO-DIESEL') ||
+    name === 'BIODIESEL' ||
+    (name.includes('BIO') && name.includes('DIESEL'))
+  ) {
+    return 'BIOFUEL';
+  }
+
+  if (
+    (name === 'DIESEL' ||
+      name.includes('DIESEL') ||
+      name.includes('DIÉSEL') ||
+      name.startsWith('DIESEL ') ||
+      name.endsWith(' DIESEL')) &&
+    !name.includes('BIO')
   ) {
     return 'DIESEL';
   }
@@ -701,8 +712,13 @@ export const detectFuelType = (productName, category) => {
     return 'GASOLINE';
   }
 
-  // BIODIESEL
-  if (name.includes('BIODIESEL') || name.includes('BIO-DIESEL') || name === 'BIODIESEL') {
+  // BIODIESEL (verificar antes de DIESEL para evitar colisiones de substring)
+  if (
+    name.includes('BIODIESEL') ||
+    name.includes('BIO-DIESEL') ||
+    name === 'BIODIESEL' ||
+    name.includes('BIO') && name.includes('DIESEL')
+  ) {
     return 'BIOFUEL';
   }
 
@@ -717,8 +733,8 @@ export const detectFuelType = (productName, category) => {
     return 'ETHANOL';
   }
 
-  // Detectar por categoría si el nombre no es específico
-  if (cat.includes('COMBUSTIBLE') || cat.includes('FUEL')) {
+  // Detectar por categoría si el nombre no es específico (compatibilidad)
+  if (cat && (cat.includes('COMBUSTIBLE') || cat.includes('FUEL'))) {
     // Si la categoría menciona diesel o acpm, priorizar diesel
     if (cat.includes('DIESEL') || cat.includes('ACPM')) {
       return 'DIESEL';
@@ -736,7 +752,9 @@ export const detectFuelType = (productName, category) => {
  * @returns {boolean} True si puede usar precios automáticos
  */
 export const canUseAutomaticPricing = (product) => {
-  const fuelType = detectFuelType(product.name, product.category);
+  // Accept either product object or { name }
+  const name = product?.name || (typeof product === 'string' ? product : '');
+  const fuelType = detectFuelType(name, product?.category);
   return fuelType !== null;
 };
 
@@ -747,7 +765,7 @@ export const canUseAutomaticPricing = (product) => {
  * @returns {Promise<Object>} Producto actualizado con nuevo precio
  */
 export const updateProductPriceFromAPI = async (product, city = 'BOGOTA') => {
-  const fuelType = detectFuelType(product.name, product.category);
+  const fuelType = detectFuelType(product.name);
 
   if (!fuelType) {
     throw new Error('No se pudo detectar el tipo de combustible para este producto');

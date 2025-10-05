@@ -41,7 +41,6 @@ const VehiclesMain = () => {
   
   // 🔐 Zustand Store - Auth (selectores individuales para evitar loops)
   const user = useAuthStore(state => state.user);
-  const userProfile = useAuthStore(state => state.userProfile);
 
   // Hook para progreso transparente de Firebase (disponible para uso futuro)
   const { executeWithProgress: _executeWithProgress } = useFirebaseProgressContext();
@@ -219,14 +218,6 @@ const VehiclesMain = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [handleCreateVehicle]);
 
-  // Permisos del usuario
-  const canCreateVehicle =
-    userProfile?.role === 'admin' ||
-    userProfile?.role === 'operador' ||
-    userProfile?.role === 'consulta';
-  const canEditVehicle = userProfile?.role === 'admin';
-  const canManageVehicle = userProfile?.role === 'admin' || userProfile?.role === 'operador';
-
   // Componentes para PageLayout
   const headerActions = useMemo(
     () => (
@@ -248,7 +239,7 @@ const VehiclesMain = () => {
         </div>
 
         {/* Botón crear vehículo solo para tab vehículos */}
-        {activeTab === 'vehicles' && canCreateVehicle && (
+        {activeTab === 'vehicles' && (
           <div className="apple-content-actions">
             <button className="apple-button apple-button-primary" onClick={handleCreateVehicle}>
               ➕ Nuevo Vehículo
@@ -262,7 +253,7 @@ const VehiclesMain = () => {
         )}
       </div>
     ),
-    [activeTab, canCreateVehicle, handleCreateVehicle, openingPopup]
+    [activeTab, handleCreateVehicle, openingPopup]
   );
 
   const statsComponent = useMemo(() => {
@@ -339,7 +330,7 @@ const VehiclesMain = () => {
                     ? 'Comienza registrando tu primer vehículo o maquinaria forestal'
                     : 'Intenta ajustar los filtros de búsqueda'}
                 </p>
-                {vehicles.length === 0 && canCreateVehicle && (
+                {vehicles.length === 0 && (
                   <button className="apple-button apple-button-primary" onClick={handleCreateVehicle}>
                     ➕ Registrar Primer Vehículo
                   </button>
@@ -349,10 +340,9 @@ const VehiclesMain = () => {
               <VehiclesList
                 vehicles={filteredVehicles}
                 viewMode={viewMode}
-                onEdit={canEditVehicle ? handleEditVehicle : null}
+                onEdit={handleEditVehicle}
                 onView={handleViewVehicle}
-                onMaintenance={canManageVehicle ? handleMaintenanceVehicle : null}
-                userRole={user?.role}
+                onMaintenance={handleMaintenanceVehicle}
               />
             ))}
 
@@ -456,9 +446,6 @@ const VehiclesMain = () => {
     </>
   ), [
     activeTab,
-    canCreateVehicle,
-    canEditVehicle,
-    canManageVehicle,
     error,
     filteredVehicles,
     handleCreateVehicle,
@@ -472,7 +459,6 @@ const VehiclesMain = () => {
     selectedVehicle,
     showMaintenanceModal,
     showModal,
-    user?.role,
     vehicles.length,
     viewMode,
   ]);

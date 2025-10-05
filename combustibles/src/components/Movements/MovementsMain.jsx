@@ -32,7 +32,6 @@ const MovementsMain = () => {
   // 🏪 Zustand Stores - Selectores optimizados para evitar re-renders
   // Usar selectores individuales en lugar de array destructuring para evitar loops
   const user = useAuthStore(state => state.user);
-  const userProfile = useAuthStore(state => state.userProfile);
   const hasPermission = useAuthStore(state => state.hasPermission);
   const deleteMovement = useMovementsStore(state => state.deleteMovement);
   const inventory = useInventoryStore(state => state.inventory);
@@ -358,7 +357,6 @@ const MovementsMain = () => {
         onApprove={handleApproveMovement}
         onReject={handleRejectMovement}
         onDelete={handleDeleteMovement}
-        userRole={userProfile?.role}
       />
     );
 
@@ -433,7 +431,6 @@ const MovementsMain = () => {
     movements,
     popupError,
     showWizard,
-    userProfile?.role,
   ]);
 
   return (

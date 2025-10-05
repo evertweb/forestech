@@ -12,8 +12,7 @@ const MovementsList = ({
   onView,
   onApprove,
   onReject,
-  onDelete,
-  userRole
+  onDelete
 }) => {
   return (
     <MovementsTable
@@ -23,7 +22,6 @@ const MovementsList = ({
       onApprove={onApprove}
       onReject={onReject}
       onDelete={onDelete}
-      userRole={userRole}
     />
   );
 };

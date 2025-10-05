@@ -336,12 +336,12 @@ export const useProductsStore = create(
         getFuelTypesForSelect: () => {
           const { products } = get();
           return products
-            .filter(p => p.active !== false)
+            .filter(p => p.isActive !== false)
             .map(p => ({
               value: p.name || p.id,
               label: p.name || p.displayName || p.id,
               unit: p.unit || 'gal',
-              color: p.color,
+              // color may exist in legacy rows; keep spread to preserve it if present
               ...p,
             }));
         },

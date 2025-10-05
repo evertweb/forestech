@@ -16,7 +16,7 @@ Forestech maneja **2 sistemas de deployment separados**:
 - **Triggers**: Push a main + Manual
 
 ### **2. ☁️ Cloud Run (Backend SQL)**
-- **Servicios**: SQL endpoints + Cloud SQL Server
+- **Servicios**: SQL endpoints + DigitalOcean SQL Server
 - **URL**: https://forestech-sql-service-851382130132.us-central1.run.app
 - **Funciones**: 60+ endpoints SQL, webhooks, face recognition
 - **Triggers**: Solo manual (requiere permisos)

@@ -17,13 +17,12 @@ const MOVEMENT_STATUS = {
   CANCELLED: 'cancelled',
 };
 
-const MovementsTableComponent = ({ movements, onEdit, onView, onApprove, onReject, onDelete, userRole }) => {
+const MovementsTableComponent = ({ movements, onEdit, onView, onApprove, onReject, onDelete }) => {
   const [sortField, setSortField] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
 
   console.log('📊 MovementsTable render', {
     movementsCount: movements?.length || 0,
-    userRole,
   });
 
   // Formatear moneda
@@ -203,7 +202,6 @@ const MovementsTableComponent = ({ movements, onEdit, onView, onApprove, onRejec
               <MovementRow
                 key={movement.id}
                 movement={movement}
-                userRole={userRole}
                 onView={onView}
                 onApprove={onApprove}
                 onReject={onReject}
@@ -257,8 +255,7 @@ const propsAreEqual = (prevProps, nextProps) => {
     prevProps.onView === nextProps.onView &&
     prevProps.onApprove === nextProps.onApprove &&
     prevProps.onReject === nextProps.onReject &&
-    prevProps.onDelete === nextProps.onDelete &&
-    prevProps.userRole === nextProps.userRole
+    prevProps.onDelete === nextProps.onDelete
   );
 };
 
@@ -269,7 +266,6 @@ export default MovementsTable;
 // Fila memoizada
 const MovementRow = memo(function MovementRow({
   movement,
-  userRole,
   onView,
   onApprove,
   onReject,
@@ -377,7 +373,7 @@ const MovementRow = memo(function MovementRow({
           >
             👁️
           </button>
-          {userRole === 'admin' && movement.status === MOVEMENT_STATUS.PENDIENTE && (
+          {movement.status === MOVEMENT_STATUS.PENDIENTE && (
             <>
               <button
                 className="apple-action-button"
@@ -406,16 +402,14 @@ const MovementRow = memo(function MovementRow({
               ✏️
             </button>
           )}
-          {userRole === 'admin' && (
-            <button
-              className="apple-action-button"
-              onClick={handleDelete}
-              title="Eliminar movimiento"
-              style={{ color: 'var(--interactive-error)' }}
-            >
-              🗑️
-            </button>
-          )}
+          <button
+            className="apple-action-button"
+            onClick={handleDelete}
+            title="Eliminar movimiento"
+            style={{ color: 'var(--interactive-error)' }}
+          >
+            🗑️
+          </button>
         </div>
       </td>
     </tr>

@@ -240,7 +240,6 @@ const AdminMain = () => {
               {currentSection?.component && React.createElement(currentSection.component, {
                 user,
                 userProfile,
-                ...(activeSection === 'prices' && { userRole: userProfile?.role })
               })}
 
               {!currentSection?.component && activeSection !== 'dashboard' && (

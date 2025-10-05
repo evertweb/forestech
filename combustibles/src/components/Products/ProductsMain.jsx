@@ -15,12 +15,10 @@ import {
 } from '../../services/FirebaseProductsService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import { useAuthStore } from '../../stores';
-import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { openProductWizardPopup } from '../Popups/PopupManager';
 import { POPUP_EVENTS } from '../../services/popupCommunication';
 import ProductModal from './ProductModal';
 import ProductsStats from './ProductsStats';
-import ProductCategoriesManager from './ProductCategoriesManager';
 import { PageLayout, ShimmerLoader, ShimmerCardsGrid, ShimmerTable } from '../shared';
 import './ProductsMain-SAP.css';
 
@@ -38,15 +36,9 @@ const ProductsMain = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalMode, setModalMode] = useState('create');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  // category removed globally
   const [showStats, setShowStats] = useState(true);
-  const [showCategoriesManager, setShowCategoriesManager] = useState(false);
 
-  const productCategoryOptions = useMemo(() => Object.values(PRODUCT_CATEGORIES), []);
-
-  const handleToggleCategoriesManager = useCallback(() => {
-    setShowCategoriesManager((prev) => !prev);
-  }, []);
 
   const toggleShowStats = useCallback(() => {
     setShowStats((prev) => !prev);
@@ -56,9 +48,7 @@ const ProductsMain = () => {
     setSearchTerm(event.target.value);
   }, []);
 
-  const handleCategoryChange = useCallback((event) => {
-    setSelectedCategory(event.target.value);
-  }, []);
+  // category filter removed
 
   const handleModalClose = useCallback(() => {
     setIsModalOpen(false);
@@ -66,33 +56,29 @@ const ProductsMain = () => {
     setModalMode('create');
   }, []);
 
-  // Permisos de usuario - permitir más roles para gestionar productos
-  const canManageProducts = ['admin', 'supervisor', 'manager', 'operator'].includes(
-    userProfile?.role
-  );
-
-  // Debug: Mostrar información del usuario y permisos en consola
-  console.log('🔍 ProductsMain Debug:', {
-    userProfile,
-    userRole: userProfile?.role,
-    canManageProducts,
-    allRoles: ['admin', 'supervisor', 'manager', 'operator'],
-  });
-
   useEffect(() => {
     setLoading(true);
-    const unsubscribe = subscribeToProducts(
-      (productsData) => {
-        setProducts(productsData);
+    const unsubscribe = subscribeToProducts((data, err) => {
+      if (err) {
+        console.error('Error subscribing to products:', err);
+        setError(err?.message || String(err));
         setLoading(false);
-        setError(null);
-      },
-      (error) => {
-        console.error('Error loading products:', error);
-        setError('Error cargando productos');
-        setLoading(false);
+        return;
       }
-    );
+
+      // data expected to be an array of products
+      if (Array.isArray(data)) {
+        setProducts(data);
+      } else if (data && Array.isArray(data.data)) {
+        // compat with service wrapper returning { data }
+        setProducts(data.data);
+      } else {
+        setProducts([]);
+      }
+
+      setError(null);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, []);
@@ -103,9 +89,8 @@ const ProductsMain = () => {
     console.log('ℹ️ App iniciada sin productos predefinidos - estado limpio:', {
       productsLength: products.length,
       loading,
-      canManageProducts,
     });
-  }, [products.length, loading, canManageProducts]);
+  }, [products.length, loading]);
 
   const handleCreateProduct = useCallback(() => {
     // Datos iniciales para el popup
@@ -205,7 +190,7 @@ const ProductsMain = () => {
     }
   }, [executeWithProgress, modalMode, selectedProduct]);
 
-  // Filtrar productos
+  // Filtrar productos por búsqueda (category eliminado)
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -214,35 +199,22 @@ const ProductsMain = () => {
         !normalizedSearch ||
         product.displayName?.toLowerCase().includes(normalizedSearch) ||
         product.name?.toLowerCase().includes(normalizedSearch);
-      const matchesCategory = !selectedCategory || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+
+      return matchesSearch;
     });
-  }, [products, searchTerm, selectedCategory]);
+  }, [products, searchTerm]);
 
-  const headerActions = useMemo(() => {
-    if (!canManageProducts) {
-      return null;
-    }
+  const headerActions = useMemo(() => (
+    <div className="apple-content-actions">
+      <button
+        className="apple-button apple-button-primary"
+        onClick={handleCreateProduct}
+      >
+        ➕ Nuevo producto
+      </button>
 
-    return (
-      <div className="apple-content-actions">
-        <button
-          className="apple-button apple-button-primary"
-          onClick={handleCreateProduct}
-        >
-          ➕ Nuevo producto
-        </button>
-
-        <button
-          className="apple-button apple-button-secondary"
-          onClick={handleToggleCategoriesManager}
-          style={{ marginLeft: '10px' }}
-        >
-          🏷️ Gestionar Categorías
-        </button>
-      </div>
-    );
-  }, [canManageProducts, handleCreateProduct, handleToggleCategoriesManager]);
+    </div>
+  ), [handleCreateProduct]);
 
   const filtersComponent = useMemo(() => (
     <div className="apple-content-section">
@@ -258,21 +230,6 @@ const ProductsMain = () => {
         </div>
 
         <div className="apple-form-group">
-          <select
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            className="apple-form-select"
-          >
-            <option value="">🏷️ Todas las categorías</option>
-            {productCategoryOptions.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="apple-form-group">
           <button
             className={`apple-button ${showStats ? 'apple-button-primary' : 'apple-button-secondary'}`}
             onClick={toggleShowStats}
@@ -282,15 +239,7 @@ const ProductsMain = () => {
         </div>
       </div>
     </div>
-  ), [
-    handleCategoryChange,
-    handleSearchChange,
-    productCategoryOptions,
-    searchTerm,
-    selectedCategory,
-    showStats,
-    toggleShowStats,
-  ]);
+  ), [handleSearchChange, searchTerm, showStats, toggleShowStats]);
 
   const tableContent = useMemo(() => (
     <>
@@ -305,7 +254,7 @@ const ProductsMain = () => {
               </div>
               <div className="product-info">
                 <h3 className="apple-card-title">{product.displayName}</h3>
-                <p className="apple-card-subtitle">{product.category}</p>
+                {/* category removed from product display */}
                 <p className="apple-body-small text-secondary">{product.description}</p>
               </div>
             </div>
@@ -342,26 +291,22 @@ const ProductsMain = () => {
                     👁️
                   </button>
 
-                  {canManageProducts && (
-                    <>
-                      <button
-                        className="apple-action-button primary"
-                        onClick={() => handleEditProduct(product)}
-                        title="Editar producto"
-                      >
-                        ✏️
-                      </button>
+                  <button
+                    className="apple-action-button primary"
+                    onClick={() => handleEditProduct(product)}
+                    title="Editar producto"
+                  >
+                    ✏️
+                  </button>
 
-                      <button
-                        className="apple-action-button"
-                        onClick={() => handleDeleteProduct(product.id)}
-                        title="Eliminar producto"
-                        style={{ color: 'var(--interactive-error)' }}
-                      >
-                        🗑️
-                      </button>
-                    </>
-                  )}
+                  <button
+                    className="apple-action-button"
+                    onClick={() => handleDeleteProduct(product.id)}
+                    title="Eliminar producto"
+                    style={{ color: 'var(--interactive-error)' }}
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             </div>
@@ -374,11 +319,11 @@ const ProductsMain = () => {
           <div className="apple-empty-icon">📦</div>
           <h3 className="apple-empty-title">No hay productos</h3>
           <p className="apple-empty-description">
-            {searchTerm || selectedCategory
+            {searchTerm
               ? 'No se encontraron productos con los filtros aplicados.'
               : 'Aún no hay productos registrados.'}
           </p>
-          {canManageProducts && !searchTerm && !selectedCategory && (
+          {!searchTerm && (
             <button
               className="apple-button apple-button-primary"
               onClick={handleCreateProduct}
@@ -390,7 +335,6 @@ const ProductsMain = () => {
       )}
     </>
   ), [
-    canManageProducts,
     error,
     filteredProducts,
     handleCreateProduct,
@@ -398,7 +342,6 @@ const ProductsMain = () => {
     handleEditProduct,
     handleViewProduct,
     searchTerm,
-    selectedCategory,
   ]);
 
   const statsComponent = useMemo(() => {
@@ -432,19 +375,7 @@ const ProductsMain = () => {
         product={selectedProduct}
         mode={modalMode}
         onSave={handleModalSave}
-        userRole={userProfile?.role}
       />
-
-      {/* Gestor de Categorías */}
-      {showCategoriesManager && (
-        <ProductCategoriesManager
-          onClose={handleToggleCategoriesManager}
-          onCategoryCreated={() => {
-            // Refrescar productos si es necesario
-            console.log('Nueva categoría creada');
-          }}
-        />
-      )}
     </PageLayout>
   );
 };

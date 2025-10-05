@@ -1,15 +1,9 @@
 /**
- * PASSKEY AUTH FUNCTIONS MOVIDAS A CLOUD RUN
- * 
- * ✅ Estas funciones ahora están implementadas en Cloud Run:
- * - URL: https://forestech-sql-service-851382130132.us-central1.run.app/auth/
- * - Mejor performance y integración directa con base de datos
- * - Sin limitaciones de cuota Firebase Functions
- * 
- * ❌ ELIMINADAS de Firebase Functions para evitar duplicación y conflictos Gen1/Gen2
- * 
- * Si necesitas alguna función específica en Firebase Functions, usa:
- * import { onCall, HttpsError } from 'firebase-functions/v1/https';
+ * PASSKEY AUTH FUNCTIONS (Histórico)
+ *
+ * Nota: Las referencias a Cloud Run aquí son históricas. Actualmente el backend activo es
+ * Firebase Functions. Si necesitas reimplementar o mover funciones, prioriza Firebase Functions
+ * y consulta DEPLOYMENT_GUIDE.md.
  */
 
 import { onCall, HttpsError } from 'firebase-functions/v1/https';

@@ -1,6 +1,7 @@
 /**
- * CloudRunProductsService - Servicio de productos usando Cloud Run SQL endpoints
- * Reemplaza productsService para usar endpoints SQL migrados
+ * FirebaseProductsService
+ * NOTE: Aunque el nombre histórico menciona Cloud Run, Cloud Run está obsoleto.
+ * Este servicio usa la capa de funciones (httpsCallable) en Firebase Functions.
  * Forestech Combustibles App
  */
 
@@ -16,16 +17,37 @@ class FirebaseProductsService extends HttpService {
    * @param {Object} productData - Datos del producto
    * @returns {Promise<Object>} - Resultado de la operación
    */
-  async createProduct(productData) {
+  async create(productData) {
     try {
       if (!(await this.isAuthenticated())) {
         return { success: false, error: 'Usuario no autenticado' };
       }
 
+      // Construir payload seguro con solo campos permitidos
+      const currentUser = await this.getCurrentUser();
+      const safeProduct = {
+        name: productData.name,
+        displayName: productData.displayName,
+        code: productData.code || null,
+        category: productData.category || 'combustible',
+        unit: productData.unit || 'gal',
+        price: parseFloat(productData.price ?? productData.defaultPrice) || 0,
+        currentStock: parseFloat(productData.currentStock) || 0,
+        minThreshold: parseFloat(productData.minThreshold) || 0,
+        maxCapacity: parseFloat(productData.maxCapacity) || 1000,
+        isActive: productData.isActive !== false,
+      };
+
+      // Log si hay campos inesperados (ayuda a depurar origen de customFields)
+      const unexpectedKeys = Object.keys(productData).filter(k => !Object.keys(safeProduct).includes(k));
+      if (unexpectedKeys.length > 0) {
+        console.warn('⚠️ FirebaseProductsService.create - Campos inesperados en productData (serán ignorados):', unexpectedKeys);
+      }
+
       const result = await this.callEndpoint('sqlCreateProduct', {
         productData: {
-          ...productData,
-          createdBy: (await this.getCurrentUser())?.uid
+          ...safeProduct,
+          createdBy: currentUser?.uid
         }
       });
 
@@ -39,44 +61,61 @@ class FirebaseProductsService extends HttpService {
     }
   }
 
+  // Alias para compatibilidad
+  async createProduct(productData) {
+    return this.create(productData);
+  }
+
   /**
    * Obtener todos los productos
    * @param {Object} filters - Filtros opcionales
-   * @returns {Promise<Array>} - Lista de productos
+   * @returns {Promise<Object>} - Resultado con data
    */
-  async getAllProducts(filters = {}) {
+  async getAll(filters = {}) {
     try {
       const result = await this.callEndpoint('sqlGetAllProducts', { filters });
 
       if (result.success && result.data) {
-        return result.data;
+        return { success: true, data: result.data };
       }
 
-      return [];
+      return { success: true, data: [] };
     } catch (error) {
       console.error('Error obteniendo productos:', error);
-      throw error;
+      return { success: false, error: error.message, data: [] };
     }
+  }
+
+  // Alias para compatibilidad
+  async getAllProducts(filters = {}) {
+    const result = await this.getAll(filters);
+    return result.data || [];
   }
 
   /**
    * Obtener producto por ID
    * @param {string} productId - ID del producto
-   * @returns {Promise<Object|null>} - Producto encontrado
+   * @returns {Promise<Object>} - Resultado con data
    */
-  async getProduct(productId) {
+  async getById(productId) {
     try {
       const result = await this.callEndpoint('sqlGetProduct', { productId });
 
       if (result.success && result.data) {
-        return result.data;
+        return { success: true, data: result.data };
       }
 
-      return null;
+      return { success: false, error: 'Producto no encontrado', data: null };
     } catch (error) {
       console.error('Error obteniendo producto:', error);
-      throw error;
+      return { success: false, error: error.message, data: null };
     }
+  }
+
+  // Alias para compatibilidad
+  async getProduct(productId) {
+    const result = await this.getById(productId);
+    return result.data;
   }
 
   /**
@@ -85,7 +124,7 @@ class FirebaseProductsService extends HttpService {
    * @param {Object} updateData - Datos a actualizar
    * @returns {Promise<Object>} - Resultado de la operación
    */
-  async updateProduct(productId, updateData) {
+  async update(productId, updateData) {
     try {
       if (!(await this.isAuthenticated())) {
         return { success: false, error: 'Usuario no autenticado' };
@@ -109,12 +148,17 @@ class FirebaseProductsService extends HttpService {
     }
   }
 
+  // Alias para compatibilidad
+  async updateProduct(productId, updateData) {
+    return this.update(productId, updateData);
+  }
+
   /**
    * Eliminar producto
    * @param {string} productId - ID del producto
    * @returns {Promise<Object>} - Resultado de la operación
    */
-  async deleteProduct(productId) {
+  async delete(productId) {
     try {
       const result = await this.callEndpoint('sqlDeleteProduct', { productId });
       return result;
@@ -125,6 +169,11 @@ class FirebaseProductsService extends HttpService {
         error: 'Error al eliminar el producto: ' + error.message
       };
     }
+  }
+
+  // Alias para compatibilidad
+  async deleteProduct(productId) {
+    return this.delete(productId);
   }
 
   /**

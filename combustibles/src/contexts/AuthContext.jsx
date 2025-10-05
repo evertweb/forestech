@@ -159,18 +159,12 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // Funciones de utilidad para permisos
-  const hasPermission = (permission) => {
-    return userProfile?.combustiblesPermissions?.[permission] || false;
-  };
+  // Funciones de utilidad para permisos - TODOS tienen acceso completo en preview
+  const hasPermission = () => true;
 
-  const isAdmin = () => {
-    return userProfile?.role === 'admin';
-  };
+  const isAdmin = () => true;
 
-  const isCounterOrAbove = () => {
-    return userProfile?.role === 'admin' || userProfile?.role === 'contador';
-  };
+  const isCounterOrAbove = () => true;
 
   const value = {
     user,

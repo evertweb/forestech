@@ -34,14 +34,13 @@ class FirebaseVehicleCategoriesService extends HttpService {
         return { success: false, error: 'Usuario no autenticado' };
       }
 
-      // Verificar permisos
-      const currentUser = await this.getCurrentUser();
-      if (!currentUser?.combustiblesPermissions?.['categories:create']) {
-        console.error('❌ FirebaseVehicleCategoriesService.createCategory - Usuario sin permisos para crear categorías');
-        return { success: false, error: 'No tiene permisos para crear categorías' };
-      }
+      console.log('✅ FirebaseVehicleCategoriesService.createCategory - Usuario autenticado');
 
-      console.log('✅ FirebaseVehicleCategoriesService.createCategory - Usuario autenticado y con permisos');
+      const currentUser = await this.getCurrentUser();
+      if (!currentUser) {
+        console.error('❌ FirebaseVehicleCategoriesService.createCategory - No se pudo obtener el usuario actual');
+        return { success: false, error: 'Usuario no autenticado' };
+      }
 
       // Validación de payload básico
       if (!categoryData || typeof categoryData !== 'object') {
@@ -199,11 +198,10 @@ class FirebaseVehicleCategoriesService extends HttpService {
         return { success: false, error: 'Usuario no autenticado' };
       }
 
-      // Verificar permisos
       const currentUser = await this.getCurrentUser();
-      if (!currentUser?.combustiblesPermissions?.['categories:update']) {
-        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - Usuario sin permisos para actualizar categorías');
-        return { success: false, error: 'No tiene permisos para actualizar categorías' };
+      if (!currentUser) {
+        console.error('❌ FirebaseVehicleCategoriesService.updateCategory - No se pudo obtener el usuario actual');
+        return { success: false, error: 'Usuario no autenticado' };
       }
 
       // Validación de parámetros
@@ -288,13 +286,6 @@ class FirebaseVehicleCategoriesService extends HttpService {
       if (!(await this.isAuthenticated())) {
         console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - Usuario no autenticado');
         return { success: false, error: 'Usuario no autenticado' };
-      }
-
-      // Verificar permisos
-      const currentUser = await this.getCurrentUser();
-      if (!currentUser?.combustiblesPermissions?.['categories:delete']) {
-        console.error('❌ FirebaseVehicleCategoriesService.deleteCategory - Usuario sin permisos para eliminar categorías');
-        return { success: false, error: 'No tiene permisos para eliminar categorías' };
       }
 
       // Validación de parámetros

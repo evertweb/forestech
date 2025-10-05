@@ -38,6 +38,7 @@ import '../../styles/inventory-header.css';
 const InventoryMain = () => {
   // 🔐 Zustand Store - Solo permisos
   const hasPermission = useAuthStore(state => state.hasPermission);
+  const canManageInventory = hasPermission('inventory:create');
 
   // Hook para progreso transparente de Firebase
   const { executeWithProgress } = useFirebaseProgressContext();
@@ -141,8 +142,6 @@ const InventoryMain = () => {
     });
   }, [filterCategory, filterStatus, inventoryItems, searchTerm]);
 
-  const canManageInventory = useMemo(() => hasPermission('canManageInventory'), [hasPermission]);
-
   // Enhanced stats calculation
   const enhancedStats = useMemo(() => {
     const totalItems = inventoryItems.filter((item) => item.isActive !== false).length;
@@ -176,20 +175,11 @@ const InventoryMain = () => {
   }, [inventoryItems, inventoryStats]);
 
   const handleEdit = useCallback((item) => {
-    if (!canManageInventory) {
-      alert('No tienes permisos para editar items de inventario');
-      return;
-    }
     setEditingItem(item);
     setShowModal(true);
-  }, [canManageInventory]);
+  }, []);
 
   const handleDelete = useCallback(async (item) => {
-    if (!canManageInventory) {
-      alert('No tienes permisos para eliminar items de inventario');
-      return;
-    }
-
     const confirmed = window.confirm(
       `¿Estás seguro de eliminar ${item.name} de ${item.location}?\n\nEsta acción no se puede deshacer.`
     );
@@ -222,7 +212,7 @@ const InventoryMain = () => {
       console.error('❌ Error al eliminar item:', error);
       alert(`Error al eliminar: ${error.message}`);
     }
-  }, [canManageInventory, executeWithProgress]);
+  }, [executeWithProgress]);
 
   const handleModalClose = useCallback(() => {
     setShowModal(false);
@@ -234,13 +224,9 @@ const InventoryMain = () => {
   }, [handleModalClose]);
 
   const handleAddItem = useCallback(() => {
-    if (!canManageInventory) {
-      alert('No tienes permisos para agregar items de inventario');
-      return;
-    }
     setEditingItem(null);
     setShowModal(true);
-  }, [canManageInventory]);
+  }, []);
 
   const clearFilters = useCallback(() => {
     setSearchTerm('');
@@ -250,6 +236,10 @@ const InventoryMain = () => {
 
   // Componentes para PageLayout
   const headerActions = useMemo(() => {
+    if (!canManageInventory) {
+      return null;
+    }
+
     return (
       <div className="inventory-header-actions">
         <button
@@ -274,7 +264,7 @@ const InventoryMain = () => {
         </div>
       </div>
     );
-  }, [handleAddItem]);
+  }, [canManageInventory, handleAddItem]);
 
   // Generar cards unificadas para inventario
   const inventoryCards = useMemo(() => {
@@ -517,7 +507,6 @@ const InventoryMain = () => {
                     items={filteredItems}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
-                    canManage={canManageInventory}
                   />
                 </div>
               ) : (
@@ -526,7 +515,6 @@ const InventoryMain = () => {
                     items={filteredItems}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
-                    canManage={canManageInventory}
                   />
                 </div>
               )}
@@ -596,7 +584,6 @@ const InventoryMain = () => {
     );
   }, [
     CardDetailsModal,
-    canManageInventory,
     clearFilters,
     editingItem,
     enhancedStats,

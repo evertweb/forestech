@@ -1,8 +1,10 @@
 # 🚀 INTEGRACIÓN CLOUD RUN - FORESTECH COMBUSTIBLES
 
-## ✅ Estado de la Migración
+> ⚠️ DEPRECATED: Esta guía es histórica. Cloud Run ya no se utiliza activamente en el repositorio. Para despliegues y operaciones en producción usa Firebase Functions (GitHub Actions "🚀 Deploy to Firebase").
 
-**MIGRACIÓN COMPLETADA** - Firebase Functions → Google Cloud Run
+## ✅ Estado de la Migración (Histórico)
+
+**MIGRACIÓN COMPLETADA** - Firebase Functions → Google Cloud Run (registro histórico)
 
 ### 📊 Resumen
 - ✅ **Servicio activo:** `https://forestech-sql-service-851382130132.us-central1.run.app`

@@ -12,15 +12,16 @@ git push origin main
 ```
 
 ### ☁️ **Backend cambió**  
+> ⚠️ Nota importante: Cloud Run ya no se usa en este proyecto. Usa Firebase Functions (GitHub Actions "🚀 Deploy to Firebase").
 ```bash
 git push origin main
-# 🔴 GitHub Actions → "Deploy to Cloud Run" → force_deploy: true
+# ✅ GitHub Actions → "🚀 Deploy to Firebase" (Functions + Hosting)
 ```
 
 ### 🚀 **Ambos cambiaron**
 ```bash
-git push origin main                           # Auto-deploy Frontend + CI
-# + GitHub Actions → "Deploy to Cloud Run"    # Manual Backend  
+git push origin main                           # Auto-deploy Frontend + Functions
+# GitHub Actions → "🚀 Deploy to Firebase" (selecciona: all|combustibles|alimentacion)
 ```
 
 ---
@@ -28,7 +29,7 @@ git push origin main                           # Auto-deploy Frontend + CI
 ## 🌐 **URLs PRODUCTION**
 - **🎯 Main**: https://combustibles.forestechdecolombia.com.co
 - **🍽️ Food**: https://forestechdecolombia.web.app/alimentacion
-- **🔧 API**: https://forestech-sql-service-851382130132.us-central1.run.app/health
+- **🔧 API**: (Deprecated) Cloud Run URL removed — usar Firebase Functions (httpsCallable APIs)
 - **📊 Metrics**: https://console.firebase.google.com/project/liquidacionapp-62962/performance
 
 ---
@@ -75,7 +76,7 @@ Ver dashboard: Firebase Console → Performance
 ## 🆘 **EMERGENCY**
 1. **Deploy falla** → Ver logs GitHub Actions
 2. **Site down** → Check Firebase Console  
-3. **API down** → Check Cloud Run Console
+3. **API down** → Check Firebase Functions logs (no Cloud Run)
 4. **Rollback** → Redeploy commit anterior
 5. **CI falla** → Ver artifacts + logs en Actions
 

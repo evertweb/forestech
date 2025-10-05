@@ -27,7 +27,7 @@ import {
   UI_TOOLTIPS,
 } from '../../constants';
 
-const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userRole }) => {
+const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create' }) => {
   // Estado y validación centralizados con useFormData
   const getInitialFormData = useCallback(
     () => ({
@@ -178,8 +178,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
   };
 
   // Determinar permisos de edición
-  const canEdit = ['admin', 'supervisor'].includes(userRole) && mode !== 'view';
-  const isReadOnly = mode === 'view' || !canEdit;
+  const isReadOnly = mode === 'view';
 
   const getModalTitle = () => {
     if (mode === 'create') return MODAL_TEXT.VEHICLE.CREATE_TITLE;
@@ -256,7 +255,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.VEHICLE_ID}
                     className={`apple-form-input ${errors.vehicleId ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={20}
                   />
                   {errors.vehicleId && (
@@ -274,7 +273,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.VEHICLE_NAME}
                     className={`apple-form-input ${errors.name ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={100}
                   />
                   {errors.name && <div className="apple-form-error">{errors.name}</div>}
@@ -290,7 +289,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                         value={formData.type}
                         onChange={handleInputChange}
                         className="apple-form-select"
-                        disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                        disabled={isReadOnly}
                       >
                         {Object.entries(VEHICLE_INFO).map(([key, info]) => (
                           <option key={key} value={key}>
@@ -302,7 +301,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                         type="button"
                         className="apple-button apple-button-tertiary apple-button-small"
                         onClick={() => setShowCustomType(true)}
-                        disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                        disabled={isReadOnly}
                         title={UI_TOOLTIPS.ADD_CUSTOM_TYPE}
                       >
                         ➕
@@ -368,7 +367,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.status}
                     onChange={handleInputChange}
                     className="apple-form-select"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   >
                     {Object.values(VEHICLE_STATUS).map((status) => (
                       <option key={status} value={status}>
@@ -394,7 +393,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.BRAND}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={50}
                   />
                 </div>
@@ -409,7 +408,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.MODEL}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={50}
                   />
                 </div>
@@ -424,7 +423,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.SERIAL_NUMBER}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={50}
                   />
                 </div>
@@ -439,7 +438,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.PLATE_NUMBER}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={10}
                   />
                 </div>
@@ -456,7 +455,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     max="1000"
                     step="0.1"
                     className={`apple-form-input ${errors.enginePower ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.enginePower && (
                     <div className="apple-form-error">{errors.enginePower}</div>
@@ -477,7 +476,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.fuelType}
                     onChange={handleInputChange}
                     className="apple-form-select"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   >
                     {Object.values(FUEL_COMPATIBILITY).map((fuel) => (
                       <option key={fuel} value={fuel}>
@@ -499,7 +498,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     max="1000"
                     step="0.1"
                     className={`apple-form-input ${errors.fuelCapacity ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.fuelCapacity && (
                     <div className="apple-form-error">{errors.fuelCapacity}</div>
@@ -520,7 +519,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     max="50"
                     step="0.1"
                     className={`apple-form-input ${errors.estimatedConsumptionPerHour ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.estimatedConsumptionPerHour && (
                     <div className="apple-form-error">
@@ -539,7 +538,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     placeholder={UI_PLACEHOLDERS.CURRENT_LOCATION}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={100}
                   />
                 </div>
@@ -561,7 +560,6 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                         onChange={handleInputChange}
                         disabled={
                           isReadOnly ||
-                          (mode === 'edit' && !canEdit) ||
                           formData.type === VEHICLE_TYPES.TRACTOR
                         }
                       />
@@ -593,7 +591,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                           step="0.1"
                           placeholder={UI_PLACEHOLDERS.CURRENT_HOURS}
                           className="apple-form-input"
-                          disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                          disabled={isReadOnly}
                         />
                         <div className="apple-form-help">
                           Ingrese la lectura actual mostrada en el horómetro del vehículo
@@ -656,7 +654,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     onChange={handleInputChange}
                     max={new Date().toISOString().split('T')[0]}
                     className={`apple-form-input ${errors.purchaseDate ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.purchaseDate && (
                     <div className="apple-form-error">{errors.purchaseDate}</div>
@@ -672,7 +670,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.warrantyExpiration}
                     onChange={handleInputChange}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                 </div>
 
@@ -685,7 +683,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.lastMaintenanceDate}
                     onChange={handleInputChange}
                     className="apple-form-input"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                 </div>
 
@@ -698,7 +696,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                     value={formData.nextMaintenanceDate}
                     onChange={handleInputChange}
                     className={`apple-form-input ${errors.nextMaintenanceDate ? 'error' : ''}`}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.nextMaintenanceDate && (
                     <div className="apple-form-error">{errors.nextMaintenanceDate}</div>
@@ -721,7 +719,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
                   rows="3"
                   maxLength="500"
                   className="apple-form-textarea"
-                  disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                  disabled={isReadOnly}
                 />
                 <div className="apple-form-help">
                   {formData.description.length}/500 caracteres
@@ -734,7 +732,7 @@ const VehicleModal = ({ isOpen, onClose, vehicle, onSave, mode = 'create', userR
 
       <ModalFooter
         primaryAction={
-          !isReadOnly && canEdit
+          !isReadOnly
             ? {
                 label: loading
                   ? UI_MESSAGES.LOADING.SAVING

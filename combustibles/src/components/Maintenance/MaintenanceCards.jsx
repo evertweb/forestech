@@ -7,7 +7,7 @@ import React from 'react';
 import { MAINTENANCE_TYPES, MAINTENANCE_STATUS } from '../../services/FirebaseMaintenanceService';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 
-const MaintenanceCards = ({ maintenanceRecords, onEdit, onView, onDelete, userRole }) => {
+const MaintenanceCards = ({ maintenanceRecords, onEdit, onView, onDelete }) => {
   const formatDate = (date) => {
     if (!date) return 'N/A';
     const d = new Date(date);
@@ -115,8 +115,6 @@ const MaintenanceCards = ({ maintenanceRecords, onEdit, onView, onDelete, userRo
         return status;
     }
   };
-
-  const canManage = userRole === 'admin' || userRole === 'supervisor';
 
   return (
     <div className="maintenance-cards sap-theme">
@@ -242,7 +240,7 @@ const MaintenanceCards = ({ maintenanceRecords, onEdit, onView, onDelete, userRo
                 </svg>
               </button>
 
-              {canManage && onEdit && (
+              {onEdit && (
                 <button
                   className="btn-edit sap-theme"
                   onClick={() => onEdit(maintenance)}
@@ -255,7 +253,7 @@ const MaintenanceCards = ({ maintenanceRecords, onEdit, onView, onDelete, userRo
                 </button>
               )}
 
-              {canManage && onDelete && (
+              {onDelete && (
                 <button
                   className="btn-delete sap-theme"
                   onClick={() => onDelete(maintenance.id)}

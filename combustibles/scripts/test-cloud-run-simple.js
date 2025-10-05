@@ -2,8 +2,9 @@
 
 /**
  * Script simple para testing rápido de Cloud Run endpoints
+ * DEPRECATED: Cloud Run está obsoleto en este repo. Preferir pruebas contra Firebase Functions.
  * Prueba endpoints públicos sin autenticación interactiva
- * Forestech Combustibles App
+ * Forestech Combustibles App (Histórico)
  */
 
 import fetch from 'node-fetch';

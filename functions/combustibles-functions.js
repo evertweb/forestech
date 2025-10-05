@@ -563,7 +563,23 @@ export const combustiblesProducts = onCall(async (request) => {
           throw new HttpsError('invalid-argument', 'productData es requerido.');
         }
 
-        return await createProduct(productData, user);
+        // Sanitizar payload: permitir solo campos conocidos para producto
+        const allowedFields = new Set([
+          'name','displayName','code','category','unit','price','currentStock','minThreshold','maxCapacity','isActive'
+        ]);
+
+        const safeProduct = {};
+        const unexpected = [];
+        Object.entries(productData).forEach(([k, v]) => {
+          if (allowedFields.has(k)) safeProduct[k] = v;
+          else unexpected.push(k);
+        });
+
+        if (unexpected.length > 0) {
+          console.warn(`⚠️ combustiblesProducts.create - Campos inesperados en productData (serán ignorados):`, unexpected);
+        }
+
+        return await createProduct(safeProduct, user);
       });
 
     case 'getAll':
@@ -597,7 +613,22 @@ export const combustiblesProducts = onCall(async (request) => {
           throw new HttpsError('invalid-argument', 'updateData es requerido.');
         }
 
-        return await updateProduct(productId, updateData, user);
+        // Sanitizar updateData para bloquear columnas no permitidas (ej. customFields)
+        const allowedUpdate = new Set([
+          'name','displayName','code','category','unit','price','currentStock','minThreshold','maxCapacity','isActive'
+        ]);
+        const safeUpdate = {};
+        const unexpectedUpdate = [];
+        Object.entries(updateData).forEach(([k, v]) => {
+          if (allowedUpdate.has(k)) safeUpdate[k] = v;
+          else unexpectedUpdate.push(k);
+        });
+
+        if (unexpectedUpdate.length > 0) {
+          console.warn(`⚠️ combustiblesProducts.update - Campos inesperados en updateData (serán ignorados):`, unexpectedUpdate);
+        }
+
+        return await updateProduct(productId, safeUpdate, user);
       });
 
     case 'delete':

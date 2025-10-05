@@ -38,7 +38,6 @@ const MaintenanceModal = ({
   maintenance,
   onSave,
   mode = 'create',
-  userRole,
 }) => {
   // Estado inicial del formulario
   const getInitialFormData = useCallback(
@@ -290,7 +289,6 @@ const MaintenanceModal = ({
 
   // Determinar si el campo está deshabilitado
   const isReadOnly = mode === 'view';
-  const canEdit = userRole === 'admin' || userRole === 'supervisor';
 
   if (!isOpen) return null;
 
@@ -341,7 +339,7 @@ const MaintenanceModal = ({
                     name="type"
                     value={formData.type}
                     onChange={handleInputChange}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   >
                     {Object.values(MAINTENANCE_TYPES).map((type) => (
                       <option key={type} value={type}>
@@ -360,7 +358,7 @@ const MaintenanceModal = ({
                     value={formData.priority}
                     onChange={handleInputChange}
                     className={getPriorityClass(formData.priority)}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   >
                     {Object.values(MAINTENANCE_PRIORITY).map((priority) => (
                       <option key={priority} value={priority}>
@@ -378,7 +376,7 @@ const MaintenanceModal = ({
                     value={formData.status}
                     onChange={handleInputChange}
                     className={getStatusClass(formData.status)}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   >
                     {Object.values(MAINTENANCE_STATUS).map((status) => (
                       <option key={status} value={status}>
@@ -398,7 +396,7 @@ const MaintenanceModal = ({
                     onChange={handleInputChange}
                     placeholder="Ej: Cambio de aceite y filtros"
                     className={errors.title ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={100}
                   />
                   {errors.title && <span className="error-text sap-theme">{errors.title}</span>}
@@ -419,7 +417,7 @@ const MaintenanceModal = ({
                     value={formData.scheduledDate}
                     onChange={handleInputChange}
                     className={errors.scheduledDate ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.scheduledDate && (
                     <span className="error-text sap-theme">{errors.scheduledDate}</span>
@@ -435,7 +433,7 @@ const MaintenanceModal = ({
                     value={formData.startDate}
                     onChange={handleInputChange}
                     className={errors.startDate ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.startDate && (
                     <span className="error-text sap-theme">{errors.startDate}</span>
@@ -451,7 +449,7 @@ const MaintenanceModal = ({
                     value={formData.completedDate}
                     onChange={handleInputChange}
                     className={errors.completedDate ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.completedDate && (
                     <span className="error-text sap-theme">{errors.completedDate}</span>
@@ -466,7 +464,7 @@ const MaintenanceModal = ({
                     name="nextMaintenanceDate"
                     value={formData.nextMaintenanceDate}
                     onChange={handleInputChange}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                 </div>
               </div>
@@ -485,7 +483,7 @@ const MaintenanceModal = ({
                     value={formData.technician}
                     onChange={handleInputChange}
                     placeholder="Nombre del técnico"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={100}
                   />
                 </div>
@@ -499,7 +497,7 @@ const MaintenanceModal = ({
                     value={formData.workshop}
                     onChange={handleInputChange}
                     placeholder="Taller donde se realiza"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                     maxLength={100}
                   />
                 </div>
@@ -515,7 +513,7 @@ const MaintenanceModal = ({
                     min="0"
                     step="0.5"
                     className={errors.estimatedHours ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.estimatedHours && (
                     <span className="error-text sap-theme">{errors.estimatedHours}</span>
@@ -533,7 +531,7 @@ const MaintenanceModal = ({
                     min="0"
                     step="0.5"
                     className={errors.actualHours ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.actualHours && (
                     <span className="error-text sap-theme">{errors.actualHours}</span>
@@ -551,7 +549,7 @@ const MaintenanceModal = ({
                     min="0"
                     step="1000"
                     className={errors.estimatedCost ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.estimatedCost && (
                     <span className="error-text sap-theme">{errors.estimatedCost}</span>
@@ -569,7 +567,7 @@ const MaintenanceModal = ({
                     min="0"
                     step="1000"
                     className={errors.actualCost ? 'error' : ''}
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                   {errors.actualCost && (
                     <span className="error-text sap-theme">{errors.actualCost}</span>
@@ -582,7 +580,7 @@ const MaintenanceModal = ({
             <div className="form-section sap-theme">
               <h4 className="section-title sap-theme">🔧 Partes y Repuestos</h4>
 
-              {!isReadOnly && canEdit && (
+              {!isReadOnly && (
                 <div className="parts-form sap-theme">
                   <div className="form-grid sap-theme">
                     <div className="form-group sap-theme">
@@ -648,7 +646,7 @@ const MaintenanceModal = ({
                         <th>Cantidad</th>
                         <th>Costo Unit.</th>
                         <th>Total</th>
-                        {!isReadOnly && canEdit && <th>Acciones</th>}
+                        {!isReadOnly && <th>Acciones</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -658,7 +656,7 @@ const MaintenanceModal = ({
                           <td>{part.quantity}</td>
                           <td>${part.cost.toLocaleString('es-CO')}</td>
                           <td>${part.total.toLocaleString('es-CO')}</td>
-                          {!isReadOnly && canEdit && (
+                          {!isReadOnly && (
                             <td>
                               <button
                                 type="button"
@@ -681,7 +679,7 @@ const MaintenanceModal = ({
                         <td>
                           <strong>${getTotalPartsCost().toLocaleString('es-CO')}</strong>
                         </td>
-                        {!isReadOnly && canEdit && <td></td>}
+                        {!isReadOnly && <td></td>}
                       </tr>
                     </tfoot>
                   </table>
@@ -704,7 +702,7 @@ const MaintenanceModal = ({
                     min="0"
                     step="1000"
                     placeholder="0 = No aplica"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                 </div>
 
@@ -719,7 +717,7 @@ const MaintenanceModal = ({
                     min="0"
                     step="100"
                     placeholder="0 = No aplica"
-                    disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                    disabled={isReadOnly}
                   />
                 </div>
               </div>
@@ -739,7 +737,7 @@ const MaintenanceModal = ({
                   rows="3"
                   maxLength="500"
                   className={errors.description ? 'error' : ''}
-                  disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                  disabled={isReadOnly}
                 />
                 {errors.description && (
                   <span className="error-text sap-theme">{errors.description}</span>
@@ -756,7 +754,7 @@ const MaintenanceModal = ({
                   placeholder="Observaciones, recomendaciones, problemas encontrados..."
                   rows="3"
                   maxLength="500"
-                  disabled={isReadOnly || (mode === 'edit' && !canEdit)}
+                  disabled={isReadOnly}
                 />
                 <span className="char-count sap-theme">{formData.notes.length}/500 caracteres</span>
               </div>
@@ -799,7 +797,7 @@ const MaintenanceModal = ({
               {mode === 'view' ? 'Cerrar' : 'Cancelar'}
             </button>
 
-            {!isReadOnly && canEdit && (
+            {!isReadOnly && (
               <button type="submit" className="btn-primary sap-theme" disabled={loading}>
                 {loading ? (
                   <>

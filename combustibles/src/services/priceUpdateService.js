@@ -124,7 +124,7 @@ class PriceUpdateService {
    * @returns {Promise<Object>} Resultado de la actualización
    */
   async updateProductPrice(product) {
-    const fuelType = detectFuelType(product.name, product.category);
+    const fuelType = detectFuelType(product.name);
 
     if (!fuelType) {
       throw new Error(`No se pudo detectar tipo de combustible para ${product.name}`);
