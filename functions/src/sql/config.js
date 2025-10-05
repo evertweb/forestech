@@ -1,11 +1,11 @@
 export const sqlConfig = {
-  server: process.env.SQL_SERVER || 'oilforestech.privatelink.database.windows.net',
-  database: process.env.SQL_DATABASE || 'forestechCombus',
-  user: process.env.SQL_USER || 'oil',
-  password: process.env.SQL_PASSWORD || '271202Ev.',
+  server: process.env.SQL_SERVER || '24.199.89.134',
+  database: process.env.SQL_DATABASE || 'DBforestech',
+  user: process.env.SQL_USER || 'SA',
+  password: process.env.SQL_PASSWORD || 'Forestech2024!SecureDB',
   options: {
     encrypt: true,
-    trustServerCertificate: true, // Necesario para Private Link
+    trustServerCertificate: true, // Requerido por certificado autofirmado en el droplet
     enableArithAbort: true,
   },
   port: 1433,

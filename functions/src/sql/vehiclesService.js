@@ -1,12 +1,8 @@
 /**
- * vehiclesService.js - Servicio de vehículos usando Cloud SQL Server Server en Firebase Functions
+ * vehiclesService.js - Servicio de vehículos usando SQL Server DigitalOcean en Firebase Functions
  * Migrado desde combustibles/src/services/SqlVehiclesService.js
  * Forestech Combustibles App - TASK-004
- */
-
-import sqlConnection from '../cloudsql/oil-connection.js';
-
-const TABLE_NAME = 'combustibles_vehicles';
+    }
 const MOVEMENTS_TABLE = 'combustibles_movements';
 
 /**
@@ -405,9 +401,6 @@ export async function getAllVehicles(filters = {}) {
 
       return { success: true, data: processedData, count: processedData.length };
     }
-
-    return { success: true, data: [], count: 0 };
-
   } catch (error) {
     console.error('❌ Error al obtener vehículos SQL en Functions:', error);
     return { success: false, error: error.message };

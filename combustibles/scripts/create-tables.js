@@ -1,5 +1,5 @@
 /**
- * Script para crear tablas en Azure SQL Server
+ * Script para crear tablas en SQL Server DigitalOcean
  * Forestech Combustibles App
  */
 
@@ -18,14 +18,14 @@ config({ path: path.join(__dirname, '..', '.env.local') });
 
 // Configuración de conexión
 const sqlConfig = {
-  server: process.env.VITE_AZURE_SQL_SERVER,
-  port: 1433,
-  database: process.env.VITE_AZURE_SQL_DATABASE,
-  user: process.env.VITE_AZURE_SQL_USER,
-  password: process.env.VITE_AZURE_SQL_PASSWORD,
+  server: process.env.VITE_DIGITALOCEAN_SQL_SERVER || process.env.DIGITALOCEAN_SQL_SERVER || process.env.VITE_AZURE_SQL_SERVER || '24.199.89.134',
+  port: Number(process.env.VITE_DIGITALOCEAN_SQL_PORT || process.env.DIGITALOCEAN_SQL_PORT || process.env.VITE_AZURE_SQL_PORT || 1433),
+  database: process.env.VITE_DIGITALOCEAN_SQL_DATABASE || process.env.DIGITALOCEAN_SQL_DATABASE || process.env.VITE_AZURE_SQL_DATABASE || 'DBforestech',
+  user: process.env.VITE_DIGITALOCEAN_SQL_USER || process.env.DIGITALOCEAN_SQL_USER || process.env.VITE_AZURE_SQL_USER || 'SA',
+  password: process.env.VITE_DIGITALOCEAN_SQL_PASSWORD || process.env.DIGITALOCEAN_SQL_PASSWORD || process.env.VITE_AZURE_SQL_PASSWORD || 'Forestech2024!SecureDB',
   options: {
     encrypt: true,
-    trustServerCertificate: false,
+    trustServerCertificate: true,
     connectionTimeout: 30000,
     requestTimeout: 60000, // Más tiempo para crear tablas
     enableArithAbort: true,
@@ -41,7 +41,7 @@ async function createTables() {
   let pool;
 
   try {
-    console.log('🔌 Conectando a Azure SQL Server...');
+    console.log('🔌 Conectando a SQL Server DigitalOcean...');
     console.log(`📍 Servidor: ${sqlConfig.server}`);
     console.log(`📊 Base de datos: ${sqlConfig.database}`);
 
@@ -143,23 +143,30 @@ async function createTables() {
 // Verificar variables de entorno
 function checkEnvironment() {
   const required = [
-    'VITE_AZURE_SQL_SERVER',
-    'VITE_AZURE_SQL_DATABASE',
-    'VITE_AZURE_SQL_USER',
-    'VITE_AZURE_SQL_PASSWORD'
+    'VITE_DIGITALOCEAN_SQL_SERVER',
+    'VITE_DIGITALOCEAN_SQL_DATABASE',
+    'VITE_DIGITALOCEAN_SQL_USER',
+    'VITE_DIGITALOCEAN_SQL_PASSWORD'
   ];
 
   const missing = required.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
+    const legacyPresent = process.env.VITE_AZURE_SQL_SERVER && process.env.VITE_AZURE_SQL_DATABASE && process.env.VITE_AZURE_SQL_USER && process.env.VITE_AZURE_SQL_PASSWORD;
+
+    if (legacyPresent) {
+      console.warn('⚠️ Se detectaron variables legacy VITE_AZURE_SQL_*. Por favor actualízalas a VITE_DIGITALOCEAN_SQL_*');
+      return;
+    }
+
     console.error('❌ Variables de entorno faltantes:');
     missing.forEach(key => console.error(`   - ${key}`));
     console.log('');
     console.log('💡 Agrega estas variables a .env.local:');
-    console.log('VITE_AZURE_SQL_SERVER=tu_servidor.database.windows.net');
-    console.log('VITE_AZURE_SQL_DATABASE=tu_base_datos');
-    console.log('VITE_AZURE_SQL_USER=tu_usuario');
-    console.log('VITE_AZURE_SQL_PASSWORD=tu_contraseña');
+    console.log('VITE_DIGITALOCEAN_SQL_SERVER=24.199.89.134');
+    console.log('VITE_DIGITALOCEAN_SQL_DATABASE=DBforestech');
+    console.log('VITE_DIGITALOCEAN_SQL_USER=SA');
+    console.log('VITE_DIGITALOCEAN_SQL_PASSWORD=Forestech2024!SecureDB');
     process.exit(1);
   }
 }

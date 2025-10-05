@@ -2,20 +2,20 @@
 import sql from 'mssql';
 
 const sqlConfig = {
-  server: 'oilforestech.database.windows.net',
+  server: '24.199.89.134',
   port: 1433,
-  database: 'forestechCombus', 
-  user: 'oil',
-  password: '271202ev',
+  database: 'DBforestech', 
+  user: 'SA',
+  password: 'Forestech2024!SecureDB',
   options: {
     encrypt: true,
-    trustServerCertificate: false,
+    trustServerCertificate: true,
   }
 };
 
 export const testSqlConnection = async () => {
   try {
-    console.log('🔌 Conectando a Cloud SQL Server...');
+  console.log('🔌 Conectando a DigitalOcean SQL Server...');
     const pool = await sql.connect(sqlConfig);
     
     const result = await pool.request().query('SELECT 1 as test');

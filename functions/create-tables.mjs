@@ -3,7 +3,7 @@ import sql from 'mssql';
 
 const createTables = async () => {
     try {
-        console.log('🔗 Conectando a Azure SQL...');
+    console.log('🔗 Conectando a SQL Server DigitalOcean...');
         console.log('Server:', sqlConfig.server);
         console.log('Database:', sqlConfig.database);
         

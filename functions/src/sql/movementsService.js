@@ -1,5 +1,5 @@
 /**
- * movementsService.js - Servicio de movimientos usando Cloud SQL Server Server en Firebase Functions
+ * movementsService.js - Servicio de movimientos usando SQL Server DigitalOcean en Firebase Functions
  * Migrado desde combustibles/src/services/SqlMovementsService.js
  * Forestech Combustibles App - TASK-002
  */

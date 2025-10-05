@@ -16,31 +16,33 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
+import { useSuppliers, __setSuppliersService, __resetSuppliersService } from './useSuppliers.ts';
 
-// Mock Firebase Service before imports
-vi.mock('../services/FirebaseSuppliersService', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      getAllSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
-      getActiveSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
-      createSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
-      updateSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
-      deleteSupplier: vi.fn().mockResolvedValue({ success: true }),
-    })),
-  };
-});
-
-// Now import after mocking - explicitly use .ts file
-import { useSuppliers } from './useSuppliers.ts';
-import FirebaseSuppliersService from '../services/FirebaseSuppliersService';
+const createDeferred = () => {
+  let resolve: (value: any) => void;
+  const promise = new Promise((res) => {
+    resolve = res;
+  });
+  return { promise, resolve: resolve! };
+};
 
 describe('useSuppliers', () => {
+  const createDefaultService = () => ({
+    getAllSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    getActiveSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    createSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    updateSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    deleteSupplier: vi.fn().mockResolvedValue({ success: true }),
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    __setSuppliersService(createDefaultService());
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    __resetSuppliersService();
   });
 
   describe('Initialization', () => {
@@ -83,7 +85,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -95,12 +97,28 @@ describe('useSuppliers', () => {
     });
 
     it('should set loading true while fetching', async () => {
+      const deferred = createDeferred();
+      const mockService = {
+        getAllSuppliers: vi.fn(() => deferred.promise),
+      };
+
+      __setSuppliersService({
+        getAllSuppliers: mockService.getAllSuppliers,
+        getActiveSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
+        createSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
+        updateSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
+        deleteSupplier: vi.fn().mockResolvedValue({ success: true }),
+      });
+
       const { result } = renderHook(() => useSuppliers());
 
       const promise = result.current.fetchSuppliers();
 
-      // Check loading is true initially (without await)
-      expect(result.current.loading).toBe(true);
+      await waitFor(() => {
+        expect(result.current.loading).toBe(true);
+      });
+
+      deferred.resolve({ success: true, data: [] });
 
       await promise;
     });
@@ -123,7 +141,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -148,7 +166,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -176,7 +194,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -188,11 +206,27 @@ describe('useSuppliers', () => {
     });
 
     it('should set saving true while creating', async () => {
+      const deferred = createDeferred();
+
+      const mockService = {
+        getAllSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
+        getActiveSuppliers: vi.fn().mockResolvedValue({ success: true, data: [] }),
+        createSupplier: vi.fn(() => deferred.promise),
+        updateSupplier: vi.fn().mockResolvedValue({ success: true, data: {} }),
+        deleteSupplier: vi.fn().mockResolvedValue({ success: true }),
+      };
+
+      __setSuppliersService(mockService);
+
       const { result } = renderHook(() => useSuppliers());
 
       const promise = result.current.createSupplier({ name: 'Test' });
 
-      expect(result.current.saving).toBe(true);
+      await waitFor(() => {
+        expect(result.current.saving).toBe(true);
+      });
+
+      deferred.resolve({ success: true, data: {} });
 
       await promise;
     });
@@ -205,7 +239,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -233,7 +267,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -257,7 +291,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -283,7 +317,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 
@@ -317,7 +351,7 @@ describe('useSuppliers', () => {
         }),
       };
 
-      (FirebaseSuppliersService as any).mockImplementation(() => mockService);
+      __setSuppliersService(mockService);
 
       const { result } = renderHook(() => useSuppliers());
 

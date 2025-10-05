@@ -3,34 +3,56 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import InventoryModal from '../InventoryModal';
-import { withProviders } from '../../../test/TestProviders.jsx';
 import { mockUseFuelTypes } from '../../../test/mockData.js';
 
-// Mock services to avoid Firebase calls
-vi.mock('../../../services/inventoryService', () => ({
-  createInventoryItem: vi.fn(async () => ({ success: true, message: 'Creado' })),
-  updateInventoryItem: vi.fn(async () => ({ success: true, message: 'Actualizado' })),
-  subscribeToInventory: (cb) => {
+// Mock services para evitar llamadas reales a Firebase
+vi.mock('../../../services/FirebaseInventoryService', () => {
+  const createInventoryItem = vi.fn(async () => ({ success: true, message: 'Creado' }));
+  const updateInventoryItem = vi.fn(async () => ({ success: true, message: 'Actualizado' }));
+  const subscribeToInventory = vi.fn((cb) => {
     cb([]);
     return () => {};
-  },
-}));
+  });
+  const getAllInventory = vi.fn(async () => ({ success: true, data: [] }));
+
+  const defaultMock = vi.fn().mockImplementation(() => ({
+    createInventoryItem,
+    updateInventoryItem,
+    subscribeToInventory,
+    getAllInventory,
+  }));
+
+  return {
+    default: defaultMock,
+    createInventoryItem,
+    updateInventoryItem,
+    subscribeToInventory,
+    getAllInventory,
+  };
+});
 
 // Mock useFuelTypes hook
 vi.mock('../../../hooks/useFuelTypes', () => ({
   default: vi.fn(() => mockUseFuelTypes),
 }));
 
-vi.mock('../../../contexts/CombustiblesContext', async () => {
-  const actual = await import('../../../contexts/CombustiblesContext.jsx');
-  return actual;
-});
+vi.mock('../../../contexts/CombustiblesContext', () => ({
+  useCombustibles: () => ({
+    userProfile: { uid: 'test-user' },
+  }),
+}));
+
+vi.mock('../../../contexts/FirebaseProgressContext', () => ({
+  useFirebaseProgressContext: () => ({
+    executeWithProgress: vi.fn(async (_operation, _description, operation) => operation()),
+  }),
+}));
 
 describe('InventoryModal (integration)', () => {
   it('abre, valida campos requeridos y crea item', async () => {
     const onClose = vi.fn();
     const onSuccess = vi.fn();
-    render(withProviders(<InventoryModal onClose={onClose} onSuccess={onSuccess} />));
+    render(<InventoryModal onClose={onClose} onSuccess={onSuccess} />);
 
     // Debe renderizar el diálogo
     expect(screen.getByRole('dialog')).toBeInTheDocument();

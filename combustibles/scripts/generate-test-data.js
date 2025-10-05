@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Script para generar datos de prueba en Azure SQL Server
+ * Script para generar datos de prueba para SQL Server DigitalOcean
  * Forestech Combustibles App
  */
 

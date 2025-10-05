@@ -1,6 +1,6 @@
 /**
  * Migración de esquema para combustibles_vehicle_categories
- * Ejecutar desde Firebase Functions con acceso a Azure SQL
+ * Ejecutar desde Firebase Functions con acceso al SQL Server de DigitalOcean
  */
 
 import sqlConnection from './src/sql/SqlConnection.js';

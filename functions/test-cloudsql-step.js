@@ -1,16 +1,16 @@
 /**
- * Test de conectividad Cloud SQL con diferentes configuraciones
- * Este script se ejecutará después de cada cambio de authorized networks
+ * Test de conectividad SQL Server (DigitalOcean) con diferentes configuraciones
+ * Útil después de ajustar reglas de firewall o credenciales
  */
 
 import sql from 'mssql';
 
 const config = {
-  server: '34.61.242.157',
+  server: '24.199.89.134',
   port: 1433,
-  database: 'forestechCombus',
-  user: 'oil',
-  password: '123456789',
+  database: 'DBforestech',
+  user: 'SA',
+  password: 'Forestech2024!SecureDB',
   options: {
     encrypt: true,
     trustServerCertificate: true,
@@ -27,7 +27,7 @@ const config = {
 };
 
 async function testConnectionStep() {
-  console.log('🔬 TEST DE CONECTIVIDAD CLOUD SQL');
+  console.log('🔬 TEST DE CONECTIVIDAD SQL SERVER (DIGITALOCEAN)');
   console.log('================================');
   console.log(`Servidor: ${config.server}:${config.port}`);
   console.log(`Base de datos: ${config.database}`);
@@ -79,7 +79,7 @@ async function testConnectionStep() {
     
     console.log('');
     console.log('🎉 TODAS LAS PRUEBAS EXITOSAS');
-    console.log('✅ Cloud SQL está configurado correctamente');
+  console.log('✅ DigitalOcean SQL Server está configurado correctamente');
     console.log('✅ Firebase Functions podrán conectarse');
     
     return true;
@@ -89,7 +89,7 @@ async function testConnectionStep() {
     
     if (error.message.includes('timeout')) {
       console.log('💡 Problema: Timeout de conexión');
-      console.log('   Solución: Verificar authorized networks en Cloud SQL');
+  console.log('   Solución: Verificar reglas inbound en firewall de DigitalOcean');
     } else if (error.message.includes('login')) {
       console.log('💡 Problema: Credenciales incorrectas');
       console.log('   Solución: Verificar usuario/contraseña');

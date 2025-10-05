@@ -1,4 +1,4 @@
-// Firebase Functions index.js - Exports all functions (Gen 1)
+// Firebase Functions index.js - Exports functions (Mixed Gen 1/Gen 2)
 import { onRequest } from 'firebase-functions/v1/https';
 
 // Webhook functions

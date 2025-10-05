@@ -5,12 +5,24 @@ import { describe, it, expect, vi } from 'vitest';
 import VehicleFormSmart from '../VehicleFormSmart';
 import { withProviders } from '../../../test/TestProviders.jsx';
 
-vi.mock('../../../services/vehicleCategoriesService', () => ({
-  subscribeToCategories: (cb) => {
+vi.mock('../../../services/FirebaseVehicleCategoriesService', () => {
+  const subscribeToCategories = vi.fn((cb) => {
     cb([{ id: 'c1', name: 'Camión' }]);
     return () => {};
-  },
-}));
+  });
+  const getAllVehicleCategories = vi.fn(async () => ({ success: true, data: [] }));
+
+  const defaultMock = vi.fn().mockImplementation(() => ({
+    subscribeToCategories,
+    getAllVehicleCategories,
+  }));
+
+  return {
+    default: defaultMock,
+    subscribeToCategories,
+    getAllVehicleCategories,
+  };
+});
 
 describe('VehicleFormSmart (integration)', () => {
   it('completa paso básico y avanza a detalles', async () => {

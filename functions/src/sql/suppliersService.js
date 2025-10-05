@@ -1,7 +1,7 @@
 /**
- * suppliersService.js - Servicio de proveedores usando Cloud SQL Server Server en Firebase Functions
- * Migrado desde combustibles/src/services/SqlSuppliersService.js
- * Forestech Combustibles App - TASK-005
+ * suppliersService.js - Servicio de proveedores usando SQL Server DigitalOcean en Firebase Functions
+ * Migrado desde combustibles/src/services/suppliersService.js
+ * Forestech Combustibles App - TASK-001
  */
 
 import sqlConnection from '../cloudsql/oil-connection.js';
@@ -249,43 +249,48 @@ export async function getAllSuppliers(filters = {}) {
 
     const result = await sqlConnection.query(query, params);
 
-    if (result.length > 0) {
-      // Procesar datos para compatibilidad (convertir JSON fields)
-      const processedData = result.map(supplier => ({
-        id: supplier.id,
-        name: supplier.name,
-        taxId: supplier.taxId,
-        type: supplier.type,
-        category: supplier.category,
-        contactPerson: supplier.contactPerson,
-        phone: supplier.phone,
-        email: supplier.email,
-        address: supplier.address,
-        city: supplier.city,
-        state: supplier.state,
-        fuelTypes: parseJSON(supplier.fuelTypes),
-        paymentTerms: supplier.paymentTerms,
-        creditLimit: supplier.creditLimit,
-        priceList: parseJSON(supplier.priceList),
-        rating: supplier.rating,
-        evaluationNotes: supplier.evaluationNotes,
-        status: supplier.status,
-        isPreferred: supplier.isPreferred || false, // Valor por defecto si no existe
-        totalOrders: supplier.totalOrders,
-        totalPurchased: supplier.totalPurchased,
-        lastOrderDate: supplier.lastOrderDate,
-        averageDeliveryTime: supplier.averageDeliveryTime,
-        createdBy: supplier.createdBy,
-        updatedBy: supplier.updatedBy,
-        createdAt: supplier.createdAt ? supplier.createdAt.toISOString() : null,
-        updatedAt: supplier.updatedAt ? supplier.updatedAt.toISOString() : null,
-      }));
+    const processedData = result.map((supplier) => ({
+      id: supplier.id,
+      name: supplier.name,
+      taxId: supplier.taxId,
+      type: supplier.type,
+      category: supplier.category,
+      contactPerson: supplier.contactPerson,
+      phone: supplier.phone,
+      email: supplier.email,
+      address: supplier.address,
+      city: supplier.city,
+      state: supplier.state,
+      fuelTypes: parseJSON(supplier.fuelTypes),
+      paymentTerms: supplier.paymentTerms,
+      creditLimit: supplier.creditLimit,
+      priceList: parseJSON(supplier.priceList),
+      rating: supplier.rating,
+      evaluationNotes: supplier.evaluationNotes,
+      status: supplier.status,
+      isPreferred: supplier.isPreferred || false,
+      totalOrders: supplier.totalOrders,
+      totalPurchased: supplier.totalPurchased,
+      lastOrderDate: supplier.lastOrderDate,
+      averageDeliveryTime: supplier.averageDeliveryTime,
+      createdBy: supplier.createdBy,
+      updatedBy: supplier.updatedBy,
+      createdAt: supplier.createdAt ? supplier.createdAt.toISOString() : null,
+      updatedAt: supplier.updatedAt ? supplier.updatedAt.toISOString() : null,
+    }));
 
-      return { success: true, data: processedData, count: processedData.length };
-    }
+    const pagination = {
+      limit,
+      offset,
+      returned: processedData.length,
+      hasMore: processedData.length === limit,
+    };
 
-    return { success: true, data: [], count: 0 };
-
+    return {
+      success: true,
+      data: processedData,
+      meta: pagination,
+    };
   } catch (error) {
     console.error('❌ Error al obtener proveedores SQL en Functions:', error);
     return { success: false, error: error.message };

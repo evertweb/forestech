@@ -15,30 +15,36 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
+import {
+  useVehicleCategories,
+  __setVehicleCategoriesService,
+  __resetVehicleCategoriesService,
+} from './useVehicleCategories.ts';
 
-// Mock Firebase Service before imports
-vi.mock('../services/FirebaseVehicleCategoriesService', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      getAllCategories: vi.fn().mockResolvedValue({ success: true, data: [] }),
-      createCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
-      updateCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
-      deleteCategory: vi.fn().mockResolvedValue({ success: true }),
-    })),
-  };
-});
-
-// Now import after mocking - explicitly use .ts file
-import { useVehicleCategories } from './useVehicleCategories.ts';
-import FirebaseVehicleCategoriesService from '../services/FirebaseVehicleCategoriesService';
+const createDeferred = () => {
+  let resolve: (value: any) => void;
+  const promise = new Promise((res) => {
+    resolve = res;
+  });
+  return { promise, resolve: resolve! };
+};
 
 describe('useVehicleCategories', () => {
+  const createDefaultService = () => ({
+    getAllCategories: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    createCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    updateCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    deleteCategory: vi.fn().mockResolvedValue({ success: true }),
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    __setVehicleCategoriesService(createDefaultService());
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    __resetVehicleCategoriesService();
   });
 
   describe('Initialization', () => {
@@ -81,7 +87,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
@@ -93,12 +99,26 @@ describe('useVehicleCategories', () => {
     });
 
     it('should set loading true while fetching', async () => {
+      const deferred = createDeferred();
+
+      const mockService = {
+        getAllCategories: vi.fn(() => deferred.promise),
+        createCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
+        updateCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
+        deleteCategory: vi.fn().mockResolvedValue({ success: true }),
+      };
+
+      __setVehicleCategoriesService(mockService);
+
       const { result } = renderHook(() => useVehicleCategories());
 
       const promise = result.current.fetchCategories();
 
-      // Check loading is true initially (without await)
-      expect(result.current.loading).toBe(true);
+      await waitFor(() => {
+        expect(result.current.loading).toBe(true);
+      });
+
+      deferred.resolve({ success: true, data: [] });
 
       await promise;
     });
@@ -121,7 +141,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
@@ -149,7 +169,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
@@ -161,11 +181,26 @@ describe('useVehicleCategories', () => {
     });
 
     it('should set saving true while creating', async () => {
+      const deferred = createDeferred();
+
+      const mockService = {
+        getAllCategories: vi.fn().mockResolvedValue({ success: true, data: [] }),
+        createCategory: vi.fn(() => deferred.promise),
+        updateCategory: vi.fn().mockResolvedValue({ success: true, data: {} }),
+        deleteCategory: vi.fn().mockResolvedValue({ success: true }),
+      };
+
+      __setVehicleCategoriesService(mockService);
+
       const { result } = renderHook(() => useVehicleCategories());
 
       const promise = result.current.createCategory({ name: 'Test' });
 
-      expect(result.current.saving).toBe(true);
+      await waitFor(() => {
+        expect(result.current.saving).toBe(true);
+      });
+
+      deferred.resolve({ success: true, data: {} });
 
       await promise;
     });
@@ -178,7 +213,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
@@ -206,7 +241,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
@@ -230,16 +265,13 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
-      let response;
-      await waitFor(async () => {
-        response = await result.current.deleteCategory('1');
-      });
+      const response = await result.current.deleteCategory('1');
 
-      expect(response.success).toBe(true);
+      expect(response?.success).toBe(true);
       expect(mockService.deleteCategory).toHaveBeenCalledWith('1');
       expect(mockService.getAllCategories).toHaveBeenCalled();
     });
@@ -259,7 +291,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 
@@ -297,7 +329,7 @@ describe('useVehicleCategories', () => {
         }),
       };
 
-      (FirebaseVehicleCategoriesService as any).mockImplementation(() => mockService);
+      __setVehicleCategoriesService(mockService);
 
       const { result } = renderHook(() => useVehicleCategories());
 

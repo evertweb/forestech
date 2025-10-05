@@ -90,7 +90,7 @@ export async function getDatabaseHealth() {
 
     const healthReport = {
       timestamp: new Date().toISOString(),
-      database: 'Cloud SQL Server Server',
+  database: 'DigitalOcean SQL Server',
       connection: { status: 'checking', message: 'Verificando conexión...' },
       tables: {},
       system: { status: 'unknown', score: 0, issues: [], recommendations: [] },
@@ -102,7 +102,7 @@ export async function getDatabaseHealth() {
       await sqlConnection.query('SELECT 1 as test');
       healthReport.connection = {
         status: 'healthy',
-        message: 'Conexión exitosa a Cloud SQL Server Server'
+  message: 'Conexión exitosa a DigitalOcean SQL Server'
       };
     } catch (error) {
       healthReport.connection = {
@@ -186,7 +186,7 @@ export async function getDatabaseHealth() {
     console.error('❌ Error en diagnóstico de base de datos:', error);
     return {
       timestamp: new Date().toISOString(),
-      database: 'Cloud SQL Server Server',
+  database: 'DigitalOcean SQL Server',
       connection: { status: 'error', message: error.message },
       tables: {},
       system: {

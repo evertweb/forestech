@@ -1,5 +1,5 @@
 /**
- * inventoryService.js - Servicio de inventario usando Cloud SQL Server Server en Firebase Functions
+ * inventoryService.js - Servicio de inventario usando SQL Server DigitalOcean en Firebase Functions
  * Migrado desde combustibles/src/services/SqlInventoryService.js
  * Forestech Combustibles App - TASK-003
  */

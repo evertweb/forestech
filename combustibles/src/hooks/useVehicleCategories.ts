@@ -14,7 +14,22 @@ import type { Result } from '../types/api';
 // @ts-expect-error - Service not yet migrated to TypeScript
 import FirebaseVehicleCategoriesService from '../services/FirebaseVehicleCategoriesService';
 
-const categoriesService = new FirebaseVehicleCategoriesService();
+let categoriesServiceInstance: any = null;
+
+export const getVehicleCategoriesService = () => {
+  if (!categoriesServiceInstance) {
+    categoriesServiceInstance = new FirebaseVehicleCategoriesService();
+  }
+  return categoriesServiceInstance;
+};
+
+export const __setVehicleCategoriesService = (service: any) => {
+  categoriesServiceInstance = service;
+};
+
+export const __resetVehicleCategoriesService = () => {
+  categoriesServiceInstance = null;
+};
 
 /**
  * Hook para gestión de categorías de vehículos
@@ -36,7 +51,8 @@ export const useVehicleCategories = (): UseVehicleCategoriesReturn => {
     try {
       setLoading(true);
       setError(null);
-      const result = await categoriesService.getAllCategories();
+  const service = getVehicleCategoriesService();
+  const result = await service.getAllCategories();
       
       if (result.success) {
         setCategories(result.data || []);
@@ -55,7 +71,8 @@ export const useVehicleCategories = (): UseVehicleCategoriesReturn => {
     try {
       setSaving(true);
       setError(null);
-      const result = await categoriesService.createCategory(data);
+  const service = getVehicleCategoriesService();
+  const result = await service.createCategory(data);
       
       if (result.success) {
         await fetchCategories();
@@ -77,7 +94,8 @@ export const useVehicleCategories = (): UseVehicleCategoriesReturn => {
     try {
       setSaving(true);
       setError(null);
-      const result = await categoriesService.updateCategory(id, data);
+  const service = getVehicleCategoriesService();
+  const result = await service.updateCategory(id, data);
       
       if (result.success) {
         await fetchCategories();
@@ -99,7 +117,8 @@ export const useVehicleCategories = (): UseVehicleCategoriesReturn => {
     try {
       setSaving(true);
       setError(null);
-      const result = await categoriesService.deleteCategory(id);
+  const service = getVehicleCategoriesService();
+  const result = await service.deleteCategory(id);
       
       if (result.success) {
         await fetchCategories();

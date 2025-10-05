@@ -1,24 +1,24 @@
 #!/usr/bin/env node
 
 /**
- * Test simple de conexión a Cloud SQL "oil" con usuario "oil"
+ * Test simple de conexión a SQL Server (DigitalOcean)
  */
 
 import sql from 'mssql';
 
 const testConnection = async () => {
-  console.log('🧪 TEST SIMPLE CLOUD SQL "OIL"');
-  console.log('===============================');
-  console.log('📍 Server: 34.61.242.157:1433');
-  console.log('👤 User: oil');
-  console.log('🔑 Password: 123456789');
+  console.log('🧪 TEST SIMPLE DIGITALOCEAN SQL SERVER');
+  console.log('======================================');
+  console.log('📍 Server: 24.199.89.134:1433');
+  console.log('👤 User: SA');
+  console.log('🔑 Password: Forestech2024!SecureDB');
   console.log('');
 
   const config = {
-    server: '34.61.242.157',
+  server: '24.199.89.134',
     port: 1433,
-    user: 'oil',
-    password: '123456789',
+  user: 'SA',
+  password: 'Forestech2024!SecureDB',
     options: {
       encrypt: true,
       trustServerCertificate: true,
@@ -29,7 +29,7 @@ const testConnection = async () => {
   };
 
   try {
-    console.log('🔌 Conectando a Cloud SQL "oil"...');
+  console.log('🔌 Conectando a SQL Server DigitalOcean...');
     const pool = await sql.connect(config);
     console.log('✅ CONEXIÓN EXITOSA!');
 
@@ -54,26 +54,26 @@ const testConnection = async () => {
     }
 
     // Test crear base de datos si no existe
-    console.log('\n🔧 Verificando/creando base de datos forestechCombus...');
+  console.log('\n🔧 Verificando/creando base de datos DBforestech...');
     try {
       await pool.request().query(`
-        IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'forestechCombus')
+        IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'DBforestech')
         BEGIN
-          CREATE DATABASE [forestechCombus]
-          PRINT 'Base de datos forestechCombus creada'
+          CREATE DATABASE [DBforestech]
+          PRINT 'Base de datos DBforestech creada'
         END
         ELSE
-          PRINT 'Base de datos forestechCombus ya existe'
+          PRINT 'Base de datos DBforestech ya existe'
       `);
-      console.log('   ✅ Base de datos forestechCombus lista');
+      console.log('   ✅ Base de datos DBforestech lista');
     } catch (dbError) {
       console.log(`   ⚠️ Error creando BD: ${dbError.message}`);
     }
 
     await pool.close();
     
-    console.log('\n🎉 CONEXIÓN EXITOSA A CLOUD SQL "OIL"!');
-    console.log('✅ Tu instancia está lista para la migración');
+  console.log('\n🎉 CONEXIÓN EXITOSA A DIGITALOCEAN SQL SERVER!');
+  console.log('✅ Instancia lista para operar');
 
   } catch (error) {
     console.error('\n❌ ERROR DE CONEXIÓN:');
@@ -81,11 +81,10 @@ const testConnection = async () => {
     console.error(`   Código: ${error.code}`);
     
     if (error.code === 'ELOGIN') {
-      console.log('\n🔧 PROBLEMA CON CREDENCIALES:');
-      console.log('   1. Verifica en Google Cloud Console > SQL > oil > Users');
-      console.log('   2. Confirma que el usuario "oil" existe');
-      console.log('   3. Verifica el password: 123456789');
-      console.log('   4. Asegúrate que SQL Server authentication esté habilitado');
+  console.log('\n🔧 PROBLEMA CON CREDENCIALES:');
+  console.log('   1. Valida credenciales configuradas en SQL Server DigitalOcean');
+  console.log('   2. Confirma que el usuario SA no haya cambiado su password');
+  console.log('   3. Reestablece credenciales si es necesario');
     }
     
     process.exit(1);

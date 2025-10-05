@@ -1,10 +1,10 @@
 # SQL Services - Firebase Functions
 
 ## Overview
-Este directorio contiene los servicios migrados de Azure SQL Server para la app Forestech Combustibles. La migración mueve la lógica de SQL del frontend a Firebase Functions para mantener la arquitectura React Frontend → Functions → Azure SQL.
+Este directorio contiene los servicios migrados al SQL Server alojado en DigitalOcean para la app Forestech Combustibles. La arquitectura queda como React Frontend → Firebase Functions → SQL Server (DigitalOcean).
 
 ### Estructura
-- `config.js`: Configuración de conexión Azure SQL (server, database, user, password, options).
+- `config.js`: Configuración de conexión SQL Server DigitalOcean (server, database, user, password, options).
 - `SqlConnection.js`: Clase singleton para conexión y operaciones básicas (query, execute, transaction).
 - `movementsService.js`: Servicio para movimientos (CRUD + lógica de inventario).
 - `testConnection.js`: Función de test para conexión SQL.

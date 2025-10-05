@@ -3,11 +3,11 @@
 import sql from 'mssql';
 
 const OIL_CONFIG = {
-  server: '34.61.242.157',
+    server: '24.199.89.134',
   port: 1433,
-  database: 'forestechCombus',
-  user: 'oil',
-  password: '123456789',
+    database: 'DBforestech',
+    user: 'SA',
+    password: 'Forestech2024!SecureDB',
   options: {
     encrypt: true,
     trustServerCertificate: true,
@@ -19,7 +19,7 @@ const OIL_CONFIG = {
 
 const createTables = async () => {
     try {
-        console.log('🔗 Conectando a Cloud SQL oil...');
+    console.log('🔗 Conectando a SQL Server DigitalOcean...');
         console.log('Server:', OIL_CONFIG.server);
         console.log('Database:', OIL_CONFIG.database);
 

@@ -60,8 +60,8 @@ Cloud SQL Server (SQL Server database)
 
 ## 📋 **ARCHIVOS QUE PERMANECEN SIN CAMBIOS**
 
-Los siguientes archivos contienen "Azure" en sus **nombres** pero se mantendrán para referencia histórica:
-- `scripts/migrate-data-azure-to-oil.js` - Script de migración histórico
+Los siguientes archivos contienen "Azure" en sus **nombres** pero se mantendrán como envoltorios para no romper automatizaciones:
+- `scripts/migrate-data-azure-to-oil.js` → redirige a `scripts/migrate-data-to-digitalocean.js`
 - `combustibles/src/config/azureSqlConfig.js` - Config legacy (probablemente obsoleto)
 
 **Recomendación**: Estos archivos pueden moverse a un directorio `/archive/` o `/deprecated/` en el futuro.
@@ -70,7 +70,7 @@ Los siguientes archivos contienen "Azure" en sus **nombres** pero se mantendrán
 
 ### ✅ Cloud SQL Server (EN USO)
 - **Qué es**: Base de datos SQL Server
-- **Ubicación**: IP pública 34.61.242.157:1433
+- **Ubicación**: IP pública 24.199.89.134:1433
 - **Conexión**: Desde Firebase Functions via `mssql` driver
 - **Archivo**: `/functions/src/cloudsql/oil-connection.js`
 

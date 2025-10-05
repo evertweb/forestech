@@ -25,6 +25,7 @@ env:
   NODE_VERSION: '20'
   # Cache keys basados en contenido de archivos críticos
   CACHE_KEY_PREFIX: v2-forestech-release
+  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
 jobs:
   deploy:
@@ -86,6 +87,13 @@ jobs:
           npm install -g firebase-tools@13.0.0
           firebase --version
 
+      - name: 🔐 Configure Firebase service account
+        if: env.FIREBASE_SERVICE_ACCOUNT != ''
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > $RUNNER_TEMP/firebase-key.json
+          chmod 600 $RUNNER_TEMP/firebase-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-key.json" >> $GITHUB_ENV
+
       # 🚀 DEPLOY TO FIREBASE
       - name: 🚀 Deploy to Firebase
         run: |
@@ -101,7 +109,7 @@ jobs:
           fi
           
           echo "📋 Deploy targets: $DEPLOY_TARGETS"
-          firebase deploy --only "$DEPLOY_TARGETS" --token ${{ secrets.FIREBASE_TOKEN }} --json | tee deploy-result.json
+          firebase deploy --only "$DEPLOY_TARGETS" --json | tee deploy-result.json
 
           # Check result
           if grep -q '"status": "success"' deploy-result.json; then

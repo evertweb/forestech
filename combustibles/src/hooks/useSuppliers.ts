@@ -15,7 +15,22 @@ import type { Result } from '../types/api';
 // @ts-expect-error - Service not yet migrated to TypeScript
 import FirebaseSuppliersService from '../services/FirebaseSuppliersService';
 
-const suppliersService = new FirebaseSuppliersService();
+let suppliersServiceInstance: any = null;
+
+export const getSuppliersService = () => {
+  if (!suppliersServiceInstance) {
+    suppliersServiceInstance = new FirebaseSuppliersService();
+  }
+  return suppliersServiceInstance;
+};
+
+export const __setSuppliersService = (service: any) => {
+  suppliersServiceInstance = service;
+};
+
+export const __resetSuppliersService = () => {
+  suppliersServiceInstance = null;
+};
 
 /**
  * Hook para gestión de proveedores
@@ -37,7 +52,8 @@ export const useSuppliers = (): UseSuppliersReturn => {
     try {
       setLoading(true);
       setError(null);
-      const result = await suppliersService.getAllSuppliers();
+      const service = getSuppliersService();
+      const result = await service.getAllSuppliers();
       
       if (result.success) {
         setSuppliers(result.data || []);
@@ -56,7 +72,8 @@ export const useSuppliers = (): UseSuppliersReturn => {
     try {
       setLoading(true);
       setError(null);
-      const result = await suppliersService.getActiveSuppliers();
+  const service = getSuppliersService();
+  const result = await service.getActiveSuppliers();
       
       if (result.success) {
         setSuppliers(result.data || []);
@@ -75,7 +92,8 @@ export const useSuppliers = (): UseSuppliersReturn => {
     try {
       setSaving(true);
       setError(null);
-      const result = await suppliersService.createSupplier(data);
+  const service = getSuppliersService();
+  const result = await service.createSupplier(data);
       
       if (result.success) {
         await fetchSuppliers();
@@ -97,7 +115,8 @@ export const useSuppliers = (): UseSuppliersReturn => {
     try {
       setSaving(true);
       setError(null);
-      const result = await suppliersService.updateSupplier(id, data);
+  const service = getSuppliersService();
+  const result = await service.updateSupplier(id, data);
       
       if (result.success) {
         await fetchSuppliers();
@@ -119,7 +138,8 @@ export const useSuppliers = (): UseSuppliersReturn => {
     try {
       setSaving(true);
       setError(null);
-      const result = await suppliersService.deleteSupplier(id);
+  const service = getSuppliersService();
+  const result = await service.deleteSupplier(id);
       
       if (result.success) {
         await fetchSuppliers();

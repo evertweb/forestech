@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
 /**
- * Test de conexión con debug para Cloud SQL "oil"
- * Probando diferentes configuraciones de usuario
+ * Test de conexión con debug para SQL Server (DigitalOcean)
+ * Prueba usuarios críticos y entrega información extendida
  */
 
 import sql from 'mssql';
 
 const testConfigs = [
   {
-    name: "Config 1: sqlserver user",
+    name: 'Config 1: SA admin',
     config: {
-      server: '34.61.242.157',
+      server: '24.199.89.134',
       port: 1433,
-      database: 'master', // Conectar primero a master
-      user: 'sqlserver',
-      password: '123456789',
+      database: 'DBforestech',
+      user: 'SA',
+      password: 'Forestech2024!SecureDB',
       options: {
         encrypt: true,
         trustServerCertificate: true,
@@ -26,11 +26,12 @@ const testConfigs = [
     }
   },
   {
-    name: "Config 2: Sin especificar database",
+    name: 'Config 2: usuario app "oil"',
     config: {
-      server: '34.61.242.157',
+      server: '24.199.89.134',
       port: 1433,
-      user: 'sqlserver',
+      database: 'DBforestech',
+      user: 'oil',
       password: '123456789',
       options: {
         encrypt: true,
@@ -44,8 +45,8 @@ const testConfigs = [
 ];
 
 const testConnection = async () => {
-  console.log('🧪 TESTING CLOUD SQL "OIL" - DEBUG MODE');
-  console.log('=========================================');
+  console.log('🧪 TESTING DIGITALOCEAN SQL SERVER - DEBUG MODE');
+  console.log('===============================================');
   
   for (const test of testConfigs) {
     console.log(`\n🔍 ${test.name}`);
@@ -82,10 +83,10 @@ const testConnection = async () => {
   
   console.log('\n❌ Ninguna configuración funcionó');
   console.log('\n🔧 PASOS PARA RESOLVER:');
-  console.log('1. Verificar en Google Cloud Console > SQL > oil > Users');
-  console.log('2. Verificar que el usuario "sqlserver" existe');
-  console.log('3. Resetear password si es necesario');
-  console.log('4. Verificar que Built-in authentication esté habilitado');
+  console.log('1. Revisar firewall del Droplet en DigitalOcean (puerto 1433)');
+  console.log('2. Confirmar credenciales en SQL Server (SA y usuarios de aplicación)');
+  console.log('3. Validar que la base de datos DBforestech existe');
+  console.log('4. Revisar logs con "sudo journalctl -u mssql-server -f"');
 };
 
 // Ejecutar test

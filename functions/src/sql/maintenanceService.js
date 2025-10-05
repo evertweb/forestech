@@ -1,5 +1,5 @@
 /**
- * maintenanceService.js - Servicio de mantenimientos usando Cloud SQL Server Server en Firebase Functions
+ * maintenanceService.js - Servicio de mantenimientos usando SQL Server DigitalOcean en Firebase Functions
  * Migrado desde combustibles/src/services/maintenanceService.js
  * Forestech Combustibles App - TASK-006
  */
@@ -163,8 +163,6 @@ const updateVehicleHourMeter = async (vehicleId, newHours) => {
             updatedAt: new Date(),
             vehicleId
           });
-
-          console.log(`✅ Horómetro actualizado para ${vehicleId}: ${currentHours} → ${newHoursInt}`);
         }
       }
     }
@@ -341,7 +339,6 @@ export async function getAllMaintenanceRecords(filters = {}) {
     }
 
     return { success: true, data: [], count: 0 };
-
   } catch (error) {
     console.error('❌ Error al obtener mantenimientos SQL en Functions:', error);
     return { success: false, error: error.message };

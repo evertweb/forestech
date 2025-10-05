@@ -105,7 +105,7 @@ describe('AuthStore', () => {
           'movements:create': true,
           'movements:update': true,
           'movements:delete': true,
-        },
+        } as any,
       });
 
       useAuthStore.getState().setUserProfile(mockProfile);
@@ -191,16 +191,16 @@ describe('AuthStore', () => {
   });
 
   describe('hasPermission', () => {
-    it('should return false when no user profile', () => {
+    it('should return true even when no user profile (permisos deshabilitados)', () => {
       const hasPermission = useAuthStore.getState().hasPermission('movements:create');
-      expect(hasPermission).toBe(false);
+      expect(hasPermission).toBe(true);
     });
 
-    it('should return false when userProfile has no permissions', () => {
+    it('should return true when userProfile has no permissions', () => {
       useAuthStore.getState().setUserProfile(createMockUserProfile());
 
       const hasPermission = useAuthStore.getState().hasPermission('movements:create');
-      expect(hasPermission).toBe(false);
+      expect(hasPermission).toBe(true);
     });
 
     it('should return true when user has the permission', () => {
@@ -215,7 +215,7 @@ describe('AuthStore', () => {
       expect(hasPermission).toBe(true);
     });
 
-    it('should return false when permission is explicitly false', () => {
+    it('should still return true when permission is explicitly false (permisos deshabilitados)', () => {
       useAuthStore.getState().setUserProfile(createMockUserProfile({
         combustiblesPermissions: {
           'movements:create': false,
@@ -223,29 +223,29 @@ describe('AuthStore', () => {
       }));
 
       const hasPermission = useAuthStore.getState().hasPermission('movements:create');
-      expect(hasPermission).toBe(false);
+      expect(hasPermission).toBe(true);
     });
 
-    it('should handle multiple permissions correctly', () => {
+    it('should return true for any permission requested', () => {
       useAuthStore.getState().setUserProfile(createMockUserProfile({
         role: 'supervisor',
         combustiblesPermissions: {
           'movements:create': true,
           'movements:update': false,
           'movements:delete': false,
-        },
+        } as any,
       }));
 
       expect(useAuthStore.getState().hasPermission('movements:create')).toBe(true);
-      expect(useAuthStore.getState().hasPermission('movements:update')).toBe(false);
-      expect(useAuthStore.getState().hasPermission('movements:delete')).toBe(false);
+      expect(useAuthStore.getState().hasPermission('movements:update')).toBe(true);
+      expect(useAuthStore.getState().hasPermission('movements:delete')).toBe(true);
     });
   });
 
   describe('isAdmin', () => {
-    it('should return false when no user profile', () => {
+    it('should return true even when no user profile (permisos deshabilitados)', () => {
       const isAdmin = useAuthStore.getState().isAdmin();
-      expect(isAdmin).toBe(false);
+      expect(isAdmin).toBe(true);
     });
 
     it('should return true for admin role', () => {
@@ -257,29 +257,20 @@ describe('AuthStore', () => {
       expect(isAdmin).toBe(true);
     });
 
-    it('should return false for non-admin role', () => {
+    it('should return true for cualquier rol debido a permisos deshabilitados', () => {
       useAuthStore.getState().setUserProfile(createMockUserProfile({
         role: 'operador',
       }));
 
       const isAdmin = useAuthStore.getState().isAdmin();
-      expect(isAdmin).toBe(false);
-    });
-
-    it('should return false for supervisor role', () => {
-      useAuthStore.getState().setUserProfile(createMockUserProfile({
-        role: 'supervisor',
-      }));
-
-      const isAdmin = useAuthStore.getState().isAdmin();
-      expect(isAdmin).toBe(false);
+      expect(isAdmin).toBe(true);
     });
   });
 
   describe('isCounterOrAbove', () => {
-    it('should return false when no user profile', () => {
+    it('should return true even when no user profile (permisos deshabilitados)', () => {
       const isCounter = useAuthStore.getState().isCounterOrAbove();
-      expect(isCounter).toBe(false);
+      expect(isCounter).toBe(true);
     });
 
     it('should return true for admin role', () => {
@@ -300,22 +291,13 @@ describe('AuthStore', () => {
       expect(isCounter).toBe(true);
     });
 
-    it('should return false for operador role', () => {
+    it('should return true for cualquier otro rol (permisos deshabilitados)', () => {
       useAuthStore.getState().setUserProfile(createMockUserProfile({
         role: 'operador',
       }));
 
       const isCounter = useAuthStore.getState().isCounterOrAbove();
-      expect(isCounter).toBe(false);
-    });
-
-    it('should return false for supervisor role', () => {
-      useAuthStore.getState().setUserProfile(createMockUserProfile({
-        role: 'supervisor',
-      }));
-
-      const isCounter = useAuthStore.getState().isCounterOrAbove();
-      expect(isCounter).toBe(false);
+      expect(isCounter).toBe(true);
     });
   });
 
@@ -356,9 +338,9 @@ describe('AuthStore', () => {
 
   describe('Selectors', () => {
     describe('selectUserEmail', () => {
-      it('should return undefined when no user', () => {
+      it('should return null when no user', () => {
         const email = selectUserEmail(useAuthStore.getState());
-        expect(email).toBeUndefined();
+        expect(email).toBeNull();
       });
 
       it('should return user email when user exists', () => {

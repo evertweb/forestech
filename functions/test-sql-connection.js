@@ -1,5 +1,5 @@
 /**
- * Test de conectividad a Cloud SQL
+ * Test de conectividad a SQL Server DigitalOcean
  * Script de diagnóstico para resolver problemas de conexión
  */
 
@@ -7,13 +7,13 @@ import sql from 'mssql';
 
 const testConfigs = [
   {
-    name: 'Config Actual (IP Pública)',
+    name: 'DigitalOcean - SA (Producción)',
     config: {
-      server: '34.61.242.157',
+      server: '24.199.89.134',
       port: 1433,
-      database: 'forestechCombus',
-      user: 'oil',
-      password: '123456789',
+      database: 'DBforestech',
+      user: 'SA',
+      password: 'Forestech2024!SecureDB',
       options: {
         encrypt: true,
         trustServerCertificate: true,
@@ -30,13 +30,13 @@ const testConfigs = [
     }
   },
   {
-    name: 'Config Sin SSL',
+    name: 'DigitalOcean - SA sin SSL (debug)',
     config: {
-      server: '34.61.242.157',
+      server: '24.199.89.134',
       port: 1433,
-      database: 'forestechCombus',
-      user: 'oil',
-      password: '123456789',
+      database: 'DBforestech',
+      user: 'SA',
+      password: 'Forestech2024!SecureDB',
       options: {
         encrypt: false,
         enableArithAbort: true,
@@ -52,12 +52,12 @@ const testConfigs = [
     }
   },
   {
-    name: 'Config Usuario SA',
+    name: 'DigitalOcean - usuario app "oil"',
     config: {
-      server: '34.61.242.157',
+      server: '24.199.89.134',
       port: 1433,
-      database: 'master',
-      user: 'sa',
+      database: 'DBforestech',
+      user: 'oil',
       password: '123456789',
       options: {
         encrypt: true,
@@ -119,7 +119,7 @@ async function testConnection(config, name) {
 }
 
 async function runDiagnostics() {
-  console.log('🔍 DIAGNÓSTICO DE CONECTIVIDAD CLOUD SQL');
+  console.log('🔍 DIAGNÓSTICO DE CONECTIVIDAD SQL SERVER DIGITALOCEAN');
   console.log('=====================================');
   
   const results = [];
@@ -141,7 +141,7 @@ async function runDiagnostics() {
   if (successfulConfigs.length > 0) {
     console.log(`\n🎉 Configuraciones exitosas: ${successfulConfigs.length}/${results.length}`);
   } else {
-    console.log('\n⚠️ NINGUNA configuración funcionó - revisar Cloud SQL setup');
+  console.log('\n⚠️ NINGUNA configuración funcionó - revisar firewall/reglas en DigitalOcean');
   }
 }
 

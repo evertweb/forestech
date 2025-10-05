@@ -1,5 +1,5 @@
 -- Migración: Verificar y configurar columna isPreferred
--- Ejecutar este script en Azure SQL Database
+-- Ejecutar este script en SQL Server (DigitalOcean)
 
 USE forestechCombus;
 GO

@@ -205,7 +205,7 @@ export const useAuthStore = create(
  * @example
  * const userEmail = useAuthStore(selectUserEmail);
  */
-export const selectUserEmail = (state) => state.user?.email;
+export const selectUserEmail = (state) => state.user?.email ?? null;
 
 /**
  * Selector to get only user role

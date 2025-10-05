@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
 /**
- * Test de conexión a Cloud SQL "oil"
- * Verifica conectividad y configuración de tu instancia específica
+ * Test de conexión a SQL Server en DigitalOcean
+ * Verifica conectividad y configuración de la instancia productiva
  */
 
 import sql from 'mssql';
 
 const CONFIG = {
-  server: '34.61.242.157',
+  server: '24.199.89.134',
   port: 1433,
-  database: 'forestechCombus',
-  user: 'oil',
-  password: '123456789',
+  database: 'DBforestech',
+  user: 'SA',
+  password: 'Forestech2024!SecureDB',
   options: {
     encrypt: true,
     trustServerCertificate: true,
@@ -23,21 +23,21 @@ const CONFIG = {
 };
 
 const testConnection = async () => {
-  console.log('🧪 TESTING CLOUD SQL "OIL" CONNECTION');
-  console.log('=====================================');
-  console.log('📍 Server: 34.61.242.157:1433');
-  console.log('🗄️ Database: forestechCombus');
-  console.log('👤 User: oil');
+  console.log('🧪 TESTING DIGITALOCEAN SQL SERVER CONNECTION');
+  console.log('============================================');
+  console.log('📍 Server: 24.199.89.134:1433');
+  console.log('🗄️ Database: DBforestech');
+  console.log('👤 User: SA');
   console.log('');
 
   try {
-    console.log('🔌 Conectando a Cloud SQL "oil"...');
+  console.log('🔌 Conectando a SQL Server DigitalOcean...');
     const pool = await sql.connect(CONFIG);
     console.log('✅ Conexión exitosa!');
 
     // Test básico
     console.log('\n📊 Información del servidor:');
-    const serverInfo = await pool.request().query('SELECT @@VERSION as version, @@SERVERNAME as server_name, GETDATE() as current_time');
+  const serverInfo = await pool.request().query('SELECT @@VERSION as version, @@SERVERNAME as server_name, GETDATE() as [current_time]');
     console.log('   Versión:', serverInfo.recordset[0].version.split('\n')[0]);
     console.log('   Servidor:', serverInfo.recordset[0].server_name);
     console.log('   Hora actual:', serverInfo.recordset[0].current_time);
@@ -49,7 +49,7 @@ const testConnection = async () => {
       console.log('   Base de datos actual:', dbTest.recordset[0].current_db);
       console.log('   Número de tablas:', dbTest.recordset[0].table_count);
     } catch (error) {
-      console.log('   ⚠️ Base de datos forestechCombus no existe aún (normal si no has migrado)');
+  console.log('   ⚠️ Base de datos DBforestech no existe aún (verificar migración)');
     }
 
     // Test de performance
@@ -69,13 +69,13 @@ const testConnection = async () => {
 
     await pool.close();
     
-    console.log('\n🎉 TODOS LOS TESTS EXITOSOS');
-    console.log('✅ Tu instancia Cloud SQL "oil" está lista para migración!');
-    console.log('');
-    console.log('📋 Próximos pasos:');
-    console.log('   1. Crear base de datos forestechCombus (si no existe)');
-    console.log('   2. Ejecutar migración de Azure SQL');
-    console.log('   3. Configurar Firebase Functions');
+  console.log('\n🎉 TODOS LOS TESTS EXITOSOS');
+  console.log('✅ Instancia DigitalOcean lista para operar!');
+  console.log('');
+  console.log('📋 Próximos pasos:');
+  console.log('   1. Crear base de datos DBforestech (si no existe)');
+  console.log('   2. Importar backups recientes');
+  console.log('   3. Validar conexión desde Firebase Functions');
 
   } catch (error) {
     console.error('\n❌ ERROR DE CONEXIÓN:');
@@ -83,10 +83,9 @@ const testConnection = async () => {
     console.error('   Código:', error.code);
     
     console.log('\n🔧 POSIBLES SOLUCIONES:');
-    console.log('   1. Verificar que la IP pública esté habilitada');
-    console.log('   2. Agregar tu IP a authorized networks si es necesario');
-    console.log('   3. Verificar usuario y contraseña');
-    console.log('   4. Verificar que el puerto 1433 esté abierto');
+  console.log('   1. Verificar reglas inbound del firewall en DigitalOcean');
+  console.log('   2. Confirmar usuario y contraseña');
+  console.log('   3. Validar que el puerto 1433 esté abierto');
     
     process.exit(1);
   }

@@ -1,6 +1,6 @@
 /**
- * Cloud SQL Connection - Instancia "oil"
- * Configuración específica para tu instancia Cloud SQL Server
+ * DigitalOcean SQL Connection - Instancia "DBforestech"
+ * Configuración específica para el servidor SQL en DigitalOcean
  */
 
 import sql from 'mssql';
@@ -15,11 +15,11 @@ class OilSQLConnection {
     // NOTA: Firebase Functions NO soporta Unix sockets
     // Siempre usamos IP pública con SSL
     return {
-      server: '34.61.242.157',  // IP pública siempre para Firebase Functions
+      server: '24.199.89.134',  // IP pública del nuevo servidor SQL en DigitalOcean
       port: 1433,
-      database: 'forestechCombus',
-      user: 'oil',
-      password: '123456789',
+      database: 'DBforestech',
+      user: 'SA',
+      password: 'Forestech2024!SecureDB',
       options: {
         encrypt: true,  // Siempre usar SSL para conexiones externas
         trustServerCertificate: true,
@@ -42,18 +42,18 @@ class OilSQLConnection {
     }
 
     try {
-      console.log('🔌 Conectando a Cloud SQL "oil"...');
+  console.log('🔌 Conectando a DigitalOcean SQL "DBforestech"...');
       const config = this.getConfig();
       
       this.pool = await sql.connect(config);
       this.isConnected = true;
       
-      console.log('✅ Conectado a Cloud SQL "oil" exitosamente');
+  console.log('✅ Conectado a DigitalOcean SQL exitosamente');
       return this.pool;
     } catch (error) {
-      console.error('❌ Error conectando a Cloud SQL "oil":', error);
-      this.isConnected = false;
-      throw new Error(`Cloud SQL "oil" connection failed: ${error.message}`);
+  console.error('❌ Error conectando a DigitalOcean SQL:', error);
+  this.isConnected = false;
+  throw new Error(`DigitalOcean SQL connection failed: ${error.message}`);
     }
   }
 
@@ -70,7 +70,7 @@ class OilSQLConnection {
       const result = await request.query(queryText);
       return result.recordset || [];
     } catch (error) {
-      console.error('❌ Error en query Cloud SQL "oil":', error);
+  console.error('❌ Error en query DigitalOcean SQL:', error);
       throw error;
     }
   }
@@ -92,7 +92,7 @@ class OilSQLConnection {
         recordset: result.recordset
       };
     } catch (error) {
-      console.error('❌ Error ejecutando comando Cloud SQL "oil":', error);
+  console.error('❌ Error ejecutando comando DigitalOcean SQL:', error);
       throw error;
     }
   }
@@ -119,13 +119,13 @@ class OilSQLConnection {
         success: true,
         version: result[0]?.version,
         currentTime: result[0]?.current_time,
-        message: 'Conexión exitosa a Cloud SQL "oil"'
+        message: 'Conexión exitosa a DigitalOcean SQL'
       };
     } catch (error) {
       return {
         success: false,
         error: error.message,
-        message: 'Error de conexión a Cloud SQL "oil"'
+        message: 'Error de conexión a DigitalOcean SQL'
       };
     }
   }
@@ -135,7 +135,7 @@ class OilSQLConnection {
       await this.pool.close();
       this.pool = null;
       this.isConnected = false;
-      console.log('🔌 Desconectado de Cloud SQL "oil"');
+  console.log('🔌 Desconectado de DigitalOcean SQL');
     }
   }
 
@@ -145,8 +145,8 @@ class OilSQLConnection {
       poolSize: this.pool?.size || 0,
       connected: this.pool?.connected || false,
       healthy: this.pool?.healthy || false,
-      instanceName: 'oil',
-      connectionName: 'liquidacionapp-62962:us-central1:oil'
+  instanceName: 'digitalocean-forestech',
+  connectionName: 'digitalocean:forestech'
     };
   }
 }

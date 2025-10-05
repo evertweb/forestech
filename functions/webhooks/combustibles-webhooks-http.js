@@ -4,12 +4,11 @@
  * ✅ Este webhook ahora está implementado en Cloud Run:
  * - URL: https://forestech-sql-service-851382130132.us-central1.run.app/webhook/combustibles
  * - Mejor performance y sin limitaciones de cuota
- * - Integración directa con Azure SQL
+ * - Integración directa con SQL Server en DigitalOcean
  * 
- * ❌ ELIMINADO de Firebase Functions para evitar duplicación y conflictos Gen1/Gen2
+ * ❌ Usando v1 para compatibilidad con límites de configuración
  * 
- * Si necesitas el webhook en Firebase Functions, usa:
- * import { onRequest } from 'firebase-functions/v1/https';
+ * Usa Firebase Functions v1 para evitar problemas de health check
  */
 
 import { onRequest } from 'firebase-functions/v1/https';

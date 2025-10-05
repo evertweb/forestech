@@ -1,5 +1,5 @@
 /**
- * vehicleCategoriesService.js - Servicio de categorías de vehículos usando Cloud SQL Server Server en Firebase Functions
+ * vehicleCategoriesService.js - Servicio de categorías de vehículos usando SQL Server DigitalOcean en Firebase Functions
  * Migrado desde combustibles/src/services/SqlVehicleCategoriesService.js
  * Forestech Combustibles App - TASK-006
  */
