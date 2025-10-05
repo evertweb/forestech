@@ -109,14 +109,20 @@ jobs:
           fi
           
           echo "📋 Deploy targets: $DEPLOY_TARGETS"
-          firebase deploy --only "$DEPLOY_TARGETS" --json | tee deploy-result.json
+          firebase deploy --only "$DEPLOY_TARGETS" --json --debug | tee deploy-result.json
 
           # Check result
           if grep -q '"status": "success"' deploy-result.json; then
             echo "✅ Deploy successful!"
+            echo "DEPLOY_OUTCOME=success" >> $GITHUB_ENV
           else
             echo "❌ Deploy failed!"
             cat deploy-result.json
+            if [ -f firebase-debug.log ]; then
+              echo "----- firebase-debug.log -----"
+              cat firebase-debug.log
+            fi
+            echo "DEPLOY_OUTCOME=failure" >> $GITHUB_ENV
             exit 1
           fi
 
@@ -126,7 +132,7 @@ jobs:
         run: |
           echo "📊 Deploy Summary:"
           echo "🎯 Target: ${{ github.event.inputs.deploy_target || 'auto (push)' }}"
-          echo "🌐 URLs deployed:"
+          echo "🌐 URLs desplegados:"
           
           if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event.inputs.deploy_target }}" = "combustibles" ] || [ "${{ github.event_name }}" = "push" ]; then
             echo "  ⛽ https://combustibles.forestechdecolombia.com.co/"
@@ -137,4 +143,16 @@ jobs:
             echo "  🍽️ https://forestechdecolombia.web.app/"
           fi
           
-          echo "✅ Firebase deploy completed!"
+          if [ "${DEPLOY_OUTCOME:-unknown}" = "success" ]; then
+            echo "✅ Firebase deploy completado sin errores."
+          else
+            echo "⚠️ Firebase deploy fallido, revisar logs previos."
+          fi
+
+      - name: 📎 firebase-debug.log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-debug-log
+          path: firebase-debug.log
+          if-no-files-found: ignore
