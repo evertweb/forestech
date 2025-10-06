@@ -2,7 +2,7 @@
  * SupplierModal - Modal para crear/editar proveedores
  * Diseño minimalista sin tabs, scroll vertical simple
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import BaseModal from '../shared/BaseModal';
 import ModalHeader from '../shared/ModalHeader';
 import ModalFooter from '../shared/ModalFooter';
@@ -66,6 +66,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     return { isValid: Object.keys(extraErrors).length === 0, errors: extraErrors };
   };
 
+  const initialFormData = useMemo(() => getInitialFormData(), [getInitialFormData]);
+
   const {
     values: formData,
     setValues: setFormData,
@@ -73,7 +75,7 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     handleInputChange,
     resetForm,
     validateForm,
-  } = useFormData(getInitialFormData(), validate);
+  } = useFormData(initialFormData, validate);
 
   // Inicializar datos al editar
   useEffect(() => {
