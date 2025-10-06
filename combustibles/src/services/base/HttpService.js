@@ -63,7 +63,6 @@ const ENDPOINT_TO_FUNCTION_MAP = {
   'sqlGetSupplierById': { functionName: 'combustiblesSuppliers', action: 'getById' },
   'sqlUpdateSupplier': { functionName: 'combustiblesSuppliers', action: 'update' },
   'sqlDeleteSupplier': { functionName: 'combustiblesSuppliers', action: 'delete' },
-  'sqlGetSupplierStats': { functionName: 'combustiblesSuppliers', action: 'getStats' },
 
   // Productos
   'sqlCreateProduct': { functionName: 'combustiblesProducts', action: 'create' },

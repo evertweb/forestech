@@ -47,10 +47,7 @@ import {
   getAllSuppliers,
   getSupplierById,
   updateSupplier,
-  deleteSupplier,
-  updateSupplierStats,
-  getPreferredSuppliers,
-  getSuppliersStats
+  deleteSupplier
 } from './src/sql/suppliersService.js';
 
 import {
@@ -88,6 +85,19 @@ import {
   deleteMovement,
   getMovementsStats
 } from './src/sql/movementsService.js';
+
+const SUPPLIER_ALLOWED_FIELDS = new Set([
+  'name',
+  'taxId',
+  'type',
+  'category',
+  'contactPerson',
+  'phone',
+  'email',
+  'city',
+  'status',
+  'paymentTerms'
+]);
 
 const unsupported = (action) => {
   return {
@@ -466,7 +476,22 @@ export const combustiblesSuppliers = onCall(async (request) => {
           throw new HttpsError('invalid-argument', 'supplierData es requerido.');
         }
 
-        return await createSupplier(supplierData, user);
+        const safeSupplier = {};
+        const unexpected = [];
+
+        Object.entries(supplierData).forEach(([key, value]) => {
+          if (SUPPLIER_ALLOWED_FIELDS.has(key)) {
+            safeSupplier[key] = value;
+          } else {
+            unexpected.push(key);
+          }
+        });
+
+        if (unexpected.length > 0) {
+          console.warn('⚠️ combustiblesSuppliers.create - Campos inesperados ignorados:', unexpected);
+        }
+
+        return await createSupplier(safeSupplier, user);
       });
 
     case 'getAll':
@@ -500,7 +525,26 @@ export const combustiblesSuppliers = onCall(async (request) => {
           throw new HttpsError('invalid-argument', 'updateData es requerido.');
         }
 
-        return await updateSupplier(supplierId, updateData, user);
+        const safeUpdate = {};
+        const unexpected = [];
+
+        Object.entries(updateData).forEach(([key, value]) => {
+          if (SUPPLIER_ALLOWED_FIELDS.has(key)) {
+            safeUpdate[key] = value;
+          } else {
+            unexpected.push(key);
+          }
+        });
+
+        if (unexpected.length > 0) {
+          console.warn('⚠️ combustiblesSuppliers.update - Campos inesperados ignorados:', unexpected);
+        }
+
+        if (Object.keys(safeUpdate).length === 0) {
+          throw new HttpsError('invalid-argument', 'No hay campos válidos para actualizar.');
+        }
+
+        return await updateSupplier(supplierId, safeUpdate, user);
       });
 
     case 'delete':
@@ -512,32 +556,6 @@ export const combustiblesSuppliers = onCall(async (request) => {
         }
 
         return await deleteSupplier(supplierId);
-      });
-
-    case 'updateStats':
-      return safeExecute(action, async () => {
-        const supplierId = data.supplierId || data.id;
-        const stats = data.stats;
-
-        if (!supplierId) {
-          throw new HttpsError('invalid-argument', 'supplierId es requerido.');
-        }
-
-        if (!stats || typeof stats !== 'object') {
-          throw new HttpsError('invalid-argument', 'stats es requerido.');
-        }
-
-        return await updateSupplierStats(supplierId, stats);
-      });
-
-    case 'getPreferred':
-      return safeExecute(action, async () => {
-        return await getPreferredSuppliers();
-      });
-
-    case 'getStats':
-      return safeExecute(action, async () => {
-        return await getSuppliersStats();
       });
 
     default:

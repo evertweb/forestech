@@ -3,16 +3,14 @@
  * Muestra métricas de stock, entradas, salidas por tipo de producto
  */
 
-import React, { useState, useEffect, useMemo, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { subscribeToMovements } from '../../services/FirebaseMovementsService';
-import { PRODUCT_CATEGORIES } from '../../constants/productTypes';
 import { formatCurrency, formatNumber } from '../../utils/calculations';
 import './ProductsStats-SAP.css';
 
 const ProductsStatsComponent = ({ products }) => {
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedCategories, setExpandedCategories] = useState(new Set());
 
   console.log('📈 ProductsStats render', {
     productsCount: products?.length || 0,
@@ -77,114 +75,6 @@ const ProductsStatsComponent = ({ products }) => {
     return 'normal';
   };
 
-  // Calcular estadísticas por categoría
-  const calculateCategoryStats = (productStats) => {
-    const categories = {};
-
-    Object.values(PRODUCT_CATEGORIES).forEach((category) => {
-      const categoryProducts = productStats.filter((p) => p.category === category);
-
-      categories[category] = {
-        totalProducts: categoryProducts.length,
-        totalStock: categoryProducts.reduce((sum, p) => sum + (p.currentStock || 0), 0),
-        totalValue: categoryProducts.reduce((sum, p) => sum + p.totalValue, 0),
-        totalEntries: categoryProducts.reduce((sum, p) => sum + p.totalEntries, 0),
-        totalExits: categoryProducts.reduce((sum, p) => sum + p.totalExits, 0),
-        lowStockCount: categoryProducts.filter(
-          (p) => p.stockStatus === 'low' || p.stockStatus === 'empty'
-        ).length,
-      };
-    });
-
-    return categories;
-  };
-
-  // Sparkline simple (SVG) para tendencias mensuales
-  const Sparkline = ({
-    values = [],
-    width = 120,
-    height = 28,
-    color = 'var(--sap-information)',
-  }) => {
-    if (!values.length) return <svg width={width} height={height} />;
-    const max = Math.max(...values, 1);
-    const stepX = width / (values.length - 1 || 1);
-    const points = values
-      .map((v, i) => {
-        const x = i * stepX;
-        const y = height - (v / max) * (height - 4) - 2; // paddings
-        return `${x},${y}`;
-      })
-      .join(' ');
-    return (
-      <svg width={width} height={height} className="sparkline" aria-hidden="true">
-        <polyline
-          fill="none"
-          stroke={color}
-          strokeWidth="2"
-          points={points}
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-    );
-  };
-
-  // Serie por categoría: total movimientos (entradas + salidas) últimos 6 meses
-  const categorySeries = useMemo(() => {
-    const byCategory = {};
-    const now = new Date();
-    const months = Array.from({ length: 6 }).map(
-      (_, i) => new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
-    );
-
-    // Map de producto -> categoría para filtrar rápido
-    const productToCategory = products.reduce((acc, p) => {
-      acc[p.name] = p.category;
-      acc[p.displayName] = p.category;
-      return acc;
-    }, {});
-
-    months.forEach((m) => {
-      const key = `${m.getFullYear()}-${m.getMonth()}`;
-      movements.forEach((mov) => {
-        const cat = productToCategory[mov.fuelType];
-        if (!cat) return;
-        const dt = mov.createdAt?.toDate
-          ? mov.createdAt.toDate()
-          : mov.createdAt
-            ? new Date(mov.createdAt)
-            : null;
-        if (!dt) return;
-        if (dt.getFullYear() === m.getFullYear() && dt.getMonth() === m.getMonth()) {
-          byCategory[cat] = byCategory[cat] || {};
-          byCategory[cat][key] = (byCategory[cat][key] || 0) + 1;
-        }
-      });
-    });
-
-    const series = {};
-    Object.keys(PRODUCT_CATEGORIES).forEach(() => {}); // mantener orden de importación
-    Object.values(PRODUCT_CATEGORIES).forEach((cat) => {
-      const values = months.map((m) => {
-        const k = `${m.getFullYear()}-${m.getMonth()}`;
-        return byCategory[cat]?.[k] || 0;
-      });
-      series[cat] = values;
-    });
-    return { months, series };
-  }, [movements, products]);
-
-  // Función para toggle del acordeón
-  const toggleCategory = (category) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(category)) {
-      newExpanded.delete(category);
-    } else {
-      newExpanded.add(category);
-    }
-    setExpandedCategories(newExpanded);
-  };
-
   if (loading) {
     return (
       <div className="products-stats sap-theme loading">
@@ -195,7 +85,6 @@ const ProductsStatsComponent = ({ products }) => {
   }
 
   const productStats = calculateProductStats();
-  const categoryStats = calculateCategoryStats(productStats);
 
   // Estadísticas generales
   const totalProducts = products.length;
@@ -295,89 +184,6 @@ const ProductsStatsComponent = ({ products }) => {
                 <div className="product-value">{formatCurrency(product.totalValue)}</div>
               </div>
             ))}
-        </div>
-      </div>
-
-      {/* 3) Por Categoría - Estilo Acordeón */}
-      <div className="stats-categories">
-        <h3 className="sap-title">📈 Distribución por Categoría</h3>
-        <div className="categories-accordion">
-          {Object.values(PRODUCT_CATEGORIES)
-            .sort() // Ordenar alfabéticamente
-            .map((category) => {
-              const stats = categoryStats[category];
-              if (!stats) return null;
-
-              const isExpanded = expandedCategories.has(category);
-              const hasData = stats.totalProducts > 0;
-
-              return (
-                <div key={category} className={`accordion-item ${isExpanded ? 'expanded' : ''}`}>
-                  <button
-                    className={`accordion-header ${hasData ? 'has-data' : 'no-data'}`}
-                    onClick={() => toggleCategory(category)}
-                    aria-expanded={isExpanded}
-                  >
-                    <div className="accordion-title">
-                      <span className="category-name">{category}</span>
-                      <span className="category-summary">
-                        {hasData
-                          ? `${stats.totalProducts} productos • ${formatCurrency(stats.totalValue)}`
-                          : 'Sin productos'}
-                      </span>
-                    </div>
-                    <div className="accordion-icons">
-                      <div className="category-sparkline">
-                        <Sparkline
-                          values={categorySeries.series[category] || []}
-                          width={80}
-                          height={20}
-                        />
-                      </div>
-                      <span className={`accordion-arrow ${isExpanded ? 'rotated' : ''}`}>▼</span>
-                    </div>
-                  </button>
-
-                  <div className={`accordion-content ${isExpanded ? 'expanded' : 'collapsed'}`}>
-                    <div className="category-stats">
-                      <div className="stats-grid">
-                        <div className="stat-item">
-                          <span className="stat-label">Productos</span>
-                          <span className="stat-value">{formatNumber(stats.totalProducts)}</span>
-                        </div>
-                        <div className="stat-item">
-                          <span className="stat-label">Stock Total</span>
-                          <span className="stat-value">{formatNumber(stats.totalStock)}</span>
-                          <span className="stat-unit">unidades</span>
-                        </div>
-                        <div className="stat-item">
-                          <span className="stat-label">Valor Total</span>
-                          <span className="stat-value">{formatCurrency(stats.totalValue)}</span>
-                        </div>
-                        <div className="stat-item">
-                          <span className="stat-label">Entradas</span>
-                          <span className="stat-value positive">
-                            {formatNumber(stats.totalEntries)}
-                          </span>
-                        </div>
-                        <div className="stat-item">
-                          <span className="stat-label">Salidas</span>
-                          <span className="stat-value negative">
-                            {formatNumber(stats.totalExits)}
-                          </span>
-                        </div>
-                        {stats.lowStockCount > 0 && (
-                          <div className="stat-item alert">
-                            <span className="stat-label">Stock Bajo</span>
-                            <span className="stat-value">{formatNumber(stats.lowStockCount)}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
         </div>
       </div>
 

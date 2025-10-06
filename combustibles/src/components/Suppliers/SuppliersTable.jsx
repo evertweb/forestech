@@ -1,12 +1,81 @@
 // combustibles/src/components/Suppliers/SuppliersTable.jsx
-// Componente de vista de tabla para proveedores
-import React, { useState, memo } from 'react';
-import { formatCurrency } from '../../utils/calculations';
-import { FUEL_TYPES } from '../../constants/combustibleTypes';
-import { UI_ACTIONS, UI_TOOLTIPS, UI_FORM_LABELS } from '../../constants';
+// Vista en tabla para proveedores con el esquema simplificado de 10 campos
+import React, { memo, useMemo, useState } from 'react';
+import { UI_TOOLTIPS, UI_FORM_LABELS } from '../../constants';
+
+const HEADERS = [
+  { key: 'name', label: UI_FORM_LABELS.SUPPLIER, sortable: true },
+  { key: 'taxId', label: 'NIT', sortable: true },
+  { key: 'type', label: UI_FORM_LABELS.TYPE, sortable: true },
+  { key: 'category', label: UI_FORM_LABELS.CATEGORY, sortable: true },
+  { key: 'contactPerson', label: 'Contacto', sortable: true },
+  { key: 'phone', label: 'Teléfono' },
+  { key: 'email', label: 'Email' },
+  { key: 'city', label: 'Ciudad', sortable: true },
+  { key: 'paymentTerms', label: 'Términos de pago', sortable: true },
+  { key: 'status', label: UI_FORM_LABELS.STATUS, sortable: true },
+];
+
+const SORT_LABELS = {
+  name: 'Nombre',
+  taxId: 'NIT',
+  type: 'Tipo',
+  category: 'Categoría',
+  contactPerson: 'Contacto',
+  phone: 'Teléfono',
+  email: 'Email',
+  city: 'Ciudad',
+  paymentTerms: 'Términos de pago',
+  status: 'Estado',
+};
+
+const normalize = (value) => {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'string') return value.toLowerCase();
+  if (value instanceof Date) return value.getTime();
+  return value;
+};
+
+const formatPaymentTerms = (terms) => {
+  switch (terms) {
+    case 'contado':
+      return 'Contado';
+    case '30dias':
+      return '30 días';
+    case '60dias':
+      return '60 días';
+    case '90dias':
+      return '90 días';
+    default:
+      return terms || '-';
+  }
+};
+
+const sortSuppliers = (suppliers, sortField, sortDirection) =>
+  [...suppliers].sort((a, b) => {
+    const aValue = normalize(a[sortField]);
+    const bValue = normalize(b[sortField]);
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+const getStatusChip = (status) => {
+  const baseClass = 'status-chip sap-theme';
+  const label =
+    status === 'active' ? 'Activo' : status === 'inactive' ? 'Inactivo' : 'Suspendido';
+
+  let colorClass = 'status-default';
+  if (status === 'active') colorClass = 'status-success';
+  if (status === 'inactive') colorClass = 'status-error';
+  if (status === 'suspended') colorClass = 'status-warning';
+
+  return <span className={`${baseClass} ${colorClass}`}>{label}</span>;
+};
 
 const SuppliersTableComponent = ({
-  suppliers,
+  suppliers = [],
   onEdit,
   onDelete,
   hasEditPermission,
@@ -15,126 +84,21 @@ const SuppliersTableComponent = ({
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  console.log('🤝 SuppliersTable render', {
-    suppliersCount: suppliers?.length || 0,
-    hasEditPermission,
-    hasDeletePermission,
-  });
-
   const handleSort = (field) => {
+    if (!field) return;
+
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
       setSortDirection('asc');
     }
   };
 
-  const sortedSuppliers = [...suppliers].sort((a, b) => {
-    let aValue = a[sortField];
-    let bValue = b[sortField];
-
-    // Handle special cases
-    switch (sortField) {
-      case 'rating':
-        aValue = aValue || 0;
-        bValue = bValue || 0;
-        break;
-      case 'totalOrders':
-      case 'totalPurchased':
-        aValue = aValue || 0;
-        bValue = bValue || 0;
-        break;
-      case 'createdAt':
-      case 'lastOrderDate':
-        aValue = aValue ? (aValue.toDate ? aValue.toDate() : new Date(aValue)) : new Date(0);
-        bValue = bValue ? (bValue.toDate ? bValue.toDate() : new Date(bValue)) : new Date(0);
-        break;
-      default:
-        aValue = (aValue || '').toString().toLowerCase();
-        bValue = (bValue || '').toString().toLowerCase();
-    }
-
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'active':
-        return 'var(--color-success-light)';
-      case 'inactive':
-        return 'var(--color-error)';
-      case 'suspended':
-        return 'var(--color-warning)';
-      default:
-        return 'var(--text-muted)';
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'active':
-        return 'Activo';
-      case 'inactive':
-        return 'Inactivo';
-      case 'suspended':
-        return 'Suspendido';
-      default:
-        return 'Desconocido';
-    }
-  };
-
-  const formatDate = (date) => {
-    if (!date) return '-';
-    const dateObj = date.toDate ? date.toDate() : new Date(date);
-    return dateObj.toLocaleDateString('es-CO');
-  };
-
-  const renderRating = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
-          ★
-        </span>
-      );
-    }
-    return <div className="rating-stars sap-theme">{stars}</div>;
-  };
-
-  const renderFuelTypes = (fuelTypes) => {
-    if (!fuelTypes || fuelTypes.length === 0) {
-      return <span className="no-data sap-theme">-</span>;
-    }
-
-    return (
-      <div className="fuel-types-cell sap-theme">
-        {fuelTypes.slice(0, 2).map((fuelType) => (
-          <span key={fuelType} className="fuel-badge-sm sap-theme">
-            {FUEL_TYPES[fuelType] || fuelType}
-          </span>
-        ))}
-        {fuelTypes.length > 2 && (
-          <span
-            className="fuel-badge-sm more sap-theme"
-            title={fuelTypes
-              .slice(2)
-              .map((ft) => FUEL_TYPES[ft] || ft)
-              .join(', ')}
-          >
-            +{fuelTypes.length - 2}
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  const getSortIcon = (field) => {
-    if (sortField !== field) return 'icon-chevrons-up-down';
-    return sortDirection === 'asc' ? 'icon-chevron-up' : 'icon-chevron-down';
-  };
+  const sortedSuppliers = useMemo(
+    () => sortSuppliers(suppliers, sortField, sortDirection),
+    [suppliers, sortField, sortDirection]
+  );
 
   return (
     <div className="suppliers-table-container sap-theme">
@@ -142,183 +106,62 @@ const SuppliersTableComponent = ({
         <table className="suppliers-table sap-theme">
           <thead>
             <tr>
-              <th
-                className={`sortable ${sortField === 'name' ? 'active' : ''}`}
-                onClick={() => handleSort('name')}
-              >
-                <span>{UI_FORM_LABELS.SUPPLIER}</span>
-                <i className={getSortIcon('name')}></i>
-              </th>
-
-              <th
-                className={`sortable ${sortField === 'status' ? 'active' : ''}`}
-                onClick={() => handleSort('status')}
-              >
-                <span>{UI_FORM_LABELS.STATUS}</span>
-                <i className={getSortIcon('status')}></i>
-              </th>
-
-              <th
-                className={`sortable ${sortField === 'category' ? 'active' : ''}`}
-                onClick={() => handleSort('category')}
-              >
-                <span>{UI_FORM_LABELS.CATEGORY}</span>
-                <i className={getSortIcon('category')}></i>
-              </th>
-
-              <th>
-                <span>Combustibles</span>
-              </th>
-
-              <th>
-                <span>Contacto</span>
-              </th>
-
-              <th
-                className={`sortable ${sortField === 'rating' ? 'active' : ''}`}
-                onClick={() => handleSort('rating')}
-              >
-                <span>Rating</span>
-                <i className={getSortIcon('rating')}></i>
-              </th>
-
-              <th
-                className={`sortable ${sortField === 'totalOrders' ? 'active' : ''}`}
-                onClick={() => handleSort('totalOrders')}
-              >
-                <span>Órdenes</span>
-                <i className={getSortIcon('totalOrders')}></i>
-              </th>
-
-              <th
-                className={`sortable ${sortField === 'totalPurchased' ? 'active' : ''}`}
-                onClick={() => handleSort('totalPurchased')}
-              >
-                <span>Total Comprado</span>
-                <i className={getSortIcon('totalPurchased')}></i>
-              </th>
-
-              <th
-                className={`sortable ${sortField === 'createdAt' ? 'active' : ''}`}
-                onClick={() => handleSort('createdAt')}
-              >
-                <span>Creado</span>
-                <i className={getSortIcon('createdAt')}></i>
-              </th>
-
-              <th className="actions-column sap-theme">
-                <span>Acciones</span>
-              </th>
+              {HEADERS.map(({ key, label, sortable }) => (
+                <th
+                  key={key}
+                  className={`${sortable ? 'sortable' : ''} ${sortField === key ? 'active' : ''}`}
+                  onClick={() => sortable && handleSort(key)}
+                >
+                  <span>{label}</span>
+                  {sortable && (
+                    <i
+                      className={
+                        sortField === key
+                          ? sortDirection === 'asc'
+                            ? 'icon-chevron-up'
+                            : 'icon-chevron-down'
+                          : 'icon-chevrons-up-down'
+                      }
+                    ></i>
+                  )}
+                </th>
+              ))}
+              <th className="actions-column sap-theme">Acciones</th>
             </tr>
           </thead>
 
           <tbody>
             {sortedSuppliers.map((supplier) => (
-              <tr key={supplier.id} className={`supplier-row ${supplier.status}`}>
-                {/* Supplier Info */}
-                <td className="supplier-info-cell sap-theme">
-                  <div className="supplier-main-info sap-theme">
-                    <div className="supplier-name sap-theme">
-                      {supplier.name}
-                      {supplier.isPreferred && (
-                        <span className="preferred-badge sap-theme" title="Proveedor Preferido">
-                          <i className="icon-star sap-theme"></i>
-                        </span>
-                      )}
-                    </div>
-                    {supplier.taxId && (
-                      <div className="supplier-tax-id sap-theme">NIT: {supplier.taxId}</div>
-                    )}
-                    {supplier.type && (
-                      <div className="supplier-type sap-theme">
-                        {supplier.type.charAt(0).toUpperCase() + supplier.type.slice(1)}
-                      </div>
-                    )}
-                  </div>
+              <tr key={supplier.id}>
+                <td className="supplier-name sap-theme">
+                  <div className="supplier-name-main sap-theme">{supplier.name || '-'}</div>
+                  {supplier.taxId && <div className="supplier-tax-id sap-theme">NIT: {supplier.taxId}</div>}
                 </td>
-
-                {/* Status */}
-                <td className="status-cell sap-theme">
-                  <div className="status-display sap-theme">
-                    <span
-                      className="status-dot sap-theme"
-                      style={{ backgroundColor: getStatusColor(supplier.status) }}
-                    ></span>
-                    <span className="status-label sap-theme">
-                      {getStatusLabel(supplier.status)}
-                    </span>
-                  </div>
+                <td>{supplier.taxId || '-'}</td>
+                <td>{supplier.type || '-'}</td>
+                <td>{supplier.category || '-'}</td>
+                <td>{supplier.contactPerson || '-'}</td>
+                <td>
+                  {supplier.phone ? (
+                    <a href={`tel:${supplier.phone}`} className="contact-link sap-theme">
+                      {supplier.phone}
+                    </a>
+                  ) : (
+                    '-'
+                  )}
                 </td>
-
-                {/* Category */}
-                <td className="category-cell sap-theme">
-                  <span className="category-label sap-theme">
-                    {supplier.category?.charAt(0).toUpperCase() + supplier.category?.slice(1) ||
-                      '-'}
-                  </span>
+                <td>
+                  {supplier.email ? (
+                    <a href={`mailto:${supplier.email}`} className="contact-link sap-theme">
+                      {supplier.email}
+                    </a>
+                  ) : (
+                    '-'
+                  )}
                 </td>
-
-                {/* Fuel Types */}
-                <td className="fuel-types-cell sap-theme">{renderFuelTypes(supplier.fuelTypes)}</td>
-
-                {/* Contact Info */}
-                <td className="contact-cell sap-theme">
-                  <div className="contact-info sap-theme">
-                    {supplier.contactPerson && (
-                      <div className="contact-person sap-theme">
-                        <i className="icon-user sap-theme"></i>
-                        <span>{supplier.contactPerson}</span>
-                      </div>
-                    )}
-                    {supplier.phone && (
-                      <div className="contact-item sap-theme">
-                        <i className="icon-phone sap-theme"></i>
-                        <a href={`tel:${supplier.phone}`}>{supplier.phone}</a>
-                      </div>
-                    )}
-                    {supplier.email && (
-                      <div className="contact-item sap-theme">
-                        <i className="icon-mail sap-theme"></i>
-                        <a href={`mailto:${supplier.email}`}>{supplier.email}</a>
-                      </div>
-                    )}
-                    {supplier.city && (
-                      <div className="contact-item sap-theme">
-                        <i className="icon-map-pin sap-theme"></i>
-                        <span>{supplier.city}</span>
-                      </div>
-                    )}
-                  </div>
-                </td>
-
-                {/* Rating */}
-                <td className="rating-cell sap-theme">
-                  <div className="rating-display sap-theme">
-                    {renderRating(supplier.rating || 0)}
-                    <span className="rating-value sap-theme">
-                      {(supplier.rating || 0).toFixed(1)}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Total Orders */}
-                <td className="orders-cell sap-theme">
-                  <span className="orders-count sap-theme">{supplier.totalOrders || 0}</span>
-                </td>
-
-                {/* Total Purchased */}
-                <td className="purchased-cell sap-theme">
-                  <span className="purchased-amount sap-theme">
-                    {formatCurrency(supplier.totalPurchased || 0)}
-                  </span>
-                </td>
-
-                {/* Created Date */}
-                <td className="date-cell sap-theme">
-                  <span className="date-value sap-theme">{formatDate(supplier.createdAt)}</span>
-                </td>
-
-                {/* Actions */}
+                <td>{supplier.city || '-'}</td>
+                <td>{formatPaymentTerms(supplier.paymentTerms)}</td>
+                <td>{getStatusChip(supplier.status)}</td>
                 <td className="actions-cell sap-theme">
                   <div className="action-buttons sap-theme">
                     {hasEditPermission && (
@@ -330,39 +173,37 @@ const SuppliersTableComponent = ({
                         <i className="icon-edit sap-theme"></i>
                       </button>
                     )}
-
                     {hasDeletePermission && supplier.status === 'active' && (
                       <button
                         className="btn btn-sm btn-danger sap-theme"
                         onClick={() => onDelete(supplier.id, supplier.name)}
-                        title={UI_TOOLTIPS.DELETE}
+                        title="Desactivar proveedor"
                       >
                         <i className="icon-x-circle sap-theme"></i>
                       </button>
                     )}
-
-                    {/* Quick contact actions */}
-                    <div className="quick-actions sap-theme">
-                      {supplier.phone && (
-                        <a
-                          href={`tel:${supplier.phone}`}
-                          className="quick-action-btn sap-theme"
-                          title="Llamar"
-                        >
-                          <i className="icon-phone sap-theme"></i>
-                        </a>
-                      )}
-
-                      {supplier.email && (
-                        <a
-                          href={`mailto:${supplier.email}`}
-                          className="quick-action-btn sap-theme"
-                          title="Enviar email"
-                        >
-                          <i className="icon-mail sap-theme"></i>
-                        </a>
-                      )}
-                    </div>
+                    {(supplier.phone || supplier.email) && (
+                      <div className="quick-actions sap-theme">
+                        {supplier.phone && (
+                          <a
+                            href={`tel:${supplier.phone}`}
+                            className="quick-action-btn sap-theme"
+                            title="Llamar"
+                          >
+                            <i className="icon-phone sap-theme"></i>
+                          </a>
+                        )}
+                        {supplier.email && (
+                          <a
+                            href={`mailto:${supplier.email}`}
+                            className="quick-action-btn sap-theme"
+                            title="Enviar email"
+                          >
+                            <i className="icon-mail sap-theme"></i>
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -378,33 +219,16 @@ const SuppliersTableComponent = ({
         )}
       </div>
 
-      {/* Table Footer */}
       <div className="table-footer sap-theme">
         <div className="table-info sap-theme">
           <span>
             Mostrando {sortedSuppliers.length} proveedor{sortedSuppliers.length !== 1 ? 'es' : ''}
           </span>
         </div>
-
         <div className="table-actions sap-theme">
           <span className="sort-info sap-theme">
-            Ordenado por:{' '}
-            {sortField === 'name'
-              ? 'Nombre'
-              : sortField === 'status'
-                ? 'Estado'
-                : sortField === 'category'
-                  ? 'Categoría'
-                  : sortField === 'rating'
-                    ? 'Rating'
-                    : sortField === 'totalOrders'
-                      ? 'Órdenes'
-                      : sortField === 'totalPurchased'
-                        ? 'Total Comprado'
-                        : sortField === 'createdAt'
-                          ? 'Fecha de Creación'
-                          : sortField}{' '}
-            ({sortDirection === 'asc' ? 'Ascendente' : 'Descendente'})
+            Ordenado por {SORT_LABELS[sortField] || sortField} (
+            {sortDirection === 'asc' ? 'Ascendente' : 'Descendente'})
           </span>
         </div>
       </div>
@@ -412,15 +236,12 @@ const SuppliersTableComponent = ({
   );
 };
 
-const propsAreEqual = (prevProps, nextProps) => {
-  return (
-    prevProps.suppliers === nextProps.suppliers &&
-    prevProps.onEdit === nextProps.onEdit &&
-    prevProps.onDelete === nextProps.onDelete &&
-    prevProps.hasEditPermission === nextProps.hasEditPermission &&
-    prevProps.hasDeletePermission === nextProps.hasDeletePermission
-  );
-};
+const propsAreEqual = (prevProps, nextProps) =>
+  prevProps.suppliers === nextProps.suppliers &&
+  prevProps.onEdit === nextProps.onEdit &&
+  prevProps.onDelete === nextProps.onDelete &&
+  prevProps.hasEditPermission === nextProps.hasEditPermission &&
+  prevProps.hasDeletePermission === nextProps.hasDeletePermission;
 
 const SuppliersTable = memo(SuppliersTableComponent, propsAreEqual);
 

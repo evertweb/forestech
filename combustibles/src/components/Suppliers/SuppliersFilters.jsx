@@ -1,6 +1,28 @@
 import React from 'react';
 import './SuppliersFilters.css';
 
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Todos los estados', icon: '📋' },
+  { value: 'active', label: 'Activos', icon: '✅' },
+  { value: 'inactive', label: 'Inactivos', icon: '❌' },
+  { value: 'suspended', label: 'Suspendidos', icon: '⚠️' },
+];
+
+const CATEGORY_OPTIONS = [
+  { value: 'all', label: 'Todas las categorías' },
+  { value: 'combustibles', label: 'Combustibles' },
+  { value: 'lubricantes', label: 'Lubricantes' },
+  { value: 'aditivos', label: 'Aditivos' },
+];
+
+const PAYMENT_TERMS_OPTIONS = [
+  { value: 'all', label: 'Todos los términos' },
+  { value: 'contado', label: 'Contado' },
+  { value: '30dias', label: '30 días' },
+  { value: '60dias', label: '60 días' },
+  { value: '90dias', label: '90 días' },
+];
+
 export const SuppliersFilters = ({
   searchTerm,
   setSearchTerm,
@@ -8,50 +30,33 @@ export const SuppliersFilters = ({
   setFilterStatus,
   filterCategory,
   setFilterCategory,
-  filterFuelType,
-  setFilterFuelType,
+  filterPaymentTerms,
+  setFilterPaymentTerms,
   viewMode,
   setViewMode,
   onClearFilters,
   resultsCount = 0,
 }) => {
-  const statusOptions = [
-    { value: 'all', label: 'Todos los Estados' },
-    { value: 'active', label: 'Activos' },
-    { value: 'inactive', label: 'Inactivos' },
-    { value: 'suspended', label: 'Suspendidos' },
-    { value: 'preferred', label: 'Preferidos' },
-    { value: 'under_review', label: 'En Revisión' },
-    { value: 'blacklisted', label: 'Bloqueados' },
-  ];
-
-  const categoryOptions = [
-    { value: 'all', label: 'Todas las Categorías' },
-    { value: 'fuel_supplier', label: 'Proveedor de Combustible' },
-    { value: 'transport', label: 'Transporte' },
-    { value: 'maintenance', label: 'Mantenimiento' },
-    { value: 'parts', label: 'Repuestos' },
-    { value: 'equipment', label: 'Equipos' },
-    { value: 'services', label: 'Servicios' },
-    { value: 'other', label: 'Otros' },
-  ];
-
-  const fuelTypeOptions = [
-    { value: 'all', label: 'Todos los Combustibles' },
-    { value: 'DIESEL', label: 'Diésel' },
-    { value: 'GASOLINE', label: 'Gasolina' },
-    { value: 'LUBRICANTS', label: 'Lubricantes' },
-    { value: 'TWO_STROKE', label: 'Mezcla 2T' },
-    { value: 'other', label: 'Otros' },
-  ];
-
   const hasActiveFilters =
-    searchTerm || filterStatus !== 'all' || filterCategory !== 'all' || filterFuelType !== 'all';
+    searchTerm ||
+    filterStatus !== 'all' ||
+    filterCategory !== 'all' ||
+    filterPaymentTerms !== 'all';
+
+  const activeFiltersCount = [filterStatus, filterCategory, filterPaymentTerms]
+    .filter((value) => value !== 'all')
+    .length + (searchTerm ? 1 : 0);
+
+  const toggleAdvancedFilters = () => {
+    const advancedSection = document.querySelector('.filters-advanced');
+    if (advancedSection) {
+      advancedSection.classList.toggle('active');
+    }
+  };
 
   return (
     <div className="suppliers-filters sap-theme">
       <div className="filters-main">
-        {/* Search Section */}
         <div className="search-section">
           <div className="search-box">
             <span className="search-icon">🔍</span>
@@ -74,61 +79,37 @@ export const SuppliersFilters = ({
           </div>
         </div>
 
-        {/* Filter Controls */}
         <div className="filters-controls">
-          {/* Quick Filters */}
           <div className="quick-filters">
-            {statusOptions.slice(0, 5).map((option) => (
+            {STATUS_OPTIONS.map((option) => (
               <button
                 key={option.value}
                 className={`quick-filter sap-theme ${filterStatus === option.value ? 'active' : ''}`}
                 onClick={() => setFilterStatus(option.value)}
                 title={option.label}
               >
-                <span>
-                  {option.value === 'all'
-                    ? '📋'
-                    : option.value === 'active'
-                      ? '✅'
-                      : option.value === 'inactive'
-                        ? '❌'
-                        : option.value === 'suspended'
-                          ? '⚠️'
-                          : '⭐'}
-                </span>
+                <span>{option.icon}</span>
                 <span>{option.label}</span>
               </button>
             ))}
           </div>
 
-          {/* Advanced Filters Toggle */}
           <button
             className={`btn-advanced-filters sap-theme ${hasActiveFilters ? 'active' : ''}`}
-            onClick={() => {
-              const advancedSection = document.querySelector('.filters-advanced');
-              if (advancedSection) {
-                advancedSection.classList.toggle('active');
-              }
-            }}
+            onClick={toggleAdvancedFilters}
           >
             <span>🔧</span>
-            <span>Filtros Avanzados</span>
-            {hasActiveFilters && (
-              <span className="filters-count">
-                {[filterStatus, filterCategory, filterFuelType].filter((f) => f !== 'all').length +
-                  (searchTerm ? 1 : 0)}
-              </span>
-            )}
+            <span>Filtros avanzados</span>
+            {hasActiveFilters && <span className="filters-count">{activeFiltersCount}</span>}
           </button>
 
-          {/* View Mode Toggle */}
           <div className="view-modes">
             <button
               className={`view-mode sap-theme ${viewMode === 'cards' ? 'active' : ''}`}
               onClick={() => setViewMode('cards')}
               title="Vista de tarjetas"
             >
-              <span>📋</span>
+              <span>🗂️</span>
               <span>Cards</span>
             </button>
             <button
@@ -142,10 +123,8 @@ export const SuppliersFilters = ({
           </div>
         </div>
 
-        {/* Advanced Filters */}
         <div className="filters-advanced sap-theme">
           <div className="filters-grid">
-            {/* Category Filter */}
             <div className="filter-group">
               <label>Categoría</label>
               <select
@@ -153,7 +132,7 @@ export const SuppliersFilters = ({
                 onChange={(e) => setFilterCategory(e.target.value)}
                 className="sap-theme"
               >
-                {categoryOptions.map((option) => (
+                {CATEGORY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -161,15 +140,14 @@ export const SuppliersFilters = ({
               </select>
             </div>
 
-            {/* Fuel Type Filter */}
             <div className="filter-group">
-              <label>Tipo de Combustible</label>
+              <label>Términos de pago</label>
               <select
-                value={filterFuelType}
-                onChange={(e) => setFilterFuelType(e.target.value)}
+                value={filterPaymentTerms}
+                onChange={(e) => setFilterPaymentTerms(e.target.value)}
                 className="sap-theme"
               >
-                {fuelTypeOptions.map((option) => (
+                {PAYMENT_TERMS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -177,15 +155,14 @@ export const SuppliersFilters = ({
               </select>
             </div>
 
-            {/* Status Filter */}
             <div className="filter-group">
-              <label>Estado Detallado</label>
+              <label>Estado detallado</label>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="sap-theme"
               >
-                {statusOptions.map((option) => (
+                {STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -193,7 +170,6 @@ export const SuppliersFilters = ({
               </select>
             </div>
 
-            {/* Clear Filters */}
             <div className="filter-group">
               <label>Acciones</label>
               <button
@@ -203,13 +179,12 @@ export const SuppliersFilters = ({
                 title="Limpiar todos los filtros"
               >
                 <span>🗑️</span>
-                <span>Limpiar Filtros</span>
+                <span>Limpiar filtros</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Results Info */}
         <div className="filters-info sap-theme">
           <div className="results-count">
             {resultsCount} proveedor{resultsCount !== 1 ? 'es' : ''} encontrado
@@ -233,7 +208,7 @@ export const SuppliersFilters = ({
                 )}
                 {filterStatus !== 'all' && (
                   <span className="filter-tag sap-theme">
-                    Estado: {statusOptions.find((s) => s.value === filterStatus)?.label}
+                    Estado: {STATUS_OPTIONS.find((option) => option.value === filterStatus)?.label}
                     <button
                       className="filter-tag-remove sap-theme"
                       onClick={() => setFilterStatus('all')}
@@ -244,7 +219,7 @@ export const SuppliersFilters = ({
                 )}
                 {filterCategory !== 'all' && (
                   <span className="filter-tag sap-theme">
-                    Categoría: {categoryOptions.find((c) => c.value === filterCategory)?.label}
+                    Categoría: {CATEGORY_OPTIONS.find((option) => option.value === filterCategory)?.label}
                     <button
                       className="filter-tag-remove sap-theme"
                       onClick={() => setFilterCategory('all')}
@@ -253,12 +228,14 @@ export const SuppliersFilters = ({
                     </button>
                   </span>
                 )}
-                {filterFuelType !== 'all' && (
+                {filterPaymentTerms !== 'all' && (
                   <span className="filter-tag sap-theme">
-                    Combustible: {fuelTypeOptions.find((f) => f.value === filterFuelType)?.label}
+                    Términos: {
+                      PAYMENT_TERMS_OPTIONS.find((option) => option.value === filterPaymentTerms)?.label
+                    }
                     <button
                       className="filter-tag-remove sap-theme"
-                      onClick={() => setFilterFuelType('all')}
+                      onClick={() => setFilterPaymentTerms('all')}
                     >
                       ×
                     </button>

@@ -11,21 +11,57 @@ export const SUPPLIER_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
   SUSPENDED: 'suspended',
-  EVALUATION: 'evaluation',
 };
 
 export const SUPPLIER_TYPES = {
   PROVEEDOR: 'proveedor',
   DISTRIBUIDOR: 'distribuidor',
-  ESTACION: 'estacion',
   MAYORISTA: 'mayorista',
 };
 
 export const SUPPLIER_CATEGORIES = {
   COMBUSTIBLES: 'combustibles',
   LUBRICANTES: 'lubricantes',
-  SERVICIOS: 'servicios',
-  MIXTO: 'mixto',
+  ADITIVOS: 'aditivos',
+};
+
+export const SUPPLIER_PAYMENT_TERMS = {
+  CONTADO: 'contado',
+  TREINTA_DIAS: '30dias',
+  SESENTA_DIAS: '60dias',
+  NOVENTA_DIAS: '90dias',
+};
+
+const SUPPLIER_ALLOWED_FIELDS = new Set([
+  'name',
+  'taxId',
+  'type',
+  'category',
+  'contactPerson',
+  'phone',
+  'email',
+  'city',
+  'status',
+  'paymentTerms',
+]);
+
+const sanitizeSupplierPayload = (payload = {}) => {
+  const sanitized = {};
+  const unexpected = [];
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (SUPPLIER_ALLOWED_FIELDS.has(key)) {
+      sanitized[key] = typeof value === 'string' ? value.trim() : value;
+    } else {
+      unexpected.push(key);
+    }
+  });
+
+  if (unexpected.length > 0) {
+    console.warn('⚠️ FirebaseSuppliersService - Campos inesperados ignorados:', unexpected);
+  }
+
+  return sanitized;
 };
 
 class FirebaseSuppliersService extends HttpService {
@@ -52,11 +88,10 @@ class FirebaseSuppliersService extends HttpService {
         return { success: false, error: 'El nombre del proveedor es requerido' };
       }
 
+      const sanitizedData = sanitizeSupplierPayload(supplierData);
+
       const result = await this.callEndpoint('sqlCreateSupplier', {
-        supplierData: {
-          ...supplierData,
-          createdBy: this.getCurrentUser()?.uid
-        }
+        supplierData: sanitizedData
       });
 
       return result;
@@ -83,12 +118,7 @@ class FirebaseSuppliersService extends HttpService {
       const result = await this.callEndpoint('sqlGetAllSuppliers', { filters });
 
       if (result.success && result.data) {
-        // Procesar datos de respuesta
-        return result.data.map(supplier => ({
-          ...supplier,
-          fuelTypes: this.parseJSON(supplier.fuelTypes),
-          priceList: this.parseJSON(supplier.priceList),
-        }));
+        return result.data;
       }
 
       return [];
@@ -108,11 +138,7 @@ class FirebaseSuppliersService extends HttpService {
       const result = await this.callEndpoint('sqlGetSupplierById', { supplierId });
 
       if (result.success && result.data) {
-        return {
-          ...result.data,
-          fuelTypes: this.parseJSON(result.data.fuelTypes),
-          priceList: this.parseJSON(result.data.priceList),
-        };
+        return result.data;
       }
 
       return null;
@@ -138,12 +164,15 @@ class FirebaseSuppliersService extends HttpService {
         return { success: false, error: 'Usuario no autenticado' };
       }
 
+      const sanitizedUpdate = sanitizeSupplierPayload(updateData);
+
+      if (Object.keys(sanitizedUpdate).length === 0) {
+        return { success: false, error: 'No hay campos válidos para actualizar' };
+      }
+
       const result = await this.callEndpoint('sqlUpdateSupplier', {
         supplierId,
-        updateData: {
-          ...updateData,
-          updatedBy: this.getCurrentUser()?.uid
-        }
+        updateData: sanitizedUpdate
       });
 
       return result;
@@ -162,23 +191,6 @@ class FirebaseSuppliersService extends HttpService {
    * @param {Object} stats - Estadísticas a actualizar
    * @returns {Promise<Object>} - Resultado de la operación
    */
-  async updateSupplierStats(supplierId, stats) {
-    try {
-      const result = await this.callEndpoint('sqlUpdateSupplierStats', {
-        supplierId,
-        stats
-      });
-
-      return result;
-    } catch (error) {
-      console.error('Error actualizando estadísticas del proveedor:', error);
-      return {
-        success: false,
-        error: 'Error al actualizar las estadísticas: ' + error.message
-      };
-    }
-  }
-
   /**
    * CRUD OPERATIONS - DELETE
    */
@@ -202,13 +214,9 @@ class FirebaseSuppliersService extends HttpService {
   }
 
   /**
-   * SUSCRIPCIONES Y REPORTES
-   */
-
-  /**
-   * Suscribirse a cambios en proveedores
-   * @param {Function} callback - Función de callback
-   * @returns {Function} - Función para cancelar suscripción
+   * Suscribirse a cambios en proveedores (polling simple)
+   * @param {Function} callback - Recibe (datos, error)
+   * @returns {Function} - Cancela la suscripción
    */
   subscribeToSuppliers(callback) {
     let isActive = true;
@@ -217,96 +225,23 @@ class FirebaseSuppliersService extends HttpService {
       if (!isActive) return;
 
       try {
-        // Verificar autenticación antes de hacer la llamada
-        const isAuth = await this.isAuthenticated();
-        if (!isAuth) {
-          console.log('🔒 SuppliersService: Usuario no autenticado, omitiendo polling');
-          callback([], null); // Devolver array vacío en lugar de error
-          if (isActive) {
-            setTimeout(poll, 30000); // Poll cada 30 segundos
-          }
-          return;
-        }
-
         const data = await this.getSuppliers();
-        callback(data, null);
+        callback(data || [], null);
       } catch (error) {
         console.error('Error en polling de proveedores:', error);
         callback(null, error);
       }
 
       if (isActive) {
-        setTimeout(poll, 30000); // Poll cada 30 segundos
+        setTimeout(poll, 30000);
       }
     };
 
-    // Ejecutar inmediatamente
     poll();
 
-    // Retornar función para cancelar suscripción
     return () => {
       isActive = false;
     };
-  }
-
-  /**
-   * Obtener proveedores preferidos
-   * @returns {Promise<Array>} - Lista de proveedores preferidos
-   */
-  async getPreferredSuppliers() {
-    try {
-      const result = await this.callEndpoint('sqlGetPreferredSuppliers');
-
-      if (result.success && result.data) {
-        return result.data.map(supplier => ({
-          ...supplier,
-          fuelTypes: this.parseJSON(supplier.fuelTypes),
-          priceList: this.parseJSON(supplier.priceList),
-        }));
-      }
-
-      return [];
-    } catch (error) {
-      console.error('Error obteniendo proveedores preferidos:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Obtener estadísticas de proveedores
-   * @returns {Promise<Object>} - Estadísticas de proveedores
-   */
-  async getSupplierStats() {
-    try {
-      const result = await this.callEndpoint('sqlGetSuppliersStats');
-      return result.success ? result.data : null;
-    } catch (error) {
-      console.error('Error obteniendo estadísticas de proveedores:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * MÉTODOS AUXILIARES
-   */
-
-  /**
-   * Parsear JSON de manera segura
-   * @param {string|Object|Array} jsonString - String JSON o ya parseado
-   * @returns {Array|Object} - Objeto parseado o valor por defecto
-   */
-  parseJSON(jsonString) {
-    try {
-      // Si ya es un objeto o array, devolverlo directamente
-      if (typeof jsonString === 'object' && jsonString !== null) {
-        return jsonString;
-      }
-      // Si es string, intentar parsear
-      return jsonString ? JSON.parse(jsonString) : [];
-    } catch (error) {
-      console.warn('⚠️ Error parseando JSON:', error.message, 'Valor:', jsonString);
-      return [];
-    }
   }
 }
 
@@ -316,11 +251,6 @@ export default FirebaseSuppliersService;
 export const createSupplier = async (supplierData) => {
   const service = new FirebaseSuppliersService();
   return service.createSupplier(supplierData);
-};
-
-export const subscribeToSuppliers = (callback) => {
-  const service = new FirebaseSuppliersService();
-  return service.subscribeToSuppliers(callback);
 };
 
 export const updateSupplier = async (supplierId, updateData) => {
@@ -343,7 +273,7 @@ export const getAllSuppliers = async (filters = {}) => {
   return service.getSuppliers(filters);
 };
 
-export const getSuppliersStats = async () => {
+export const subscribeToSuppliers = (callback) => {
   const service = new FirebaseSuppliersService();
-  return service.getSupplierStats();
+  return service.subscribeToSuppliers(callback);
 };

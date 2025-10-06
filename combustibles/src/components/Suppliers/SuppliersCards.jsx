@@ -1,8 +1,6 @@
 // combustibles/src/components/Suppliers/SuppliersCards.jsx
-// Componente de vista de tarjetas para proveedores
+// Componente de vista de tarjetas para proveedores usando el nuevo esquema mínimo
 import React from 'react';
-import { formatCurrency } from '../../utils/calculations';
-import { FUEL_TYPES } from '../../constants/combustibleTypes';
 
 const SuppliersCards = ({
   suppliers,
@@ -37,19 +35,6 @@ const SuppliersCards = ({
     }
   };
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case 'combustibles':
-        return '⛽';
-      case 'lubricantes':
-        return '🛢️';
-      case 'aditivos':
-        return '🧪';
-      default:
-        return '📦';
-    }
-  };
-
   const getTypeLabel = (type) => {
     switch (type) {
       case 'proveedor':
@@ -63,43 +48,19 @@ const SuppliersCards = ({
     }
   };
 
-  const formatDate = (date) => {
-    if (!date) return 'No disponible';
-    const dateObj = date.toDate ? date.toDate() : new Date(date);
-    return dateObj.toLocaleDateString('es-CO');
-  };
-
-  const renderRating = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
-          ★
-        </span>
-      );
+  const formatPaymentTerms = (terms) => {
+    switch (terms) {
+      case 'contado':
+        return 'Contado';
+      case '30dias':
+        return '30 días';
+      case '60dias':
+        return '60 días';
+      case '90dias':
+        return '90 días';
+      default:
+        return terms || 'Sin definir';
     }
-    return <div className="rating-stars sap-theme">{stars}</div>;
-  };
-
-  const renderFuelTypes = (fuelTypes) => {
-    if (!fuelTypes || fuelTypes.length === 0) {
-      return <span className="no-fuels sap-theme">Sin combustibles especificados</span>;
-    }
-
-    return (
-      <div className="fuel-types sap-theme">
-        {fuelTypes.slice(0, 3).map((fuelType) => (
-          <span key={fuelType} className="fuel-badge sap-theme" title={FUEL_TYPES[fuelType]}>
-            {FUEL_TYPES[fuelType] || fuelType}
-          </span>
-        ))}
-        {fuelTypes.length > 3 && (
-          <span className="fuel-badge more sap-theme" title={`+${fuelTypes.length - 3} más`}>
-            +{fuelTypes.length - 3}
-          </span>
-        )}
-      </div>
-    );
   };
 
   const renderContactInfo = (supplier) => {
@@ -152,11 +113,6 @@ const SuppliersCards = ({
               <div className="supplier-info sap-theme">
                 <h3 className="supplier-name sap-theme">
                   {supplier.name}
-                  {supplier.isPreferred && (
-                    <span className="preferred-badge sap-theme" title="Proveedor Preferido">
-                      <i className="icon-star sap-theme"></i>
-                    </span>
-                  )}
                 </h3>
                 {supplier.taxId && (
                   <div className="supplier-tax-id sap-theme">NIT: {supplier.taxId}</div>
@@ -180,7 +136,7 @@ const SuppliersCards = ({
             {/* Category and Type */}
             <div className="supplier-meta sap-theme">
               <div className="meta-item sap-theme">
-                <span className="meta-icon sap-theme">{getCategoryIcon(supplier.category)}</span>
+                <i className="icon-tag meta-icon sap-theme"></i>
                 <span className="meta-label sap-theme">
                   {supplier.category?.charAt(0).toUpperCase() + supplier.category?.slice(1) ||
                     'Sin categoría'}
@@ -204,78 +160,18 @@ const SuppliersCards = ({
             {/* Contact Information */}
             <div className="contact-info sap-theme">{renderContactInfo(supplier)}</div>
 
-            {/* Fuel Types */}
-            <div className="fuel-types-section sap-theme">
-              <div className="section-label sap-theme">Combustibles Suministrados:</div>
-              {renderFuelTypes(supplier.fuelTypes)}
-            </div>
-
-            {/* Rating and Evaluation */}
-            <div className="rating-section sap-theme">
-              <div className="rating-display sap-theme">
-                {renderRating(supplier.rating || 0)}
-                <span className="rating-value sap-theme">
-                  {(supplier.rating || 0).toFixed(1)}/5
-                </span>
-              </div>
-              {supplier.evaluationNotes && (
-                <div className="evaluation-notes sap-theme" title={supplier.evaluationNotes}>
-                  <i className="icon-message-square sap-theme"></i>
-                  <span>Con evaluación</span>
-                </div>
-              )}
-            </div>
-
             {/* Payment Terms */}
             {supplier.paymentTerms && (
               <div className="payment-terms sap-theme">
                 <i className="icon-credit-card sap-theme"></i>
-                <span>
-                  Términos:{' '}
-                  {supplier.paymentTerms === 'contado'
-                    ? 'Contado'
-                    : supplier.paymentTerms === '30dias'
-                      ? '30 días'
-                      : supplier.paymentTerms === '60dias'
-                        ? '60 días'
-                        : supplier.paymentTerms === '90dias'
-                          ? '90 días'
-                          : supplier.paymentTerms}
-                </span>
+                <span>Términos: {formatPaymentTerms(supplier.paymentTerms)}</span>
               </div>
             )}
 
-            {/* Statistics */}
-            <div className="supplier-stats sap-theme">
-              <div className="stat-item sap-theme">
-                <span className="stat-label sap-theme">Órdenes:</span>
-                <span className="stat-value sap-theme">{supplier.totalOrders || 0}</span>
-              </div>
-
-              <div className="stat-item sap-theme">
-                <span className="stat-label sap-theme">Total Comprado:</span>
-                <span className="stat-value sap-theme">
-                  {formatCurrency(supplier.totalPurchased || 0)}
-                </span>
-              </div>
-
-              {supplier.lastOrderDate && (
-                <div className="stat-item sap-theme">
-                  <span className="stat-label sap-theme">Última Orden:</span>
-                  <span className="stat-value sap-theme">{formatDate(supplier.lastOrderDate)}</span>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Footer with Actions */}
           <div className="card-footer sap-theme">
-            <div className="footer-info sap-theme">
-              <span className="created-date sap-theme">
-                Creado: {formatDate(supplier.createdAt)}
-              </span>
-            </div>
-
             <div className="card-actions sap-theme">
               {hasEditPermission && (
                 <button

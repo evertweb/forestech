@@ -9,21 +9,16 @@ import ModalFooter from '../shared/ModalFooter';
 import useFormData from '../../hooks/useFormData';
 import {
   validationSchemas,
-  validators,
   validateForm as runValidation,
 } from '../../utils/validators';
 import { useCombustibles } from '../../contexts/CombustiblesContext';
 import { createSupplier, updateSupplier } from '../../services/FirebaseSuppliersService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
-import { FUEL_TYPES } from '../../constants/combustibleTypes';
 import {
-  MODAL_PRESETS,
   UI_ACTIONS,
   UI_FORM_LABELS,
   UI_MESSAGES,
-  UI_TITLES,
   UI_STATUS,
-  UI_PLACEHOLDERS,
 } from '../../constants';
 import '../../styles/supplier-modal-minimal.css';
 
@@ -46,22 +41,14 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
       contactPerson: '',
       phone: '',
       email: '',
-      address: '',
       city: '',
-      state: 'Colombia',
-      fuelTypes: [],
-      paymentTerms: 'contado',
-      creditLimit: '',
-      priceList: {},
-      rating: 5,
-      evaluationNotes: '',
       status: 'active',
-      isPreferred: false,
+      paymentTerms: 'contado',
     }),
     []
   );
 
-  // Validación centralizada: schema + reglas extra dinámicas (priceList por fuelType)
+  // Validación centralizada: schema + reglas adicionales
   const validate = (values) => {
     // Ejecutar schema base de suppliers
     const base = validationSchemas.supplier
@@ -73,16 +60,8 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     if (!values.category) extraErrors.category = `${UI_FORM_LABELS.CATEGORY} es requerida`;
     if (!values.type)
       extraErrors.type = `El ${UI_FORM_LABELS.TYPE} de ${UI_FORM_LABELS.SUPPLIER.toLowerCase()} es requerido`;
-
-    // Validar priceList por cada fuelType marcado
-    (values.fuelTypes || []).forEach((fuelType) => {
-      const price = values.priceList?.[fuelType];
-      const err = validators.nonNegative(
-        price,
-        `El precio de ${FUEL_TYPES[fuelType]} debe ser un número positivo`
-      );
-      if (err) extraErrors[`price_${fuelType}`] = err;
-    });
+    if (!values.paymentTerms)
+      extraErrors.paymentTerms = `Los términos de pago son requeridos`;
 
     return { isValid: Object.keys(extraErrors).length === 0, errors: extraErrors };
   };
@@ -107,52 +86,14 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
         contactPerson: supplier.contactPerson || '',
         phone: supplier.phone || '',
         email: supplier.email || '',
-        address: supplier.address || '',
         city: supplier.city || '',
-        state: supplier.state || 'Colombia',
-        fuelTypes: supplier.fuelTypes || [],
-        paymentTerms: supplier.paymentTerms || 'contado',
-        creditLimit: supplier.creditLimit || '',
-        priceList: supplier.priceList || {},
-        rating: supplier.rating || 5,
-        evaluationNotes: supplier.evaluationNotes || '',
         status: supplier.status || 'active',
-        isPreferred: supplier.isPreferred || false,
+        paymentTerms: supplier.paymentTerms || 'contado',
       });
     } else if (!isEditing) {
       resetForm();
     }
   }, [isEditing, supplier, setFormData, resetForm]);
-
-  // Toggle combustible y actualizar precio al mismo tiempo
-  const handleFuelTypeToggle = (fuelType, checked) => {
-    setFormData((prev) => {
-      const newFuelTypes = checked
-        ? [...prev.fuelTypes, fuelType]
-        : prev.fuelTypes.filter((ft) => ft !== fuelType);
-      
-      // Si se desmarca, limpiar el precio
-      const newPriceList = checked 
-        ? prev.priceList 
-        : { ...prev.priceList, [fuelType]: 0 };
-
-      return {
-        ...prev,
-        fuelTypes: newFuelTypes,
-        priceList: newPriceList,
-      };
-    });
-  };
-
-  const handlePriceChange = (fuelType, price) => {
-    setFormData((prev) => ({
-      ...prev,
-      priceList: {
-        ...prev.priceList,
-        [fuelType]: parseFloat(price) || 0,
-      },
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -160,14 +101,16 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
     setLoading(true);
     try {
       const supplierData = {
-        ...formData,
-        creditLimit: parseFloat(formData.creditLimit) || 0,
-        rating: parseFloat(formData.rating) || 5,
-        priceList: Object.fromEntries(
-          Object.entries(formData.priceList).filter(
-            ([fuelType, price]) => formData.fuelTypes.includes(fuelType) && price > 0
-          )
-        ),
+        name: formData.name.trim(),
+        taxId: formData.taxId.trim(),
+        type: formData.type,
+        category: formData.category,
+        contactPerson: formData.contactPerson.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        city: formData.city.trim(),
+        status: formData.status,
+        paymentTerms: formData.paymentTerms,
       };
 
       // Generar descripción para el progreso
@@ -307,16 +250,21 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
               </div>
 
               <div className="minimal-form-group minimal-col-2">
-                <label className="minimal-label">
-                  <input
-                    type="checkbox"
-                    name="isPreferred"
-                    checked={formData.isPreferred}
-                    onChange={handleInputChange}
-                    className="minimal-checkbox"
-                  />
-                  <span className="minimal-checkbox-label">{UI_STATUS.PREFERRED_SUPPLIER}</span>
-                </label>
+                <label className="minimal-label">Términos de Pago</label>
+                <select
+                  value={formData.paymentTerms}
+                  name="paymentTerms"
+                  onChange={handleInputChange}
+                  className={`minimal-input ${errors.paymentTerms ? 'error' : ''}`}
+                >
+                  <option value="contado">Contado</option>
+                  <option value="30dias">30 días</option>
+                  <option value="60dias">60 días</option>
+                  <option value="90dias">90 días</option>
+                </select>
+                {errors.paymentTerms && (
+                  <div className="minimal-error">{errors.paymentTerms}</div>
+                )}
               </div>
             </div>
           </div>
@@ -373,137 +321,6 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
                   onChange={handleInputChange}
                   placeholder="Bogotá"
                   className="minimal-input"
-                />
-              </div>
-
-              <div className="minimal-form-group">
-                <label className="minimal-label">{UI_FORM_LABELS.ADDRESS}</label>
-                <input
-                  type="text"
-                  value={formData.address}
-                  name="address"
-                  onChange={handleInputChange}
-                  placeholder="Dirección completa"
-                  className="minimal-input"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* PRODUCTOS */}
-          <div className="minimal-section">
-            <h3 className="minimal-section-title">Productos Suministrados</h3>
-            
-            <div className="minimal-fuel-list">
-              {Object.entries(FUEL_TYPES).map(([key, label]) => {
-                const isChecked = formData.fuelTypes.includes(key);
-                return (
-                  <div key={key} className="minimal-fuel-item">
-                    <label className="minimal-fuel-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => handleFuelTypeToggle(key, e.target.checked)}
-                        className="minimal-checkbox"
-                      />
-                      <span className="minimal-checkbox-label">{label}</span>
-                    </label>
-                    <div className="minimal-price-input">
-                      <span className="minimal-currency">$</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={formData.priceList[key] || ''}
-                        onChange={(e) => handlePriceChange(key, e.target.value)}
-                        placeholder="0.00"
-                        disabled={!isChecked}
-                        className={`minimal-input minimal-price ${errors[`price_${key}`] ? 'error' : ''}`}
-                      />
-                    </div>
-                    {errors[`price_${key}`] && (
-                      <div className="minimal-error minimal-price-error">
-                        {errors[`price_${key}`]}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* COMERCIAL */}
-          <div className="minimal-section">
-            <h3 className="minimal-section-title">Información Comercial</h3>
-            
-            <div className="minimal-form-grid">
-              <div className="minimal-form-group minimal-col-2">
-                <label className="minimal-label">Términos de Pago</label>
-                <select
-                  value={formData.paymentTerms}
-                  name="paymentTerms"
-                  onChange={handleInputChange}
-                  className="minimal-input"
-                >
-                  <option value="contado">Contado</option>
-                  <option value="30dias">30 días</option>
-                  <option value="60dias">60 días</option>
-                  <option value="90dias">90 días</option>
-                </select>
-              </div>
-
-              <div className="minimal-form-group minimal-col-2">
-                <label className="minimal-label">Límite de Crédito</label>
-                <div className="minimal-input-with-icon">
-                  <span className="minimal-currency">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    name="creditLimit"
-                    value={formData.creditLimit}
-                    onChange={handleInputChange}
-                    placeholder="0.00"
-                    className={`minimal-input ${errors.creditLimit ? 'error' : ''}`}
-                  />
-                </div>
-                {errors.creditLimit && (
-                  <div className="minimal-error">{errors.creditLimit}</div>
-                )}
-              </div>
-
-              <div className="minimal-form-group minimal-col-2">
-                <label className="minimal-label">Evaluación</label>
-                <select
-                  name="rating"
-                  value={Math.round(formData.rating)}
-                  onChange={(e) => handleInputChange({
-                    target: { name: 'rating', value: parseFloat(e.target.value) }
-                  })}
-                  className={`minimal-input ${errors.rating ? 'error' : ''}`}
-                >
-                  <option value="5">★★★★★ Excelente</option>
-                  <option value="4">★★★★☆ Muy bueno</option>
-                  <option value="3">★★★☆☆ Bueno</option>
-                  <option value="2">★★☆☆☆ Regular</option>
-                  <option value="1">★☆☆☆☆ Malo</option>
-                </select>
-                {errors.rating && <div className="minimal-error">{errors.rating}</div>}
-              </div>
-
-              <div className="minimal-form-group minimal-col-2">
-                {/* Spacer para alineación */}
-              </div>
-
-              <div className="minimal-form-group">
-                <label className="minimal-label">Notas de Evaluación</label>
-                <textarea
-                  name="evaluationNotes"
-                  value={formData.evaluationNotes}
-                  onChange={handleInputChange}
-                  placeholder="Comentarios sobre desempeño, calidad, puntualidad..."
-                  rows="3"
-                  className="minimal-textarea"
                 />
               </div>
             </div>

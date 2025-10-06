@@ -1,16 +1,8 @@
 // combustibles/src/components/Suppliers/SuppliersMain.jsx
-// Componente principal del módulo de proveedores
-//
-// MIGRADO A ZUSTAND (Fase 2 - Sprint 1)
-// - Usa useAuthStore para user, userProfile, hasPermission
-// ⚠️ PERMISOS DESHABILITADOS - Todos los usuarios tienen acceso total
+// Componente principal del módulo de proveedores adaptado al modelo de 10 campos
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuthStore } from '../../stores';
-import {
-  subscribeToSuppliers,
-  deleteSupplier,
-  getSuppliersStats,
-} from '../../services/FirebaseSuppliersService';
+import { subscribeToSuppliers, deleteSupplier } from '../../services/FirebaseSuppliersService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import SuppliersTable from './SuppliersTable';
 import SuppliersCards from './SuppliersCards';
@@ -20,34 +12,55 @@ import SuppliersFilters from './SuppliersFilters';
 import { PageLayout } from '../shared';
 import './SuppliersMain-SAP.css';
 
-const SuppliersMain = () => {
-  // 🔐 Zustand Store - Auth (selectores individuales para evitar loops)
-  // ⚠️ PERMISOS DESHABILITADOS - Ya no necesitamos hasPermission
-  const userProfile = useAuthStore(state => state.userProfile);
-  // const user = useAuthStore(state => state.user); // No usado actualmente
+const computeSuppliersStats = (suppliers) => {
+  const stats = {
+    total: suppliers.length,
+    byStatus: { active: 0, inactive: 0, suspended: 0, other: 0 },
+    byCategory: {},
+    byType: {},
+    byPaymentTerms: {},
+  };
 
-  // Hook para progreso transparente de Firebase
+  suppliers.forEach((supplier) => {
+    const status = supplier.status || 'other';
+    if (stats.byStatus[status] !== undefined) {
+      stats.byStatus[status] += 1;
+    } else {
+      stats.byStatus.other += 1;
+    }
+
+    const category = supplier.category || 'sin_categoria';
+    stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
+
+    const type = supplier.type || 'sin_tipo';
+    stats.byType[type] = (stats.byType[type] || 0) + 1;
+
+    const payment = supplier.paymentTerms || 'undefined';
+    stats.byPaymentTerms[payment] = (stats.byPaymentTerms[payment] || 0) + 1;
+  });
+
+  return stats;
+};
+
+const SuppliersMain = () => {
+  const userProfile = useAuthStore((state) => state.userProfile);
   const { executeWithProgress } = useFirebaseProgressContext();
 
   const [suppliers, setSuppliers] = useState([]);
-  const [suppliersStats, setSuppliersStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
+  const [viewMode, setViewMode] = useState('cards');
 
-  // Modal states
   const [showModal, setShowModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
 
-  // Filter states
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'active' | 'inactive' | 'preferred'
-  const [filterCategory, setFilterCategory] = useState('all'); // 'all' | 'combustibles' | 'lubricantes' | 'aditivos'
-  const [filterFuelType, setFilterFuelType] = useState('all'); // 'all' | specific fuel type
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterPaymentTerms, setFilterPaymentTerms] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Real-time subscription
   useEffect(() => {
-    let unsubscribe = null;
+    let unsubscribe;
 
     const setupSubscription = () => {
       unsubscribe = subscribeToSuppliers((items) => {
@@ -65,21 +78,6 @@ const SuppliersMain = () => {
     };
   }, []);
 
-  // Load stats
-  useEffect(() => {
-    const loadStats = async () => {
-      const result = await getSuppliersStats();
-      if (result.success) {
-        setSuppliersStats(result.data);
-      }
-    };
-
-    if (suppliers.length > 0) {
-      loadStats();
-    }
-  }, [suppliers]);
-
-  // Filter suppliers
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
   const filteredSuppliers = useMemo(() => {
@@ -91,105 +89,90 @@ const SuppliersMain = () => {
         supplier.contactPerson?.toLowerCase().includes(normalizedSearch) ||
         supplier.city?.toLowerCase().includes(normalizedSearch);
 
-      const matchesStatus =
-        filterStatus === 'all' ||
-        (filterStatus === 'preferred' ? supplier.isPreferred : supplier.status === filterStatus);
-
+      const matchesStatus = filterStatus === 'all' || supplier.status === filterStatus;
       const matchesCategory = filterCategory === 'all' || supplier.category === filterCategory;
+      const matchesPayment =
+        filterPaymentTerms === 'all' || supplier.paymentTerms === filterPaymentTerms;
 
-      const matchesFuelType =
-        filterFuelType === 'all' ||
-        (supplier.fuelTypes && supplier.fuelTypes.includes(filterFuelType));
-
-      return matchesSearch && matchesStatus && matchesCategory && matchesFuelType;
+      return matchesSearch && matchesStatus && matchesCategory && matchesPayment;
     });
-  }, [filterCategory, filterFuelType, filterStatus, normalizedSearch, suppliers]);
+  }, [filterCategory, filterPaymentTerms, filterStatus, normalizedSearch, suppliers]);
 
   const handleAddSupplier = useCallback(() => {
-    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
     setEditingSupplier(null);
     setShowModal(true);
-    setError(null); // Clear any existing errors
+    setError(null);
   }, []);
 
   const handleEditSupplier = useCallback((supplier) => {
-    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
     setEditingSupplier(supplier);
     setShowModal(true);
-    setError(null); // Clear any existing errors
+    setError(null);
   }, []);
 
-  const handleDeleteSupplier = useCallback(async (supplierId, supplierName) => {
-    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
-
-    if (
-      !window.confirm(
-        `¿Estás seguro de que deseas desactivar el proveedor "${supplierName}"?\n\nEsta acción se puede revertir cambiando su estado a activo.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setError(null); // Clear any existing errors
-
-      const progressDescription = `Eliminando proveedor ${supplierName}`;
-
-      const result = await executeWithProgress(
-        'deleteSupplier',
-        progressDescription,
-        () => deleteSupplier(supplierId, userProfile?.email),
-        {
-          supplierId,
-          supplierName,
-        }
-      );
-
-      if (result.success) {
-        // Show success message briefly
-        setError(null);
-        console.log('✅ Proveedor eliminado exitosamente');
-        // The real-time subscription will update the list automatically
-      } else {
-        setError(result.error || 'Error al desactivar proveedor');
+  const handleDeleteSupplier = useCallback(
+    async (supplierId, supplierName) => {
+      if (
+        !window.confirm(
+          `¿Estás seguro de que deseas desactivar el proveedor "${supplierName}"?\n\nEsta acción se puede revertir cambiando su estado a activo.`
+        )
+      ) {
+        return;
       }
-    } catch (error) {
-      console.error('Error deleting supplier:', error);
-      setError('Error inesperado al eliminar proveedor');
-    }
-  }, [executeWithProgress, userProfile?.email]);
+
+      try {
+        setError(null);
+        const progressDescription = `Eliminando proveedor ${supplierName}`;
+
+        const result = await executeWithProgress(
+          'deleteSupplier',
+          progressDescription,
+          () => deleteSupplier(supplierId, userProfile?.email),
+          {
+            supplierId,
+            supplierName,
+          }
+        );
+
+        if (!result.success) {
+          setError(result.error || 'Error al desactivar proveedor');
+        }
+      } catch (operationError) {
+        console.error('Error deleting supplier:', operationError);
+        setError('Error inesperado al eliminar proveedor');
+      }
+    },
+    [executeWithProgress, userProfile?.email]
+  );
 
   const handleModalClose = useCallback(() => {
     setShowModal(false);
     setEditingSupplier(null);
-    setError(null); // Clear any existing errors
+    setError(null);
   }, []);
 
   const handleModalSuccess = useCallback(() => {
     setShowModal(false);
     setEditingSupplier(null);
-    setError(null); // Clear any existing errors
-    // The real-time subscription will update the list automatically
+    setError(null);
   }, []);
 
   const clearFilters = useCallback(() => {
     setFilterStatus('all');
     setFilterCategory('all');
-    setFilterFuelType('all');
+    setFilterPaymentTerms('all');
     setSearchTerm('');
-    setError(null); // Clear any existing errors
+    setError(null);
   }, []);
 
   const exportSuppliers = useCallback(() => {
-    // ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso
-
     if (filteredSuppliers.length === 0) {
       setError('No hay proveedores para exportar');
       return;
     }
 
     try {
-      setError(null); // Clear any existing errors
+      setError(null);
 
       const dataToExport = filteredSuppliers.map((supplier) => ({
         Nombre: supplier.name || '',
@@ -200,14 +183,10 @@ const SuppliersMain = () => {
         Teléfono: supplier.phone || '',
         Email: supplier.email || '',
         Ciudad: supplier.city || '',
-        Combustibles: Array.isArray(supplier.fuelTypes) ? supplier.fuelTypes.join(', ') : '',
-        Rating: supplier.rating || 0,
         Estado: supplier.status || '',
-        Preferido: supplier.isPreferred ? 'Sí' : 'No',
-        'Fecha Creación': supplier.createdAt?.toDate?.()?.toLocaleDateString('es-CO') || 'N/A',
+        'Términos de Pago': supplier.paymentTerms || '',
       }));
 
-      // Create CSV content with BOM for proper encoding
       const BOM = '\uFEFF';
       const csvContent =
         BOM +
@@ -233,205 +212,191 @@ const SuppliersMain = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
-      // Show success message
-      console.log(`✅ Exportados ${filteredSuppliers.length} proveedores exitosamente`);
-    } catch (error) {
-      console.error('Error exporting suppliers:', error);
-      setError('Error al exportar proveedores: ' + error.message);
+    } catch (exportError) {
+      console.error('Error exporting suppliers:', exportError);
+      setError('Error al exportar proveedores: ' + exportError.message);
     }
   }, [filteredSuppliers]);
 
-  // Componentes para PageLayout
-  const headerActions = useMemo(() => (
-    <div className="header-actions sap-theme">
-      {/* ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso */}
-      <button
-        className="btn btn-primary sap-theme sap-button sap-button-primary"
-        onClick={handleAddSupplier}
-        title="Agregar nuevo proveedor"
-      >
-        <span>➕</span>
-        <span>Agregar Proveedor</span>
-      </button>
+  const headerActions = useMemo(
+    () => (
+      <div className="header-actions sap-theme">
+        <button
+          className="btn btn-primary sap-theme sap-button sap-button-primary"
+          onClick={handleAddSupplier}
+          title="Agregar nuevo proveedor"
+        >
+          <span>➕</span>
+          <span>Agregar Proveedor</span>
+        </button>
 
-      <button
-        className="btn btn-secondary sap-theme sap-button sap-button-secondary"
-        onClick={exportSuppliers}
-        disabled={filteredSuppliers.length === 0}
-        title={
-          filteredSuppliers.length === 0
-            ? 'No hay proveedores para exportar'
-            : 'Exportar proveedores a CSV'
-        }
-      >
-        <span>📊</span>
-        <span>Exportar ({filteredSuppliers.length})</span>
-      </button>
-    </div>
-  ), [
-    exportSuppliers,
-    filteredSuppliers.length,
-    handleAddSupplier,
-  ]);
+        <button
+          className="btn btn-secondary sap-theme sap-button sap-button-secondary"
+          onClick={exportSuppliers}
+          disabled={filteredSuppliers.length === 0}
+          title={
+            filteredSuppliers.length === 0
+              ? 'No hay proveedores para exportar'
+              : 'Exportar proveedores a CSV'
+          }
+        >
+          <span>📊</span>
+          <span>Exportar ({filteredSuppliers.length})</span>
+        </button>
+      </div>
+    ),
+    [exportSuppliers, filteredSuppliers.length, handleAddSupplier]
+  );
 
-  const statsComponent = useMemo(() => {
-    if (!suppliersStats) {
-      return null;
-    }
+  const statsOverview = useMemo(
+    () => computeSuppliersStats(suppliers),
+    [suppliers]
+  );
 
-    return (
-      <SuppliersStats
-        stats={suppliersStats}
-        suppliersCount={filteredSuppliers.length}
-        totalSuppliers={suppliers.length}
+  const filtersComponent = useMemo(
+    () => (
+      <SuppliersFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filterCategory={filterCategory}
+        setFilterCategory={setFilterCategory}
+        filterPaymentTerms={filterPaymentTerms}
+        setFilterPaymentTerms={setFilterPaymentTerms}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onClearFilters={clearFilters}
+        resultsCount={filteredSuppliers.length}
       />
-    );
-  }, [filteredSuppliers.length, suppliers.length, suppliersStats]);
-
-  const filtersComponent = useMemo(() => (
-    <SuppliersFilters
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      filterStatus={filterStatus}
-      setFilterStatus={setFilterStatus}
-      filterCategory={filterCategory}
-      setFilterCategory={setFilterCategory}
-      filterFuelType={filterFuelType}
-      setFilterFuelType={setFilterFuelType}
-      viewMode={viewMode}
-      setViewMode={setViewMode}
-      onClearFilters={clearFilters}
-      resultsCount={filteredSuppliers.length}
-    />
-  ), [
-    clearFilters,
-    filterCategory,
-    filterFuelType,
-    filterStatus,
-    filteredSuppliers.length,
-    searchTerm,
-    setFilterCategory,
-    setFilterFuelType,
-    setFilterStatus,
-    setSearchTerm,
-    setViewMode,
-    viewMode,
-  ]);
+    ),
+    [
+      clearFilters,
+      filterCategory,
+      filterPaymentTerms,
+      filterStatus,
+      filteredSuppliers.length,
+      searchTerm,
+      setFilterCategory,
+      setFilterPaymentTerms,
+      setFilterStatus,
+      setSearchTerm,
+      setViewMode,
+      viewMode,
+    ]
+  );
 
   const handleDismissError = useCallback(() => {
     setError(null);
   }, []);
 
-  const mainContent = useMemo(() => (
-    <>
-      {/* Error Alert */}
-      {error && (
-        <div className="alert alert-error sap-theme sap-message-error">
-          <span>⚠️</span>
-          <span className="sap-text">{error}</span>
-          <button
-            onClick={handleDismissError}
-            className="alert-close sap-button"
-            title="Cerrar alerta"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* Content */}
-      {filteredSuppliers.length === 0 ? (
-        <div className="empty-state sap-theme">
-          <div className="empty-icon sap-theme">🏢</div>
-          <h3 className="sap-title">
-            {suppliers.length === 0
-              ? 'No hay proveedores registrados'
-              : 'No se encontraron proveedores'}
-          </h3>
-          <p className="sap-text">
-            {suppliers.length === 0
-              ? 'Comienza agregando tu primer proveedor de combustibles para gestionar tu cadena de suministro.'
-              : 'No se encontraron proveedores que coincidan con los filtros aplicados. Intenta ajustar los criterios de búsqueda.'}
-          </p>
-          {/* ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso */}
-          {suppliers.length === 0 && (
+  const mainContent = useMemo(
+    () => (
+      <>
+        {error && (
+          <div className="alert alert-error sap-theme sap-message-error">
+            <span>⚠️</span>
+            <span className="sap-text">{error}</span>
             <button
-              className="btn btn-primary sap-theme sap-button sap-button-primary sap-mt-lg"
-              onClick={handleAddSupplier}
+              onClick={handleDismissError}
+              className="alert-close sap-button"
+              title="Cerrar alerta"
             >
-              <span>➕</span>
-              <span>Agregar Primer Proveedor</span>
+              ✕
             </button>
-          )}
-          {suppliers.length > 0 && (
-            <button
-              className="btn btn-secondary sap-theme sap-button sap-button-secondary sap-mt-lg"
-              onClick={clearFilters}
-            >
-              <span>🔄</span>
-              <span>Limpiar Filtros</span>
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="suppliers-content sap-theme">
-          {/* ⚠️ PERMISOS DESHABILITADOS - Todos tienen acceso de edición/eliminación */}
-          {viewMode === 'cards' ? (
-            <SuppliersCards
-              suppliers={filteredSuppliers}
-              onEdit={handleEditSupplier}
-              onDelete={handleDeleteSupplier}
-              hasEditPermission={true}
-              hasDeletePermission={true}
-            />
-          ) : (
-            <SuppliersTable
-              suppliers={filteredSuppliers}
-              onEdit={handleEditSupplier}
-              onDelete={handleDeleteSupplier}
-              hasEditPermission={true}
-              hasDeletePermission={true}
-            />
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* Modal */}
-      {showModal && (
-        <SupplierModal
-          supplier={editingSupplier}
-          onClose={handleModalClose}
-          onSuccess={handleModalSuccess}
-          onError={setError}
-        />
-      )}
-    </>
-  ), [
-    clearFilters,
-    editingSupplier,
-    error,
-    filteredSuppliers,
-    handleAddSupplier,
-    handleDeleteSupplier,
-    handleDismissError,
-    handleEditSupplier,
-    handleModalClose,
-    handleModalSuccess,
-    setError,
-    showModal,
-    suppliers.length,
-    viewMode,
-  ]);
+        {filteredSuppliers.length === 0 ? (
+          <div className="empty-state sap-theme">
+            <div className="empty-icon sap-theme">🏢</div>
+            <h3 className="sap-title">
+              {suppliers.length === 0
+                ? 'No hay proveedores registrados'
+                : 'No se encontraron proveedores'}
+            </h3>
+            <p className="sap-text">
+              {suppliers.length === 0
+                ? 'Comienza agregando tu primer proveedor para gestionar tu cadena de suministro.'
+                : 'No se encontraron proveedores que coincidan con los filtros aplicados. Intenta ajustar los criterios de búsqueda.'}
+            </p>
+            {suppliers.length === 0 && (
+              <button
+                className="btn btn-primary sap-theme sap-button sap-button-primary sap-mt-lg"
+                onClick={handleAddSupplier}
+              >
+                <span>➕</span>
+                <span>Agregar Primer Proveedor</span>
+              </button>
+            )}
+            {suppliers.length > 0 && (
+              <button
+                className="btn btn-secondary sap-theme sap-button sap-button-secondary sap-mt-lg"
+                onClick={clearFilters}
+              >
+                <span>🔄</span>
+                <span>Limpiar Filtros</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="suppliers-content sap-theme">
+            {viewMode === 'cards' ? (
+              <SuppliersCards
+                suppliers={filteredSuppliers}
+                onEdit={handleEditSupplier}
+                onDelete={handleDeleteSupplier}
+                hasEditPermission
+                hasDeletePermission
+              />
+            ) : (
+              <SuppliersTable
+                suppliers={filteredSuppliers}
+                onEdit={handleEditSupplier}
+                onDelete={handleDeleteSupplier}
+                hasEditPermission
+                hasDeletePermission
+              />
+            )}
+          </div>
+        )}
+
+        {showModal && (
+          <SupplierModal
+            supplier={editingSupplier}
+            onClose={handleModalClose}
+            onSuccess={handleModalSuccess}
+            onError={setError}
+          />
+        )}
+      </>
+    ),
+    [
+      clearFilters,
+      editingSupplier,
+      error,
+      filteredSuppliers,
+      handleAddSupplier,
+      handleDeleteSupplier,
+      handleDismissError,
+      handleEditSupplier,
+      handleModalClose,
+      handleModalSuccess,
+      setError,
+      showModal,
+      suppliers.length,
+      viewMode,
+    ]
+  );
 
   return (
     <PageLayout
       title="Gestión de Proveedores"
-      subtitle="Administra los proveedores de combustibles y materiales"
-      actions={headerActions}
-      stats={statsComponent}
+      subtitle="Administra tus proveedores estratégicos de combustibles"
+      isLoading={loading}
+      headerActions={headerActions}
       filters={filtersComponent}
-      loading={loading}
+      stats={<SuppliersStats stats={statsOverview} visibleCount={filteredSuppliers.length} />}
     >
       {mainContent}
     </PageLayout>
