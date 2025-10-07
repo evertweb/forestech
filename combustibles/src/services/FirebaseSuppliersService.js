@@ -233,7 +233,7 @@ class FirebaseSuppliersService extends HttpService {
       }
 
       if (isActive) {
-        setTimeout(poll, 30000);
+        setTimeout(poll, 5000);
       }
     };
 

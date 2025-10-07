@@ -1,8 +1,11 @@
 // combustibles/src/components/Suppliers/SuppliersMain.jsx
 // Componente principal del módulo de proveedores adaptado al modelo de 10 campos
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useAuthStore } from '../../stores';
-import { subscribeToSuppliers, deleteSupplier } from '../../services/FirebaseSuppliersService';
+import FirebaseSuppliersService, {
+  subscribeToSuppliers,
+  deleteSupplier,
+} from '../../services/FirebaseSuppliersService';
 import { useFirebaseProgressContext } from '../../contexts/FirebaseProgressContext';
 import SuppliersTable from './SuppliersTable';
 import SuppliersCards from './SuppliersCards';
@@ -58,6 +61,15 @@ const SuppliersMain = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterPaymentTerms, setFilterPaymentTerms] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const suppliersServiceRef = useRef(null);
+
+  const ensureSuppliersService = useCallback(() => {
+    if (!suppliersServiceRef.current) {
+      suppliersServiceRef.current = new FirebaseSuppliersService();
+    }
+    return suppliersServiceRef.current;
+  }, []);
 
   useEffect(() => {
     let unsubscribe;
@@ -151,11 +163,45 @@ const SuppliersMain = () => {
     setError(null);
   }, []);
 
-  const handleModalSuccess = useCallback(() => {
-    setShowModal(false);
-    setEditingSupplier(null);
-    setError(null);
-  }, []);
+  const handleModalSuccess = useCallback(
+    async (savedSupplier, metadata = {}) => {
+      const normalizedSupplier =
+        (savedSupplier && savedSupplier.id && savedSupplier) ||
+        (savedSupplier?.data?.id && savedSupplier.data) ||
+        (metadata?.rawResult?.data?.id && metadata.rawResult.data) ||
+        (metadata?.rawResult?.data?.data?.id && metadata.rawResult.data.data) ||
+        null;
+
+      if (normalizedSupplier && normalizedSupplier.id) {
+        setSuppliers((prevSuppliers) => {
+          const index = prevSuppliers.findIndex((item) => item.id === normalizedSupplier.id);
+
+          if (index !== -1) {
+            const updatedSuppliers = [...prevSuppliers];
+            updatedSuppliers[index] = { ...prevSuppliers[index], ...normalizedSupplier };
+            return updatedSuppliers;
+          }
+
+          return [normalizedSupplier, ...prevSuppliers];
+        });
+      } else {
+        try {
+          const service = ensureSuppliersService();
+          const refreshedSuppliers = await service.getSuppliers();
+          if (Array.isArray(refreshedSuppliers)) {
+            setSuppliers(refreshedSuppliers);
+          }
+        } catch (refreshError) {
+          console.error('Error refreshing suppliers after modal success:', refreshError);
+        }
+      }
+
+      setShowModal(false);
+      setEditingSupplier(null);
+      setError(null);
+    },
+    [ensureSuppliersService]
+  );
 
   const clearFilters = useCallback(() => {
     setFilterStatus('all');

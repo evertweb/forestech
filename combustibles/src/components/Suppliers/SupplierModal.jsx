@@ -137,8 +137,21 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
       );
 
       if (result.success) {
-        onSuccess();
-      } else {
+        const primaryData = result?.data;
+        const nestedData = primaryData?.data;
+        const savedSupplier =
+          (primaryData && primaryData.id ? primaryData : null) ||
+          (nestedData && nestedData.id ? nestedData : null) ||
+          primaryData ||
+          null;
+
+        if (typeof onSuccess === 'function') {
+          onSuccess(savedSupplier, {
+            isEditing,
+            rawResult: result,
+          });
+        }
+      } else if (typeof onError === 'function') {
         onError(
           result.error ||
             `${UI_MESSAGES.ERROR.SAVE_FAILED} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
@@ -146,9 +159,11 @@ const SupplierModal = ({ supplier, onClose, onSuccess, onError }) => {
       }
     } catch (error) {
       console.error('Error saving supplier:', error);
-      onError(
-        `Error inesperado al ${UI_ACTIONS.SAVE.toLowerCase()} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
-      );
+      if (typeof onError === 'function') {
+        onError(
+          `Error inesperado al ${UI_ACTIONS.SAVE.toLowerCase()} ${UI_FORM_LABELS.SUPPLIER.toLowerCase()}`
+        );
+      }
     } finally {
       setLoading(false);
     }
