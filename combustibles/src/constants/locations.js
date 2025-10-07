@@ -8,7 +8,6 @@
 export const OPERATIONAL_LOCATIONS = [
   'principal',
   'bodega austria',
-  'bodega ilusion',
   'campo operativo',
   'estación móvil',
 ];
@@ -18,8 +17,7 @@ export const OPERATIONAL_LOCATIONS = [
  * Solo las bodegas pueden recibir combustible de proveedores externos.
  */
 export const STORAGE_LOCATIONS = [
-  'bodega austria',
-  'bodega ilusion'
+  'bodega austria'
 ];
 
 /**
