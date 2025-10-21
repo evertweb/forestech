@@ -1,85 +1,38 @@
-name: 🚀 Deploy to Firebase
+name: 🚀 Deploy Landing
 
 on:
-  workflow_dispatch:         # Deploy manual
-    inputs:
-      deploy_target:
-        description: 'Qué deployar'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - combustibles
-          - alimentacion
-  push:                      # Auto-deploy en main
+  workflow_dispatch:
+  push:
     branches:
       - main
     paths:
-      - 'combustibles/**'
-      - 'alimentacion/**'
       - 'public/**'
       - 'firebase.json'
+      - '.github/workflows/release-deploy.yml'
+      - 'README.md'
 
 env:
   NODE_VERSION: '20'
-  # Cache keys basados en contenido de archivos críticos
-  CACHE_KEY_PREFIX: v2-forestech-release
   FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
 jobs:
   deploy:
-    name: 🚀 Deploy Firebase
+    name: 🚀 Deploy Hosting
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     steps:
       - name: 📋 Checkout (full)
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js with caching
+      - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            alimentacion/package-lock.json
-            combustibles/package-lock.json
+      - name: 📦 Instalar dependencias
+        run: npm ci --prefer-offline --no-audit --no-fund
 
-      # 📦 INSTALL DEPENDENCIES
-      - name: 📦 Install dependencies
-        run: |
-          echo "📦 Installing dependencies..."
-          npm ci --prefer-offline --no-audit --no-fund
-          
-          echo "📦 Installing Functions dependencies..."
-          cd functions
-          npm ci --prefer-offline --no-audit --no-fund
-          cd ..
-
-      # 🏗️ BUILD APPLICATIONS
-      - name: 🏗️ Build Applications
-        run: |
-          echo "🏗️ Building applications..."
-          
-          if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event.inputs.deploy_target }}" = "alimentacion" ] || [ "${{ github.event_name }}" = "push" ]; then
-            echo "🍽️ Building Alimentacion..."
-            npm run build:alimentacion
-          fi
-          
-          if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event.inputs.deploy_target }}" = "combustibles" ] || [ "${{ github.event_name }}" = "push" ]; then
-            echo "⛽ Building Combustibles..."
-            npm run build:combustibles
-          fi
-        env:
-          NODE_OPTIONS: "--max-old-space-size=2048"
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: liquidacionapp-62962.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: liquidacionapp-62962
-          VITE_FIREBASE_STORAGE_BUCKET: liquidacionapp-62962.firebasestorage.app
-          VITE_FIREBASE_MESSAGING_SENDER_ID: 851382130132
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+      - name: 🏗️ Verificar landing
+        run: npm run build
 
       # 🔧 SETUP FIREBASE CLI
       - name: 🔧 Setup Firebase CLI
@@ -95,23 +48,11 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-key.json" >> $GITHUB_ENV
 
       # 🚀 DEPLOY TO FIREBASE
-      - name: 🚀 Deploy to Firebase
+      - name: 🚀 Deploy a Firebase Hosting
         run: |
-          echo "🚀 Deploying to Firebase..."
-          
-          # Determine what to deploy
-          if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event_name }}" = "push" ]; then
-            DEPLOY_TARGETS="hosting:forestechdecolombia,hosting:combustibles-subdomain,functions"
-          elif [ "${{ github.event.inputs.deploy_target }}" = "combustibles" ]; then
-            DEPLOY_TARGETS="hosting:combustibles-subdomain,functions:ssrCombustibles"
-          elif [ "${{ github.event.inputs.deploy_target }}" = "alimentacion" ]; then
-            DEPLOY_TARGETS="hosting:forestechdecolombia"
-          fi
-          
-          echo "📋 Deploy targets: $DEPLOY_TARGETS"
-          firebase deploy --only "$DEPLOY_TARGETS" --json --debug | tee deploy-result.json
+          echo "🚀 Deploying landing..."
+          firebase deploy --only "hosting:forestechdecolombia,hosting:combustibles-subdomain" --json --debug | tee deploy-result.json
 
-          # Check result
           if grep -q '"status": "success"' deploy-result.json; then
             echo "✅ Deploy successful!"
             echo "DEPLOY_OUTCOME=success" >> $GITHUB_ENV
@@ -131,17 +72,9 @@ jobs:
         if: always()
         run: |
           echo "📊 Deploy Summary:"
-          echo "🎯 Target: ${{ github.event.inputs.deploy_target || 'auto (push)' }}"
           echo "🌐 URLs desplegados:"
-          
-          if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event.inputs.deploy_target }}" = "combustibles" ] || [ "${{ github.event_name }}" = "push" ]; then
-            echo "  ⛽ https://combustibles.forestechdecolombia.com.co/"
-            echo "  ⛽ https://combustibles-subdomain.web.app/"
-          fi
-          
-          if [ "${{ github.event.inputs.deploy_target }}" = "all" ] || [ "${{ github.event.inputs.deploy_target }}" = "alimentacion" ] || [ "${{ github.event_name }}" = "push" ]; then
-            echo "  🍽️ https://forestechdecolombia.web.app/"
-          fi
+          echo "  🌲 https://forestechdecolombia.com.co/"
+          echo "  ⛽ https://combustibles.forestechdecolombia.com.co/"
           
           if [ "${DEPLOY_OUTCOME:-unknown}" = "success" ]; then
             echo "✅ Firebase deploy completado sin errores."

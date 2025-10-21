@@ -1,8 +1,0 @@
-# Robots.txt para Forestech Colombia - App Combustibles
-# https://combustibles.forestechdecolombia.com.co/
-
-User-agent: *
-Disallow: /
-
-# Sitemap temporalmente vacío mientras la app está suspendida
-Sitemap: https://combustibles.forestechdecolombia.com.co/sitemap.xml

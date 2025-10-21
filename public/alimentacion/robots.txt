@@ -1,8 +1,0 @@
-# Robots.txt para Forestech Colombia - App Alimentación
-# https://forestechdecolombia.com.co/alimentacion/
-
-User-agent: *
-Disallow: /
-
-# Sitemap principal temporalmente sin entradas mientras la app está suspendida
-Sitemap: https://forestechdecolombia.com.co/alimentacion/sitemap.xml

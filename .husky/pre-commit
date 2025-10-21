@@ -1,17 +1,11 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# 🚀 PRE-COMMIT OPTIMIZADO - Solo Lint (Sin Deploy Automático)
-echo "🔄 Ejecutando pre-commit optimizado (solo lint)..."
+echo "🌲 Verificando landing antes del commit..."
 
-# Ejecutar el script de lint-only
-./scripts/precommit-lint-only.sh
-
-# Si el script falla, el commit se cancela automáticamente
-if [ $? -ne 0 ]; then
-  echo "❌ Pre-commit falló. Commit cancelado."
+npm run build || {
+  echo "❌ La verificación de la landing falló. Revisa public/index.html."
   exit 1
-fi
+}
 
-echo "✅ Pre-commit completado. Continuando con commit..."
-echo "🎯 Recuerda: El deploy ahora es manual cuando lo decidas."
+echo "✅ Landing verificada. Continuando con el commit."

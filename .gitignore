@@ -9,20 +9,6 @@
 .env.development
 .env.staging
 .env.*
-!.env.example
-
-# 🔒 SECURITY - Function environment files
-functions/.env
-functions/.env.*
-!functions/.env.example
-
-# 🔒 SECURITY - Component environment files
-combustibles/.env
-combustibles/.env.*
-!combustibles/.env.example
-alimentacion/.env
-alimentacion/.env.*
-!alimentacion/.env.example
 
 # 🔒 SECURITY - Test environment files (pueden contener API keys)
 **/.env.e2e
@@ -66,37 +52,20 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Build assets (generated files)
-public/combustibles/assets/
-public/alimentacion/assets/
-
 fetch-mcp/
-
 # Test artifacts
-combustibles/test-results/
-combustibles/playwright-report/
-combustibles/coverage/
 **/coverage/
 
-# Lighthouse CI reports (generated in CI)
-.lighthouseci/
-lighthouse-report-*.html
-lighthouse-report-*.json
-
-# Performance reports (pueden ser regenerados)
-performance-*.md
-security-audit-report.md
-scripts-cleanup-report.md
-
-# Firebase optimizations
+# Firebase caches
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
+
+# Deploy caches
 .cache-deploy/
 deploy-result.json
-firebase.json.backup
 
-# Build optimizations
+# Build caches
 node_modules/.cache/
 .vite/
 .eslintcache

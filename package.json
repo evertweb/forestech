@@ -1,91 +1,15 @@
 {
-  "name": "forestech",
+  "name": "forestech-landing",
   "version": "1.0.0",
-  "description": "Forestech Colombia - Monorepo de aplicaciones web",
-  "main": "index.js",
-  "workspaces": [
-    "alimentacion",
-    "combustibles"
-  ],
-  "scripts": {
-    "dev:alimentacion": "npm run dev --workspace=alimentacion",
-    "dev:combustibles": "npm run dev --workspace=combustibles",
-    "dev:combustibles:codespace": "npm run dev:codespace --workspace=combustibles",
-    "check-env:combustibles": "npm run check-env --workspace=combustibles",
-    "build:alimentacion": "npm run build --workspace=alimentacion",
-    "build:combustibles": "npm run build --workspace=combustibles",
-    "build:all": "npm run build:alimentacion && npm run build:combustibles",
-    "build:parallel": "npm run build --workspace=alimentacion & npm run build --workspace=combustibles & wait",
-    "build": "npm run build:all",
-    "lint:alimentacion": "npm run lint --workspace=alimentacion",
-    "lint:combustibles": "cd combustibles && npm run lint --if-present",
-    "lint:all": "npm run lint:alimentacion && npm run lint:combustibles",
-    "lint:check": "npm run lint:all",
-    "lint": "npm run lint:check",
-    "test": "echo 'Tests delegated to GitHub Actions' && exit 0",
-    "test:ci": "npm run test --workspace=alimentacion --if-present && npm run test --workspace=combustibles --if-present",
-    "favicons:generate": "echo 'Favicons already generated. Use existing files in public/'",
-    "favicons:copy": "npm run favicons:generate && npm run build:all && cp public/favicon-alimentacion.svg public/alimentacion/ && cp public/favicon-combustibles.svg public/combustibles/",
-    "deploy": "./scripts/deploy-forestech.sh",
-    "deploy:force": "./scripts/deploy-forestech.sh --force",
-    "deploy:fast": "./scripts/deploy-forestech.sh --fast",
-    "deploy:measure": "./scripts/deploy-forestech.sh --measure",
-    "clean": "./scripts/clean-cache.sh",
-    "clean:build": "./scripts/clean-cache.sh && npm run build:all",
-    "serve:ssr": "cd functions && npm run serve",
-    "deploy:ssr": "cd functions && npm run deploy",
-    "perf:budget": "./scripts/performance-budget-check.sh",
-    "perf:optimize": "./scripts/optimize-performance.sh",
-    "test:rollback": "node scripts/test-remote-config-rollback.js",
-    "test:ssr-validation": "npx playwright test tests-e2e/ssr-validation.spec.ts",
-    "install:all": "npm ci",
-    "prepare": "husky || exit 0",
-    "lint-staged": "lint-staged",
-    "precommit:full": "./scripts/precommit-unified.sh",
-    "precommit:fast": "./scripts/precommit-lint-only.sh",
-    "precommit:test": "npm run lint && npm run test:ci && npm run build",
-    "precommit:no-deploy": "./scripts/precommit-lint-only.sh",
-    "commit:safe": "npm run precommit:fast && git commit",
-    "commit:fast": "npm run precommit:fast && git commit",
-    "commit:dev": "SKIP_DEPLOY=true npm run precommit:fast && git commit"
-  },
+  "description": "Landing corporativa estática de Forestech de Colombia",
   "private": true,
-  "dependencies": {
-    "chart.js": "^4.5.0",
-    "dotenv": "^17.2.0",
-    "firebase": "^11.9.1",
-    "mssql": "^11.0.1",
-    "react": "^19.1.0",
-    "react-chartjs-2": "^5.3.0",
-    "react-dom": "^19.1.0"
+  "scripts": {
+    "build": "sh -c \"test -f public/index.html && echo 'Landing verificada: public/index.html listo'\"",
+    "lint": "node -e \"console.log('Landing estática, sin lint automático')\"",
+    "test": "node -e \"console.log('Landing estática, sin pruebas automáticas')\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "husky": "^9.1.6",
-    "eslint": "^9.36.0",
-    "lint-staged": "^15.2.10"
-  },
-  "overrides": {
-    "eslint": "^9.36.0",
-    "file-entry-cache": "^8.0.0",
-    "flat-cache": "^4.0.0"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "npm run lint:all --",
-      "npm run test:ci"
-    ],
-    "*.{json,md,html,css}": [
-      "prettier --write"
-    ],
-    "package*.json": [
-      "npm audit --audit-level moderate"
-    ]
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+    "husky": "^9.1.6"
   }
 }
