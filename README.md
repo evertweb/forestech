@@ -4,6 +4,8 @@
 
 Monorepo de aplicaciones web para operaciones forestales en Colombia. Firebase + DigitalOcean SQL Server.
 
+> **ℹ️ Estado Octubre 2025:** Las aplicaciones **Combustibles** y **Alimentación** están en reconstrucción y solo disponibles en entornos locales. La landing principal (`https://forestechdecolombia.com.co`) es la única experiencia pública activa por el momento.
+
 ## 🤖 **PARA AGENTES DE IA (GitHub Copilot, Claude, ChatGPT)**
 
 ### **📋 Información Crítica de Deployment**
@@ -66,9 +68,9 @@ git push origin main
 
 ## 🌐 **URLs Producción**
 
-- **Combustibles**: https://combustibles.forestechdecolombia.com.co
-- **Alimentación**: https://forestechdecolombia.web.app/alimentacion  
-- **API Backend**: https://forestech-sql-service-851382130132.us-central1.run.app
+- **Landing principal** (única activa): https://forestechdecolombia.com.co
+- **Combustibles**: https://combustibles.forestechdecolombia.com.co _(en modo mantenimiento)_
+- **Alimentación**: https://forestechdecolombia.web.app/alimentacion _(en modo mantenimiento)_
 
 ## 🛠️ **Tecnologías**
 

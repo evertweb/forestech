@@ -1,0 +1,3 @@
+# Robots temporal para app de combustibles en pausa
+User-agent: *
+Disallow: /

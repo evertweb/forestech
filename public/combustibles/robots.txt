@@ -2,38 +2,7 @@
 # https://combustibles.forestechdecolombia.com.co/
 
 User-agent: *
-Allow: /
+Disallow: /
 
-# Permitir acceso a sitemap
+# Sitemap temporalmente vacío mientras la app está suspendida
 Sitemap: https://combustibles.forestechdecolombia.com.co/sitemap.xml
-
-# Bloquear rutas privadas (requieren autenticación)
-Disallow: /movimientos
-Disallow: /inventario
-Disallow: /vehiculos
-Disallow: /mantenimiento
-Disallow: /productos
-Disallow: /proveedores
-Disallow: /reportes
-Disallow: /admin
-Disallow: /administracion
-
-# Bloquear popups de wizards
-Disallow: /movement-wizard-popup
-Disallow: /vehicle-wizard-popup
-Disallow: /product-wizard-popup
-
-# Bloquear archivos del sistema
-Disallow: /.well-known/
-Disallow: /api/
-Disallow: /assets/*.map
-
-# Permitir bots principales
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-# Crawl delay
-Crawl-delay: 1

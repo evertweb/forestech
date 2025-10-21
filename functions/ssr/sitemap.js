@@ -153,40 +153,15 @@ export function generateSitemapIndex(baseUrl = 'https://combustibles.forestechde
  */
 export function sitemapHandler(req, res) {
   try {
-    // Usar siempre el dominio correcto en lugar del host de la request
-    const baseUrl = 'https://combustibles.forestechdecolombia.com.co';
-    
-    // Detectar tipo de sitemap solicitado
-    const path = req.path;
-    let xml;
-    
-    if (path === '/sitemap.xml') {
-      xml = generateSitemap({ baseUrl });
-    } else if (path === '/sitemap-combustibles.xml') {
-      // Sitemap específico de combustibles con más detalle
-      const dynamicRoutes = generateDynamicCombustiblesRoutes();
-      xml = generateSitemap({ 
-        baseUrl, 
-        includePrivate: false, // Mantener privacidad
-        dynamicRoutes 
-      });
-    } else if (path === '/sitemap-index.xml') {
-      xml = generateSitemapIndex(baseUrl);
-    } else {
-      res.status(404).send('Sitemap not found');
-      return;
-    }
-
     res.set({
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=3600', // Cache 1 hora
-      'X-Robots-Tag': 'noindex' // El sitemap en sí no debe indexarse
+      'Cache-Control': 'no-store',
+      'X-Robots-Tag': 'noindex, nofollow'
     });
-    
-    res.status(200).send(xml);
-    
-    console.info(`Sitemap served: ${path} | Size: ${xml.length} bytes`);
-    
+
+    const inactiveXml = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Sitemap deshabilitado temporalmente: app en reconstrucción -->\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>`;
+    res.status(410).send(inactiveXml);
+    console.info(`Sitemap disabled response for ${req.path}`);
   } catch (error) {
     console.error('Sitemap generation error:', error);
     res.status(500).send('Sitemap generation failed');
@@ -249,52 +224,14 @@ export function isValidSitemapUrl(url, baseUrl) {
  */
 export function generateRobotsTxt(baseUrl = 'https://combustibles.forestechdecolombia.com.co') {
   return `# Robots.txt para Forestech - Sistema Combustibles
-# Generado automáticamente - SSR
+# Modo mantenimiento activo: bloquear indexación temporal
 # Dominio: ${baseUrl}
 
 User-agent: *
+Disallow: /
 
-# Permitir acceso a página principal
-Allow: /$
-
-# Bloquear rutas privadas y de administración
-Disallow: /movimientos
-Disallow: /inventario
-Disallow: /vehiculos
-Disallow: /mantenimiento
-Disallow: /productos
-Disallow: /proveedores
-Disallow: /reportes
-Disallow: /admin
-Disallow: /administracion
-Disallow: /api/
-
-# Bloquear popups de wizards
-Disallow: /movement-wizard-popup
-Disallow: /vehicle-wizard-popup
-Disallow: /product-wizard-popup
-
-# Bloquear archivos y directorios técnicos
-Disallow: /assets/*.map
-Disallow: /src/
-Disallow: /*.json$
-Disallow: /*.js$
-Disallow: /*.css$
-
-# Sitemap
+# Sitemap temporal sin rutas activas
 Sitemap: ${baseUrl}/sitemap.xml
-
-# Crawl delay para ser respetuosos
-Crawl-delay: 1
-
-# User agents específicos
-User-agent: Googlebot
-Allow: /$
-Crawl-delay: 0
-
-User-agent: Bingbot
-Allow: /$
-Crawl-delay: 2
 `;
 }
 
@@ -311,7 +248,8 @@ export function robotsHandler(req, res) {
     
     res.set({
       'Content-Type': 'text/plain',
-      'Cache-Control': 'public, max-age=86400' // Cache 24 horas
+      'Cache-Control': 'no-store',
+      'X-Robots-Tag': 'noindex, nofollow'
     });
     
     res.status(200).send(robotsTxt);

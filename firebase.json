@@ -45,6 +45,24 @@
           ]
         },
         {
+          "source": "/combustibles/**",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
+          "source": "/alimentacion/**",
+          "headers": [
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        },
+        {
           "source": "**",
           "headers": [
             {
@@ -83,18 +101,34 @@
       ],
       "rewrites": [
         {
+          "source": "/combustibles/robots.txt",
+          "destination": "/maintenance/combustibles/robots.txt"
+        },
+        {
+          "source": "/combustibles/sitemap.xml",
+          "destination": "/maintenance/combustibles/sitemap.xml"
+        },
+        {
           "source": "/combustibles/**",
-          "function": "ssrCombustibles"
+          "destination": "/maintenance/combustibles/index.html"
+        },
+        {
+          "source": "/alimentacion/robots.txt",
+          "destination": "/maintenance/alimentacion/robots.txt"
+        },
+        {
+          "source": "/alimentacion/sitemap.xml",
+          "destination": "/maintenance/alimentacion/sitemap.xml"
         },
         {
           "source": "/alimentacion/**",
-          "destination": "/alimentacion/index.html"
+          "destination": "/maintenance/alimentacion/index.html"
         }
       ]
     },
     {
       "site": "combustibles-subdomain",
-      "public": "public/combustibles",
+      "public": "public",
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -126,14 +160,26 @@
             {
               "key": "X-Powered-By",
               "value": "Forestech Colombia"
+            },
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
             }
           ]
         }
       ],
       "rewrites": [
         {
+          "source": "/robots.txt",
+          "destination": "/maintenance/combustibles/robots.txt"
+        },
+        {
+          "source": "/sitemap.xml",
+          "destination": "/maintenance/combustibles/sitemap.xml"
+        },
+        {
           "source": "**",
-          "function": "ssrCombustibles"
+          "destination": "/maintenance/combustibles/index.html"
         }
       ],
       "cleanUrls": true

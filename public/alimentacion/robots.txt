@@ -2,22 +2,7 @@
 # https://forestechdecolombia.com.co/alimentacion/
 
 User-agent: *
-Allow: /
+Disallow: /
 
-# Permitir acceso a sitemap
-Sitemap: https://forestechdecolombia.com.co/sitemap.xml
-
-# Bloquear rutas internas
-Disallow: /admin/
-Disallow: /.well-known/
-Disallow: /api/
-
-# Permitir bots principales
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-# Crawl delay
-Crawl-delay: 1
+# Sitemap principal temporalmente sin entradas mientras la app está suspendida
+Sitemap: https://forestechdecolombia.com.co/alimentacion/sitemap.xml

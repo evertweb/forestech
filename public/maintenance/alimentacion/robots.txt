@@ -1,0 +1,3 @@
+# Robots temporal para app de alimentacion en pausa
+User-agent: *
+Disallow: /
